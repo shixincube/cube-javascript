@@ -1,0 +1,128 @@
+/**
+ * This source file is part of Cell.
+ * 
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2020 Shixin Cube Team.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+#_console {
+  position: fixed;
+  float: right;
+  margin: 0;
+  padding: 0;
+  z-index: 1000;
+}
+
+#_console > .window {
+  min-width: 360px;
+  min-height: 200px;
+  padding: 0;
+  margin: 0;
+  background-color: #fafafa;
+  /*box-shadow: inset 0 3px 6px rgba(0,0,0,.05);*/
+  border-color: #e5e5e5 #eee #eee;
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 4px 4px 4px 4px;
+  /*height: auto !important;*/
+}
+
+#_console > .window > .title {
+  font-size: 14px;
+  padding: 8px 0px 8px 12px;
+  border-radius: 6px 6px 0 0;
+  border-width: 1px;
+  border-bottom: #e5e5e5 1px solid;
+  box-shadow: none;
+}
+
+#_console > .window > .title > .text {
+  width: 100px;
+}
+
+#_console > .window > .title > .close {
+  position: absolute;
+  float: right;
+  width: 16px;
+  top: 8px;
+  right: 8px;
+  font-family: Verdana, Geneva, sans-serif;
+  font-weight: bold;
+}
+
+#_console a {
+  color: #000;
+  text-decoration: none;
+}
+#_console a:hover {
+  color: #999;
+}
+
+
+#_console > .window > .view {
+  font-size: 12px;
+  font-family: "Courier New", Courier, monospace;
+  max-height: 720px;
+  font-size: 12px;
+  padding: 8px 0px 0px 12px;
+  margin: 0px 2px 0px 0px;
+  box-shadow: none;
+  overflow: auto;
+}
+
+#_console > .window > .view > p {
+  padding: 0px 0px 0px 0px;
+  margin: 0px 0px 0px 0px;
+}
+
+#_console > .window > .cmd-input {
+  font-size: 12px;
+  font-family: "Courier New", Courier, monospace;
+  position: relative;
+  bottom: 0px;
+  padding: 0px 0px 8px 12px;
+}
+
+#_console_cmd {
+  font-size: 12px;
+  font-family: "Courier New", Courier, monospace;
+  border: none;
+  width: auto;
+  background-color: #fafafa;
+  outline: none;
+}
+
+._console_mark {
+  position: fixed;
+  float: right;
+  right: 0px;
+  top: 0px;
+  font-size: 14px;
+  font-family: "Courier New", Courier, monospace;
+  background-color: #f8f8f8;
+  border-color: #e5e5e5 #eee #eee;
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 4px 4px 4px 4px;
+  padding: 4px 10px;
+  cursor: pointer;
+}

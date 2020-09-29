@@ -1,0 +1,83 @@
+{
+  "tags": {
+    "allowUnknownTags": false
+  },
+  "source":{
+    "include": [ "./src" ],
+    "includePattern": ".js$",
+    "exclude": [
+      "./src/CubeBoot.js",
+      "./src/CubeLibBoot.js",
+      "./src/KernelBoot.js",
+      "./src/utils/Aggregation.js"
+    ],
+    "excludePattern": "(node_modules/|docs)"
+  },
+  "plugins": [
+    "plugins/markdown"
+  ],
+  "opts":{
+    "template": "node_modules/docdash",
+    "encoding": "utf8",
+    "destination": "docs/",
+    "recurse": true,
+    "verbose": true,
+    "readme": "README.md"
+  },
+  "templates": {
+    "cleverLinks": false,
+    "monospaceLinks": false,
+    "default": {
+      "outputSourceFiles": false,
+      "outputSourcePath": false,
+      "includeDate": false,
+      "useLongnameInNav": true
+    }
+  },
+  "docdash": {
+    "static": true,
+    "sort": false, 
+    "sectionOrder": [
+         "Classes",
+         "Modules",
+         "Externals",
+         "Events",
+         "Namespaces",
+         "Mixins",
+         "Tutorials",
+         "Interfaces"
+    ],
+    "disqus": "",
+    "openGraph": { 
+        "title": "Cube for Javascript",
+        "type": "website",
+        "image": "",
+        "site_name": "Cube for Javascript",
+        "url": ""
+    },
+    "meta": {
+        "title": "Cube for Javascript",
+        "description": "Cube Javascript",
+        "keyword": ""
+    },
+    "search": true,
+    "collapse": true,
+    "wrap": true,
+    "typedefs": true,
+    "navLevel": 0,
+    "private": false,
+    "removeQuotes": "trim",
+    "scripts": [],
+    "menu": {
+        "Project Website": {
+            "href":"https://www.shixincube.com",
+            "target":"_blank",
+            "class":"menu-item",
+            "id":"website_link"
+        }
+    },
+    "scopeInOutputPath": true,
+    "nameInOutputPath": true,
+    "versionInOutputPath": false
+  }
+}

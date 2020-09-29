@@ -1,0 +1,95 @@
+// webpack.config.dist.js
+
+const path = require('path');
+const fs = require('fs');
+const babelpolyfill = require('babel-polyfill');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const FileManagerPlugin = require('filemanager-webpack-plugin');
+
+var CubeConfig = {
+    target: "web",
+    entry: [ 'babel-polyfill', './src/CubeBoot.js' ],
+    output: {
+        path: path.resolve(__dirname, "./dist"),
+        filename: "cube.js"
+    },
+    resolve: {
+        extensions: ['.js', '.ts'],
+        alias: {
+            '@core': path.resolve(__dirname, './src/core'),
+            '@lib': path.resolve(__dirname, './third_party')
+        }
+    },
+    module: {
+        rules: [
+            {
+                test: /\.js$/,
+                exclude: /(node_modules|bower_components)/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['@babel/preset-env'],
+                        plugins: [
+                            "@babel/plugin-transform-async-to-generator",
+                            "@babel/plugin-proposal-class-properties"
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    devtool: "source-map",
+    plugins: [
+        new CleanWebpackPlugin(),
+        new FileManagerPlugin({
+            onEnd: {
+                copy: [{
+                    source: path.resolve(__dirname, './dist') + '/cube.js',
+                    destination: path.resolve(__dirname, './examples/js/')
+                }, {
+                    source: path.resolve(__dirname, './dist') + '/cube.js.map',
+                    destination: path.resolve(__dirname, './examples/js/')
+                }]
+            }
+        })
+    ]
+};
+
+var CubeLibConfig = {
+    target: "node",
+    entry: './src/CubeLibBoot.js',
+    output: {
+        path: path.resolve(__dirname, "./dist"),
+        filename: "cube.js",
+        library: 'cube',
+        libraryTarget: 'umd'
+    },
+    resolve: {
+        extensions: ['.js', '.ts'],
+        alias: {
+            '@core': path.resolve(__dirname, './src/core'),
+            '@lib': path.resolve(__dirname, './third_party')
+        }
+    },
+    module: {
+        rules: [
+            {
+                test: /\.js$/,
+                exclude: /(node_modules|bower_components)/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['@babel/preset-env'],
+                        plugins: [
+                            "@babel/plugin-transform-async-to-generator",
+                            "@babel/plugin-proposal-class-properties"
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    devtool: "source-map"
+};
+
+module.exports = [ CubeConfig ];

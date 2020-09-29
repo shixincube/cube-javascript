@@ -1,0 +1,245 @@
+/**
+ * This file is part of Cube.
+ * 
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2020 Shixin Cube Team.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+import { FastMap } from "../util/FastMap";
+import { Kernel } from "./Kernel";
+import { PipelineListener } from "./PipelineListener";
+import { Packet } from "./Packet";
+
+/**
+ * 收到指定的数据包的应答回调。
+ * @callback ResponseCallback
+ * @param {Pipeline} pipeline 接收到数据的通道。
+ * @param {string} source 服务端访问描述。
+ * @param {Packet} packet 来自服务器的返回数据包。
+ */
+
+/**
+ * 数据通道服务接口。
+ */
+export class Pipeline {
+
+    /**
+     * 构造函数。
+     * @param {string} name 
+     */
+    constructor(name) {
+        /**
+         * 名称。
+         * @type {string}
+         */
+        this.name = name;
+
+        /**
+         * 内核对象。
+         * @type {Kernel}
+         */
+        this.kernel = null;
+
+        /**
+         * 监听器。
+         * @type {FastMap<string,PipelineListener|function>}
+         */
+        this.listenerMap = new FastMap();
+
+        /**
+         * 服务器地址。
+         * @type {string}
+         */
+        this.address = null;
+    
+        /**
+         * 服务器端口。
+         * @type {number}
+         */
+        this.port = 7070;
+
+        /**
+         * 是否执行过开启操作。
+         * @protected
+         * @type {boolean}
+         */
+        this.opened = false;
+
+        /**
+         * 有效的令牌编码。
+         * @type {string}
+         */
+        this.tokenCode = null;
+    }
+
+    /**
+     * 获取通道名称。
+     * @returns {string} 返回通道名称。
+     */
+    getName() {
+        return this.name;
+    }
+
+    /**
+     * 设置服务的地址和端口。
+     * @param {string} address 服务器访问地址。
+     * @param {number} port 服务器访问端口。
+     */
+    setRemoteAddress(address, port) {
+        if (this.address == address && this.port == port) {
+            return;
+        }
+
+        let reset = this.opened;
+
+        if (reset) {
+            this.close();
+        }
+
+        this.address = address;
+        this.port = port;
+
+        if (reset) {
+            this.open();
+        }
+    }
+
+    /**
+     * 设置令牌代码。
+     * @param {string} tokenCode
+     */
+    setTokenCode(tokenCode) {
+        this.tokenCode = tokenCode;
+    }
+
+    /**
+     * 启动数据通道。
+     */
+    open() {
+        this.opened = true;
+    }
+
+    /**
+     * 关闭数据通道。
+     */
+    close() {
+        this.opened = false;
+    }
+
+    /**
+     * 数据通道是否就绪。
+     * @returns {boolean} 如果就绪返回 {@linkcode true} 。
+     */
+    isReady() {
+        // Nothing
+        return true;
+    }
+
+    /**
+     * 发送数据。
+     * @param {string} destination 指定通道的发送目标或接收端识别串。
+     * @param {Packet} packet 指定待发送的数据包。
+     * @param {ResponseCallback} [handleResponse] 本次数据发送对应的应答回调。
+     */
+    send(destination, packet, handleResponse) {
+        // Nothing
+    }
+
+    /**
+     * 添加监听器。
+     * @param {string} destination 指定监听的目标或识别串。
+     * @param {PipelineListener} listener 指定通道监听器。
+     */
+    addListener(destination, listener) {
+        let listeners = this.listenerMap.get(destination);
+        if (null == listeners) {
+            this.listenerMap.put(destination, [ listener ]);
+        }
+        else {
+            let index = listeners.indexOf(listener);
+            if (index < 0) {
+                listeners.push(listener);
+            }
+        }
+    }
+
+    /**
+     * 移除监听器。
+     * @param {string} destination 指定监听的目标或识别串。
+     * @param {PipelineListener} listener 指定通道监听器。
+     */
+    removeListener(destination, listener) {
+        let listeners = this.listenerMap.get(destination);
+        if (null == listeners) {
+            return;
+        }
+
+        let index = listeners.indexOf(listener);
+        if (index >= 0) {
+            listeners.splice(index, 1);
+        }
+    }
+
+    /**
+     * 获取目标的监听器列表。
+     * @protected
+     * @param {string} destination 
+     * @returns {Array<PipelineListener>} 返回目标的监听器列表。
+     */
+    getListeners(destination) {
+        return this.listenerMap.get(destination);
+    }
+
+    /**
+     * 触发来自服务器的数据回调。
+     * @protected
+     * @param {string} source 来自通道的描述串。
+     * @param {Packet} packet 来自服务器的数据包。
+     */
+    triggerListeners(source, packet) {
+        let listeners = this.listenerMap.get(source);
+        if (null == listeners) {
+            return;
+        }
+
+        for (let i = 0; i < listeners.length; ++i) {
+            let listener = listeners[i];
+            if (typeof listener === 'function') {
+                listener(this, source, packet);
+            }
+            else {
+                listener.onReceived(this, source, packet);
+            }
+        }
+    }
+
+    /**
+     * 触发对应请求的应答。
+     * @protected
+     * @param {string} source 来自通道的描述串。
+     * @param {Packet} packet 来自服务器的数据包。
+     * @param {ResponseCallback} callback 回调函数。
+     */
+    triggerCallback(source, packet, callback) {
+        callback(this, source, packet);
+    }
+}
