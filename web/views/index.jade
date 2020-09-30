@@ -1,9 +1,23 @@
 extends layout
 
-block content
+block pageStyle
+  link(rel='stylesheet', href='/stylesheets/index.css')
+
+
+block pageContent
   nav.navbar.navbar-dark.sticky-top.bg-dark.flex-md-nowrap.p-0.shadow
     a.navbar-brand.col-md-3.col-lg-2.mr-0.px-3(href='#')= '用户名'
   
   div.container-fluid
     div.row
-      nav#sidebarMenu.col-md-3.col-lg-2.d-md-block.bg-light.sidebar.collapse
+      nav#sidebarMenu.col-md-1.col-lg-1.d-md-block.bg-light.sidebar.collapse
+        div.sidebar-sticky.pt-3
+          ul.nav.flex-column
+            li.nav-item
+              a.nav-link.active='消息'
+
+      nav#catalogue.col-md-2.col-lg-2.ml-sm-auto.px-md-2
+        div='目录'
+
+      main#main.col-md-9.col-lg-9.ml-sm-auto.px-md-4
+        div='内容'

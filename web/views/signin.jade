@@ -1,0 +1,14 @@
+extends layout
+
+block pageStyle
+  link(rel='stylesheet', href='/stylesheets/signin.css')
+
+
+block pageContent
+  div.text-center.signin
+    form.form-signin
+      img.mb-4(src='https://static.shixincube.com/cube/assets/images/logo/cube_256.png', alt='Cube' width='128', height='128')
+      h1.h3.mb-3.font-weight-normal='Cube 演示程序'
+      h2.h4.mb-3='请选择'
+        select
+          option(value='')

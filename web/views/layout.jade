@@ -2,10 +2,10 @@ doctype html
 html
   head
     title= title
-    link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
-    link(rel='stylesheet', href='/stylesheets/index.css')
     link(rel='icon', href='/images/favicon.png', size='32x32', type='image/png')
+    link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
+    block pageStyle
   body
-    block content
+    block pageContent
     script(type='text/javascript', src='/javascripts/jquery-3.5.1.min.js')
     script(type='text/javascript', src='/javascripts/bootstrap.min.js')
