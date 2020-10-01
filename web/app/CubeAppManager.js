@@ -24,16 +24,28 @@
  * SOFTWARE.
  */
 
+const AccountDB = require('./AccountDB');
+
 /**
  * 模拟应用程序管理的类。
  */
 class CubeAppManager {
     
     constructor() {
+        this.accountDB = new AccountDB();
     }
 
     getSignOutAccounts() {
-        
+        let result = [];
+        let list = this.accountDB.accounts;
+        for (let i = 0; i < list.length; ++i) {
+            let acc = list[i];
+            if (acc.state == 'offline') {
+                result.push(acc);
+            }
+        }
+
+        return result;
     }
 }
 

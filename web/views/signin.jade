@@ -11,4 +11,6 @@ block pageContent
       h1.h3.mb-3.font-weight-normal='Cube 演示程序'
       h2.h4.mb-3='请选择'
         select
-          option(value='')
+          - each acc in accounts
+              option(value='' + acc.id)= acc.id
+          
