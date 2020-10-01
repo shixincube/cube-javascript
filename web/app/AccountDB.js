@@ -27,8 +27,58 @@
 /**
  * 模拟账号数据库。
  */
-let AccountDB = {
+function AccountDB() {
 
-};
+    this.accounts = [{
+        id: 50001001,
+        name: '李诚石',
+        face: 'https://static.shixincube.com/cube/assets/images/logo/cube_256.png'
+    }, {
+        id: 50001002,
+        name: '王沛珊',
+        face: 'https://static.shixincube.com/cube/assets/images/logo/cube_inverse_256.png'
+    }, {
+        id: 50001003,
+        name: '郝思雁',
+        face: 'https://static.shixincube.com/cube/assets/images/logo/cube_mono_256.png'
+    }, {
+        id: 50001004,
+        name: '张靖蝶',
+        face: 'https://static.shixincube.com/cube/assets/images/logo/spap.png'
+    }, {
+        id: 50001005,
+        name: '高良吉',
+        face: 'https://static.shixincube.com/cube/assets/images/logo/seehey.png'
+    }];
+
+    this.state = {
+        "50001001": {
+            state: 'offline'
+        },
+        "50001002": {
+            state: 'offline'
+        },
+        "50001003": {
+            state: 'offline'
+        },
+        "50001004": {
+            state: 'offline'
+        },
+        "50001005": {
+            state: 'offline'
+        }
+    };
+}
+
+AccountDB.prototype.queryAccount = function(id) {
+    for (let i = 0; i < this.accounts.length; ++i) {
+        let account = this.accounts[i];
+        if (account.id === id) {
+            return account;
+        }
+    }
+
+    return null;
+}
 
 module.exports = AccountDB;
