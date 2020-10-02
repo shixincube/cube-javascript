@@ -5,23 +5,26 @@ block pageStyle
 
 
 block pageScript
-  script(type='text/javascript', src='/javascripts/index.js')
+  script(type='text/javascript', src='/javascripts/main.js')
 
 
 block pageContent
   nav.navbar.navbar-dark.sticky-top.bg-dark.flex-md-nowrap.p-0.shadow
-    a.navbar-brand.col-md-3.col-lg-2.mr-0.px-3(href='#')= '用户名'
+    a.navbar-brand.col-md-10.col-lg-10.mr-0.px-3.navbar-account(href='')=account.name
   
   div.container-fluid
     div.row
-      nav#sidebarMenu.col-md-1.col-lg-1.d-md-block.bg-light.sidebar.collapse
+      nav#sidebarMenu.col-md-1.col-lg-1.d-md-block.bg-dark.sidebar.collapse
         div.sidebar-sticky.pt-3
           ul.nav.flex-column
             li.nav-item
-              a.nav-link.active='消息'
+              a.nav-link.active
+                svg.bi.sidebar-icon(fill='currentColor', width='24', height='24')
+                  use(xlink:href='/images/bootstrap-icons.svg#chat-left-text')
+                div.sidebar-label 消息
 
       nav#catalogue.col-md-2.col-lg-2.ml-sm-auto.px-md-2
-        div='目录'
+        div 目录
 
       main#main.col-md-9.col-lg-9.ml-sm-auto.px-md-4
-        div='内容'
+        div 内容

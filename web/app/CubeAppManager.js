@@ -35,6 +35,10 @@ class CubeAppManager {
         this.accountDB = new AccountDB();
     }
 
+    getAccount(id) {
+        return this.accountDB.queryAccount(id);
+    }
+
     getSignOutAccounts() {
         let result = [];
         let list = this.accountDB.accounts;
@@ -46,6 +50,25 @@ class CubeAppManager {
         }
 
         return result;
+    }
+
+    signIn(id, name) {
+        let account = this.accountDB.queryAccount(id);
+        if (null == account) {
+            return null;
+        }
+
+        account.state = 'online';
+        if (name) {
+            account.name = name;
+        }
+
+        let cookie = account.id + ',' + account.name;
+        return cookie;
+    }
+
+    signOut(id) {
+
     }
 }
 

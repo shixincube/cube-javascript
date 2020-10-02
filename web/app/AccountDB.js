@@ -65,7 +65,7 @@ class AccountDB {
                 return account;
             }
         }
-    
+
         return null;
     }
 }

@@ -8,7 +8,9 @@ router.get('/', function(req, res, next) {
 
 /* POST signin/form */
 router.post('/signin/form', function(req, res, next) {
-    console.log(req.body.id);
+    let cookie = req.app.get('manager').signIn(parseInt(req.body.id), req.body.name);
+    res.cookie('CubeAppToken', cookie, { maxAge: 604800000 });
+    res.redirect('/');
 });
 
 module.exports = router;

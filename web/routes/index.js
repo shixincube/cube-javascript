@@ -3,9 +3,14 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-    let cookie = req.cookies['AppToken'];
+    let cookie = req.cookies['CubeAppToken'];
     if (cookie) {
-        res.render('index', { title: 'Cube - 时信魔方' });
+        let aid = parseInt(cookie.split(',')[0]);
+        let account = req.app.get('manager').getAccount(aid);
+        res.render('index', {
+            title: 'Cube - 时信魔方',
+            account: account
+        });
     }
     else {
         let manager = req.app.get('manager');
