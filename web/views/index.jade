@@ -32,11 +32,17 @@ block pageContent
 
       nav#catalogue.col-md-2.col-lg-2.catalogue
         div.catalogue-col
+          - var i = 0
           - each ca in catalogues
-            div.catalogue-cell(id=ca.id)
+            div.catalogue-cell(id='ca_cell_' + (i++), data=ca.id)
               div.catalogue-thumb
                 img(src=ca.thumb)
-              div.catalogue-label=ca.label
+              div.catalogue-label
+                div.label=ca.label
+                div.sublabel=ca.sublabel
+                div.label-bottom &nbsp;
+              div.catalogue-state
+                span -- 
 
       main#main.col-md-9.col-lg-9.ml-sm-auto.px-md-4
         div 内容
