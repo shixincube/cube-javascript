@@ -39,6 +39,28 @@ class CubeAppManager {
         return this.accountDB.queryAccount(id);
     }
 
+    getMessageCatalogue(id) {
+        let result = [];
+        // 用户
+        let accounts = this.accountDB.accounts;
+        for (let i = 0; i < accounts.length; ++i) {
+            let account = accounts[i];
+            if (account.id == id) {
+                // 过滤自己
+                continue;
+            }
+
+            let ca = {
+                id: account.id,
+                thumb: account.face,
+                label: account.name
+            };
+            result.push(ca);
+        }
+        
+        return result;
+    }
+
     getSignOutAccounts() {
         let result = [];
         let list = this.accountDB.accounts;
@@ -68,7 +90,8 @@ class CubeAppManager {
     }
 
     signOut(id) {
-
+        let account = this.accountDB.queryAccount(id);
+        account.state = 'offline';
     }
 }
 

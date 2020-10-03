@@ -7,9 +7,11 @@ router.get('/', function(req, res, next) {
     if (cookie) {
         let aid = parseInt(cookie.split(',')[0]);
         let account = req.app.get('manager').getAccount(aid);
+        let catalogues = req.app.get('manager').getMessageCatalogue(aid);
         res.render('index', {
             title: 'Cube - 时信魔方',
-            account: account
+            account: account,
+            catalogues: catalogues
         });
     }
     else {

@@ -10,7 +10,13 @@ block pageScript
 
 block pageContent
   nav.navbar.navbar-dark.sticky-top.bg-dark.flex-md-nowrap.p-0.shadow
-    a.navbar-brand.col-md-10.col-lg-10.mr-0.px-3.navbar-account(href='')=account.name
+    a.navbar-brand.col-md-11.col-lg-11.mr-0.px-3.navbar-account(href='')=account.name
+    ul.navbar-nav
+      li.nav-item
+        img(src=account.face, width='32', height='32')
+    ul.navbar-nav.px-3
+      li.nav-item.text-nowrap
+        a.nav-link(href='#') 退出登录
   
   div.container-fluid
     div.row
@@ -23,8 +29,13 @@ block pageContent
                   use(xlink:href='/images/bootstrap-icons.svg#chat-left-text')
                 div.sidebar-label 消息
 
-      nav#catalogue.col-md-2.col-lg-2.ml-sm-auto.px-md-2
-        div 目录
+      nav#catalogue.col-md-2.col-lg-2.catalogue
+        div.catalogue-col
+          - each ca in catalogues
+            div.catalogue-cell(id=ca.id)
+              div.catalogue-thumb
+                img(src=ca.thumb)
+              div.catalogue-label=ca.label
 
       main#main.col-md-9.col-lg-9.ml-sm-auto.px-md-4
         div 内容
