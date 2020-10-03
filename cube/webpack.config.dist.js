@@ -6,12 +6,14 @@ const babelpolyfill = require('babel-polyfill');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const FileManagerPlugin = require('filemanager-webpack-plugin');
 
+const version = '3.0.0';
+
 var CubeConfig = {
     target: "web",
     entry: [ 'babel-polyfill', './src/CubeBoot.js' ],
     output: {
         path: path.resolve(__dirname, "./dist"),
-        filename: "cube.js"
+        filename: "cube-"+ version + ".js"
     },
     resolve: {
         extensions: ['.js', '.ts'],
@@ -44,10 +46,16 @@ var CubeConfig = {
         new FileManagerPlugin({
             onEnd: {
                 copy: [{
-                    source: path.resolve(__dirname, './dist') + '/cube.js',
+                    source: path.resolve(__dirname, './dist') + '/cube-' + version + '.js',
+                    destination: path.resolve(__dirname, '../web/public/javascripts/')
+                }, {
+                    source: path.resolve(__dirname, './dist') + '/cube-' + version + '.js.map',
+                    destination: path.resolve(__dirname, '../web/public/javascripts/')
+                }, {
+                    source: path.resolve(__dirname, './dist') + '/cube-' + version + '.js',
                     destination: path.resolve(__dirname, './examples/js/')
                 }, {
-                    source: path.resolve(__dirname, './dist') + '/cube.js.map',
+                    source: path.resolve(__dirname, './dist') + '/cube-' + version + '.js.map',
                     destination: path.resolve(__dirname, './examples/js/')
                 }]
             }
@@ -60,7 +68,7 @@ var CubeLibConfig = {
     entry: './src/CubeLibBoot.js',
     output: {
         path: path.resolve(__dirname, "./dist"),
-        filename: "cube.js",
+        filename: "cube-" + version + ".js",
         library: 'cube',
         libraryTarget: 'umd'
     },

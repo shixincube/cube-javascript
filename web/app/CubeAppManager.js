@@ -53,11 +53,14 @@ class CubeAppManager {
             let ca = {
                 id: account.id,
                 thumb: account.face,
-                label: account.name
+                label: account.name,
+                sublabel: ''
             };
             result.push(ca);
         }
-        
+
+
+
         return result;
     }
 
