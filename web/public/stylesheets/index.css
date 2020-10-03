@@ -123,3 +123,21 @@ body {
     color: #999;
     float: right;
 }
+
+.main-index {
+    font-size: 14px;
+    width: 100%;
+    height: calc(100vh - 48px);
+}
+
+.main-index-bg {
+    float: left;
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 48px);
+    background-image: url("https://static.shixincube.com/cube/assets/images/logo/cube_256.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: 0;
+    opacity: 0.2;
+}
