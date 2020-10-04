@@ -33,7 +33,7 @@ block pageContent
                 div.sidebar-label 消息
 
       nav#catalogue.col-md-2.col-lg-2.catalogue
-        div.catalogue-col
+        div.catalogue-panel
           - var i = 0
           - each ca in catalogues
             div.catalogue-cell(id='ca_cell_' + (i++), data=ca.id)
@@ -46,6 +46,18 @@ block pageContent
               div.catalogue-state
                 span -- 
 
-      main#main.col-md-9.col-lg-9.ml-sm-auto.px-md-4
-        div.main-index
-          div.main-index-bg
+      main#main.col-md-7.col-lg-7.main
+        div.main-panel
+          div.main-header
+            div.header-title 标题
+          div.main-body
+            div.view
+          div.main-footer.container
+            div.row
+              div.col-sm-9.col-md-10.col-lg-10
+                textarea(wrap='hard', cols='10', rows='5')
+              div.col-sm-3.col-md-2.col-lg-2
+                button#btn_send.btn.btn-primary.btn-send 发 送
+      
+      nav#extras.col-md-2.col-lg-2
+        div.extras-panel

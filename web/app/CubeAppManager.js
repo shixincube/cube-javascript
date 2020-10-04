@@ -56,7 +56,7 @@ class CubeAppManager {
                 id: account.id,
                 thumb: account.avatar,
                 label: account.name,
-                sublabel: '--'
+                sublabel: 'Cube'
             };
             result.push(ca);
         }
