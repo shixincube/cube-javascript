@@ -7,6 +7,8 @@ block pageStyle
 block pageScript
   script(type='text/javascript', src='/javascripts/cube-3.0.0.js')
   script(type='text/javascript', src='/javascripts/main.js')
+  script.
+    var gAccount = !{JSON.stringify(account)};
 
 
 block pageContent
@@ -14,10 +16,10 @@ block pageContent
     a.navbar-brand.col-md-11.col-lg-11.mr-0.px-3.navbar-account(href='')=account.name
     ul.navbar-nav
       li.nav-item
-        img(src=account.face, width='32', height='32')
+        img(src=account.avatar, width='32', height='32')
     ul.navbar-nav.px-3
       li.nav-item.text-nowrap
-        a.nav-link(href='#') 退出登录
+        a.nav-link(href='javascript:window.app.signout();') 退出登录
   
   div.container-fluid
     div.row

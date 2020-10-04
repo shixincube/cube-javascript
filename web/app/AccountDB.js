@@ -33,27 +33,27 @@ class AccountDB {
         this.accounts = [{
             id: 50001001,
             name: '李诚石',
-            face: 'https://static.shixincube.com/cube/assets/images/logo/cube_256.png',
+            avatar: 'https://static.shixincube.com/cube/assets/images/logo/cube_256.png',
             state: 'offline'
         }, {
             id: 50001002,
             name: '王沛珊',
-            face: 'https://static.shixincube.com/cube/assets/images/logo/cube_inverse_256.png',
+            avatar: 'https://static.shixincube.com/cube/assets/images/logo/cube_inverse_256.png',
             state: 'offline'
         }, {
             id: 50001003,
             name: '郝思雁',
-            face: 'https://static.shixincube.com/cube/assets/images/logo/cube_mono_256.png',
+            avatar: 'https://static.shixincube.com/cube/assets/images/logo/cube_mono_256.png',
             state: 'offline'
         }, {
             id: 50001004,
             name: '张靖蝶',
-            face: 'https://static.shixincube.com/cube/assets/images/logo/spap.png',
+            avatar: 'https://static.shixincube.com/cube/assets/images/logo/spap.png',
             state: 'offline'
         }, {
             id: 50001005,
             name: '高良吉',
-            face: 'https://static.shixincube.com/cube/assets/images/logo/seehey.png',
+            avatar: 'https://static.shixincube.com/cube/assets/images/logo/seehey.png',
             state: 'offline'
         }];
     }

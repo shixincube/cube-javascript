@@ -112,6 +112,7 @@ export class CellPipeline extends Pipeline {
         }
 
         this.nucleus.talk.hangup(new cell.InetAddress(this.address, this.port));
+        //this.nucleus.talk.hangupAll();
     }
 
     /**

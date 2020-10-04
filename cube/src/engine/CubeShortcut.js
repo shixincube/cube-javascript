@@ -35,11 +35,25 @@ export class CubeShortcut {
         this.engine = new CubeEngine();
     }
 
+    /**
+     * 启动 Cube 并与服务器建立连接。
+     * 
+     * @param {KernelConfig} config 
+     * @param {function} handleSuccess 
+     * @param {function} handleError 
+     */
     start(config, handleSuccess, handleError) {
         if (config.pipelineReady === undefined) {
             config.pipelineReady = true;
         }
 
         this.engine.start(config, handleSuccess, handleError);
+    }
+
+    /**
+     * 关闭 Cube 并断开与服务器的连接。
+     */
+    stop() {
+        this.engine.stop();
     }
 }

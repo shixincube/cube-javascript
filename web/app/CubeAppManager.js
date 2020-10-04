@@ -33,6 +33,8 @@ class CubeAppManager {
     
     constructor() {
         this.accountDB = new AccountDB();
+
+        this.currentAccount = null;
     }
 
     getAccount(id) {
@@ -52,7 +54,7 @@ class CubeAppManager {
 
             let ca = {
                 id: account.id,
-                thumb: account.face,
+                thumb: account.avatar,
                 label: account.name,
                 sublabel: '--'
             };
@@ -88,13 +90,21 @@ class CubeAppManager {
             account.name = name;
         }
 
+        this.currentAccount = account;
+
         let cookie = account.id + ',' + account.name;
         return cookie;
     }
 
-    signOut(id) {
-        let account = this.accountDB.queryAccount(id);
+    signOut() {
+        if (null == this.currentAccount) {
+            return;
+        }
+
+        let account = this.accountDB.queryAccount(this.currentAccount.id);
         account.state = 'offline';
+
+        this.currentAccount = null;
     }
 }
 
