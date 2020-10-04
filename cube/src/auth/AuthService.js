@@ -208,16 +208,16 @@ export class AuthService extends Module {
                     appKey: appKey
                 });
 
-                this.pipeline.send(AuthService.NAME, packet, (pipeline, endpoint, packet) => {
-                    if (null == packet) {
+                this.pipeline.send(AuthService.NAME, packet, (pipeline, endpoint, responsePacket) => {
+                    if (null == responsePacket) {
                         // 超时
                         resolve(null);
                         return;
                     }
 
-                    let state = packet.getStateCode();
+                    let state = responsePacket.getStateCode();
                     if (state == StateCode.OK) {
-                        let token = AuthToken.create(packet.data);
+                        let token = AuthToken.create(responsePacket.data);
                         resolve(token);
                     }
                     else {

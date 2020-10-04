@@ -29,6 +29,7 @@ import { FastMap } from "../util/FastMap";
 import { Pipeline } from "./Pipeline";
 import { Module } from "./Module";
 import { AuthToken } from "../auth/AuthToken";
+import { KernelError } from "./error/KernelError";
 
 /**
  * 内核配置定义。
@@ -107,7 +108,7 @@ export class Kernel {
             cell.Logger.level = config["log"];
         }
         if (config.address === undefined) {
-            config.address = '114.112.101.158';
+            config.address = '127.0.0.1';
         }
 
         // 配置
@@ -121,7 +122,7 @@ export class Kernel {
 
         if (null == token || !token.isValid()) {
             // 授权令牌无效
-            handleError();
+            handleError(new KernelError('Invalid token config data'));
             return;
         }
 
@@ -148,7 +149,7 @@ export class Kernel {
                 handleSuccess();
             }
             else {
-                handleError();
+                handleError(new KernelError('Load module deps failed'));
             }
         };
 
@@ -178,14 +179,14 @@ export class Kernel {
      * 挂起内核。
      */
     suspend() {
-        // TODO
+        // Nothing
     }
 
     /**
      * 恢复内核。
      */
     resume() {
-        // TODO
+        // Nothing
     }
 
     /**
@@ -274,6 +275,7 @@ export class Kernel {
     checkAuth(config) {
         return new Promise((resolve, reject) => {
             let authService = this.getModule('Auth');
+
             if (null == authService) {
                 // 没有安装授权模块
                 cell.Logger.w('Kernel', 'Can NOT find auth module');
@@ -294,7 +296,7 @@ export class Kernel {
                 resolve(null);
                 return;
             }
-            
+
             resolve(token);
         });
     }

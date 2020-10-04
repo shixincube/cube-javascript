@@ -53,7 +53,7 @@ export class CubeEngine {
         this.kernel.installModule(new ContactService());
         this.kernel.installModule(new MessagingService());
         this.kernel.installModule(new FileStorage());
-        this.kernel.installModule(new FaceMonitor());
+        //this.kernel.installModule(new FaceMonitor());
     }
 
     /**
@@ -69,16 +69,16 @@ export class CubeEngine {
         // 启动内核
         this.kernel.startup(config, () => {
             // 消息服务注册插件
-            let messagingService = this.kernel.getModule(MessagingService.NAME);
+            /*let messagingService = this.kernel.getModule(MessagingService.NAME);
             messagingService.getPluginSystem().register(MessagingEvent.Notify, new TypeTranslationPlugin());
 
             messagingService.attach((state) => {
                 this._fireMessagingEvent(state);
-            });
+            });*/
 
             success();
-        }, () => {
-            error();
+        }, (e) => {
+            error(e);
         });
     }
 
@@ -130,16 +130,5 @@ export class CubeEngine {
      */
     getFileStorage() {
         return this.kernel.getModule(FileStorage.NAME);
-    }
-
-    addMessageListener(listener) {
-
-    }
-
-    /**
-     * 
-     * @param {ObservableState} state 
-     */
-    _fireMessagingEvent(state) {
     }
 }

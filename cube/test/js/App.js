@@ -121,8 +121,8 @@ var App = Class({
         var that = this;
         var config = {
             address: '127.0.0.1',
-            domain: 'www.spap.com',
-            appKey: 'SPAP-CUBE-DEMO',
+            domain: 'shixincube.com ',
+            appKey: 'shixin-cubeteam-opensource-appkey',
             pipelineReady: true     // 等待通道就绪
         };
         this.cube.start(config, function() {

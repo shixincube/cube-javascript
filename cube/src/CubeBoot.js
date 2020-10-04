@@ -29,7 +29,8 @@ import { Subject } from "./core/Subject";
 import { Observer } from "./core/Observer";
 import { ObservableState } from "./core/ObservableState";
 import { Entity } from "./core/Entity";
-import { CubeEngine } from "./engine/CubeEngine"
+import { CubeEngine } from "./engine/CubeEngine";
+import { CubeShortcut } from "./engine/CubeShortcut";
 import { Kernel } from "./core/Kernel";
 import { CellPipeline } from "./pipeline/CellPipeline";
 import { AuthToken } from "./auth/AuthToken";
@@ -93,5 +94,17 @@ import { FaceMonitor } from "./facemonitor/FaceMonitor";
     global.FaceMonitor = FaceMonitor;
 
     global.cell = cell;
+
+    global._cube_ = null;
+
+    // Cube 全局快捷函数。
+    global.cube = function() {
+        if (undefined !== global._cube_ && null != global._cube_) {
+            return global._cube_;
+        }
+
+        global._cube_ = new CubeShortcut();
+        return global._cube_;
+    }
 
 })(window);
