@@ -28,6 +28,7 @@ import { FastMap } from "../util/FastMap";
 import { Kernel } from "./Kernel";
 import { PipelineListener } from "./PipelineListener";
 import { Packet } from "./Packet";
+import { PipelineError } from "./error/PipelineError";
 
 /**
  * 收到指定的数据包的应答回调。
@@ -65,7 +66,11 @@ export class Pipeline {
          */
         this.listenerMap = new FastMap();
 
-        
+        /**
+         * 状态监听器。
+         * @type {Array<PipelineListener>}
+         */
+        this.stateListenerList = [];
 
         /**
          * 服务器地址。
@@ -157,14 +162,44 @@ export class Pipeline {
     }
 
     /**
+     * 添加状态监听器。
      * @param {PipelineListener} listener 指定通道监听器。
      */
     addStateListener(listener) {
+        let index = this.stateListenerList.indexOf(listener);
+        if (index >= 0) {
+            return;
+        }
 
+        this.stateListenerList.push(listener);
     }
 
+    /**
+     * 移除状态监听器。
+     * @param {PipelineListener} listener 指定通道监听器。
+     */
     removeStateListener(listener) {
-        
+        let index = this.stateListenerList.indexOf(listener);
+        if (index >= 0) {
+            this.stateListenerList.splice(index, 1);
+        }
+    }
+
+    /**
+     * 触发状态事件。
+     * @param {string} state 
+     * @param {PipelineError} error 
+     */
+    triggerState(state, error) {
+        if (state === 'open') {
+
+        }
+        else if (state === 'failed') {
+
+        }
+        else if (state === 'close') {
+
+        }
     }
 
     /**

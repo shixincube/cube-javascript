@@ -163,10 +163,6 @@ export class CellPipeline extends Pipeline {
         this.nucleus.talkService.speak(destination, primitive);
     }
 
-    triggerReady() {
-
-    }
-
     /**
      * 触发消息接收处理。
      * @protected
@@ -184,16 +180,6 @@ export class CellPipeline extends Pipeline {
 
         // 通知监听器
         super.triggerListeners(cellet, packet);
-    }
-
-    /**
-     * 触发链路故障。
-     * @protected
-     * @param {cell.Speaker} speaker 
-     * @param {cell.TalkError} error 
-     */
-    triggerError(speaker, error) {
-        cell.Logger.w('CellPipeline', error.getErrorCode() + ' - ' + error.getDescription());
     }
 
     /**

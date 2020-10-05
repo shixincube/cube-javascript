@@ -26,7 +26,6 @@ import { Self } from "../contacts/Self";
  */
 
 import { CubeEngine } from "./CubeEngine";
-import { Self } from "../contacts/Self";
 
 /**
  * Cube Engine 的快捷操作方式封装。

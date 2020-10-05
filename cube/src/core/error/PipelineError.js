@@ -33,9 +33,11 @@ export class PipelineError extends KernelError {
 
     /**
      * @param {string} message 错误信息。
+     * @param {number} coode 错误码。
      */
-    constructor(message) {
+    constructor(message, code) {
         super(message);
+        this.code = code;
         this.name = "PipelineError";
     }
 }

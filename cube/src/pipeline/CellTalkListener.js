@@ -25,6 +25,7 @@
  */
 
 import cell from "@lib/cell-lib"
+import { PipelineError } from "../core/error/PipelineError";
 import { CellPipeline } from "./CellPipeline";
 
 /**
@@ -73,22 +74,22 @@ export class CellTalkListener extends cell.TalkListener {
      * @inheritdoc
      */
     onContacted(speaker) {
-        // Nothing
         cell.Logger.d('CellTalkListener', 'onContacted');
+        this.pipeline.triggerState('open');
     }
 
     /**
      * @inheritdoc
      */
     onQuitted(speaker) {
-        // Nothing
         cell.Logger.d('CellTalkListener', 'onQuitted');
+        this.pipeline.triggerState('close');
     }
 
     /**
      * @inheritdoc
      */
     onFailed(speaker, error) {
-        this.pipeline.triggerError(speaker, error);
+        this.pipeline.triggerState('failed', new PipelineError(error.getDescription(), error.getErrorCode()));
     }
 }

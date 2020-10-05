@@ -32,7 +32,6 @@ import { ContactService } from "../contacts/ContactService";
 import { MessagingService } from "../messaging/MessagingService";
 import { FileStorage } from "../filestorage/FileStorage";
 import { FaceMonitor } from "../facemonitor/FaceMonitor";
-import { ObservableState } from "../core/ObservableState";
 import { TypeTranslationPlugin } from "../messaging/extends/TypeTranslationPlugin";
 import { MessagingEvent } from "../messaging/MessagingEvent";
 import { PluginSystem } from "../core/PluginSystem";

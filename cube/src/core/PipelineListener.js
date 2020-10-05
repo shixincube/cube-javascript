@@ -30,35 +30,43 @@ import { PipelineError } from "./error/PipelineError";
 
 /**
  * 数据通道监听器。
+ * @interface
  */
 export class PipelineListener {
 
     /**
-     * 构造函数。
      */
     constructor() {
     }
 
     /**
-     * 当接收到来自服务器的数据时回调该函数。
-     * @param {Pipeline} pipeline 
-     * @param {string} source 
-     * @param {Packet} packet 
+     * 当接收到来自服务器的数据时触发该函数。
+     * @param {Pipeline} pipeline 当前触发事件的数据通道。
+     * @param {string} source 数据源描述。
+     * @param {Packet} packet 数据包。
      */
     onReceived(pipeline, source, packet) {
     }
 
     /**
-     * 
-     * @param {Pipeline} pipeline 
+     * 当通道就绪时触发该函数。
+     * @param {Pipeline} pipeline 当前触发事件的数据通道。
      */
-    onReady(pipeline) {
+    onOpened(pipeline) {
     }
 
     /**
-     * 
-     * @param {PipelineError} error 
+     * 当通道关闭时触发该函数。
+     * @param {Pipeline} pipeline 当前触发事件的数据通道。
      */
-    onFailed(error) {
+    onClosed(pipeline) {
+    }
+
+    /**
+     * 当通道故障时触发该函数。
+     * @param {Pipeline} pipeline 当前触发事件的数据通道。
+     * @param {PipelineError} error 当前故障描述。
+     */
+    onFailed(pipeline, error) {
     }
 }
