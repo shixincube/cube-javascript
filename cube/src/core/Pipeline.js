@@ -154,6 +154,14 @@ export class Pipeline {
         return true;
     }
 
+    addStateListener() {
+
+    }
+
+    removeStateListener() {
+        
+    }
+
     /**
      * 发送数据。
      * @param {string} destination 指定通道的发送目标或接收端识别串。

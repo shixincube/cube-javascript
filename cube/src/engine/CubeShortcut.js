@@ -1,3 +1,4 @@
+import { Self } from "../contacts/Self";
 /**
  * This file is part of Cube.
  * 
@@ -25,6 +26,7 @@
  */
 
 import { CubeEngine } from "./CubeEngine";
+import { Self } from "../contacts/Self";
 
 /**
  * Cube Engine 的快捷操作方式封装。
@@ -55,5 +57,25 @@ export class CubeShortcut {
      */
     stop() {
         this.engine.stop();
+    }
+
+    /**
+     * 
+     * @param {string} event 
+     * @param {function} listener 
+     */
+    on(event, listener) {
+        if (event == 'network-state') {
+            this.engine.kernel.getPipeline('Cell')
+        }
+    }
+
+    checkin(id) {
+        let self = new Self(id);
+        this.engine.getContactService().setSelf(self);
+    }
+
+    checkout() {
+
     }
 }
