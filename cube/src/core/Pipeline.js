@@ -65,6 +65,8 @@ export class Pipeline {
          */
         this.listenerMap = new FastMap();
 
+        
+
         /**
          * 服务器地址。
          * @type {string}
@@ -154,11 +156,14 @@ export class Pipeline {
         return true;
     }
 
-    addStateListener() {
+    /**
+     * @param {PipelineListener} listener 指定通道监听器。
+     */
+    addStateListener(listener) {
 
     }
 
-    removeStateListener() {
+    removeStateListener(listener) {
         
     }
 
@@ -247,7 +252,7 @@ export class Pipeline {
      * @param {Packet} packet 来自服务器的数据包。
      * @param {ResponseCallback} callback 回调函数。
      */
-    triggerCallback(source, packet, callback) {
+    touchCallback(source, packet, callback) {
         callback(this, source, packet);
     }
 }

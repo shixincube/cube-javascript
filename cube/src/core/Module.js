@@ -28,6 +28,26 @@ import { Subject } from "./Subject";
 import { Kernel } from "./Kernel";
 import { Pipeline } from "./Pipeline";
 import { PluginSystem } from "./PluginSystem";
+import { PipelineListener } from "./PipelineListener";
+import { FastMap } from "../util/FastMap";
+import { Entity } from "./Entity";
+
+
+/**
+ * 实体的数据通道监听器。
+ */
+class EntityPipelineListener extends PipelineListener {
+    constructor(module) {
+        super();
+        this.module = module;
+    }
+
+    onReceived(pipeline, source, packet) {
+        if (packet.name == Entity.PacketNameUpdate) {
+            this.module.fireEntityUpdated(packet.data.entity, packet.data.id, packet.data.item, packet.data.data);
+        }
+    }
+}
 
 /**
  * 内核模块类。
@@ -89,6 +109,9 @@ export class Module extends Subject {
          * @type {PluginSystem}
          */
         this.pluginSystem = new PluginSystem();
+
+        this.entityPipelineListener = new EntityPipelineListener(this);
+        this.entityListenerMap = new FastMap();
     }
 
     /**
@@ -156,6 +179,9 @@ export class Module extends Subject {
             }
         }
 
+        // 添加实体监听器
+        this.pipeline.addListener(this.name, this.entityPipelineListener);
+
         this.started = true;
         return true;
     }
@@ -165,6 +191,8 @@ export class Module extends Subject {
      */
     stop() {
         this.started = false;
+
+        this.pipeline.removeListener(this.name, this.entityPipelineListener);
     }
 
     /**
@@ -179,6 +207,32 @@ export class Module extends Subject {
      */
     resume() {
         // Nothing
+    }
+
+    addEntityListener(entityName, listener) {
+        let list = this.entityListenerMap.get(entityName);
+        list.push(listener);
+        this.entityListenerMap.put(entityName, list);
+    }
+
+    removeEntityListener(entityName, listener) {
+
+    }
+
+    /**
+     * @private
+     * @param {*} entity 
+     * @param {*} id 
+     * @param {*} item 
+     * @param {*} data 
+     */
+    fireEntityUpdated(entity, id, item, data) {
+        let list = this.entityListenerMap.get(entity);
+        if (null != list) {
+            for (let i = 0; i < list.length; ++i) {
+                list[i].onUpdated(entity, id, item, data);
+            }
+        }
     }
 
     /**

@@ -59,7 +59,7 @@ export class Group extends Contact {
          * @protected
          * @type {Array<number>}
          */
-        this.memberIdList = [owner.getId()];
+        this.memberIdList = [ owner.getId() ];
     }
 
     /**

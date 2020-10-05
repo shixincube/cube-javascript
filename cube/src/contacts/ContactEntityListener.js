@@ -24,25 +24,31 @@
  * SOFTWARE.
  */
 
-/**
- * 内核错误。
- */
-export class KernelError extends Error {
+import { EntityListener } from "../core/EntityListener";
 
-    /**
-     * @param {string} message 错误信息。
-     */
-    constructor(message) {
+/**
+ * 联系人模块实体的监听器。
+ */
+export class ContactEntityListener extends EntityListener {
+
+    constructor(contactService) {
         super();
-        this.name = "KernelError";
-        this.message = message;
+
+        this.contactService = contactService;
     }
 
-    /**
-     * 返回错误的文本描述。
-     * @returns {string} 返回错误的文本描述。
-     */
-    toString() {
-        return this.name + ' ' + this.message;
+    onUpdated(entity, id, item, data) {
+        if (entity == 'Group') {
+            let group = this.contactService.groups.get(id);
+            if (null != group) {
+                group.touchUpdated(item, data);
+            }
+        }
+        else if (entity == 'Contact') {
+            let contact = this.contactService.contacts.get(id);
+            if (null != contact) {
+                contact.touchUpdated(item, data);
+            }
+        }
     }
 }

@@ -55,7 +55,7 @@ export class ContactPipelineListener extends PipelineListener {
         super.onReceived(pipeline, source, packet);
 
         if (packet.name == ContactAction.Self) {
-            cell.Logger.d('Contact', 'onReceived: ' + packet.name);
+            cell.Logger.d('Contact', 'Self: ' + packet.name);
             this.contactService.updateSelf(packet.data);
         }
         else if (packet.name == ContactAction.InviteMember) {
@@ -72,26 +72,6 @@ export class ContactPipelineListener extends PipelineListener {
         }
         else if (packet.name == ContactAction.ChangeOwner) {
             this.contactService.triggerChangeOwner(packet.data);
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    onEntityUpdated(entity, id, item, data) {
-        super.onEntityUpdated(entity, id, item, data);
-
-        if (entity == 'Group') {
-            let group = this.contactService.groups.get(id);
-            if (null != group) {
-                group.touchUpdated(item, data);
-            }
-        }
-        else if (entity == 'Contact') {
-            let contact = this.contactService.contacts.get(id);
-            if (null != contact) {
-                contact.touchUpdated(item, data);
-            }
         }
     }
 }

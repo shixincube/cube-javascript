@@ -151,7 +151,7 @@ export class CellPipeline extends Pipeline {
                             let value = that.responseMap.get(key);
                             if (now - value.timestamp >= that.responseTimeout) {
                                 that.responseMap.remove(key);
-                                super.triggerCallback(value.destination, null, value.handle);
+                                super.touchCallback(value.destination, null, value.handle);
                             }
                         }
                     },
@@ -161,6 +161,10 @@ export class CellPipeline extends Pipeline {
 
         let primitive = this.convertPacketToPrimitive(packet);
         this.nucleus.talkService.speak(destination, primitive);
+    }
+
+    triggerReady() {
+
     }
 
     /**
@@ -175,7 +179,7 @@ export class CellPipeline extends Pipeline {
 
         let response = this.responseMap.remove(packet.sn);
         if (null != response) {
-            super.triggerCallback(cellet, packet, response.handle);
+            super.touchCallback(cellet, packet, response.handle);
         }
 
         // 通知监听器

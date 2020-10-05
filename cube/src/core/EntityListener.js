@@ -25,24 +25,13 @@
  */
 
 /**
- * 内核错误。
+ * 实体监听器。
  */
-export class KernelError extends Error {
+export class EntityListener {
 
-    /**
-     * @param {string} message 错误信息。
-     */
-    constructor(message) {
-        super();
-        this.name = "KernelError";
-        this.message = message;
+    constructor() {
     }
 
-    /**
-     * 返回错误的文本描述。
-     * @returns {string} 返回错误的文本描述。
-     */
-    toString() {
-        return this.name + ' ' + this.message;
+    onUpdated(entity, id, item, data) {
     }
 }

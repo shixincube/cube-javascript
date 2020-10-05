@@ -39,7 +39,7 @@ export class Entity extends JSONable {
      * @type {string}
      * @private
      */
-    static PNUpdate = 'UpdateEntity';
+    static PacketNameUpdate = 'UpdateEntity';
 
     /**
      * 构造函数。
@@ -155,7 +155,7 @@ export class Entity extends JSONable {
             return false;
         }
 
-        let packet = new Packet(Entity.PNUpdate, {
+        let packet = new Packet(Entity.PacketNameUpdate, {
             "entity" : en,
             "id" : id,
             "item" : item,

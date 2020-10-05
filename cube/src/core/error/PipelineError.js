@@ -24,25 +24,18 @@
  * SOFTWARE.
  */
 
+import { KernelError } from "./KernelError";
+
 /**
- * 内核错误。
+ * 管道错误。
  */
-export class KernelError extends Error {
+export class PipelineError extends KernelError {
 
     /**
      * @param {string} message 错误信息。
      */
     constructor(message) {
-        super();
-        this.name = "KernelError";
-        this.message = message;
-    }
-
-    /**
-     * 返回错误的文本描述。
-     * @returns {string} 返回错误的文本描述。
-     */
-    toString() {
-        return this.name + ' ' + this.message;
+        super(message);
+        this.name = "PipelineError";
     }
 }

@@ -26,7 +26,7 @@
 
 import { Pipeline } from "./Pipeline";
 import { Packet } from "./Packet";
-import { Entity } from "../core/Entity";
+import { PipelineError } from "./error/PipelineError";
 
 /**
  * 数据通道监听器。
@@ -46,15 +46,19 @@ export class PipelineListener {
      * @param {Packet} packet 
      */
     onReceived(pipeline, source, packet) {
-        if (packet.name == Entity.PNUpdate) {
-            this.onEntityUpdated(packet.data.entity, packet.data.id, packet.data.item, packet.data.data);
-        }
     }
 
-    onError(error) {
+    /**
+     * 
+     * @param {Pipeline} pipeline 
+     */
+    onReady(pipeline) {
     }
 
-    onEntityUpdated(entity, id, item, data) {
-
+    /**
+     * 
+     * @param {PipelineError} error 
+     */
+    onFailed(error) {
     }
 }
