@@ -3,7 +3,17 @@ var router = express.Router();
 
 /* GET */
 router.get('/', function(req, res, next) {
-    res.send('respond with a resource');
+    if (undefined === req.query.id) {
+        res.json({});
+        res.sendStatus(400);
+        return;
+    }
+
+    let id = parseInt(req.query.id);
+    let mgr = req.app.get('manager');
+    let account = mgr.getAccount(id);
+    res.json(account);
+    res.sendStatus(200);
 });
 
 /* POST /signin/form */

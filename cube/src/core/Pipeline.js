@@ -228,7 +228,7 @@ export class Pipeline {
                     listener({ "name": state, "pipeline": this, "error": error });
                 }
                 else {
-                    listener.onFailed(this);
+                    listener.onFailed(this, error);
                 }
             }
         }
@@ -239,7 +239,9 @@ export class Pipeline {
                     listener({ "name": state, "pipeline": this });
                 }
                 else {
-                    listener.onClosed(this);
+                    if (listener.onClosed) {
+                        listener.onClosed(this);
+                    }
                 }
             }
         }

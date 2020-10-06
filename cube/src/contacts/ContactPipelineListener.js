@@ -78,6 +78,8 @@ export class ContactPipelineListener extends PipelineListener {
      * @inheritdoc
      */
     onOpened(pipeline) {
+        super.onOpened(pipeline);
+
         if (null != this.contactService.self && !this.contactService.selfReady) {
             cell.Logger.d('ContactPipelineListener', 'Call sign-in in "onOpened": ' + this.contactService.self.getId());
             // 签入已经设置的 Self
@@ -92,6 +94,7 @@ export class ContactPipelineListener extends PipelineListener {
      * @inheritdoc
      */
     onClosed(pipeline) {
+        super.onClosed(pipeline);
     }
 
     /**

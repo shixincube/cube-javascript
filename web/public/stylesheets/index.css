@@ -1,6 +1,8 @@
 body {
-    font: 14px "MicrosoftYaHei", "Microsoft YaHei", "Lucida Grande", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-family: MicrosoftYaHei, "Microsoft YaHei", HelveticaNeue, Helvetica, "Lucida Grande", Arial, sans-serif;
     background-color: #dedede;
+    line-height: normal;
 }
 
 textarea:focus, input:focus, select:focus {
@@ -82,10 +84,14 @@ textarea:focus, input:focus, select:focus {
 }
 
 .catalogue-cell:hover {
-    background-color: #e5e6e7;
+    background-color: #d5d6d8;
 }
-.catalogue-cell .actvie {
-    background-color: #f5f6f7;
+
+.cell-actvie {
+    background-color: #f5f6f8;
+}
+.cell-actvie:hover {
+    background-color: #cdcdcd;
 }
 
 .catalogue-thumb {
@@ -137,10 +143,11 @@ textarea:focus, input:focus, select:focus {
 .main {
     padding-left: 0px;
     padding-right: 0px;
-    background-color: #f5f6f8;
+    background-color: #e5e6e8;
 }
 
 .main-panel {
+    color: #26252a;
     font-size: 14px;
     width: 100%;
     height: calc(100vh - 48px);
@@ -162,6 +169,8 @@ textarea:focus, input:focus, select:focus {
     height: 54px;
     margin: 0;
     padding: 14px 0px 0px 20px;
+    background-color: #f4f5f6;
+    border-bottom: 1px solid #d7d7d7;
 }
 
 .main-header .header-title {
@@ -170,13 +179,43 @@ textarea:focus, input:focus, select:focus {
     font-size: 16px;
     padding: auto;
     margin: auto;
+    visibility: hidden;
 }
 
 .main-body {
     height: calc(100vh - 190px);
-    background-color: #f4f5f6;
+    background-color: #f5f6f8;
     margin: 0;
     padding: 0;
+}
+
+.main-body-content {
+    font-size: 14px;
+    padding: 12px;
+}
+
+.main-body-content .item {
+    padding: 12px 0px 12px 0px;
+}
+
+.item-content {
+    display: inline-block;
+    vertical-align: top;
+    padding: 0px 8px 0px 8px;
+}
+
+.item-message-a {
+    background-color: #ffffff;
+    padding: 11px 15px 11px 15px;
+    word-wrap: break-word;
+    word-break: normal;
+}
+
+.item-message-b {
+    background-color: #e6f3ff;
+    padding: 11px 15px 11px 15px;
+    word-wrap: break-word;
+    word-break: normal;
 }
 
 .main-footer {

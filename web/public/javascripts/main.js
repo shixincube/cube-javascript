@@ -2,6 +2,20 @@
 
 function CubeWebApp(account) {
     this.account = account;
+
+    this.lastCatCell = null;
+
+    this.initUI();
+}
+
+CubeWebApp.prototype.initUI = function() {
+    var that = this;
+    for (var i = 0; i < 4; ++i) {
+        var id = 'ca_cell_' + i;
+        $('#' + id).on('click', function(e) {
+            that.onCatalogueCellClick($(this), e);
+        });
+    }
 }
 
 CubeWebApp.prototype.signin = function() {
@@ -19,13 +33,22 @@ CubeWebApp.prototype.signout = function() {
         }, 2000);
 
         $.post('/account/signout', {
-                "id": id
-            }, function(data, textStatus, textStatus) {
-                clearTimeout(timer);
-                window.location.href = '/';
-            }, 'json');
+            "id": id
+        }, function(data, textStatus, jqXHR) {
+            clearTimeout(timer);
+            window.location.href = '/';
+        }, 'json');
     }
 }
+
+CubeWebApp.prototype.requestAccount = function(id, handler) {
+    $.get('/account', {
+        "id" : id
+    }, function(data, textStatus, jqXHR) {
+        handler(data, textStatus);
+    }, 'json');
+}
+
 
 CubeWebApp.prototype.showState = function(state, text) {
     $('#extrasAlert').removeClass('alert-info');
@@ -37,6 +60,33 @@ CubeWebApp.prototype.showState = function(state, text) {
         $('#extrasAlert').addClass('alert-info');
     }
     $('#extrasAlert').text(text);
+}
+
+CubeWebApp.prototype.updateMainPanel = function(data) {
+    var elTitle = $('#main').find('div.header-title');
+    elTitle.css('visibility', 'visible');
+    elTitle.text(data.name);
+}
+
+CubeWebApp.prototype.onCatalogueCellClick = function(el, e) {
+    if (null != this.lastCatCell) {
+        if (this.lastCatCell.attr('id') == el.attr('id')) {
+            return;
+        }
+
+        this.lastCatCell.removeClass('cell-actvie');
+    }
+
+    el.addClass('cell-actvie');
+    this.lastCatCell = el;
+
+    var accountId = parseInt(el.attr('data'));
+    var that = this;
+    this.requestAccount(accountId, function(data, textStatus) {
+        if (textStatus == 'success') {
+            that.updateMainPanel(data);
+        }
+    });
 }
 
 
