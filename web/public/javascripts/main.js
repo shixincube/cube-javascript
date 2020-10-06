@@ -23,18 +23,34 @@ CubeWebApp.prototype.signout = function() {
     }
 }
 
+CubeWebApp.prototype.showState = function(state, text) {
+    $('#extrasAlert').removeClass('alert-info');
+    $('#extrasAlert').removeClass('alert-danger');
+    if (state == 'warn' || state == 'warning') {
+        $('#extrasAlert').addClass('alert-danger');
+    }
+    else {
+        $('#extrasAlert').addClass('alert-info');
+    }
+    $('#extrasAlert').text(text);
+}
+
 
 
 $(document).ready(function() {
     // 初始化 App
     window.app = new CubeWebApp(gAccount);
+    var app = window.app;
 
     var cube = window.cube();
 
     // 监听网络状态
     cube.on('network', function(event) {
         if (event.name == 'failed') {
-            console.log('网络发生错误：' + event.error);
+            app.showState('warning', '网络错误: ' + event.error.code);
+        }
+        else if (event.name == 'open') {
+            app.showState('info', '已连接到服务器');
         }
     });
 

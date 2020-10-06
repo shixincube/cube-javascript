@@ -3,6 +3,10 @@ body {
     background-color: #dedede;
 }
 
+textarea:focus, input:focus, select:focus {
+    outline: 0;
+}
+
 .app-container {
     width: 100%;
     max-width: 1280px;
@@ -180,11 +184,28 @@ body {
     padding: 0;
 }
 
+.main-footer .input {
+    padding-right: 0px;
+}
+.main-footer .button {
+    padding-left: 0px;
+}
+.main-footer .button button {
+    border-radius: unset;
+}
+
 .main-footer textarea {
     margin: 0;
     padding: 0;
     width: 100%;
     font-size: 14px;
+    outline: none;
+    resize: none;
+    border: 1px solid #979797;
+    background-color: #d8d8d8;
+}
+.main-footer textarea:focus {
+    outline: 0;
 }
 
 .main-footer .btn-send {
@@ -195,4 +216,9 @@ body {
     padding: 0;
     margin: 0;
     background-color: #fefefe;
+}
+
+.extras-alert {
+    padding: 8px;
+    border-radius: unset;
 }

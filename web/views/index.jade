@@ -54,11 +54,11 @@ block pageContent
             div.view
           div.main-footer.container
             div.row
-              div.col-sm-9.col-md-10.col-lg-10
+              div.col-sm-9.col-md-10.col-lg-10.input
                 textarea(wrap='hard', cols='10', rows='5')
-              div.col-sm-3.col-md-2.col-lg-2
+              div.col-sm-3.col-md-2.col-lg-2.button
                 button#btn_send.btn.btn-primary.btn-send 发 送
       
       nav#extras.col-sm-2.col-md-2.col-lg-2.extras
         div.extras-panel
-          div.alert.alert-primary(role='alert') 正在启动……
+          div#extrasAlert.alert.alert-info.extras-alert(role='alert') 正在连接……
