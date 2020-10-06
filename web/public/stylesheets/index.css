@@ -1,5 +1,11 @@
 body {
     font: 14px "MicrosoftYaHei", "Microsoft YaHei", "Lucida Grande", Helvetica, Arial, sans-serif;
+    background-color: #dedede;
+}
+
+.app-container {
+    width: 100%;
+    max-width: 1280px;
 }
 
 .bg-dark {
@@ -29,7 +35,7 @@ body {
 
 .sidebar {
     text-align: center;
-    max-width: 100px !important;
+    max-width: 80px !important;
 }
 
 .sidebar a:hover {
@@ -185,4 +191,8 @@ body {
     width: 100%;
 }
 
-
+.extras {
+    padding: 0;
+    margin: 0;
+    background-color: #fefefe;
+}

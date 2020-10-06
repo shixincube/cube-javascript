@@ -60,12 +60,14 @@ export class CubeShortcut {
 
     /**
      * 
-     * @param {string} event 
-     * @param {function} listener 
+     * @param {string} event 事件名。
+     * 支持的事件：
+     * ['network']{@linkcode PipelineListener}
+     * @param {CubeNetworkCallback} listener 监听函数。
      */
     on(event, listener) {
-        if (event == 'network-state') {
-            this.engine.kernel.getPipeline('Cell')
+        if (event == 'network') {
+            this.engine.getMainPipeline().addStateListener(listener);
         }
     }
 

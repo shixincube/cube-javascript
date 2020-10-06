@@ -25,6 +25,8 @@
  */
 
 import { Kernel } from "../core/Kernel";
+import { Module } from "../core/Module";
+import { Pipeline } from "../core/Pipeline";
 import { CellPipeline } from "../pipeline/CellPipeline";
 import { AjaxPipeline } from "../pipeline/AjaxPipeline";
 import { AuthService } from "../auth/AuthService";
@@ -42,7 +44,6 @@ import { PluginSystem } from "../core/PluginSystem";
 export class CubeEngine {
 
     /**
-     * 构造函数。
      */
     constructor() {
         this.kernel = new Kernel();
@@ -103,8 +104,17 @@ export class CubeEngine {
     }
 
     /**
+     * 获取主通道实例。
+     * @returns {Pipeline} 返回主通道实例。
+     */
+    getMainPipeline() {
+        return this.kernel.getPipeline(CellPipeline.NAME);
+    }
+
+    /**
      * 获取指定名称的模块。
      * @param {string} moduleName 指定模块名称。
+     * @returns {Module} 返回指定名称的模块。
      */
     getModule(moduleName) {
         return this.kernel.getModule(moduleName);

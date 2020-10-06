@@ -39,6 +39,21 @@ import { PipelineError } from "./error/PipelineError";
  */
 
 /**
+ * 网络事件定义。
+ * @typedef {Object} CubeNetworkEvent
+ * @property {string} name 事件名。 
+ * @property {Pipeline} pipeline 发生事件的数据管道。
+ * @property {PipelineError} error 故障事件的错误描述。
+ */
+
+/**
+ * 事件回调函数。
+ * @callback CubeNetworkCallback
+ * @param {CubeNetworkEvent} event 网络事件。
+ */
+
+
+/**
  * 数据通道服务接口。
  */
 export class Pipeline {
@@ -192,13 +207,37 @@ export class Pipeline {
      */
     triggerState(state, error) {
         if (state === 'open') {
-
+            for (let i = 0; i < this.stateListenerList.length; ++i) {
+                let listener = this.stateListenerList[i];
+                if (typeof listener === 'function') {
+                    listener({ "name": state, "pipeline": this });
+                }
+                else {
+                    listener.onOpened(this);
+                }
+            }
         }
         else if (state === 'failed') {
-
+            for (let i = 0; i < this.stateListenerList.length; ++i) {
+                let listener = this.stateListenerList[i];
+                if (typeof listener === 'function') {
+                    listener({ "name": state, "pipeline": this, "error": error });
+                }
+                else {
+                    listener.onFailed(this);
+                }
+            }
         }
         else if (state === 'close') {
-
+            for (let i = 0; i < this.stateListenerList.length; ++i) {
+                let listener = this.stateListenerList[i];
+                if (typeof listener === 'function') {
+                    listener({ "name": state, "pipeline": this });
+                }
+                else {
+                    listener.onClosed(this);
+                }
+            }
         }
     }
 

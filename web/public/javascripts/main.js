@@ -31,6 +31,13 @@ $(document).ready(function() {
 
     var cube = window.cube();
 
+    // 监听网络状态
+    cube.on('network', function(event) {
+        if (event.name == 'failed') {
+            console.log('网络发生错误：' + event.error);
+        }
+    });
+
     // 启动 Cube
     cube.start({
         address: '127.0.0.1',
