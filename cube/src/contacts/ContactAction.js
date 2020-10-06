@@ -33,7 +33,13 @@ export const ContactAction = {
      * 指定当前客户端对应的联系人信息。
      * @type {string}
      */
-    Self: 'self',
+    SignIn: 'signIn',
+
+    /**
+     * 指定当前客户端的联系人签出。
+     * @type {string}
+     */
+    SignOut: 'signOut',
 
     /**
      * 当前联系人的所有端都脱机。

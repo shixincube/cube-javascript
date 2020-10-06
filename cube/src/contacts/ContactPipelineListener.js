@@ -54,9 +54,8 @@ export class ContactPipelineListener extends PipelineListener {
     onReceived(pipeline, source, packet) {
         super.onReceived(pipeline, source, packet);
 
-        if (packet.name == ContactAction.Self) {
-            cell.Logger.d('Contact', 'Self: ' + packet.name);
-            this.contactService.updateSelf(packet.data);
+        if (packet.name == ContactAction.SignIn) {
+            this.contactService.triggerSignIn(packet.data);
         }
         else if (packet.name == ContactAction.InviteMember) {
             this.contactService.triggerInviteMember(packet.data);
@@ -73,5 +72,31 @@ export class ContactPipelineListener extends PipelineListener {
         else if (packet.name == ContactAction.ChangeOwner) {
             this.contactService.triggerChangeOwner(packet.data);
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    onOpened(pipeline) {
+        if (null != this.contactService.self && !this.contactService.selfReady) {
+            cell.Logger.d('ContactPipelineListener', 'Call sign-in in "onOpened": ' + this.contactService.self.getId());
+            // 签入已经设置的 Self
+            let timer = setTimeout(() => {
+                clearTimeout(timer);
+                this.contactService.signIn(this.contactService.self);
+            }, 100);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    onClosed(pipeline) {
+    }
+
+    /**
+     * @inheritdoc
+     */
+    onFailed(pipeline, error) {
     }
 }

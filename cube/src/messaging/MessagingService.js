@@ -342,7 +342,7 @@ export class MessagingService extends Module {
      * @param {ObservableState} state 
      */
     _fireContactEvent(state) {
-        if (state.name == ContactEvent.Self) {
+        if (state.name == ContactEvent.SignIn) {
             let self = state.data;
 
             if (!this.pulled) {

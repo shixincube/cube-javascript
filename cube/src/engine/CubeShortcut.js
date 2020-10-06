@@ -62,21 +62,28 @@ export class CubeShortcut {
      * 
      * @param {string} event 事件名。
      * 支持的事件：
-     * ['network']{@linkcode PipelineListener}
+     * ['network']{@linkcode PipelineListener},
+     * ['pipeline']{@linkcode PipelineListener}
      * @param {CubeNetworkCallback} listener 监听函数。
      */
     on(event, listener) {
-        if (event == 'network') {
+        if (event == 'network' || event == 'pipeline') {
             this.engine.getMainPipeline().addStateListener(listener);
         }
     }
 
-    checkin(id) {
-        let self = new Self(id);
-        this.engine.getContactService().setSelf(self);
+    /**
+     * 将当前终端指定的联系人签入。
+     * @param {number} id 联系人 ID 。
+     */
+    signIn(id) {
+        this.engine.getContactService().signIn(id);
     }
 
-    checkout() {
+    /**
+     * 将已签入的联系人签出。
+     */
+    signOut() {
 
     }
 }

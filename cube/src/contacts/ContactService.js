@@ -65,6 +65,13 @@ export class ContactService extends Module {
         this.self = null;
 
         /**
+         * 当前联系人是否已设置。
+         * @private
+         * @type {boolean}
+         */
+        this.selfReady = false;
+
+        /**
          * 联系人内存缓存。
          * @type {OrderMap<number,Contact>}
          */
@@ -139,9 +146,16 @@ export class ContactService extends Module {
      * @param {Self|number|string} self 指定 {@linkcode Self} 对象或者自己的联系人 ID 。
      * @returns {boolean} 设置成功返回 {@linkcode true} ，否则返回 {@linkcode false} 。
      */
-    setSelf(self) {
+    signIn(self) {
         if (!this.started) {
             this.start();
+        }
+
+        if (self instanceof Self) {
+            this.self = self;
+        }
+        else {
+            this.self = new Self(parseInt(self));
         }
 
         if (!this.pipeline.isReady()) {
@@ -149,15 +163,9 @@ export class ContactService extends Module {
             return false;
         }
 
-        if (self instanceof Self) {
-            this.self = self;
-        }
-        else {
-            this.self = new Self(self);
-        }
+        let signInPacket = new Packet(ContactAction.SignIn, this.self.toJSON());
+        this.pipeline.send(ContactService.NAME, signInPacket);
 
-        let selfPacket = new Packet(ContactAction.Self, this.self.toJSON());
-        this.pipeline.send(ContactService.NAME, selfPacket);
         return true;
     }
 
@@ -174,10 +182,12 @@ export class ContactService extends Module {
      * @protected
      * @param {object} data 新的 {@linkcode Self} 数据。
      */
-    updateSelf(data) {
+    triggerSignIn(data) {
         if (null == this.self) {
             this.self = new Self(data["id"]);
         }
+
+        cell.Logger.d('ContactService', 'Trigger sign-in: ' + this.self.getId());
 
         this.self.name = data["name"];
         let devices = data["devices"];
@@ -189,7 +199,10 @@ export class ContactService extends Module {
             this.self.ctx = data["context"];
         }
 
-        this.nodifyObservers(new ObservableState(ContactEvent.Self, this.self));
+        // 更新状态
+        this.selfReady = true;
+
+        this.nodifyObservers(new ObservableState(ContactEvent.SignIn, this.self));
     }
 
     /**

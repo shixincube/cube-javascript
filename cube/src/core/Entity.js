@@ -89,7 +89,7 @@ export class Entity extends JSONable {
 
         /**
          * 实体名称。
-         * @property
+         * @protected
          * @type {string}
          */
         this.entityName = null;

@@ -127,7 +127,7 @@ var App = Class({
         };
         this.cube.start(config, function() {
             that.console.println('Cube Engine 启动成功');
-            that.cube.getContactService().setSelf(args[0]);
+            that.cube.getContactService().signIn(args[0]);
         }, function() {
             that.console.println('Cube Engine 启动失败');
         });

@@ -8,7 +8,6 @@
     "exclude": [
       "./src/CubeBoot.js",
       "./src/CubeLibBoot.js",
-      "./src/KernelBoot.js",
       "./src/utils/Aggregation.js"
     ],
     "excludePattern": "(node_modules/|docs)"
@@ -22,7 +21,7 @@
     "destination": "docs/",
     "recurse": true,
     "verbose": true,
-    "readme": "README.md"
+    "readme": "../README.md"
   },
   "templates": {
     "cleverLinks": false,

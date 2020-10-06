@@ -31,10 +31,16 @@
 export const ContactEvent = {
 
     /**
-     * 更新当前客户端指定的联系人信息。
+     * 当前客户端的联系人签入。
      * @type {string}
      */
-    Self: 'Self',
+    SignIn: 'SignIn',
+
+    /**
+     * 当前客户端的联系人签出。
+     * @type {string}
+     */
+    SignOut: 'SignOut',
 
     /**
      * 被邀请入群。

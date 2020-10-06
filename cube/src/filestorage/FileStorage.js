@@ -263,7 +263,7 @@ export class FileStorage extends Module {
     }
 
     _fireContactEvent(state) {
-        if (state.name == ContactEvent.Self) {
+        if (state.name == ContactEvent.SignIn) {
             let self = state.data;
             this.cid = self.getId();
         }

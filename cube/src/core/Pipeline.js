@@ -40,7 +40,7 @@ import { PipelineError } from "./error/PipelineError";
 
 /**
  * 网络事件定义。
- * @typedef {Object} CubeNetworkEvent
+ * @typedef {object} CubeNetworkEvent
  * @property {string} name 事件名。 
  * @property {Pipeline} pipeline 发生事件的数据管道。
  * @property {PipelineError} error 故障事件的错误描述。
@@ -206,9 +206,13 @@ export class Pipeline {
      * @param {PipelineError} error 
      */
     triggerState(state, error) {
+        // 所有监听器
+        let list = this.listenerMap.values();
+        list = list.concat(this.stateListenerList);
+
         if (state === 'open') {
-            for (let i = 0; i < this.stateListenerList.length; ++i) {
-                let listener = this.stateListenerList[i];
+            for (let i = 0; i < list.length; ++i) {
+                let listener = list[i];
                 if (typeof listener === 'function') {
                     listener({ "name": state, "pipeline": this });
                 }
@@ -218,8 +222,8 @@ export class Pipeline {
             }
         }
         else if (state === 'failed') {
-            for (let i = 0; i < this.stateListenerList.length; ++i) {
-                let listener = this.stateListenerList[i];
+            for (let i = 0; i < list.length; ++i) {
+                let listener = list[i];
                 if (typeof listener === 'function') {
                     listener({ "name": state, "pipeline": this, "error": error });
                 }
@@ -229,8 +233,8 @@ export class Pipeline {
             }
         }
         else if (state === 'close') {
-            for (let i = 0; i < this.stateListenerList.length; ++i) {
-                let listener = this.stateListenerList[i];
+            for (let i = 0; i < list.length; ++i) {
+                let listener = list[i];
                 if (typeof listener === 'function') {
                     listener({ "name": state, "pipeline": this });
                 }

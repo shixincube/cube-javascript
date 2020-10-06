@@ -4,3 +4,4 @@
 *.class
 build
 node_modules
+cube/examples

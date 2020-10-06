@@ -4,6 +4,10 @@ function CubeWebApp(account) {
     this.account = account;
 }
 
+CubeWebApp.prototype.signin = function() {
+    window.cube().signIn(this.account.id);
+}
+
 CubeWebApp.prototype.signout = function() {
     if (confirm('是否确认退出当前账号登录？')) {
         window.cube().stop();
@@ -39,8 +43,8 @@ CubeWebApp.prototype.showState = function(state, text) {
 
 $(document).ready(function() {
     // 初始化 App
-    window.app = new CubeWebApp(gAccount);
-    var app = window.app;
+    var app = new CubeWebApp(gAccount);
+    window.app = app;
 
     var cube = window.cube();
 
@@ -60,8 +64,10 @@ $(document).ready(function() {
         domain: 'shixincube.com',
         appKey: 'shixin-cubeteam-opensource-appkey'
     }, function() {
-        console.log('Start cube OK');
+        console.log('Start Cube OK');
+        // 将当前账号签入
+        app.signin();
     }, function(error) {
-        console.log('Start cube failed: ' + error);
+        console.log('Start Cube failed: ' + error);
     });
 });
