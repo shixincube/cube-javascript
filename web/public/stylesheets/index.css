@@ -151,6 +151,7 @@ textarea:focus, input:focus, select:focus {
     font-size: 14px;
     width: 100%;
     height: calc(100vh - 48px);
+    background-color: #f5f6f8;
 }
 
 .main-panel-bg {
@@ -183,7 +184,7 @@ textarea:focus, input:focus, select:focus {
 }
 
 .main-body {
-    height: calc(100vh - 190px);
+    height: calc(100vh - 280px);
     background-color: #f5f6f8;
     margin: 0;
     padding: 0;
@@ -196,6 +197,13 @@ textarea:focus, input:focus, select:focus {
 
 .main-body-content .item {
     padding: 12px 0px 12px 0px;
+}
+
+.item-tips {
+    color: #999999;
+    font-size: 12px;
+    width: 100%;
+    text-align: center;
 }
 
 .item-content {
@@ -221,10 +229,12 @@ textarea:focus, input:focus, select:focus {
 .main-footer {
     margin: 0;
     padding: 0;
+    border-top: 1px solid #d7d7d7;
+    background-color: #f5f6f8;
 }
 
-.main-footer .input {
-    padding-right: 0px;
+.main-footer .message-input {
+    padding: 0 14px 0 14px;
 }
 .main-footer .button {
     padding-left: 0px;
@@ -235,20 +245,29 @@ textarea:focus, input:focus, select:focus {
 
 .main-footer textarea {
     margin: 0;
-    padding: 0;
+    padding: 0px 0px 0px 14px;
     width: 100%;
     font-size: 14px;
+    line-height: 1.2;
     outline: none;
     resize: none;
-    border: 1px solid #979797;
-    background-color: #d8d8d8;
+    border: none;
+    background-color: #f5f6f8;
 }
 .main-footer textarea:focus {
     outline: 0;
 }
 
+.main-footer .btn-send-con {
+    width: 100%;
+    padding: 0px 14px 0px 14px;
+}
 .main-footer .btn-send {
     width: 100%;
+    height: 34px;
+    color: #fff;
+    border-color: #4493fa;
+    background-color: #4493fa;
 }
 
 .extras {

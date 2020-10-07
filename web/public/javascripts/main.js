@@ -42,7 +42,7 @@ CubeWebApp.prototype.signout = function() {
 }
 
 CubeWebApp.prototype.requestAccount = function(id, handler) {
-    $.get('/account', {
+    $.get('/account/info', {
         "id" : id
     }, function(data, textStatus, jqXHR) {
         handler(data, textStatus);

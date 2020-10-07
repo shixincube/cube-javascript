@@ -2,9 +2,8 @@ var express = require('express');
 var router = express.Router();
 
 /* GET */
-router.get('/', function(req, res, next) {
+router.get('/info', function(req, res, next) {
     if (undefined === req.query.id) {
-        res.json({});
         res.sendStatus(400);
         return;
     }
@@ -13,7 +12,6 @@ router.get('/', function(req, res, next) {
     let mgr = req.app.get('manager');
     let account = mgr.getAccount(id);
     res.json(account);
-    res.sendStatus(200);
 });
 
 /* POST /signin/form */
@@ -33,7 +31,6 @@ router.post('/signout', function(req, res, next) {
         res.cookie('CubeAppToken', '', { maxAge: 1000 });
 
         res.json({ "id": id });
-        res.sendStatus(200);
     }
     else {
         console.warn('登录 ID 不一致');

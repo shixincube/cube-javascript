@@ -53,6 +53,8 @@ block pageContent
           div.main-body
             div.main-body-content
               div.item
+                div.item-tips 今天 11:12
+              div.item
                 div.item-content.item-contact-a
                   img(src='https://static.shixincube.com/cube/assets/images/logo/cube_256.png', width='40', height='40')
                 div.item-content.item-message-a 这是一条消息
@@ -62,10 +64,13 @@ block pageContent
                 div.item-content.item-message-b 这是一条消息
           div.main-footer.container
             div.row
-              div.col-sm-9.col-md-10.col-lg-10.input
-                textarea(wrap='hard', cols='10', rows='5')
+              div.col-sm-9.col-md-10.col-lg-10.message-input
+                div &nbsp;
+                textarea(wrap='hard', cols='20', rows='9')
               div.col-sm-3.col-md-2.col-lg-2.button
-                button#btn_send.btn.btn-primary.btn-send 发 送
+                div &nbsp;
+                div.btn-send-con
+                  button#btn_send.btn.btn-primary.btn-send 发 送
       
       nav#extras.col-sm-2.col-md-2.col-lg-2.extras
         div.extras-panel
