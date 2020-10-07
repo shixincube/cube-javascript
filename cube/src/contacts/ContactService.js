@@ -142,7 +142,7 @@ export class ContactService extends Module {
     }
 
     /**
-     * 设置当前活跃用户。
+     * 签入当前终端的联系人。
      * @param {Self|number|string} self 指定 {@linkcode Self} 对象或者自己的联系人 ID 。
      * @returns {boolean} 设置成功返回 {@linkcode true} ，否则返回 {@linkcode false} 。
      */
@@ -166,6 +166,24 @@ export class ContactService extends Module {
         let signInPacket = new Packet(ContactAction.SignIn, this.self.toJSON());
         this.pipeline.send(ContactService.NAME, signInPacket);
 
+        return true;
+    }
+
+    /**
+     * 将当前设置的联系人签出。
+     */
+    signOut() {
+        if (!this.selfReady || null == this.self) {
+            return false;
+        }
+
+        if (!this.pipeline.isReady()) {
+            cell.Logger.w('ContactService', 'Pipeline "' + this.pipeline.getName() + '" is no ready');
+            return false;
+        }
+
+        let signOutPacket = new Packet(ContactAction.SignOut, this.self.toJSON());
+        this.pipeline.send(ContactService.NAME, signOutPacket);
         return true;
     }
 

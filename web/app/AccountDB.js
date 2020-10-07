@@ -47,7 +47,7 @@ class AccountDB {
             state: 'offline'
         }, {
             id: 50001004,
-            name: '张靖蝶',
+            name: '张靖灵',
             avatar: 'https://static.shixincube.com/cube/assets/images/logo/spap.png',
             state: 'offline'
         }, {

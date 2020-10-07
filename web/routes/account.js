@@ -29,7 +29,6 @@ router.post('/signout', function(req, res, next) {
         console.log('账号 ' + id + ' 退出登录');
         mgr.signOut();
         res.cookie('CubeAppToken', '', { maxAge: 1000 });
-
         res.json({ "id": id });
     }
     else {

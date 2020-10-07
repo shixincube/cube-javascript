@@ -82,8 +82,9 @@ export class CubeShortcut {
 
     /**
      * 将已签入的联系人签出。
+     * @returns {boolean} 如果当前状态正常，允许签出返回 {@linkcode true} 。
      */
     signOut() {
-
+        return this.engine.getContactService.signOut();
     }
 }

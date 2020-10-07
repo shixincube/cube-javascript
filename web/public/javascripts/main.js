@@ -63,8 +63,18 @@ CubeWebApp.prototype.showState = function(state, text) {
 }
 
 CubeWebApp.prototype.updateMainPanel = function(data) {
-    var elTitle = $('#main').find('div.header-title');
-    elTitle.css('visibility', 'visible');
+    var elMain = $('#main');
+    if (elMain.hasClass('main')) {
+        elMain.removeClass('main');
+        elMain.addClass('main-active');
+    } else if (!elMain.hasClass('main-active')) {
+        elMain.addClass('main-active');
+    }
+
+    var elPanel = elMain.find('div.main-panel');
+    elPanel.css('visibility', 'visible');
+
+    elTitle = elMain.find('div.header-title');
     elTitle.text(data.name);
 }
 
