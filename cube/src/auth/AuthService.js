@@ -221,6 +221,7 @@ export class AuthService extends Module {
                         resolve(token);
                     }
                     else {
+                        cell.Logger.w('AuthService', 'Apply auth token failed');
                         resolve(null);
                     }
                 });
