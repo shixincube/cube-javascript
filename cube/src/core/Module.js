@@ -31,7 +31,7 @@ import { PluginSystem } from "./PluginSystem";
 import { PipelineListener } from "./PipelineListener";
 import { FastMap } from "../util/FastMap";
 import { Entity } from "./Entity";
-
+import { AuthToken } from "../auth/AuthToken";
 
 /**
  * 实体的数据通道监听器。
@@ -120,6 +120,14 @@ export class Module extends Subject {
      */
     getName() {
         return this.name;
+    }
+
+    /**
+     * 获取访问令牌。
+     * @returns {AuthToken} 返回当前存储的访问令牌，如果没有获得令牌返回 {@linkcode null} 值。
+     */
+    getAuthToken() {
+        return this.kernel.getAuthToken();
     }
 
     /**

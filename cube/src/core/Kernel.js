@@ -30,6 +30,7 @@ import { Pipeline } from "./Pipeline";
 import { Module } from "./Module";
 import { AuthToken } from "../auth/AuthToken";
 import { KernelError } from "./error/KernelError";
+import { AuthService } from "../auth/AuthService";
 
 /**
  * 内核配置定义。
@@ -249,6 +250,14 @@ export class Kernel {
     }
 
     /**
+     * 获取访问令牌。
+     * @returns {AuthToken} 返回当前存储的访问令牌，如果没有获得令牌返回 {@linkcode null} 值。
+     */
+    getAuthToken() {
+        return this.getModule(AuthService.NAME).getToken();
+    }
+
+    /**
      * 等待通道就绪或者达到指定超时时长。
      * @protected
      * @param {number} timeout 指定超时时长，单位：毫秒。
@@ -282,7 +291,7 @@ export class Kernel {
      */
     checkAuth(config) {
         return new Promise((resolve, reject) => {
-            let authService = this.getModule('Auth');
+            let authService = this.getModule(AuthService.NAME);
 
             if (null == authService) {
                 // 没有安装授权模块

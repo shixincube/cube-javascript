@@ -349,6 +349,7 @@ export class MessagingService extends Module {
                 // 拉取消息
                 let payload = {
                     id: self.getId(),
+                    domain: self.getDomain(),
                     device: self.getDevice().toJSON()
                 };
 

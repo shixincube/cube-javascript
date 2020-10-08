@@ -191,6 +191,7 @@ export class CellPipeline extends Pipeline {
         let dialect = new cell.ActionDialect(packet.name);
         dialect.addParam('sn', packet.sn, cell.LiteralBase.LONG);
         dialect.addParam('data', packet.data, cell.LiteralBase.JSON);
+        dialect.addParam('token', this.tokenCode, cell.LiteralBase.STRING);
         return dialect;
     }
 

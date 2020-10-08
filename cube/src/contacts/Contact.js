@@ -40,8 +40,9 @@ export class Contact extends Entity {
     /**
      * 构造函数。
      * @param {number|string} id 指定联系人 ID 。
+     * @param {string} domain 指定联系人所在的域。
      */
-    constructor(id) {
+    constructor(id, domain) {
         super(Contact.Lifespan);
 
         /**
@@ -50,6 +51,13 @@ export class Contact extends Entity {
          * @type {number}
          */
         this.id = (typeof id === 'string') ? parseInt(id) : id;
+
+        /**
+         * 联系人所在域。
+         * @private
+         * @type {string}
+         */
+        this.domain = domain;
 
         /**
          * 联系人名称。
@@ -72,6 +80,14 @@ export class Contact extends Entity {
      */
     getId() {
         return this.id;
+    }
+
+    /**
+     * 获取联系人所在域。
+     * @returns {string} 返回联系人所在域。
+     */
+    getDomain() {
+        return this.domain;
     }
 
     /**
@@ -128,6 +144,7 @@ export class Contact extends Entity {
     toJSON() {
         let json = super.toJSON();
         json["id"] = this.id;
+        json["domain"] = this.domain;
         json["name"] = this.name;
 
         let devArray = [];
@@ -150,10 +167,11 @@ export class Contact extends Entity {
      */
     static create(json) {
         let id = json.id;
+        let domain = json.domain;
         let name = json.name;
         let devices = (json.devices) ? json.devices : [];
 
-        let contact = new Contact(id);
+        let contact = new Contact(id, domain);
         contact.name = name;
         for (let i = 0; i < devices.length; ++i) {
             let devJson = devices[i];

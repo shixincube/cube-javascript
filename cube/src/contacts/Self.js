@@ -33,11 +33,16 @@ import { Device } from "./Device";
 export class Self extends Contact {
 
     /**
+     * 当前终端的域。
+     */
+    static DOMAIN = '';
+
+    /**
      * 构造函数。
-     * @param {number} id 指定自己描述的 ID 。
+     * @param {number|string} id 指定自终端的 ID 。
      */
     constructor(id) {
-        super(id);
+        super(id, Self.DOMAIN);
 
         /**
          * 当前设备描述。

@@ -123,6 +123,9 @@ export class ContactService extends Module {
             return false;
         }
 
+        // 设置域
+        Self.DOMAIN = this.getAuthToken().domain;
+
         this.inspector.start();
 
         this.pipeline.addListener(ContactService.NAME, this.pipelineListener);
@@ -153,6 +156,7 @@ export class ContactService extends Module {
 
         if (self instanceof Self) {
             this.self = self;
+            this.self.domain = Self.DOMAIN;
         }
         else {
             this.self = new Self(parseInt(self));
@@ -163,7 +167,11 @@ export class ContactService extends Module {
             return false;
         }
 
-        let signInPacket = new Packet(ContactAction.SignIn, this.self.toJSON());
+        let data = {
+            "self": this.self.toJSON(),
+            "token": this.getAuthToken().toJSON()
+        };
+        let signInPacket = new Packet(ContactAction.SignIn, data);
         this.pipeline.send(ContactService.NAME, signInPacket);
 
         return true;
