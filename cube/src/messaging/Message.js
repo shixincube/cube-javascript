@@ -27,6 +27,7 @@
 import cell from "@lib/cell-lib";
 import { Entity } from "../core/Entity";
 import { MessageState } from "./MessageState";
+import { Self } from "../contacts/Self";
 
 /**
  * 消息实体。
@@ -45,6 +46,13 @@ export class Message extends Entity {
          * @type {number}
          */
         this.id = cell.Utils.generateSerialNumber();
+
+        /**
+         * 所在域。
+         * @private
+         * @type {string}
+         */
+        this.domain = Self.DOMAIN;
 
         /**
          * 消息负载数据。
@@ -103,6 +111,14 @@ export class Message extends Entity {
     }
 
     /**
+     * 获取域。
+     * @returns {string} 返回域。
+     */
+    getDomain() {
+        return this.domain;
+    }
+
+    /**
      * 获取消息发送方的 ID 。
      * @returns {number} 返回消息发送方的 ID 。
      */
@@ -158,6 +174,7 @@ export class Message extends Entity {
      */
     clone(src) {
         this.id = src.id;
+        this.domain = src.domain;
         this.from = src.from;
         this.to = src.to;
         this.source = src.source;
@@ -173,6 +190,7 @@ export class Message extends Entity {
     toJSON() {
         let json = super.toJSON();
         json["id"] = this.id;
+        json["domain"] = this.domain;
         json["from"] = this.from;
         json["to"] = this.to;
         json["source"] = this.source;
@@ -190,6 +208,7 @@ export class Message extends Entity {
     static create(json) {
         let message = new Message();
         message.id = json.id;
+        message.domain = json.domain;
         message.payload = json.payload;
         message.from = json.from;
         message.to = json.to;
