@@ -60,7 +60,7 @@ export class ContactService extends Module {
 
         /**
          * 当前有效的在线联系人。
-         * @type {Contact}
+         * @type {Self}
          */
         this.self = null;
 
@@ -196,6 +196,24 @@ export class ContactService extends Module {
     }
 
     /**
+     * 恢复连接状态。
+     */
+    comeback() {
+        if (null == this.self) {
+            return;
+        }
+
+        let packet = new Packet(ContactAction.Comeback, this.self.toJSON());
+        this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+                if (responsePacket.data.code == 0) {
+                    cell.Logger.d('ContactService', 'Self comeback OK');
+                }
+            }
+        });
+    }
+
+    /**
      * 获取当前的 {@linkcode Self} 实例。
      * @returns {Self} 返回当前的 {@linkcode Self} 实例。
      */
@@ -204,16 +222,23 @@ export class ContactService extends Module {
     }
 
     /**
-     * 更新 {@linkcode Self} 数据。
+     * 触发用户签入事件。
      * @protected
-     * @param {object} data 新的 {@linkcode Self} 数据。
+     * @param {object} payload 来自服务器数据。
      */
-    triggerSignIn(data) {
+    triggerSignIn(payload) {
+        if (payload.code != 0) {
+            cell.Logger.e('ContactService', 'SignIn failed: ' + payload.code);
+            return;
+        }
+
+        let data = payload.data;
+
         if (null == this.self) {
             this.self = new Self(data["id"]);
         }
 
-        cell.Logger.d('ContactService', 'Trigger sign-in: ' + this.self.getId());
+        cell.Logger.d('ContactService', 'Trigger SignIn: ' + this.self.getId());
 
         this.self.name = data["name"];
         let devices = data["devices"];
@@ -249,11 +274,14 @@ export class ContactService extends Module {
             // TODO 从数据库读取
 
             if (null == contact) {
-                let packet = new Packet(ContactAction.GetContact, { "id" : id });
+                let packet = new Packet(ContactAction.GetContact, {
+                    "id": id,
+                    "domain": Self.DOMAIN
+                });
                 this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
                     if (null != responsePacket) {
-                        if (responsePacket.getStateCode() == StateCode.OK) {
-                            contact = Contact.create(responsePacket.data);
+                        if (responsePacket.getStateCode() == StateCode.OK && responsePacket.data.code == 0) {
+                            contact = Contact.create(responsePacket.data.data);
                             this.contacts.put(contact.getId(), contact);
                             resolve(contact);
                         }
@@ -303,11 +331,14 @@ export class ContactService extends Module {
         }
 
         let promise = new Promise((resolve, reject) => {
-            let packet = new Packet(ContactAction.GetContactList, { "list" : idList });
+            let packet = new Packet(ContactAction.GetContactList, {
+                "list": idList,
+                "domain": Self.DOMAIN
+            });
             this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
                 if (null != responsePacket) {
-                    if (responsePacket.getStateCode() == StateCode.OK) {
-                        let list = responsePacket.data.list;
+                    if (responsePacket.getStateCode() == StateCode.OK && responsePacket.data.code == 0) {
+                        let list = responsePacket.data.data.list;
                         let contactList = [];
 
                         for (let i = 0; i < list.length; ++i) {
@@ -366,11 +397,14 @@ export class ContactService extends Module {
             // TODO 从数据库读取
 
             if (null == group) {
-                let packet = new Packet(ContactAction.GetGroup, { "id" : id });
+                let packet = new Packet(ContactAction.GetGroup, {
+                    "id": id,
+                    "domain": Self.DOMAIN
+                });
                 this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
                     if (null != responsePacket) {
-                        if (responsePacket.getStateCode() == StateCode.OK) {
-                            Group.create(this, responsePacket.data, (result) => {
+                        if (responsePacket.getStateCode() == StateCode.OK && responsePacket.data.code == 0) {
+                            Group.create(this, responsePacket.data.data, (result) => {
                                 if (null == result) {
                                     // 创建失败
                                     reject();
@@ -441,7 +475,7 @@ export class ContactService extends Module {
             }
 
             // 设置 ID
-            group.id = responsePacket.data.id;
+            group.id = responsePacket.data.data.id;
             this.groups.put(group.getId(), group);
             handleSuccess(group);
         });
@@ -568,10 +602,10 @@ export class ContactService extends Module {
     /**
      * 收到 Invited 数据。
      * @protected
-     * @param {JSON} packetData 
+     * @param {JSON} payload 
      */
-    triggerInviteMember(packetData) {
-        Group.create(this, packetData, (result) => {
+    triggerInviteMember(payload) {
+        Group.create(this, payload.data, (result) => {
             if (null == result) {
                 // 创建失败
                 return;
@@ -587,10 +621,10 @@ export class ContactService extends Module {
 
     /**
      * 收到 Group Dissolved 数据。
-     * @param {JSON} packetData 
+     * @param {JSON} payload 
      */
-    triggerDissolveGroup(packetData) {
-        Group.create(this, packetData, (result) => {
+    triggerDissolveGroup(payload) {
+        Group.create(this, payload.data, (result) => {
             if (null == result) {
                 // 创建失败
                 return;
@@ -604,14 +638,14 @@ export class ContactService extends Module {
         });
     }
 
-    triggerChangeOwner(packetData) {
-        let groupId = packetData.groupId;
-        let newOwnerId = packetData.newOwnerId;
+    triggerChangeOwner(payload) {
+        let groupId = payload.data.groupId;
+        let newOwnerId = payload.data.newOwnerId;
     }
 
-    triggerAddMember(packetData) {
-        let groupJson = packetData.group;
-        let memberId = packetData.memberId;
+    triggerAddMember(payload) {
+        let groupJson = payload.data.group;
+        let memberId = payload.data.memberId;
 
         let announcer = new Announcer(2, 10000);
         announcer.addAudience((count, map) => {
@@ -636,9 +670,9 @@ export class ContactService extends Module {
         });
     }
 
-    triggerRemoveMember(packetData) {
-        let groupJson = packetData.group;
-        let memberId = packetData.memberId;
+    triggerRemoveMember(payload) {
+        let groupJson = payload.data.group;
+        let memberId = payload.data.memberId;
 
         let announcer = new Announcer(2, 10000);
         announcer.addAudience((count, map) => {

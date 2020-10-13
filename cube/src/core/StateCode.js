@@ -45,6 +45,11 @@ export const StateCode = {
     NotFound: 1404,
 
     /**
+     * 没有找到授权码。
+     */
+    NoAuthToken: 1501,
+
+    /**
      * 请求服务超时。
      */
     ServiceTimeout: 2001,
@@ -55,8 +60,27 @@ export const StateCode = {
     PayloadFormat: 2002,
 
     /**
+     * 参数错误。
+     */
+    InvalidParameter: 2003,
+
+    /**
      * 网关错误。
      */
-    GatewayError: 2101
+    GatewayError: 2101,
 
+    /**
+     * 提取服务器返回的链路状态码。
+     * 
+     * @param {ActionDialect} action 指定动作方言实例。
+     * @returns 如果有状态信息返回状态信息的 JSON 格式，否则返回 {@linkcode null} 值。
+     */
+    extractState: function(action) {
+        if (action.containsParam('state')) {
+            return action.getParamAsJson('state');
+        }
+        else {
+            return null;
+        }
+    }
 }

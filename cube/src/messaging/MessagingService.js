@@ -24,6 +24,7 @@
  * SOFTWARE.
  */
 
+import cell from "@lib/cell-lib";
 import { Module } from "../core/Module"
 import { ContactService } from "../contacts/ContactService";
 import { ContactEvent } from "../contacts/ContactEvent";
@@ -242,9 +243,10 @@ export class MessagingService extends Module {
     /**
      * 触发观察者 Notify 回调。
      * @private
-     * @param {JSON} data 
+     * @param {JSON} payload 
      */
-    triggerNotify(data) {
+    triggerNotify(payload) {
+        let data = payload.data;
         let message = Message.create(data);
 
         // 下钩子
@@ -259,9 +261,10 @@ export class MessagingService extends Module {
     /**
      * 处理 Pull 数据并回调事件。
      * @private
-     * @param {JSON} data 
+     * @param {JSON} payload 
      */
-    triggerPull(data) {
+    triggerPull(payload) {
+        let data = payload.data;
         let total = data.total;
         let beginning = data.beginning;
         let ending = data.ending;
@@ -287,15 +290,21 @@ export class MessagingService extends Module {
                     // 发送到服务器
                     let packet = new Packet(MessagingAction.Push, message.toJSON());
                     this.pipeline.send(MessagingService.NAME, packet, (pipeline, source, responsePacket) => {
-                        if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
-                            // TODO 错误处理
-                            return;
+                        if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+                            if (responsePacket.data.code == 0) {
+                                message.state = MessageState.Sent;
+
+                                let state = new ObservableState(MessagingEvent.Sent, message);
+                                this.nodifyObservers(state);
+                            }
+                            else {
+                                // TODO 回调
+                                cell.Logger.e('MessagingService', 'Sent failed: ' + responsePacket.data.code);
+                            }
                         }
-
-                        message.state = MessageState.Sent;
-
-                        let state = new ObservableState(MessagingEvent.Sent, message);
-                        this.nodifyObservers(state);
+                        else {
+                            cell.Logger.e('MessagingService', 'Pipeline error');
+                        }
                     });
                 }
             }

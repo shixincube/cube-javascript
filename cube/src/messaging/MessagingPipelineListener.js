@@ -45,7 +45,14 @@ export class MessagingPipelineListener extends PipelineListener {
     /**
      * @inheritdoc
      */
-    onReceived(pipeline, endpoint, packet) {
+    onReceived(pipeline, source, packet) {
+        super.onReceived(pipeline, source, packet);
+
+        if (packet.getStateCode() != StateCode.OK) {
+            cell.Logger.w('MessagingPipelineListener', 'Pipeline error: ' + packet.getStateCode());
+            return;
+        }
+
         if (packet.name == MessagingAction.Notify) {
             this.messagingService.triggerNotify(packet.data);
         }

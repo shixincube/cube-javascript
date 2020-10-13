@@ -28,6 +28,7 @@ import cell from "@lib/cell-lib";
 import { PipelineListener } from "../core/PipelineListener";
 import { ContactService } from "./ContactService";
 import { ContactAction } from "./ContactAction";
+import { StateCode } from "../core/StateCode";
 
 /**
  * 联系人数据管道监听器。
@@ -53,6 +54,11 @@ export class ContactPipelineListener extends PipelineListener {
      */
     onReceived(pipeline, source, packet) {
         super.onReceived(pipeline, source, packet);
+
+        if (packet.getStateCode() != StateCode.OK) {
+            cell.Logger.w('ContactPipelineListener', 'Pipeline error: ' + packet.name + ' - ' + packet.getStateCode());
+            return;
+        }
 
         if (packet.name == ContactAction.SignIn) {
             this.contactService.triggerSignIn(packet.data);
@@ -80,13 +86,22 @@ export class ContactPipelineListener extends PipelineListener {
     onOpened(pipeline) {
         super.onOpened(pipeline);
 
-        if (null != this.contactService.self && !this.contactService.selfReady) {
-            cell.Logger.d('ContactPipelineListener', 'Call sign-in in "onOpened": ' + this.contactService.self.getId());
-            // 签入已经设置的 Self
-            let timer = setTimeout(() => {
-                clearTimeout(timer);
-                this.contactService.signIn(this.contactService.self);
-            }, 100);
+        if (null != this.contactService.self) {
+            if (!this.contactService.selfReady) {
+                cell.Logger.d('ContactPipelineListener', 'Call "SignIn" in "onOpened": ' + this.contactService.self.getId());
+                // 签入已经设置的 Self
+                let timer = setTimeout(() => {
+                    clearTimeout(timer);
+                    this.contactService.signIn(this.contactService.self);
+                }, 100);
+            }
+            else {
+                // 恢复 Self
+                let timer = setTimeout(() => {
+                    clearTimeout(timer);
+                    this.contactService.comeback();
+                }, 100);
+            }
         }
     }
 
@@ -101,5 +116,6 @@ export class ContactPipelineListener extends PipelineListener {
      * @inheritdoc
      */
     onFailed(pipeline, error) {
+        super.onFailed(pipeline, error);
     }
 }

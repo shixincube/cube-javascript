@@ -80,6 +80,10 @@ var App = Class({
         messaging.attachWithName(MessagingEvent.Sending, function(msg) {
             that.console.log('正在发送 ' + msg.getFileName() + ' - ' + msg.getPosition() + '/' + msg.getFileSize());
         });
+        messaging.attachWithName(MessagingEvent.Notify, function(event) {
+            var msg = event.data;
+            that.console.log('收到来自 ' + msg.from + ' 的消息：' + msg.payload.content);
+        });
 
         var fileStorage = this.cube.getFileStorage();
 
@@ -121,7 +125,7 @@ var App = Class({
         var that = this;
         var config = {
             address: '127.0.0.1',
-            domain: 'shixincube.com ',
+            domain: 'shixincube.com',
             appKey: 'shixin-cubeteam-opensource-appkey',
             pipelineReady: true     // 等待通道就绪
         };
@@ -147,7 +151,7 @@ var App = Class({
 
         var that = this;
         this.cube.getContactService().getContact(cid, function(contact) {
-            if (ms.sendToContact(contact, new Message({ "content" : content}))) {
+            if (ms.sendToContact(contact, new Message({ "content" : content }))) {
                 that.console.info('向 ' + cid + ' 发送消息 "' + content + '"');
             }
             else {

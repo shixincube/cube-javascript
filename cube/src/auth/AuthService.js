@@ -208,7 +208,7 @@ export class AuthService extends Module {
                     appKey: appKey
                 });
 
-                this.pipeline.send(AuthService.NAME, packet, (pipeline, endpoint, responsePacket) => {
+                this.pipeline.send(AuthService.NAME, packet, (pipeline, source, responsePacket) => {
                     if (null == responsePacket) {
                         // 超时
                         resolve(null);
@@ -217,11 +217,17 @@ export class AuthService extends Module {
 
                     let state = responsePacket.getStateCode();
                     if (state == StateCode.OK) {
-                        let token = AuthToken.create(responsePacket.data);
-                        resolve(token);
+                        if (responsePacket.data.code == 0) {
+                            let token = AuthToken.create(responsePacket.data.data);
+                            resolve(token);
+                        }
+                        else {
+                            cell.Logger.w('AuthService', 'Apply auth token failed: ' + responsePacket.data.code);
+                            resolve(null);
+                        }
                     }
                     else {
-                        cell.Logger.w('AuthService', 'Apply auth token failed');
+                        cell.Logger.w('AuthService', 'Pipeline error: ' + state);
                         resolve(null);
                     }
                 });
@@ -238,13 +244,13 @@ export class AuthService extends Module {
         let packet = new Packet(AuthAction.GetToken, {
             code: code
         });
-        this.pipeline.send(AuthService.NAME, packet, (pipeline, endpoint, packet) => {
+        this.pipeline.send(AuthService.NAME, packet, (pipeline, source, packet) => {
             if (null == packet) {
                 return;
             }
 
             let state = packet.getStateCode();
-            if (state == StateCode.OK) {
+            if (state == StateCode.OK && packet.data.code == 0) {
                 // 令牌有效
                 cell.Logger.d('AuthService', 'Token "' + code + '" is valid');
             }

@@ -60,15 +60,23 @@ export class Packet {
         else {
             this.sn = sn;
         }
+
+        /**
+         * 服务器返回的状态。
+         * @private
+         * @type {object}
+         */
+        this.state = null;
     }
 
     /**
      * 获取状态码。
-     * @returns {number} 尝试从负载数据中获得状态码。
+     * 
+     * @returns {number} 尝试获得状态码。
      */
     getStateCode() {
-        if (undefined !== this.data._state_) {
-            return this.data._state_.code;
+        if (null != this.state) {
+            return this.state.code;
         }
 
         return -1;

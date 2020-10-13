@@ -29,6 +29,7 @@ import { OrderMap } from "../util/OrderMap";
 import { Pipeline } from "../core/Pipeline";
 import { CellTalkListener } from "./CellTalkListener";
 import { Packet } from "../core/Packet";
+import { StateCode } from "../core/StateCode";
 
 /**
  * 使用 Cell 进行通信的管道服务。
@@ -191,7 +192,9 @@ export class CellPipeline extends Pipeline {
         let dialect = new cell.ActionDialect(packet.name);
         dialect.addParam('sn', packet.sn, cell.LiteralBase.LONG);
         dialect.addParam('data', packet.data, cell.LiteralBase.JSON);
-        dialect.addParam('token', this.tokenCode, cell.LiteralBase.STRING);
+        if (null != this.tokenCode) {
+            dialect.addParam('token', this.tokenCode, cell.LiteralBase.STRING);
+        }
         return dialect;
     }
 
@@ -204,6 +207,8 @@ export class CellPipeline extends Pipeline {
         let action = new cell.ActionDialect(primitive);
         let packet = new Packet(action.getName(), action.getParamAsJson('data')
             , action.getParamAsLong('sn'));
+        // 提取状态信息
+        packet.state = StateCode.extractState(action);
         return packet;
     }
 }

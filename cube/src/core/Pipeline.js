@@ -207,7 +207,14 @@ export class Pipeline {
      */
     triggerState(state, error) {
         // 所有监听器
-        let list = this.listenerMap.values();
+        let list = [];
+        let vlist = this.listenerMap.values();
+        for (let i = 0; i < vlist.length; ++i) {
+            let v = vlist[i];
+            for (let j = 0; j < v.length; ++j) {
+                list.push(v[j]);
+            }
+        }
         list = list.concat(this.stateListenerList);
 
         if (state === 'open') {
@@ -217,7 +224,9 @@ export class Pipeline {
                     listener({ "name": state, "pipeline": this });
                 }
                 else {
-                    listener.onOpened(this);
+                    if (listener.onOpened) {
+                        listener.onOpened(this);
+                    }
                 }
             }
         }
@@ -228,7 +237,9 @@ export class Pipeline {
                     listener({ "name": state, "pipeline": this, "error": error });
                 }
                 else {
-                    listener.onFailed(this, error);
+                    if (listener.onFailed) {
+                        listener.onFailed(this, error);
+                    }
                 }
             }
         }

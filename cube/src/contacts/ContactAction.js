@@ -42,6 +42,12 @@ export const ContactAction = {
     SignOut: 'signOut',
 
     /**
+     * 恢复终端当前连接。
+     * @type {string}
+     */
+    Comeback: 'comeback',
+
+    /**
      * 当前联系人的所有端都脱机。
      * @type {string}
      */
