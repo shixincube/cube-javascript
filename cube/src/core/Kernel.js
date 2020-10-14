@@ -258,6 +258,26 @@ export class Kernel {
     }
 
     /**
+     * 激活指定 ID 的令牌。
+     * @param {number} id 指定联系人 ID 。
+     * @returns {AuthToken} 返回令牌实例。
+     */
+    activeToken(id) {
+        let token = this.getModule(AuthService.NAME).allocToken(id);
+        if (null == token) {
+            return null;
+        }
+
+        let pipelines = this.pipelines.values();
+        for (let i = 0; i < pipelines.length; ++i) {
+            let pipeline = pipelines[i];
+            pipeline.setTokenCode(token.code);
+        }
+
+        return token;
+    }
+
+    /**
      * 等待通道就绪或者达到指定超时时长。
      * @protected
      * @param {number} timeout 指定超时时长，单位：毫秒。

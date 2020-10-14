@@ -31,6 +31,10 @@ var App = Class({
 
         this.selectFileDom = null;
         this.fileEl = null;
+
+        var s = '_cube_123456_';
+        var a = s.split('_');
+        console.log(a[2]);
     },
 
     init: function() {

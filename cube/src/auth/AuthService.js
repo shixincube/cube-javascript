@@ -33,7 +33,7 @@ import { Packet } from "../core/Packet";
 import { StateCode } from "../core/StateCode";
 import { ObservableState } from "../core/ObservableState";
 import { AuthEvent } from "./AuthEvent";
-import { Base64 } from "../util/Base64";
+import { TokenStorage } from "./TokenStorage";
 
 /**
  * 授权服务。
@@ -69,6 +69,7 @@ export class AuthService extends Module {
 
         /**
          * 授权令牌。
+         * @private
          * @type {AuthToken}
          */
         this.token = null;
@@ -121,6 +122,40 @@ export class AuthService extends Module {
     }
 
     /**
+     * 分配令牌。
+     * @param {number} id 指定待分配令牌的 ID 。
+     * @returns {AuthToken} 返回令牌实例。
+     */
+    allocToken(id) {
+        if (null == this.token) {
+            return null;
+        }
+
+        let storage = new TokenStorage();
+        let activeToken = storage.load(id);
+        if (null != activeToken) {
+            this.token = activeToken;
+            this.token.cid = id;
+            return this.token;
+        }
+
+        // 将候选令牌转为该 ID 令牌
+        if (!storage.raise(id)) {
+            this.token.cid = id;
+            storage.save(id, this.token);
+        }
+
+        // 申请新的候选令牌
+        let promise = this.applyToken(this.token.domain, this.token.appKey);
+        promise.then((newToken) => {
+            storage.saveCandidate(newToken);
+        }).catch(() => {
+        });
+
+        return this.token;
+    }
+
+    /**
      * 校验当前的令牌是否有效。
      * 该方法先从本地获取本地令牌进行校验，如果本地令牌失效或者未找到本地令牌，则尝试从授权服务器获取有效的令牌。
      * @param {string} domain 令牌对应的域。
@@ -132,16 +167,11 @@ export class AuthService extends Module {
         this.domain = domain;
         this.appKey = appKey;
 
+        let storage = new TokenStorage();
+
         // 尝试读取本地的 Token
         if (window.localStorage) {
-            let tokenString = window.localStorage.getItem('_cube_token_');
-            if (tokenString) {
-                // 解析数据
-                let code = Base64.decode(tokenString);
-                let plaintext = cell.Utils.simpleDecrypt(code, ['S', 'X', 'c', 'u', 'b', 'e', '3', '0']);
-                let jsonString = cell.Utils.fromCharCode(plaintext);
-                this.token = AuthToken.create(JSON.parse(jsonString));
-            }
+            this.token = storage.loadCandidate();
         }
 
         // 判断令牌是否到有效期
@@ -170,11 +200,7 @@ export class AuthService extends Module {
         this.token = await this.applyToken(domain, appKey);
 
         if (null != this.token && window.localStorage) {
-            // 写入本地
-            let jsonString = JSON.stringify(this.token.toJSON());
-            let code = cell.Utils.simpleEncrypt(jsonString, ['S', 'X', 'c', 'u', 'b', 'e', '3', '0']);
-            let tokenString = Base64.encode(code);
-            window.localStorage.setItem('_cube_token_', tokenString);
+            storage.saveCandidate(this.token);
         }
 
         return this.token;

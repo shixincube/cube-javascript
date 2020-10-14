@@ -167,9 +167,16 @@ export class ContactService extends Module {
             return false;
         }
 
+        // 激活令牌
+        let token = this.kernel.activeToken(this.self.getId());
+        if (null == token) {
+            cell.Logger.w('ContactService', 'Error auth token');
+            return false;
+        }
+
         let data = {
             "self": this.self.toJSON(),
-            "token": this.getAuthToken().toJSON()
+            "token": token.toJSON()
         };
         let signInPacket = new Packet(ContactAction.SignIn, data);
         this.pipeline.send(ContactService.NAME, signInPacket);
