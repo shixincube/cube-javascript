@@ -34,6 +34,13 @@ import { Entity } from "./Entity";
 import { AuthToken } from "../auth/AuthToken";
 
 /**
+ * 模块事件。
+ * @typedef {object} ModuleEvent
+ * @property {string} name 事件名称。
+ * @property {object} data 事件关联的数据。
+ */
+
+/**
  * 实体的数据通道监听器。
  */
 class EntityPipelineListener extends PipelineListener {
@@ -215,6 +222,16 @@ export class Module extends Subject {
      */
     resume() {
         // Nothing
+    }
+
+    /**
+     * 设置指定事件的监听回调函数。
+     * @param {string} event 指定事件名。
+     * @param {function} listener 当发生该事件时回调此函数，函数参数参看 {@link ModuleEvent} 。
+     * @see {@link ModuleEvent}
+     */
+    on(event, listener) {
+        this.attachWithName(event, listener);
     }
 
     addEntityListener(entityName, listener) {

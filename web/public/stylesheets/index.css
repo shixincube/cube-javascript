@@ -155,7 +155,7 @@ textarea:focus, input:focus, select:focus {
     background-color: rgba(245, 246, 248, 1);
 }
 
-.main:after {
+.main::before {
     content: '';
     display: block;
     width: 100%;
@@ -177,7 +177,7 @@ textarea:focus, input:focus, select:focus {
     background-color: rgba(245, 246, 248, 1);
 }
 
-.main-active:after {
+.main-active:before {
     content: '';
     display: block;
     width: 100%;

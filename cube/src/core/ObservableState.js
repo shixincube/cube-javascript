@@ -35,9 +35,6 @@ export class ObservableState {
      * @param {object} [data] 状态数据。
      */
     constructor(name, data) {
-        /**
-         * 
-         */
         this.name = name;
         this.data = (undefined !== data) ? data : null;
         this.subject = null;

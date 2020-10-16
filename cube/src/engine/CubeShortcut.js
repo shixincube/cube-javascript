@@ -26,6 +26,8 @@ import { Self } from "../contacts/Self";
  */
 
 import { CubeEngine } from "./CubeEngine";
+import { ContactService } from "../contacts/ContactService";
+import { MessagingService } from "../messaging/MessagingService";
 
 /**
  * Cube Engine 的快捷操作方式封装。
@@ -34,11 +36,24 @@ export class CubeShortcut {
 
     constructor() {
         this.engine = new CubeEngine();
+
+        /**
+         * 联系人模块。
+         * @type {ContactService}
+         * @public
+         */
+        this.contacts = this.engine.getContactService();
+
+        /**
+         * 消息模块。
+         * @type {MessagingService}
+         * @public
+         */
+        this.messaging = this.engine.getMessagingService();
     }
 
     /**
      * 启动 Cube 并与服务器建立连接。
-     * 
      * @param {KernelConfig} config 
      * @param {function} handleSuccess 
      * @param {function} handleError 
@@ -59,7 +74,7 @@ export class CubeShortcut {
     }
 
     /**
-     * 
+     * 设置事件监听器。
      * @param {string} event 事件名。
      * 支持的事件：
      * ['network']{@linkcode PipelineListener},

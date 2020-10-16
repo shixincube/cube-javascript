@@ -18,6 +18,23 @@ CubeWebApp.prototype.initUI = function() {
     }
 }
 
+CubeWebApp.prototype.config = function(cube) {
+    // 监听网络状态
+    cube.on('network', function(event) {
+        if (event.name == 'failed') {
+            app.showState('warning', '网络错误: ' + event.error.code);
+        }
+        else if (event.name == 'open') {
+            app.showState('info', '已连接到服务器');
+        }
+    });
+
+    // 设置事件监听
+    cube.contacts.on(ContactEvent.SignIn, function(event) {
+        app.showState('info', '已登录：' + event.data.getId());
+    });
+}
+
 CubeWebApp.prototype.signin = function() {
     window.cube().signIn(this.account.id);
 }
@@ -99,24 +116,23 @@ CubeWebApp.prototype.onCatalogueCellClick = function(el, e) {
     });
 }
 
+CubeWebApp.prototype.onContactEvent = function(event) {
+    console.log('接收到事件：' + event.name);
+
+}
+
 
 
 $(document).ready(function() {
-    // 初始化 App
+    // 创建 App 实例。
     var app = new CubeWebApp(gAccount);
     window.app = app;
 
+    // 创建 Cube 实例。
     var cube = window.cube();
 
-    // 监听网络状态
-    cube.on('network', function(event) {
-        if (event.name == 'failed') {
-            app.showState('warning', '网络错误: ' + event.error.code);
-        }
-        else if (event.name == 'open') {
-            app.showState('info', '已连接到服务器');
-        }
-    });
+    // 配置 Cube
+    app.config(cube);
 
     // 启动 Cube
     cube.start({
@@ -124,7 +140,12 @@ $(document).ready(function() {
         domain: 'shixincube.com',
         appKey: 'shixin-cubeteam-opensource-appkey'
     }, function() {
+
         console.log('Start Cube OK');
+
+        // 启用消息模块
+        cube.messaging.start();
+
         // 将当前账号签入
         app.signin();
     }, function(error) {

@@ -99,10 +99,16 @@ export class MessagingService extends Module {
         this.pipelineListener = new MessagingPipelineListener(this);
 
         /**
-         * 是否拉取过最近的消息。
-         * @type {boolean}
+         * 最近一条消息的时间。
+         * @type {number}
          */
-        this.pulled = false;
+        this.lastMessageTime = 0;
+
+        /**
+         * 最近一次查询操作的执行时间。用于控制高频查询。
+         * @type {number}
+         */
+        this.lastQueryTime = 0;
     }
 
     /**
@@ -133,6 +139,10 @@ export class MessagingService extends Module {
         this.timer = setInterval((e) => {
             this._processQueue();
         }, 100);
+
+        if (0 == this.lastMessageTime) {
+            this.lastMessageTime = Date.now() - (24 * 60 * 60000);
+        }
 
         return true;
     }
@@ -191,7 +201,7 @@ export class MessagingService extends Module {
         else {
             return false;
         }
-        
+
         message.from = self.getId();
         message.to = to;
         message.localTS = Date.now();
@@ -241,6 +251,39 @@ export class MessagingService extends Module {
     }
 
     /**
+     * 查询服务器上的消息。
+     * @param {number} time 指定获取消息的起始时间
+     */
+    queryRemoteMessage(time) {
+        if (!this.contactService.selfReady) {
+            return;
+        }
+
+        let now = Date.now();
+
+        if (now - this.lastQueryTime < 2000) {
+            // 不允许高频查询
+            return;
+        }
+
+        this.lastQueryTime = now;
+
+        let timestamp = (undefined === time) ? this.lastMessageTime : time;
+
+        let self = this.contactService.getSelf();
+        // 拉取消息
+        let payload = {
+            id: self.getId(),
+            domain: self.getDomain(),
+            device: self.getDevice().toJSON(),
+            timestamp: timestamp
+        };
+
+        let packet = new Packet(MessagingAction.Pull, payload);
+        this.pipeline.send(MessagingService.NAME, packet);
+    }
+
+    /**
      * 触发观察者 Notify 回调。
      * @private
      * @param {JSON} payload 
@@ -248,6 +291,9 @@ export class MessagingService extends Module {
     triggerNotify(payload) {
         let data = payload.data;
         let message = Message.create(data);
+
+        // 使用服务器的时间戳设置为最新消息时间
+        this.lastMessageTime = message.getRemoteTimestamp();
 
         // 下钩子
         let hook = this.pluginSystem.getHook(MessagingEvent.Notify);
@@ -264,14 +310,26 @@ export class MessagingService extends Module {
      * @param {JSON} payload 
      */
     triggerPull(payload) {
+        if (payload.code != 0) {
+            this.triggerFail(MessagingAction.Pull, payload);
+            return;
+        }
+
         let data = payload.data;
         let total = data.total;
         let beginning = data.beginning;
         let ending = data.ending;
         let messages = data.messages;
+
+        cell.Logger.d('MessagingService', 'Query messages total: ' + total);
+
         for (let i = 0, len = messages.length; i < len; ++i) {
             this.triggerNotify(messages[i]);
         }
+    }
+
+    triggerFail(name, payload) {
+        cell.Logger.w('MessagingService', 'Failed #' + name + ' : ' + payload.code);
     }
 
     /**
@@ -352,21 +410,7 @@ export class MessagingService extends Module {
      */
     _fireContactEvent(state) {
         if (state.name == ContactEvent.SignIn) {
-            let self = state.data;
-
-            if (!this.pulled) {
-                // 拉取消息
-                let payload = {
-                    id: self.getId(),
-                    domain: self.getDomain(),
-                    device: self.getDevice().toJSON()
-                };
-
-                let packet = new Packet(MessagingAction.Pull, payload);
-                this.pipeline.send(MessagingService.NAME, packet);
-
-                this.pulled = true;
-            }
+            this.queryRemoteMessage();
         }
     }
 }

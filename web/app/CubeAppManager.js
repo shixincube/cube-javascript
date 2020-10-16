@@ -61,8 +61,6 @@ class CubeAppManager {
             result.push(ca);
         }
 
-
-
         return result;
     }
 
