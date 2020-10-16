@@ -286,7 +286,8 @@ export class AuthService extends Module {
                 this.nodifyObservers(state);
 
                 if (window.localStorage) {
-                    window.localStorage.removeItem('_cube_token_');
+                    let storage = new TokenStorage();
+                    storage.remove(this.token.cid);
                 }
 
                 this.token = null;
@@ -317,13 +318,10 @@ export class AuthService extends Module {
             this.token = value;
 
             if (null != this.token && window.localStorage) {
-                // 写入本地
-                let jsonString = JSON.stringify(this.token.toJSON());
-                let code = cell.Utils.simpleEncrypt(jsonString, ['S', 'X', 'c', 'u', 'b', 'e', '3', '0']);
-                let tokenString = Base64.encode(code);
-                window.localStorage.setItem('_cube_token_', tokenString);
+                let storage = new TokenStorage();
+                storage.saveCandidate(value);
             }
-        }).catch((value) => {
+        }).catch(() => {
             // Nothing
         });
     }
