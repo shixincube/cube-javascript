@@ -1,0 +1,38 @@
+extends layout
+
+block pageStyle
+  link(rel='stylesheet', href='/plugins/bootstrap-select/css/bootstrap-select.min.css')
+  link(rel='stylesheet', href='/stylesheets/login.css')
+
+
+block pageScript
+  script(type='text/javascript', src='/plugins/bootstrap-select/bootstrap-select.min.js')
+  script(type='text/javascript', src='/plugins/popper/umd/popper.min.js')
+  script(type='text/javascript', src='/javascripts/login.js')
+  script.
+    var gAccounts = !{JSON.stringify(accounts)};
+
+
+block pageContent
+  div.login-box
+    div.login-logo
+      a(href='https://shixincube.com/')
+        img.mb-4(src='/images/cube_banner_h512.png', alt='Cube 3', height='64')
+    div.card
+      div.card-body.login-card-body
+        p.login-box-msg 请选择登录账号
+          form(action='/account/signin/form', method='POST')
+            div.form-group
+              label.col-form-label
+                i.fas.fa-id-card
+                span.label 账号
+              select#accout_id.selectpicker.form-control(name='id')
+                - each acc in accounts
+                    option(value='' + acc.id)= acc.id
+            div.form-group
+              label.col-form-label
+                i.fas.fa-user-circle
+                span.label 用户昵称
+              input#account_name.form-control(name='name', type='text', value=accounts[0].name)
+            button.btn.btn-lg.btn-primary.btn-block(type='submit') 登 录
+          p.mt-5.mb-3.text-muted.copyright 版权所有 &copy; 2018-2020 时信魔方

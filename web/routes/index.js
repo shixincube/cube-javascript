@@ -14,8 +14,9 @@ router.get('/', function(req, res, next) {
 
         // 获取目录信息
         let catalogues = req.app.get('manager').getMessageCatalogue(aid);
-        res.render('index', {
+        res.render('main', {
             title: 'Cube - 时信魔方',
+            bodyClass: 'hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed',
             account: account,
             catalogues: catalogues
         });
@@ -23,8 +24,9 @@ router.get('/', function(req, res, next) {
     else {
         let manager = req.app.get('manager');
         let offlineAccounts = manager.getSignOutAccounts();
-        res.render('signin', {
+        res.render('login', {
             title: '登录 - Cube Web Application',
+            bodyClass: 'hold-transition login-page',
             accounts: offlineAccounts
         });
     }

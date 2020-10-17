@@ -1,0 +1,17 @@
+/* login.css */
+
+body {
+    font-family: MicrosoftYaHei, "Microsoft YaHei", "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+.fas {
+    padding-left: 4px;
+}
+
+.label {
+    padding-left: 8px;
+}
+
+.copyright {
+    text-align: center;
+}

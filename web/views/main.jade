@@ -1,0 +1,54 @@
+extends layout
+
+block pageStyle
+  link(rel='stylesheet', href='/stylesheets/main.css')
+
+
+block pageScript
+  script(type='text/javascript', src='/javascripts/cube-3.0.0.js')
+  script(type='text/javascript', src='/javascripts/main.js')
+  script.
+    var gAccount = !{JSON.stringify(account)};
+
+
+block pageContent
+  div.wrapper
+    //- Navbar
+    nav.main-header.navbar.navbar-expand
+      //- Left navbar links
+      ul.navbar-nav
+        li.nav-item
+          a.nav-link(data-widget='pushmenu', href='javascript:;', role='button')
+            i.fas.fa-bars
+        li.nav-item.d-none.d-sm-inline-block
+          a.nav-link(href='https://www.shixincube.com/') 时信魔方
+      //- Right navbar links
+      ul.navbar-nav.ml-auto
+        //- Notifications Dropdown Menu
+        li.nav-item.dropdown
+          a.nav-link(data-toggle='dropdown' href='javascript:;')
+            i.far.fa-bell
+            span.badge.badge-warning.navbar-badge
+        li.nav-item
+          a.nav-link(data-widget='control-sidebar', data-slide='true', href='javascript:;', role='button')
+            i.fas.fa-th-large
+
+    //- Main Sidebar Container
+    aside.main-sidebar.sidebar-dark-primary.elevation-4
+      //- Brand Logo
+      a.brand-link(href='https://www.shixincube.com/', target='_blank')
+        img.brand-image.img-circle.elevation-3(src='/images/cube_256.png', alt='Cube Logo', style='opacity:.8')
+        span.brand-text.font-weight-bold Cube 3.0
+      //- Sidebar
+      div.sidebar
+        //- Sidebar user panel
+        div.user-panel.mt-3.pb-3.mb-3.d-flex
+          div.image
+            img.img-round-rect.elevation-2(src=account.avatar, alt='Avatar')
+          div.info
+            a.d-block(href='javascript:;')=account.name
+
+        //- Sidebar Menu
+        nav.mt-2
+          ul.nav.nav-pills.nav-sidebar.flex-column
+    

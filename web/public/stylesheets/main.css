@@ -1,0 +1,17 @@
+/* main.css */
+
+body {
+    font-family: MicrosoftYaHei, "Microsoft YaHei", "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+.font-weight-400 {
+    font-weight: bold;
+}
+
+.brand-text-dark {
+    color: #212223;
+}
+
+.img-round-rect {
+    border-radius: 10%;
+}

@@ -1,14 +1,19 @@
 doctype html
 html
   head
-    title= title
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    title=title
+    meta(name='viewport', content='width=device-width, initial-scale=1')
     link(rel='icon', href='/images/favicon.png', size='32x32', type='image/png')
-    link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
-    link(rel='stylesheet', href='/stylesheets/bootstrap-select.min.css')
+    link(rel='stylesheet', href='/plugins/fontawesome-free/css/all.min.css')
+    link(rel='stylesheet', href='/plugins/ionicons/css/ionicons.min.css')
+    link(rel='stylesheet', href='/plugins/icheck-bootstrap/icheck-bootstrap.min.css')
+    link(rel='stylesheet', href='/stylesheets/adminlte.min.css')
     block pageStyle
-  body
+  body(class=bodyClass)
     block pageContent
-    script(type='text/javascript', src='/javascripts/jquery-3.5.1.min.js')
-    script(type='text/javascript', src='/javascripts/bootstrap.bundle.min.js')
-    script(type='text/javascript', src='/javascripts/bootstrap-select.min.js')
+    script(type='text/javascript', src='/plugins/jquery/jquery.min.js')
+    script(type='text/javascript', src='/plugins/bootstrap/js/bootstrap.bundle.min.js')
+    script(type='text/javascript', src='/javascripts/adminlte.min.js')
     block pageScript
