@@ -15,3 +15,23 @@ body {
 .img-round-rect {
     border-radius: 10%;
 }
+
+.main-catalog {
+    margin-top: 0.8rem;
+    margin-bottom: 0.8rem;
+    height: calc(100vh - 140px);
+}
+
+.main-catalog .catalog {
+    padding: 0.75rem;
+}
+
+.main-content {
+    margin-top: 0.8rem;
+    margin-bottom: 0.8rem;
+    height: calc(100vh - 140px);
+}
+
+.main-content textarea {
+    resize: none;
+}

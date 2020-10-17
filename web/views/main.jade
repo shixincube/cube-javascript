@@ -14,7 +14,7 @@ block pageScript
 block pageContent
   div.wrapper
     //- Navbar
-    nav.main-header.navbar.navbar-expand
+    nav.main-header.navbar.navbar-expand.navbar-white.navbar-light
       //- Left navbar links
       ul.navbar-nav
         li.nav-item
@@ -50,5 +50,67 @@ block pageContent
 
         //- Sidebar Menu
         nav.mt-2
-          ul.nav.nav-pills.nav-sidebar.flex-column
+          ul.nav.nav-pills.nav-sidebar.flex-column(data-widget='treeview', role='menu', data-accordion='false')
+            li.nav-item
+              a.nav-link.active(href='javascript:;')
+                i.nav-icon.fas.fa-comments
+                p 消息
+                  span.right.badge.badge-danger
+
+    //- Content Wrapper. Contains page content
+    div.content-wrapper
+      section.content
+        div.container-fluid
+          div.row
+            div.col-md-3
+              //- Main catalog
+              div.card.main-catalog
+                div.card-body.catalog
+                  ul.products-list.product-list-in-card
+                    - var i = 0
+                    - each item in catalogues
+                      li.item(id='catalog_item_' + (i++), data=item.id)
+                        div.product-img
+                          img.img-size-50.img-round-rect(src=item.thumb)
+                        div.product-info
+                          span.product-title=item.label
+                            span.badge.badge-light.float-right 20:20
+                          span.product-description=item.sublabel
+
+            div.col-md-9
+              //- Main Content
+              div.card.direct-chat.direct-chat-primary.main-content
+                div.card-header
+                  h3.card-title Title
+                  div.card-tools
+                    button.btn.btn-tool(type='button')
+                      i.fas.fa-info-circle
+                div.card-body
+                  div.direct-chat-messages
+                    div.direct-chat-msg
+                      div.direct-chat-infos.clearfix
+                        span.direct-chat-name.float-left Ambrose Xu
+                        span.direct-chat-timestamp.float-right 23 Jan 2:00 pm
+                      img.direct-chat-img(src='/images/avatar03.png')
+                      div.direct-chat-text 这是 Cube App 界面
+
+                    div.direct-chat-msg.right
+                      div.direct-chat-infos.clearfix
+                        span.direct-chat-name.float-right Sun Dengling
+                        span.direct-chat-timestamp.float-left 23 Jan 2:05 pm
+                      img.direct-chat-img(src='/images/avatar05.png')
+                      div.direct-chat-text 界面力求简洁，结构简单
+                div.card-footer
+                  div
+                    div.input-group
+                      textarea.form-control(rows='3', placeholder='')
+                      span.input-group-append
+                        button.btn.btn-primary(type='button') 发送
+
+    //- Footer
+    footer.main-footer
+      span Copyright &copy; 2017-2020 ShiXin Cube. All rights reserved.
+      div.float-right.d-none.d-sm-inline-block
+        b Version 3.0
+
     
