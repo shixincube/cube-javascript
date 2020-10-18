@@ -14,20 +14,22 @@ router.get('/info', function(req, res, next) {
     res.json(account);
 });
 
-/* POST /signin/form */
-router.post('/signin/form', function(req, res, next) {
-    let cookie = req.app.get('manager').signIn(parseInt(req.body.id), req.body.name);
+/* POST /login/form */
+router.post('/login/form', function(req, res, next) {
+    let cookie = req.app.get('manager').login(parseInt(req.body.id), req.body.name);
     res.cookie('CubeAppToken', cookie, { maxAge: 604800000 });
     res.redirect('/');
 });
 
-/* POST /signout */
-router.post('/signout', function(req, res, next) {
+/* POST /logout */
+router.post('/logout', function(req, res, next) {
     let mgr = req.app.get('manager');
     let id = parseInt(req.body.id);
     if (id == mgr.currentAccount.id) {
         console.log('账号 ' + id + ' 退出登录');
-        mgr.signOut();
+        mgr.logout();
+
+        // 设置 Cookie
         res.cookie('CubeAppToken', '', { maxAge: 1000 });
         res.json({ "id": id });
     }

@@ -8,15 +8,16 @@ var CubeToast = {
     Question: 'question'
 };
 
-function CubeApp(cube, account, catalogues) {
-    this.cube = cube;
-    this.account = account;
-    this.catalogues = catalogues;
+function CubeApp(cube, account, contacts, catalogues) {
+    this.cube = cube;           // Cube 实例
+    this.account = account;     // 当前账号
+    this.contacts = contacts;       // 联系人列表
+    this.catalogues = catalogues;   // 界面目录数据
 
     this.lastCatalogItem = null;
 
-    this.messages = {};
-    this.messagePanel = null;
+    this.messages = {};         // 保存账号对应的目录里各联系的消息
+    this.messagePanel = null;   // 消息面板
 
     var that = this;
     setTimeout(function() {
@@ -43,13 +44,18 @@ CubeApp.prototype.initUI = function(app) {
     }
 
     that.messagePanel = new MessagePanel($('#messages'));
+    that.messagePanel.setOwner(app.account);
 }
 
+/**
+ * 对 App 进行配置，监听 Cube 的事件。
+ * @param {CubeEngine} cube 
+ */
 CubeApp.prototype.config = function(cube) {
     // 监听网络状态
     cube.on('network', function(event) {
         if (event.name == 'failed') {
-            app.launchToast(CubeToast.Error, '网络错误: ' + event.error.code);
+            app.launchToast(CubeToast.Error, '网络错误：' + event.error.code);
         }
         else if (event.name == 'open') {
             app.launchToast(CubeToast.Info, '已连接到服务器');
@@ -58,10 +64,13 @@ CubeApp.prototype.config = function(cube) {
 
     // 设置事件监听
     cube.contacts.on(ContactEvent.SignIn, function(event) {
-        app.launchToast(CubeToast.Info, '已登录：' + event.data.getId());
+        app.launchToast(CubeToast.Info, '已签入ID ：' + event.data.getId());
     });
 }
 
+/**
+ * 当前账号退出登录。
+ */
 CubeApp.prototype.logout = function() {
     if (confirm('是否确认退出当前账号登录？')) {
         window.cube().stop();
@@ -72,7 +81,7 @@ CubeApp.prototype.logout = function() {
             window.location.href = '/';
         }, 2000);
 
-        $.post('/account/signout', {
+        $.post('/account/logout', {
             "id": id
         }, function(data, textStatus, jqXHR) {
             clearTimeout(timer);
@@ -89,11 +98,20 @@ CubeApp.prototype.getAccount = function(id, handler) {
     }, 'json');
 }
 
+/**
+ * 显示一个 Toast 提示。
+ * @param {CubeToast} toast 
+ * @param {string} text 
+ */
 CubeApp.prototype.launchToast = function(toast, text) {
     this.toast.fire({
         icon: toast,
         title: text
     });
+}
+
+CubeApp.prototype.updatePanel = function(data) {
+    this.messagePanel.changeTarget(data);
 }
 
 CubeApp.prototype.onCatalogItemClick = function(el, e) {
@@ -118,30 +136,9 @@ CubeApp.prototype.onCatalogItemClick = function(el, e) {
     });
 }
 
-CubeApp.prototype.updatePanel = function(data) {
-    this.messagePanel.setTitle(data.name);
-}
-
-/*
-CubeApp.prototype.updateMainPanel = function(data) {
-    var elMain = $('#main');
-    if (elMain.hasClass('main')) {
-        elMain.removeClass('main');
-        elMain.addClass('main-active');
-    } else if (!elMain.hasClass('main-active')) {
-        elMain.addClass('main-active');
-    }
-
-    var elPanel = elMain.find('div.main-panel');
-    elPanel.css('visibility', 'visible');
-
-    elTitle = elMain.find('div.header-title');
-    elTitle.text(data.name);
-}
-
 CubeApp.prototype.onContactEvent = function(event) {
     console.log('接收到事件：' + event.name);
-}*/
+}
 
 
 $(document).ready(function() {
@@ -149,7 +146,7 @@ $(document).ready(function() {
     var cube = window.cube();
 
     // 创建 App 实例。
-    var app = new CubeApp(cube, gAccount, gCatalogues);
+    var app = new CubeApp(cube, gAccount, gContacts, gCatalogues);
     window.app = app;
 
     // 启动 Cube
@@ -165,9 +162,8 @@ $(document).ready(function() {
         cube.messaging.start();
 
         // 将当前账号签入
-        //cube.signIn(app.account.id);
+        cube.signIn(app.account.id);
     }, function(error) {
         console.log('Start Cube failed: ' + error);
     });
 });
-

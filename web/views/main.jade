@@ -6,10 +6,12 @@ block pageStyle
 
 block pageScript
   script(type='text/javascript', src='/javascripts/cube-3.0.0.js')
+  script(type='text/javascript', src='/javascripts/utils.js')
   script(type='text/javascript', src='/javascripts/ui-message.js')
   script(type='text/javascript', src='/javascripts/main.js')
   script.
     var gAccount = !{JSON.stringify(account)};
+    var gContacts = !{JSON.stringify(contacts)};
     var gCatalogues = !{JSON.stringify(catalogues)};
 
 
@@ -92,25 +94,25 @@ block pageContent
                       i.fas.fa-info-circle
                 div.card-body
                   div.direct-chat-messages
-                    div.direct-chat-msg
-                      div.direct-chat-infos.clearfix
-                        span.direct-chat-name.float-left Ambrose Xu
-                        span.direct-chat-timestamp.float-right 23 Jan 2:00 pm
-                      img.direct-chat-img(src='/images/avatar03.png')
-                      div.direct-chat-text 这是 Cube App 界面
+                    //- div.direct-chat-msg
+                    //-   div.direct-chat-infos.clearfix
+                    //-     span.direct-chat-name.float-left Ambrose Xu
+                    //-     span.direct-chat-timestamp.float-right 23 Jan 2:00 pm
+                    //-   img.direct-chat-img(src='/images/avatar03.png')
+                    //-   div.direct-chat-text 这是 Cube App 界面
 
-                    div.direct-chat-msg.right
-                      div.direct-chat-infos.clearfix
-                        span.direct-chat-name.float-right Sun Dengling
-                        span.direct-chat-timestamp.float-left 23 Jan 2:05 pm
-                      img.direct-chat-img(src='/images/avatar05.png')
-                      div.direct-chat-text 界面力求简洁，结构简单。在一个山谷的禅房里有一位老禅师，他发现自己有一个徒弟非常勤奋，不管是去化缘，还是去厨房洗菜，这个徒弟从早到晚，忙碌不停。
+                    //- div.direct-chat-msg.right
+                    //-   div.direct-chat-infos.clearfix
+                    //-     span.direct-chat-name.float-right Sun Dengling
+                    //-     span.direct-chat-timestamp.float-left 23 Jan 2:05 pm
+                    //-   img.direct-chat-img(src='/images/avatar05.png')
+                    //-   div.direct-chat-text 界面力求简洁，结构简单。在一个山谷的禅房里有一位老禅师，他发现自己有一个徒弟非常勤奋，不管是去化缘，还是去厨房洗菜，这个徒弟从早到晚，忙碌不停。
                 div.card-footer
                   div
                     div.input-group
-                      textarea.form-control(rows='2', placeholder='请在此输入消息')
+                      textarea.form-control(rows='2', placeholder='请在此输入消息', disabled='disabled')
                       span.input-group-append
-                        button.btn.btn-primary(type='button') 发送
+                        button#btn_send.btn.btn-primary(type='button', disabled='disabled') 发送
 
     aside.control-sidebar.control-sidebar-dark
       div.p-3

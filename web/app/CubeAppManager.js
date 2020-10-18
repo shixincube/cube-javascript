@@ -41,6 +41,23 @@ class CubeAppManager {
         return this.accountDB.queryAccount(id);
     }
 
+    getContacts(id) {
+        let result = [];
+        // 用户
+        let accounts = this.accountDB.accounts;
+        for (let i = 0; i < accounts.length; ++i) {
+            let account = accounts[i];
+            if (account.id == id) {
+                // 过滤自己
+                continue;
+            }
+
+            result.push(account);
+        }
+
+        return result;
+    }
+
     getMessageCatalogue(id) {
         let result = [];
         // 用户
@@ -64,7 +81,7 @@ class CubeAppManager {
         return result;
     }
 
-    getSignOutAccounts() {
+    getOfflineAccounts() {
         let result = [];
         let list = this.accountDB.accounts;
         for (let i = 0; i < list.length; ++i) {
@@ -77,7 +94,7 @@ class CubeAppManager {
         return result;
     }
 
-    signIn(id, name) {
+    login(id, name) {
         let account = this.accountDB.queryAccount(id);
         if (null == account) {
             return null;
@@ -94,7 +111,7 @@ class CubeAppManager {
         return cookie;
     }
 
-    signOut() {
+    logout() {
         if (null == this.currentAccount) {
             return;
         }
