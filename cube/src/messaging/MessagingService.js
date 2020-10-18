@@ -178,13 +178,18 @@ export class MessagingService extends Module {
     /**
      * 向指定联系人发送消息。
      * @param {number|Contact} contact 指定联系人。
-     * @param {Message} message 指定消息内容。
-     * @returns {boolean} 如果消息成功写入数据通道返回 {@linkcode true} ，否则返回 {@linkcode false} 。
+     * @param {JSON|Message} message 指定消息内容。
+     * @returns {Message} 如果消息成功写入数据通道返回 {@link Message} 实例，否则返回 {@linkcode null} 。
      */
     sendToContact(contact, message) {
         let self = this.contactService.getSelf();
         if (null == self) {
-            return false;
+            return null;
+        }
+
+        var msg = message;
+        if (!(message instanceof Message)) {
+            msg = new Message(message);
         }
 
         let to = 0;
@@ -199,28 +204,36 @@ export class MessagingService extends Module {
             to = contact;
         }
         else {
-            return false;
+            return null;
         }
 
-        message.from = self.getId();
-        message.to = to;
-        message.localTS = Date.now();
+        msg.from = self.getId();
+        msg.to = to;
+        msg.localTS = Date.now();
 
-        this.pushQueue.push(message);
+        this.pushQueue.push(msg);
 
-        return true;
+        // 更新状态
+        msg.state = MessageState.Sending;
+
+        return msg;
     }
 
     /**
      * 向指定群组发送消息。
-     * @param {Group} group 指定群组。
-     * @param {Message} message 指定消息内容。
-     * {boolean} 如果消息成功写入数据通道返回 {@linkcode true} ，否则返回 {@linkcode false} 。
+     * @param {number|Group} group 指定群组。
+     * @param {JSON|Message} message 指定消息内容。
+     * @returns {Message} 如果消息成功写入数据通道返回 {@link Message} 实例，否则返回 {@linkcode null} 。
      */
     sendToGroup(group, message) {
         let self = this.contactService.getSelf();
         if (null == self) {
-            return false;
+            return null;
+        }
+
+        var msg = message;
+        if (!(message instanceof Message)) {
+            msg = new Message(message);
         }
 
         let source = 0;
@@ -235,19 +248,19 @@ export class MessagingService extends Module {
             source = group;
         }
         else {
-            return false;
+            return null;
         }
 
-        message.from = self.getId();
-        message.source = source;
-        message.localTS = Date.now();
+        msg.from = self.getId();
+        msg.source = source;
+        msg.localTS = Date.now();
 
-        this.pushQueue.push(message);
+        this.pushQueue.push(msg);
 
         // 更新状态
-        message.state = MessageState.Sending;
+        msg.state = MessageState.Sending;
 
-        return true;
+        return msg;
     }
 
     /**

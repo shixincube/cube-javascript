@@ -45,6 +45,9 @@ CubeApp.prototype.initUI = function(app) {
 
     that.messagePanel = new MessagePanel($('#messages'));
     that.messagePanel.setOwner(app.account);
+    that.messagePanel.setSendListener(function(to, content) {
+        that.onSendClick(to, content);
+    });
 }
 
 /**
@@ -134,6 +137,16 @@ CubeApp.prototype.onCatalogItemClick = function(el, e) {
             that.updatePanel(data);
         }
     });
+}
+
+CubeApp.prototype.onSendClick = function(to, content) {
+    var message = this.cube.messaging.sendToContact(to.id, { "content": content });
+    if (null == message) {
+        this.launchToast(CubeToast.Warning, '发送消息失败');
+        return;
+    }
+
+    
 }
 
 CubeApp.prototype.onContactEvent = function(event) {
