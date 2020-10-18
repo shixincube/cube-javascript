@@ -16,6 +16,16 @@ body {
     border-radius: 10%;
 }
 
+.user-panel .opt {
+    border: none;
+}
+
+.user-panel .opt .right {
+    position: absolute;
+    right: 1rem;
+    top: .7rem;
+}
+
 .main-catalog {
     margin-top: 0.8rem;
     margin-bottom: 0.8rem;
@@ -23,7 +33,28 @@ body {
 }
 
 .main-catalog .catalog {
-    padding: 0.75rem;
+    padding: 0rem;
+}
+
+.catalog .item {
+    border-bottom: none;
+    cursor: default;
+}
+.catalog .item:hover {
+    background-color: #ececec;
+}
+
+.catalog-active {
+    background-color: #007bff !important;
+    color: #fefefe !important;
+}
+.catalog-active:hover {
+    background-color: #58a8ff !important;
+    color: #fdfdfd !important;
+}
+
+.catalog-active .product-description {
+    color: #dfdfdf;
 }
 
 .main-content {

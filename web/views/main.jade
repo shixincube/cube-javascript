@@ -6,9 +6,11 @@ block pageStyle
 
 block pageScript
   script(type='text/javascript', src='/javascripts/cube-3.0.0.js')
+  script(type='text/javascript', src='/javascripts/ui-message.js')
   script(type='text/javascript', src='/javascripts/main.js')
   script.
     var gAccount = !{JSON.stringify(account)};
+    var gCatalogues = !{JSON.stringify(catalogues)};
 
 
 block pageContent
@@ -21,7 +23,7 @@ block pageContent
           a.nav-link(data-widget='pushmenu', href='javascript:;', role='button')
             i.fas.fa-bars
         li.nav-item.d-none.d-sm-inline-block
-          a.nav-link(href='https://www.shixincube.com/') 时信魔方
+          a.nav-link(href='https://www.shixincube.com/', target='_blank') 时信魔方
       //- Right navbar links
       ul.navbar-nav.ml-auto
         //- Notifications Dropdown Menu
@@ -47,6 +49,9 @@ block pageContent
             img.img-round-rect.elevation-2(src=account.avatar, alt='Avatar')
           div.info
             a.d-block(href='javascript:;')=account.name
+          div.opt
+            span.right.badge.badge-info
+              a(href='javascript:app.logout();') 退出登录
 
         //- Sidebar Menu
         nav.mt-2
@@ -69,7 +74,7 @@ block pageContent
                   ul.products-list.product-list-in-card
                     - var i = 0
                     - each item in catalogues
-                      li.item(id='catalog_item_' + (i++), data=item.id)
+                      li.item.pl-2.pr-2(id='catalog_item_' + (i++), data=item.id)
                         div.product-img
                           img.img-size-50.img-round-rect(src=item.thumb)
                         div.product-info
@@ -79,9 +84,9 @@ block pageContent
 
             div.col-md-9
               //- Main Content
-              div.card.direct-chat.direct-chat-primary.main-content
+              div#messages.card.direct-chat.direct-chat-primary.main-content
                 div.card-header
-                  h3.card-title Title
+                  h3.card-title 消息
                   div.card-tools
                     button.btn.btn-tool(type='button')
                       i.fas.fa-info-circle
@@ -99,13 +104,18 @@ block pageContent
                         span.direct-chat-name.float-right Sun Dengling
                         span.direct-chat-timestamp.float-left 23 Jan 2:05 pm
                       img.direct-chat-img(src='/images/avatar05.png')
-                      div.direct-chat-text 界面力求简洁，结构简单
+                      div.direct-chat-text 界面力求简洁，结构简单。在一个山谷的禅房里有一位老禅师，他发现自己有一个徒弟非常勤奋，不管是去化缘，还是去厨房洗菜，这个徒弟从早到晚，忙碌不停。
                 div.card-footer
                   div
                     div.input-group
-                      textarea.form-control(rows='3', placeholder='')
+                      textarea.form-control(rows='2', placeholder='请在此输入消息')
                       span.input-group-append
                         button.btn.btn-primary(type='button') 发送
+
+    aside.control-sidebar.control-sidebar-dark
+      div.p-3
+        h5 时信魔方
+        p
 
     //- Footer
     footer.main-footer

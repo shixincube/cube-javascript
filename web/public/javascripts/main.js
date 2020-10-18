@@ -1,45 +1,68 @@
 // main.js
 
-/*function CubeApp(account) {
+var CubeToast = {
+    Success: 'success',
+    Info: 'info',
+    Error: 'error',
+    Warning: 'warning',
+    Question: 'question'
+};
+
+function CubeApp(cube, account, catalogues) {
+    this.cube = cube;
     this.account = account;
+    this.catalogues = catalogues;
 
-    this.lastCatCell = null;
+    this.lastCatalogItem = null;
 
-    this.initUI();
+    this.messages = {};
+    this.messagePanel = null;
+
+    var that = this;
+    setTimeout(function() {
+        that.initUI(that);
+        that.config(cube);
+    }, 10);
 }
 
-CubeApp.prototype.initUI = function() {
-    var that = this;
-    for (var i = 0; i < 4; ++i) {
-        var id = 'ca_cell_' + i;
-        $('#' + id).on('click', function(e) {
-            that.onCatalogueCellClick($(this), e);
+CubeApp.prototype.initUI = function(app) {
+    app.toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000
+    });
+
+    var that = app;
+    for (var i = 0; i < that.catalogues.length; ++i) {
+        var id = 'catalog_item_' + i;
+        var el = $('#' + id);
+        el.on('click', function(e) {
+            that.onCatalogItemClick($(this), e);
         });
     }
+
+    that.messagePanel = new MessagePanel($('#messages'));
 }
 
 CubeApp.prototype.config = function(cube) {
     // 监听网络状态
     cube.on('network', function(event) {
         if (event.name == 'failed') {
-            app.showState('warning', '网络错误: ' + event.error.code);
+            app.launchToast(CubeToast.Error, '网络错误: ' + event.error.code);
         }
         else if (event.name == 'open') {
-            app.showState('info', '已连接到服务器');
+            app.launchToast(CubeToast.Info, '已连接到服务器');
         }
     });
 
     // 设置事件监听
     cube.contacts.on(ContactEvent.SignIn, function(event) {
-        app.showState('info', '已登录：' + event.data.getId());
+        app.launchToast(CubeToast.Info, '已登录：' + event.data.getId());
     });
 }
 
-CubeApp.prototype.signin = function() {
-    window.cube().signIn(this.account.id);
-}
-
-CubeApp.prototype.signout = function() {
+CubeApp.prototype.logout = function() {
     if (confirm('是否确认退出当前账号登录？')) {
         window.cube().stop();
 
@@ -58,7 +81,7 @@ CubeApp.prototype.signout = function() {
     }
 }
 
-CubeApp.prototype.requestAccount = function(id, handler) {
+CubeApp.prototype.getAccount = function(id, handler) {
     $.get('/account/info', {
         "id" : id
     }, function(data, textStatus, jqXHR) {
@@ -66,19 +89,40 @@ CubeApp.prototype.requestAccount = function(id, handler) {
     }, 'json');
 }
 
-
-CubeApp.prototype.showState = function(state, text) {
-    $('#extrasAlert').removeClass('alert-info');
-    $('#extrasAlert').removeClass('alert-danger');
-    if (state == 'warn' || state == 'warning') {
-        $('#extrasAlert').addClass('alert-danger');
-    }
-    else {
-        $('#extrasAlert').addClass('alert-info');
-    }
-    $('#extrasAlert').text(text);
+CubeApp.prototype.launchToast = function(toast, text) {
+    this.toast.fire({
+        icon: toast,
+        title: text
+    });
 }
 
+CubeApp.prototype.onCatalogItemClick = function(el, e) {
+    if (null != this.lastCatalogItem) {
+        if (this.lastCatalogItem.attr('id') == el.attr('id')) {
+            return;
+        }
+
+        this.lastCatalogItem.removeClass('catalog-active');
+    }
+
+    el.addClass('catalog-active');
+    this.lastCatalogItem = el;
+
+    var accountId = parseInt(el.attr('data'));
+    var that = this;
+
+    this.getAccount(accountId, function(data, textStatus) {
+        if (textStatus == 'success') {
+            that.updatePanel(data);
+        }
+    });
+}
+
+CubeApp.prototype.updatePanel = function(data) {
+    this.messagePanel.setTitle(data.name);
+}
+
+/*
 CubeApp.prototype.updateMainPanel = function(data) {
     var elMain = $('#main');
     if (elMain.hasClass('main')) {
@@ -95,63 +139,35 @@ CubeApp.prototype.updateMainPanel = function(data) {
     elTitle.text(data.name);
 }
 
-CubeApp.prototype.onCatalogueCellClick = function(el, e) {
-    if (null != this.lastCatCell) {
-        if (this.lastCatCell.attr('id') == el.attr('id')) {
-            return;
-        }
-
-        this.lastCatCell.removeClass('cell-actvie');
-    }
-
-    el.addClass('cell-actvie');
-    this.lastCatCell = el;
-
-    var accountId = parseInt(el.attr('data'));
-    var that = this;
-    this.requestAccount(accountId, function(data, textStatus) {
-        if (textStatus == 'success') {
-            that.updateMainPanel(data);
-        }
-    });
-}
-
 CubeApp.prototype.onContactEvent = function(event) {
     console.log('接收到事件：' + event.name);
 }*/
 
 
+$(document).ready(function() {
+    // 实例化 Cube 引擎
+    var cube = window.cube();
 
-(function ($) {
-    'use strict'
-    /*
-    $(document).ready(function() {
-        // 创建 App 实例。
-        var app = new CubeApp(gAccount);
-        window.app = app;
-    
-        // 创建 Cube 实例。
-        var cube = window.cube();
-    
-        // 配置 Cube
-        app.config(cube);
-    
-        // 启动 Cube
-        cube.start({
-            address: '127.0.0.1',
-            domain: 'shixincube.com',
-            appKey: 'shixin-cubeteam-opensource-appkey'
-        }, function() {
-    
-            console.log('Start Cube OK');
-    
-            // 启用消息模块
-            cube.messaging.start();
-    
-            // 将当前账号签入
-            app.signin();
-        }, function(error) {
-            console.log('Start Cube failed: ' + error);
-        });
-    });*/
-})(jQuery);
+    // 创建 App 实例。
+    var app = new CubeApp(cube, gAccount, gCatalogues);
+    window.app = app;
+
+    // 启动 Cube
+    cube.start({
+        address: '127.0.0.1',
+        domain: 'shixincube.com',
+        appKey: 'shixin-cubeteam-opensource-appkey'
+    }, function() {
+
+        console.log('Start Cube OK');
+
+        // 启用消息模块
+        cube.messaging.start();
+
+        // 将当前账号签入
+        //cube.signIn(app.account.id);
+    }, function(error) {
+        console.log('Start Cube failed: ' + error);
+    });
+});
+
