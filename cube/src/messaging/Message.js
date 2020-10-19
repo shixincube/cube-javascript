@@ -103,14 +103,6 @@ export class Message extends Entity {
     }
 
     /**
-     * 获取消息的 ID 。
-     * @returns {number} 返回消息的 ID 。
-     */
-    getId() {
-        return this.id;
-    }
-
-    /**
      * 获取域。
      * @returns {string} 返回域。
      */
@@ -209,12 +201,16 @@ export class Message extends Entity {
         let message = new Message();
         message.id = json.id;
         message.domain = json.domain;
-        message.payload = json.payload;
         message.from = json.from;
         message.to = json.to;
         message.source = json.source;
         message.localTS = json.lts;
         message.remoteTS = json.rts;
+
+        if (json.payload !== undefined) {
+            message.payload = json.payload;
+        }
+
         if (json.state !== undefined) {
             message.state = json.state;
         }

@@ -1,5 +1,66 @@
 // ui-message.js
 
+
+/**
+ * 消息目录。
+ */
+function MessageCatalogue(app) {
+    this.app = app;
+    this.catalogues = app.catalogues;
+
+    this.elItemMap = {};
+
+    this.lastCatalogItem = null;
+    this.clickListener = null;
+
+    var that = this;
+    for (var i = 0; i < this.catalogues.length; ++i) {
+        var el = $('#catalog_item_' + i);
+        this.elItemMap[el.attr('data')] = el;
+        el.on('click', function(e) {
+            that.onCatalogItemClick($(this), e);
+        });
+    }
+}
+
+MessageCatalogue.prototype.setClickListener = function(listener) {
+    this.clickListener = listener;
+}
+
+MessageCatalogue.prototype.updateSubLabel = function(id, sublabel, time) {
+    var el = this.elItemMap[id];
+    el.find('.product-description').text(sublabel);
+    el.find('.badge').text(formatShortTime(time));
+}
+
+MessageCatalogue.prototype.onCatalogItemClick = function(el, e) {
+    if (null != this.lastCatalogItem) {
+        if (this.lastCatalogItem.attr('id') == el.attr('id')) {
+            return;
+        }
+
+        this.lastCatalogItem.removeClass('catalog-active');
+    }
+
+    el.addClass('catalog-active');
+    this.lastCatalogItem = el;
+
+    var accountId = parseInt(el.attr('data'));
+    var that = this;
+
+    this.app.getAccount(accountId, function(data, textStatus) {
+        if (textStatus == 'success') {
+            that.clickListener(data);
+        }
+    });
+}
+
+
+
+
+/**
+ * 消息面板。
+ */
 function MessagePanel(el) {
     this.el = el;
 
@@ -94,8 +155,9 @@ MessagePanel.prototype.onSendClick = function(e) {
         return;
     }
 
-    this.appendMessage(this.owner, text, Date.now());
-    this.sendListener.call(this.current, text);
-
     this.elInput.val('');
+
+    this.appendMessage(this.owner, text, Date.now());
+    this.sendListener.call(null, this.current, text);
 }
+

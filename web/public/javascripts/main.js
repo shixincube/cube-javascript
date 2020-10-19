@@ -14,7 +14,7 @@ function CubeApp(cube, account, contacts, catalogues) {
     this.contacts = contacts;       // 联系人列表
     this.catalogues = catalogues;   // 界面目录数据
 
-    this.lastCatalogItem = null;
+    this.messageCatalogue = null;
 
     this.messages = {};         // 保存账号对应的目录里各联系的消息
     this.messagePanel = null;   // 消息面板
@@ -34,19 +34,15 @@ CubeApp.prototype.initUI = function(app) {
         timer: 3000
     });
 
-    var that = app;
-    for (var i = 0; i < that.catalogues.length; ++i) {
-        var id = 'catalog_item_' + i;
-        var el = $('#' + id);
-        el.on('click', function(e) {
-            that.onCatalogItemClick($(this), e);
-        });
-    }
+    app.messageCatalogue = new MessageCatalogue(app);
+    app.messageCatalogue.setClickListener(function(contact) {
+        app.onCatalogClick(contact);
+    });
 
-    that.messagePanel = new MessagePanel($('#messages'));
-    that.messagePanel.setOwner(app.account);
-    that.messagePanel.setSendListener(function(to, content) {
-        that.onSendClick(to, content);
+    app.messagePanel = new MessagePanel($('#messages'));
+    app.messagePanel.setOwner(app.account);
+    app.messagePanel.setSendListener(function(to, content) {
+        app.onSendClick(to, content);
     });
 }
 
@@ -69,6 +65,11 @@ CubeApp.prototype.config = function(cube) {
     cube.contacts.on(ContactEvent.SignIn, function(event) {
         app.launchToast(CubeToast.Info, '已签入ID ：' + event.data.getId());
     });
+
+    // 监听消息已发送事件
+    cube.messaging.on(MessagingEvent.Sent, function(event) {
+        console.log('触发 "Sent" 事件，消息 ID : ' + event.data.getId());
+    });
 }
 
 /**
@@ -76,7 +77,11 @@ CubeApp.prototype.config = function(cube) {
  */
 CubeApp.prototype.logout = function() {
     if (confirm('是否确认退出当前账号登录？')) {
-        window.cube().stop();
+        // 将 Cube 账号签出
+        this.cube.contacts.signOut();
+
+        // 本示例程序将回到登录界面，因此停止引擎
+        this.cube.stop();
 
         var id = this.account.id;
 
@@ -113,43 +118,22 @@ CubeApp.prototype.launchToast = function(toast, text) {
     });
 }
 
-CubeApp.prototype.updatePanel = function(data) {
-    this.messagePanel.changeTarget(data);
-}
-
-CubeApp.prototype.onCatalogItemClick = function(el, e) {
-    if (null != this.lastCatalogItem) {
-        if (this.lastCatalogItem.attr('id') == el.attr('id')) {
-            return;
-        }
-
-        this.lastCatalogItem.removeClass('catalog-active');
-    }
-
-    el.addClass('catalog-active');
-    this.lastCatalogItem = el;
-
-    var accountId = parseInt(el.attr('data'));
-    var that = this;
-
-    this.getAccount(accountId, function(data, textStatus) {
-        if (textStatus == 'success') {
-            that.updatePanel(data);
-        }
-    });
+CubeApp.prototype.onCatalogClick = function(contact) {
+    this.messagePanel.changeTarget(contact);
 }
 
 CubeApp.prototype.onSendClick = function(to, content) {
+    // 调用消息模块的 sendToContact 发送消息
     var message = this.cube.messaging.sendToContact(to.id, { "content": content });
     if (null == message) {
         this.launchToast(CubeToast.Warning, '发送消息失败');
         return;
     }
 
-    
+    this.messageCatalogue.updateSubLabel(to.id, content, message.getTimestamp());
 }
 
-CubeApp.prototype.onContactEvent = function(event) {
+CubeApp.prototype.onContactsEvent = function(event) {
     console.log('接收到事件：' + event.name);
 }
 

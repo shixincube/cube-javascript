@@ -226,12 +226,17 @@ export class Module extends Subject {
 
     /**
      * 设置指定事件的监听回调函数。
-     * @param {string} event 指定事件名。
+     * @param {string} [event] 指定事件名。
      * @param {function} listener 当发生该事件时回调此函数，函数参数参看 {@link ModuleEvent} 。
      * @see {@link ModuleEvent}
      */
     on(event, listener) {
-        this.attachWithName(event, listener);
+        if (typeof event === 'string') {
+            this.attachWithName(event, listener);
+        }
+        else if (typeof event === 'function') {
+            this.attach(event);
+        }
     }
 
     addEntityListener(entityName, listener) {
@@ -241,7 +246,14 @@ export class Module extends Subject {
     }
 
     removeEntityListener(entityName, listener) {
-
+        let list = this.entityListenerMap.get(entityName);
+        if (null == list) {
+            return;
+        }
+        let index = list.indexOf(listener);
+        if (index >= 0) {
+            list.splice(index, 1);
+        }
     }
 
     /**

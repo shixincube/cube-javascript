@@ -42,5 +42,15 @@ export const MessagingEvent = {
     /**
      * 消息正在发送。
      */
-    Sending: 'Sending'
+    Sending: 'Sending',
+
+    /**
+     * 发送失败。
+     */
+    SendFailed: 'SendFailed',
+
+    /**
+     * 未知时间。仅用于调试。
+     */
+    Unknown: 'Unknown'
 }

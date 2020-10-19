@@ -24,6 +24,22 @@ body {
     position: absolute;
     right: 1rem;
     top: .7rem;
+    opacity: 1.0;
+    z-index: -1;
+    visibility: visible;
+    transition: transform ease-in-out .3s, -webkit-transform ease-in-out .3s, opacity .3s ease-in-out;
+}
+
+.sidebar-collapse .opt .right {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity .3s ease-in-out;
+}
+
+.main-sidebar:hover .opt .right {
+    visibility: visible;
+    opacity: 1.0;
+    transition: opacity .3s ease-in-out;
 }
 
 .main-catalog {

@@ -25,6 +25,7 @@
  */
 
 import cell from "@lib/cell-lib";
+import { OrderMap } from "../util/OrderMap";
 import { Module } from "../core/Module"
 import { ContactService } from "../contacts/ContactService";
 import { ContactEvent } from "../contacts/ContactEvent";
@@ -82,9 +83,9 @@ export class MessagingService extends Module {
 
         /**
          * 正在发送队列。
-         * @type {Array<Message>}
+         * @type {OrderMap<number,Message>}
          */
-        this.sendingQueue = [];
+        this.sendingMap = new OrderMap();
 
         /**
          * 消息发送队列定时器。
@@ -215,6 +216,7 @@ export class MessagingService extends Module {
 
         // 更新状态
         msg.state = MessageState.Sending;
+        this.nodifyObservers(new ObservableState(MessagingEvent.Sending, msg));
 
         return msg;
     }
@@ -259,6 +261,7 @@ export class MessagingService extends Module {
 
         // 更新状态
         msg.state = MessageState.Sending;
+        this.nodifyObservers(new ObservableState(MessagingEvent.Sending, msg));
 
         return msg;
     }
@@ -354,6 +357,9 @@ export class MessagingService extends Module {
             if (this.pipeline.isReady()) {
                 let message = this.pushQueue.shift();
 
+                // 进入发送中状态
+                this.sendingMap.put(message.getId(), message);
+
                 if (message instanceof FileMessage) {
                     this._processFile(message);
                 }
@@ -362,19 +368,24 @@ export class MessagingService extends Module {
                     let packet = new Packet(MessagingAction.Push, message.toJSON());
                     this.pipeline.send(MessagingService.NAME, packet, (pipeline, source, responsePacket) => {
                         if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
-                            if (responsePacket.data.code == 0) {
-                                message.state = MessageState.Sent;
+                            let respMessage = this.sendingMap.remove(responsePacket.data.data.id);
+                            if (respMessage) {
+                                respMessage.state = MessageState.Sent;
+                            }
 
-                                let state = new ObservableState(MessagingEvent.Sent, message);
+                            if (responsePacket.data.code == 0) {
+                                let state = new ObservableState(MessagingEvent.Sent, respMessage);
                                 this.nodifyObservers(state);
                             }
                             else {
-                                // TODO 回调
-                                cell.Logger.e('MessagingService', 'Sent failed: ' + responsePacket.data.code);
+                                cell.Logger.w('MessagingService', 'Sent failed: ' + responsePacket.data.code);
+                                // 回调错误
+                                let state = new ObservableState(MessagingEvent.SendFailed, respMessage);
+                                this.nodifyObservers(state);
                             }
                         }
                         else {
-                            cell.Logger.e('MessagingService', 'Pipeline error');
+                            cell.Logger.e('MessagingService', 'Pipeline error : ' + MessagingAction.Push + ' - ' + responsePacket.getStateCode());
                         }
                     });
                 }
