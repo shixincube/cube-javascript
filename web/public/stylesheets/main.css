@@ -25,7 +25,6 @@ body {
     right: 1rem;
     top: .7rem;
     opacity: 1.0;
-    z-index: -1;
     visibility: visible;
     transition: transform ease-in-out .3s, -webkit-transform ease-in-out .3s, opacity .3s ease-in-out;
 }

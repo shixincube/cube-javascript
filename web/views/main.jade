@@ -114,6 +114,20 @@ block pageContent
                       span.input-group-append
                         button#btn_send.btn.btn-primary(type='button', disabled='disabled') 发送
 
+      //- Confirm modal
+      div#modal_confirm.modal.fade
+        div.modal-dialog
+          div.modal-content
+            div.modal-header
+              h4.modal-title Default Modal
+              button.close(type='button', data-dismiss='modal', aria-label='Close')
+                span(aria-hidden='true') &times;
+            div.modal-body
+              p &hellip;
+            div.modal-footer.justify-content-between
+              button.btn.btn-secondary(type='button', data-dismiss='modal', onclick='javascript:ui.fireConfirm(false);') 取消
+              button.btn.btn-primary(type='button', data-dismiss='modal', onclick='javascript:ui.fireConfirm(true);') 确定
+
     aside.control-sidebar.control-sidebar-dark
       div.p-3
         h5 时信魔方

@@ -78,6 +78,9 @@ export class ContactPipelineListener extends PipelineListener {
         else if (packet.name == ContactAction.ChangeOwner) {
             this.contactService.triggerChangeOwner(packet.data);
         }
+        else if (packet.name == ContactAction.SignOut) {
+            this.contactService.triggerSignOut(packet.data);
+        }
     }
 
     /**

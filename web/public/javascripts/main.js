@@ -76,26 +76,31 @@ CubeApp.prototype.config = function(cube) {
  * 当前账号退出登录。
  */
 CubeApp.prototype.logout = function() {
-    if (confirm('是否确认退出当前账号登录？')) {
-        // 将 Cube 账号签出
-        this.cube.contacts.signOut();
+    var that = this;
+    ui.showConfirm('退出登录', '是否确认退出当前账号登录？', function(confirmed) {
+        if (confirmed) {
+            var timer = 0;
+            var id = that.account.id;
 
-        // 本示例程序将回到登录界面，因此停止引擎
-        this.cube.stop();
+            // 将 Cube 账号签出
+            that.cube.contacts.signOut(function(self) {
+                $.post('/account/logout', {
+                    "id": id
+                }, function(data, textStatus, jqXHR) {
+                    clearTimeout(timer);
 
-        var id = this.account.id;
+                    // 本示例程序将回到登录界面，因此停止引擎
+                    that.cube.stop();
 
-        var timer = setTimeout(function() {
-            window.location.href = '/';
-        }, 2000);
+                    window.location.href = '/';
+                }, 'json');
+            });
 
-        $.post('/account/logout', {
-            "id": id
-        }, function(data, textStatus, jqXHR) {
-            clearTimeout(timer);
-            window.location.href = '/';
-        }, 'json');
-    }
+            timer = setTimeout(function() {
+                window.location.href = '/';
+            }, 5000);
+        }
+    });
 }
 
 CubeApp.prototype.getAccount = function(id, handler) {

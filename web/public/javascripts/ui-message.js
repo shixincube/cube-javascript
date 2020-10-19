@@ -1,5 +1,31 @@
 // ui-message.js
 
+/**
+ * 对话框。
+ */
+(function(g){
+
+    g.ui = g.ui || {};
+
+    var confirmCallback = function() {};
+
+    function showConfirm(title, content, callback) {
+        var el = $('#modal_confirm');
+        el.find('.modal-title').text(title);
+        el.find('.modal-body').text(content);
+
+        confirmCallback = callback;
+
+        el.modal();
+    }
+
+    g.ui.fireConfirm = function(yesOrNo) {
+        confirmCallback(yesOrNo);
+    }
+
+    g.ui.showConfirm = showConfirm;
+})(window);
+
 
 /**
  * 消息目录。

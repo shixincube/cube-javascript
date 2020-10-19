@@ -186,8 +186,9 @@ export class ContactService extends Module {
 
     /**
      * 将当前设置的联系人签出。
+     * @param {function} [handler] 当签出成功时回调该函数。
      */
-    signOut() {
+    signOut(handler) {
         if (!this.selfReady || null == this.self) {
             return false;
         }
@@ -197,8 +198,16 @@ export class ContactService extends Module {
             return false;
         }
 
+        let current = this.self;
+
         let signOutPacket = new Packet(ContactAction.SignOut, this.self.toJSON());
-        this.pipeline.send(ContactService.NAME, signOutPacket);
+        this.pipeline.send(ContactService.NAME, signOutPacket, (undefined !== handler) ? (pipeline, source, responsePacket) => {
+            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+                if (responsePacket.data.code == 0) {
+                    handler(current);
+                }
+            }
+        } : undefined);
         return true;
     }
 
@@ -229,7 +238,7 @@ export class ContactService extends Module {
     }
 
     /**
-     * 触发用户签入事件。
+     * 触发联系人签入事件。
      * @protected
      * @param {object} payload 来自服务器数据。
      */
@@ -261,6 +270,27 @@ export class ContactService extends Module {
         this.selfReady = true;
 
         this.nodifyObservers(new ObservableState(ContactEvent.SignIn, this.self));
+    }
+
+    /**
+     * 触发联系人签出事件。
+     * @protected
+     * @param {object} payload 来自服务器数据。
+     */
+    triggerSignOut(payload) {
+        if (payload.code != 0) {
+            cell.Logger.e('ContactService', 'SignOut failed: ' + payload.code);
+            return;
+        }
+
+        cell.Logger.d('ContactService', 'Trigger SignOut: ' + this.self.getId());
+
+        let current = this.self;
+
+        this.self = null;
+        this.selfReady = false;
+
+        this.nodifyObservers(new ObservableState(ContactEvent.SignOut, current));
     }
 
     /**
