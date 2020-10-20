@@ -98,21 +98,18 @@ export class ContactService extends Module {
         this.pipelineListener = new ContactPipelineListener(this);
 
         // 数据库配置
-        let options = {
-            name: 'CubeContact',
-            version: 1,
-            stores: [{
-                name: 'Contacts',
-                keyPath: 'id',
-                autoIncrement: false,
-                isKv: true
-            }]
-        };
-        /**
-         * 数据库操作封装。
-         */
-        this.db = new InDB(options);
-        this.storeContact = this.db.use('Contacts');
+        // let options = {
+        //     name: 'CubeContact',
+        //     version: 1,
+        //     stores: [{
+        //         name: 'Contacts',
+        //         keyPath: 'id',
+        //         autoIncrement: false,
+        //         isKv: true
+        //     }]
+        // };
+        // this.db = new InDB(options);
+        // this.storeContact = this.db.use('Contacts');
     }
 
     /**

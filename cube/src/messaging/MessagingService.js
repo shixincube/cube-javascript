@@ -37,6 +37,7 @@ import { MessageState } from "./MessageState";
 import { MessagingAction } from "./MessagingAction";
 import { MessagingPipelineListener } from "./MessagingPipelineListener";
 import { MessagingEvent } from "./MessagingEvent";
+import { MessagingStorage } from "./MessagingStorage";
 import { FileMessage } from "./FileMessage";
 import { FileStorage } from "../filestorage/FileStorage"
 import { ObservableState } from "../core/ObservableState";
@@ -100,6 +101,11 @@ export class MessagingService extends Module {
         this.pipelineListener = new MessagingPipelineListener(this);
 
         /**
+         * 消息存储器。
+         */
+        this.storage = new MessagingStorage();
+
+        /**
          * 最近一条消息的时间。
          * @type {number}
          */
@@ -130,6 +136,11 @@ export class MessagingService extends Module {
         };
         this.contactService.attach(fun);
         this.contactEventFun = fun;
+
+        let self = this.contactService.getSelf();
+        if (null != self) {
+            this.storage.open(self.getDomain());
+        }
 
         // 添加数据通道的监听器
         this.pipeline.addListener(MessagingService.NAME, this.pipelineListener);
@@ -166,6 +177,8 @@ export class MessagingService extends Module {
             this.contactService.detach(fun);
             this.contactEventFun = null;
         }
+
+        this.storage.close();
     }
 
     /**
@@ -226,7 +239,11 @@ export class MessagingService extends Module {
         msg.to = to;
         msg.localTS = Date.now();
 
+        // 写入队列
         this.pushQueue.push(msg);
+
+        // 存储
+        this.storage.write(msg);
 
         // 更新状态
         msg.state = MessageState.Sending;
@@ -271,7 +288,11 @@ export class MessagingService extends Module {
         msg.source = source;
         msg.localTS = Date.now();
 
+        // 写入队列
         this.pushQueue.push(msg);
+
+        // 存储
+        this.storage.write(msg);
 
         // 更新状态
         msg.state = MessageState.Sending;
@@ -389,7 +410,11 @@ export class MessagingService extends Module {
                             let respMessage = this.sendingMap.remove(responsePacket.data.data.id);
                             if (respMessage) {
                                 respMessage.state = MessageState.Sent;
+                                respMessage.remoteTS = responsePacket.data.data.rts;
                             }
+
+                            // 存储
+                            this.storage.update(respMessage);
 
                             if (responsePacket.data.code == 0) {
                                 let state = new ObservableState(MessagingEvent.Sent, respMessage);
@@ -452,6 +477,11 @@ export class MessagingService extends Module {
      */
     _fireContactEvent(state) {
         if (state.name == ContactEvent.SignIn) {
+            let self = state.data;
+
+            // 启动存储
+            this.storage.open(self.getDomain());
+
             this.queryRemoteMessage();
         }
     }
