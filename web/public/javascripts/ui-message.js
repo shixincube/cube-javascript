@@ -151,27 +151,39 @@ MessagePanel.prototype.changeTarget = function(target) {
     this.elTitle.text(target.name);
 }
 
-MessagePanel.prototype.appendMessage = function(from, text, time) {
+MessagePanel.prototype.appendMessage = function(sender, text, time, target) {
+    var targetId = (undefined !== target) ? target.id : this.current.id;
+
+    var record = this.targets[targetId];
+    if (undefined === record) {
+        var el = $('<div class="direct-chat-messages"></div>');
+        record = {
+            target: target,
+            elMessages: el
+        };
+        this.targets[targetId] = record;
+    }
+
     var right = '';
     var nfloat = 'float-left';
     var tfloat = 'float-right';
 
-    if (from.id == this.owner.id) {
+    if (sender.id == this.owner.id) {
         right = 'right';
         nfloat = 'float-right';
         tfloat = 'float-left';
     }
 
     var html = ['<div class="direct-chat-msg ', right, '"><div class="direct-chat-infos clearfix"><span class="direct-chat-name ', nfloat, '">',
-        from.name,
+        sender.name,
         '</span><span class="direct-chat-timestamp ', tfloat, '">',
         formatShortTime(time),
         '</span></div>',
-        '<img src="', from.avatar, '" class="direct-chat-img">',
+        '<img src="', sender.avatar, '" class="direct-chat-img">',
         '<div class="direct-chat-text">', text, '</div></div>'
     ];
 
-    var parentEl = this.targets[this.current.id].elMessages;
+    var parentEl = this.targets[targetId].elMessages;
     parentEl.append($(html.join('')));
 }
 

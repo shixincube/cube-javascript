@@ -16,7 +16,7 @@ function CubeApp(cube, account, contacts, catalogues) {
 
     this.messageCatalogue = null;
 
-    this.messages = {};         // 保存账号对应的目录里各联系的消息
+    this.messages = {};         // 保存账号对应的消息，包括发送的和接收的
     this.messagePanel = null;   // 消息面板
 
     var that = this;
@@ -68,8 +68,37 @@ CubeApp.prototype.config = function(cube) {
 
     // 监听消息已发送事件
     cube.messaging.on(MessagingEvent.Sent, function(event) {
-        console.log('触发 "Sent" 事件，消息 ID : ' + event.data.getId());
+        var message = event.data;
+        app.messages[message.getId()] = message;
+
+        console.log('触发 "MessagingEvent.Sent" 事件，消息 ID : ' + message.getId());
     });
+
+    // 监听接收消息事件
+    cube.messaging.on(MessagingEvent.Notify, function(event) {
+        var message = event.data;
+        app.messages[message.getId()] = message;
+
+        console.log('触发 "MessagingEvent.Notify" 事件，消息 ID : ' + message.getId());
+
+        // 触发 UI 事件
+        app.onNewMessage(message);
+    });
+}
+
+/**
+ * 返回指定 ID 的联系人。
+ * @param {number} id 
+ * @returns {object} 返回指定 ID 的联系人。
+ */
+CubeApp.prototype.getContact = function(id) {
+    for (var i = 0; i < this.contacts.length; ++i) {
+        var contact = this.contacts[i];
+        if (contact.id == id) {
+            return contact;
+        }
+    }
+    return null;
 }
 
 /**
@@ -138,8 +167,23 @@ CubeApp.prototype.onSendClick = function(to, content) {
     this.messageCatalogue.updateSubLabel(to.id, content, message.getTimestamp());
 }
 
-CubeApp.prototype.onContactsEvent = function(event) {
-    console.log('接收到事件：' + event.name);
+CubeApp.prototype.onNewMessage = function(message) {
+    var content = message.getPayload().content;
+    this.messageCatalogue.updateSubLabel(message.getTo(), content, message.getRemoteTimestamp());
+    
+    // 判断消息是否是“我”发的
+    var sender = null;
+    var target = null;
+    if (this.cube.messaging.isSender(message)) {
+        sender = this.account;
+        target = this.getContact(message.getTo());
+    }
+    else {
+        sender = this.getContact(message.getFrom());
+        target = sender;
+    }
+    
+    this.messagePanel.appendMessage(sender, content, message.getRemoteTimestamp(), target);
 }
 
 

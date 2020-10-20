@@ -142,7 +142,7 @@ export class MessagingService extends Module {
         }, 100);
 
         if (0 == this.lastMessageTime) {
-            this.lastMessageTime = Date.now() - (24 * 60 * 60000);
+            this.lastMessageTime = Date.now() - (2 * 24 * 60 * 60000);
         }
 
         return true;
@@ -174,6 +174,20 @@ export class MessagingService extends Module {
      */
     assemble() {
         this.pluginSystem.addHook(new NotifyHook());
+    }
+
+    /**
+     * 消息是否是当前签入的联系人账号发出的。
+     * @param {Message} message 指定消息实例。
+     * @returns {boolean} 如果是当前签入人发出的返回 {@linkcode true} 。
+     */
+    isSender(message) {
+        let self = this.contactService.getSelf();
+        if (null == self) {
+            return false;
+        }
+
+        return (message.from == self.getId());
     }
 
     /**
@@ -302,14 +316,18 @@ export class MessagingService extends Module {
     /**
      * 触发观察者 Notify 回调。
      * @private
-     * @param {JSON} payload 
+     * @param {JSON|Message} payload 
      */
     triggerNotify(payload) {
-        let data = payload.data;
+        // 判断传入的数据类型
+        let data = (undefined === payload.code && undefined === payload.data) ? payload : payload.data;
         let message = Message.create(data);
 
         // 使用服务器的时间戳设置为最新消息时间
-        this.lastMessageTime = message.getRemoteTimestamp();
+        let time = message.getRemoteTimestamp();
+        if (time > this.lastMessageTime) {
+            this.lastMessageTime = time;
+        }
 
         // 下钩子
         let hook = this.pluginSystem.getHook(MessagingEvent.Notify);
