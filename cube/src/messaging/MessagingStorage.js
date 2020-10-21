@@ -105,17 +105,17 @@ export class MessagingStorage {
 
     queryLastMessageTime(handler) {
         (async () => {
-            let value = await this.configStore.get('lastMessageTime');
-            if (undefined === value) {
-                value = 0;
+            let item = await this.configStore.get('lastMessageTime');
+            if (undefined === item) {
+                item = 0;
             }
 
-            handler(value);
+            handler(item.value);
         })();
     }
 
     /**
-     * 
+     * 写入消息到数据库。
      * @param {Message} message 
      */
     writeMessage(message) {
@@ -126,16 +126,28 @@ export class MessagingStorage {
         })();
     }
 
-    readMessageWithFrom(from, start, handler) {
+    readMessage(start, handler) {
         (async ()=> {
             let result = await this.messagesStore.select([
-                { key: 'from', value: from },
                 { key: 'rts', value: start, compare: '>' }
             ]);
             for (let i = 0; i < result.length; ++i) {
                 result[i].domain = this.domain;
             }
-            handler(from, start, result);
+            handler(start, result);
+        })();
+    }
+
+    readMessageWithContact(contactId, handler) {
+        (async ()=> {
+            let result = await this.messagesStore.select([
+                { key: 'from', value: contactId },
+                { key: 'to', value: contactId }
+            ]);
+            for (let i = 0; i < result.length; ++i) {
+                result[i].domain = this.domain;
+            }
+            handler(contactId, result);
         })();
     }
 

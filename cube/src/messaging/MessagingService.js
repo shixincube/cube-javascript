@@ -25,6 +25,7 @@
  */
 
 import cell from "@lib/cell-lib";
+import { AuthService } from "../auth/AuthService";
 import { OrderMap } from "../util/OrderMap";
 import { Module } from "../core/Module"
 import { ContactService } from "../contacts/ContactService";
@@ -44,7 +45,6 @@ import { ObservableState } from "../core/ObservableState";
 import { StateCode } from "../core/StateCode";
 import { PluginSystem } from "../core/PluginSystem";
 import { NotifyHook } from "./extends/NotifyHook";
-import { AuthService } from "../auth/AuthService";
 
 /**
  * 消息服务模块接口。
@@ -138,10 +138,8 @@ export class MessagingService extends Module {
         this.contactService.attach(fun);
         this.contactEventFun = fun;
 
-        let self = this.contactService.getSelf();
-        if (null != self) {
-            this.storage.open(self.getDomain());
-        }
+        // 开启存储器
+        this.storage.open(AuthService.DOMAIN);
 
         // 添加数据通道的监听器
         this.pipeline.addListener(MessagingService.NAME, this.pipelineListener);
@@ -308,19 +306,55 @@ export class MessagingService extends Module {
         // 写入队列
         this.pushQueue.push(msg);
 
-        // 存储
-        this.storage.writeMessage(msg);
-
         // 更新状态
-        msg.state = MessageState.Sending;
-        this.nodifyObservers(new ObservableState(MessagingEvent.Sending, msg));
+        let promise = new Promise((resolve, reject) => {
+            // 存储
+            this.storage.writeMessage(msg);
+
+            // 事件通知
+            this.nodifyObservers(new ObservableState(MessagingEvent.Sending, msg));
+            resolve();
+        });
+        promise.then(() => {});
 
         return msg;
     }
 
     /**
+     * 查询指定时间开始到当前时间的所有消息。
+     * @param {number} time 指定查询的起始时间。
+     * @param {function} handler 查询结果回调函数。
+     */
+    queryMessage(time, handler) {
+        this.storage.readMessage(time, (start, list) => {
+            let result = [];
+            for (let i = 0; i < list.length; ++i) {
+                let message = Message.create(list[i]);
+                result.push(message);
+            }
+            handler(start, result);
+        });
+    }
+
+    /**
+     * 查询指定联系人 ID 相关的所有消息，即包括该联系人发送的，也包含该联系人接收的。
+     * @param {number} id 指定联系人 ID 。
+     * @param {function} handler 查询结果回调函数。
+     */
+    queryMessageWithContact(id, handler) {
+        this.storage.readMessageWithContact(id, (contactId, list) => {
+            let result = [];
+            for (let i = 0; i < list.length; ++i) {
+                let message = Message.create(list[i]);
+                result.push(message);
+            }
+            handler(contactId, result); 
+        });
+    }
+
+    /**
      * 查询服务器上的消息。
-     * @param {number} time 指定获取消息的起始时间
+     * @param {number} [time] 指定获取消息的起始时间
      */
     queryRemoteMessage(time) {
         if (!this.contactService.selfReady) {
@@ -336,7 +370,7 @@ export class MessagingService extends Module {
 
         this.lastQueryTime = now;
 
-        let timestamp = (undefined === time) ? this.lastMessageTime : time;
+        let timestamp = (undefined === time) ? this.lastMessageTime + 1 : time;
 
         let self = this.contactService.getSelf();
         // 拉取消息
@@ -361,6 +395,8 @@ export class MessagingService extends Module {
         let data = (undefined === payload.code && undefined === payload.data) ? payload : payload.data;
         let message = Message.create(data);
 
+        message.state = MessageState.Sent;
+
         // 使用服务器的时间戳设置为最新消息时间
         this.refreshLastMessageTime(message.getRemoteTimestamp());
 
@@ -369,8 +405,15 @@ export class MessagingService extends Module {
         // 调用插件处理
         message = hook.apply(message);
 
-        // 回调事件
-        this.nodifyObservers(new ObservableState(MessagingEvent.Notify, message));
+        let promise = new Promise((resolve, reject) => {
+            // 写消息
+            this.storage.writeMessage(message);
+
+            // 回调事件
+            this.nodifyObservers(new ObservableState(MessagingEvent.Notify, message));
+            resolve();
+        });
+        promise.then(() => {});
     }
 
     /**
@@ -399,6 +442,17 @@ export class MessagingService extends Module {
 
     triggerFail(name, payload) {
         cell.Logger.w('MessagingService', 'Failed #' + name + ' : ' + payload.code);
+    }
+
+    /**
+     * 刷新最近一条消息时间戳。
+     * @param {number}} value 
+     */
+    refreshLastMessageTime(value) {
+        if (value > this.lastMessageTime) {
+            this.lastMessageTime = value;
+        }
+        this.storage.updateLastMessageTime(value);
     }
 
     /**
@@ -457,13 +511,6 @@ export class MessagingService extends Module {
                 }
             }
         }
-    }
-
-    refreshLastMessageTime(value) {
-        if (value > this.lastMessageTime) {
-            this.lastMessageTime = value;
-        }
-        this.storage.updateLastMessageTime(value);
     }
 
     /**

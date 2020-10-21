@@ -14,10 +14,8 @@ function CubeApp(cube, account, contacts, catalogues) {
     this.contacts = contacts;       // 联系人列表
     this.catalogues = catalogues;   // 界面目录数据
 
-    this.messageCatalogue = null;
-
-    this.messages = {};         // 保存账号对应的消息，包括发送的和接收的
-    this.messagePanel = null;   // 消息面板
+    this.messageCatalogue = null;   // 消息目录
+    this.messagePanel = null;       // 消息面板
 
     var that = this;
     setTimeout(function() {
@@ -69,7 +67,6 @@ CubeApp.prototype.config = function(cube) {
     // 监听消息已发送事件
     cube.messaging.on(MessagingEvent.Sent, function(event) {
         var message = event.data;
-        app.messages[message.getId()] = message;
 
         console.log('触发 "MessagingEvent.Sent" 事件，消息 ID : ' + message.getId());
     });
@@ -77,13 +74,29 @@ CubeApp.prototype.config = function(cube) {
     // 监听接收消息事件
     cube.messaging.on(MessagingEvent.Notify, function(event) {
         var message = event.data;
-        app.messages[message.getId()] = message;
 
         console.log('触发 "MessagingEvent.Notify" 事件，消息 ID : ' + message.getId());
 
         // 触发 UI 事件
         app.onNewMessage(message);
     });
+}
+
+CubeApp.prototype.prepareData = function() {
+    var that = this;
+    if (null == this.messagePanel) {
+        setTimeout(function() {
+            that.prepareData();
+        }, 100);
+        return;
+    }
+
+    for (var i = 0; i < this.contacts.length; ++i) {
+        var contact = this.contacts[i];
+        this.cube.messaging.queryMessageWithContact(contact.id, function(id, list) {
+            
+        });
+    }
 }
 
 /**
@@ -209,6 +222,9 @@ $(document).ready(function() {
 
         // 将当前账号签入
         cube.signIn(app.account.id);
+
+        // 应用程序准备数据
+        app.prepareData();
     }, function(error) {
         console.log('Start Cube failed: ' + error);
     });

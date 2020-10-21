@@ -188,8 +188,8 @@ export class Message extends Entity {
         json["source"] = this.source;
         json["lts"] = this.localTS;
         json["rts"] = this.remoteTS;
-        json["payload"] = this.payload;
         json["state"] = this.state;
+        json["payload"] = this.payload;
         return json;
     }
 
