@@ -78,7 +78,9 @@ var App = Class({
             that.console.log('消息已发送 ' + event.data.from + ' -> ' + event.data.to);
         });
         messaging.attachWithName(MessagingEvent.Sending, function(msg) {
-            that.console.log('正在发送 ' + msg.getFileName() + ' - ' + msg.getPosition() + '/' + msg.getFileSize());
+            if (msg instanceof FileMessage) {
+                that.console.log('正在发送 ' + msg.getFileName() + ' - ' + msg.getPosition() + '/' + msg.getFileSize());
+            }
         });
         messaging.attachWithName(MessagingEvent.Notify, function(event) {
             var msg = event.data;
@@ -118,6 +120,7 @@ var App = Class({
 
         if (null == this.cube) {
             this.cube = new CubeEngine();
+            window.cube = cube;
             this.bindEvent();
             this.extendGroup();
         }
@@ -151,7 +154,8 @@ var App = Class({
 
         var that = this;
         this.cube.getContactService().getContact(cid, function(contact) {
-            if (ms.sendToContact(contact, new Message({ "content" : content }))) {
+            var msg = ms.sendToContact(contact, new Message({ "content" : content }));
+            if (null != msg) {
                 that.console.info('向 ' + cid + ' 发送消息 "' + content + '"');
             }
             else {

@@ -30,6 +30,7 @@ import { OrderMap } from "../util/OrderMap";
 import { Module } from "../core/Module";
 import { Packet } from "../core/Packet";
 import { StateCode } from "../core/StateCode";
+import { AuthService } from "../auth/AuthService";
 import { ContactPipelineListener } from "./ContactPipelineListener";
 import { Self } from "./Self";
 import { ObservableState } from "../core/ObservableState";
@@ -120,9 +121,6 @@ export class ContactService extends Module {
             return false;
         }
 
-        // 设置域
-        Self.DOMAIN = this.getAuthToken().domain;
-
         this.inspector.start();
 
         this.pipeline.addListener(ContactService.NAME, this.pipelineListener);
@@ -153,7 +151,7 @@ export class ContactService extends Module {
 
         if (self instanceof Self) {
             this.self = self;
-            this.self.domain = Self.DOMAIN;
+            this.self.domain = AuthService.DOMAIN;
         }
         else {
             this.self = new Self(parseInt(self));
@@ -310,7 +308,7 @@ export class ContactService extends Module {
             if (null == contact) {
                 let packet = new Packet(ContactAction.GetContact, {
                     "id": id,
-                    "domain": Self.DOMAIN
+                    "domain": AuthService.DOMAIN
                 });
                 this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
                     if (null != responsePacket) {
@@ -367,7 +365,7 @@ export class ContactService extends Module {
         let promise = new Promise((resolve, reject) => {
             let packet = new Packet(ContactAction.GetContactList, {
                 "list": idList,
-                "domain": Self.DOMAIN
+                "domain": AuthService.DOMAIN
             });
             this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
                 if (null != responsePacket) {
@@ -433,7 +431,7 @@ export class ContactService extends Module {
             if (null == group) {
                 let packet = new Packet(ContactAction.GetGroup, {
                     "id": id,
-                    "domain": Self.DOMAIN
+                    "domain": AuthService.DOMAIN
                 });
                 this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
                     if (null != responsePacket) {

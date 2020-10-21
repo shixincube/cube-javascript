@@ -44,6 +44,7 @@ import { ObservableState } from "../core/ObservableState";
 import { StateCode } from "../core/StateCode";
 import { PluginSystem } from "../core/PluginSystem";
 import { NotifyHook } from "./extends/NotifyHook";
+import { AuthService } from "../auth/AuthService";
 
 /**
  * 消息服务模块接口。
@@ -153,7 +154,14 @@ export class MessagingService extends Module {
         }, 100);
 
         if (0 == this.lastMessageTime) {
-            this.lastMessageTime = Date.now() - (2 * 24 * 60 * 60000);
+            this.storage.queryLastMessageTime((value) => {
+                if (value == 0) {
+                    this.lastMessageTime = Date.now() - (7 * 24 * 60 * 60000);
+                }
+                else {
+                    this.lastMessageTime = value;
+                }
+            });
         }
 
         return true;
@@ -235,20 +243,28 @@ export class MessagingService extends Module {
             return null;
         }
 
+        // 更新状态
+        msg.state = MessageState.Sending;
+
         msg.from = self.getId();
         msg.to = to;
         msg.localTS = Date.now();
+        msg.remoteTS = msg.localTS;
 
         // 写入队列
         this.pushQueue.push(msg);
 
-        // 存储
-        this.storage.write(msg);
-
         // 更新状态
-        msg.state = MessageState.Sending;
-        this.nodifyObservers(new ObservableState(MessagingEvent.Sending, msg));
+        let promise = new Promise((resolve, reject) => {
+            // 存储
+            this.storage.writeMessage(msg);
 
+            // 事件通知
+            this.nodifyObservers(new ObservableState(MessagingEvent.Sending, msg));
+            resolve();
+        });
+        promise.then(() => {});
+    
         return msg;
     }
 
@@ -287,12 +303,13 @@ export class MessagingService extends Module {
         msg.from = self.getId();
         msg.source = source;
         msg.localTS = Date.now();
+        msg.remoteTS = msg.localTS;
 
         // 写入队列
         this.pushQueue.push(msg);
 
         // 存储
-        this.storage.write(msg);
+        this.storage.writeMessage(msg);
 
         // 更新状态
         msg.state = MessageState.Sending;
@@ -345,10 +362,7 @@ export class MessagingService extends Module {
         let message = Message.create(data);
 
         // 使用服务器的时间戳设置为最新消息时间
-        let time = message.getRemoteTimestamp();
-        if (time > this.lastMessageTime) {
-            this.lastMessageTime = time;
-        }
+        this.refreshLastMessageTime(message.getRemoteTimestamp());
 
         // 下钩子
         let hook = this.pluginSystem.getHook(MessagingEvent.Notify);
@@ -408,24 +422,33 @@ export class MessagingService extends Module {
                     this.pipeline.send(MessagingService.NAME, packet, (pipeline, source, responsePacket) => {
                         if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
                             let respMessage = this.sendingMap.remove(responsePacket.data.data.id);
-                            if (respMessage) {
-                                respMessage.state = MessageState.Sent;
-                                respMessage.remoteTS = responsePacket.data.data.rts;
+                            if (null == respMessage) {
+                                cell.Logger.e('MessagingService', 'Can NOT find message in cache: ' + responsePacket.data.data.id);
+                                return;
                             }
 
-                            // 存储
-                            this.storage.update(respMessage);
+                            // 更新时间戳
+                            respMessage.remoteTS = responsePacket.data.data.rts;
+                            this.refreshLastMessageTime(respMessage.remoteTS);
 
                             if (responsePacket.data.code == 0) {
+                                respMessage.state = MessageState.Sent;
+
                                 let state = new ObservableState(MessagingEvent.Sent, respMessage);
                                 this.nodifyObservers(state);
                             }
                             else {
                                 cell.Logger.w('MessagingService', 'Sent failed: ' + responsePacket.data.code);
+
+                                respMessage.state = MessageState.Fault;
+
                                 // 回调错误
                                 let state = new ObservableState(MessagingEvent.SendFailed, respMessage);
                                 this.nodifyObservers(state);
                             }
+
+                            // 更新存储
+                            this.storage.updateMessage(respMessage);
                         }
                         else {
                             cell.Logger.e('MessagingService', 'Pipeline error : ' + MessagingAction.Push + ' - ' + responsePacket.getStateCode());
@@ -434,6 +457,13 @@ export class MessagingService extends Module {
                 }
             }
         }
+    }
+
+    refreshLastMessageTime(value) {
+        if (value > this.lastMessageTime) {
+            this.lastMessageTime = value;
+        }
+        this.storage.updateLastMessageTime(value);
     }
 
     /**

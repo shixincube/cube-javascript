@@ -41,6 +41,7 @@ export class MessagingStorage {
          */
         this.db = null;
 
+        this.configStore = null;
         this.messagesStore = null;
     }
 
@@ -70,28 +71,46 @@ export class MessagingStorage {
                     name: 'rts',
                     keyPath: 'rts',
                     unique: false
-                }],
-                autoIncrement: false,
-                isKv: true
+                }]
+            }, {
+                name: 'config',
+                keyPath: 'item',
+                indexes: [{
+                    name: 'item',
+                    keyPath: 'item',
+                    unique: true
+                }]
             }]
         };
         
         this.db = new InDB(options);
 
+        this.configStore = this.db.use('config');
         this.messagesStore = this.db.use('messages');
     }
 
     close() {
-        
+        this.db.close();
     }
 
-    /**
-     * 
-     * @param {Message} message 
-     */
-    write(message) {
-        (async ()=> {
-            await this.messagesStore.add(message.toJSON());
+    updateLastMessageTime(timestamp) {
+        (async () => {
+            let data = {
+                "item": "lastMessageTime",
+                "value": timestamp
+            };
+            await this.configStore.put(data);
+        })();
+    }
+
+    queryLastMessageTime(handler) {
+        (async () => {
+            let value = await this.configStore.get('lastMessageTime');
+            if (undefined === value) {
+                value = 0;
+            }
+
+            handler(value);
         })();
     }
 
@@ -99,9 +118,36 @@ export class MessagingStorage {
      * 
      * @param {Message} message 
      */
-    update(message) {
+    writeMessage(message) {
         (async ()=> {
-            await this.messagesStore.put(message.toJSON());
+            let data = message.toJSON();
+            delete data["domain"];
+            await this.messagesStore.put(data);
+        })();
+    }
+
+    readMessageWithFrom(from, start, handler) {
+        (async ()=> {
+            let result = await this.messagesStore.select([
+                { key: 'from', value: from },
+                { key: 'rts', value: start, compare: '>' }
+            ]);
+            for (let i = 0; i < result.length; ++i) {
+                result[i].domain = this.domain;
+            }
+            handler(from, start, result);
+        })();
+    }
+
+    /**
+     * 
+     * @param {Message} message 
+     */
+    updateMessage(message) {
+        (async ()=> {
+            let data = message.toJSON();
+            delete data["domain"];
+            await this.messagesStore.put(data);
         })();
     }
 }

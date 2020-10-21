@@ -26,6 +26,7 @@
 
 import { Contact } from "./Contact";
 import { Device } from "./Device";
+import { AuthService } from "../auth/AuthService";
 
 /**
  * 用户描述自己的账号。
@@ -33,16 +34,11 @@ import { Device } from "./Device";
 export class Self extends Contact {
 
     /**
-     * 当前终端的域。
-     */
-    static DOMAIN = '';
-
-    /**
      * 构造函数。
      * @param {number|string} id 指定自终端的 ID 。
      */
     constructor(id) {
-        super(id, Self.DOMAIN);
+        super(id, AuthService.DOMAIN);
 
         /**
          * 当前设备描述。

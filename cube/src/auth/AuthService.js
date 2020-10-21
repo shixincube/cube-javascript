@@ -48,6 +48,11 @@ export class AuthService extends Module {
     static NAME = 'Auth';
 
     /**
+     * 域。
+     */
+    static DOMAIN = '';
+
+    /**
      * 构造函数。
      */
     constructor() {
@@ -164,6 +169,7 @@ export class AuthService extends Module {
      * @returns {AuthToken} 返回令牌实例。如果无法获取到授权令牌返回 {@linkcode null} 值。
      */
     async check(domain, appKey, address) {
+        AuthService.DOMAIN = domain;
         this.domain = domain;
         this.appKey = appKey;
 

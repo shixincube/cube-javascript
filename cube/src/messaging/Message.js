@@ -27,7 +27,7 @@
 import cell from "@lib/cell-lib";
 import { Entity } from "../core/Entity";
 import { MessageState } from "./MessageState";
-import { Self } from "../contacts/Self";
+import { AuthService } from "../auth/AuthService";
 
 /**
  * 消息实体。
@@ -52,7 +52,7 @@ export class Message extends Entity {
          * @private
          * @type {string}
          */
-        this.domain = Self.DOMAIN;
+        this.domain = AuthService.DOMAIN;
 
         /**
          * 消息负载数据。
@@ -189,6 +189,7 @@ export class Message extends Entity {
         json["lts"] = this.localTS;
         json["rts"] = this.remoteTS;
         json["payload"] = this.payload;
+        json["state"] = this.state;
         return json;
     }
 
