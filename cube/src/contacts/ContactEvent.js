@@ -43,6 +43,12 @@ export const ContactEvent = {
     SignOut: 'SignOut',
 
     /**
+     * 当前客户端的联系人恢复连接。
+     * @type {string}
+     */
+    Comeback: 'Comeback',
+
+    /**
      * 被邀请入群。
      * @type {string}
      */

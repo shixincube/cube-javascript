@@ -60,6 +60,10 @@ export class MessagingStorage {
      * @param {string} domain 指定操作的域。
      */
     open(domain) {
+        if (null != this.db) {
+            return;
+        }
+
         cell.Logger.d('MessagingStorage', 'Open messaging storage : ' + domain);
 
         this.domain = domain;
@@ -116,6 +120,7 @@ export class MessagingStorage {
         cell.Logger.d('MessagingStorage', 'Close messaging storage : ' + this.domain);
 
         this.db.close();
+        this.db = null;
     }
 
     /**

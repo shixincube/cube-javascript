@@ -250,9 +250,6 @@ export class MessagingService extends Module {
         msg.localTS = Date.now();
         msg.remoteTS = msg.localTS;
 
-        // 写入队列
-        this.pushQueue.push(msg);
-
         // 更新状态
         let promise = new Promise((resolve, reject) => {
             // 存储
@@ -260,9 +257,12 @@ export class MessagingService extends Module {
 
             // 事件通知
             this.nodifyObservers(new ObservableState(MessagingEvent.Sending, msg));
-            resolve();
+            resolve(msg);
         });
-        promise.then(() => {});
+        promise.then((msg) => {
+            // 写入队列
+            this.pushQueue.push(msg);
+        });
     
         return msg;
     }
@@ -304,9 +304,6 @@ export class MessagingService extends Module {
         msg.localTS = Date.now();
         msg.remoteTS = msg.localTS;
 
-        // 写入队列
-        this.pushQueue.push(msg);
-
         // 更新状态
         let promise = new Promise((resolve, reject) => {
             // 存储
@@ -314,9 +311,12 @@ export class MessagingService extends Module {
 
             // 事件通知
             this.nodifyObservers(new ObservableState(MessagingEvent.Sending, msg));
-            resolve();
+            resolve(msg);
         });
-        promise.then(() => {});
+        promise.then((msg) => {
+            // 写入队列
+            this.pushQueue.push(msg);
+        });
 
         return msg;
     }
@@ -424,6 +424,7 @@ export class MessagingService extends Module {
             });
         });
         promise.then((contained) => {
+            // 对于已经在数据库里的消息不回调 Notify 事件
             if (!contained) {
                 // 回调事件
                 this.nodifyObservers(new ObservableState(MessagingEvent.Notify, message));
@@ -573,7 +574,7 @@ export class MessagingService extends Module {
      * @param {ObservableState} state 
      */
     _fireContactEvent(state) {
-        if (state.name == ContactEvent.SignIn) {
+        if (state.name == ContactEvent.SignIn || state.name == ContactEvent.Comeback) {
             let self = state.data;
 
             // 启动存储

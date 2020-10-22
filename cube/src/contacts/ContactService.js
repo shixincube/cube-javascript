@@ -219,6 +219,7 @@ export class ContactService extends Module {
             if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
                 if (responsePacket.data.code == 0) {
                     cell.Logger.d('ContactService', 'Self comeback OK');
+                    this.nodifyObservers(new ObservableState(ContactEvent.Comeback, this.self));
                 }
             }
         });
