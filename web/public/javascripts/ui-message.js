@@ -1,7 +1,7 @@
 // ui-message.js
 
 /**
- * 对话框。
+ * 对话框处理。
  */
 (function(g){
 
@@ -118,6 +118,10 @@ MessagePanel.prototype.setSendListener = function(listener) {
     this.sendListener = listener;
 }
 
+/**
+ * 更换当前的目标面板。
+ * @param {object} target 目标联系人。
+ */
 MessagePanel.prototype.changeTarget = function(target) {
     if (null == this.current) {
         this.elInput.removeAttr('disabled');
@@ -151,6 +155,13 @@ MessagePanel.prototype.changeTarget = function(target) {
     this.elTitle.text(target.name);
 }
 
+/**
+ * 添加消息到面板。
+ * @param {object} sender 发送人。
+ * @param {string} text 消息内容。
+ * @param {number} time 消息时间戳。
+ * @param {object} [target] 目标面板。
+ */
 MessagePanel.prototype.appendMessage = function(sender, text, time, target) {
     var targetId = (undefined !== target) ? target.id : this.current.id;
 

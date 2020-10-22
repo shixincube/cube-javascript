@@ -103,6 +103,7 @@ export class MessagingService extends Module {
 
         /**
          * 消息存储器。
+         * @type {MessagingStorage}
          */
         this.storage = new MessagingStorage();
 
@@ -211,9 +212,9 @@ export class MessagingService extends Module {
 
     /**
      * 向指定联系人发送消息。
-     * @param {number|Contact} contact 指定联系人。
-     * @param {JSON|Message} message 指定消息内容。
-     * @returns {Message} 如果消息成功写入数据通道返回 {@link Message} 实例，否则返回 {@linkcode null} 。
+     * @param {number|Contact} contact 指定联系人或联系人 ID 。
+     * @param {JSON|Message} message 指定消息实例或消息内容。
+     * @returns {Message} 如果消息成功写入数据通道返回 {@link Message} 实例，否则返回 {@linkcode null} 值。
      */
     sendToContact(contact, message) {
         let self = this.contactService.getSelf();
@@ -268,9 +269,9 @@ export class MessagingService extends Module {
 
     /**
      * 向指定群组发送消息。
-     * @param {number|Group} group 指定群组。
-     * @param {JSON|Message} message 指定消息内容。
-     * @returns {Message} 如果消息成功写入数据通道返回 {@link Message} 实例，否则返回 {@linkcode null} 。
+     * @param {number|Group} group 指定群组或群组 ID 。
+     * @param {JSON|Message} message 指定消息实例或消息内容。
+     * @returns {Message} 如果消息成功写入数据通道返回 {@link Message} 实例，否则返回 {@linkcode null} 值。
      */
     sendToGroup(group, message) {
         let self = this.contactService.getSelf();
@@ -323,10 +324,11 @@ export class MessagingService extends Module {
     /**
      * 查询指定时间开始到当前时间的所有消息。
      * @param {number} time 指定查询的起始时间。
-     * @param {function} handler 查询结果回调函数。
+     * @param {function} handler 查询结果回调函数，函数参数：({@linkcode time}:number, {@linkcode result}:Array<{@link Message}>) 。
+     * @returns {boolean} 如果成功执行查询返回 {@linkcode true} 。
      */
     queryMessage(time, handler) {
-        this.storage.readMessage(time, (start, list) => {
+        return this.storage.readMessage(time, (start, list) => {
             let result = [];
             for (let i = 0; i < list.length; ++i) {
                 let message = Message.create(list[i]);
@@ -337,35 +339,39 @@ export class MessagingService extends Module {
     }
 
     /**
-     * 查询指定联系人 ID 相关的所有消息，即包括该联系人发送的，也包含该联系人接收的。
+     * 查询指定联系人 ID 相关的所有消息，即包括该联系人发送的消息，也包含该联系人接收的消息s。
      * @param {number} id 指定联系人 ID 。
-     * @param {function} handler 查询结果回调函数。
+     * @param {number} time 指定查询的起始时间。
+     * @param {function} handler 查询结果回调函数，函数参数：({@linkcode contactId}:number, {@linkcode time}:number, {@linkcode result}:Array<{@link Message}>) 。
+     * @returns {boolean} 如果成功执行查询返回 {@linkcode true} 。
      */
-    queryMessageWithContact(id, handler) {
-        this.storage.readMessageWithContact(id, (contactId, list) => {
+    queryMessageWithContact(id, time, handler) {
+        return this.storage.readMessageWithContact(id, time, (contactId, start, list) => {
             let result = [];
             for (let i = 0; i < list.length; ++i) {
                 let message = Message.create(list[i]);
                 result.push(message);
             }
-            handler(contactId, result); 
+            handler(contactId, start, result); 
         });
     }
 
     /**
      * 查询服务器上的消息。
-     * @param {number} [time] 指定获取消息的起始时间
+     * @private
+     * @param {number} [time] 指定获取消息的起始时间。
+     * @returns {boolean} 如果成功执行查询返回 {@linkcode true} 。
      */
     queryRemoteMessage(time) {
         if (!this.contactService.selfReady) {
-            return;
+            return false;
         }
 
         let now = Date.now();
 
         if (now - this.lastQueryTime < 2000) {
             // 不允许高频查询
-            return;
+            return false;
         }
 
         this.lastQueryTime = now;
@@ -383,6 +389,8 @@ export class MessagingService extends Module {
 
         let packet = new Packet(MessagingAction.Pull, payload);
         this.pipeline.send(MessagingService.NAME, packet);
+
+        return true;
     }
 
     /**
@@ -433,20 +441,25 @@ export class MessagingService extends Module {
         let ending = data.ending;
         let messages = data.messages;
 
-        cell.Logger.d('MessagingService', 'Query messages total: ' + total);
+        cell.Logger.d('MessagingService', 'Query/Pull messages total: ' + total);
 
         for (let i = 0, len = messages.length; i < len; ++i) {
             this.triggerNotify(messages[i]);
         }
     }
 
+    /**
+     * 处理接收到服务器的故障信息。
+     * @param {string} name 动作指令名。
+     * @param {JSON} payload 包负载数据。
+     */
     triggerFail(name, payload) {
         cell.Logger.w('MessagingService', 'Failed #' + name + ' : ' + payload.code);
     }
 
     /**
      * 刷新最近一条消息时间戳。
-     * @param {number}} value 
+     * @param {number} value 新的时间戳。
      */
     refreshLastMessageTime(value) {
         if (value > this.lastMessageTime) {

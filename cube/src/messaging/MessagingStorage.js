@@ -34,6 +34,9 @@ import { Message } from "./Message";
 export class MessagingStorage {
 
     constructor() {
+        /**
+         * 存储器操作的域。
+         */
         this.domain = null;
 
         /**
@@ -41,11 +44,24 @@ export class MessagingStorage {
          */
         this.db = null;
 
+        /**
+         * 配置库。
+         */
         this.configStore = null;
+
+        /**
+         * 消息库。
+         */
         this.messagesStore = null;
     }
 
+    /**
+     * 打开存储器连接数据库连接。
+     * @param {string} domain 指定操作的域。
+     */
     open(domain) {
+        cell.Logger.d('MessagingStorage', 'Open messaging storage : ' + domain);
+
         this.domain = domain;
 
         // 数据库配置
@@ -82,18 +98,36 @@ export class MessagingStorage {
                 }]
             }]
         };
-        
+
         this.db = new InDB(options);
 
         this.configStore = this.db.use('config');
         this.messagesStore = this.db.use('messages');
     }
 
+    /**
+     * 关闭存储器。
+     */
     close() {
+        if (null == this.db) {
+            return;
+        }
+
+        cell.Logger.d('MessagingStorage', 'Close messaging storage : ' + this.domain);
+
         this.db.close();
     }
 
+    /**
+     * 更新最近一条消息的时间戳。
+     * @param {number} timestamp 时间戳。
+     * @returns {boolean} 返回是否执行了更新操作。
+     */
     updateLastMessageTime(timestamp) {
+        if (null == this.db) {
+            return false;
+        }
+
         (async () => {
             let data = {
                 "item": "lastMessageTime",
@@ -101,32 +135,59 @@ export class MessagingStorage {
             };
             await this.configStore.put(data);
         })();
+        return true;
     }
 
+    /**
+     * 查询最近一条消息的时间戳。
+     * @param {function} handler 查询结果回调函数，函数参数：({@linkcode time}:number) 。
+     * @returns {boolean} 返回是否执行了查询操作。
+     */
     queryLastMessageTime(handler) {
+        if (null == this.db) {
+            return false;
+        }
+
         (async () => {
             let item = await this.configStore.get('lastMessageTime');
             if (undefined === item) {
-                item = 0;
+                item = { value: 0 };
             }
 
             handler(item.value);
         })();
+        return true;
     }
 
     /**
      * 写入消息到数据库。
-     * @param {Message} message 
+     * @param {Message} message 消息实体。
+     * @returns {boolean} 返回是否执行了写入操作。
      */
     writeMessage(message) {
+        if (null == this.db) {
+            return false;
+        }
+
         (async ()=> {
             let data = message.toJSON();
             delete data["domain"];
             await this.messagesStore.put(data);
         })();
+        return true;
     }
 
+    /**
+     * 读取指定时间之后的所有消息。
+     * @param {number} start 指定读取的起始时间戳。
+     * @param {function} handler 指定查询结果回调函数，函数参数：({@linkcode start}:number, {@linkcode result}:Array<{@linkcode JSON}>) 。
+     * @returns {boolean} 返回是否执行了读取操作。
+     */
     readMessage(start, handler) {
+        if (null == this.db) {
+            return false;
+        }
+
         (async ()=> {
             let result = await this.messagesStore.select([
                 { key: 'rts', value: start, compare: '>' }
@@ -136,30 +197,50 @@ export class MessagingStorage {
             }
             handler(start, result);
         })();
+        return true;
     }
 
-    readMessageWithContact(contactId, handler) {
+    /**
+     * 读取指定联系人相关的并且指定时间之后的所有消息。
+     * @param {number} contactId 指定联系人 ID 。
+     * @param {number} start 指定读取的起始时间戳。
+     * @param {function} handler 指定查询结果回调函数，函数参数：({@linkcode contactId}:number, {@linkcode start}:number, {@linkcode result}:Array<{@linkcode JSON}>) 。
+     * @returns {boolean} 返回是否执行了读取操作。
+     */
+    readMessageWithContact(contactId, start, handler) {
+        if (null == this.db) {
+            return false;
+        }
+
         (async ()=> {
             let result = await this.messagesStore.select([
-                { key: 'from', value: contactId },
-                { key: 'to', value: contactId }
+                { key: 'rts', value: start, compare: '>' },
+                { key: 'from', value: contactId, optional: true },
+                { key: 'to', value: contactId, optional: true }
             ]);
             for (let i = 0; i < result.length; ++i) {
                 result[i].domain = this.domain;
             }
-            handler(contactId, result);
+            handler(contactId, start, result);
         })();
+        return true;
     }
 
     /**
-     * 
-     * @param {Message} message 
+     * 更新或写入消息到数据库。
+     * @param {Message} message 消息实体。
+     * @returns {boolean} 返回是否执行了写入操作。
      */
     updateMessage(message) {
+        if (null == this.db) {
+            return false;
+        }
+
         (async ()=> {
             let data = message.toJSON();
             delete data["domain"];
             await this.messagesStore.put(data);
         })();
+        return true;
     }
 }

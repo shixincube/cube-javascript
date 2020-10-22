@@ -1,5 +1,8 @@
 // main.js
 
+/**
+ * Toast 提示类型。
+ */
 var CubeToast = {
     Success: 'success',
     Info: 'info',
@@ -8,6 +11,14 @@ var CubeToast = {
     Question: 'question'
 };
 
+
+/**
+ * 应用程序类。
+ * @param {CubeEngine} cube 
+ * @param {object} account 
+ * @param {Array} contacts 
+ * @param {Array} catalogues 
+ */
 function CubeApp(cube, account, contacts, catalogues) {
     this.cube = cube;           // Cube 实例
     this.account = account;     // 当前账号
@@ -19,12 +30,16 @@ function CubeApp(cube, account, contacts, catalogues) {
 
     var that = this;
     setTimeout(function() {
-        that.initUI(that);
+        that.initUI();
         that.config(cube);
     }, 10);
 }
 
-CubeApp.prototype.initUI = function(app) {
+/**
+ * 初始化 UI 。
+ */
+CubeApp.prototype.initUI = function() {
+    var app = this;
     app.toast = Swal.mixin({
         toast: true,
         position: 'top-end',
@@ -82,6 +97,9 @@ CubeApp.prototype.config = function(cube) {
     });
 }
 
+/**
+ * 将本地数据读取进行 UI 显示。
+ */
 CubeApp.prototype.prepareData = function() {
     var that = this;
     if (null == this.messagePanel) {
@@ -91,10 +109,25 @@ CubeApp.prototype.prepareData = function() {
         return;
     }
 
+    // 查询每个联系人的消息记录
+    var time = Date.now() - window.AWeek;
     for (var i = 0; i < this.contacts.length; ++i) {
         var contact = this.contacts[i];
-        this.cube.messaging.queryMessageWithContact(contact.id, function(id, list) {
-            
+        // 逐一查询消息
+        this.cube.messaging.queryMessageWithContact(contact.id, time, function(id, time, list) {
+            for (var i = 0; i < list.length; ++i) {
+                var message = list[i];
+                var sender = that.getContact(message.getFrom());
+                if (null == sender) {
+                    sender = that.account;
+                }
+                that.messagePanel.appendMessage(sender,
+                    message.getPayload().content, message.getRemoteTimestamp(), that.getContact(id));
+            }
+            if (list.length > 0) {
+                var last = list[list.length - 1];
+                that.messageCatalogue.updateSubLabel(id, last.getPayload().content, last.getRemoteTimestamp());
+            }
         });
     }
 }
@@ -145,6 +178,11 @@ CubeApp.prototype.logout = function() {
     });
 }
 
+/**
+ * 从服务器查询账号信息。
+ * @param {number} id 
+ * @param {function} handler 
+ */
 CubeApp.prototype.getAccount = function(id, handler) {
     $.get('/account/info', {
         "id" : id
@@ -183,7 +221,7 @@ CubeApp.prototype.onSendClick = function(to, content) {
 CubeApp.prototype.onNewMessage = function(message) {
     var content = message.getPayload().content;
     this.messageCatalogue.updateSubLabel(message.getTo(), content, message.getRemoteTimestamp());
-    
+
     // 判断消息是否是“我”发的
     var sender = null;
     var target = null;

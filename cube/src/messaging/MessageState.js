@@ -50,12 +50,17 @@ export const MessageState = {
     Sent: 1 << 2,
 
     /**
-     * 已读
+     * 已读。
      */
     Read: 1 << 3,
 
     /**
+     * 已召回。
+     */
+    Recalled: 1 << 4,
+
+    /**
      * 消息出现故障。
      */
-    Fault: 1 << 4
+    Fault: 1 << 5
 }
