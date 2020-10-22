@@ -52,7 +52,7 @@ CubeApp.prototype.initUI = function() {
         app.onCatalogClick(contact);
     });
 
-    app.messagePanel = new MessagePanel($('#messages'));
+    app.messagePanel = new MessagePanel(app.contacts);
     app.messagePanel.setOwner(app.account);
     app.messagePanel.setSendListener(function(to, content) {
         app.onSendClick(to, content);
@@ -220,8 +220,22 @@ CubeApp.prototype.onSendClick = function(to, content) {
 
 CubeApp.prototype.onNewMessage = function(message) {
     var content = message.getPayload().content;
-    this.messageCatalogue.updateSubLabel(message.getTo(), content, message.getRemoteTimestamp());
 
+    // 以下，演示两种判断消息的方式
+
+    // 1. 方式一，用此方式更新目录
+    var itemId = 0;
+    if (this.account.id == message.getFrom()) {
+        // 从“我”的其他终端发送的消息
+        itemId = message.getTo();
+    }
+    else {
+        itemId = message.getFrom();
+    }
+    // 更新目录
+    this.messageCatalogue.updateSubLabel(itemId, content, message.getRemoteTimestamp());
+
+    // 2. 方式二，用此方式更新消息面板
     // 判断消息是否是“我”发的
     var sender = null;
     var target = null;

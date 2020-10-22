@@ -376,7 +376,7 @@ export class MessagingService extends Module {
 
         this.lastQueryTime = now;
 
-        let timestamp = (undefined === time) ? this.lastMessageTime + 1 : time;
+        let timestamp = (undefined === time) ? this.lastMessageTime : time;
 
         let self = this.contactService.getSelf();
         // 拉取消息
@@ -386,6 +386,8 @@ export class MessagingService extends Module {
             device: self.getDevice().toJSON(),
             timestamp: timestamp
         };
+
+        cell.Logger.d('MessagingService', 'Pull message @ ' + timestamp);
 
         let packet = new Packet(MessagingAction.Pull, payload);
         this.pipeline.send(MessagingService.NAME, packet);
@@ -414,14 +416,19 @@ export class MessagingService extends Module {
         message = hook.apply(message);
 
         let promise = new Promise((resolve, reject) => {
-            // 写消息
-            this.storage.writeMessage(message);
-
-            // 回调事件
-            this.nodifyObservers(new ObservableState(MessagingEvent.Notify, message));
-            resolve();
+            // 判断是否存在该消息
+            this.storage.containsMessage(message, (message, contained) => {
+                // 写消息
+                this.storage.writeMessage(message);
+                resolve(contained);
+            });
         });
-        promise.then(() => {});
+        promise.then((contained) => {
+            if (!contained) {
+                // 回调事件
+                this.nodifyObservers(new ObservableState(MessagingEvent.Notify, message));
+            }
+        });
     }
 
     /**
@@ -572,7 +579,16 @@ export class MessagingService extends Module {
             // 启动存储
             this.storage.open(self.getDomain());
 
-            this.queryRemoteMessage();
+            if (this.lastMessageTime > 0) {
+                this.queryRemoteMessage();
+            }
+            else {
+                setTimeout(() => {
+                    if (this.lastMessageTime > 0) {
+                        this.queryRemoteMessage();
+                    }
+                }, 1000);
+            }
         }
     }
 }

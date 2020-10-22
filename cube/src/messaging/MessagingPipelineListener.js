@@ -67,10 +67,5 @@ export class MessagingPipelineListener extends PipelineListener {
      */
     onOpened(pipeline) {
         super.onOpened(pipeline);
-
-        // 自动查询消息
-        setTimeout(() => {
-            this.messagingService.queryRemoteMessage();
-        }, 100);
     }
 }

@@ -160,6 +160,24 @@ export class MessagingStorage {
     }
 
     /**
+     * 数据库里是否包含该消息。
+     * @param {Message} message 指定消息实例。
+     * @param {function} handler 查询结果回调函数，函数参数：({@linkcode message}:{@link Message}, {@linkcode contained}:boolean) 。
+     * @returns {boolean} 返回是否执行了查询操作。
+     */
+    containsMessage(message, handler) {
+        if (null == this.db) {
+            return false;
+        }
+
+        (async ()=> {
+            let value = await this.messagesStore.get(message.getId());
+            handler(message, (undefined !== value && null != value));
+        })();
+        return true;
+    }
+
+    /**
      * 写入消息到数据库。
      * @param {Message} message 消息实体。
      * @returns {boolean} 返回是否执行了写入操作。

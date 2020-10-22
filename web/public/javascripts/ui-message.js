@@ -87,12 +87,12 @@ MessageCatalogue.prototype.onCatalogItemClick = function(el, e) {
 /**
  * 消息面板。
  */
-function MessagePanel(el) {
-    this.el = el;
+function MessagePanel(contacts) {
+    this.el = $('#messages');
 
-    this.elTitle = el.find('.card-title');
-    this.elMsgView = el.find('.card-body');
-    this.elInput = el.find('textarea');
+    this.elTitle = this.el.find('.card-title');
+    this.elMsgView = this.el.find('.card-body');
+    this.elInput = this.el.find('textarea');
     this.elInput.val('');
     if (!this.elInput[0].hasAttribute('disabled')) {
         this.elInput.attr('disabled', 'disabled');
@@ -105,7 +105,17 @@ function MessagePanel(el) {
 
     this.owner = null;
     this.current = null;
-    this.targets = {};
+
+    this.views = {};
+    for (var i = 0; i < contacts.length; ++i) {
+        var contact = contacts[i];
+        var el = $('<div class="direct-chat-messages"></div>');
+        this.views['' + contact.id] = {
+            el: el,
+            contact: contact,
+            messageIds: []
+        };
+    }
 
     this.sendListener = null;
 }
@@ -129,30 +139,20 @@ MessagePanel.prototype.changeTarget = function(target) {
     }
     else {
         // 记录
-        var record = this.targets[this.current.id];
-        var el = this.elMsgView.find('.direct-chat-messages');
-        record.elMessages = el;
-        el.remove();
+        var view = this.views['' + this.current.id];
+        view.el.remove();
     }
 
-    var record = this.targets[target.id];
-    if (undefined === record) {
-        var el = $('<div class="direct-chat-messages"></div>');
-        this.elMsgView.append(el);
-        record = {
-            target: target,
-            elMessages: this.elMsgView.find('.direct-chat-messages')
-        };
-        this.targets[target.id] = record;
-    }
-    else {
-        var el = record.elMessages;
-        this.elMsgView.append(el);
-    }
+    var view = this.views['' + target.id];
+    this.elMsgView.append(view.el);
 
     this.current = target;
 
     this.elTitle.text(target.name);
+
+    // 滚动条控制
+    var offset = parseInt(this.elMsgView.prop('scrollHeight'));
+    this.elMsgView.scrollTop(offset);
 }
 
 /**
@@ -165,15 +165,7 @@ MessagePanel.prototype.changeTarget = function(target) {
 MessagePanel.prototype.appendMessage = function(sender, text, time, target) {
     var targetId = (undefined !== target) ? target.id : this.current.id;
 
-    var record = this.targets[targetId];
-    if (undefined === record) {
-        var el = $('<div class="direct-chat-messages"></div>');
-        record = {
-            target: target,
-            elMessages: el
-        };
-        this.targets[targetId] = record;
-    }
+    var view = this.views['' + targetId];
 
     var right = '';
     var nfloat = 'float-left';
@@ -188,14 +180,18 @@ MessagePanel.prototype.appendMessage = function(sender, text, time, target) {
     var html = ['<div class="direct-chat-msg ', right, '"><div class="direct-chat-infos clearfix"><span class="direct-chat-name ', nfloat, '">',
         sender.name,
         '</span><span class="direct-chat-timestamp ', tfloat, '">',
-        formatShortTime(time),
+        formatFullTime(time),
         '</span></div>',
         '<img src="', sender.avatar, '" class="direct-chat-img">',
         '<div class="direct-chat-text">', text, '</div></div>'
     ];
 
-    var parentEl = this.targets[targetId].elMessages;
+    var parentEl = view.el;
     parentEl.append($(html.join('')));
+
+    // 滚动条控制
+    var offset = parseInt(this.elMsgView.prop('scrollHeight'));
+    this.elMsgView.scrollTop(offset);
 }
 
 MessagePanel.prototype.onSendClick = function(e) {
