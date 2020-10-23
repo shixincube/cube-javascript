@@ -17,7 +17,7 @@ router.get('/info', function(req, res, next) {
 /* POST /login/form */
 router.post('/login/form', function(req, res, next) {
     let cookie = req.app.get('manager').login(parseInt(req.body.id), req.body.name);
-    res.cookie('CubeAppToken', cookie, { maxAge: 604800000 });
+    res.cookie('CubeAppToken', cookie, { maxAge: 900000 });
     res.redirect('/');
 });
 
@@ -25,9 +25,13 @@ router.post('/login/form', function(req, res, next) {
 router.post('/logout', function(req, res, next) {
     let mgr = req.app.get('manager');
     let id = parseInt(req.body.id);
-    if (id == mgr.currentAccount.id) {
+
+    let cookie = req.cookies['CubeAppToken'];
+    let aid = parseInt(cookie.split(',')[0]);
+
+    if (id == aid) {
         console.log('账号 ' + id + ' 退出登录');
-        mgr.logout();
+        mgr.logout(id);
 
         // 设置 Cookie
         res.cookie('CubeAppToken', '', { maxAge: 1000 });
@@ -37,6 +41,24 @@ router.post('/logout', function(req, res, next) {
         console.warn('登录 ID 不一致');
         res.sendStatus(404);
     }
+});
+
+router.post('/keepalive', function(req, res, next) {
+    let mgr = req.app.get('manager');
+    let id = parseInt(req.body.id);
+
+    let cookie = mgr.keepAlive(id);
+    if (null == cookie) {
+        mgr.logout(id);
+
+        // 设置 Cookie
+        res.cookie('CubeAppToken', '', { maxAge: 1000 });
+        res.redirect('/');
+        return;
+    }
+
+    res.cookie('CubeAppToken', cookie, { maxAge: 900000 });
+    res.json({ "id": id, "maxAge": 900000 });
 });
 
 module.exports = router;

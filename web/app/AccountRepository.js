@@ -27,34 +27,39 @@
 /**
  * 模拟账号数据库。
  */
-class AccountDB {
-    
+class AccountRepository {
+
     constructor() {
         this.accounts = [{
             id: 50001001,
             name: '李诚石',
             avatar: '/images/avatar01.png',
-            state: 'offline'
+            state: 'offline',
+            last: 0
         }, {
             id: 50001002,
             name: '王沛珊',
             avatar: '/images/avatar02.png',
-            state: 'offline'
+            state: 'offline',
+            last: 0
         }, {
             id: 50001003,
             name: '郝思雁',
             avatar: '/images/avatar03.png',
-            state: 'offline'
+            state: 'offline',
+            last: 0
         }, {
             id: 50001004,
             name: '高良吉',
             avatar: '/images/avatar04.png',
-            state: 'offline'
+            state: 'offline',
+            last: 0
         }, {
             id: 50001005,
             name: '张明宇',
             avatar: '/images/avatar05.png',
-            state: 'offline'
+            state: 'offline',
+            last: 0
         }];
     }
 
@@ -70,4 +75,4 @@ class AccountDB {
     }
 }
 
-module.exports = AccountDB;
+module.exports = AccountRepository;

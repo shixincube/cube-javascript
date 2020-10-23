@@ -24,7 +24,7 @@
  * SOFTWARE.
  */
 
-const AccountDB = require('./AccountDB');
+const AccountRepository = require('./AccountRepository');
 
 /**
  * 模拟应用程序管理的类。
@@ -32,19 +32,21 @@ const AccountDB = require('./AccountDB');
 class CubeAppManager {
     
     constructor() {
-        this.accountDB = new AccountDB();
+        this.accountRepo = new AccountRepository();
 
-        this.currentAccount = null;
+        setInterval(() => {
+            this._tick();
+        }, 30000);
     }
 
     getAccount(id) {
-        return this.accountDB.queryAccount(id);
+        return this.accountRepo.queryAccount(id);
     }
 
     getContacts(id) {
         let result = [];
         // 用户
-        let accounts = this.accountDB.accounts;
+        let accounts = this.accountRepo.accounts;
         for (let i = 0; i < accounts.length; ++i) {
             let account = accounts[i];
             if (account.id == id) {
@@ -61,7 +63,7 @@ class CubeAppManager {
     getMessageCatalogue(id) {
         let result = [];
         // 用户
-        let accounts = this.accountDB.accounts;
+        let accounts = this.accountRepo.accounts;
         for (let i = 0; i < accounts.length; ++i) {
             let account = accounts[i];
             if (account.id == id) {
@@ -73,7 +75,7 @@ class CubeAppManager {
                 id: account.id,
                 thumb: account.avatar,
                 label: account.name,
-                sublabel: 'Cube'
+                sublabel: ' '
             };
             result.push(ca);
         }
@@ -83,7 +85,7 @@ class CubeAppManager {
 
     getOfflineAccounts() {
         let result = [];
-        let list = this.accountDB.accounts;
+        let list = this.accountRepo.accounts;
         for (let i = 0; i < list.length; ++i) {
             let acc = list[i];
             if (acc.state == 'offline') {
@@ -95,31 +97,55 @@ class CubeAppManager {
     }
 
     login(id, name) {
-        let account = this.accountDB.queryAccount(id);
+        let account = this.accountRepo.queryAccount(id);
         if (null == account) {
             return null;
         }
 
+        account.last = Date.now();
         account.state = 'online';
         if (name) {
             account.name = name;
         }
 
-        this.currentAccount = account;
-
         let cookie = account.id + ',' + account.name;
         return cookie;
     }
 
-    logout() {
-        if (null == this.currentAccount) {
+    logout(id) {
+        let account = this.accountRepo.queryAccount(id);
+        if (null == account) {
             return;
         }
 
-        let account = this.accountDB.queryAccount(this.currentAccount.id);
+        account.last = Date.now();
         account.state = 'offline';
+    }
 
-        this.currentAccount = null;
+    keepAlive(id) {
+        let account = this.accountRepo.queryAccount(id);
+        if (null == account) {
+            return null;
+        }
+
+        if (account.state == 'offline') {
+            return null;
+        }
+
+        account.last = Date.now();
+        let cookie = account.id + ',' + account.name;
+        return cookie;
+    }
+
+    _tick() {
+        let now = Date.now();
+        let list = this.accountRepo.accounts;
+        for (let i = 0; i < list.length; ++i) {
+            let account = list[i];
+            if (account.state == 'online' && now - account.last > 900000) {
+                account.state = 'offline';
+            }
+        }
     }
 }
 
