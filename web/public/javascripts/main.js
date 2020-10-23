@@ -157,8 +157,7 @@ CubeApp.prototype.logout = function() {
             var timer = 0;
             var id = that.account.id;
 
-            // 将 Cube 账号签出
-            that.cube.contacts.signOut(function(self) {
+            var logout = function() {
                 $.post('/account/logout', {
                     "id": id
                 }, function(data, textStatus, jqXHR) {
@@ -169,10 +168,15 @@ CubeApp.prototype.logout = function() {
 
                     window.location.href = '/';
                 }, 'json');
+            };
+
+            // 将 Cube 账号签出
+            that.cube.contacts.signOut(function(self) {
+                logout();
             });
 
             timer = setTimeout(function() {
-                window.location.href = '/';
+                logout();
             }, 5000);
         }
     });

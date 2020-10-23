@@ -95,6 +95,10 @@ body {
     resize: none;
 }
 
+.main-content .week-day {
+    font-size: 12px;
+}
+
 .card-background::before {
     content: '';
     display: block;

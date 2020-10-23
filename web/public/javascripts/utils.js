@@ -8,7 +8,7 @@
 
     g.AWeek = AWeek;
 
-    var WeekDay = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    var WeekDay = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
 
     function formatNumber(num, length) {
         if (length == 2) {
@@ -123,9 +123,9 @@
             result.push(formatNumber(date.getMinutes()));
         }
 
-        result.push(' (');
+        result.push(' <span class="week-day">(');
         result.push(WeekDay[date.getDay()]);
-        result.push(')');
+        result.push(')</span>');
 
         return result.join('');
     }
