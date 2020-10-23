@@ -102,6 +102,12 @@ function MessagePanel(contacts) {
     $('#btn_send').on('click', function(e) {
         that.onSendClick(e);
     });
+    this.elInput.keypress(function(event) {
+        var e = event || window.event;
+        if (e && e.keyCode == 13 && e.ctrlKey) {
+            that.onSendClick(e);
+        }
+    });
 
     this.owner = null;
     this.current = null;

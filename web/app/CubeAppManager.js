@@ -33,10 +33,6 @@ class CubeAppManager {
     
     constructor() {
         this.accountRepo = new AccountRepository();
-
-        setInterval(() => {
-            this._tick();
-        }, 30000);
     }
 
     getAccount(id) {
@@ -135,17 +131,6 @@ class CubeAppManager {
         account.last = Date.now();
         let cookie = account.id + ',' + account.name;
         return cookie;
-    }
-
-    _tick() {
-        let now = Date.now();
-        let list = this.accountRepo.accounts;
-        for (let i = 0; i < list.length; ++i) {
-            let account = list[i];
-            if (account.state == 'online' && now - account.last > 900000) {
-                account.state = 'offline';
-            }
-        }
     }
 }
 
