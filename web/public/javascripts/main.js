@@ -33,8 +33,6 @@ function CubeApp(cube, account, contacts, catalogues) {
         that.initUI();
         that.config(cube);
     }, 10);
-
-    this.keepAlive();
 }
 
 /**
@@ -132,17 +130,6 @@ CubeApp.prototype.prepareData = function() {
             }
         });
     }
-}
-
-CubeApp.prototype.keepAlive = function() {
-    var that = this;
-    setInterval(function() {
-        $.post('/account/keepalive', {
-            "id": that.account.id
-        }, function(data, textStatus, jqXHR) {
-            console.debug('Keep-Alive: ' + data.maxAge);
-        }, 'json');
-    }, 10 * 60 * 1000);
 }
 
 /**

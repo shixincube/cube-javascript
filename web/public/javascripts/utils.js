@@ -56,21 +56,21 @@
                 result.push('昨天');
             }
             else if (value >= zeroHour) {
-                result.push(formatNumber(date.getHours()));
+                result.push(formatNumber(date.getHours(), 2));
                 result.push(':');
-                result.push(formatNumber(date.getMinutes()));
+                result.push(formatNumber(date.getMinutes(), 2));
             }
             else {
-                result.push(formatNumber(date.getMonth + 1));
+                result.push(formatNumber(date.getMonth() + 1, 2));
                 result.push('-');
-                result.push(formatNumber(date.getDate));
+                result.push(formatNumber(date.getDate(), 2));
             }
         }
         else {
             var date = new Date(value);
-            result.push(formatNumber(date.getHours()));
+            result.push(formatNumber(date.getHours(), 2));
             result.push(':');
-            result.push(formatNumber(date.getMinutes()));
+            result.push(formatNumber(date.getMinutes(), 2));
         }
 
         return result.join('');
@@ -88,39 +88,39 @@
             var date = new Date(value);
             if (value >= yesterdayZeroHour && value < zeroHour) {
                 result.push('昨天 ');
-                result.push(formatNumber(date.getHours()));
+                result.push(formatNumber(date.getHours(), 2));
                 result.push(':');
-                result.push(formatNumber(date.getMinutes()));
+                result.push(formatNumber(date.getMinutes(), 2));
             }
             else if (value >= zeroHour) {
                 result.push('今天 ');
-                result.push(formatNumber(date.getHours()));
+                result.push(formatNumber(date.getHours(), 2));
                 result.push(':');
-                result.push(formatNumber(date.getMinutes()));
+                result.push(formatNumber(date.getMinutes(), 2));
             }
             else {
                 result.push(date.getFullYear());
                 result.push('年');
-                result.push(formatNumber(date.getMonth() + 1));
+                result.push(formatNumber(date.getMonth() + 1, 2));
                 result.push('月');
-                result.push(formatNumber(date.getDate()));
+                result.push(formatNumber(date.getDate(), 2));
                 result.push('日 ');
-                result.push(formatNumber(date.getHours()));
+                result.push(formatNumber(date.getHours(), 2));
                 result.push(':');
-                result.push(formatNumber(date.getMinutes()));
+                result.push(formatNumber(date.getMinutes(), 2));
             }
         }
         else {
             var date = new Date(value);
             result.push(date.getFullYear());
             result.push('年');
-            result.push(formatNumber(date.getMonth() + 1));
+            result.push(formatNumber(date.getMonth() + 1, 2));
             result.push('月');
-            result.push(formatNumber(date.getDate()));
+            result.push(formatNumber(date.getDate(), 2));
             result.push('日 ');
-            result.push(formatNumber(date.getHours()));
+            result.push(formatNumber(date.getHours(), 2));
             result.push(':');
-            result.push(formatNumber(date.getMinutes()));
+            result.push(formatNumber(date.getMinutes(), 2));
         }
 
         result.push(' <span class="week-day">(');

@@ -27,8 +27,11 @@ block pageContent
                 i.fas.fa-id-card
                 span.label 账号
               select#accout_id.selectpicker.form-control(name='id')
-                - each acc in accounts
-                    option(value='' + acc.id)= acc.id
+                - each acc,i in accounts
+                  - if (i == 0)
+                      option(value='' + acc.id, selected='selected')= acc.id
+                  - else
+                      option(value='' + acc.id)= acc.id
             div.form-group
               label.col-form-label
                 i.fas.fa-user-circle
