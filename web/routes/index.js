@@ -1,6 +1,17 @@
 var express = require('express');
 var router = express.Router();
 
+// 转到登录界面
+var gotoLogin = function(req, res) {
+    let manager = req.app.get('manager');
+    let offlineAccounts = manager.getOfflineAccounts();
+    res.render('login', {
+        title: '登录 - Cube Web Application',
+        bodyClass: 'hold-transition login-page',
+        accounts: offlineAccounts
+    });
+}
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
     let cookie = req.cookies['CubeAppToken'];
@@ -11,6 +22,12 @@ router.get('/', function(req, res, next) {
         let manager = req.app.get('manager');
         // 获取账号
         let account = manager.getAccount(aid);
+
+        if (account.state == 'offline') {
+            gotoLogin(req, res);
+            return;
+        }
+
         // 执行登录
         manager.login(account.id, account.name);
 
@@ -26,13 +43,7 @@ router.get('/', function(req, res, next) {
         });
     }
     else {
-        let manager = req.app.get('manager');
-        let offlineAccounts = manager.getOfflineAccounts();
-        res.render('login', {
-            title: '登录 - Cube Web Application',
-            bodyClass: 'hold-transition login-page',
-            accounts: offlineAccounts
-        });
+        gotoLogin(req, res);
     }
 });
 

@@ -24,9 +24,10 @@
  * SOFTWARE.
  */
 
+import cell from "@lib/cell-lib";
 import { Contact } from "./Contact";
-import { OrderMap } from "../util/OrderMap";
 import { ContactService } from "./ContactService";
+import { AuthService } from "../auth/AuthService";
 
 /**
  * 群组类。包含了多个联系人的集合。
@@ -35,10 +36,22 @@ export class Group extends Contact {
 
     /**
      * 构造函数。
-     * @param {Contact} owner 指定群组的所有者。
+     * @param {ContactService} service 联系人服务。
+     * @param {Contact} owner 群组的所有人。
+     * @param {number} [id] 群组的 ID 。
+     * @param {string} [domain] 群组的所在的域。
+     * @param {string} [name] 群组的名称。
      */
-    constructor(owner) {
-        super(0);
+    constructor(service, owner, id, domain, name) {
+        super((undefined === id) ? cell.Utils.generateSerialNumber() : id,
+            (undefined === domain) ? AuthService.DOMAIN : domain, name);
+
+        /**
+         * 联系人服务对象。
+         * @protected
+         * @type {ContactService}
+         */
+        this.service = service;
 
         /**
          * 群组的所有人。
@@ -48,18 +61,25 @@ export class Group extends Contact {
         this.owner = owner;
 
         /**
-         * 联系人服务对象。
+         * 创建时间。
          * @protected
-         * @type {ContactService}
+         * @type {number}
          */
-        this.service = null;
+        this.creationTime = 0;
+
+        /**
+         * 活跃时间。
+         * @protected
+         * @type {number}
+         */
+        this.lastActiveTime = 0;
 
         /**
          * 群成员 ID 列表。
          * @protected
-         * @type {Array<number>}
+         * @type {Array<Contact>}
          */
-        this.memberIdList = [ owner.getId() ];
+        this.memberList = [ owner ];
     }
 
     /**
@@ -71,31 +91,26 @@ export class Group extends Contact {
     }
 
     /**
-     * 获取群组的成员 ID 清单。
-     * @returns {Array<number>} 返回群组的成员 ID 清单。
+     * 获取群组的创建时间。
+     * @returns {number} 返回群组的创建时间。
      */
-    getMemberIdList() {
-        return this.memberIdList;
+    getCreationTime() {
+        return this.creationTime;
     }
 
     /**
-     * 设置成员列表。
-     * @protected
-     * @param {Array} members 
+     * 获取群组的活跃时间。
      */
-    setMembers(members) {
-        for (let i = 0; i < members.length; ++i) {
-            let mem = members[i];
-            let memId = (mem instanceof Contact) ? mem.getId() : mem;
+    getLastActiveTime() {
+        return this.lastActiveTime;
+    }
 
-            // 排重
-            let index = this.memberIdList.indexOf(memId);
-            if (index >= 0) {
-                continue;
-            }
-
-            this.memberIdList.push(memId);
-        }
+    /**
+     * 获取群组的成员清单。
+     * @returns {Array<Contact>} 返回群组成员列表。
+     */
+    getMembers() {
+        return this.memberList;
     }
 
     /**
@@ -107,12 +122,12 @@ export class Group extends Contact {
             return;
         }
 
-        this.service._addGroupMember(this, contact, (group) => {
+        this.service.addGroupMember(this, contact, (group, contact) => {
             if (null == group) {
                 return;
             }
 
-            this.memberIdList.push(contact.getId());
+            this.memberList.push(contact);
         });
     }
 
@@ -121,19 +136,21 @@ export class Group extends Contact {
      * @param {Contact} contact 指定群组成员。
      */
     removeMember(contact) {
-        let index = this.memberIdList.indexOf(contact.getId());
-        if (index < 0) {
+        if (!this.hasMember(contact)) {
             return;
         }
 
-        this.service._removeGroupMember(this, contact, (group) => {
+        this.service.removeGroupMember(this, contact, (group, contact) => {
             if (null == group) {
                 return;
             }
 
-            index = this.memberIdList.indexOf(contact.getId());
-            if (index >= 0) {
-                this.memberIdList.splice(index, 1);
+            for (let i = 0; i < this.memberList.length; ++i) {
+                let member = this.memberList[i];
+                if (member.equals(contact)) {
+                    this.memberList.splice(i, 1);
+                    break;
+                }
             }
         });
     }
@@ -144,7 +161,14 @@ export class Group extends Contact {
      * @returns {boolean} 返回 {@linkcode true} 表示群组里包含该成员。
      */
     hasMember(contact) {
-        return (this.memberIdList.indexOf(contact.getId()) >= 0);
+        for (let i = 0; i < this.memberList.length; ++i) {
+            let member = this.memberList[i];
+            if (member.equals(contact)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -154,9 +178,9 @@ export class Group extends Contact {
      * @param {function} handler 
      * @param {number} numMemPerPage 
      */
-    getMembers(handler, numMemPerPage) {
+    refreshMembers(handler, numMemPerPage) {
         // 分页
-        let pages = this._pagingMembers(numMemPerPage);
+        let pages = this.pagingMembers(numMemPerPage);
 
         // 执行函数
         let go = (list) => {
@@ -183,7 +207,7 @@ export class Group extends Contact {
      * @param {number} numMemPerPage 
      * @returns {Array<Array<number>>} 返回分页结果。
      */
-    _pagingMembers(numMemPerPage) {
+    pagingMembers(numMemPerPage) {
         let result = [];
 
         let page = [];
@@ -209,9 +233,40 @@ export class Group extends Contact {
     toJSON() {
         let json = super.toJSON();
         delete json.devices;
-        json.ownerId = this.owner.getId();
-        json.members = this.memberIdList;
+        json.owner = this.owner.toCompactJSON();
+        json.creation = this.creationTime;
+        json.lastActive = this.lastActiveTime;
+        json.members = [];
+        for (let i = 0; i < this.memberList.length; ++i) {
+            json.members.push(this.memberList[i].toCompactJSON());
+        }
         return json;
+    }
+    
+    /**
+     * 创建 {@linkcode Group} 对象实例。
+     * 
+     * @param {ContactService} service 
+     * @param {JSON} json 
+     * @param {Contact} owner 
+     */
+    static create(service, json, owner) {
+        if (undefined === owner) {
+            owner = new Contact(json.owner.id, json.domain, json.owner.name);
+        }
+
+        let group = new Group(service, owner, json.id, json.domain, json.name);
+        group.creationTime = json.creation;
+        group.lastActiveTime = json.lastActive;
+
+        for (let i = 0; i < json.members.length; ++i) {
+            let member = Contact.create(json.members[i]);
+            group.memberList.push(member);
+        }
+
+        if (undefined !== json.context) {
+            group.context = json.context;
+        }
     }
 
     /**
@@ -220,7 +275,7 @@ export class Group extends Contact {
      * @param {JSON} json 
      * @param {function} callback 
      */
-    static create(service, json, callback) {
+    /*static create(service, json, callback) {
         service.getContact(json.ownerId, (owner) => {
             if (null == owner) {
                 callback(null);
@@ -239,5 +294,5 @@ export class Group extends Contact {
 
             callback(group);
         });
-    }
+    }*/
 }

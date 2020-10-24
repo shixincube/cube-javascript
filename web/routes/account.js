@@ -17,7 +17,7 @@ router.get('/info', function(req, res, next) {
 /* POST /login/form */
 router.post('/login/form', function(req, res, next) {
     let cookie = req.app.get('manager').login(parseInt(req.body.id), req.body.name);
-    res.cookie('CubeAppToken', cookie, { maxAge: 900000 });
+    res.cookie('CubeAppToken', cookie, { maxAge: 60480000 });
     res.redirect('/');
 });
 
@@ -43,22 +43,14 @@ router.post('/logout', function(req, res, next) {
     }
 });
 
-router.post('/keepalive', function(req, res, next) {
+/* POST /hb */
+router.post('/hb', function(req, res, next) {
     let mgr = req.app.get('manager');
     let id = parseInt(req.body.id);
 
-    let cookie = mgr.keepAlive(id);
-    if (null == cookie) {
-        mgr.logout(id);
+    let online = mgr.heartbeat(id);
 
-        // 设置 Cookie
-        res.cookie('CubeAppToken', '', { maxAge: 1000 });
-        res.redirect('/');
-        return;
-    }
-
-    res.cookie('CubeAppToken', cookie, { maxAge: 900000 });
-    res.json({ "id": id, "maxAge": 900000 });
+    res.json({ "id": id, "state": online });
 });
 
 module.exports = router;

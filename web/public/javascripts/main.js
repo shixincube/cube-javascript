@@ -33,6 +33,8 @@ function CubeApp(cube, account, contacts, catalogues) {
         that.initUI();
         that.config(cube);
     }, 10);
+
+    this.startHeartbeat();
 }
 
 /**
@@ -132,6 +134,19 @@ CubeApp.prototype.prepareData = function() {
     }
 }
 
+CubeApp.prototype.startHeartbeat = function() {
+    var id = this.account.id;
+    setInterval(function() {
+        $.post('/account/hb', {
+            "id" : id
+        }, function(data, textStatus, jqXHR) {
+            if (!data.state) {
+                window.location.href = '/?t=' + Date.now();
+            }
+        }, 'json');
+    }, 3 * 60 * 1000);
+}
+
 /**
  * 返回指定 ID 的联系人。
  * @param {number} id 
@@ -154,6 +169,8 @@ CubeApp.prototype.logout = function() {
     var that = this;
     ui.showConfirm('退出登录', '是否确认退出当前账号登录？', function(confirmed) {
         if (confirmed) {
+            ui.showLoading('账号正在登出，请稍后', 5000);
+
             var timer = 0;
             var id = that.account.id;
 
@@ -166,7 +183,7 @@ CubeApp.prototype.logout = function() {
                     // 本示例程序将回到登录界面，因此停止引擎
                     that.cube.stop();
 
-                    window.location.href = '/';
+                    window.location.href = '/?t=' + Date.now();
                 }, 'json');
             };
 
@@ -177,7 +194,7 @@ CubeApp.prototype.logout = function() {
 
             timer = setTimeout(function() {
                 logout();
-            }, 5000);
+            }, 4000);
         }
     });
 }

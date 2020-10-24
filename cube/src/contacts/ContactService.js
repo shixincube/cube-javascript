@@ -98,19 +98,11 @@ export class ContactService extends Module {
          */
         this.pipelineListener = new ContactPipelineListener(this);
 
-        // 数据库配置
-        // let options = {
-        //     name: 'CubeContact',
-        //     version: 1,
-        //     stores: [{
-        //         name: 'Contacts',
-        //         keyPath: 'id',
-        //         autoIncrement: false,
-        //         isKv: true
-        //     }]
-        // };
-        // this.db = new InDB(options);
-        // this.storeContact = this.db.use('Contacts');
+        /**
+         * List Groups 操作的上下文。
+         * @type {function}
+         */
+        this.listGroupsContext = null;
     }
 
     /**
@@ -137,6 +129,14 @@ export class ContactService extends Module {
         this.pipeline.removeListener(ContactService.NAME, this.pipelineListener);
 
         this.inspector.stop();
+    }
+
+    /**
+     * 获取当前的 {@linkcode Self} 实例。
+     * @returns {Self} 返回当前的 {@linkcode Self} 实例。
+     */
+    getSelf() {
+        return this.self;
     }
 
     /**
@@ -223,14 +223,6 @@ export class ContactService extends Module {
                 }
             }
         });
-    }
-
-    /**
-     * 获取当前的 {@linkcode Self} 实例。
-     * @returns {Self} 返回当前的 {@linkcode Self} 实例。
-     */
-    getSelf() {
-        return this.self;
     }
 
     /**
@@ -359,10 +351,6 @@ export class ContactService extends Module {
      * @param {function} handleError 
      */
     getContactList(idList, handleSuccess, handleError) {
-        if (typeof id === 'string') {
-            id = parseInt(id);
-        }
-
         let promise = new Promise((resolve, reject) => {
             let packet = new Packet(ContactAction.GetContactList, {
                 "list": idList,
@@ -482,36 +470,112 @@ export class ContactService extends Module {
         }
     }
 
-    listGroups(output, handleSuccess, handleError) {
-        
+    /**
+     * 获取当前联系人所在的所有群。
+     * @param {number} timestamp 指定查询群的起始的最近一次活跃时间戳。
+     * @param {function} handler 获取到数据后的回调函数，函数参数：({@linkcode list}:Array<{@link Group}>) 。
+     */
+    listGroups(timestamp, handler) {
+        if (null != this.listGroupsContext) {
+            return false;
+        }
+
+        this.listGroupsContext = {
+            total: -1,
+            list: [],
+            timer: 0,
+            handler: handler
+        };
+
+        this.listGroupsContext.timer = setTimeout(() => {
+            this.listGroupsContext.handler([]);
+            this.listGroupsContext = null;
+        }, 10000);
+
+        let packet = new Packet(ContactAction.ListGroups, {
+            "timestamp": timestamp
+        });
+        this.pipeline.send(ContactService.NAME, packet);
+
+        return true;
+    }
+
+    triggerListGroups(paylaod) {
+        let data = paylaod.data;
+        let list = data.list;
+        let total = data.total;
+
+        if (this.listGroupsContext.total < 0) {
+            this.listGroupsContext.total = total;
+        }
+
+        for (let i = 0; i < list.length; ++i) {
+            let group = Group.create(this, list[i]);
+
+            // TODO 写入存储
+
+            this.listGroupsContext.list.push(group);
+        }
+
+        if (this.listGroupsContext.list.length == total) {
+            clearTimeout(this.listGroupsContext.timer);
+
+            this.listGroupsContext.handler(this.listGroupsContext.list);
+            this.listGroupsContext = null;
+        }
     }
 
     /**
      * 创建群组。
      * @param {string} name 指定群组名。
-     * @param {Array} members 指定初始成员列表。
-     * @param {function} handleSuccess 成功创建群组回调该方法。
-     * @param {function} handleError 操作失败回调该方法。
+     * @param {Array<number|Contact>} members 指定初始成员列表或者初始成员 ID 列表。
+     * @param {function} handleSuccess 成功创建群组回调该方法。参数：({@linkcode group}:{@link Group}) ，创建成功的群组实例。
+     * @param {function} handleError 操作失败回调该方法。函数参数：({@linkcode groupId}:number, {@linkcode groupName}:number) ，创建失败的群组预 ID 和群名称。
+     * @returns {number} 返回待创建群组的创建预 ID 。
      */
     createGroup(name, members, handleSuccess, handleError) {
         let owner = this.self;
-        let group = new Group(owner);
+        let group = new Group(this, owner);
         group.setName(name);
-        group.setMembers(members);
-        group.service = this;
 
-        let packet = new Packet(ContactAction.CreateGroup, group.toJSON());
+        let membersList = [];
+        for (let i = 0; i < members.length; ++i) {
+            let member = members[i];
+            if (typeof member === 'number') {
+                membersList.push(member);
+            }
+            else if (typeof member === 'string') {
+                membersList.push(parseInt(member));
+            }
+            else if (undefined !== member.id) {
+                membersList.push(parseInt(member.id));
+            }
+        }
+
+        let payload = {
+            group: group.toJSON(),
+            members: membersList
+        };
+        let packet = new Packet(ContactAction.CreateGroup, payload);
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
             if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
-                handleError();
+                handleError(group.getId(), group.getName());
+                return;
+            }
+
+            if (responsePacket.getPayload().code != 0) {
+                handleError(group.getId(), group.getName());
                 return;
             }
 
             // 设置 ID
-            group.id = responsePacket.data.data.id;
-            this.groups.put(group.getId(), group);
-            handleSuccess(group);
+            let data = responsePacket.getPayload().data;
+            let newGroup = Group.create(this, owner, data);
+            this.groups.put(newGroup.getId(), newGroup);
+            handleSuccess(newGroup);
         });
+
+        return group.getId();
     }
 
     /**
@@ -594,7 +658,7 @@ export class ContactService extends Module {
      * @param {Contact} member 指定群组成员。
      * @param {function} handler 指定处理回调。
      */
-    _addGroupMember(group, member, handler) {
+    addGroupMember(group, member, handler) {
         let packet = new Packet(ContactAction.AddGroupMember, {
             "groupId": group.getId(),
             "memberId": member.getId()
@@ -616,7 +680,7 @@ export class ContactService extends Module {
      * @param {Contact} member 指定群组成员。
      * @param {function} handler 指定处理回调。
      */
-    _removeGroupMember(group, member, handler) {
+    removeGroupMember(group, member, handler) {
         let packet = new Packet(ContactAction.RemoveGroupMember, {
             "groupId": group.getId(),
             "memberId": member.getId()

@@ -33,6 +33,10 @@ class CubeAppManager {
     
     constructor() {
         this.accountRepo = new AccountRepository();
+
+        setInterval(() => {
+            this.onTick();
+        }, 60000);
     }
 
     getAccount(id) {
@@ -118,19 +122,32 @@ class CubeAppManager {
         account.state = 'offline';
     }
 
-    keepAlive(id) {
+    heartbeat(id) {
         let account = this.accountRepo.queryAccount(id);
         if (null == account) {
-            return null;
+            return false;
         }
 
         if (account.state == 'offline') {
-            return null;
+            return false;
         }
 
         account.last = Date.now();
-        let cookie = account.id + ',' + account.name;
-        return cookie;
+        return true;
+    }
+
+    onTick() {
+        let now = Date.now();
+        let list = this.accountRepo.accounts;
+        for (let i = 0; i < list.length; ++i) {
+            let account = list[i];
+            if (account.state == 'online') {
+                if (now - account.last > 300000) {
+                    // 如果 5 分钟没有心跳，则设置为离线
+                    account.state = 'offline';
+                }
+            }
+        }
     }
 }
 

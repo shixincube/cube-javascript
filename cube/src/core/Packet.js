@@ -83,6 +83,15 @@ export class Packet {
     }
 
     /**
+     * 返回负载数据。
+     * 
+     * @returns {JSON} 返回负载数据。
+     */
+    getPayload() {
+        return this.data;
+    }
+
+    /**
      * 从 JSON 格式创建 {@linkcode Packet} 实例。
      * @param {JSON} json 
      */

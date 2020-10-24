@@ -12,7 +12,7 @@
     function showConfirm(title, content, callback) {
         var el = $('#modal_confirm');
         el.find('.modal-title').text(title);
-        el.find('.modal-body').text(content);
+        el.find('.modal-body').html('<p>' + content + '</p>');
 
         confirmCallback = callback;
 
@@ -24,6 +24,32 @@
     }
 
     g.ui.showConfirm = showConfirm;
+
+    function showLoading(content, timeout) {
+        var el = $('#modal_loading');
+        el.find('.modal-title').html(content + '&hellip;');
+
+        var elElapsed = el.find('.modal-elapsed-time');
+        elElapsed.text('0 秒');
+
+        var count = 0;
+        var time = setInterval(function() {
+            ++count;
+            elElapsed.text(count + ' 秒');
+        }, 1000);
+
+        el.modal({
+            keyboard: false,
+            backdrop: 'static'
+        });
+
+        setTimeout(function() {
+            clearInterval(time);
+            el.modal('hide');
+        }, timeout);
+    }
+
+    g.ui.showLoading = showLoading;
 })(window);
 
 

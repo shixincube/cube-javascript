@@ -41,8 +41,9 @@ export class Contact extends Entity {
      * 构造函数。
      * @param {number|string} id 指定联系人 ID 。
      * @param {string} domain 指定联系人所在的域。
+     * @param {string} [name] 指定联系人名称。
      */
-    constructor(id, domain) {
+    constructor(id, domain, name) {
         super(Contact.Lifespan);
 
         /**
@@ -64,7 +65,7 @@ export class Contact extends Entity {
          * @private
          * @type {string}
          */
-        this.name = 'Cube' + id.toString();
+        this.name = (undefined === name) ? 'Cube' + id.toString() : name;
 
         /**
          * 当前有效的设备列表。
@@ -138,6 +139,17 @@ export class Contact extends Entity {
         return this.devices;
     }
 
+    equals(other) {
+        if (other instanceof Contact) {
+            return other.id == this.id && other.domain == this.domain;
+        }
+        else if (undefined !== other.id && undefined !== other.domain) {
+            return other.id == this.id && other.domain == this.domain;
+        }
+
+        return false;
+    }
+
     /**
      * @inheritdoc
      */
@@ -161,6 +173,19 @@ export class Contact extends Entity {
     }
 
     /**
+     * 返回紧凑结构的 JSON 数据，数据里只包含基础的联系人数据。
+     */
+    toCompactJSON() {
+        let json = super.toJSON();
+        json["id"] = this.id;
+        json["name"] = this.name;
+        if (null != this.context) {
+            json["context"] = (this.context instanceof JSONable) ? this.context.toJSON() : this.context;
+        }
+        return json;
+    }
+
+    /**
      * 从 JSON 数据格式创建 {@linkcode Contact} 实例。
      * @param {JSON} json 指定 {@linkcode Contact} 格式的 JSON 对象。
      * @returns {Contact} 返回 {@linkcode Contact} 实例。
@@ -171,8 +196,8 @@ export class Contact extends Entity {
         let name = json.name;
         let devices = (json.devices) ? json.devices : [];
 
-        let contact = new Contact(id, domain);
-        contact.name = name;
+        let contact = new Contact(id, domain, name);
+
         for (let i = 0; i < devices.length; ++i) {
             let devJson = devices[i];
             let dev = new Device(devJson.name, devJson.platform);
