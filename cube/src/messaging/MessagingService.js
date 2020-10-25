@@ -185,6 +185,7 @@ export class MessagingService extends Module {
             this.contactEventFun = null;
         }
 
+        // 关闭存储器
         this.storage.close();
     }
 

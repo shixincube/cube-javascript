@@ -188,11 +188,12 @@ export class Contact extends Entity {
     /**
      * 从 JSON 数据格式创建 {@linkcode Contact} 实例。
      * @param {JSON} json 指定 {@linkcode Contact} 格式的 JSON 对象。
+     * @param {string} [domainName] 指定域名称。
      * @returns {Contact} 返回 {@linkcode Contact} 实例。
      */
-    static create(json) {
+    static create(json, domainName) {
         let id = json.id;
-        let domain = json.domain;
+        let domain = (undefined !== domainName) ? domainName : json.domain;
         let name = json.name;
         let devices = (json.devices) ? json.devices : [];
 

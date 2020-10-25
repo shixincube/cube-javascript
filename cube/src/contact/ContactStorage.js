@@ -102,5 +102,19 @@ export class ContactStorage {
         if (null == this.db) {
             return;
         }
+
+        cell.Logger.d('MessagingStorage', 'Close contact storage : ' + this.domain);
+
+        this.db.close();
+        this.db = null;
+    }
+
+    /**
+     * 
+     * @param {number} timestamp 
+     * @param {function} hander 
+     */
+    getGroups(timestamp, hander) {
+
     }
 }

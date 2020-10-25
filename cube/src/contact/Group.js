@@ -252,7 +252,7 @@ export class Group extends Contact {
      */
     static create(service, json, owner) {
         if (undefined === owner) {
-            owner = new Contact(json.owner.id, json.domain, json.owner.name);
+            owner = new Contact.create(json.owner, json.domain);
         }
 
         let group = new Group(service, owner, json.id, json.domain, json.name);
@@ -260,7 +260,7 @@ export class Group extends Contact {
         group.lastActiveTime = json.lastActive;
 
         for (let i = 0; i < json.members.length; ++i) {
-            let member = Contact.create(json.members[i]);
+            let member = Contact.create(json.members[i], json.domain);
             group.memberList.push(member);
         }
 

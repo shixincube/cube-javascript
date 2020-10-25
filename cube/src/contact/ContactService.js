@@ -37,6 +37,7 @@ import { ObservableState } from "../core/ObservableState";
 import { Contact } from "./Contact";
 import { ContactAction } from "./ContactAction";
 import { ContactEvent } from "./ContactEvent";
+import { ContactStorage } from "./ContactStorage";
 import { Device } from "./Device";
 import { Group } from "./Group";
 import { EntityInspector } from "../core/EntityInspector";
@@ -99,6 +100,12 @@ export class ContactService extends Module {
         this.pipelineListener = new ContactPipelineListener(this);
 
         /**
+         * 联系人存储器。
+         * @type {ContactStorage}
+         */
+        this.storage = new ContactStorage();
+
+        /**
          * List Groups 操作的上下文。
          * @type {function}
          */
@@ -112,6 +119,9 @@ export class ContactService extends Module {
         if (!super.start()) {
             return false;
         }
+
+        // 开启存储器
+        this.storage.open(AuthService.DOMAIN);
 
         this.inspector.start();
 
@@ -129,6 +139,9 @@ export class ContactService extends Module {
         this.pipeline.removeListener(ContactService.NAME, this.pipelineListener);
 
         this.inspector.stop();
+
+        // 关闭存储器
+        this.storage.close();
     }
 
     /**
