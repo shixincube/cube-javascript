@@ -25,8 +25,8 @@
  */
 
 import { JSONable } from "../util/JSONable";
-import { Contact } from "../contacts/Contact";
-import { Group } from "../contacts/Group";
+import { Contact } from "../contact/Contact";
+import { Group } from "../contact/Group";
 import { Invitation } from "./Invitation";
 import { ConferenceRoom } from "./ConferenceRoom";
 import { OrderMap } from "../util/OrderMap";

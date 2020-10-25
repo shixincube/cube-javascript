@@ -77,7 +77,7 @@ CubeApp.prototype.config = function(cube) {
     });
 
     // 设置事件监听
-    cube.contacts.on(ContactEvent.SignIn, function(event) {
+    cube.contact.on(ContactEvent.SignIn, function(event) {
         app.launchToast(CubeToast.Info, '已签入ID ：' + event.data.getId());
     });
 
@@ -188,7 +188,7 @@ CubeApp.prototype.logout = function() {
             };
 
             // 将 Cube 账号签出
-            that.cube.contacts.signOut(function(self) {
+            that.cube.contact.signOut(function(self) {
                 logout();
             });
 

@@ -30,7 +30,7 @@ import { Pipeline } from "../core/Pipeline";
 import { CellPipeline } from "../pipeline/CellPipeline";
 import { AjaxPipeline } from "../pipeline/AjaxPipeline";
 import { AuthService } from "../auth/AuthService";
-import { ContactService } from "../contacts/ContactService";
+import { ContactService } from "../contact/ContactService";
 import { MessagingService } from "../messaging/MessagingService";
 import { FileStorage } from "../filestorage/FileStorage";
 import { FaceMonitor } from "../facemonitor/FaceMonitor";

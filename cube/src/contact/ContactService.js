@@ -500,6 +500,10 @@ export class ContactService extends Module {
         return true;
     }
 
+    /**
+     * 处理接收到的 List Groups 数据。
+     * @param {JSON} paylaod 
+     */
     triggerListGroups(paylaod) {
         let data = paylaod.data;
         let list = data.list;

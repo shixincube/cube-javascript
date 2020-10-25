@@ -25,7 +25,7 @@
  */
 
 import { Module } from "../core/Module";
-import { ContactService } from "../contacts/ContactService";
+import { ContactService } from "../contact/ContactService";
 import { MultipointComm } from "../multipointcomm/MultipointComm";
 import { Conference } from "./Conference";
 import { ConferencePipelineListener } from "./ConferencePipelineListener";

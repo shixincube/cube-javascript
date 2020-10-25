@@ -52,7 +52,7 @@ export class MessagingStorage {
         /**
          * 消息库。
          */
-        this.messagesStore = null;
+        this.messageStore = null;
     }
 
     /**
@@ -70,10 +70,10 @@ export class MessagingStorage {
 
         // 数据库配置
         let options = {
-            name: 'CubeMessages-' + domain,
+            name: 'CubeMessaging-' + domain,
             version: 1,
             stores: [{
-                name: 'messages',
+                name: 'message',
                 keyPath: 'id',
                 indexes: [{
                     name: 'id',
@@ -106,7 +106,7 @@ export class MessagingStorage {
         this.db = new InDB(options);
 
         this.configStore = this.db.use('config');
-        this.messagesStore = this.db.use('messages');
+        this.messageStore = this.db.use('message');
     }
 
     /**
@@ -176,7 +176,7 @@ export class MessagingStorage {
         }
 
         (async ()=> {
-            let value = await this.messagesStore.get(message.getId());
+            let value = await this.messageStore.get(message.getId());
             handler(message, (undefined !== value && null != value));
         })();
         return true;
@@ -195,7 +195,7 @@ export class MessagingStorage {
         (async ()=> {
             let data = message.toJSON();
             delete data["domain"];
-            await this.messagesStore.put(data);
+            await this.messageStore.put(data);
         })();
         return true;
     }
@@ -212,7 +212,7 @@ export class MessagingStorage {
         }
 
         (async ()=> {
-            let result = await this.messagesStore.select([
+            let result = await this.messageStore.select([
                 { key: 'rts', value: start, compare: '>' }
             ]);
             for (let i = 0; i < result.length; ++i) {
@@ -236,7 +236,7 @@ export class MessagingStorage {
         }
 
         (async ()=> {
-            let result = await this.messagesStore.select([
+            let result = await this.messageStore.select([
                 { key: 'rts', value: start, compare: '>' },
                 { key: 'from', value: contactId, optional: true },
                 { key: 'to', value: contactId, optional: true }
@@ -262,7 +262,7 @@ export class MessagingStorage {
         (async ()=> {
             let data = message.toJSON();
             delete data["domain"];
-            await this.messagesStore.put(data);
+            await this.messageStore.put(data);
         })();
         return true;
     }

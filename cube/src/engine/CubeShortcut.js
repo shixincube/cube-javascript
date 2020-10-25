@@ -1,4 +1,3 @@
-import { Self } from "../contacts/Self";
 /**
  * This file is part of Cube.
  * 
@@ -26,7 +25,7 @@ import { Self } from "../contacts/Self";
  */
 
 import { CubeEngine } from "./CubeEngine";
-import { ContactService } from "../contacts/ContactService";
+import { ContactService } from "../contact/ContactService";
 import { MessagingService } from "../messaging/MessagingService";
 
 /**
@@ -42,7 +41,7 @@ export class CubeShortcut {
          * @type {ContactService}
          * @public
          */
-        this.contacts = this.engine.getContactService();
+        this.contact = this.engine.getContactService();
 
         /**
          * 消息模块。

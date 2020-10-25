@@ -24,7 +24,7 @@
  * SOFTWARE.
  */
 
-import { Contact } from "../contacts/Contact";
+import { Contact } from "../contact/Contact";
 import { OrderMap } from "../util/OrderMap";
 import { Entity } from "../core/Entity";
 import { LocalRTCEndpoint } from "./LocalRTCEndpoint";

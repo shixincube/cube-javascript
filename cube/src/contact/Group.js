@@ -268,31 +268,4 @@ export class Group extends Contact {
             group.context = json.context;
         }
     }
-
-    /**
-     * 创建指定信息的 {@linkcode Group} 对象实例。
-     * @param {ContactService} service 
-     * @param {JSON} json 
-     * @param {function} callback 
-     */
-    /*static create(service, json, callback) {
-        service.getContact(json.ownerId, (owner) => {
-            if (null == owner) {
-                callback(null);
-                return;
-            }
-
-            let group = new Group(owner);
-            group.id = json.id;
-            group.name = json.name;
-            group.memberIdList = json.members;
-            group.service = service;
-
-            if (undefined !== json.context) {
-                group.context = json.context;
-            }
-
-            callback(group);
-        });
-    }*/
 }

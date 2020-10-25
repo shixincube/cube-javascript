@@ -28,10 +28,10 @@ import cell from "@lib/cell-lib";
 import { AuthService } from "../auth/AuthService";
 import { OrderMap } from "../util/OrderMap";
 import { Module } from "../core/Module"
-import { ContactService } from "../contacts/ContactService";
-import { ContactEvent } from "../contacts/ContactEvent";
-import { Contact } from "../contacts/Contact";
-import { Group } from "../contacts/Group";
+import { ContactService } from "../contact/ContactService";
+import { ContactEvent } from "../contact/ContactEvent";
+import { Contact } from "../contact/Contact";
+import { Group } from "../contact/Group";
 import { Packet } from "../core/Packet";
 import { Message } from "./Message";
 import { MessageState } from "./MessageState";
