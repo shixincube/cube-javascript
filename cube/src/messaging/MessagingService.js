@@ -329,12 +329,12 @@ export class MessagingService extends Module {
      * @returns {boolean} 如果成功执行查询返回 {@linkcode true} 。
      */
     queryMessage(time, handler) {
-        return this.storage.readMessage(time, (start, list) => {
-            let result = [];
-            for (let i = 0; i < list.length; ++i) {
-                let message = Message.create(list[i]);
-                result.push(message);
-            }
+        return this.storage.readMessage(time, (start, result) => {
+            result.sort((a, b) => {
+                if (a.remoteTS < b.remoteTS) return -1;
+                else if (a.remoteTS > b.remoteTS) return 1;
+                else return 0;
+            });
             handler(start, result);
         });
     }
@@ -347,12 +347,12 @@ export class MessagingService extends Module {
      * @returns {boolean} 如果成功执行查询返回 {@linkcode true} 。
      */
     queryMessageWithContact(id, time, handler) {
-        return this.storage.readMessageWithContact(id, time, (contactId, start, list) => {
-            let result = [];
-            for (let i = 0; i < list.length; ++i) {
-                let message = Message.create(list[i]);
-                result.push(message);
-            }
+        return this.storage.readMessageWithContact(id, time, (contactId, start, result) => {
+            result.sort((a, b) => {
+                if (a.remoteTS < b.remoteTS) return -1;
+                else if (a.remoteTS > b.remoteTS) return 1;
+                else return 0;
+            });
             handler(contactId, start, result); 
         });
     }
@@ -360,10 +360,11 @@ export class MessagingService extends Module {
     /**
      * 查询服务器上的消息。
      * @private
-     * @param {number} [time] 指定获取消息的起始时间。
+     * @param {number} [beginning] 指定获取消息的起始时间。
+     * @param {number} [ending] 指定获取消息的截止时间。
      * @returns {boolean} 如果成功执行查询返回 {@linkcode true} 。
      */
-    queryRemoteMessage(time) {
+    queryRemoteMessage(beginning, ending) {
         if (!this.contactService.selfReady) {
             return false;
         }
@@ -377,7 +378,8 @@ export class MessagingService extends Module {
 
         this.lastQueryTime = now;
 
-        let timestamp = (undefined === time) ? this.lastMessageTime : time;
+        let beginningTime = (undefined === beginning) ? this.lastMessageTime : beginning;
+        let endingTime = (undefined === ending) ? now : ending;
 
         let self = this.contactService.getSelf();
         // 拉取消息
@@ -385,10 +387,11 @@ export class MessagingService extends Module {
             id: self.getId(),
             domain: self.getDomain(),
             device: self.getDevice().toJSON(),
-            timestamp: timestamp
+            beginning: beginningTime,
+            ending: endingTime
         };
 
-        cell.Logger.d('MessagingService', 'Pull message @ ' + timestamp);
+        cell.Logger.d('MessagingService', 'Pull message @ ' + beginningTime + ' - ' + endingTime);
 
         let packet = new Packet(MessagingAction.Pull, payload);
         this.pipeline.send(MessagingService.NAME, packet);
@@ -450,7 +453,7 @@ export class MessagingService extends Module {
         let ending = data.ending;
         let messages = data.messages;
 
-        cell.Logger.d('MessagingService', 'Query/Pull messages total: ' + total);
+        cell.Logger.d('MessagingService', 'Query/Pull messages total: ' + total + ' - ' + beginning + ' - ' + ending);
 
         for (let i = 0, len = messages.length; i < len; ++i) {
             this.triggerNotify(messages[i]);

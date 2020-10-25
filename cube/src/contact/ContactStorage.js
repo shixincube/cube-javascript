@@ -33,7 +33,12 @@ import { Group } from "./Group";
  */
 export class ContactStorage {
 
-    constructor() {
+    constructor(service) {
+        /**
+         * 联系人服务。
+         */
+        this.service = service;
+
         /**
          * 存储器操作的域。
          */
@@ -110,11 +115,49 @@ export class ContactStorage {
     }
 
     /**
-     * 
-     * @param {number} timestamp 
-     * @param {function} hander 
+     * 读取指定最近活跃时间的群组。
+     * @param {number} beginning 
+     * @param {number} ending 
+     * @param {function} handler 
      */
-    getGroups(timestamp, hander) {
+    readGroups(beginning, ending, handler) {
+        if (null == this.db) {
+            return false;
+        }
 
+        (async ()=> {
+            let result = await this.groupStore.select([
+                { key: 'lastActive', value: beginning, compare: '>=' },
+                { key: 'lastActive', value: ending, compare: '<' }
+            ]);
+
+            let groups = [];
+            for (let i = 0; i < result.length; ++i) {
+                result[i].domain = this.domain;
+                let group = Group.create(this.service, result[i]);
+                groups.push(group);
+            }
+
+            handler(beginning, ending, groups);
+        })();
+
+        return true;
+    }
+
+    /**
+     * 
+     * @param {Group} group 
+     */
+    writeGroup(group) {
+        if (null == this.db) {
+            return false;
+        }
+
+        (async ()=> {
+            let data = group.toJSON();
+            delete data["domain"];
+            await this.groupStore.put(data);
+        })();
+        return true;
     }
 }

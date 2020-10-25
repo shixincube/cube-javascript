@@ -132,6 +132,11 @@ CubeApp.prototype.prepareData = function() {
             }
         });
     }
+
+    // 查询群
+    this.cube.contact.queryGroups(function(groupList) {
+        console.log('查找到“我”有 ' + groupList.length + ' 个群');
+    });
 }
 
 CubeApp.prototype.startHeartbeat = function() {

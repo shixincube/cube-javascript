@@ -103,7 +103,7 @@ export class ContactService extends Module {
          * 联系人存储器。
          * @type {ContactStorage}
          */
-        this.storage = new ContactStorage();
+        this.storage = new ContactStorage(this);
 
         /**
          * List Groups 操作的上下文。
@@ -483,13 +483,67 @@ export class ContactService extends Module {
         }
     }
 
+    sortGroup(groupA, groupB) {
+        var lastActiveA = groupA.lastActiveTime;
+        var lastActiveB = groupB.lastActiveTime;
+        if (lastActiveA < lastActiveB) {
+            return 1;
+        }
+        else if (lastActiveA > lastActiveB) {
+            return -1;
+        }
+        else {
+            return 0;
+        }
+    }
+
+    /**
+     *
+     * @param {number} [beginning] 
+     * @param {number} [ending] 
+     * @param {function} handler 查询回调函数，函数参数：({@linkcode list}:Array<{@link Group}>) 。
+     */
+    queryGroups(beginning, ending, handler) {
+        if (typeof beginning === 'function') {
+            handler = beginning;
+            beginning = 0;
+            ending = Date.now();
+        }
+        else if (typeof ending === 'function') {
+            handler = ending;
+            ending = Date.now();
+        }
+
+        this.storage.readGroups(beginning, ending, (beginning, ending, result) => {
+            result.sort((a, b) => {
+                return this.sortGroup(a, b);
+            });
+            handler(result);
+        });
+    }
+
     /**
      * 获取当前联系人所在的所有群。
-     * @param {number} timestamp 指定查询群的起始的最近一次活跃时间戳。
+     * @param {number} [beginning] 指定查询群的起始的最近一次活跃时间戳。
+     * @param {number} [ending] 指定查询群的截止的最近一次活跃时间戳。
      * @param {function} handler 获取到数据后的回调函数，函数参数：({@linkcode list}:Array<{@link Group}>) 。
      */
-    listGroups(timestamp, handler) {
-        if (null != this.listGroupsContext) {
+    listGroups(beginning, ending, handler) {
+        if (undefined === beginning || null != this.listGroupsContext) {
+            return false;
+        }
+
+        if (typeof beginning === 'function') {
+            handler = beginning;
+            beginning = 0;
+            ending = 0;
+        }
+        else if (typeof ending === 'function') {
+            handler = ending;
+            ending = Date.now();
+        }
+
+        if (beginning > ending) {
             return false;
         }
 
@@ -501,12 +555,14 @@ export class ContactService extends Module {
         };
 
         this.listGroupsContext.timer = setTimeout(() => {
+            clearTimeout(this.listGroupsContext.timer);
             this.listGroupsContext.handler([]);
             this.listGroupsContext = null;
         }, 10000);
 
         let packet = new Packet(ContactAction.ListGroups, {
-            "timestamp": timestamp
+            "beginning": beginning,
+            "ending": ending
         });
         this.pipeline.send(ContactService.NAME, packet);
 

@@ -203,7 +203,7 @@ export class MessagingStorage {
     /**
      * 读取指定时间之后的所有消息。
      * @param {number} start 指定读取的起始时间戳。
-     * @param {function} handler 指定查询结果回调函数，函数参数：({@linkcode start}:number, {@linkcode result}:Array<{@linkcode JSON}>) 。
+     * @param {function} handler 指定查询结果回调函数，函数参数：({@linkcode start}:number, {@linkcode result}:Array<{@link Message}>) 。
      * @returns {boolean} 返回是否执行了读取操作。
      */
     readMessage(start, handler) {
@@ -215,10 +215,13 @@ export class MessagingStorage {
             let result = await this.messageStore.select([
                 { key: 'rts', value: start, compare: '>' }
             ]);
+            let messages = [];
             for (let i = 0; i < result.length; ++i) {
                 result[i].domain = this.domain;
+                let message = Message.create(result[i]);
+                messages.push(message);
             }
-            handler(start, result);
+            handler(start, messages);
         })();
         return true;
     }
@@ -227,7 +230,7 @@ export class MessagingStorage {
      * 读取指定联系人相关的并且指定时间之后的所有消息。
      * @param {number} contactId 指定联系人 ID 。
      * @param {number} start 指定读取的起始时间戳。
-     * @param {function} handler 指定查询结果回调函数，函数参数：({@linkcode contactId}:number, {@linkcode start}:number, {@linkcode result}:Array<{@linkcode JSON}>) 。
+     * @param {function} handler 指定查询结果回调函数，函数参数：({@linkcode contactId}:number, {@linkcode start}:number, {@linkcode result}:Array<{@link Message}>) 。
      * @returns {boolean} 返回是否执行了读取操作。
      */
     readMessageWithContact(contactId, start, handler) {
@@ -241,10 +244,13 @@ export class MessagingStorage {
                 { key: 'from', value: contactId, optional: true },
                 { key: 'to', value: contactId, optional: true }
             ]);
+            let messages = [];
             for (let i = 0; i < result.length; ++i) {
                 result[i].domain = this.domain;
+                let message = Message.create(result[i]);
+                messages.push(message);
             }
-            handler(contactId, start, result);
+            handler(contactId, start, messages);
         })();
         return true;
     }
