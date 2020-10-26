@@ -100,11 +100,11 @@
             }
             else {
                 result.push(date.getFullYear());
-                result.push('年');
+                result.push('-');
                 result.push(formatNumber(date.getMonth() + 1, 2));
-                result.push('月');
+                result.push('-');
                 result.push(formatNumber(date.getDate(), 2));
-                result.push('日 ');
+                result.push(' ');
                 result.push(formatNumber(date.getHours(), 2));
                 result.push(':');
                 result.push(formatNumber(date.getMinutes(), 2));
@@ -113,11 +113,11 @@
         else {
             var date = new Date(value);
             result.push(date.getFullYear());
-            result.push('年');
+            result.push('-');
             result.push(formatNumber(date.getMonth() + 1, 2));
-            result.push('月');
+            result.push('-');
             result.push(formatNumber(date.getDate(), 2));
-            result.push('日 ');
+            result.push(' ');
             result.push(formatNumber(date.getHours(), 2));
             result.push(':');
             result.push(formatNumber(date.getMinutes(), 2));

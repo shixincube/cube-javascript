@@ -133,9 +133,9 @@ CubeApp.prototype.prepareData = function() {
         });
     }
 
-    // 查询群
+    // 查询群组
     this.cube.contact.queryGroups(function(groupList) {
-        console.log('查找到“我”有 ' + groupList.length + ' 个群');
+        
     });
 }
 

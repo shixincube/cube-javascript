@@ -498,9 +498,9 @@ export class ContactService extends Module {
     }
 
     /**
-     *
-     * @param {number} [beginning] 
-     * @param {number} [ending] 
+     * 查询指定活跃时间范围内的群组。
+     * @param {number} [beginning] 指定查询群的起始的最近一次活跃时间戳。
+     * @param {number} [ending] 指定查询群的截止的最近一次活跃时间戳。
      * @param {function} handler 查询回调函数，函数参数：({@linkcode list}:Array<{@link Group}>) 。
      */
     queryGroups(beginning, ending, handler) {
