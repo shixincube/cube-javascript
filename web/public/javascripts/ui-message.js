@@ -79,6 +79,10 @@ MessageCatalogue.prototype.setClickListener = function(listener) {
     this.clickListener = listener;
 }
 
+MessageCatalogue.prototype.appendItem = function(item) {
+
+}
+
 MessageCatalogue.prototype.updateSubLabel = function(id, sublabel, time) {
     var el = this.elItemMap[id];
     el.find('.product-description').text(sublabel);
@@ -97,14 +101,17 @@ MessageCatalogue.prototype.onCatalogItemClick = function(el, e) {
     el.addClass('catalog-active');
     this.lastCatalogItem = el;
 
-    var accountId = parseInt(el.attr('data'));
+    var itemId = parseInt(el.attr('data'));
     var that = this;
 
-    this.app.getAccount(accountId, function(data, textStatus) {
-        if (textStatus == 'success') {
-            that.clickListener(data);
-        }
-    });
+    var account = this.app.getContact(itemId);
+    if (null != account) {
+        // 点击是联系人
+        this.clickListener(account);
+        return;
+    }
+
+    // 点击的是群组
 }
 
 
@@ -114,6 +121,9 @@ MessageCatalogue.prototype.onCatalogItemClick = function(el, e) {
  * 消息面板。
  */
 function MessagePanel(contacts) {
+    this.contacts = contacts;
+    this.groups = [];
+
     this.el = $('#messages');
 
     this.elTitle = this.el.find('.card-title');
@@ -125,14 +135,32 @@ function MessagePanel(contacts) {
     }
 
     var that = this;
+    // 发送按钮 Click 事件
     $('#btn_send').on('click', function(e) {
         that.onSendClick(e);
     });
+    // 发送框键盘事件
     this.elInput.keypress(function(event) {
         var e = event || window.event;
         if (e && e.keyCode == 13 && e.ctrlKey) {
             that.onSendClick(e);
         }
+    });
+    // 新建群按钮 Click 事件
+    $('#new_group').on('click', function(e) {
+        $('#new_group_dialog').modal({
+            keyboard: true,
+            backdrop: 'static'
+        });
+    });
+    $('#new_group_dialog').on('hidden.bs.modal', function(e) {
+        $('#new_group_input_name').val('');
+        for (var i = 0; i < that.contacts.length; ++i) {
+            $('#group_member_' + i).prop('checked', false);
+        }
+    });
+    $('#new_group_submit').on('click', function(e) {
+        that.onNewGroupSubmitClick(e);
     });
 
     this.owner = null;
@@ -144,12 +172,15 @@ function MessagePanel(contacts) {
         var el = $('<div class="direct-chat-messages"></div>');
         this.views['' + contact.id] = {
             el: el,
-            contact: contact,
+            item: contact,
             messageIds: []
         };
     }
 
+    // 发送事件监听器
     this.sendListener = null;
+    // 提交建群事件监听器
+    this.submitNewGroupListener = null;
 }
 
 MessagePanel.prototype.setOwner = function(account) {
@@ -158,6 +189,10 @@ MessagePanel.prototype.setOwner = function(account) {
 
 MessagePanel.prototype.setSendListener = function(listener) {
     this.sendListener = listener;
+}
+
+MessagePanel.prototype.setSubmitNewGroupListener = function(listener) {
+    this.submitNewGroupListener = listener;
 }
 
 /**
@@ -185,6 +220,15 @@ MessagePanel.prototype.changeTarget = function(target) {
     // 滚动条控制
     var offset = parseInt(this.elMsgView.prop('scrollHeight'));
     this.elMsgView.scrollTop(offset);
+}
+
+MessagePanel.prototype.addGroup = function(group) {
+    var el = $('<div class="direct-chat-messages"></div>');
+    this.views['' + group.getId()] = {
+        el: el,
+        item: group,
+        messageIds: []
+    };
 }
 
 /**
@@ -238,3 +282,25 @@ MessagePanel.prototype.onSendClick = function(e) {
     this.sendListener.call(null, this.current, text);
 }
 
+MessagePanel.prototype.onNewGroupSubmitClick = function(e) {
+    // 提取群名称
+    var groupName = $('#new_group_input_name').val();
+
+    // 提取选择的群成员 ID
+    var memberIds = [];
+    for (var i = 0; i < this.contacts.length; ++i) {
+        var el = $('#group_member_' + i);
+        if (el.prop('checked')) {
+            memberIds.push(el.attr('data'));
+        }
+    }
+
+    if (memberIds.length == 0) {
+        alert('没有选择群成员');
+        return;
+    }
+
+    $('#new_group_dialog').modal('hide');
+
+    this.submitNewGroupListener(groupName, memberIds);
+}

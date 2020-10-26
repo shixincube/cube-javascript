@@ -59,6 +59,9 @@ CubeApp.prototype.initUI = function() {
     app.messagePanel.setSendListener(function(to, content) {
         app.onSendClick(to, content);
     });
+    app.messagePanel.setSubmitNewGroupListener(function(groupName, memberIds) {
+        app.onSubmitNewGroup(groupName, memberIds);
+    });
 }
 
 /**
@@ -135,7 +138,27 @@ CubeApp.prototype.prepareData = function() {
 
     // 查询群组
     this.cube.contact.queryGroups(function(groupList) {
+        var handler = function(groupList) {
+            for (var i = 0; i < groupList.length; ++i) {
+                that.messageCatalogue.appendItem(groupList[i]);
+            }
+        };
+
+        if (groupList.length == 0) {
+            // 如果本地没有找到任务群组，尝试从服务器获取（可能客户端清理过存储和缓存）
+            if (that.cube.contact.hasSignedIn()) {
+                // 客户端已经签入服务器
+                that.cube.contact.listGroups(handler);
+            }
+            else {
+                setTimeout(function() {
+                    that.cube.contact.listGroups(handler);
+                }, 1000);
+            }
+            return;
+        }
         
+        handler(groupList);
     });
 }
 
@@ -209,7 +232,7 @@ CubeApp.prototype.logout = function() {
  * @param {number} id 
  * @param {function} handler 
  */
-CubeApp.prototype.getAccount = function(id, handler) {
+CubeApp.prototype.requestAccount = function(id, handler) {
     $.get('/account/info', {
         "id" : id
     }, function(data, textStatus, jqXHR) {
@@ -242,6 +265,10 @@ CubeApp.prototype.onSendClick = function(to, content) {
     }
 
     this.messageCatalogue.updateSubLabel(to.id, content, message.getTimestamp());
+}
+
+CubeApp.prototype.onSubmitNewGroup = function(groupName, memberIds) {
+    // 调用联系人模块的 createGroup 创建群组
 }
 
 CubeApp.prototype.onNewMessage = function(message) {

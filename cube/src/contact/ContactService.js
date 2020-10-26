@@ -153,6 +153,14 @@ export class ContactService extends Module {
     }
 
     /**
+     * 当前终端是否已在服务器上签入。
+     * @returns {boolean} 如果当前终端已签入，返回 {@linkcode true} ，否则返回 {@linkcode false} 。
+     */
+    hasSignedIn() {
+        return this.selfReady;
+    }
+
+    /**
      * 签入当前终端的联系人。
      * @param {Self|number|string} self 指定 {@linkcode Self} 对象或者自己的联系人 ID 。
      * @returns {boolean} 设置成功返回 {@linkcode true} ，否则返回 {@linkcode false} 。
@@ -483,6 +491,12 @@ export class ContactService extends Module {
         }
     }
 
+    /**
+     * 按照活跃时间从大到小排序群组。
+     * @private
+     * @param {Group} groupA 
+     * @param {Group} groupB 
+     */
     sortGroup(groupA, groupB) {
         var lastActiveA = groupA.lastActiveTime;
         var lastActiveB = groupB.lastActiveTime;

@@ -90,7 +90,7 @@ block pageContent
                 div.card-header
                   h3.card-title 消息
                   div.card-tools
-                    button.btn
+                    button#new_group.btn.btn-tool(type='button')
                       i.fas.fa-user-plus
                     button.btn.btn-tool(type='button')
                       i.fas.fa-info-circle
@@ -143,6 +143,34 @@ block pageContent
               p.modal-elapsed
                 span.modal-elapsed-tip 用时：
                 span.modal-elapsed-time
+
+      //- New Group Dialog
+      div#new_group_dialog.modal.fade
+        div.modal-dialog
+          div.modal-content
+            div.modal-header
+              h4.modal-title 新建群组
+              button.close(type='button', data-dismiss='modal', aria-label='Close')
+                span(aria-hidden='true') &times;
+            div.modal-body
+              div.input-group.mb-3
+                div.input-group-prepend
+                  span.input-group-text 群组名称
+                input#new_group_input_name.form-control(type='text', placeholder='请在此输入群组名称')
+              div.form-group
+                label 选择群组成员
+                div.row
+                  - each item,i in contacts
+                    div.col-6
+                      div.form-group
+                        div.custom-control.custom-checkbox.select-group-member
+                          input.custom-control-input(type='checkbox', id='group_member_' + i, data=item.id)
+                          label.custom-control-label(for='group_member_' + i)
+                            img(src=item.avatar)
+                            span=item.name
+            div.modal-footer
+              button.btn.btn-secondary(type='button', data-dismiss='modal') 关闭
+              button#new_group_submit.btn.btn-primary(type='button') 确定
               
 
     aside.control-sidebar.control-sidebar-dark

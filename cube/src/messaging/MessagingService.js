@@ -476,8 +476,8 @@ export class MessagingService extends Module {
     refreshLastMessageTime(value) {
         if (value > this.lastMessageTime) {
             this.lastMessageTime = value;
+            this.storage.updateLastMessageTime(value);
         }
-        this.storage.updateLastMessageTime(value);
     }
 
     /**

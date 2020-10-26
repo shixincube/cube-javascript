@@ -131,3 +131,16 @@ body {
     background-position: center;
     opacity: 0.1;
 }
+
+.select-group-member {
+    padding-top: 8px;
+}
+.select-group-member img {
+    border-radius: 10%;
+    margin: 0px 8px 0px 8px;
+    width: 24px;
+    height: 24px;
+}
+.select-group-member .custom-control-label span {
+    padding-left: 4px;
+}
