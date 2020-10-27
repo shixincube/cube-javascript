@@ -248,7 +248,7 @@ export class Group extends Contact {
      * 
      * @param {ContactService} service 
      * @param {JSON} json 
-     * @param {Contact} owner 
+     * @param {Contact} [owner]
      */
     static create(service, json, owner) {
         if (undefined === owner) {
@@ -261,11 +261,15 @@ export class Group extends Contact {
 
         for (let i = 0; i < json.members.length; ++i) {
             let member = Contact.create(json.members[i], json.domain);
-            group.memberList.push(member);
+            if (!group.hasMember(member)) {
+                group.memberList.push(member);
+            }
         }
 
         if (undefined !== json.context) {
             group.context = json.context;
         }
+
+        return group;
     }
 }

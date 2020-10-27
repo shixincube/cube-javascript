@@ -49,6 +49,12 @@ export const ContactEvent = {
     Comeback: 'Comeback',
 
     /**
+     * 新群被创建。
+     * @type {string}
+     */
+    GroupCreated: 'GroupCreated',
+
+    /**
      * 被邀请入群。
      * @type {string}
      */

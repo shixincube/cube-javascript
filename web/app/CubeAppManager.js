@@ -72,10 +72,12 @@ class CubeAppManager {
             }
 
             let ca = {
+                index: result.length,
                 id: account.id,
                 thumb: account.avatar,
                 label: account.name,
-                sublabel: ' '
+                sublabel: ' ',
+                badge: ''
             };
             result.push(ca);
         }

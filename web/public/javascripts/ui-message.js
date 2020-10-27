@@ -59,7 +59,6 @@
 function MessageCatalogue(app) {
     this.app = app;
     this.catalogues = app.catalogues;
-
     this.elItemMap = {};
 
     this.lastCatalogItem = null;
@@ -80,7 +79,55 @@ MessageCatalogue.prototype.setClickListener = function(listener) {
 }
 
 MessageCatalogue.prototype.appendItem = function(item) {
+    var index = this.catalogues.length;
+    var id = 0;
+    var thumb = '/images/group-avatar.jpg';
+    var label = null;
+    var sublabel = null;
+    var badge = null;
 
+    if (item instanceof Group) {
+        id = item.getId();
+        label = item.getName();
+        sublabel = ' ';
+        badge = formatShortTime(item.getLastActiveTime());
+
+        this.catalogues.push({
+            index: index,
+            id: id,
+            thumb: thumb,
+            label: label,
+            sublabel: sublabel,
+            badge: badge
+        });
+    }
+
+    if (null == label) {
+        return;
+    }
+
+    var html = [
+    '<li id="catalog_item_', index, '" class="item pl-2 pr-2" data="', id, '">',
+        '<div class="product-img"><img class="img-size-50 img-round-rect" src="', thumb ,'"/></div>',
+        '<div class="product-info">',
+            '<span class="product-title">', label,
+                '<span class="badge badge-light float-right">', badge, '</span>',
+            '</span>',
+            '<span class="product-description">', sublabel, '</span>',
+        '</div>',
+    '</li>'];
+
+    var el = $(html.join(''));
+
+    this.elItemMap['' + id] = el;
+
+    var elCatalogue = $('#catalogue');
+    elCatalogue.append(el);
+
+    var that = this;
+    el.on('click', function(e) {
+        that.onCatalogItemClick($(this), e);
+    });
 }
 
 MessageCatalogue.prototype.updateSubLabel = function(id, sublabel, time) {
@@ -112,6 +159,7 @@ MessageCatalogue.prototype.onCatalogItemClick = function(el, e) {
     }
 
     // 点击的是群组
+    this.clickListener(this.app.getGroup(itemId));
 }
 
 
@@ -122,7 +170,6 @@ MessageCatalogue.prototype.onCatalogItemClick = function(el, e) {
  */
 function MessagePanel(contacts) {
     this.contacts = contacts;
-    this.groups = [];
 
     this.el = $('#messages');
 
@@ -173,6 +220,7 @@ function MessagePanel(contacts) {
         this.views['' + contact.id] = {
             el: el,
             item: contact,
+            isGroup: false,
             messageIds: []
         };
     }
@@ -223,10 +271,16 @@ MessagePanel.prototype.changeTarget = function(target) {
 }
 
 MessagePanel.prototype.addGroup = function(group) {
+    var key = '' + group.getId();
+    if (undefined !== this.views[key]) {
+        return;
+    }
+
     var el = $('<div class="direct-chat-messages"></div>');
-    this.views['' + group.getId()] = {
+    this.views[key] = {
         el: el,
         item: group,
+        isGroup: true,
         messageIds: []
     };
 }
@@ -253,7 +307,8 @@ MessagePanel.prototype.appendMessage = function(sender, text, time, target) {
         tfloat = 'float-left';
     }
 
-    var html = ['<div class="direct-chat-msg ', right, '"><div class="direct-chat-infos clearfix"><span class="direct-chat-name ', nfloat, '">',
+    var html = ['<div class="direct-chat-msg ',
+            right, '"><div class="direct-chat-infos clearfix"><span class="direct-chat-name ', nfloat, '">',
         sender.name,
         '</span><span class="direct-chat-timestamp ', tfloat, '">',
         formatFullTime(time),

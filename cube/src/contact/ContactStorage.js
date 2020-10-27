@@ -83,6 +83,10 @@ export class ContactStorage {
                     name: 'lastActive',
                     keyPath: 'lastActive',
                     unique: false
+                }, {
+                    name: 'creation',
+                    keyPath: 'creation',
+                    unique: false
                 }]
             }, {
                 name: 'config',
@@ -126,16 +130,20 @@ export class ContactStorage {
         }
 
         (async ()=> {
-            let result = await this.groupStore.select([
-                { key: 'lastActive', value: beginning, compare: '>=' },
-                { key: 'lastActive', value: ending, compare: '<' }
-            ]);
+            let result = await this.groupStore.all();
+            // let result = await this.groupStore.select([
+            //     { key: 'lastActive', value: beginning, compare: '>' },
+            //     { key: 'lastActive', value: ending, compare: '<' }
+            // ]);
 
             let groups = [];
             for (let i = 0; i < result.length; ++i) {
-                result[i].domain = this.domain;
-                let group = Group.create(this.service, result[i]);
-                groups.push(group);
+                let json = result[i];
+                if (json.lastActive > beginning && json.lastActive < ending) {
+                    json.domain = this.domain;
+                    let group = Group.create(this.service, json);
+                    groups.push(group);
+                }
             }
 
             handler(beginning, ending, groups);

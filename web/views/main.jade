@@ -73,16 +73,15 @@ block pageContent
               //- Main catalog
               div.card.main-catalog
                 div.card-body.catalog
-                  ul.products-list.product-list-in-card
-                    - var i = 0
-                    - each item in catalogues
-                      li.item.pl-2.pr-2(id='catalog_item_' + (i++), data=item.id)
+                  ul#catalogue.products-list.product-list-in-card
+                    - each item,i in catalogues
+                      li.item.pl-2.pr-2(id='catalog_item_' + i, data=item.id)
                         div.product-img
                           img.img-size-50.img-round-rect(src=item.thumb)
                         div.product-info
                           span.product-title=item.label
-                            span.badge.badge-light.float-right --:--
-                          span.product-description.catalog-sublabel=item.sublabel
+                            span.badge.badge-light.float-right=item.badge
+                          span.product-description=item.sublabel
 
             div.col-md-9
               //- Main Content

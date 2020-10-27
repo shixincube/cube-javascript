@@ -25,7 +25,6 @@
  */
 
 import cell from "@lib/cell-lib";
-import InDB from "indb";
 import { OrderMap } from "../util/OrderMap";
 import { Module } from "../core/Module";
 import { Packet } from "../core/Packet";
@@ -163,9 +162,10 @@ export class ContactService extends Module {
     /**
      * 签入当前终端的联系人。
      * @param {Self|number|string} self 指定 {@linkcode Self} 对象或者自己的联系人 ID 。
+     * @param {string} [name] 指定名称/昵称。
      * @returns {boolean} 设置成功返回 {@linkcode true} ，否则返回 {@linkcode false} 。
      */
-    signIn(self) {
+    signIn(self, name) {
         if (!this.started) {
             this.start();
         }
@@ -176,6 +176,10 @@ export class ContactService extends Module {
         }
         else {
             this.self = new Self(parseInt(self));
+        }
+
+        if (undefined !== name) {
+            this.self.setName(name);
         }
 
         if (!this.pipeline.isReady()) {
@@ -617,10 +621,14 @@ export class ContactService extends Module {
      * @param {string} name 指定群组名。
      * @param {Array<number|Contact>} members 指定初始成员列表或者初始成员 ID 列表。
      * @param {function} handleSuccess 成功创建群组回调该方法。参数：({@linkcode group}:{@link Group}) ，创建成功的群组实例。
-     * @param {function} handleError 操作失败回调该方法。函数参数：({@linkcode groupId}:number, {@linkcode groupName}:number) ，创建失败的群组预 ID 和群名称。
-     * @returns {number} 返回待创建群组的创建预 ID 。
+     * @param {function} [handleError] 操作失败回调该方法。函数参数：({@linkcode groupId}:number, {@linkcode groupName}:number) ，创建失败的群组预 ID 和群名称。
+     * @returns {number} 返回待创建群组的创建预 ID ，如果返回 {@linkcode 0} 则表示参数错误。
      */
     createGroup(name, members, handleSuccess, handleError) {
+        if (name.length == 0 || null == members) {
+            return 0;
+        }
+
         let owner = this.self;
         let group = new Group(this, owner);
         group.setName(name);
@@ -645,24 +653,75 @@ export class ContactService extends Module {
         };
         let packet = new Packet(ContactAction.CreateGroup, payload);
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
-                handleError(group.getId(), group.getName());
+            if (null == responsePacket) {
+                cell.Logger.w('ContactService', 'Create group failed: response packet is null');
+                if (handleError) {
+                    handleError(group.getId(), group.getName());
+                }
+                return;
+            }
+
+            if (responsePacket.getStateCode() != StateCode.OK) {
+                cell.Logger.w('ContactService', 'Create group failed: ' + responsePacket.getStateCode());
+                if (handleError) {
+                    handleError(group.getId(), group.getName());
+                }
                 return;
             }
 
             if (responsePacket.getPayload().code != 0) {
-                handleError(group.getId(), group.getName());
+                cell.Logger.w('ContactService', 'Create group failed, state code: ' + responsePacket.getPayload().code);
+                if (handleError) {
+                    handleError(group.getId(), group.getName());
+                }
                 return;
             }
 
-            // 设置 ID
+            // 解析返回的数据
             let data = responsePacket.getPayload().data;
-            let newGroup = Group.create(this, owner, data);
+            let newGroup = Group.create(this, data, owner);
             this.groups.put(newGroup.getId(), newGroup);
+
+            // 保存到存储
+            this.storage.writeGroup(newGroup);
+
             handleSuccess(newGroup);
         });
 
         return group.getId();
+    }
+
+    /**
+     * 处理接收到创建群数据。
+     * @param {JSON} payload 数据包数据。
+     */
+    triggerCreateGroup(payload) {
+        if (payload.code != 0) {
+            return;
+        }
+
+        let group = Group.create(this, payload.data);
+        if (group.getOwner().equals(this.self)) {
+            // 本终端创建的群
+            group = this.groups.get(group.getId());
+        }
+        else {
+            let members = group.getMembers();
+            for (let i = 0; i < members.length; ++i) {
+                let member = members[i];
+                if (member.equals(this.self)) {
+                    members[i] = this.self;
+                    break;
+                }
+            }
+
+            // 其他终端创建的群，本终端被邀请进入
+            this.groups.put(group.getId(), group);
+            // 写入存储
+            this.storage.writeGroup(group);
+        }
+
+        this.nodifyObservers(new ObservableState(ContactEvent.GroupCreated, group));
     }
 
     /**

@@ -70,11 +70,6 @@ body {
     padding: 0rem;
 }
 
-.catalog-sublabel {
-    font-size: 14px;
-    padding-top: 2px;
-}
-
 .catalog .item {
     border-bottom: none;
     cursor: default;
@@ -94,6 +89,15 @@ body {
 
 .catalog-active .product-description {
     color: #dfdfdf;
+}
+
+.product-title {
+    font-size: 14px;
+    font-weight: normal !important;
+}
+.product-description {
+    font-size: 12px;
+    padding-top: 4px;
 }
 
 .direct-chat-messages {

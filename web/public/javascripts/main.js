@@ -23,6 +23,7 @@ function CubeApp(cube, account, contacts, catalogues) {
     this.cube = cube;           // Cube 实例
     this.account = account;     // 当前账号
     this.contacts = contacts;       // 联系人列表
+    this.groups = [];               // 群列表
     this.catalogues = catalogues;   // 界面目录数据
 
     this.messageCatalogue = null;   // 消息目录
@@ -79,9 +80,14 @@ CubeApp.prototype.config = function(cube) {
         }
     });
 
-    // 设置事件监听
+    // 监听签入事件
     cube.contact.on(ContactEvent.SignIn, function(event) {
         app.launchToast(CubeToast.Info, '已签入ID ：' + event.data.getId());
+    });
+
+    // 监听创建群组事件
+    cube.contact.on(ContactEvent.GroupCreated, function(event) {
+        app.addGroup(event.data);
     });
 
     // 监听消息已发送事件
@@ -140,7 +146,7 @@ CubeApp.prototype.prepareData = function() {
     this.cube.contact.queryGroups(function(groupList) {
         var handler = function(groupList) {
             for (var i = 0; i < groupList.length; ++i) {
-                that.messageCatalogue.appendItem(groupList[i]);
+                that.addGroup(groupList[i]);
             }
         };
 
@@ -157,7 +163,7 @@ CubeApp.prototype.prepareData = function() {
             }
             return;
         }
-        
+
         handler(groupList);
     });
 }
@@ -188,6 +194,31 @@ CubeApp.prototype.getContact = function(id) {
         }
     }
     return null;
+}
+
+/**
+ * 返回指定 ID 的群组对象实例。
+ * @param {number} id 
+ * @param {Group} 返回指定 ID 的群组对象。
+ */
+CubeApp.prototype.getGroup = function(id) {
+    for (var i = 0; i < this.groups.length; ++i) {
+        var group = this.groups[i];
+        if (group.getId() == id) {
+            return group;
+        }
+    }
+    return null;
+}
+
+CubeApp.prototype.addGroup = function(group) {
+    if (null != this.getGroup(group.getId())) {
+        return;
+    }
+
+    this.groups.push(group);
+    this.messageCatalogue.appendItem(group);
+    this.messagePanel.addGroup(group);
 }
 
 /**
@@ -252,8 +283,12 @@ CubeApp.prototype.launchToast = function(toast, text) {
     });
 }
 
-CubeApp.prototype.onCatalogClick = function(contact) {
-    this.messagePanel.changeTarget(contact);
+CubeApp.prototype.onCatalogClick = function(item) {
+    var target = {
+        id: item.id,
+        name: item.name
+    };
+    this.messagePanel.changeTarget(target);
 }
 
 CubeApp.prototype.onSendClick = function(to, content) {
@@ -268,7 +303,20 @@ CubeApp.prototype.onSendClick = function(to, content) {
 }
 
 CubeApp.prototype.onSubmitNewGroup = function(groupName, memberIds) {
+    if (groupName.length == 0) {
+        groupName = this.account.name + '创建的群组';
+    }
+
+    var that = this;
+
     // 调用联系人模块的 createGroup 创建群组
+    this.cube.contact.createGroup(groupName, memberIds, function(group) {
+        console.log('成功创建群组 "' + group.getName() + '"');
+        that.launchToast(CubeToast.Success, '成功创建群组 "' + group.getName() + '"');
+    }, function(groupId, groupName) {
+        console.log('创建群组 "' + groupName + '" 操作失败');
+        that.launchToast(CubeToast.Warning, '创建群组 "' + groupName + '" 操作失败');
+    });
 }
 
 CubeApp.prototype.onNewMessage = function(message) {
@@ -326,7 +374,7 @@ $(document).ready(function() {
         cube.messaging.start();
 
         // 将当前账号签入
-        cube.signIn(app.account.id);
+        cube.signIn(app.account.id, app.account.name);
 
         // 应用程序准备数据
         app.prepareData();

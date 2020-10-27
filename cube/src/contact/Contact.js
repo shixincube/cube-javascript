@@ -65,7 +65,7 @@ export class Contact extends Entity {
          * @private
          * @type {string}
          */
-        this.name = (undefined === name) ? 'Cube' + id.toString() : name;
+        this.name = (undefined === name) ? 'Cube-' + id.toString() : name;
 
         /**
          * 当前有效的设备列表。
@@ -139,6 +139,11 @@ export class Contact extends Entity {
         return this.devices;
     }
 
+    /**
+     * 判断指定对象是否于当前对象具备数据相同。
+     * @param {Contact} other 
+     * @returns {boolean} 如果数据相同返回 {@linkcode true} 。
+     */
     equals(other) {
         if (other instanceof Contact) {
             return other.id == this.id && other.domain == this.domain;
