@@ -602,8 +602,16 @@ export class ContactService extends Module {
 
         for (let i = 0; i < list.length; ++i) {
             let group = Group.create(this, list[i]);
+            
+            if (group.getOwner().equals(this.self)) {
+                group.owner = this.self;
+            }
 
-            // TODO 写入存储
+            // 保存在内存
+            this.groups.put(group.getId(), group);
+
+            // 保存到存储
+            this.storage.writeGroup(group);
 
             this.listGroupsContext.list.push(group);
         }
@@ -633,23 +641,35 @@ export class ContactService extends Module {
         let group = new Group(this, owner);
         group.setName(name);
 
-        let membersList = [];
+        let memberList = [];
         for (let i = 0; i < members.length; ++i) {
             let member = members[i];
-            if (typeof member === 'number') {
-                membersList.push(member);
+            if (member instanceof Contact) {
+                memberList.push(member.toCompactJSON());
+            }
+            else if (typeof member === 'number') {
+                memberList.push({
+                    "id": member,
+                    "name": 'Cube-' + member
+                });
             }
             else if (typeof member === 'string') {
-                membersList.push(parseInt(member));
+                memberList.push({
+                    "id": parseInt(member),
+                    "name": 'Cube-' + member
+                });
             }
-            else if (undefined !== member.id) {
-                membersList.push(parseInt(member.id));
+            else if (undefined !== member.id && undefined !== member.name) {
+                memberList.push({
+                    "id": parseInt(member.id),
+                    "name": member.name
+                });
             }
         }
 
         let payload = {
             group: group.toJSON(),
-            members: membersList
+            members: memberList
         };
         let packet = new Packet(ContactAction.CreateGroup, payload);
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
@@ -680,6 +700,7 @@ export class ContactService extends Module {
             // 解析返回的数据
             let data = responsePacket.getPayload().data;
             let newGroup = Group.create(this, data, owner);
+            // 保存在内存
             this.groups.put(newGroup.getId(), newGroup);
 
             // 保存到存储

@@ -342,20 +342,21 @@ MessagePanel.prototype.onNewGroupSubmitClick = function(e) {
     var groupName = $('#new_group_input_name').val();
 
     // 提取选择的群成员 ID
-    var memberIds = [];
+    var memberList = [];
     for (var i = 0; i < this.contacts.length; ++i) {
         var el = $('#group_member_' + i);
         if (el.prop('checked')) {
-            memberIds.push(el.attr('data'));
+            var id = parseInt(el.attr('data'));
+            memberList.push(id);
         }
     }
 
-    if (memberIds.length == 0) {
+    if (memberList.length == 0) {
         alert('没有选择群成员');
         return;
     }
 
     $('#new_group_dialog').modal('hide');
 
-    this.submitNewGroupListener(groupName, memberIds);
+    this.submitNewGroupListener(groupName, memberList);
 }

@@ -24,6 +24,7 @@
  * SOFTWARE.
  */
 
+import { AuthService } from "../auth/AuthService";
 import { Entity } from "../core/Entity";
 import { Device } from "./Device";
 
@@ -40,10 +41,10 @@ export class Contact extends Entity {
     /**
      * 构造函数。
      * @param {number|string} id 指定联系人 ID 。
-     * @param {string} domain 指定联系人所在的域。
      * @param {string} [name] 指定联系人名称。
+     * @param {string} [domain] 指定联系人所在的域。
      */
-    constructor(id, domain, name) {
+    constructor(id, name, domain) {
         super(Contact.Lifespan);
 
         /**
@@ -54,18 +55,18 @@ export class Contact extends Entity {
         this.id = (typeof id === 'string') ? parseInt(id) : id;
 
         /**
-         * 联系人所在域。
-         * @private
-         * @type {string}
-         */
-        this.domain = domain;
-
-        /**
          * 联系人名称。
          * @private
          * @type {string}
          */
-        this.name = (undefined === name) ? 'Cube-' + id.toString() : name;
+        this.name = (undefined === name) ? 'Cube-' + id : name;
+
+        /**
+         * 联系人所在域。
+         * @private
+         * @type {string}
+         */
+        this.domain = (undefined === domain) ? AuthService.DOMAIN : domain;
 
         /**
          * 当前有效的设备列表。
@@ -161,8 +162,8 @@ export class Contact extends Entity {
     toJSON() {
         let json = super.toJSON();
         json["id"] = this.id;
-        json["domain"] = this.domain;
         json["name"] = this.name;
+        json["domain"] = this.domain;
 
         let devArray = [];
         for (let i = 0; i < this.devices.length; ++i) {
@@ -198,11 +199,11 @@ export class Contact extends Entity {
      */
     static create(json, domainName) {
         let id = json.id;
-        let domain = (undefined !== domainName) ? domainName : json.domain;
         let name = json.name;
+        let domain = (undefined !== domainName) ? domainName : json.domain;
         let devices = (json.devices) ? json.devices : [];
 
-        let contact = new Contact(id, domain, name);
+        let contact = new Contact(id, name, domain);
 
         for (let i = 0; i < devices.length; ++i) {
             let devJson = devices[i];

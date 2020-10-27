@@ -60,8 +60,8 @@ CubeApp.prototype.initUI = function() {
     app.messagePanel.setSendListener(function(to, content) {
         app.onSendClick(to, content);
     });
-    app.messagePanel.setSubmitNewGroupListener(function(groupName, memberIds) {
-        app.onSubmitNewGroup(groupName, memberIds);
+    app.messagePanel.setSubmitNewGroupListener(function(groupName, memberList) {
+        app.onSubmitNewGroup(groupName, memberList);
     });
 }
 
@@ -302,15 +302,21 @@ CubeApp.prototype.onSendClick = function(to, content) {
     this.messageCatalogue.updateSubLabel(to.id, content, message.getTimestamp());
 }
 
-CubeApp.prototype.onSubmitNewGroup = function(groupName, memberIds) {
+CubeApp.prototype.onSubmitNewGroup = function(groupName, memberIdList) {
     if (groupName.length == 0) {
         groupName = this.account.name + '创建的群组';
+    }
+
+    var memberList = [];
+    for (var i = 0; i < memberIdList.length; ++i) {
+        var member = this.getContact(memberIdList[i]);
+        memberList.push(new Contact(member.id, member.name));
     }
 
     var that = this;
 
     // 调用联系人模块的 createGroup 创建群组
-    this.cube.contact.createGroup(groupName, memberIds, function(group) {
+    this.cube.contact.createGroup(groupName, memberList, function(group) {
         console.log('成功创建群组 "' + group.getName() + '"');
         that.launchToast(CubeToast.Success, '成功创建群组 "' + group.getName() + '"');
     }, function(groupId, groupName) {

@@ -39,12 +39,12 @@ export class Group extends Contact {
      * @param {ContactService} service 联系人服务。
      * @param {Contact} owner 群组的所有人。
      * @param {number} [id] 群组的 ID 。
-     * @param {string} [domain] 群组的所在的域。
      * @param {string} [name] 群组的名称。
+     * @param {string} [domain] 群组的所在的域。
      */
-    constructor(service, owner, id, domain, name) {
+    constructor(service, owner, id, name, domain) {
         super((undefined === id) ? cell.Utils.generateSerialNumber() : id,
-            (undefined === domain) ? AuthService.DOMAIN : domain, name);
+            name, (undefined === domain) ? AuthService.DOMAIN : domain);
 
         /**
          * 联系人服务对象。
@@ -255,7 +255,7 @@ export class Group extends Contact {
             owner = new Contact.create(json.owner, json.domain);
         }
 
-        let group = new Group(service, owner, json.id, json.domain, json.name);
+        let group = new Group(service, owner, json.id, json.name, json.domain);
         group.creationTime = json.creation;
         group.lastActiveTime = json.lastActive;
 

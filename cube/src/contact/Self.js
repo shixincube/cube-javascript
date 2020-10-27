@@ -36,9 +36,10 @@ export class Self extends Contact {
     /**
      * 构造函数。
      * @param {number|string} id 指定自终端的 ID 。
+     * @param {string} [name] 指定自终端的名称。
      */
-    constructor(id) {
-        super(id, AuthService.DOMAIN);
+    constructor(id, name) {
+        super(id, name, AuthService.DOMAIN);
 
         /**
          * 当前设备描述。

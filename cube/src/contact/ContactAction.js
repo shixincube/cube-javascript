@@ -84,16 +84,16 @@ export const ContactAction = {
     CreateGroup: 'createGroup',
 
     /**
-     * 被邀请进入群组。
-     * @type {string}
-     */
-    InviteMember: 'inviteMember',
-
-    /**
      * 解散群组。
      * @type {string}
      */
     DissolveGroup: 'dissolveGroup',
+
+    /**
+     * 被邀请进入群组。
+     * @type {string}
+     */
+    InviteMember: 'inviteMember',
 
     /**
      * 退出群组。
