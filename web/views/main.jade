@@ -91,23 +91,9 @@ block pageContent
                   div.card-tools
                     button#new_group.btn.btn-tool(type='button')
                       i.fas.fa-user-plus
-                    button.btn.btn-tool(type='button')
+                    button#details.btn.btn-tool(type='button')
                       i.fas.fa-info-circle
                 div.card-body
-                  //- div.direct-chat-messages
-                    //- div.direct-chat-msg
-                    //-   div.direct-chat-infos.clearfix
-                    //-     span.direct-chat-name.float-left Ambrose Xu
-                    //-     span.direct-chat-timestamp.float-right 23 Jan 2:00 pm
-                    //-   img.direct-chat-img(src='/images/avatar03.png')
-                    //-   div.direct-chat-text 这是 Cube App 界面
-
-                    //- div.direct-chat-msg.right
-                    //-   div.direct-chat-infos.clearfix
-                    //-     span.direct-chat-name.float-right Sun Dengling
-                    //-     span.direct-chat-timestamp.float-left 23 Jan 2:05 pm
-                    //-   img.direct-chat-img(src='/images/avatar05.png')
-                    //-   div.direct-chat-text 界面力求简洁，结构简单。
                 div.card-footer
                   div
                     div.input-group
@@ -142,6 +128,56 @@ block pageContent
               p.modal-elapsed
                 span.modal-elapsed-tip 用时：
                 span.modal-elapsed-time
+
+      //- Contact details
+      div#modal_contact_details.modal.fade
+        div.modal-dialog
+          div.modal-content
+            div.card.card-widget.widget-user.details-card
+              div.widget-user-header.bg-info
+                h3.widget-user-username Ambrose
+                h5.widget-user-desc 100001
+              div.widget-user-image
+                img.img-circle.elevation-2.user-avatar(src='images/cube_256.png')
+              div.card-footer
+                div.row
+                  div.col-sm-4.border-right
+                    div.description-block
+                      h5.description-header.user-state 离线
+                      span.description-text 状态
+                  div.col-sm-4.border-right
+                    div.description-block
+                      h5.description-header.user-region 北京
+                      span.description-text 地区
+                  div.col-sm-4
+                    div.description-block
+                      h5.description-header.user-department 技术部
+                      span.description-text 部门
+
+      //- Group details
+      div#modal_group_details.modal.fade
+        div.modal-dialog
+          div.modal-content
+            div.card.card-widget.widget-user.details-card
+              div.widget-user-header.text-white(style='background: url("/images/bg01.png") center center;')
+                h3.widget-user-username.text-right 群组
+                h5.widget-user-desc.text-right
+              div.widget-user-image
+                img.img-circle.elevation-2.user-avatar(src='images/group-avatar.png')
+              div.card-footer
+                table.table.table-striped
+                  thead
+                    tr
+                      th(style='width:1%') #
+                      th() 头像
+                      th() 昵称
+                      th() 魔方号
+                  tbody
+                    tr
+                      td
+                      td
+                      td
+                      td
 
       //- New Group Dialog
       div#new_group_dialog.modal.fade

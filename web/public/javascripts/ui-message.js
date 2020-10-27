@@ -81,7 +81,7 @@ MessageCatalogue.prototype.setClickListener = function(listener) {
 MessageCatalogue.prototype.appendItem = function(item) {
     var index = this.catalogues.length;
     var id = 0;
-    var thumb = '/images/group-avatar.jpg';
+    var thumb = '/images/group-avatar.png';
     var label = null;
     var sublabel = null;
     var badge = null;
@@ -193,6 +193,10 @@ function MessagePanel(contacts) {
             that.onSendClick(e);
         }
     });
+    // 详情按钮
+    $('#details').on('click', function(e) {
+        that.onDetailsClick(e);
+    });
     // 新建群按钮 Click 事件
     $('#new_group').on('click', function(e) {
         $('#new_group_dialog').modal({
@@ -270,6 +274,10 @@ MessagePanel.prototype.changeTarget = function(target) {
     this.elMsgView.scrollTop(offset);
 }
 
+/**
+ * 添加群。
+ * @param {Group} group 
+ */
 MessagePanel.prototype.addGroup = function(group) {
     var key = '' + group.getId();
     if (undefined !== this.views[key]) {
@@ -323,6 +331,29 @@ MessagePanel.prototype.appendMessage = function(sender, text, time, target) {
     // 滚动条控制
     var offset = parseInt(this.elMsgView.prop('scrollHeight'));
     this.elMsgView.scrollTop(offset);
+}
+
+MessagePanel.prototype.onDetailsClick = function(e) {
+    if (null == this.current) {
+        return;
+    }
+
+    var view = this.views['' + this.current.id];
+
+    if (view.isGroup) {
+        var el = $('#modal_group_details');
+        el.modal('show');
+    }
+    else {
+        var el = $('#modal_contact_details');
+        el.find('.widget-user-username').text(view.item.name);
+        el.find('.widget-user-desc').text(view.item.id);
+        el.find('.user-avatar').attr('src', view.item.avatar);
+        el.find('.user-state').text(view.item.state == 'online' ? '在线' : '离线');
+        el.find('.user-region').text(view.item.region);
+        el.find('.user-department').text(view.item.department);
+        el.modal('show');
+    }
 }
 
 MessagePanel.prototype.onSendClick = function(e) {

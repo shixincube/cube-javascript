@@ -100,6 +100,18 @@ body {
     padding-top: 4px;
 }
 
+.widget-user-desc {
+    font-weight: normal !important;
+}
+
+.details-card {
+    margin-bottom: 0px;
+}
+.details-card thead th {
+    font-weight: normal;
+    font-size: 12px;
+}
+
 .direct-chat-messages {
     height: auto;
     padding-left: 20px;

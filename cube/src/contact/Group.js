@@ -27,6 +27,7 @@
 import cell from "@lib/cell-lib";
 import { Contact } from "./Contact";
 import { ContactService } from "./ContactService";
+import { GroupState } from "./GroupState";
 import { AuthService } from "../auth/AuthService";
 
 /**
@@ -80,6 +81,13 @@ export class Group extends Contact {
          * @type {Array<Contact>}
          */
         this.memberList = [ owner ];
+
+        /**
+         * 群组状态。
+         * @protected
+         * @type {number}
+         */
+        this.state = GroupState.Normal;
     }
 
     /**
@@ -103,6 +111,14 @@ export class Group extends Contact {
      */
     getLastActiveTime() {
         return this.lastActiveTime;
+    }
+
+    /**
+     * 获取群组的状态。
+     * @returns {number} 返回状态描述码 {@link GroupState} 。
+     */
+    getState() {
+        return this.state;
     }
 
     /**
@@ -236,6 +252,7 @@ export class Group extends Contact {
         json.owner = this.owner.toCompactJSON();
         json.creation = this.creationTime;
         json.lastActive = this.lastActiveTime;
+        json.state = this.state;
         json.members = [];
         for (let i = 0; i < this.memberList.length; ++i) {
             json.members.push(this.memberList[i].toCompactJSON());
@@ -258,6 +275,7 @@ export class Group extends Contact {
         let group = new Group(service, owner, json.id, json.name, json.domain);
         group.creationTime = json.creation;
         group.lastActiveTime = json.lastActive;
+        group.state = json.state;
 
         for (let i = 0; i < json.members.length; ++i) {
             let member = Contact.create(json.members[i], json.domain);

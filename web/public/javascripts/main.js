@@ -116,7 +116,7 @@ CubeApp.prototype.prepareData = function() {
     if (null == this.messagePanel) {
         setTimeout(function() {
             that.prepareData();
-        }, 100);
+        }, 10);
         return;
     }
 
