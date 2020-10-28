@@ -21,10 +21,13 @@ var CubeToast = {
  */
 function CubeApp(cube, account, contacts, catalogues) {
     this.cube = cube;           // Cube 实例
-    this.account = account;     // 当前账号
-    this.contacts = contacts;       // 联系人列表
-    this.groups = [];               // 群列表
+    this.account = account;     // App 的当前账号
+    this.contacts = contacts;       // App 的联系人列表
     this.catalogues = catalogues;   // 界面目录数据
+
+    this.cubeContact = null;        // 对应的 Cube 的用户实例
+    this.cubeContactList = [];      // 对应的 Cube 的联系人清单
+    this.cubeGroupList = [];        // 对应的 Cube 的群组清单
 
     this.messageCatalogue = null;   // 消息目录
     this.messagePanel = null;       // 消息面板
@@ -55,13 +58,12 @@ CubeApp.prototype.initUI = function() {
         app.onCatalogClick(contact);
     });
 
-    app.messagePanel = new MessagePanel(app.contacts);
-    app.messagePanel.setOwner(app.account);
+    app.messagePanel = new MessagePanel(app);
     app.messagePanel.setSendListener(function(to, content) {
         app.onSendClick(to, content);
     });
-    app.messagePanel.setSubmitNewGroupListener(function(groupName, memberList) {
-        app.onSubmitNewGroup(groupName, memberList);
+    app.messagePanel.setSubmitNewGroupListener(function(groupName, memberIdList) {
+        app.onSubmitNewGroup(groupName, memberIdList);
     });
 }
 
@@ -109,7 +111,7 @@ CubeApp.prototype.config = function(cube) {
 }
 
 /**
- * 将本地数据读取进行 UI 显示。
+ * 进行相关的数据初始化。
  */
 CubeApp.prototype.prepareData = function() {
     var that = this;
@@ -120,18 +122,27 @@ CubeApp.prototype.prepareData = function() {
         return;
     }
 
-    // 查询每个联系人的消息记录
+    // 使用 Cube 的联系人
+    this.cubeContact = new Contact(this.account.id, this.account.name);
+    // 将 App 的账号数据设置为 Cube 联系人的上下文，这样 Cube 将携带这些数据以便进行相关的数据操作和显示操作
+    this.cubeContact.setContext(this.account);
+
+    // 建立联系人列表，并查询每个联系人的消息记录
     var time = Date.now() - window.AWeek;
     for (var i = 0; i < this.contacts.length; ++i) {
         var contact = this.contacts[i];
+
+        var cubeContact = new Contact(contact.id, contact.name);
+        // 将 App 的账号数据设置为 Cube 联系人的上下文
+        cubeContact.setContext(contact);
+        this.cubeContactList.push(cubeContact);
+
         // 逐一查询消息
         this.cube.messaging.queryMessageWithContact(contact.id, time, function(id, time, list) {
             for (var i = 0; i < list.length; ++i) {
                 var message = list[i];
                 var sender = that.getContact(message.getFrom());
-                if (null == sender) {
-                    sender = that.account;
-                }
+                // 添加消息的消息面板
                 that.messagePanel.appendMessage(sender,
                     message.getPayload().content, message.getRemoteTimestamp(), that.getContact(id));
             }
@@ -146,7 +157,13 @@ CubeApp.prototype.prepareData = function() {
     this.cube.contact.queryGroups(function(groupList) {
         var handler = function(groupList) {
             for (var i = 0; i < groupList.length; ++i) {
-                that.addGroup(groupList[i]);
+                var group = groupList[i];
+                if (group.getState() == GroupState.Dismissed) {
+                    // 已解散的群，不添加
+                    continue;
+                }
+
+                that.addGroup(group);
             }
         };
 
@@ -168,6 +185,9 @@ CubeApp.prototype.prepareData = function() {
     });
 }
 
+/**
+ * 启动心跳定时器。
+ */
 CubeApp.prototype.startHeartbeat = function() {
     var id = this.account.id;
     setInterval(function() {
@@ -184,15 +204,20 @@ CubeApp.prototype.startHeartbeat = function() {
 /**
  * 返回指定 ID 的联系人。
  * @param {number} id 
- * @returns {object} 返回指定 ID 的联系人。
+ * @returns {Contact}} 返回指定 ID 的联系人。
  */
 CubeApp.prototype.getContact = function(id) {
-    for (var i = 0; i < this.contacts.length; ++i) {
-        var contact = this.contacts[i];
-        if (contact.id == id) {
+    if (id == this.cubeContact.getId()) {
+        return this.cubeContact;
+    }
+
+    for (var i = 0; i < this.cubeContactList.length; ++i) {
+        var contact = this.cubeContactList[i];
+        if (contact.getId() == id) {
             return contact;
         }
     }
+
     return null;
 }
 
@@ -202,8 +227,8 @@ CubeApp.prototype.getContact = function(id) {
  * @param {Group} 返回指定 ID 的群组对象。
  */
 CubeApp.prototype.getGroup = function(id) {
-    for (var i = 0; i < this.groups.length; ++i) {
-        var group = this.groups[i];
+    for (var i = 0; i < this.cubeGroupList.length; ++i) {
+        var group = this.cubeGroupList[i];
         if (group.getId() == id) {
             return group;
         }
@@ -211,12 +236,16 @@ CubeApp.prototype.getGroup = function(id) {
     return null;
 }
 
+/**
+ * 添加新群组。
+ * @param {Group} group 
+ */
 CubeApp.prototype.addGroup = function(group) {
     if (null != this.getGroup(group.getId())) {
         return;
     }
 
-    this.groups.push(group);
+    this.cubeGroupList.push(group);
     this.messageCatalogue.appendItem(group);
     this.messagePanel.addGroup(group);
 }
@@ -284,10 +313,14 @@ CubeApp.prototype.launchToast = function(toast, text) {
 }
 
 CubeApp.prototype.onCatalogClick = function(item) {
-    var target = {
-        id: item.id,
-        name: item.name
-    };
+    var target = this.getContact(item.id);
+    if (null == target) {
+        target = this.getGroup(item.id);
+        if (null == target) {
+            return;
+        }
+    }
+
     this.messagePanel.changeTarget(target);
 }
 
@@ -310,7 +343,7 @@ CubeApp.prototype.onSubmitNewGroup = function(groupName, memberIdList) {
     var memberList = [];
     for (var i = 0; i < memberIdList.length; ++i) {
         var member = this.getContact(memberIdList[i]);
-        memberList.push(new Contact(member.id, member.name));
+        memberList.push(member);
     }
 
     var that = this;
@@ -328,11 +361,11 @@ CubeApp.prototype.onSubmitNewGroup = function(groupName, memberIdList) {
 CubeApp.prototype.onNewMessage = function(message) {
     var content = message.getPayload().content;
 
-    // 以下，演示两种判断消息的方式
+    // 以下，演示两种处理消息的方式
 
     // 1. 方式一，用此方式更新目录
     var itemId = 0;
-    if (this.account.id == message.getFrom()) {
+    if (this.cubeContact.getId() == message.getFrom()) {
         // 从“我”的其他终端发送的消息
         itemId = message.getTo();
     }
@@ -347,7 +380,7 @@ CubeApp.prototype.onNewMessage = function(message) {
     var sender = null;
     var target = null;
     if (this.cube.messaging.isSender(message)) {
-        sender = this.account;
+        sender = this.cubeContact;
         target = this.getContact(message.getTo());
     }
     else {

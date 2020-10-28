@@ -58,7 +58,9 @@
  */
 function MessageCatalogue(app) {
     this.app = app;
-    this.catalogues = app.catalogues;
+
+    this.catalogues = app.catalogues.concat();
+
     this.elItemMap = {};
 
     this.lastCatalogItem = null;
@@ -101,6 +103,9 @@ MessageCatalogue.prototype.appendItem = function(item) {
             badge: badge
         });
     }
+    else if (item instanceof Contact) {
+        // TODO
+    }
 
     if (null == label) {
         return;
@@ -119,7 +124,7 @@ MessageCatalogue.prototype.appendItem = function(item) {
 
     var el = $(html.join(''));
 
-    this.elItemMap['' + id] = el;
+    this.elItemMap[id] = el;
 
     var elCatalogue = $('#catalogue');
     elCatalogue.append(el);
@@ -149,7 +154,6 @@ MessageCatalogue.prototype.onCatalogItemClick = function(el, e) {
     this.lastCatalogItem = el;
 
     var itemId = parseInt(el.attr('data'));
-    var that = this;
 
     var account = this.app.getContact(itemId);
     if (null != account) {
@@ -168,8 +172,9 @@ MessageCatalogue.prototype.onCatalogItemClick = function(el, e) {
 /**
  * 消息面板。
  */
-function MessagePanel(contacts) {
-    this.contacts = contacts;
+function MessagePanel(app) {
+    this.app = app;
+    var contacts = app.contacts;
 
     this.el = $('#messages');
 
@@ -206,7 +211,7 @@ function MessagePanel(contacts) {
     });
     $('#new_group_dialog').on('hidden.bs.modal', function(e) {
         $('#new_group_input_name').val('');
-        for (var i = 0; i < that.contacts.length; ++i) {
+        for (var i = 0; i < contacts.length; ++i) {
             $('#group_member_' + i).prop('checked', false);
         }
     });
@@ -221,9 +226,8 @@ function MessagePanel(contacts) {
     for (var i = 0; i < contacts.length; ++i) {
         var contact = contacts[i];
         var el = $('<div class="direct-chat-messages"></div>');
-        this.views['' + contact.id] = {
+        this.views[contact.id] = {
             el: el,
-            item: contact,
             isGroup: false,
             messageIds: []
         };
@@ -233,10 +237,6 @@ function MessagePanel(contacts) {
     this.sendListener = null;
     // 提交建群事件监听器
     this.submitNewGroupListener = null;
-}
-
-MessagePanel.prototype.setOwner = function(account) {
-    this.owner = account;
 }
 
 MessagePanel.prototype.setSendListener = function(listener) {
@@ -249,7 +249,7 @@ MessagePanel.prototype.setSubmitNewGroupListener = function(listener) {
 
 /**
  * 更换当前的目标面板。
- * @param {object} target 目标联系人。
+ * @param {Contact|Group} target 目标联系人或者群组。
  */
 MessagePanel.prototype.changeTarget = function(target) {
     if (null == this.current) {
@@ -258,16 +258,16 @@ MessagePanel.prototype.changeTarget = function(target) {
     }
     else {
         // 记录
-        var view = this.views['' + this.current.id];
+        var view = this.views[this.current.getId()];
         view.el.remove();
     }
 
-    var view = this.views['' + target.id];
+    var view = this.views[target.getId()];
     this.elMsgView.append(view.el);
 
     this.current = target;
 
-    this.elTitle.text(target.name);
+    this.elTitle.text(target.getName());
 
     // 滚动条控制
     var offset = parseInt(this.elMsgView.prop('scrollHeight'));
@@ -279,37 +279,54 @@ MessagePanel.prototype.changeTarget = function(target) {
  * @param {Group} group 
  */
 MessagePanel.prototype.addGroup = function(group) {
-    var key = '' + group.getId();
+    var key = group.getId();
     if (undefined !== this.views[key]) {
         return;
     }
 
     var el = $('<div class="direct-chat-messages"></div>');
-    this.views[key] = {
+    var view = {
         el: el,
-        item: group,
         isGroup: true,
-        messageIds: []
+        messageIds: [],
+        detailMemberTable: $('<tbody></tbody>')
     };
+    this.views[key] = view;
+
+    var members = group.getMembers();
+    for (var i = 0; i < members.length; ++i) {
+        var member = members[i];
+        var contact = this.app.getContact(member.getId());
+        var html = [
+            '<tr>',
+                '<td>', (i + 1), '</td>',
+                '<td><img class="table-avatar" src="', contact.getContext().avatar, '" /></td>',
+                '<td>', member.getName(), '</td>',
+                '<td>', member.getId(), '</td>',
+            '</tr>'];
+
+        var elMem = $(html.join(''));
+        view.detailMemberTable.append(elMem);
+    }
 }
 
 /**
  * 添加消息到面板。
- * @param {object} sender 发送人。
+ * @param {Contact} sender 发送人。
  * @param {string} text 消息内容。
  * @param {number} time 消息时间戳。
- * @param {object} [target] 目标面板。
+ * @param {Contact|Group} [target] 目标面板。
  */
 MessagePanel.prototype.appendMessage = function(sender, text, time, target) {
-    var targetId = (undefined !== target) ? target.id : this.current.id;
+    var targetId = (undefined !== target) ? target.getId() : this.current.getId();
 
-    var view = this.views['' + targetId];
+    var view = this.views[targetId];
 
     var right = '';
     var nfloat = 'float-left';
     var tfloat = 'float-right';
 
-    if (sender.id == this.owner.id) {
+    if (sender.id == this.app.cubeContact.getId()) {
         right = 'right';
         nfloat = 'float-right';
         tfloat = 'float-left';
@@ -317,11 +334,11 @@ MessagePanel.prototype.appendMessage = function(sender, text, time, target) {
 
     var html = ['<div class="direct-chat-msg ',
             right, '"><div class="direct-chat-infos clearfix"><span class="direct-chat-name ', nfloat, '">',
-        sender.name,
+        sender.getName(),
         '</span><span class="direct-chat-timestamp ', tfloat, '">',
         formatFullTime(time),
         '</span></div>',
-        '<img src="', sender.avatar, '" class="direct-chat-img">',
+        '<img src="', sender.getContext().avatar, '" class="direct-chat-img">',
         '<div class="direct-chat-text">', text, '</div></div>'
     ];
 
@@ -338,20 +355,23 @@ MessagePanel.prototype.onDetailsClick = function(e) {
         return;
     }
 
-    var view = this.views['' + this.current.id];
+    var view = this.views[this.current.getId()];
 
     if (view.isGroup) {
         var el = $('#modal_group_details');
+        
+        // view.detailMemberTable;
         el.modal('show');
     }
     else {
+        var item = this.app.getContact(this.current.getId());
         var el = $('#modal_contact_details');
-        el.find('.widget-user-username').text(view.item.name);
-        el.find('.widget-user-desc').text(view.item.id);
-        el.find('.user-avatar').attr('src', view.item.avatar);
-        el.find('.user-state').text(view.item.state == 'online' ? '在线' : '离线');
-        el.find('.user-region').text(view.item.region);
-        el.find('.user-department').text(view.item.department);
+        el.find('.widget-user-username').text(item.getName());
+        el.find('.widget-user-desc').text(item.getId());
+        el.find('.user-avatar').attr('src', item.getContext().avatar);
+        el.find('.user-state').text(item.getContext().state == 'online' ? '在线' : '离线');
+        el.find('.user-region').text(item.getContext().region);
+        el.find('.user-department').text(item.getContext().department);
         el.modal('show');
     }
 }
@@ -364,7 +384,7 @@ MessagePanel.prototype.onSendClick = function(e) {
 
     this.elInput.val('');
 
-    this.appendMessage(this.owner, text, Date.now());
+    this.appendMessage(this.app.cubeContact, text, Date.now());
     this.sendListener.call(null, this.current, text);
 }
 
@@ -374,7 +394,7 @@ MessagePanel.prototype.onNewGroupSubmitClick = function(e) {
 
     // 提取选择的群成员 ID
     var memberList = [];
-    for (var i = 0; i < this.contacts.length; ++i) {
+    for (var i = 0; i < this.app.cubeContactList.length; ++i) {
         var el = $('#group_member_' + i);
         if (el.prop('checked')) {
             var id = parseInt(el.attr('data'));

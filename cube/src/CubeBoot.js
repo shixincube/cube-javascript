@@ -41,6 +41,7 @@ import { ContactEvent } from "./contact/ContactEvent";
 import { Contact } from "./contact/Contact";
 import { Self } from "./contact/Self";
 import { Group } from "./contact/Group";
+import { GroupState } from "./contact/GroupState";
 import { MessagingService } from "./messaging/MessagingService";
 import { MessagingEvent } from "./messaging/MessagingEvent";
 import { Message } from "./messaging/Message";
@@ -79,6 +80,7 @@ import { FaceMonitor } from "./facemonitor/FaceMonitor";
     global.Contact = Contact;
     global.Self = Self;
     global.Group = Group;
+    global.GroupState = GroupState;
 
     global.MessagingService = MessagingService;
     global.MessagingEvent = MessagingEvent;

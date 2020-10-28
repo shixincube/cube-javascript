@@ -126,7 +126,7 @@ export class Group extends Contact {
      * @returns {Array<Contact>} 返回群组成员列表。
      */
     getMembers() {
-        return this.memberList;
+        return this.memberList.concat();
     }
 
     /**
