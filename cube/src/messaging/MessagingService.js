@@ -270,7 +270,7 @@ export class MessagingService extends Module {
 
     /**
      * 向指定群组发送消息。
-     * @param {number|Group} group 指定群组或群组 ID 。
+     * @param {Group|number|string} group 指定群组或群组 ID 。
      * @param {JSON|Message} message 指定消息实例或消息内容。
      * @returns {Message} 如果消息成功写入数据通道返回 {@link Message} 实例，否则返回 {@linkcode null} 值。
      */

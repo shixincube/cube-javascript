@@ -445,22 +445,18 @@ export class ContactService extends Module {
             let group = this.groups.get(id);
 
             // 从存储库读取
-            if (null == group) {
-                this.storage.readGroup(id, (group) => {
-                    if (null == group) {
-                        reject(id);
-                    }
-                    else {
-                        resolve(group);
-                    }
-                });
-            }
-            else {
+            if (null != group) {
                 resolve(group);
+                return;
             }
 
-            /*
-            if (null == group) {
+            this.storage.readGroup(id, (group) => {
+                if (null != group) {
+                    resolve(group);
+                    return;
+                }
+
+                // 从服务器上读取
                 let packet = new Packet(ContactAction.GetGroup, {
                     "id": id,
                     "domain": AuthService.DOMAIN
@@ -468,30 +464,23 @@ export class ContactService extends Module {
                 this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
                     if (null != responsePacket) {
                         if (responsePacket.getStateCode() == StateCode.OK && responsePacket.data.code == 0) {
-                            Group.create(this, responsePacket.data.data, (result) => {
-                                if (null == result) {
-                                    // 创建失败
-                                    reject();
-                                    return;
-                                }
+                            let group = Group.create(this, responsePacket.data.data);
+                            // 写入缓存
+                            this.groups.put(group.getId(), group);
+                            // 写入存储
+                            this.storage.writeGroup(group);
 
-                                group = result;
-                                this.groups.put(group.getId(), group);
-                                resolve(group);
-                            });
+                            resolve(group);
                         }
                         else {
-                            reject();
+                            reject(id);
                         }
                     }
                     else {
-                        reject();
+                        reject(id);
                     }
                 });
-            }
-            else {
-                resolve(group);
-            }*/
+            });
         });
 
         if (handleSuccess && handleError) {

@@ -49,8 +49,12 @@ var CubeToast = {
         if (null == loadingModal) {
             loadingModal = $('#modal_loading');
             loadingModal.on('hidden.bs.modal', function() {
-                clearInterval(timer);
-                clearTimeout(timeoutTimer);
+                if (timer != 0) {
+                    clearInterval(timer);
+                }
+                if (timeoutTimer != 0) {
+                    clearTimeout(timeoutTimer);
+                }
             });
         }
 
@@ -73,14 +77,23 @@ var CubeToast = {
 
         timeoutTimer = setTimeout(function() {
             clearInterval(timer);
+            timer = 0;
             clearTimeout(timeoutTimer);
+            timeoutTimer = 0;
             el.modal('hide');
         }, timeout);
 
         return el;
     }
 
+    function hideLoading() {
+        if (null != loadingModal) {
+            loadingModal.modal('hide');
+        }
+    }
+
     g.ui.showLoading = showLoading;
+    g.ui.hideLoading = hideLoading;
 })(window);
 
 

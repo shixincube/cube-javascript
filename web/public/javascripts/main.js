@@ -359,16 +359,20 @@ CubeApp.prototype.fireDissolveGroup = function(groupId) {
         return false;
     }
 
-    var dialog = ui.showLoading('正在解散"' + group.getName() + '"，请稍后');
+    if (!window.confirm('您确定要解散 “' + group.getName() + '” 这个群组吗？\n* 群组解散后不可恢复。')) {
+        return;
+    }
+
+    ui.showLoading('正在解散"' + group.getName() + '"，请稍后');
 
     var that = this;
     this.cube.contact.dissolveGroup(group, function(group) {
-        dialog.modal('hide');
+        ui.hideLoading();
 
         // 解散群组
         that.messageCatalogue.removeItem(group);
     }, function(group) {
-        dialog.modal('hide');
+        ui.hideLoading();
 
         that.launchToast(CubeToast.Error, '解散群组 "' + group.getName() + '" 失败！');
     });
