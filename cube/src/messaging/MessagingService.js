@@ -155,7 +155,7 @@ export class MessagingService extends Module {
         if (0 == this.lastMessageTime) {
             this.storage.queryLastMessageTime((value) => {
                 if (value == 0) {
-                    this.lastMessageTime = Date.now() - (7 * 24 * 60 * 60000);
+                    this.lastMessageTime = Date.now() - this.defaultRetrospect;
                 }
                 else {
                     this.lastMessageTime = value;
@@ -199,6 +199,7 @@ export class MessagingService extends Module {
 
     /**
      * 消息是否是当前签入的联系人账号发出的。
+     * 即当前账号是否是指定消息的发件人。
      * @param {Message} message 指定消息实例。
      * @returns {boolean} 如果是当前签入人发出的返回 {@linkcode true} 。
      */

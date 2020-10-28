@@ -127,19 +127,19 @@ export class Message extends Entity {
     }
 
     /**
-     * 获取消息的负载数据。
-     * @returns {JSON} 返回消息的负载数据。
-     */
-    getPayload() {
-        return this.payload;
-    }
-
-    /**
      * 获取消息的收发源。该属性表示消息在一个广播域里的域标识或者域 ID 。
      * @returns {number}
      */
     getSource() {
         return this.source;
+    }
+
+    /**
+     * 获取消息的负载数据。
+     * @returns {JSON} 返回消息的负载数据。
+     */
+    getPayload() {
+        return this.payload;
     }
 
     /**
@@ -157,6 +157,14 @@ export class Message extends Entity {
      */
     getState() {
         return this.state;
+    }
+
+    /**
+     * 是否来自群组。
+     * @returns {number} 如果消息来自群组返回 {@linkcode true} ，否则返回 {@linkcode false} 。
+     */
+    isFromGroup() {
+        return this.source > 0;
     }
 
     /**

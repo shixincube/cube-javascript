@@ -119,6 +119,13 @@ export class Module extends Subject {
 
         this.entityPipelineListener = new EntityPipelineListener(this);
         this.entityListenerMap = new FastMap();
+
+        /**
+         * 默认回溯时长，默认值：30个自然天。
+         * @protected
+         * @type {number}
+         */
+        this.defaultRetrospect = 30 * 24 * 60 * 60000;
     }
 
     /**

@@ -265,6 +265,16 @@ export class ContactService extends Module {
             return;
         }
 
+        // 更新群组
+        let now = Date.now();
+        this.queryGroups(now - this.defaultRetrospect, now, (groupList) => {
+            if (groupList.length == 0) {
+                this.listGroups(now - this.defaultRetrospect, now, (groupList) => {
+                    cell.Logger.i('ContactService', 'List groups number: ' + groupList.length);
+                });
+            }
+        });
+
         let data = payload.data;
 
         if (null == this.self) {

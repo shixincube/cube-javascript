@@ -145,7 +145,7 @@ CubeApp.prototype.prepareData = function() {
         });
     }
 
-    // 查询群组
+    // 查询所有群组
     this.cube.contact.queryGroups(function(groupList) {
         var handler = function(groupList) {
             for (var i = 0; i < groupList.length; ++i) {
@@ -158,20 +158,6 @@ CubeApp.prototype.prepareData = function() {
                 that.addGroup(group);
             }
         };
-
-        if (groupList.length == 0) {
-            // 如果本地没有找到任务群组，尝试从服务器获取（可能客户端清理过存储和缓存）
-            if (that.cube.contact.hasSignedIn()) {
-                // 客户端已经签入服务器
-                that.cube.contact.listGroups(handler);
-            }
-            else {
-                setTimeout(function() {
-                    that.cube.contact.listGroups(handler);
-                }, 1000);
-            }
-            return;
-        }
 
         handler(groupList);
     });
@@ -383,34 +369,44 @@ CubeApp.prototype.fireDissolveGroup = function(groupId) {
 CubeApp.prototype.onNewMessage = function(message) {
     var content = message.getPayload().content;
 
-    // 以下，演示两种处理消息的方式
+    // 判断消息是否来自群组
+    if (message.isFromGroup()) {
+        // 消息来自群组
+        var group = this.getGroup(message.getSource());
+        if (null != group) {
+            // 更新目录
+            this.messageCatalogue.updateSubLabel(group.getId(), content, message.getRemoteTimestamp());
 
-    // 1. 方式一，用此方式更新目录
-    var itemId = 0;
-    if (this.cubeContact.getId() == message.getFrom()) {
-        // 从“我”的其他终端发送的消息
-        itemId = message.getTo();
+            // 更新消息面板
+            this.messagePanel.appendMessage(this.getContact(message.getFrom()), content, message.getRemoteTimestamp(), group);
+        }
+        else {
+            // 从服务器获取新群组
+            // TODO
+        }
     }
     else {
-        itemId = message.getFrom();
-    }
-    // 更新目录
-    this.messageCatalogue.updateSubLabel(itemId, content, message.getRemoteTimestamp());
+        // 消息来自联系人
+        var itemId = 0;
+        var sender = this.getContact(message.getFrom());
+        var target = null;
 
-    // 2. 方式二，用此方式更新消息面板
-    // 判断消息是否是“我”发的
-    var sender = null;
-    var target = null;
-    if (this.cube.messaging.isSender(message)) {
-        sender = this.cubeContact;
-        target = this.getContact(message.getTo());
+        if (this.cubeContact.getId() == message.getFrom()) {
+            // 从“我”的其他终端发送的消息
+            itemId = message.getTo();
+            target = this.getContact(message.getTo());
+        }
+        else {
+            itemId = message.getFrom();
+            target = sender;
+        }
+        
+        // 更新目录
+        this.messageCatalogue.updateSubLabel(itemId, content, message.getRemoteTimestamp());
+
+        // 更新消息面板
+        this.messagePanel.appendMessage(sender, content, message.getRemoteTimestamp(), target);
     }
-    else {
-        sender = this.getContact(message.getFrom());
-        target = sender;
-    }
-    
-    this.messagePanel.appendMessage(sender, content, message.getRemoteTimestamp(), target);
 }
 
 
