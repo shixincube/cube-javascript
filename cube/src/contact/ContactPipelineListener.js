@@ -66,11 +66,11 @@ export class ContactPipelineListener extends PipelineListener {
         else if (packet.name == ContactAction.CreateGroup) {
             this.contactService.triggerCreateGroup(packet.data);
         }
-        /*else if (packet.name == ContactAction.InviteMember) {
-            this.contactService.triggerInviteMember(packet.data);
-        }
         else if (packet.name == ContactAction.DissolveGroup) {
             this.contactService.triggerDissolveGroup(packet.data);
+        }
+        /*else if (packet.name == ContactAction.InviteMember) {
+            this.contactService.triggerInviteMember(packet.data);
         }
         else if (packet.name == ContactAction.AddGroupMember) {
             this.contactService.triggerAddMember(packet.data);

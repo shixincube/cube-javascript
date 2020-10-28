@@ -1,18 +1,6 @@
 // main.js
 
 /**
- * Toast 提示类型。
- */
-var CubeToast = {
-    Success: 'success',
-    Info: 'info',
-    Error: 'error',
-    Warning: 'warning',
-    Question: 'question'
-};
-
-
-/**
  * 应用程序类。
  * @param {CubeEngine} cube 
  * @param {object} account 
@@ -60,10 +48,13 @@ CubeApp.prototype.initUI = function() {
 
     app.messagePanel = new MessagePanel(app);
     app.messagePanel.setSendListener(function(to, content) {
-        app.onSendClick(to, content);
+        app.fireSend(to, content);
     });
-    app.messagePanel.setSubmitNewGroupListener(function(groupName, memberIdList) {
-        app.onSubmitNewGroup(groupName, memberIdList);
+    app.messagePanel.setCreateGroupListener(function(groupName, memberIdList) {
+        return app.fireCreateGroup(groupName, memberIdList);
+    });
+    app.messagePanel.setDissolveGroupListener(function(groupId) {
+        return app.fireDissolveGroup(groupId);
     });
 }
 
@@ -85,6 +76,7 @@ CubeApp.prototype.config = function(cube) {
     // 监听签入事件
     cube.contact.on(ContactEvent.SignIn, function(event) {
         app.launchToast(CubeToast.Info, '已签入ID ：' + event.data.getId());
+        app.cubeContact = event.data;
     });
 
     // 监听创建群组事件
@@ -324,7 +316,7 @@ CubeApp.prototype.onCatalogClick = function(item) {
     this.messagePanel.changeTarget(target);
 }
 
-CubeApp.prototype.onSendClick = function(to, content) {
+CubeApp.prototype.fireSend = function(to, content) {
     // 调用消息模块的 sendToContact 发送消息
     var message = this.cube.messaging.sendToContact(to.id, { "content": content });
     if (null == message) {
@@ -335,9 +327,9 @@ CubeApp.prototype.onSendClick = function(to, content) {
     this.messageCatalogue.updateSubLabel(to.id, content, message.getTimestamp());
 }
 
-CubeApp.prototype.onSubmitNewGroup = function(groupName, memberIdList) {
+CubeApp.prototype.fireCreateGroup = function(groupName, memberIdList) {
     if (groupName.length == 0) {
-        groupName = this.account.name + '创建的群组';
+        groupName = this.cubeContact.getName() + '创建的群组';
     }
 
     var memberList = [];
@@ -356,6 +348,32 @@ CubeApp.prototype.onSubmitNewGroup = function(groupName, memberIdList) {
         console.log('创建群组 "' + groupName + '" 操作失败');
         that.launchToast(CubeToast.Warning, '创建群组 "' + groupName + '" 操作失败');
     });
+
+    return true;
+}
+
+CubeApp.prototype.fireDissolveGroup = function(groupId) {
+    var group = this.getGroup(groupId);
+    if (!group.getOwner().equals(this.cubeContact)) {
+        this.launchToast(CubeToast.Warning, '您不是该群所有者，不能解散该群。');
+        return false;
+    }
+
+    var dialog = ui.showLoading('正在解散"' + group.getName() + '"，请稍后');
+
+    var that = this;
+    this.cube.contact.dissolveGroup(group, function(group) {
+        dialog.modal('hide');
+
+        // 解散群组
+        that.messageCatalogue.removeItem(group);
+    }, function(group) {
+        dialog.modal('hide');
+
+        that.launchToast(CubeToast.Error, '解散群组 "' + group.getName() + '" 失败！');
+    });
+
+    return true;
 }
 
 CubeApp.prototype.onNewMessage = function(message) {
@@ -412,8 +430,8 @@ $(document).ready(function() {
         // 启用消息模块
         cube.messaging.start();
 
-        // 将当前账号签入
-        cube.signIn(app.account.id, app.account.name);
+        // 将当前账号签入，将 App 的账号信息设置为 Cube Self 的上下文
+        cube.signIn(app.account.id, app.account.name, app.account);
 
         // 应用程序准备数据
         app.prepareData();

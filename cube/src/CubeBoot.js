@@ -28,6 +28,7 @@ import cell from "@lib/cell-lib";
 import { Subject } from "./core/Subject";
 import { Observer } from "./core/Observer";
 import { ObservableState } from "./core/ObservableState";
+import { JSONable } from "./util/JSONable";
 import { Entity } from "./core/Entity";
 import { CubeEngine } from "./engine/CubeEngine";
 import { CubeShortcut } from "./engine/CubeShortcut";
@@ -64,6 +65,7 @@ import { FaceMonitor } from "./facemonitor/FaceMonitor";
     global.Observer = Observer;
     global.ObservableState = ObservableState;
 
+    global.JSONable = JSONable;
     global.Entity = Entity;
 
     global.CubeEngine = CubeEngine;

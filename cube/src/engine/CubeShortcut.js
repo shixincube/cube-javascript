@@ -89,9 +89,11 @@ export class CubeShortcut {
     /**
      * 将当前终端指定的联系人签入。
      * @param {number} id 联系人 ID 。
+     * @param {string} [name] 联系人名称。
+     * @param {object} [context] 联系人关联的上下文。
      */
-    signIn(id) {
-        this.engine.getContactService().signIn(id);
+    signIn(id, name, context) {
+        this.engine.getContactService().signIn(id, name, context);
     }
 
     /**

@@ -78,8 +78,8 @@ block pageContent
                       li.item.pl-2.pr-2(id='catalog_item_' + i, data=item.id)
                         div.product-img
                           img.img-size-50.img-round-rect(src=item.thumb)
-                        div.product-info
-                          span.product-title=item.label
+                        div.product-info.ellipsis
+                          span.product-title.ellipsis=item.label
                             span.badge.badge-light.float-right=item.badge
                           span.product-description=item.sublabel
 
@@ -156,12 +156,18 @@ block pageContent
 
       //- Group details
       div#modal_group_details.modal.fade
-        div.modal-dialog
+        div.modal-dialog.modal-lg
           div.modal-content
             div.card.card-widget.widget-user.details-card
               div.widget-user-header.text-white(style='background: url("/images/bg01.png") center center;')
                 h3.widget-user-username.text-right 群组
-                h5.widget-user-desc.text-right
+                div.operation
+                  div.input-group
+                      button.btn.btn-info.btn-xs.dropdown-toggle(type='button', data-toggle='dropdown') &nbsp;&nbsp;更多操作&nbsp;&nbsp;
+                        div.dropdown-menu.dropdown-menu-left
+                          a#group_details_dissolve.dropdown-item.btn-xs.dropdown-item-xs(href='javascript:void(0);', data='0')
+                            i.fas.fa-user-times
+                            span 解散群组
               div.widget-user-image
                 img.img-circle.elevation-2.user-avatar(src='images/group-avatar.png')
               div.card-footer
@@ -171,13 +177,9 @@ block pageContent
                       th(style='width:1%') #
                       th() 头像
                       th() 昵称
-                      th() 账号ID
-                  tbody
-                    tr
-                      td
-                      td
-                      td
-                      td
+                      th() 账号
+                      th() 地区
+                      th() 部门
 
       //- New Group Dialog
       div#new_group_dialog.modal.fade

@@ -19,6 +19,12 @@ body {
     text-align: right;
 }
 
+.ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .swal2-title {
     padding-left: 8px;
 }
@@ -92,6 +98,7 @@ body {
 }
 
 .product-title {
+    width: 100%;
     font-size: 14px;
     font-weight: normal !important;
 }
@@ -110,6 +117,32 @@ body {
 .details-card thead th {
     font-weight: normal;
     font-size: 12px;
+}
+
+.details-card img.table-avatar {
+    border-radius: 10%;
+    display: inline;
+    width: 2.5rem;
+}
+.details-card td {
+    vertical-align: middle;
+}
+
+.details-card .operation {
+    margin-top: 1rem;
+    float: right;
+    text-align: right;
+}
+
+.details-card .operation .dropdown-menu {
+    min-width: 120px;
+}
+
+.dropdown-item-xs {
+    padding-left: 0.75rem;
+}
+.dropdown-item-xs span {
+    padding-left: 0.5rem;
 }
 
 .direct-chat-messages {

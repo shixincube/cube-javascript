@@ -153,6 +153,30 @@ export class ContactStorage {
     }
 
     /**
+     * 读取指定 ID 的群组。
+     * @param {number} id 
+     * @param {function} handler 
+     */
+    readGroup(id, handler) {
+        if (null == this.db) {
+            return false;
+        }
+
+        (async ()=> {
+            let result = await this.groupStore.query('id', id);
+            if (result.length > 0) {
+                let json = result[0];
+                handler(Group.create(this.service, json));
+            }
+            else {
+                handler(null);
+            }
+        })();
+
+        return true;
+    }
+
+    /**
      * 
      * @param {Group} group 
      */

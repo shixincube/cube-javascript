@@ -1,6 +1,17 @@
 // ui-message.js
 
 /**
+ * Toast 提示类型。
+ */
+var CubeToast = {
+    Success: 'success',
+    Info: 'info',
+    Error: 'error',
+    Warning: 'warning',
+    Question: 'question'
+};
+
+/**
  * 对话框处理。
  */
 (function(g){
@@ -25,15 +36,32 @@
 
     g.ui.showConfirm = showConfirm;
 
+    var loadingModal = null;
+
     function showLoading(content, timeout) {
-        var el = $('#modal_loading');
+        if (undefined === timeout) {
+            timeout = 8000;
+        }
+
+        var timer = 0;
+        var timeoutTimer = 0;
+
+        if (null == loadingModal) {
+            loadingModal = $('#modal_loading');
+            loadingModal.on('hidden.bs.modal', function() {
+                clearInterval(timer);
+                clearTimeout(timeoutTimer);
+            });
+        }
+
+        var el = loadingModal;
         el.find('.modal-title').html(content + '&hellip;');
 
         var elElapsed = el.find('.modal-elapsed-time');
         elElapsed.text('0 秒');
 
         var count = 0;
-        var time = setInterval(function() {
+        timer = setInterval(function() {
             ++count;
             elElapsed.text(count + ' 秒');
         }, 1000);
@@ -43,10 +71,13 @@
             backdrop: 'static'
         });
 
-        setTimeout(function() {
-            clearInterval(time);
+        timeoutTimer = setTimeout(function() {
+            clearInterval(timer);
+            clearTimeout(timeoutTimer);
             el.modal('hide');
         }, timeout);
+
+        return el;
     }
 
     g.ui.showLoading = showLoading;
@@ -69,15 +100,26 @@ function MessageCatalogue(app) {
     var that = this;
     for (var i = 0; i < this.catalogues.length; ++i) {
         var el = $('#catalog_item_' + i);
-        this.elItemMap[el.attr('data')] = el;
+        this.elItemMap[parseInt(el.attr('data'))] = el;
         el.on('click', function(e) {
-            that.onCatalogItemClick($(this), e);
+            that.onCatalogItemClick(parseInt($(this).attr('data')));
         });
     }
 }
 
 MessageCatalogue.prototype.setClickListener = function(listener) {
     this.clickListener = listener;
+}
+
+MessageCatalogue.prototype.getItem = function(itemId) {
+    var id = parseInt(itemId);
+    for (var i = 0; i < this.catalogues.length; ++i) {
+        var item = this.catalogues[i];
+        if (item.id == id) {
+            return item;
+        }
+    }
+    return null;
 }
 
 MessageCatalogue.prototype.appendItem = function(item) {
@@ -114,8 +156,8 @@ MessageCatalogue.prototype.appendItem = function(item) {
     var html = [
     '<li id="catalog_item_', index, '" class="item pl-2 pr-2" data="', id, '">',
         '<div class="product-img"><img class="img-size-50 img-round-rect" src="', thumb ,'"/></div>',
-        '<div class="product-info">',
-            '<span class="product-title">', label,
+        '<div class="product-info ellipsis">',
+            '<span class="product-title ellipsis">', label,
                 '<span class="badge badge-light float-right">', badge, '</span>',
             '</span>',
             '<span class="product-description">', sublabel, '</span>',
@@ -131,8 +173,34 @@ MessageCatalogue.prototype.appendItem = function(item) {
 
     var that = this;
     el.on('click', function(e) {
-        that.onCatalogItemClick($(this), e);
+        var itemId = parseInt($(this).attr('data'));
+        that.onCatalogItemClick(itemId);
     });
+}
+
+MessageCatalogue.prototype.removeItem = function(item) {
+    var id = item.getId();
+
+    // 从列表里删除
+    for (var i = 0; i < this.catalogues.length; ++i) {
+        var ca = this.catalogues[i];
+        if (ca.id == id) {
+            this.catalogues.splice(i, 1);
+            break;
+        }
+    }
+
+    // 刷新界面
+    if (null != this.lastCatalogItem) {
+        // 重新选中别的目录
+        this.onCatalogItemClick(this.catalogues[0].id);
+    }
+
+    var el = this.elItemMap[id];
+    if (el) {
+        el.remove();
+        delete this.elItemMap[id];
+    }
 }
 
 MessageCatalogue.prototype.updateSubLabel = function(id, sublabel, time) {
@@ -141,19 +209,19 @@ MessageCatalogue.prototype.updateSubLabel = function(id, sublabel, time) {
     el.find('.badge').text(formatShortTime(time));
 }
 
-MessageCatalogue.prototype.onCatalogItemClick = function(el, e) {
+MessageCatalogue.prototype.onCatalogItemClick = function(itemId) {
     if (null != this.lastCatalogItem) {
-        if (this.lastCatalogItem.attr('id') == el.attr('id')) {
+        if (this.lastCatalogItem.id == itemId) {
+            // 同一个项目，直接返回
             return;
         }
 
-        this.lastCatalogItem.removeClass('catalog-active');
+        this.elItemMap[this.lastCatalogItem.id].removeClass('catalog-active');
     }
 
-    el.addClass('catalog-active');
-    this.lastCatalogItem = el;
+    this.elItemMap[itemId].addClass('catalog-active');
 
-    var itemId = parseInt(el.attr('data'));
+    this.lastCatalogItem = this.getItem(itemId);
 
     var account = this.app.getContact(itemId);
     if (null != account) {
@@ -209,14 +277,20 @@ function MessagePanel(app) {
             backdrop: 'static'
         });
     });
+
     $('#new_group_dialog').on('hidden.bs.modal', function(e) {
         $('#new_group_input_name').val('');
         for (var i = 0; i < contacts.length; ++i) {
             $('#group_member_' + i).prop('checked', false);
         }
     });
+    // 提交创建群操作
     $('#new_group_submit').on('click', function(e) {
         that.onNewGroupSubmitClick(e);
+    });
+
+    $('#group_details_dissolve').on('click', function(e) {
+        that.onDissolveGroupClick(e);
     });
 
     this.owner = null;
@@ -236,15 +310,21 @@ function MessagePanel(app) {
     // 发送事件监听器
     this.sendListener = null;
     // 提交建群事件监听器
-    this.submitNewGroupListener = null;
+    this.submitCreateGroupListener = null;
+    // 提交解散群事件监听器
+    this.submitDissolveGroupListener = null;
 }
 
 MessagePanel.prototype.setSendListener = function(listener) {
     this.sendListener = listener;
 }
 
-MessagePanel.prototype.setSubmitNewGroupListener = function(listener) {
-    this.submitNewGroupListener = listener;
+MessagePanel.prototype.setCreateGroupListener = function(listener) {
+    this.submitCreateGroupListener = listener;
+}
+
+MessagePanel.prototype.setDissolveGroupListener = function(listener) {
+    this.submitDissolveGroupListener = listener;
 }
 
 /**
@@ -303,6 +383,8 @@ MessagePanel.prototype.addGroup = function(group) {
                 '<td><img class="table-avatar" src="', contact.getContext().avatar, '" /></td>',
                 '<td>', member.getName(), '</td>',
                 '<td>', member.getId(), '</td>',
+                '<td>', member.getContext().region, '</td>',
+                '<td>', member.getContext().department, '</td>',
             '</tr>'];
 
         var elMem = $(html.join(''));
@@ -358,9 +440,16 @@ MessagePanel.prototype.onDetailsClick = function(e) {
     var view = this.views[this.current.getId()];
 
     if (view.isGroup) {
+        var item = this.app.getGroup(this.current.getId());
         var el = $('#modal_group_details');
+        el.find('.widget-user-username').text(item.getName());
         
-        // view.detailMemberTable;
+        // 设置数据
+        $('#group_details_dissolve').attr('data', item.getId());
+
+        var table = el.find('.table');
+        table.find('tbody').remove();
+        table.append(view.detailMemberTable);
         el.modal('show');
     }
     else {
@@ -409,5 +498,12 @@ MessagePanel.prototype.onNewGroupSubmitClick = function(e) {
 
     $('#new_group_dialog').modal('hide');
 
-    this.submitNewGroupListener(groupName, memberList);
+    this.submitCreateGroupListener(groupName, memberList);
+}
+
+MessagePanel.prototype.onDissolveGroupClick = function(e) {
+    var id = $('#group_details_dissolve').attr('data');
+    if (this.submitDissolveGroupListener(parseInt(id))) {
+        $('#modal_group_details').modal('hide');
+    }
 }

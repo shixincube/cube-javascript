@@ -163,9 +163,10 @@ export class ContactService extends Module {
      * 签入当前终端的联系人。
      * @param {Self|number|string} self 指定 {@linkcode Self} 对象或者自己的联系人 ID 。
      * @param {string} [name] 指定名称/昵称。
+     * @param {object} [context] 指定关联的上下文。
      * @returns {boolean} 设置成功返回 {@linkcode true} ，否则返回 {@linkcode false} 。
      */
-    signIn(self, name) {
+    signIn(self, name, context) {
         if (!this.started) {
             this.start();
         }
@@ -180,6 +181,9 @@ export class ContactService extends Module {
 
         if (undefined !== name) {
             this.self.setName(name);
+        }
+        if (undefined !== context) {
+            this.self.setContext(context);
         }
 
         if (!this.pipeline.isReady()) {
@@ -276,7 +280,7 @@ export class ContactService extends Module {
         }
 
         if (data["context"] !== undefined) {
-            this.self.ctx = data["context"];
+            this.self.setContext(data["context"]);
         }
 
         // 更新状态
@@ -440,8 +444,22 @@ export class ContactService extends Module {
             // 从缓存读取
             let group = this.groups.get(id);
 
-            // TODO 从数据库读取
+            // 从存储库读取
+            if (null == group) {
+                this.storage.readGroup(id, (group) => {
+                    if (null == group) {
+                        reject(id);
+                    }
+                    else {
+                        resolve(group);
+                    }
+                });
+            }
+            else {
+                resolve(group);
+            }
 
+            /*
             if (null == group) {
                 let packet = new Packet(ContactAction.GetGroup, {
                     "id": id,
@@ -473,14 +491,14 @@ export class ContactService extends Module {
             }
             else {
                 resolve(group);
-            }
+            }*/
         });
 
         if (handleSuccess && handleError) {
             promise.then((group) => {
                 handleSuccess(group);
             }).catch(() => {
-                handleError();
+                handleError(id);
             });
         }
         else if (handleSuccess) {
@@ -748,30 +766,76 @@ export class ContactService extends Module {
     /**
      * 解散指定的群组。
      * @param {Group} group 指定待解散的群组。
-     * @param {function} [handleSuccess] 操作成功回调该方法。
-     * @param {function} [handleError] 操作失败回调该方法。
+     * @param {function} [handleSuccess] 操作成功回调该方法，函数参数：({@linkcode group}:{@link Group}) ，解散成功的群组实例。
+     * @param {function} [handleError] 操作失败回调该方法，函数参数：({@linkcode group}:{@link Group}) ，解散失败的群组实例。
+     * @returns {boolean} 返回该群是否允许由当前联系人解散。
      */
     dissolveGroup(group, handleSuccess, handleError) {
         if (group.getOwner().getId() != this.self.getId()) {
             // 群组的所有者不是自己，不能解散
-            handleError();
-            return;
+            if (handleError) {
+                handleError(group);
+            }
+            return false;
         }
 
-        let packet = new Packet(ContactAction.DissolveGroup, { "groupId": group.getId() });
+        let packet = new Packet(ContactAction.DissolveGroup, group.toCompactJSON());
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
             if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+                cell.Logger.w('ContactService', 'Dissolve group failed');
                 if (handleError) {
-                    handleError();
+                    handleError(group);
                 }
                 return;
             }
 
-            this.groups.remove(group.getId());
+            if (responsePacket.getPayload().code != 0) {
+                cell.Logger.w('ContactService', 'Dissolve group failed, state code: ' + responsePacket.getPayload().code);
+                if (handleError) {
+                    handleError(group);
+                }
+                return;
+            }
+
+            let updatedGroup = Group.create(this, responsePacket.getPayload().data, this.self);
+
+            // 更新存储
+            this.storage.writeGroup(updatedGroup);
+
+            // 更新内存
+            this.groups.put(updatedGroup.getId(), updatedGroup);
+
             if (handleSuccess) {
-                handleSuccess(group);
+                handleSuccess(updatedGroup);
             }
         });
+
+        return true;
+    }
+
+    /**
+     * 处理接收到解散群数据。
+     * @param {JSON} payload 数据包数据。
+     */
+    triggerDissolveGroup(payload) {
+        if (payload.code != 0) {
+            return;
+        }
+
+        let group = Group.create(this, payload.data);
+        if (group.getOwner().equals(this.self)) {
+            // 本终端解散的群
+            group = this.groups.get(group.getId());
+        }
+        else {
+            // 其他终端解散了该群，更新数据
+            this.groups.put(group.getId(), group);
+
+            // 写入存储
+            this.storage.writeGroup(group);
+        }
+
+        this.nodifyObservers(new ObservableState(ContactEvent.GroupDissolved, group));
     }
 
     /**
@@ -879,25 +943,6 @@ export class ContactService extends Module {
             this.groups.put(group.getId(), group);
 
             let state = new ObservableState(ContactEvent.Invited, group);
-            this.nodifyObservers(state);
-        });
-    }
-
-    /**
-     * 收到 Group Dissolved 数据。
-     * @param {JSON} payload 
-     */
-    triggerDissolveGroup(payload) {
-        Group.create(this, payload.data, (result) => {
-            if (null == result) {
-                // 创建失败
-                return;
-            }
-
-            // 解散的群组
-            let group = result;
-
-            let state = new ObservableState(ContactEvent.GroupDissolved, group);
             this.nodifyObservers(state);
         });
     }

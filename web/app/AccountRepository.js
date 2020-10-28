@@ -32,7 +32,7 @@ class AccountRepository {
     constructor() {
         this.accounts = [{
             id: 50001001,
-            name: '李诚石',
+            name: '李国诚',
             avatar: '/images/avatar01.png',
             state: 'offline',
             region: '北京',

@@ -49,10 +49,16 @@ export const ContactEvent = {
     Comeback: 'Comeback',
 
     /**
-     * 新群被创建。
+     * 群组被创建。
      * @type {string}
      */
     GroupCreated: 'GroupCreated',
+
+    /**
+     * 群组被解散。
+     * @type {string}
+     */
+    GroupDissolved: 'GroupDissolved',
 
     /**
      * 被邀请入群。

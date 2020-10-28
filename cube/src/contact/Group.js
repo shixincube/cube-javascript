@@ -122,6 +122,14 @@ export class Group extends Contact {
     }
 
     /**
+     * 获取群成员数量。
+     * @returns {number} 返回群成员数量。
+     */
+    numMembers() {
+        return this.memberList.length;
+    }
+
+    /**
      * 获取群组的成员清单。
      * @returns {Array<Contact>} 返回群组成员列表。
      */
@@ -259,7 +267,20 @@ export class Group extends Contact {
         }
         return json;
     }
-    
+
+    /**
+     * @inheritdoc
+     */
+    toCompactJSON() {
+        let json = super.toCompactJSON();
+        json.domain = this.domain;
+        json.owner = this.owner.toCompactJSON();
+        json.creation = this.creationTime;
+        json.lastActive = this.lastActiveTime;
+        json.state = this.state;
+        return json;
+    }
+
     /**
      * 创建 {@linkcode Group} 对象实例。
      * 
