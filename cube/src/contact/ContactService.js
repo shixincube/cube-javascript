@@ -510,6 +510,32 @@ export class ContactService extends Module {
     }
 
     /**
+     * 更新群组的活跃时间。
+     * @protected
+     * @param {number} groupId 群组 ID 。
+     * @param {number} timestamp 时间戳。
+     */
+    updateGroupActiveTime(groupId, timestamp) {
+        let group = this.groups.get(groupId);
+        if (null != group) {
+            if (timestamp > group.lastActiveTime) {
+                group.lastActiveTime = timestamp;
+            }
+        }
+
+        this.storage.readGroup(groupId, (group) => {
+            if (null != group) {
+                if (timestamp > group.lastActiveTime) {
+                    group.lastActiveTime = timestamp;
+
+                    // 回写更新
+                    this.storage.writeGroup(group);
+                }
+            }
+        });
+    }
+
+    /**
      * 按照活跃时间从大到小排序群组。
      * @private
      * @param {Group} groupA 
@@ -899,7 +925,6 @@ export class ContactService extends Module {
                 return;
             }
 
-            
             let current = Group.create(this, responsePacket.getPayload().data.group);
             
             // 群状态设置为失效状态

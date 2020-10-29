@@ -53,6 +53,7 @@ import { FileAnchor } from "./filestorage/FileAnchor";
 import { FileAttachment } from "./filestorage/FileAttachment";
 import { FileStorageEvent } from "./filestorage/FileStorageEvent";
 import { ConferenceService } from "./conference/ConferenceService";
+import { Announcer } from "./util/Announcer";
 import { FaceMonitor } from "./facemonitor/FaceMonitor";
 
 /**
@@ -96,6 +97,8 @@ import { FaceMonitor } from "./facemonitor/FaceMonitor";
     global.FileStorageEvent = FileStorageEvent;
 
     global.ConferenceService = ConferenceService;
+
+    global.Announcer = Announcer;
 
     global.FaceMonitor = FaceMonitor;
 

@@ -209,18 +209,18 @@ export class MessagingStorage {
 
     /**
      * 读取指定时间之后的所有消息。
-     * @param {number} start 指定读取的起始时间戳。
-     * @param {function} handler 指定查询结果回调函数，函数参数：({@linkcode start}:number, {@linkcode result}:Array<{@link Message}>) 。
+     * @param {number} beginning 指定读取的起始时间戳。
+     * @param {function} handler 指定查询结果回调函数，函数参数：({@linkcode beginning}:number, {@linkcode result}:Array<{@link Message}>) 。
      * @returns {boolean} 返回是否执行了读取操作。
      */
-    readMessage(start, handler) {
+    readMessage(beginning, handler) {
         if (null == this.db) {
             return false;
         }
 
         (async ()=> {
             let result = await this.messageStore.select([
-                { key: 'rts', value: start, compare: '>' }
+                { key: 'rts', value: beginning, compare: '>' }
             ]);
             let messages = [];
             for (let i = 0; i < result.length; ++i) {
@@ -228,7 +228,7 @@ export class MessagingStorage {
                 let message = Message.create(result[i]);
                 messages.push(message);
             }
-            handler(start, messages);
+            handler(beginning, messages);
         })();
         return true;
     }
@@ -236,18 +236,18 @@ export class MessagingStorage {
     /**
      * 读取指定联系人相关的并且指定时间之后的所有消息。
      * @param {number} contactId 指定联系人 ID 。
-     * @param {number} start 指定读取的起始时间戳。
-     * @param {function} handler 指定查询结果回调函数，函数参数：({@linkcode contactId}:number, {@linkcode start}:number, {@linkcode result}:Array<{@link Message}>) 。
+     * @param {number} beginning 指定读取的起始时间戳。
+     * @param {function} handler 指定查询结果回调函数，函数参数：({@linkcode contactId}:number, {@linkcode beginning}:number, {@linkcode result}:Array<{@link Message}>) 。
      * @returns {boolean} 返回是否执行了读取操作。
      */
-    readMessageWithContact(contactId, start, handler) {
+    readMessageWithContact(contactId, beginning, handler) {
         if (null == this.db) {
             return false;
         }
 
         (async ()=> {
             let result = await this.messageStore.select([
-                { key: 'rts', value: start, compare: '>' },
+                { key: 'rts', value: beginning, compare: '>' },
                 { key: 'from', value: contactId, optional: true },
                 { key: 'to', value: contactId, optional: true }
             ]);
@@ -257,9 +257,13 @@ export class MessagingStorage {
                 let message = Message.create(result[i]);
                 messages.push(message);
             }
-            handler(contactId, start, messages);
+            handler(contactId, beginning, messages);
         })();
         return true;
+    }
+
+    readMessageWithGroup(groupId, beginning, handler) {
+
     }
 
     /**

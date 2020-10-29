@@ -119,13 +119,60 @@ CubeApp.prototype.prepareData = function() {
         return;
     }
 
+    var time = Date.now() - window.AWeek;
+
     // 使用 Cube 的联系人
     this.cubeContact = new Contact(this.account.id, this.account.name);
     // 将 App 的账号数据设置为 Cube 联系人的上下文，这样 Cube 将携带这些数据以便进行相关的数据操作和显示操作
     this.cubeContact.setContext(this.account);
 
+    // 使用通知器来进行多任务同步
+    var announcer = new Announcer(2, 10000);
+
+    announcer.addAudience(function(total, map) {
+        for (var i = 0; i < that.cubeContactList.length; ++i) {
+            var contact = that.cubeContactList[i];
+
+            // 逐一查询消息
+            that.cube.messaging.queryMessageWithContact(contact.getId(), time, function(id, time, list) {
+                for (var i = 0; i < list.length; ++i) {
+                    var message = list[i];
+                    var sender = null;
+                    var target = null;
+                    if (message.isFromGroup()) {
+                        sender = that.getContact(message.getFrom());
+                        target = that.getGroup(message.getSource());
+                    }
+                    else {
+                        sender = that.getContact(message.getFrom());
+                        target = that.getContact(id);
+                    }
+
+                    // 添加消息的消息面板
+                    that.messagePanel.appendMessage(sender,
+                        message.getPayload().content, message.getRemoteTimestamp(), target);
+                }
+
+                if (list.length > 0) {
+                    var last = list[list.length - 1];
+                    that.messageCatalogue.updateSubLabel(id, last.getPayload().content, last.getRemoteTimestamp());
+                }
+            });
+        }
+    });
+
+    // 查询所有群组
+    this.cube.contact.queryGroups(function(groupList) {
+        for (var i = 0; i < groupList.length; ++i) {
+            var group = groupList[i];
+            that.addGroup(group);
+        }
+
+        // 宣布完成
+        announcer.announce('groupList', groupList);
+    });
+
     // 建立联系人列表，并查询每个联系人的消息记录
-    var time = Date.now() - window.AWeek;
     for (var i = 0; i < this.contacts.length; ++i) {
         var contact = this.contacts[i];
 
@@ -134,33 +181,9 @@ CubeApp.prototype.prepareData = function() {
         cubeContact.setContext(contact);
         this.cubeContactList.push(cubeContact);
 
-        // 逐一查询消息
-        this.cube.messaging.queryMessageWithContact(contact.id, time, function(id, time, list) {
-            for (var i = 0; i < list.length; ++i) {
-                var message = list[i];
-                var sender = that.getContact(message.getFrom());
-                // 添加消息的消息面板
-                that.messagePanel.appendMessage(sender,
-                    message.getPayload().content, message.getRemoteTimestamp(), that.getContact(id));
-            }
-            if (list.length > 0) {
-                var last = list[list.length - 1];
-                that.messageCatalogue.updateSubLabel(id, last.getPayload().content, last.getRemoteTimestamp());
-            }
-        });
+        // 宣布完成
+        announcer.announce('contactList', this.cubeContactList);
     }
-
-    // 查询所有群组
-    this.cube.contact.queryGroups(function(groupList) {
-        var handler = function(groupList) {
-            for (var i = 0; i < groupList.length; ++i) {
-                var group = groupList[i];
-                that.addGroup(group);
-            }
-        };
-
-        handler(groupList);
-    });
 }
 
 /**

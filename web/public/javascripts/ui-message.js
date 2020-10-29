@@ -401,6 +401,7 @@ MessagePanel.prototype.addGroup = function(group) {
                 '<td>', member.getId(), '</td>',
                 '<td>', member.getContext().region, '</td>',
                 '<td>', member.getContext().department, '</td>',
+                '<td>', '<button class="btn btn-danger btn-xs" data-original-title="从本群中移除" data-placement="top" data-toggle="tooltip"><i class="fas fa-minus-circle"></i></button>', '</td>',
             '</tr>'];
 
         var elMem = $(html.join(''));

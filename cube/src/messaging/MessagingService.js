@@ -437,6 +437,11 @@ export class MessagingService extends Module {
         message = hook.apply(message);
 
         let promise = new Promise((resolve, reject) => {
+            // 如果是群组消息，更新群组的活跃时间
+            if (message.getSource() > 0) {
+                this.contactService.updateGroupActiveTime(message.getSource(), message.getRemoteTimestamp());
+            }
+
             // 判断是否存在该消息
             this.storage.containsMessage(message, (message, contained) => {
                 // 写消息
