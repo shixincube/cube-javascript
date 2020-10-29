@@ -170,7 +170,7 @@ export class Subject {
      * 通知观察者有新状态更新。
      * @param {ObservableState} state 新的状态。
      */
-    nodifyObservers(state) {
+    notifyObservers(state) {
         state.subject = this;
 
         for (let i = 0; i < this.functions.length; ++i) {

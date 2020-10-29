@@ -53,6 +53,12 @@ export const GroupState = {
     HighRisk: 3,
 
     /**
+     * 失效状态。
+     * @type {number}
+     */
+    Disabled: 9,
+
+    /**
      * 未知状态。
      * @type {number}
      */

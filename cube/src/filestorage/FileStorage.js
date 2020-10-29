@@ -150,7 +150,7 @@ export class FileStorage extends Module {
                 fileAnchor.url = null;
                 fileAnchor.success = false;
                 let state = new ObservableState(FileStorageEvent.UploadCompleted, fileAnchor);
-                this.nodifyObservers(state);
+                this.notifyObservers(state);
 
                 handleError(fileAnchor);
             }
@@ -162,7 +162,7 @@ export class FileStorage extends Module {
                 fileAnchor.url = data.url;
                 fileAnchor.success = true;
                 let state = new ObservableState(FileStorageEvent.UploadCompleted, fileAnchor);
-                this.nodifyObservers(state);
+                this.notifyObservers(state);
 
                 handleSuccess(fileAnchor);
             }
@@ -202,7 +202,7 @@ export class FileStorage extends Module {
 
                     packet.data.cursor = fileAnchor.position;
                     let state = new ObservableState(FileStorageEvent.Uploading, packet.data);
-                    this.nodifyObservers(state);
+                    this.notifyObservers(state);
 
                     if (fileAnchor.position < fileSize) {
                         this._serialReadAndUpload(reader, file, fileAnchor, fileSize, completed, processing);

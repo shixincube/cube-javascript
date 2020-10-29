@@ -202,7 +202,7 @@ export class FaceMonitor extends Module {
             stride: stride,
             quantBytes: 4
         });
-        this.nodifyObservers(state);
+        this.notifyObservers(state);
     }
 
     /**
@@ -292,7 +292,7 @@ export class FaceMonitor extends Module {
      */
     triggerEvent(data) {
         let state = new ObservableState('touched', data);
-        this.nodifyObservers(state);
+        this.notifyObservers(state);
     }
 
     /**
@@ -384,7 +384,7 @@ async function _fm_predictLoop(self, net) {
         resetDelay: resetDelay,
         elapsed: elapsed
     });
-    self.nodifyObservers(state);
+    self.notifyObservers(state);
 
     while (self.isPlaying && !self.stopPrediction) {
 

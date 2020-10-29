@@ -39,6 +39,7 @@ import { ContactEvent } from "./ContactEvent";
 import { ContactStorage } from "./ContactStorage";
 import { Device } from "./Device";
 import { Group } from "./Group";
+import { GroupState } from "./GroupState";
 import { EntityInspector } from "../core/EntityInspector";
 import { Announcer } from "../util/Announcer";
 
@@ -248,7 +249,7 @@ export class ContactService extends Module {
             if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
                 if (responsePacket.data.code == 0) {
                     cell.Logger.d('ContactService', 'Self comeback OK');
-                    this.nodifyObservers(new ObservableState(ContactEvent.Comeback, this.self));
+                    this.notifyObservers(new ObservableState(ContactEvent.Comeback, this.self));
                 }
             }
         });
@@ -292,7 +293,7 @@ export class ContactService extends Module {
         // 更新状态
         this.selfReady = true;
 
-        this.nodifyObservers(new ObservableState(ContactEvent.SignIn, this.self));
+        this.notifyObservers(new ObservableState(ContactEvent.SignIn, this.self));
     }
 
     /**
@@ -313,7 +314,7 @@ export class ContactService extends Module {
         this.self = null;
         this.selfReady = false;
 
-        this.nodifyObservers(new ObservableState(ContactEvent.SignOut, current));
+        this.notifyObservers(new ObservableState(ContactEvent.SignOut, current));
     }
 
     /**
@@ -634,7 +635,7 @@ export class ContactService extends Module {
 
                 if (!existed) {
                     // 进行事件通知
-                    this.nodifyObservers(new ObservableState(ContactEvent.GroupUpdated, this.groups.get(id)));
+                    this.notifyObservers(new ObservableState(ContactEvent.GroupUpdated, this.groups.get(id)));
                 }
             });
 
@@ -725,7 +726,10 @@ export class ContactService extends Module {
             // 解析返回的数据
             let data = responsePacket.getPayload().data;
             let newGroup = Group.create(this, data, owner);
-            // 保存在内存
+            // 设置上下文
+            responsePacket.context = newGroup;
+
+            // 保存到内存
             this.groups.put(newGroup.getId(), newGroup);
 
             // 保存到存储
@@ -740,13 +744,15 @@ export class ContactService extends Module {
     /**
      * 处理接收到创建群数据。
      * @param {JSON} payload 数据包数据。
+     * @param {object} context 数据包携带的上下文。
      */
-    triggerCreateGroup(payload) {
+    triggerCreateGroup(payload, context) {
         if (payload.code != 0) {
             return;
         }
 
-        let group = Group.create(this, payload.data);
+        let group = (null == context) ? Group.create(this, payload.data) : context;
+
         if (group.getOwner().equals(this.self)) {
             // 本终端创建的群
             group = this.groups.get(group.getId());
@@ -767,7 +773,7 @@ export class ContactService extends Module {
             this.storage.writeGroup(group);
         }
 
-        this.nodifyObservers(new ObservableState(ContactEvent.GroupCreated, group));
+        this.notifyObservers(new ObservableState(ContactEvent.GroupCreated, group));
     }
 
     /**
@@ -805,6 +811,8 @@ export class ContactService extends Module {
             }
 
             let updatedGroup = Group.create(this, responsePacket.getPayload().data, this.self);
+            // 设置上下文
+            responsePacket.context = updatedGroup;
 
             // 更新存储
             this.storage.writeGroup(updatedGroup);
@@ -823,13 +831,15 @@ export class ContactService extends Module {
     /**
      * 处理接收到解散群数据。
      * @param {JSON} payload 数据包数据。
+     * @param {object} context 数据包携带的上下文。
      */
-    triggerDissolveGroup(payload) {
+    triggerDissolveGroup(payload, context) {
         if (payload.code != 0) {
             return;
         }
 
-        let group = Group.create(this, payload.data);
+        let group = (null == context) ? Group.create(this, payload.data) : context;
+
         if (group.getOwner().equals(this.self)) {
             // 本终端解散的群
             group = this.groups.get(group.getId());
@@ -842,44 +852,92 @@ export class ContactService extends Module {
             this.storage.writeGroup(group);
         }
 
-        this.nodifyObservers(new ObservableState(ContactEvent.GroupDissolved, group));
+        this.notifyObservers(new ObservableState(ContactEvent.GroupDissolved, group));
     }
 
     /**
      * 退出指定的群组。
-     * @param {Group} group 
-     * @param {function} handleSuccess 操作成功回调该方法。
-     * @param {function} handleError 操作失败回调该方法。
+     * @param {Group} group 指定群组。
+     * @param {function} handleSuccess 操作成功回调该方法，参数：({@linkcode group}:{@link Group}) 。
+     * @param {function} [handleError] 操作失败回调该方法，参数：({@linkcode group}:{@link Group}) 。
+     * @returns {boolean} 返回是否能执行退出错误。
      */
     quitGroup(group, handleSuccess, handleError) {
         let selfId = this.self.getId();
         if (!group.hasMember(this.self)) {
-            handleError();
-            return;
+            // 非群组成员
+            if (handleError) {
+                handleError(group);
+            }
+            return false;
         }
 
         if (group.getOwner().getId() == selfId) {
-            handleError();
-            return;
+            // 群所有者不能退出
+            if (handleError) {
+                handleError(group);
+            }
+            return false;
         }
 
-        let packet = new Packet(ContactAction.QuitGroup, {
+        let packet = new Packet(ContactAction.RemoveGroupMember, {
             "groupId": group.getId(),
             "memberId": selfId
         });
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
             if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
-                handleError();
+                if (handleError) {
+                    handleError(group);
+                }
                 return;
             }
 
-            let index = group.memberIdList.indexOf(this.self.getId());
-            if (index >= 0) {
-                group.memberIdList.splice(index, 1);
+            if (responsePacket.getPayload().code != 0) {
+                if (handleError) {
+                    handleError(group);
+                }
+                return;
             }
 
-            handleSuccess(group);
+            
+            let current = Group.create(this, responsePacket.getPayload().data.group);
+            
+            // 群状态设置为失效状态
+            current.state = GroupState.Disabled;
+
+            // 设置上下文
+            responsePacket.context = current;
+
+            handleSuccess(current);
         });
+
+        return true;
+    }
+
+    /**
+     * 接收移除群成员数据。
+     * @param {JSON} payload 数据包数据。
+     * @param {object} context 数据包携带的上下文。
+     */
+    triggerRemoveMember(payload, context) {
+        if (payload.code != 0) {
+            return;
+        }
+
+        let group = (null == context) ? Group.create(this, payload.data.group) : context;
+        let removedMember = Contact.create(payload.data.removedMember, group.getDomain());
+
+        // 移除
+        this.groups.remove(group.getId());
+
+        // 更新存储
+        group.state = GroupState.Disabled;
+        this.storage.writeGroup(group);
+
+        this.notifyObservers(new ObservableState(ContactEvent.GroupMemberRemoved, {
+            "group": group,
+            "removedMember": removedMember
+        }))
     }
 
     changeGroupOwner(group, newOwner) {
@@ -934,11 +992,7 @@ export class ContactService extends Module {
         });
     }
 
-    /**
-     * 收到 Invited 数据。
-     * @protected
-     * @param {JSON} payload 
-     */
+    /*
     triggerInviteMember(payload) {
         Group.create(this, payload.data, (result) => {
             if (null == result) {
@@ -950,7 +1004,7 @@ export class ContactService extends Module {
             this.groups.put(group.getId(), group);
 
             let state = new ObservableState(ContactEvent.Invited, group);
-            this.nodifyObservers(state);
+            this.notifyObservers(state);
         });
     }
 
@@ -969,7 +1023,7 @@ export class ContactService extends Module {
                 group: map.get('group'),
                 member: map.get('member')
             });
-            this.nodifyObservers(state);
+            this.notifyObservers(state);
         });
 
         Group.create(this, groupJson, (result) => {
@@ -996,7 +1050,7 @@ export class ContactService extends Module {
                 group: map.get('group'),
                 member: map.get('member')
             });
-            this.nodifyObservers(state);
+            this.notifyObservers(state);
         });
 
         Group.create(this, groupJson, (result) => {
@@ -1011,5 +1065,5 @@ export class ContactService extends Module {
         this.getContact(memberId, (contact) => {
             announcer.announce('member', contact);
         });
-    }
+    }*/
 }

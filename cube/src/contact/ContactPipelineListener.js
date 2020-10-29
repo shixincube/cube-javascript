@@ -64,19 +64,19 @@ export class ContactPipelineListener extends PipelineListener {
             this.contactService.triggerSignIn(packet.data);
         }
         else if (packet.name == ContactAction.CreateGroup) {
-            this.contactService.triggerCreateGroup(packet.data);
+            this.contactService.triggerCreateGroup(packet.data, packet.context);
         }
         else if (packet.name == ContactAction.DissolveGroup) {
-            this.contactService.triggerDissolveGroup(packet.data);
+            this.contactService.triggerDissolveGroup(packet.data, packet.context);
+        }
+        else if (packet.name == ContactAction.RemoveGroupMember) {
+            this.contactService.triggerRemoveMember(packet.data, packet.context);
         }
         /*else if (packet.name == ContactAction.InviteMember) {
             this.contactService.triggerInviteMember(packet.data);
         }
         else if (packet.name == ContactAction.AddGroupMember) {
             this.contactService.triggerAddMember(packet.data);
-        }
-        else if (packet.name == ContactAction.RemoveGroupMember) {
-            this.contactService.triggerRemoveMember(packet.data);
         }
         else if (packet.name == ContactAction.ChangeOwner) {
             this.contactService.triggerChangeOwner(packet.data);

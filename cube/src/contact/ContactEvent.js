@@ -67,12 +67,6 @@ export const ContactEvent = {
     GroupDissolved: 'GroupDissolved',
 
     /**
-     * 被邀请入群。
-     * @type {string}
-     */
-    GroupMemberInvited: 'GroupMemberInvited',
-
-    /**
      * 群成员加入。
      * @type {string}
      */
@@ -83,6 +77,13 @@ export const ContactEvent = {
      * @type {string}
      */
     GroupMemberRemoved: 'GroupMemberRemoved',
+
+
+    /**
+     * 被邀请入群。
+     * @type {string}
+     */
+    GroupMemberInvited: 'GroupMemberInvited',
 
     /**
      * 群所有人变更。

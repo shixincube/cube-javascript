@@ -282,7 +282,7 @@ export class Group extends Contact {
     }
 
     /**
-     * 创建 {@linkcode Group} 对象实例。
+     * 创建 {@link Group} 对象实例。
      * 
      * @param {ContactService} service 
      * @param {JSON} json 

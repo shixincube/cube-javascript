@@ -90,24 +90,6 @@ export const ContactAction = {
     DissolveGroup: 'dissolveGroup',
 
     /**
-     * 被邀请进入群组。
-     * @type {string}
-     */
-    InviteMember: 'inviteMember',
-
-    /**
-     * 退出群组。
-     * @type {string}
-     */
-    QuitGroup: 'quitGroup',
-
-    /**
-     * 变更群的所有者。
-     * @type {string}
-     */
-    ChangeOwner: 'changeOwner',
-
-    /**
      * 向群组添加成员。
      * @type {string}
      */
@@ -117,5 +99,17 @@ export const ContactAction = {
      * 从群组移除成员。
      * @type {string}
      */
-    RemoveGroupMember: 'removeGroupMember'
+    RemoveGroupMember: 'removeGroupMember',
+
+    /**
+     * 被邀请进入群组。
+     * @type {string}
+     */
+    InviteMember: 'inviteMember',
+
+    /**
+     * 变更群的所有者。
+     * @type {string}
+     */
+    ChangeOwner: 'changeOwner'
 }

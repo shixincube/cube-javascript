@@ -274,7 +274,7 @@ export class MessagingService extends Module {
             this.storage.writeMessage(msg);
 
             // 事件通知
-            this.nodifyObservers(new ObservableState(MessagingEvent.Sending, msg));
+            this.notifyObservers(new ObservableState(MessagingEvent.Sending, msg));
             resolve(msg);
         });
         promise.then((msg) => {
@@ -328,7 +328,7 @@ export class MessagingService extends Module {
             this.storage.writeMessage(msg);
 
             // 事件通知
-            this.nodifyObservers(new ObservableState(MessagingEvent.Sending, msg));
+            this.notifyObservers(new ObservableState(MessagingEvent.Sending, msg));
             resolve(msg);
         });
         promise.then((msg) => {
@@ -448,7 +448,7 @@ export class MessagingService extends Module {
             // 对于已经在数据库里的消息不回调 Notify 事件
             if (!contained) {
                 // 回调事件
-                this.nodifyObservers(new ObservableState(MessagingEvent.Notify, message));
+                this.notifyObservers(new ObservableState(MessagingEvent.Notify, message));
             }
         });
     }
@@ -531,7 +531,7 @@ export class MessagingService extends Module {
                                 respMessage.state = MessageState.Sent;
 
                                 let state = new ObservableState(MessagingEvent.Sent, respMessage);
-                                this.nodifyObservers(state);
+                                this.notifyObservers(state);
                             }
                             else {
                                 cell.Logger.w('MessagingService', 'Sent failed: ' + responsePacket.data.code);
@@ -540,7 +540,7 @@ export class MessagingService extends Module {
 
                                 // 回调错误
                                 let state = new ObservableState(MessagingEvent.SendFailed, respMessage);
-                                this.nodifyObservers(state);
+                                this.notifyObservers(state);
                             }
 
                             // 更新存储
@@ -566,7 +566,7 @@ export class MessagingService extends Module {
             fileMessage.payload._file_ = fileAnchor.toJSON();
 
             let state = new ObservableState(MessagingEvent.Sending, fileMessage);
-            this.nodifyObservers(state);
+            this.notifyObservers(state);
         }, (fileAnchor) => {
             // 更新 Payload 内的 _file_ 字段
             fileMessage.payload._file_ = fileAnchor.toJSON();
@@ -582,7 +582,7 @@ export class MessagingService extends Module {
                 fileMessage.state = MessageState.Sent;
 
                 let state = new ObservableState(MessagingEvent.Sent, fileMessage);
-                this.nodifyObservers(state);
+                this.notifyObservers(state);
             });
         }, (fileAnchor) => {
             // TODO 错误处理
