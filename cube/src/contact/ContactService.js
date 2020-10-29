@@ -267,12 +267,8 @@ export class ContactService extends Module {
 
         // 更新群组
         let now = Date.now();
-        this.queryGroups(now - this.defaultRetrospect, now, (groupList) => {
-            if (groupList.length == 0) {
-                this.listGroups(now - this.defaultRetrospect, now, (groupList) => {
-                    cell.Logger.i('ContactService', 'List groups number: ' + groupList.length);
-                });
-            }
+        this.listGroups(now - this.defaultRetrospect, now, (groupList) => {
+            cell.Logger.i('ContactService', 'List groups number: ' + groupList.length);
         });
 
         let data = payload.data;
@@ -537,8 +533,9 @@ export class ContactService extends Module {
      * @param {number} [beginning] 指定查询群的起始的最近一次活跃时间戳。
      * @param {number} [ending] 指定查询群的截止的最近一次活跃时间戳。
      * @param {function} handler 查询回调函数，函数参数：({@linkcode list}:Array<{@link Group}>) 。
+     * @param {boolean|number} [filter] 是否过滤已失效的群组。
      */
-    queryGroups(beginning, ending, handler) {
+    queryGroups(beginning, ending, handler, filter) {
         if (typeof beginning === 'function') {
             handler = beginning;
             beginning = 0;
@@ -549,11 +546,15 @@ export class ContactService extends Module {
             ending = Date.now();
         }
 
+        if (undefined === filter) {
+            filter = false;
+        }
+
         this.storage.readGroups(beginning, ending, (beginning, ending, result) => {
-            result.sort((a, b) => {
+            let list = result.sort((a, b) => {
                 return this.sortGroup(a, b);
             });
-            handler(result);
+            handler(list);
         });
     }
 
@@ -619,7 +620,7 @@ export class ContactService extends Module {
 
         for (let i = 0; i < list.length; ++i) {
             let group = Group.create(this, list[i]);
-            
+
             if (group.getOwner().equals(this.self)) {
                 group.owner = this.self;
             }
@@ -627,8 +628,15 @@ export class ContactService extends Module {
             // 保存在内存
             this.groups.put(group.getId(), group);
 
-            // 保存到存储
-            this.storage.writeGroup(group);
+            this.storage.containsGroup(group.getId(), (id, existed) => {
+                // 保存到存储
+                this.storage.writeGroup(this.groups.get(id));
+
+                if (!existed) {
+                    // 进行事件通知
+                    this.nodifyObservers(new ObservableState(ContactEvent.GroupUpdated, this.groups.get(id)));
+                }
+            });
 
             this.listGroupsContext.list.push(group);
         }

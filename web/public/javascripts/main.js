@@ -63,6 +63,7 @@ CubeApp.prototype.initUI = function() {
  * @param {CubeEngine} cube 
  */
 CubeApp.prototype.config = function(cube) {
+    var app = this;
     // 监听网络状态
     cube.on('network', function(event) {
         if (event.name == 'failed') {
@@ -81,6 +82,10 @@ CubeApp.prototype.config = function(cube) {
 
     // 监听创建群组事件
     cube.contact.on(ContactEvent.GroupCreated, function(event) {
+        app.addGroup(event.data);
+    });
+    // 监听群组更新事件
+    cube.contact.on(ContactEvent.GroupUpdated, function(event) {
         app.addGroup(event.data);
     });
 
@@ -150,11 +155,6 @@ CubeApp.prototype.prepareData = function() {
         var handler = function(groupList) {
             for (var i = 0; i < groupList.length; ++i) {
                 var group = groupList[i];
-                if (group.getState() == GroupState.Dismissed) {
-                    // 已解散的群，不添加
-                    continue;
-                }
-
                 that.addGroup(group);
             }
         };
@@ -219,6 +219,11 @@ CubeApp.prototype.getGroup = function(id) {
  * @param {Group} group 
  */
 CubeApp.prototype.addGroup = function(group) {
+    if (group.getState() == GroupState.Dismissed) {
+        // 不添加已解散的群
+        return;
+    }
+
     if (null != this.getGroup(group.getId())) {
         return;
     }
@@ -304,13 +309,13 @@ CubeApp.prototype.onCatalogClick = function(item) {
 
 CubeApp.prototype.fireSend = function(to, content) {
     // 调用消息模块的 sendToContact 发送消息
-    var message = this.cube.messaging.sendToContact(to.id, { "content": content });
+    var message = this.cube.messaging.sendTo(to, { "content": content });
     if (null == message) {
         this.launchToast(CubeToast.Warning, '发送消息失败');
         return;
     }
 
-    this.messageCatalogue.updateSubLabel(to.id, content, message.getTimestamp());
+    this.messageCatalogue.updateSubLabel(to.getId(), content, message.getTimestamp());
 }
 
 CubeApp.prototype.fireCreateGroup = function(groupName, memberIdList) {
@@ -353,12 +358,16 @@ CubeApp.prototype.fireDissolveGroup = function(groupId) {
 
     var that = this;
     this.cube.contact.dissolveGroup(group, function(group) {
-        ui.hideLoading();
+        setTimeout(function() {
+            ui.hideLoading();
+        }, 1000);
 
         // 解散群组
         that.messageCatalogue.removeItem(group);
     }, function(group) {
-        ui.hideLoading();
+        setTimeout(function() {
+            ui.hideLoading();
+        }, 1000);
 
         that.launchToast(CubeToast.Error, '解散群组 "' + group.getName() + '" 失败！');
     });

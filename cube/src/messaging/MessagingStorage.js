@@ -88,6 +88,10 @@ export class MessagingStorage {
                     keyPath: 'to',
                     unique: false
                 }, {
+                    name: 'source',
+                    keyPath: 'source',
+                    unique: false
+                }, {
                     name: 'rts',
                     keyPath: 'rts',
                     unique: false
@@ -104,6 +108,9 @@ export class MessagingStorage {
         };
 
         this.db = new InDB(options);
+
+        // 必须使用此方法连接数据库，否则 Chrome 报错
+        this.db.connect();
 
         this.configStore = this.db.use('config');
         this.messageStore = this.db.use('message');

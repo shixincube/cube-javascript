@@ -49,13 +49,19 @@ export const ContactEvent = {
     Comeback: 'Comeback',
 
     /**
+     * 群组已更新。
+     * @type {string}
+     */
+    GroupUpdated: 'GroupUpdated',
+
+    /**
      * 群组被创建。
      * @type {string}
      */
     GroupCreated: 'GroupCreated',
 
     /**
-     * 群组被解散。
+     * 群组已解散。
      * @type {string}
      */
     GroupDissolved: 'GroupDissolved',
@@ -64,13 +70,7 @@ export const ContactEvent = {
      * 被邀请入群。
      * @type {string}
      */
-    Invited: 'Invited',
-
-    /**
-     * 群组已经解散。
-     * @type {string}
-     */
-    GroupDissolved: 'GroupDissolved',
+    GroupMemberInvited: 'GroupMemberInvited',
 
     /**
      * 群成员加入。

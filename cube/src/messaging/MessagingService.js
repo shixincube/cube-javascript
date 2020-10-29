@@ -152,16 +152,14 @@ export class MessagingService extends Module {
             this._processQueue();
         }, 100);
 
-        if (0 == this.lastMessageTime) {
-            this.storage.queryLastMessageTime((value) => {
-                if (value == 0) {
-                    this.lastMessageTime = Date.now() - this.defaultRetrospect;
-                }
-                else {
-                    this.lastMessageTime = value;
-                }
-            });
-        }
+        this.storage.queryLastMessageTime((value) => {
+            if (value == 0) {
+                this.lastMessageTime = Date.now() - this.defaultRetrospect;
+            }
+            else {
+                this.lastMessageTime = value;
+            }
+        });
 
         return true;
     }
@@ -210,6 +208,24 @@ export class MessagingService extends Module {
         }
 
         return (message.from == self.getId());
+    }
+
+    /**
+     * 向指定的联系人或者群组发送消息。
+     * @param {Contact|Group} destination 指定联系人或者群组。
+     * @param {JSON|Message} message 指定消息实例或消息负载。
+     * @returns {Message} 如果消息成功写入数据通道返回 {@link Message} 实例，否则返回 {@linkcode null} 值。
+     */
+    sendTo(destination, message) {
+        if (destination instanceof Group) {
+            return this.sendToGroup(destination, message);
+        }
+        else if (destination instanceof Contact) {
+            return this.sendToContact(destination, message);
+        }
+        else {
+            return null;
+        }
     }
 
     /**
@@ -331,12 +347,12 @@ export class MessagingService extends Module {
      */
     queryMessage(time, handler) {
         return this.storage.readMessage(time, (start, result) => {
-            result.sort((a, b) => {
+            let list = result.sort((a, b) => {
                 if (a.remoteTS < b.remoteTS) return -1;
                 else if (a.remoteTS > b.remoteTS) return 1;
                 else return 0;
             });
-            handler(start, result);
+            handler(start, list);
         });
     }
 
@@ -349,12 +365,12 @@ export class MessagingService extends Module {
      */
     queryMessageWithContact(id, time, handler) {
         return this.storage.readMessageWithContact(id, time, (contactId, start, result) => {
-            result.sort((a, b) => {
+            let list = result.sort((a, b) => {
                 if (a.remoteTS < b.remoteTS) return -1;
                 else if (a.remoteTS > b.remoteTS) return 1;
                 else return 0;
             });
-            handler(contactId, start, result); 
+            handler(contactId, start, list); 
         });
     }
 
@@ -593,7 +609,11 @@ export class MessagingService extends Module {
                     if (this.lastMessageTime > 0) {
                         this.queryRemoteMessage();
                     }
-                }, 1000);
+                    else {
+                        let now = Date.now();
+                        this.queryRemoteMessage(now - this.defaultRetrospect, now);
+                    }
+                }, 500);
             }
         }
     }

@@ -119,6 +119,23 @@ export class ContactStorage {
     }
 
     /**
+     * 判断是否已经存储了指定 ID 的群组。
+     * @param {number} id 群组 ID 。
+     * @param {function} handler 回调函数。
+     */
+    containsGroup(id, handler) {
+        (async ()=> {
+            let result = await this.groupStore.query('id', id);
+            if (result.length > 0) {
+                handler(id, true);
+            }
+            else {
+                handler(id, false);
+            }
+        })();
+    }
+
+    /**
      * 读取指定最近活跃时间的群组。
      * @param {number} beginning 
      * @param {number} ending 

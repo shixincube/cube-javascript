@@ -90,6 +90,9 @@ var CubeToast = {
         if (null != loadingModal) {
             loadingModal.modal('hide');
         }
+        else {
+            $('#modal_loading').modal('hide');
+        }
     }
 
     g.ui.showLoading = showLoading;
