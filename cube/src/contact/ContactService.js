@@ -560,21 +560,19 @@ export class ContactService extends Module {
      * @param {number} [beginning] 指定查询群的起始的最近一次活跃时间戳。
      * @param {number} [ending] 指定查询群的截止的最近一次活跃时间戳。
      * @param {function} handler 查询回调函数，函数参数：({@linkcode list}:Array<{@link Group}>) 。
-     * @param {boolean|number} [filter] 是否过滤已失效的群组。
+     * @param {Array<number>} [states] 匹配指定状态的群组，群组状态由 {@link GroupState} 描述。
      */
-    queryGroups(beginning, ending, handler, filter) {
+    queryGroups(beginning, ending, handler, states) {
         if (typeof beginning === 'function') {
             handler = beginning;
+            states = ending;
             beginning = 0;
             ending = Date.now();
         }
         else if (typeof ending === 'function') {
             handler = ending;
+            states = handler;
             ending = Date.now();
-        }
-
-        if (undefined === filter) {
-            filter = false;
         }
 
         this.storage.readGroups(beginning, ending, (beginning, ending, result) => {
@@ -582,7 +580,7 @@ export class ContactService extends Module {
                 return this.sortGroup(a, b);
             });
             handler(list);
-        });
+        }, states);
     }
 
     /**

@@ -126,42 +126,59 @@ CubeApp.prototype.prepareData = function() {
     // 将 App 的账号数据设置为 Cube 联系人的上下文，这样 Cube 将携带这些数据以便进行相关的数据操作和显示操作
     this.cubeContact.setContext(this.account);
 
-    // 使用通知器来进行多任务同步
+    // 使用通知器来进行多任务的异步响应，以下有两个异步任务：
+    // 任务一，创建 cubeContactList 列表
+    // 任务二，读取群组信息
     var announcer = new Announcer(2, 10000);
 
+    // 添加事件结束回调
     announcer.addAudience(function(total, map) {
-        for (var i = 0; i < that.cubeContactList.length; ++i) {
-            var contact = that.cubeContactList[i];
-
-            // 逐一查询消息
-            that.cube.messaging.queryMessageWithContact(contact.getId(), time, function(id, time, list) {
-                for (var i = 0; i < list.length; ++i) {
-                    var message = list[i];
-                    var sender = null;
-                    var target = null;
-                    if (message.isFromGroup()) {
-                        sender = that.getContact(message.getFrom());
-                        target = that.getGroup(message.getSource());
+        var handler = function(id, list) {
+            for (var i = 0; i < list.length; ++i) {
+                var message = list[i];
+                var sender = that.getContact(message.getFrom());
+                var target = null;
+                if (message.isFromGroup()) {
+                    target = that.getGroup(message.getSource());
+                }
+                else {
+                    if (that.cube.messaging.isSender(message)) {
+                        target = that.getContact(message.getTo());
                     }
                     else {
-                        sender = that.getContact(message.getFrom());
-                        target = that.getContact(id);
+                        target = that.getContact(message.getFrom());
                     }
-
-                    // 添加消息的消息面板
-                    that.messagePanel.appendMessage(sender,
-                        message.getPayload().content, message.getRemoteTimestamp(), target);
                 }
 
-                if (list.length > 0) {
-                    var last = list[list.length - 1];
-                    that.messageCatalogue.updateSubLabel(id, last.getPayload().content, last.getRemoteTimestamp());
-                }
+                // 添加消息的消息面板
+                that.messagePanel.appendMessage(sender,
+                    message.getPayload().content, message.getRemoteTimestamp(), target);
+            }
+
+            if (list.length > 0) {
+                var last = list[list.length - 1];
+                that.messageCatalogue.updateSubLabel(id, last.getPayload().content, last.getRemoteTimestamp());
+            }
+        }
+
+        // 逐一查询每个联系人的消息
+        for (var i = 0; i < that.cubeContactList.length; ++i) {
+            var contact = that.cubeContactList[i];
+            that.cube.messaging.queryMessageWithContact(contact, time, function(id, time, list) {
+                handler(id, list);
+            });
+        }
+
+        // 逐一查询每个群组的消息
+        for (var i = 0; i < that.cubeGroupList.length; ++i) {
+            var group = that.cubeGroupList[i];
+            that.cube.messaging.queryMessageWithGroup(group, time, function(id, time, list) {
+                handler(id, list);
             });
         }
     });
 
-    // 查询所有群组
+    // 查询所有群组，设置匹配条件，只显示群状态正常的群
     this.cube.contact.queryGroups(function(groupList) {
         for (var i = 0; i < groupList.length; ++i) {
             var group = groupList[i];
@@ -170,7 +187,7 @@ CubeApp.prototype.prepareData = function() {
 
         // 宣布完成
         announcer.announce('groupList', groupList);
-    });
+    }, [ GroupState.Normal ]);
 
     // 建立联系人列表，并查询每个联系人的消息记录
     for (var i = 0; i < this.contacts.length; ++i) {
@@ -180,10 +197,10 @@ CubeApp.prototype.prepareData = function() {
         // 将 App 的账号数据设置为 Cube 联系人的上下文
         cubeContact.setContext(contact);
         this.cubeContactList.push(cubeContact);
-
-        // 宣布完成
-        announcer.announce('contactList', this.cubeContactList);
     }
+
+    // 宣布完成
+    announcer.announce('contactList', this.cubeContactList);
 }
 
 /**

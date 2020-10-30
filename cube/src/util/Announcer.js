@@ -66,10 +66,26 @@ export class Announcer {
         return this.total;
     }
 
+    /**
+     * 事件结束后进行宣告。
+     * @param {*} name 
+     * @param {*} data 
+     */
     announce(name, data) {
-        if (undefined !== name && undefined !== data) {
-            this.announceDataMap.put(name, data);
+        if (undefined === name) {
+            return;
         }
+
+        if (undefined === data) {
+            data = name;
+        }
+
+        if (this.announceDataMap.containsKey(name)) {
+            this.announceDataMap.put(name, data);
+            return;
+        }
+
+        this.announceDataMap.put(name, data);
 
         ++this.count;
 
@@ -77,15 +93,20 @@ export class Announcer {
             // 关闭定时器
             clearTimeout(this.timer);
 
-            for (let i = 0; i < this.audienceList.length; ++i) {
-                let audience = this.audienceList[i];
-                audience(this.count, this.announceDataMap);
-            }
+            let promise = new Promise((resolve, reject) => {
+                resolve();
+            });
+            promise.then(() => {
+                for (let i = 0; i < this.audienceList.length; ++i) {
+                    let audience = this.audienceList[i];
+                    audience(this.count, this.announceDataMap);
+                }
+            });
         }
     }
 
     /**
-     * 
+     * 添加监听宣告结束的听众函数。
      * @param {function} audience 
      */
     addAudience(audience) {

@@ -109,8 +109,8 @@ export class MessagingStorage {
 
         this.db = new InDB(options);
 
-        // 必须使用此方法连接数据库，否则 Chrome 报错
-        this.db.connect();
+        // 考虑是否不再调用此函数？
+        //this.db.connect();
 
         this.configStore = this.db.use('config');
         this.messageStore = this.db.use('message');
@@ -248,6 +248,7 @@ export class MessagingStorage {
         (async ()=> {
             let result = await this.messageStore.select([
                 { key: 'rts', value: beginning, compare: '>' },
+                { key: 'source', value: 0, compare: '=' },
                 { key: 'from', value: contactId, optional: true },
                 { key: 'to', value: contactId, optional: true }
             ]);
@@ -262,8 +263,32 @@ export class MessagingStorage {
         return true;
     }
 
+    /**
+     * 读取指定滚阻相关的并且指定时间之后的所有消息。
+     * @param {number} groupId 指定群组 ID 。
+     * @param {number} beginning 指定读取的起始时间戳。
+     * @param {function} handler 指定查询结果回调函数，函数参数：({@linkcode groupId}:number, {@linkcode beginning}:number, {@linkcode result}:Array<{@link Message}>) 。
+     * @returns {boolean} 返回是否执行了读取操作。
+     */
     readMessageWithGroup(groupId, beginning, handler) {
+        if (null == this.db) {
+            return false;
+        }
 
+        (async ()=> {
+            let result = await this.messageStore.select([
+                { key: 'rts', value: beginning, compare: '>' },
+                { key: 'source', value: groupId, optional: true }
+            ]);
+            let messages = [];
+            for (let i = 0; i < result.length; ++i) {
+                result[i].domain = this.domain;
+                let message = Message.create(result[i]);
+                messages.push(message);
+            }
+            handler(groupId, beginning, messages);
+        })();
+        return true;
     }
 
     /**

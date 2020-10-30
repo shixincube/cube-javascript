@@ -221,6 +221,10 @@ MessageCatalogue.prototype.removeItem = function(item) {
 
 MessageCatalogue.prototype.updateSubLabel = function(id, sublabel, time) {
     var el = this.elItemMap[id];
+    if (undefined === el) {
+        return;
+    }
+    
     el.find('.product-description').text(sublabel);
     el.find('.badge').text(formatShortTime(time));
 }

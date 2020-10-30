@@ -87,6 +87,10 @@ export class ContactStorage {
                     name: 'creation',
                     keyPath: 'creation',
                     unique: false
+                }, {
+                    name: 'state',
+                    keyPath: 'state',
+                    unique: false
                 }]
             }, {
                 name: 'config',
@@ -100,6 +104,9 @@ export class ContactStorage {
         };
 
         this.db = new InDB(options);
+
+        // 考虑是否不再调用此函数？
+        //this.db.connect();
 
         this.groupStore = this.db.use('group');
     }
@@ -140,23 +147,48 @@ export class ContactStorage {
      * @param {number} beginning 
      * @param {number} ending 
      * @param {function} handler 
+     * @param {Array} [matchingStates]
      */
-    readGroups(beginning, ending, handler) {
+    readGroups(beginning, ending, handler, matchingStates) {
         if (null == this.db) {
             return false;
         }
 
         (async ()=> {
-            let result = await this.groupStore.all();
-            // let result = await this.groupStore.select([
-            //     { key: 'lastActive', value: beginning, compare: '>' },
-            //     { key: 'lastActive', value: ending, compare: '<' }
-            // ]);
+            // let result = await this.groupStore.all();
+            let result = null;
+
+            if (undefined === matchingStates) {
+                result = await this.groupStore.select([
+                    { key: 'lastActive', value: beginning, compare: '>' },
+                    { key: 'lastActive', value: ending, compare: '<=', optional: true }
+                ]);
+            }
+            else {
+                let conditions = [
+                    { key: 'lastActive', value: beginning, compare: '>' },
+                    { key: 'lastActive', value: ending, compare: '<=', optional: true }
+                ];
+                for (let i = 0; i < matchingStates.length; ++i) {
+                    conditions.push({
+                        key: 'state', value: matchingStates[i], options: true
+                    });
+                }
+                result = await this.groupStore.select(conditions);
+            }
 
             let groups = [];
             for (let i = 0; i < result.length; ++i) {
                 let json = result[i];
-                if (json.lastActive > beginning && json.lastActive < ending) {
+                if (json.lastActive > beginning && json.lastActive <= ending) {
+
+                    if (undefined !== matchingStates) {
+                        // 判断是否匹配状态
+                        if (matchingStates.indexOf(json.state) < 0) {
+                            continue;
+                        }
+                    }
+
                     json.domain = this.domain;
                     let group = Group.create(this.service, json);
                     groups.push(group);

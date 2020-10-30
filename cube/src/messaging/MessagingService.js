@@ -358,19 +358,53 @@ export class MessagingService extends Module {
 
     /**
      * 查询指定联系人 ID 相关的所有消息，即包括该联系人发送的消息，也包含该联系人接收的消息s。
-     * @param {number} id 指定联系人 ID 。
-     * @param {number} time 指定查询的起始时间。
-     * @param {function} handler 查询结果回调函数，函数参数：({@linkcode contactId}:number, {@linkcode time}:number, {@linkcode result}:Array<{@link Message}>) 。
+     * @param {Contact|number} contactOrId 指定联系人或联系人 ID 。
+     * @param {number} beginning 指定查询的起始时间。
+     * @param {function} handler 查询结果回调函数，函数参数：({@linkcode contactId}:number, {@linkcode beginning}:number, {@linkcode result}:Array<{@link Message}>) 。
      * @returns {boolean} 如果成功执行查询返回 {@linkcode true} 。
      */
-    queryMessageWithContact(id, time, handler) {
-        return this.storage.readMessageWithContact(id, time, (contactId, start, result) => {
+    queryMessageWithContact(contactOrId, beginning, handler) {
+        let id = contactOrId;
+        if (contactOrId instanceof Contact) {
+            id = contactOrId.getId();
+        }
+        else if (undefined !== contactOrId.id) {
+            id = parseInt(contactOrId.id);
+        }
+
+        return this.storage.readMessageWithContact(id, beginning, (contactId, beginning, result) => {
             let list = result.sort((a, b) => {
                 if (a.remoteTS < b.remoteTS) return -1;
                 else if (a.remoteTS > b.remoteTS) return 1;
                 else return 0;
             });
-            handler(contactId, start, list); 
+            handler(contactId, beginning, list); 
+        });
+    }
+
+    /**
+     * 查询指定群组 ID 相关的所有消息。
+     * @param {Group|number} groupOrId 指定群组或者群组 ID 。
+     * @param {number} beginning 指定查询的起始时间。
+     * @param {function} handler 查询结果回调函数，函数参数：({@linkcode groupId}:number, {@linkcode beginning}:number, {@linkcode result}:Array<{@link Message}>) 。
+     * @returns {boolean} 如果成功执行查询返回 {@linkcode true} 。
+     */
+    queryMessageWithGroup(groupOrId, beginning, handler) {
+        let id = groupOrId;
+        if (groupOrId instanceof Group) {
+            id = groupOrId.getId();
+        }
+        else if (undefined !== groupOrId.id) {
+            id = parseInt(groupOrId.id);
+        }
+
+        return this.storage.readMessageWithGroup(id, beginning, (groupId, beginning, result) => {
+            let list = result.sort((a, b) => {
+                if (a.remoteTS < b.remoteTS) return -1;
+                else if (a.remoteTS > b.remoteTS) return 1;
+                else return 0;
+            });
+            handler(groupId, beginning, list); 
         });
     }
 
