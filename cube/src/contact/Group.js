@@ -198,13 +198,21 @@ export class Group extends Contact {
 
     /**
      * 是否包含该成员。
-     * @param {Contact} contact 指定成员。
+     * @param {Contact|number} contact 指定成员。
      * @returns {boolean} 返回 {@linkcode true} 表示群组里包含该成员。
      */
     hasMember(contact) {
+        let id = 0;
+        if (contact instanceof Contact) {
+            id = contact.getId();
+        }
+        else {
+            id = parseInt(contact);
+        }
+
         for (let i = 0; i < this.memberList.length; ++i) {
             let member = this.memberList[i];
-            if (member.equals(contact)) {
+            if (member.getId() == id) {
                 return true;
             }
         }

@@ -40,8 +40,8 @@ import { ContactStorage } from "./ContactStorage";
 import { Device } from "./Device";
 import { Group } from "./Group";
 import { GroupState } from "./GroupState";
+import { GroupBundle } from "./GroupBundle";
 import { EntityInspector } from "../core/EntityInspector";
-import { Announcer } from "../util/Announcer";
 
 /**
  * 联系人模块。
@@ -903,7 +903,7 @@ export class ContactService extends Module {
      * @param {Group} group 指定群组。
      * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}) 。
      * @param {function} [handleError] 操作失败回调该方法，参数：({@linkcode group}:{@link Group}) 。
-     * @returns {boolean} 返回是否能执行退出错误。
+     * @returns {boolean} 返回是否能执行退出操作。
      */
     quitGroup(group, handleSuccess, handleError) {
         let selfId = this.self.getId();
@@ -947,13 +947,80 @@ export class ContactService extends Module {
             }
 
             // 读取数据
-            let current = Group.create(this, responsePacket.getPayload().data.group);
+            let bundle = GroupBundle.create(this, responsePacket.getPayload().data);
 
             // 设置上下文
-            responsePacket.context = current;
+            responsePacket.context = bundle;
 
             if (handleSuccess) {
-                handleSuccess(current);
+                handleSuccess(bundle.group);
+            }
+        });
+
+        return true;
+    }
+
+    /**
+     * 移除群组成员。
+     * @param {Group} group 指定群组。
+     * @param {Array<Contact|number>} members 指定群组成员列表。
+     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}) 。
+     * @param {function} [handleError] 操作失败回调该方法，参数：({@linkcode group}:{@link Group}) 。
+     * @returns {boolean} 返回是否能执行该操作。
+     */
+    removeGroupMembers(group, members, handleSuccess, handleError) {
+        // 检查传入的成员是否是群成员
+        let memberIdList = [];
+        for (let i = 0; i < members.length; ++i) {
+            let m = members[i];
+            if (m instanceof Contact) {
+                if (group.hasMember(m)) {
+                    memberIdList.push(m.getId());
+                }
+            }
+            else {
+                if (group.hasMember(m)) {
+                    memberIdList.push(m);
+                }
+            }
+        }
+
+        if (memberIdList.length == 0) {
+            return false;
+        }
+
+        // 操作员是本账号
+        let operator = this.self.toCompactJSON();
+
+        let packet = new Packet(ContactAction.RemoveGroupMember, {
+            "groupId": group.getId(),
+            "memberIdList": memberIdList,
+            "operator": operator
+        });
+
+        this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+                if (handleError) {
+                    handleError(group, members, operator);
+                }
+                return;
+            }
+
+            if (responsePacket.getPayload().code != 0) {
+                if (handleError) {
+                    handleError(group, members, operator);
+                }
+                return;
+            }
+
+            // 读取数据
+            let bundle = GroupBundle.create(this, responsePacket.getPayload().data);
+
+            // 设置上下文
+            responsePacket.context = bundle;
+
+            if (handleSuccess) {
+                handleSuccess(bundle.group, bundle.modified, modified.operator);
             }
         });
 
@@ -971,26 +1038,10 @@ export class ContactService extends Module {
         }
 
         // 读取群信息
-        let group = (null == context) ? Group.create(this, payload.data.group) : context;
+        let bundle = (null == context) ? GroupBundle.create(this, payload.data) : context;
+        let group = bundle.group;
 
-        // 读取删除的成员列表
-        let includeSelf = false;
-        let removedMemberList = [];
-        let removedList = payload.data.removedMemberList;
-        for (let i = 0; i < removedList.length; ++i) {
-            let json = removedList[i];
-            let contact = Contact.create(json, group.getDomain());
-            removedMemberList.push(contact);
-
-            if (contact.getId() == this.self.getId()) {
-                includeSelf = true;
-            }
-        }
-
-        // 读取操作员
-        let operator = Contact.create(payload.data.operator, group.getDomain());
-
-        if (includeSelf) {
+        if (bundle.includeSelf) {
             // 移除
             this.groups.remove(group.getId());
             // 更新群组状态，这个状态位需要客户端进行维护 [TIP]
@@ -1006,8 +1057,8 @@ export class ContactService extends Module {
 
         this.notifyObservers(new ObservableState(ContactEvent.GroupMemberRemoved, {
             group: group,
-            removedMemberList: removedMemberList,
-            operator: operator
+            modified: bundle.modified,
+            operator: bundle.operator
         }))
     }
 
@@ -1027,28 +1078,6 @@ export class ContactService extends Module {
      */
     addGroupMember(group, member, handler) {
         let packet = new Packet(ContactAction.AddGroupMember, {
-            "groupId": group.getId(),
-            "memberId": member.getId()
-        });
-
-        this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
-                handler(null);
-                return;
-            }
-
-            handler(group);
-        });
-    }
-
-    /**
-     * 移除群组成员。
-     * @param {Group} group 指定群组。
-     * @param {Contact} member 指定群组成员。
-     * @param {function} handler 指定处理回调。
-     */
-    removeGroupMember(group, member, handler) {
-        let packet = new Packet(ContactAction.RemoveGroupMember, {
             "groupId": group.getId(),
             "memberId": member.getId()
         });
