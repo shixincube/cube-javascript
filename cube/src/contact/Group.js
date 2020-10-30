@@ -99,6 +99,23 @@ export class Group extends Contact {
     }
 
     /**
+     * 判断指定联系人是否是该群所有者。
+     * @param {Contact|number} contact 指定联系人。
+     * @returns {boolean} 如果联系人是群主返回 {@linkcode true} 。
+     */
+    isOwner(contact) {
+        let id = 0;
+        if (contact instanceof Contact) {
+            id = contact.getId();
+        }
+        else {
+            id = contact;
+        }
+
+        return (id == this.owner.id);
+    }
+
+    /**
      * 获取群组的创建时间。
      * @returns {number} 返回群组的创建时间。
      */

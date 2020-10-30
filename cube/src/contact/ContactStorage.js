@@ -129,8 +129,13 @@ export class ContactStorage {
      * 判断是否已经存储了指定 ID 的群组。
      * @param {number} id 群组 ID 。
      * @param {function} handler 回调函数。
+     * @returns {boolean}
      */
     containsGroup(id, handler) {
+        if (null == this.db) {
+            return false;
+        }
+
         (async ()=> {
             let result = await this.groupStore.query('id', id);
             if (result.length > 0) {
@@ -140,6 +145,7 @@ export class ContactStorage {
                 handler(id, false);
             }
         })();
+        return true;
     }
 
     /**
@@ -215,10 +221,10 @@ export class ContactStorage {
             let result = await this.groupStore.query('id', id);
             if (result.length > 0) {
                 let json = result[0];
-                handler(Group.create(this.service, json));
+                handler(id, Group.create(this.service, json));
             }
             else {
-                handler(null);
+                handler(id, null);
             }
         })();
 

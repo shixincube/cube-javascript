@@ -197,13 +197,19 @@ MessageCatalogue.prototype.appendItem = function(item) {
 MessageCatalogue.prototype.removeItem = function(item) {
     var id = item.getId();
 
+    var contains = false;
     // 从列表里删除
     for (var i = 0; i < this.catalogues.length; ++i) {
         var ca = this.catalogues[i];
         if (ca.id == id) {
             this.catalogues.splice(i, 1);
+            contains = true;
             break;
         }
+    }
+
+    if (!contains) {
+        return;
     }
 
     // 刷新界面
@@ -219,13 +225,13 @@ MessageCatalogue.prototype.removeItem = function(item) {
     }
 }
 
-MessageCatalogue.prototype.updateSubLabel = function(id, sublabel, time) {
+MessageCatalogue.prototype.updateItem = function(id, sub, time) {
     var el = this.elItemMap[id];
     if (undefined === el) {
         return;
     }
-    
-    el.find('.product-description').text(sublabel);
+
+    el.find('.product-description').text(sub);
     el.find('.badge').text(formatShortTime(time));
 }
 
@@ -309,6 +315,9 @@ function MessagePanel(app) {
         that.onNewGroupSubmitClick(e);
     });
 
+    $('#group_details_quit').on('click', function(e) {
+        that.onQuitGroupClick(e);
+    });;
     $('#group_details_dissolve').on('click', function(e) {
         that.onDissolveGroupClick(e);
     });
@@ -331,6 +340,8 @@ function MessagePanel(app) {
     this.sendListener = null;
     // 提交建群事件监听器
     this.submitCreateGroupListener = null;
+    // 提交退出群事件监听器
+    this.submitQuitGroupListener = null;
     // 提交解散群事件监听器
     this.submitDissolveGroupListener = null;
 }
@@ -341,6 +352,10 @@ MessagePanel.prototype.setSendListener = function(listener) {
 
 MessagePanel.prototype.setCreateGroupListener = function(listener) {
     this.submitCreateGroupListener = listener;
+}
+
+MessagePanel.prototype.setQuitGroupListener = function(listener) {
+    this.submitQuitGroupListener = listener;
 }
 
 MessagePanel.prototype.setDissolveGroupListener = function(listener) {
@@ -393,9 +408,15 @@ MessagePanel.prototype.addGroup = function(group) {
     };
     this.views[key] = view;
 
+    var removeable = group.isOwner(this.app.cubeContact);
+
     var members = group.getMembers();
     for (var i = 0; i < members.length; ++i) {
         var member = members[i];
+
+        var operation = (member.equals(this.app.cubeContact) || group.isOwner(member)) ? '' : ('<button class="btn btn-danger btn-xs' +
+                    (removeable ? '' : ' disabled') + '" data-original-title="从本群中移除" data-placement="top" data-toggle="tooltip"><i class="fas fa-minus-circle"></i></button>');
+
         var contact = this.app.getContact(member.getId());
         var html = [
             '<tr>',
@@ -405,12 +426,38 @@ MessagePanel.prototype.addGroup = function(group) {
                 '<td>', member.getId(), '</td>',
                 '<td>', member.getContext().region, '</td>',
                 '<td>', member.getContext().department, '</td>',
-                '<td>', '<button class="btn btn-danger btn-xs" data-original-title="从本群中移除" data-placement="top" data-toggle="tooltip"><i class="fas fa-minus-circle"></i></button>', '</td>',
+                '<td>', operation, '</td>',
             '</tr>'];
 
         var elMem = $(html.join(''));
         view.detailMemberTable.append(elMem);
     }
+}
+
+/**
+ * 移除群。
+ * @param {Group} group 
+ */
+MessagePanel.prototype.removeGroup = function(group) {
+    var key = group.getId();
+    if (undefined === this.views[key]) {
+        return;
+    }
+
+    if (this.current.getId() == group.getId()) {
+        // 当前面板有效
+
+        this.elTitle.text('');
+        this.elInput.addAttr('disabled');
+        $('#btn_send').addAttr('disabled');
+
+        var view = this.views[key];
+        view.el.remove();
+
+        this.current = null;
+    }
+
+    delete this.views[key];
 }
 
 /**
@@ -464,8 +511,9 @@ MessagePanel.prototype.onDetailsClick = function(e) {
         var item = this.app.getGroup(this.current.getId());
         var el = $('#modal_group_details');
         el.find('.widget-user-username').text(item.getName());
-        
+
         // 设置数据
+        $('#group_details_quit').attr('data', item.getId());
         $('#group_details_dissolve').attr('data', item.getId());
 
         var table = el.find('.table');
@@ -520,6 +568,13 @@ MessagePanel.prototype.onNewGroupSubmitClick = function(e) {
     $('#new_group_dialog').modal('hide');
 
     this.submitCreateGroupListener(groupName, memberList);
+}
+
+MessagePanel.prototype.onQuitGroupClick = function(e) {
+    var id = $('#group_details_quit').attr('data');
+    if (this.submitQuitGroupListener(parseInt(id))) {
+        $('#modal_group_details').modal('hide');
+    }
 }
 
 MessagePanel.prototype.onDissolveGroupClick = function(e) {

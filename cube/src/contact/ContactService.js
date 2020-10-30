@@ -457,7 +457,7 @@ export class ContactService extends Module {
                 return;
             }
 
-            this.storage.readGroup(id, (group) => {
+            this.storage.readGroup(id, (id, group) => {
                 if (null != group) {
                     resolve(group);
                     return;
@@ -523,7 +523,7 @@ export class ContactService extends Module {
             }
         }
 
-        this.storage.readGroup(groupId, (group) => {
+        this.storage.readGroup(groupId, (id, group) => {
             if (null != group) {
                 if (timestamp > group.lastActiveTime) {
                     group.lastActiveTime = timestamp;
@@ -579,6 +579,10 @@ export class ContactService extends Module {
             let list = result.sort((a, b) => {
                 return this.sortGroup(a, b);
             });
+            for (let i = 0; i < list.length; ++i) {
+                let group = list[i];
+                this.groups.put(group.getId(), group);
+            }
             handler(list);
         }, states);
     }
@@ -643,25 +647,40 @@ export class ContactService extends Module {
             this.listGroupsContext.total = total;
         }
 
+        let buf = new OrderMap();
+
         for (let i = 0; i < list.length; ++i) {
             let group = Group.create(this, list[i]);
+
+            buf.put(group.getId(), group);
 
             if (group.getOwner().equals(this.self)) {
                 group.owner = this.self;
             }
 
-            // 保存在内存
-            this.groups.put(group.getId(), group);
-
-            this.storage.containsGroup(group.getId(), (id, existed) => {
-                // 保存到存储
-                this.storage.writeGroup(this.groups.get(id));
-
-                if (!existed) {
-                    // 进行事件通知
-                    this.notifyObservers(new ObservableState(ContactEvent.GroupUpdated, this.groups.get(id)));
+            // 与本地数据进行比较
+            this.storage.readGroup(group.getId(), (id, current) => {
+                if (null != current) {
+                    // 比较两个群的活跃时间
+                    if (current.lastActiveTime != group.lastActiveTime) {
+                        // 回调更新
+                        this.notifyObservers(new ObservableState(ContactEvent.GroupUpdated, buf.get(current.getId())));
+                    }
                 }
+                else {
+                    let g = buf.get(id);
+                    if (g.getState() == GroupState.Normal || g.getState() == GroupState.Dismissed) {
+                        this.notifyObservers(new ObservableState(ContactEvent.GroupUpdated, g));
+                    }
+                }
+
+                this.storage.writeGroup(buf.get(id));
             });
+
+            // 更新内存
+            if (group.getState() == GroupState.Normal) {
+                this.groups.put(group.getId(), group);
+            }
 
             this.listGroupsContext.list.push(group);
         }
@@ -882,7 +901,7 @@ export class ContactService extends Module {
     /**
      * 退出指定的群组。
      * @param {Group} group 指定群组。
-     * @param {function} handleSuccess 操作成功回调该方法，参数：({@linkcode group}:{@link Group}) 。
+     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}) 。
      * @param {function} [handleError] 操作失败回调该方法，参数：({@linkcode group}:{@link Group}) 。
      * @returns {boolean} 返回是否能执行退出错误。
      */
@@ -904,9 +923,13 @@ export class ContactService extends Module {
             return false;
         }
 
+        // 操作员是本账号
+        let operator = this.self.toCompactJSON();
+
         let packet = new Packet(ContactAction.RemoveGroupMember, {
             "groupId": group.getId(),
-            "memberId": selfId
+            "memberIdList": [ selfId ],
+            "operator": operator
         });
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
             if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
@@ -923,15 +946,15 @@ export class ContactService extends Module {
                 return;
             }
 
+            // 读取数据
             let current = Group.create(this, responsePacket.getPayload().data.group);
-            
-            // 群状态设置为失效状态
-            current.state = GroupState.Disabled;
 
             // 设置上下文
             responsePacket.context = current;
 
-            handleSuccess(current);
+            if (handleSuccess) {
+                handleSuccess(current);
+            }
         });
 
         return true;
@@ -947,19 +970,44 @@ export class ContactService extends Module {
             return;
         }
 
+        // 读取群信息
         let group = (null == context) ? Group.create(this, payload.data.group) : context;
-        let removedMember = Contact.create(payload.data.removedMember, group.getDomain());
 
-        // 移除
-        this.groups.remove(group.getId());
+        // 读取删除的成员列表
+        let includeSelf = false;
+        let removedMemberList = [];
+        let removedList = payload.data.removedMemberList;
+        for (let i = 0; i < removedList.length; ++i) {
+            let json = removedList[i];
+            let contact = Contact.create(json, group.getDomain());
+            removedMemberList.push(contact);
+
+            if (contact.getId() == this.self.getId()) {
+                includeSelf = true;
+            }
+        }
+
+        // 读取操作员
+        let operator = Contact.create(payload.data.operator, group.getDomain());
+
+        if (includeSelf) {
+            // 移除
+            this.groups.remove(group.getId());
+            // 更新群组状态，这个状态位需要客户端进行维护 [TIP]
+            group.state = GroupState.Disabled;
+        }
+        else {
+            // 更新
+            this.groups.put(group.getId(), group);
+        }
 
         // 更新存储
-        group.state = GroupState.Disabled;
         this.storage.writeGroup(group);
 
         this.notifyObservers(new ObservableState(ContactEvent.GroupMemberRemoved, {
-            "group": group,
-            "removedMember": removedMember
+            group: group,
+            removedMemberList: removedMemberList,
+            operator: operator
         }))
     }
 

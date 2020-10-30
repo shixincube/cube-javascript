@@ -53,6 +53,9 @@ CubeApp.prototype.initUI = function() {
     app.messagePanel.setCreateGroupListener(function(groupName, memberIdList) {
         return app.fireCreateGroup(groupName, memberIdList);
     });
+    app.messagePanel.setQuitGroupListener(function(groupId) {
+        return app.fireQuitGroup(groupId);
+    });
     app.messagePanel.setDissolveGroupListener(function(groupId) {
         return app.fireDissolveGroup(groupId);
     });
@@ -84,9 +87,13 @@ CubeApp.prototype.config = function(cube) {
     cube.contact.on(ContactEvent.GroupCreated, function(event) {
         app.addGroup(event.data);
     });
+    // 监听解散群组事件
+    cube.contact.on(ContactEvent.GroupDissolved, function(event) {
+        app.removeGroup(event.data);
+    });
     // 监听群组更新事件
     cube.contact.on(ContactEvent.GroupUpdated, function(event) {
-        app.addGroup(event.data);
+        app.updateGroup(event.data);
     });
 
     // 监听消息已发送事件
@@ -157,7 +164,7 @@ CubeApp.prototype.prepareData = function() {
 
             if (list.length > 0) {
                 var last = list[list.length - 1];
-                that.messageCatalogue.updateSubLabel(id, last.getPayload().content, last.getRemoteTimestamp());
+                that.messageCatalogue.updateItem(id, last.getPayload().content, last.getRemoteTimestamp());
             }
         }
 
@@ -259,17 +266,59 @@ CubeApp.prototype.getGroup = function(id) {
  * @param {Group} group 
  */
 CubeApp.prototype.addGroup = function(group) {
-    if (group.getState() == GroupState.Dismissed) {
-        // 不添加已解散的群
-        return;
-    }
-
     if (null != this.getGroup(group.getId())) {
         return;
     }
 
     this.cubeGroupList.push(group);
     this.messageCatalogue.appendItem(group);
+    this.messagePanel.addGroup(group);
+}
+
+/**
+ * 移除群组。
+ * @param {Group} group 
+ */
+CubeApp.prototype.removeGroup = function(group) {
+    for (var i = 0; i < this.cubeGroupList.length; ++i) {
+        var cur = this.cubeGroupList[i];
+        if (cur.getId() == group.getId()) {
+            this.cubeGroupList.splice(i, 1);
+            break;
+        }
+    }
+
+    this.messageCatalogue.removeItem(group);
+    this.messagePanel.removeGroup(group);
+}
+
+/**
+ * 更新群组。
+ * @param {Group} group 
+ */
+CubeApp.prototype.updateGroup = function(group) {
+    if (group.getState() == GroupState.Dismissed) {
+        this.removeGroup(group);
+        return;
+    }
+
+    var current = this.getGroup(group.getId());
+    if (null == current) {
+        this.addGroup(group);
+        return;
+    }
+
+    for (var i = 0; i < this.cubeGroupList.length; ++i) {
+        var cur = this.cubeGroupList[i];
+        if (cur.getId() == group.getId()) {
+            this.cubeGroupList.splice(i, 1);
+            break;
+        }
+    }
+
+    this.cubeContactList.unshift(group);
+
+    // this.messageCatalogue.updateItem(group);
     this.messagePanel.addGroup(group);
 }
 
@@ -355,7 +404,7 @@ CubeApp.prototype.fireSend = function(to, content) {
         return;
     }
 
-    this.messageCatalogue.updateSubLabel(to.getId(), content, message.getTimestamp());
+    this.messageCatalogue.updateItem(to.getId(), content, message.getTimestamp());
 }
 
 CubeApp.prototype.fireCreateGroup = function(groupName, memberIdList) {
@@ -383,6 +432,29 @@ CubeApp.prototype.fireCreateGroup = function(groupName, memberIdList) {
     return true;
 }
 
+CubeApp.prototype.fireQuitGroup = function(groupId) {
+    var that = this;
+    var group = this.getGroup(groupId);
+
+    if (!window.confirm('您确定要退出 “' + group.getName() + '” 群组吗？')) {
+        return false;
+    }
+
+    return this.cube.contact.quitGroup(group, function(group) {
+        // 删除群组
+        that.removeGroup(group);
+
+        that.launchToast(CubeToast.Success, '您是已经退出群组 “' + group.getName() + '”');
+    }, function(group) {
+        if (group.isOwner(that.cubeContact)) {
+            that.launchToast(CubeToast.Error, '您是群主不能退群！');
+        }
+        else {
+            that.launchToast(CubeToast.Error, '退出群组 "' + group.getName() + '" 失败！');
+        }
+    });
+}
+
 CubeApp.prototype.fireDissolveGroup = function(groupId) {
     var group = this.getGroup(groupId);
     if (!group.getOwner().equals(this.cubeContact)) {
@@ -391,7 +463,7 @@ CubeApp.prototype.fireDissolveGroup = function(groupId) {
     }
 
     if (!window.confirm('您确定要解散 “' + group.getName() + '” 这个群组吗？\n* 群组解散后不可恢复。')) {
-        return;
+        return false;
     }
 
     ui.showLoading('正在解散"' + group.getName() + '"，请稍后');
@@ -401,9 +473,6 @@ CubeApp.prototype.fireDissolveGroup = function(groupId) {
         setTimeout(function() {
             ui.hideLoading();
         }, 1000);
-
-        // 解散群组
-        that.messageCatalogue.removeItem(group);
     }, function(group) {
         setTimeout(function() {
             ui.hideLoading();
@@ -424,7 +493,7 @@ CubeApp.prototype.onNewMessage = function(message) {
         var group = this.getGroup(message.getSource());
         if (null != group) {
             // 更新目录
-            this.messageCatalogue.updateSubLabel(group.getId(), content, message.getRemoteTimestamp());
+            this.messageCatalogue.updateItem(group.getId(), content, message.getRemoteTimestamp());
 
             // 更新消息面板
             this.messagePanel.appendMessage(this.getContact(message.getFrom()), content, message.getRemoteTimestamp(), group);
@@ -451,7 +520,7 @@ CubeApp.prototype.onNewMessage = function(message) {
         }
         
         // 更新目录
-        this.messageCatalogue.updateSubLabel(itemId, content, message.getRemoteTimestamp());
+        this.messageCatalogue.updateItem(itemId, content, message.getRemoteTimestamp());
 
         // 更新消息面板
         this.messagePanel.appendMessage(sender, content, message.getRemoteTimestamp(), target);

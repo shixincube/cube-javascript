@@ -141,6 +141,10 @@ body {
 .dropdown-item-xs {
     padding-left: 0.75rem;
 }
+.dropdown-item-xs i {
+    min-width: 16px;
+    width: 16px;
+}
 .dropdown-item-xs span {
     padding-left: 0.5rem;
 }
