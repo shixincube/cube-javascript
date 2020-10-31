@@ -249,12 +249,12 @@ CubeApp.prototype.getContact = function(id) {
 /**
  * 返回指定 ID 的群组对象实例。
  * @param {number} id 
- * @param {Group} 返回指定 ID 的群组对象。
+ * @returns {Group} 返回指定 ID 的群组对象。
  */
 CubeApp.prototype.getGroup = function(id) {
     for (var i = 0; i < this.cubeGroupList.length; ++i) {
         var group = this.cubeGroupList[i];
-        if (group.getId() == parseInt(id)) {
+        if (group.getId() == id) {
             return group;
         }
     }
@@ -318,7 +318,7 @@ CubeApp.prototype.updateGroup = function(group) {
 
     this.cubeContactList.push(group);
 
-    // this.messageCatalogue.updateItem(group);
+    this.messageCatalogue.updateItem(group.getId(), null, group.getLastActiveTime(), group.getName());
     this.messagePanel.updateGroup(group);
 }
 
@@ -482,6 +482,16 @@ CubeApp.prototype.fireDissolveGroup = function(groupId) {
     });
 
     return true;
+}
+
+CubeApp.prototype.fireModifyGroupName = function(groupId, name) {
+    var that = this;
+    var group = this.getGroup(groupId);
+    group.modifyName(name, function(group) {
+        that.launchToast(CubeToast.Success, '已修改群组名称');
+    }, function(group) {
+        that.launchToast(CubeToast.Warning, '修改群名称失败');
+    });
 }
 
 CubeApp.prototype.fireAddMember = function(groupId, memberIdList) {

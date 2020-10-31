@@ -63,6 +63,12 @@ export class ContactPipelineListener extends PipelineListener {
         if (packet.name == ContactAction.SignIn) {
             this.contactService.triggerSignIn(packet.data);
         }
+        else if (packet.name == ContactAction.ListGroups) {
+            this.contactService.triggerListGroups(packet.data);
+        }
+        else if (packet.name == ContactAction.ModifyGroup) {
+            this.contactService.triggerModifyGroup(packet.data, packet.context);
+        }
         else if (packet.name == ContactAction.CreateGroup) {
             this.contactService.triggerCreateGroup(packet.data, packet.context);
         }
@@ -74,9 +80,6 @@ export class ContactPipelineListener extends PipelineListener {
         }
         else if (packet.name == ContactAction.AddGroupMember) {
             this.contactService.triggerAddMember(packet.data, packet.context);
-        }
-        else if (packet.name == ContactAction.ListGroups) {
-            this.contactService.triggerListGroups(packet.data);
         }
         else if (packet.name == ContactAction.SignOut) {
             this.contactService.triggerSignOut(packet.data);

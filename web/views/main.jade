@@ -29,10 +29,10 @@ block pageContent
       //- Right navbar links
       ul.navbar-nav.ml-auto
         //- Notifications Dropdown Menu
-        li.nav-item.dropdown
-          a.nav-link(data-toggle='dropdown' href='javascript:;')
-            i.far.fa-bell
-            span.badge.badge-warning.navbar-badge
+        //- li.nav-item.dropdown
+        //-   a.nav-link(data-toggle='dropdown' href='javascript:;')
+        //-     i.far.fa-bell
+        //-     span.badge.badge-warning.navbar-badge
         li.nav-item
           a.nav-link(data-widget='control-sidebar', data-slide='true', href='javascript:;', role='button')
             i.fas.fa-th-large
@@ -79,7 +79,8 @@ block pageContent
                         div.product-img
                           img.img-size-50.img-round-rect(src=item.thumb)
                         div.product-info.ellipsis
-                          span.product-title.ellipsis=item.label
+                          span.product-title.ellipsis
+                            span.title=item.label
                             span.badge.badge-light.float-right=item.badge
                           span.product-description=item.sublabel
 
@@ -137,9 +138,14 @@ block pageContent
                   div.input-group
                       button.btn.btn-info.btn-xs.dropdown-toggle(type='button', data-toggle='dropdown') &nbsp;&nbsp;更多操作&nbsp;&nbsp;
                         div.dropdown-menu.dropdown-menu-left
+                          a#group_details_modify.dropdown-item.btn-xs.dropdown-item-xs(href='javascript:void(0);', data='0')
+                            i.fas.fa-pen-square
+                            span 修改群组信息
+                          div.dropdown-divider
                           a#group_details_add.dropdown-item.btn-xs.dropdown-item-xs(href='javascript:void(0);', data='0')
                             i.fas.fa-plus-circle
                             span 添加群成员
+                          div.dropdown-divider
                           a#group_details_quit.dropdown-item.btn-xs.dropdown-item-xs(href='javascript:void(0);', data='0')
                             i.fas.fa-minus-circle
                             span 退出群组
@@ -223,6 +229,21 @@ block pageContent
               button.btn.btn-secondary(type='button', data-dismiss='modal') 关闭
               button#contact_list_submit.btn.btn-primary(type='button') 确定
 
+      //- Prompt modal
+      div#modal_prompt.modal.fade
+        div.modal-dialog
+          div.modal-content
+            div.modal-header
+              h5.modal-title 提示
+              button.close(type='button', data-dismiss='modal', aria-label='Close')
+                span(aria-hidden='true') &times;
+            div.modal-body
+              div.form-group
+                label.prompt-label 输入框
+                input.form-control.prompt-input(type='text')
+            div.modal-footer.justify-content-between
+              button.btn.btn-secondary(type='button', data-dismiss='modal', onclick='javascript:ui.firePrompt(false);') 取消
+              button.btn.btn-primary(type='button', data-dismiss='modal', onclick='javascript:ui.firePrompt(true);') 确定
       //- Confirm modal
       div#modal_confirm.modal.fade
         div.modal-dialog

@@ -64,6 +64,28 @@ var CubeToast = {
 
     g.ui.showConfirm = showConfirm;
 
+    // Prompt modal
+
+    var promptCallback = function() {};
+
+    function showPrompt(title, label, callback) {
+        var el = $('#modal_prompt');
+        el.find('.modal-title').text(title);
+        el.find('.prompt-label').text(label);
+
+        el.find('.prompt-input').val('');
+
+        promptCallback = callback;
+
+        el.modal();
+    }
+
+    g.ui.firePrompt = function(ok) {
+        promptCallback(ok, $('#modal_prompt').find('.prompt-input').val());
+    }
+
+    g.ui.showPrompt = showPrompt;
+
 
     // Loading modal
 
@@ -196,6 +218,10 @@ MessageCatalogue.prototype.appendItem = function(item) {
         // TODO
     }
 
+    if (undefined !== this.elItemMap[id]) {
+        return;
+    }
+
     if (null == label) {
         return;
     }
@@ -204,7 +230,8 @@ MessageCatalogue.prototype.appendItem = function(item) {
     '<li id="catalog_item_', index, '" class="item pl-2 pr-2" data="', id, '">',
         '<div class="product-img"><img class="img-size-50 img-round-rect" src="', thumb ,'"/></div>',
         '<div class="product-info ellipsis">',
-            '<span class="product-title ellipsis">', label,
+            '<span class="product-title ellipsis">',
+                '<span class="title">', label, '</span>',
                 '<span class="badge badge-light float-right">', badge, '</span>',
             '</span>',
             '<span class="product-description">', sublabel, '</span>',
@@ -256,14 +283,21 @@ MessageCatalogue.prototype.removeItem = function(item) {
     }
 }
 
-MessageCatalogue.prototype.updateItem = function(id, sub, time) {
+MessageCatalogue.prototype.updateItem = function(id, sub, time, label) {
     var el = this.elItemMap[id];
     if (undefined === el) {
         return;
     }
 
-    el.find('.product-description').text(sub);
+    if (null != sub) {
+        el.find('.product-description').text(sub);
+    }
+
     el.find('.badge').text(formatShortTime(time));
+
+    if (label) {
+        el.find('.title').text(label);
+    }
 }
 
 MessageCatalogue.prototype.onCatalogItemClick = function(itemId) {
@@ -346,6 +380,10 @@ function MessagePanel(app) {
         that.onNewGroupSubmitClick(e);
     });
 
+    // 修改群组
+    $('#group_details_modify').on('click', function(e) {
+        that.onModifyGroup(e);
+    });
     // 添加群成员
     $('#group_details_add').on('click', function(e) {
         that.onAddGroupMemberClick(e);
@@ -491,6 +529,13 @@ MessagePanel.prototype.updateGroup = function(group) {
         panelEl = view.detailMemberTable.parent();
         view.detailMemberTable.remove();
         this.current = group;
+
+        // 更新面板标题
+        this.elTitle.text(group.getName());
+
+        // 更新详情页标题
+        var el = $('#modal_group_details');
+        el.find('.widget-user-username').text(group.getName());
     }
 
     view.detailMemberTable = this.createGroupDetailsTable(group);
@@ -632,6 +677,10 @@ MessagePanel.prototype.onSendClick = function(e) {
 MessagePanel.prototype.onNewGroupSubmitClick = function(e) {
     // 提取群名称
     var groupName = $('#new_group_input_name').val();
+    if (groupName.length > 0 && groupName.length < 4) {
+        ui.showAlert('群组名称不能少于4个字。');
+        return;
+    }
 
     // 提取选择的群成员 ID
     var memberList = [];
@@ -673,6 +722,19 @@ MessagePanel.prototype.onContactListSubmitClick = function(e) {
 
     this.app.fireAddMember(groupId, memberIdList);
     $('#contact_list_dialog').modal('hide');
+}
+
+MessagePanel.prototype.onModifyGroup = function(e) {
+    if (null == this.current) {
+        return;
+    }
+
+    var that = this;
+    ui.showPrompt('修改群组名称', '请输入新的群组名', function(ok, text) {
+        if (ok && text.length > 3) {
+            that.app.fireModifyGroupName(that.current.getId(), text);
+        }
+    });
 }
 
 MessagePanel.prototype.onAddGroupMemberClick = function(e) {

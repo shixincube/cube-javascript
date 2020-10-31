@@ -28,6 +28,7 @@ import cell from "@lib/cell-lib";
 import { Contact } from "./Contact";
 import { ContactService } from "./ContactService";
 import { GroupState } from "./GroupState";
+import { Self } from "./Self";
 import { AuthService } from "../auth/AuthService";
 
 /**
@@ -91,6 +92,53 @@ export class Group extends Contact {
     }
 
     /**
+     * 修改群主。
+     * @param {Contact} newOwner 
+     * @param {function} handleSuccess 
+     * @param {function} handleError 
+     * @returns {boolean} 返回是否能执行该操作。
+     */
+    changeOwner(newOwner, handleSuccess, handleError) {
+        if (!(newOwner instanceof Contact)) {
+            if (handleError) {
+                handleError(this);
+            }
+            return false;
+        }
+
+        return this.service.modifyGroup(this, newOwner, null, null, handleSuccess, handleError);
+    }
+
+    /**
+     * 修改群组名称。
+     * @param {string} name 
+     * @param {function} handleSuccess 
+     * @param {function} handleError 
+     * @returns {boolean} 返回是否能执行该操作。
+     */
+    modifyName(name, handleSuccess, handleError) {
+        if (name == this.name) {
+            if (handleError) {
+                handleError(this);
+            }
+            return false;
+        }
+
+        return this.service.modifyGroup(this, null, name, null, handleSuccess, handleError);
+    }
+
+    /**
+     * 修改群组上下文。
+     * @param {JSON|object} context 
+     * @param {function} handleSuccess 
+     * @param {function} handleError 
+     * @returns {boolean} 返回是否能执行该操作。
+     */
+    modifyContext(context, handleSuccess, handleError) {
+        return this.service.modifyGroup(this, null, null, context, handleSuccess, handleError);
+    }
+
+    /**
      * 获取群组的所有者。
      * @returns {Contact} 返回群组的所有者。
      */
@@ -106,6 +154,9 @@ export class Group extends Contact {
     isOwner(contact) {
         let id = 0;
         if (contact instanceof Contact) {
+            id = contact.getId();
+        }
+        else if (contact instanceof Self) {
             id = contact.getId();
         }
         else {

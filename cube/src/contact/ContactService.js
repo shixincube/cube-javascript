@@ -1236,8 +1236,8 @@ export class ContactService extends Module {
     }
 
     /**
-     * 变更群组信息。
-     * @param {Group} group 指定需要变更信息的群组。
+     * 修改群组信息。
+     * @param {Group} group 指定需要修改信息的群组。
      * @param {Contact} owner 指定新的群主。如果不变更群主，此参数填写 {@linkcode null} 值。
      * @param {string} name 指定新的群名称。如果不变更群名称，此参数填写 {@linkcode null} 值。
      * @param {JSON} context 指定新的群附件上下文。如果不变更群上下文，此参数填写 {@linkcode null} 值。
@@ -1245,7 +1245,7 @@ export class ContactService extends Module {
      * @param {function} [handleError] 操作失败回调该方法，参数：({@linkcode group}:{@link Group}) 。
      * @returns {boolean} 返回是否能执行该操作。
      */
-    changeGroup(group, owner, name, context, handleSuccess, handleError) {
+    modifyGroup(group, owner, name, context, handleSuccess, handleError) {
         if (null == owner && null == name && null == context) {
             if (handleError) {
                 handleError(group);
@@ -1258,7 +1258,11 @@ export class ContactService extends Module {
         };
 
         if (null != owner && owner instanceof Contact) {
-            data.owner = owner.toCompactJSON();
+            // 新群主不是群成员，不能修改群主
+            // 当前联系人不是群主，不能修改群主
+            if (group.isOwner(this.self) && group.hasMember(owner)) {
+                data.owner = owner.toCompactJSON();
+            }
         }
 
         if (null != name && typeof name === 'string') {
@@ -1269,7 +1273,7 @@ export class ContactService extends Module {
             data.context = context;
         }
 
-        let packet = new Packet(ContactAction.ChangeGroup, data);
+        let packet = new Packet(ContactAction.ModifyGroup, data);
 
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
             if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
@@ -1286,20 +1290,40 @@ export class ContactService extends Module {
                 return;
             }
 
-            let changedGroup = Group.create(this, responsePacket.getPayload().data);
+            let modifiedGroup = Group.create(this, responsePacket.getPayload().data);
 
-            group.owner = changedGroup.owner;
-            group.name = changedGroup.name;
-            group.context = changedGroup.context;
+            group.owner = modifiedGroup.owner;
+            group.name = modifiedGroup.name;
+            group.context = modifiedGroup.context;
+            group.lastActiveTime = modifiedGroup.lastActiveTime;
 
             // 设置上下文
-            responsePacket.context = changedGroup;
+            responsePacket.context = modifiedGroup;
 
             if (handleSuccess) {
-                handleSuccess(changedGroup);
+                handleSuccess(group);
             }
         });
 
         return true;
+    }
+
+    /**
+     * 接收修改群成员数据。
+     * @param {JSON} payload 数据包数据。
+     * @param {object} context 数据包携带的上下文。
+     */
+    triggerModifyGroup(payload, context) {
+        if (payload.code != 0) {
+            return;
+        }
+
+        let group = (null == context) ? Group.create(this, payload.data) : context;
+
+        this.groups.put(group.getId(), group);
+
+        this.storage.writeGroup(group);
+
+        this.notifyObservers(new ObservableState(ContactEvent.GroupUpdated, group));
     }
 }

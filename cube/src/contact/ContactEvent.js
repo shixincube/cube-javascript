@@ -79,12 +79,6 @@ export const ContactEvent = {
     GroupMemberRemoved: 'GroupMemberRemoved',
 
     /**
-     * 群所有人变更。
-     * @type {string}
-     */
-    GroupOwnerChanged: 'GroupOwnerChanged',
-
-    /**
      * @private
      */
     Unknown: 'Unknown'

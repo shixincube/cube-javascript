@@ -102,8 +102,8 @@ export const ContactAction = {
     RemoveGroupMember: 'removeGroupMember',
 
     /**
-     * 变更群组信息。
+     * 修改群组信息。
      * @type {string}
      */
-    ChangeGroup: 'changeGroup'
+    ModifyGroup: 'modifyGroup'
 }
