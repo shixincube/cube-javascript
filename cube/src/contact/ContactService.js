@@ -1237,17 +1237,69 @@ export class ContactService extends Module {
 
     /**
      * 变更群组信息。
-     * @param {Group} group 
-     * @param {Contact} newOwner 
-     * @param {string} name
-     * @param {JSON} context
+     * @param {Group} group 指定需要变更信息的群组。
+     * @param {Contact} owner 指定新的群主。如果不变更群主，此参数填写 {@linkcode null} 值。
+     * @param {string} name 指定新的群名称。如果不变更群名称，此参数填写 {@linkcode null} 值。
+     * @param {JSON} context 指定新的群附件上下文。如果不变更群上下文，此参数填写 {@linkcode null} 值。
+     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}) 。
+     * @param {function} [handleError] 操作失败回调该方法，参数：({@linkcode group}:{@link Group}) 。
+     * @returns {boolean} 返回是否能执行该操作。
      */
-    changeGroupInfo(group, newOwner) {
-        
-        let packet = new Packet(ContactAction.ChangeGroupInfo, {
-            "groupId" : group.getId(),
-            "newOwnerId" : newOwner.getId()
+    changeGroup(group, owner, name, context, handleSuccess, handleError) {
+        if (null == owner && null == name && null == context) {
+            if (handleError) {
+                handleError(group);
+            }
+            return false;
+        }
+
+        let data = {
+            groupId: group.getId()
+        };
+
+        if (null != owner && owner instanceof Contact) {
+            data.owner = owner.toCompactJSON();
+        }
+
+        if (null != name && typeof name === 'string') {
+            data.name = name;
+        }
+
+        if (null != context) {
+            data.context = context;
+        }
+
+        let packet = new Packet(ContactAction.ChangeGroup, data);
+
+        this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+                if (handleError) {
+                    handleError(group);
+                }
+                return;
+            }
+
+            if (responsePacket.getPayload().code != 0) {
+                if (handleError) {
+                    handleError(group);
+                }
+                return;
+            }
+
+            let changedGroup = Group.create(this, responsePacket.getPayload().data);
+
+            group.owner = changedGroup.owner;
+            group.name = changedGroup.name;
+            group.context = changedGroup.context;
+
+            // 设置上下文
+            responsePacket.context = changedGroup;
+
+            if (handleSuccess) {
+                handleSuccess(changedGroup);
+            }
         });
 
+        return true;
     }
 }
