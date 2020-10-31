@@ -484,21 +484,33 @@ CubeApp.prototype.fireDissolveGroup = function(groupId) {
     return true;
 }
 
-CubeApp.prototype.fireRemoveMember = function(data) {
-    var member = null;
-    var group = null;
-    if (typeof data === 'object') {
-        // 传输的是元素
-        member = this.getContact(parseInt(data.attr('data-member')));
-        group = this.getGroup(parseInt(data.attr('data-group')));
-    }
-    else {
-        return;
+CubeApp.prototype.fireAddMember = function(groupId, memberIdList) {
+    var group = this.getGroup(groupId);
+
+    var members = [];
+    for (var i = 0; i < memberIdList.length; ++i) {
+        members.push(this.getContact(memberIdList[i]));
     }
 
     var that = this;
 
-    group.removeMembers([member], function(group, members, operator) {
+    // 向群组添加成员
+    group.addMembers(members, function(group, members, operator) {
+        that.launchToast(CubeToast.Success, '已添加 ' + members.length + ' 名新成员。');
+        that.updateGroup(group);
+    }, function(group, members, operator) {
+        that.launchToast(CubeToast.Error, '添加群成员失败！');
+    });
+}
+
+CubeApp.prototype.fireRemoveMember = function(groupId, memberId) {
+    var group = this.getGroup(groupId);
+    var member = this.getContact(memberId);
+
+    var that = this;
+
+    // 从群组里删除成员
+    group.removeMembers([ member ], function(group, members, operator) {
         that.launchToast(CubeToast.Success, '已移除成员 "' + member.getName() + '" 。');
         that.updateGroup(group);
     }, function(group, members, operator) {

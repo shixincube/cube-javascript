@@ -101,34 +101,6 @@ block pageContent
                       span.input-group-append
                         button#btn_send.btn.btn-primary(type='button', disabled='disabled') 发送
 
-      //- Confirm modal
-      div#modal_confirm.modal.fade
-        div.modal-dialog
-          div.modal-content
-            div.modal-header
-              h4.modal-title 提示
-              button.close(type='button', data-dismiss='modal', aria-label='Close')
-                span(aria-hidden='true') &times;
-            div.modal-body
-              p &hellip;
-            div.modal-footer.justify-content-between
-              button.btn.btn-secondary(type='button', data-dismiss='modal', onclick='javascript:ui.fireConfirm(false);') 取消
-              button.btn.btn-primary(type='button', data-dismiss='modal', onclick='javascript:ui.fireConfirm(true);') 确定
-      //- Loading modal
-      div#modal_loading.modal.fade
-        div.modal-dialog
-          div.modal-content
-            div.overlay.d-flex.justify-content-center.align-items-center.loading-overlay
-              i.fas.fa-2x.fa-sync.fa-spin
-            div.modal-header
-              span.modal-title 正在处理
-            div.modal-body
-              p &nbsp;
-            div.modal-footer
-              p.modal-elapsed
-                span.modal-elapsed-tip 用时：
-                span.modal-elapsed-time
-
       //- Contact details
       div#modal_contact_details.modal.fade
         div.modal-dialog
@@ -165,6 +137,9 @@ block pageContent
                   div.input-group
                       button.btn.btn-info.btn-xs.dropdown-toggle(type='button', data-toggle='dropdown') &nbsp;&nbsp;更多操作&nbsp;&nbsp;
                         div.dropdown-menu.dropdown-menu-left
+                          a#group_details_add.dropdown-item.btn-xs.dropdown-item-xs(href='javascript:void(0);', data='0')
+                            i.fas.fa-plus-circle
+                            span 添加群成员
                           a#group_details_quit.dropdown-item.btn-xs.dropdown-item-xs(href='javascript:void(0);', data='0')
                             i.fas.fa-minus-circle
                             span 退出群组
@@ -185,7 +160,7 @@ block pageContent
                       th() 部门
                       th() 操作
 
-      //- New Group Dialog
+      //- New group Dialog
       div#new_group_dialog.modal.fade
         div.modal-dialog
           div.modal-content
@@ -212,7 +187,81 @@ block pageContent
             div.modal-footer
               button.btn.btn-secondary(type='button', data-dismiss='modal') 关闭
               button#new_group_submit.btn.btn-primary(type='button') 确定
-              
+
+      //- Contact list
+      div#contact_list_dialog.modal.fade
+        div.modal-dialog.modal-lg
+          div.modal-content
+            div.modal-header
+              h5.modal-title 联系人列表
+              button.close(type='button', data-dismiss='modal', aria-label='Close')
+                span(aria-hidden='true') &times;
+            div.modal-body
+              table.table.table-striped
+                  thead
+                    tr
+                      th() #
+                      th() 头像
+                      th() 昵称
+                      th() 账号
+                      th() 地区
+                      th() 部门
+                  tbody
+                    - each item,i in contacts
+                      tr
+                        td
+                          div.custom-control.custom-checkbox
+                            input.custom-control-input(type='checkbox', id='list_contact_' + item.id)
+                            label.custom-control-label(for='list_contact_' + item.id)
+                        td
+                          img.table-avatar(src=item.avatar)
+                        td=item.name
+                        td=item.id
+                        td=item.region
+                        td=item.department
+            div.modal-footer
+              button.btn.btn-secondary(type='button', data-dismiss='modal') 关闭
+              button#contact_list_submit.btn.btn-primary(type='button') 确定
+
+      //- Confirm modal
+      div#modal_confirm.modal.fade
+        div.modal-dialog
+          div.modal-content
+            div.modal-header
+              h5.modal-title 提示
+              button.close(type='button', data-dismiss='modal', aria-label='Close')
+                span(aria-hidden='true') &times;
+            div.modal-body
+              p &hellip;
+            div.modal-footer.justify-content-between
+              button.btn.btn-secondary(type='button', data-dismiss='modal', onclick='javascript:ui.fireConfirm(false);') 取消
+              button.btn.btn-primary(type='button', data-dismiss='modal', onclick='javascript:ui.fireConfirm(true);') 确定
+      //- Alert modal
+      div#modal_alert.modal.fade
+        div.modal-dialog
+          div.modal-content
+            div.modal-header
+              h5.modal-title 提示
+              button.close(type='button', data-dismiss='modal', aria-label='Close')
+                span(aria-hidden='true') &times;
+            div.modal-body
+              p &hellip;
+            div.modal-footer
+              button.btn.btn-default(type='button', data-dismiss='modal', onclick='javascript:ui.fireAlert();') 确定
+      //- Loading modal
+      div#modal_loading.modal.fade
+        div.modal-dialog
+          div.modal-content
+            div.overlay.d-flex.justify-content-center.align-items-center.loading-overlay
+              i.fas.fa-2x.fa-sync.fa-spin
+            div.modal-header
+              span.modal-title 正在处理
+            div.modal-body
+              p &nbsp;
+            div.modal-footer
+              p.modal-elapsed
+                span.modal-elapsed-tip 用时：
+                span.modal-elapsed-time
 
     aside.control-sidebar.control-sidebar-dark
       div.p-3

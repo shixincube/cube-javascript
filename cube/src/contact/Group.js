@@ -156,20 +156,13 @@ export class Group extends Contact {
 
     /**
      * 添加群组成员。
-     * @param {Contact} contact 指定群组成员。
+     * @param {Array<Contact|number>} members 指定群组成员或者群组成员 ID 。
+     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode members}:Array, {@linkcode operator}:{@link Contact}) 。
+     * @param {function} [handleError] 操作失败回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode members}:Array, {@linkcode operator}:{@link Contact}) 。
+     * @returns {boolean} 返回是否能执行该操作。
      */
-    addMember(contact, handler) {
-        if (this.hasMember(contact)) {
-            return;
-        }
-
-        this.service.addGroupMember(this, contact, (group, contact) => {
-            if (null == group) {
-                return;
-            }
-
-            this.memberList.push(contact);
-        });
+    addMembers(members, handleSuccess, handleError) {
+        return this.service.addGroupMembers(this, members, handleSuccess, handleError);
     }
 
     /**
@@ -208,59 +201,19 @@ export class Group extends Contact {
     }
 
     /**
-     * 获取群组成员列表。
-     * 该方法以分页形式将指定分页数量的群成员依次传递给回调函数。
-     * 回调函数会被调用一次或多次，直到获取到所有成员对象或者超时。
-     * @param {function} handler 
-     * @param {number} numMemPerPage 
-     */
-    refreshMembers(handler, numMemPerPage) {
-        // 分页
-        let pages = this.pagingMembers(numMemPerPage);
-
-        // 执行函数
-        let go = (list) => {
-            this.service.getContactList(list, (clist) => {
-                handler(clist);
-    
-                if (pages.length > 0) {
-                    // 还有数据继续获取
-                    let newList = pages.shift();
-    
-                    go(newList);
-                }
-            });
-        };
-
-        let list = pages.shift();
-        // 执行
-        go(list);
-    }
-
-    /**
-     * 对成员列表按照每页数量进行分页。
+     * 仅用于维护 memberList 数据。
      * @private
-     * @param {number} numMemPerPage 
-     * @returns {Array<Array<number>>} 返回分页结果。
+     * @param {Contact} member 
      */
-    pagingMembers(numMemPerPage) {
-        let result = [];
-
-        let page = [];
-        let index = 0;
-        while (index < this.memberIdList.length) {
-            let id = this.memberIdList[index];
-            page.push(id);
-
-            if (page.length == numMemPerPage) {
-                result.push(page);
-                page = [];
+    _removeMember(member) {
+        let id = member.getId();
+        for (let i = 0; i < this.memberList.length; ++i) {
+            let m = this.memberList[i];
+            if (m.getId() == id) {
+                this.memberList.splice(i, 1);
+                return;
             }
-
-            ++index;
         }
-
-        return result;
     }
 
     /**

@@ -949,6 +949,19 @@ export class ContactService extends Module {
             // 读取数据
             let bundle = GroupBundle.create(this, responsePacket.getPayload().data);
 
+            if (bundle.includeSelf) {
+                // [TIP] 更新群组状态，这个状态位需要客户端进行维护
+                bundle.group.state = GroupState.Disabled;
+                // [TIP] 更新实例
+                group.state = GroupState.Disabled;
+            }
+
+            // 更新实例
+            let modified = bundle.modified;
+            for (let i = 0; i < modified.length; ++i) {
+                group._removeMember(modified[i]);
+            }
+
             // 设置上下文
             responsePacket.context = bundle;
 
@@ -971,14 +984,25 @@ export class ContactService extends Module {
     removeGroupMembers(group, members, handleSuccess, handleError) {
         // 检查传入的成员是否是群成员
         let memberIdList = [];
+        // 群主 ID
+        let ownerId = group.getOwner().getId();
+
         for (let i = 0; i < members.length; ++i) {
             let m = members[i];
             if (m instanceof Contact) {
+                if (m.getId() == ownerId) {
+                    continue;
+                }
+
                 if (group.hasMember(m)) {
                     memberIdList.push(m.getId());
                 }
             }
             else {
+                if (m == ownerId) {
+                    continue;
+                }
+
                 if (group.hasMember(m)) {
                     memberIdList.push(m);
                 }
@@ -1022,6 +1046,14 @@ export class ContactService extends Module {
             if (bundle.includeSelf) {
                 // [TIP] 更新群组状态，这个状态位需要客户端进行维护
                 bundle.group.state = GroupState.Disabled;
+                // [TIP] 更新实例
+                group.state = GroupState.Disabled;
+            }
+
+            // 更新实例
+            let modified = bundle.modified;
+            for (let i = 0; i < modified.length; ++i) {
+                group._removeMember(modified[i]);
             }
 
             // 设置上下文
@@ -1067,7 +1099,7 @@ export class ContactService extends Module {
             group: group,
             modified: bundle.modified,
             operator: bundle.operator
-        }))
+        }));
     }
 
     /**
@@ -1079,23 +1111,36 @@ export class ContactService extends Module {
      * @returns {boolean} 返回是否能执行该操作。
      */
     addGroupMembers(group, members, handleSuccess, handleError) {
+        // 判读参数是 ID 还是 Contact
+        let memberIdList = null;
+        let memberList = null;
+        if (members[0] instanceof Contact) {
+            memberList = [];
+        }
+        else {
+            memberIdList = [];
+        }
+
         // 检查传入的成员是否是群成员，不能进行重复添加
-        let memberIdList = [];
         for (let i = 0; i < members.length; ++i) {
             let m = members[i];
-            if (m instanceof Contact) {
-                if (!group.hasMember(m)) {
-                    memberIdList.push(m.getId());
+            if (!group.hasMember(m)) {
+                if (null != memberList) {
+                    memberList.push(m.toCompactJSON());
                 }
-            }
-            else {
-                if (!group.hasMember(m)) {
+                else {
                     memberIdList.push(m);
                 }
             }
         }
 
-        if (memberIdList.length == 0) {
+        if (null != memberList && memberList.length == 0) {
+            if (handleError) {
+                handleError(group, members, this.self);
+            }
+            return false;
+        }
+        else if (null != memberIdList && memberIdList.length == 0) {
             if (handleError) {
                 handleError(group, members, this.self);
             }
@@ -1105,11 +1150,21 @@ export class ContactService extends Module {
         // 操作员是本账号
         let operator = this.self;
 
-        let packet = new Packet(ContactAction.AddGroupMember, {
-            "groupId": group.getId(),
-            "memberIdList": memberIdList,
-            "operator": operator.toCompactJSON()
-        });
+        let packet = null;
+        if (null != memberList) {
+            packet = new Packet(ContactAction.AddGroupMember, {
+                "groupId": group.getId(),
+                "memberList": memberList,
+                "operator": operator.toCompactJSON()
+            });
+        }
+        else {
+            packet = new Packet(ContactAction.AddGroupMember, {
+                "groupId": group.getId(),
+                "memberIdList": memberIdList,
+                "operator": operator.toCompactJSON()
+            });
+        }
 
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
             if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
@@ -1129,6 +1184,12 @@ export class ContactService extends Module {
             // 读取数据
             let bundle = GroupBundle.create(this, responsePacket.getPayload().data);
 
+            // 更新实例
+            let modified = bundle.modified;
+            for (let i = 0; i < modified.length; ++i) {
+                group.memberList.push(modified[i]);
+            }
+
             // 设置上下文
             responsePacket.context = bundle;
 
@@ -1140,32 +1201,53 @@ export class ContactService extends Module {
         return true;
     }
 
-    changeGroupOwner(group, newOwner) {
-        let packet = new Packet(ContactAction.ChangeOwner, {
+    /**
+     * 接收添加群成员数据。
+     * @param {JSON} payload 数据包数据。
+     * @param {object} context 数据包携带的上下文。
+     */
+    triggerAddMember(payload, context) {
+        if (payload.code != 0) {
+            return;
+        }
+
+        // 读取群信息
+        let bundle = (null == context) ? GroupBundle.create(this, payload.data) : context;
+        let group = bundle.group;
+
+        // 更新
+        this.groups.put(group.getId(), group);
+
+        // 更新存储
+        this.storage.writeGroup(group);
+
+        // [TIP] 新加入的人有自己则通知更新事件
+        if (bundle.includeSelf) {
+            // 回调群更新
+            this.notifyObservers(new ObservableState(ContactEvent.GroupUpdated, group));
+        }
+        else {
+            this.notifyObservers(new ObservableState(ContactEvent.GroupMemberAdded, {
+                group: group,
+                modified: bundle.modified,
+                operator: bundle.operator
+            }));
+        }
+    }
+
+    /**
+     * 变更群组信息。
+     * @param {Group} group 
+     * @param {Contact} newOwner 
+     * @param {string} name
+     * @param {JSON} context
+     */
+    changeGroupInfo(group, newOwner) {
+        
+        let packet = new Packet(ContactAction.ChangeGroupInfo, {
             "groupId" : group.getId(),
             "newOwnerId" : newOwner.getId()
         });
 
     }
-
-    /*
-    triggerInviteMember(payload) {
-        Group.create(this, payload.data, (result) => {
-            if (null == result) {
-                // 创建失败
-                return;
-            }
-
-            let group = result;
-            this.groups.put(group.getId(), group);
-
-            let state = new ObservableState(ContactEvent.Invited, group);
-            this.notifyObservers(state);
-        });
-    }
-
-    triggerChangeOwner(payload) {
-        let groupId = payload.data.groupId;
-        let newOwnerId = payload.data.newOwnerId;
-    }*/
 }

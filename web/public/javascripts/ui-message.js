@@ -18,6 +18,34 @@ var CubeToast = {
 
     g.ui = g.ui || {};
 
+    // Alert modal
+
+    var alertCallback = null;
+
+    function showAlert(content, callback) {
+        var el = $('#modal_alert');
+        el.find('.modal-body').html('<p>' + content + '</p>');
+
+        if (undefined === callback) {
+            alertCallback = null;
+        }
+        else {
+            alertCallback = callback;
+        }
+
+        el.modal();
+    }
+
+    g.ui.fireAlert = function() {
+        if (null != alertCallback) {
+            alertCallback();
+        }
+    }
+
+    g.ui.showAlert = showAlert;
+
+    // Confirm modal
+
     var confirmCallback = function() {};
 
     function showConfirm(title, content, callback) {
@@ -35,6 +63,9 @@ var CubeToast = {
     }
 
     g.ui.showConfirm = showConfirm;
+
+
+    // Loading modal
 
     var loadingModal = null;
 
@@ -315,9 +346,19 @@ function MessagePanel(app) {
         that.onNewGroupSubmitClick(e);
     });
 
+    // 添加群成员
+    $('#group_details_add').on('click', function(e) {
+        that.onAddGroupMemberClick(e);
+    });
+    // 提交选择的群成员
+    $('#contact_list_submit').on('click', function(e) {
+        that.onContactListSubmitClick(e);
+    });
+    // 退出群组
     $('#group_details_quit').on('click', function(e) {
         that.onQuitGroupClick(e);
-    });;
+    });
+    // 解散群
     $('#group_details_dissolve').on('click', function(e) {
         that.onDissolveGroupClick(e);
     });
@@ -464,12 +505,20 @@ MessagePanel.prototype.createGroupDetailsTable = function(group) {
 
     var removeable = group.isOwner(this.app.cubeContact);
 
+    var clickEvent = [
+        'window.app.fireRemoveMember(', 
+            'parseInt($(this).attr(\'data-group\')),',
+            'parseInt($(this).attr(\'data-member\'))',
+        ');'
+    ];
+    clickEvent = clickEvent.join('');
+
     var members = group.getMembers();
     for (var i = 0; i < members.length; ++i) {
         var member = members[i];
 
         var operation = (member.equals(this.app.cubeContact) || group.isOwner(member)) ? [ '' ]
-            : [ '<button class="btn btn-danger btn-xs', (removeable ? '' : ' disabled'), '" onclick="window.app.fireRemoveMember($(this));"',
+            : [ '<button class="btn btn-danger btn-xs', (removeable ? '' : ' disabled'), '" onclick="', clickEvent, '"',
                 ' data-member="', member.getId(), '"',
                 ' data-group="', group.getId(), '"',
                 ' data-original-title="从本群中移除" data-placement="top" data-toggle="tooltip"><i class="fas fa-minus"></i></button>'];
@@ -595,13 +644,60 @@ MessagePanel.prototype.onNewGroupSubmitClick = function(e) {
     }
 
     if (memberList.length == 0) {
-        alert('没有选择群成员');
+        ui.showAlert('没有选择群成员');
         return;
     }
 
     $('#new_group_dialog').modal('hide');
 
     this.submitCreateGroupListener(groupName, memberList);
+}
+
+MessagePanel.prototype.onContactListSubmitClick = function(e) {
+    var groupId = this.current.getId();
+    var memberIdList = [];
+    for (var i = 0; i < this.app.cubeContactList.length; ++i) {
+        var contact = this.app.cubeContactList[i];
+        var el = $('#list_contact_' + contact.getId());
+
+        // 没有被禁用的 checkbox 并且被选中
+        if (!el.prop('disabled') && el.prop('checked')) {
+            memberIdList.push(contact.getId());
+        }
+    }
+
+    if (memberIdList.length == 0) {
+        ui.showAlert('请选择至少一个联系人。');
+        return;
+    }
+
+    this.app.fireAddMember(groupId, memberIdList);
+    $('#contact_list_dialog').modal('hide');
+}
+
+MessagePanel.prototype.onAddGroupMemberClick = function(e) {
+    if (null == this.current) {
+        return;
+    }
+
+    for (var i = 0; i < this.app.cubeContactList.length; ++i) {
+        var contact = this.app.cubeContactList[i];
+        var el = $('#list_contact_' + contact.getId());
+        el.prop('checked', false);
+        el.prop('disabled', false);
+    }
+
+    var list = this.app.getGroup(this.current.getId()).getMembers();
+    for (var i = 0; i < list.length; ++i) {
+        var member = list[i];
+        var el = $('#list_contact_' + member.getId());
+        el.prop('checked', true);
+        el.prop('disabled', true);
+    }
+
+    // 选中已经在群里的成员
+    $('#contact_list_dialog').find('.modal-title').text('选择群成员');
+    $('#contact_list_dialog').modal('show');
 }
 
 MessagePanel.prototype.onQuitGroupClick = function(e) {

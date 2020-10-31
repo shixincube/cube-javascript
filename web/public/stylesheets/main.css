@@ -19,6 +19,15 @@ body {
     text-align: right;
 }
 
+.modal-dialog td {
+    vertical-align: middle;
+}
+.modal-dialog img.table-avatar {
+    border-radius: 10%;
+    display: inline;
+    width: 2.5rem;
+}
+
 .ellipsis {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -123,9 +132,6 @@ body {
     border-radius: 10%;
     display: inline;
     width: 2.5rem;
-}
-.details-card td {
-    vertical-align: middle;
 }
 
 .details-card .operation {

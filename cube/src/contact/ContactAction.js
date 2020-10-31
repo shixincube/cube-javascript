@@ -102,14 +102,8 @@ export const ContactAction = {
     RemoveGroupMember: 'removeGroupMember',
 
     /**
-     * 被邀请进入群组。
+     * 变更群组信息。
      * @type {string}
      */
-    InviteMember: 'inviteMember',
-
-    /**
-     * 变更群的所有者。
-     * @type {string}
-     */
-    ChangeOwner: 'changeOwner'
+    ChangeGroupInfo: 'changeGroupInfo'
 }
