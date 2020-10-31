@@ -254,7 +254,7 @@ CubeApp.prototype.getContact = function(id) {
 CubeApp.prototype.getGroup = function(id) {
     for (var i = 0; i < this.cubeGroupList.length; ++i) {
         var group = this.cubeGroupList[i];
-        if (group.getId() == id) {
+        if (group.getId() == parseInt(id)) {
             return group;
         }
     }
@@ -297,7 +297,7 @@ CubeApp.prototype.removeGroup = function(group) {
  * @param {Group} group 
  */
 CubeApp.prototype.updateGroup = function(group) {
-    if (group.getState() == GroupState.Dismissed) {
+    if (group.getState() == GroupState.Dismissed || group.getState() == GroupState.Disabled) {
         this.removeGroup(group);
         return;
     }
@@ -316,10 +316,10 @@ CubeApp.prototype.updateGroup = function(group) {
         }
     }
 
-    this.cubeContactList.unshift(group);
+    this.cubeContactList.push(group);
 
     // this.messageCatalogue.updateItem(group);
-    this.messagePanel.addGroup(group);
+    this.messagePanel.updateGroup(group);
 }
 
 /**
@@ -447,7 +447,7 @@ CubeApp.prototype.fireQuitGroup = function(groupId) {
         that.launchToast(CubeToast.Success, '您是已经退出群组 “' + group.getName() + '”');
     }, function(group) {
         if (group.isOwner(that.cubeContact)) {
-            that.launchToast(CubeToast.Error, '您是群主不能退群！');
+            that.launchToast(CubeToast.Warning, '您是群主不能退群！');
         }
         else {
             that.launchToast(CubeToast.Error, '退出群组 "' + group.getName() + '" 失败！');
@@ -482,6 +482,28 @@ CubeApp.prototype.fireDissolveGroup = function(groupId) {
     });
 
     return true;
+}
+
+CubeApp.prototype.fireRemoveMember = function(data) {
+    var member = null;
+    var group = null;
+    if (typeof data === 'object') {
+        // 传输的是元素
+        member = this.getContact(parseInt(data.attr('data-member')));
+        group = this.getGroup(parseInt(data.attr('data-group')));
+    }
+    else {
+        return;
+    }
+
+    var that = this;
+
+    group.removeMembers([member], function(group, members, operator) {
+        that.launchToast(CubeToast.Success, '已移除成员 "' + member.getName() + '" 。');
+        that.updateGroup(group);
+    }, function(group, members, operator) {
+        that.launchToast(CubeToast.Error, '移除群成员 "' + member.getName() + "' 失败！");
+    });
 }
 
 CubeApp.prototype.onNewMessage = function(message) {

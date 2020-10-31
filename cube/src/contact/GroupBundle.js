@@ -26,6 +26,7 @@
 
 import { Group } from "./Group";
 import { Contact } from "./Contact";
+import { ContactService } from "./ContactService";
 
 /**
  * 用于描述群组数据集合的类。
@@ -40,9 +41,9 @@ export class GroupBundle {
     }
 
     /**
-     * 
-     * @param {*} service 
-     * @param {*} json 
+     * 由 JSON 格式数据创建 {@link GroupBundle} 实例。
+     * @param {ContactService} service 
+     * @param {JSON} json 
      * @returns {GroupBundle}
      */
     static create(service, json) {
@@ -56,7 +57,7 @@ export class GroupBundle {
 
         for (let i = 0; i < modified.length; ++i) {
             let json = modified[i];
-            let contact = Contact.create(json, group.getDomain());
+            let contact = Contact.create(json, bundle.group.getDomain());
             bundle.modified.push(contact);
 
             if (contact.getId() == service.self.getId()) {
@@ -65,7 +66,7 @@ export class GroupBundle {
         }
 
         // 读取操作员
-        bundle.operator = Contact.create(json.operator, group.getDomain());
+        bundle.operator = Contact.create(json.operator, bundle.group.getDomain());
         return bundle;
     }
 }

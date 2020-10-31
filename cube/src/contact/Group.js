@@ -158,7 +158,7 @@ export class Group extends Contact {
      * 添加群组成员。
      * @param {Contact} contact 指定群组成员。
      */
-    addMember(contact) {
+    addMember(contact, handler) {
         if (this.hasMember(contact)) {
             return;
         }
@@ -174,26 +174,13 @@ export class Group extends Contact {
 
     /**
      * 移除群组成员。
-     * @param {Contact} contact 指定群组成员。
+     * @param {Array<Contact|number>} members 指定群组成员或者群组成员 ID 。
+     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode members}:Array, {@linkcode operator}:{@link Contact}) 。
+     * @param {function} [handleError] 操作失败回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode members}:Array, {@linkcode operator}:{@link Contact}) 。
+     * @returns {boolean} 返回是否能执行该操作。
      */
-    removeMember(contact) {
-        if (!this.hasMember(contact)) {
-            return;
-        }
-
-        this.service.removeGroupMember(this, contact, (group, contact) => {
-            if (null == group) {
-                return;
-            }
-
-            for (let i = 0; i < this.memberList.length; ++i) {
-                let member = this.memberList[i];
-                if (member.equals(contact)) {
-                    this.memberList.splice(i, 1);
-                    break;
-                }
-            }
-        });
+    removeMembers(members, handleSuccess, handleError) {
+        return this.service.removeGroupMembers(this, members, handleSuccess, handleError);
     }
 
     /**

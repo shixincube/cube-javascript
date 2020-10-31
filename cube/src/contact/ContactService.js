@@ -964,8 +964,8 @@ export class ContactService extends Module {
      * 移除群组成员。
      * @param {Group} group 指定群组。
      * @param {Array<Contact|number>} members 指定群组成员列表。
-     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}) 。
-     * @param {function} [handleError] 操作失败回调该方法，参数：({@linkcode group}:{@link Group}) 。
+     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode members}:Array, {@linkcode operator}:{@link Contact}) 。
+     * @param {function} [handleError] 操作失败回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode members}:Array, {@linkcode operator}:{@link Contact}) 。
      * @returns {boolean} 返回是否能执行该操作。
      */
     removeGroupMembers(group, members, handleSuccess, handleError) {
@@ -986,16 +986,129 @@ export class ContactService extends Module {
         }
 
         if (memberIdList.length == 0) {
+            if (handleError) {
+                handleError(group, members, this.self);
+            }
             return false;
         }
 
         // 操作员是本账号
-        let operator = this.self.toCompactJSON();
+        let operator = this.self;
 
         let packet = new Packet(ContactAction.RemoveGroupMember, {
             "groupId": group.getId(),
             "memberIdList": memberIdList,
-            "operator": operator
+            "operator": operator.toCompactJSON()
+        });
+
+        this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+                if (handleError) {
+                    handleError(group, members, operator);
+                }
+                return;
+            }
+
+            if (responsePacket.getPayload().code != 0) {
+                if (handleError) {
+                    handleError(group, members, operator);
+                }
+                return;
+            }
+
+            // 读取数据
+            let bundle = GroupBundle.create(this, responsePacket.getPayload().data);
+
+            if (bundle.includeSelf) {
+                // [TIP] 更新群组状态，这个状态位需要客户端进行维护
+                bundle.group.state = GroupState.Disabled;
+            }
+
+            // 设置上下文
+            responsePacket.context = bundle;
+
+            if (handleSuccess) {
+                handleSuccess(bundle.group, bundle.modified, bundle.operator);
+            }
+        });
+
+        return true;
+    }
+
+    /**
+     * 接收移除群成员数据。
+     * @param {JSON} payload 数据包数据。
+     * @param {object} context 数据包携带的上下文。
+     */
+    triggerRemoveMember(payload, context) {
+        if (payload.code != 0) {
+            return;
+        }
+
+        // 读取群信息
+        let bundle = (null == context) ? GroupBundle.create(this, payload.data) : context;
+        let group = bundle.group;
+
+        if (bundle.includeSelf) {
+            // 移除
+            this.groups.remove(group.getId());
+            // [TIP] 更新群组状态，这个状态位需要客户端进行维护
+            group.state = GroupState.Disabled;
+        }
+        else {
+            // 更新
+            this.groups.put(group.getId(), group);
+        }
+
+        // 更新存储
+        this.storage.writeGroup(group);
+
+        this.notifyObservers(new ObservableState(ContactEvent.GroupMemberRemoved, {
+            group: group,
+            modified: bundle.modified,
+            operator: bundle.operator
+        }))
+    }
+
+    /**
+     * 添加群组成员。
+     * @param {Group} group 指定群组。
+     * @param {Array<Contact|number>} members 指定群组成员列表。
+     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode members}:Array, {@linkcode operator}:{@link Contact}) 。
+     * @param {function} [handleError] 操作失败回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode members}:Array, {@linkcode operator}:{@link Contact}) 。
+     * @returns {boolean} 返回是否能执行该操作。
+     */
+    addGroupMembers(group, members, handleSuccess, handleError) {
+        // 检查传入的成员是否是群成员，不能进行重复添加
+        let memberIdList = [];
+        for (let i = 0; i < members.length; ++i) {
+            let m = members[i];
+            if (m instanceof Contact) {
+                if (!group.hasMember(m)) {
+                    memberIdList.push(m.getId());
+                }
+            }
+            else {
+                if (!group.hasMember(m)) {
+                    memberIdList.push(m);
+                }
+            }
+        }
+
+        if (memberIdList.length == 0) {
+            if (handleError) {
+                handleError(group, members, this.self);
+            }
+            return false;
+        }
+
+        // 操作员是本账号
+        let operator = this.self;
+
+        let packet = new Packet(ContactAction.AddGroupMember, {
+            "groupId": group.getId(),
+            "memberIdList": memberIdList,
+            "operator": operator.toCompactJSON()
         });
 
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
@@ -1020,46 +1133,11 @@ export class ContactService extends Module {
             responsePacket.context = bundle;
 
             if (handleSuccess) {
-                handleSuccess(bundle.group, bundle.modified, modified.operator);
+                handleSuccess(bundle.group, bundle.modified, bundle.operator);
             }
         });
 
         return true;
-    }
-
-    /**
-     * 接收移除群成员数据。
-     * @param {JSON} payload 数据包数据。
-     * @param {object} context 数据包携带的上下文。
-     */
-    triggerRemoveMember(payload, context) {
-        if (payload.code != 0) {
-            return;
-        }
-
-        // 读取群信息
-        let bundle = (null == context) ? GroupBundle.create(this, payload.data) : context;
-        let group = bundle.group;
-
-        if (bundle.includeSelf) {
-            // 移除
-            this.groups.remove(group.getId());
-            // 更新群组状态，这个状态位需要客户端进行维护 [TIP]
-            group.state = GroupState.Disabled;
-        }
-        else {
-            // 更新
-            this.groups.put(group.getId(), group);
-        }
-
-        // 更新存储
-        this.storage.writeGroup(group);
-
-        this.notifyObservers(new ObservableState(ContactEvent.GroupMemberRemoved, {
-            group: group,
-            modified: bundle.modified,
-            operator: bundle.operator
-        }))
     }
 
     changeGroupOwner(group, newOwner) {
@@ -1068,28 +1146,6 @@ export class ContactService extends Module {
             "newOwnerId" : newOwner.getId()
         });
 
-    }
-
-    /**
-     * 添加群组成员。
-     * @param {Group} group 指定群组。
-     * @param {Contact} member 指定群组成员。
-     * @param {function} handler 指定处理回调。
-     */
-    addGroupMember(group, member, handler) {
-        let packet = new Packet(ContactAction.AddGroupMember, {
-            "groupId": group.getId(),
-            "memberId": member.getId()
-        });
-
-        this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
-                handler(null);
-                return;
-            }
-
-            handler(group);
-        });
     }
 
     /*
@@ -1111,59 +1167,5 @@ export class ContactService extends Module {
     triggerChangeOwner(payload) {
         let groupId = payload.data.groupId;
         let newOwnerId = payload.data.newOwnerId;
-    }
-
-    triggerAddMember(payload) {
-        let groupJson = payload.data.group;
-        let memberId = payload.data.memberId;
-
-        let announcer = new Announcer(2, 10000);
-        announcer.addAudience((count, map) => {
-            let state = new ObservableState(ContactEvent.GroupMemberAdded, {
-                group: map.get('group'),
-                member: map.get('member')
-            });
-            this.notifyObservers(state);
-        });
-
-        Group.create(this, groupJson, (result) => {
-            if (null == result) {
-                // 创建失败
-                return;
-            }
-
-            announcer.announce('group', result);
-        });
-
-        this.getContact(memberId, (contact) => {
-            announcer.announce('member', contact);
-        });
-    }
-
-    triggerRemoveMember(payload) {
-        let groupJson = payload.data.group;
-        let memberId = payload.data.memberId;
-
-        let announcer = new Announcer(2, 10000);
-        announcer.addAudience((count, map) => {
-            let state = new ObservableState(ContactEvent.GroupMemberRemoved, {
-                group: map.get('group'),
-                member: map.get('member')
-            });
-            this.notifyObservers(state);
-        });
-
-        Group.create(this, groupJson, (result) => {
-            if (null == result) {
-                // 创建失败
-                return;
-            }
-
-            announcer.announce('group', result);
-        });
-
-        this.getContact(memberId, (contact) => {
-            announcer.announce('member', contact);
-        });
     }*/
 }

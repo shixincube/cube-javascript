@@ -404,34 +404,11 @@ MessagePanel.prototype.addGroup = function(group) {
         el: el,
         isGroup: true,
         messageIds: [],
-        detailMemberTable: $('<tbody></tbody>')
+        detailMemberTable: null
     };
     this.views[key] = view;
 
-    var removeable = group.isOwner(this.app.cubeContact);
-
-    var members = group.getMembers();
-    for (var i = 0; i < members.length; ++i) {
-        var member = members[i];
-
-        var operation = (member.equals(this.app.cubeContact) || group.isOwner(member)) ? '' : ('<button class="btn btn-danger btn-xs' +
-                    (removeable ? '' : ' disabled') + '" data-original-title="从本群中移除" data-placement="top" data-toggle="tooltip"><i class="fas fa-minus-circle"></i></button>');
-
-        var contact = this.app.getContact(member.getId());
-        var html = [
-            '<tr>',
-                '<td>', (i + 1), '</td>',
-                '<td><img class="table-avatar" src="', contact.getContext().avatar, '" /></td>',
-                '<td>', member.getName(), '</td>',
-                '<td>', member.getId(), '</td>',
-                '<td>', member.getContext().region, '</td>',
-                '<td>', member.getContext().department, '</td>',
-                '<td>', operation, '</td>',
-            '</tr>'];
-
-        var elMem = $(html.join(''));
-        view.detailMemberTable.append(elMem);
-    }
+    view.detailMemberTable = this.createGroupDetailsTable(group);
 }
 
 /**
@@ -458,6 +435,63 @@ MessagePanel.prototype.removeGroup = function(group) {
     }
 
     delete this.views[key];
+}
+
+MessagePanel.prototype.updateGroup = function(group) {
+    var key = group.getId();
+    var view = this.views[key];
+    if (undefined === view) {
+        return;
+    }
+
+    // 重置详情表格
+    var panelEl = null;
+    if (null != this.current && this.current.getId() == group.getId()) {
+        panelEl = view.detailMemberTable.parent();
+        view.detailMemberTable.remove();
+        this.current = group;
+    }
+
+    view.detailMemberTable = this.createGroupDetailsTable(group);
+
+    if (null != panelEl) {
+        panelEl.append(view.detailMemberTable);
+    }
+}
+
+MessagePanel.prototype.createGroupDetailsTable = function(group) {
+    var detailMemberTable = $('<tbody></tbody>');
+
+    var removeable = group.isOwner(this.app.cubeContact);
+
+    var members = group.getMembers();
+    for (var i = 0; i < members.length; ++i) {
+        var member = members[i];
+
+        var operation = (member.equals(this.app.cubeContact) || group.isOwner(member)) ? [ '' ]
+            : [ '<button class="btn btn-danger btn-xs', (removeable ? '' : ' disabled'), '" onclick="window.app.fireRemoveMember($(this));"',
+                ' data-member="', member.getId(), '"',
+                ' data-group="', group.getId(), '"',
+                ' data-original-title="从本群中移除" data-placement="top" data-toggle="tooltip"><i class="fas fa-minus"></i></button>'];
+        operation = operation.join('');
+
+        var contact = this.app.getContact(member.getId());
+        var html = [
+            '<tr>',
+                '<td>', (i + 1), '</td>',
+                '<td><img class="table-avatar" src="', contact.getContext().avatar, '" /></td>',
+                '<td>', member.getName(), '</td>',
+                '<td>', member.getId(), '</td>',
+                '<td>', member.getContext().region, '</td>',
+                '<td>', member.getContext().department, '</td>',
+                '<td>', operation, '</td>',
+            '</tr>'];
+
+        var elMem = $(html.join(''));
+        detailMemberTable.append(elMem);
+    }
+
+    return detailMemberTable;
 }
 
 /**
