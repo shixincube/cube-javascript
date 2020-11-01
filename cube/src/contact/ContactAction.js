@@ -105,5 +105,11 @@ export const ContactAction = {
      * 修改群组信息。
      * @type {string}
      */
-    ModifyGroup: 'modifyGroup'
+    ModifyGroup: 'modifyGroup',
+
+    /**
+     * 修改群组内成员的信息。
+     * @type {string}
+     */
+    ModifyGroupMember: 'modifyGroupMember'
 }

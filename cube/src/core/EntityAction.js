@@ -24,31 +24,14 @@
  * SOFTWARE.
  */
 
-import { EntityListener } from "../core/EntityListener";
-
 /**
- * 联系人模块实体的监听器。
+ * 实体指令动作。
  */
-export class ContactEntityListener extends EntityListener {
+export const EntityAction = {
 
-    constructor(contactService) {
-        super();
-
-        this.contactService = contactService;
-    }
-
-    onUpdated(entity, id, item, data) {
-        if (entity == 'Group') {
-            let group = this.contactService.groups.get(id);
-            if (null != group) {
-                group.touchUpdated(item, data);
-            }
-        }
-        else if (entity == 'Contact') {
-            let contact = this.contactService.contacts.get(id);
-            if (null != contact) {
-                contact.touchUpdated(item, data);
-            }
-        }
-    }
-}
+    /**
+     * 向本域内的该 ID 实体进行广播。
+     * @type {string}
+     */
+    Broadcast: 'broadcastEntity'
+};

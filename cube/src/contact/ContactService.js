@@ -145,8 +145,8 @@ export class ContactService extends Module {
     }
 
     /**
-     * 获取当前的 {@linkcode Self} 实例。
-     * @returns {Self} 返回当前的 {@linkcode Self} 实例。
+     * 获取当前的 {@link Self} 实例。
+     * @returns {Self} 返回当前的 {@link Self} 实例。
      */
     getSelf() {
         return this.self;
@@ -162,7 +162,7 @@ export class ContactService extends Module {
 
     /**
      * 签入当前终端的联系人。
-     * @param {Self|number|string} self 指定 {@linkcode Self} 对象或者自己的联系人 ID 。
+     * @param {Self|number|string} self 指定 {@link Self} 对象或者自己的联系人 ID 。
      * @param {string} [name] 指定名称/昵称。
      * @param {object} [context] 指定关联的上下文。
      * @returns {boolean} 设置成功返回 {@linkcode true} ，否则返回 {@linkcode false} 。
@@ -211,7 +211,7 @@ export class ContactService extends Module {
 
     /**
      * 将当前设置的联系人签出。
-     * @param {function} [handler] 当签出成功时回调该函数。
+     * @param {function} [handler] 当签出成功时回调该函数，参数：({@linkcode self}:{@link Self}) 。
      */
     signOut(handler) {
         if (!this.selfReady || null == this.self) {
@@ -256,7 +256,7 @@ export class ContactService extends Module {
     }
 
     /**
-     * 触发联系人签入事件。
+     * 触发联系人签入。
      * @protected
      * @param {object} payload 来自服务器数据。
      */
@@ -297,7 +297,7 @@ export class ContactService extends Module {
     }
 
     /**
-     * 触发联系人签出事件。
+     * 触发联系人签出。
      * @protected
      * @param {object} payload 来自服务器数据。
      */
@@ -320,8 +320,8 @@ export class ContactService extends Module {
     /**
      * 获取指定 ID 的联系人信息。
      * @param {number} id 指定联系人 ID 。
-     * @param {function} handleSuccess 成功获取到数据回调该方法。
-     * @param {function} [handleError] 操作失败回调该方法。
+     * @param {function} handleSuccess 成功获取到数据回调该方法，参数：({@linkcode contact}:{@link Contact}) ，(联系人实例)。
+     * @param {function} [handleError] 操作失败回调该方法，参数：({@linkcode id}:number) ，(失败的联系人ID)。
      */
     getContact(id, handleSuccess, handleError) {
         if (typeof id === 'string') {
@@ -332,7 +332,7 @@ export class ContactService extends Module {
             // 从缓存读取
             let contact = this.contacts.get(id);
 
-            // TODO 从数据库读取
+            // TODO 从存储读取
 
             if (null == contact) {
                 let packet = new Packet(ContactAction.GetContact, {
@@ -364,14 +364,14 @@ export class ContactService extends Module {
             promise.then((contact) => {
                 handleSuccess(contact);
             }).catch(() => {
-                handleError();
+                handleError(id);
             });
         }
         else if (handleSuccess) {
             promise.then((contact) => {
                 handleSuccess(contact);
             }).catch(() => {
-                handleSuccess(null);
+                // Nothing
             });
         }
         else {
@@ -382,9 +382,9 @@ export class ContactService extends Module {
     /**
      * 获取指定 ID 列表里的联系人信息。
      * @protected
-     * @param {Array} idList 
-     * @param {function} handleSuccess 
-     * @param {function} handleError 
+     * @param {Array} idList 联系人 ID 列表。
+     * @param {function} handleSuccess 操作成功回调该方法。
+     * @param {function} handleError 操作失败回调该方法。
      */
     getContactList(idList, handleSuccess, handleError) {
         let promise = new Promise((resolve, reject) => {
@@ -421,14 +421,14 @@ export class ContactService extends Module {
             promise.then((contactList) => {
                 handleSuccess(contactList);
             }).catch(() => {
-                handleError();
+                handleError(idList);
             });
         }
         else if (handleSuccess) {
             promise.then((contactList) => {
                 handleSuccess(contactList);
             }).catch(() => {
-                handleSuccess(null);
+                // Nothing
             });
         }
         else {
@@ -439,8 +439,8 @@ export class ContactService extends Module {
     /**
      * 获取指定 ID 的群组信息。
      * @param {number} id 指定群组 ID 。
-     * @param {function} handleSuccess 成功获取到数据回调该方法。
-     * @param {function} [handleError] 操作失败回调该方法。
+     * @param {function} handleSuccess 成功获取到数据回调该方法，参数：({@linkcode group}:{@link Group})，(群组实例)。
+     * @param {function} [handleError] 操作失败回调该方法，参数：({@linkcode id}:number)，(群组的 ID)。
      */
     getGroup(id, handleSuccess, handleError) {
         if (typeof id === 'string') {
@@ -501,7 +501,7 @@ export class ContactService extends Module {
             promise.then((group) => {
                 handleSuccess(group);
             }).catch(() => {
-                handleSuccess(null);
+                // Nothing
             });
         }
         else {

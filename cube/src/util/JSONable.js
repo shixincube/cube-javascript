@@ -37,9 +37,17 @@ export class JSONable {
 
     /**
      * 将对象序列化为 JSON 格式。
-     * @returns {JSON} JSON 格式对象。
+     * @returns {JSON} 返回 JSON 格式对象。
      */
     toJSON() {
+        return {};
+    }
+
+    /**
+     * 将对象序列化为数据内容紧凑的 JSON 格式。
+     * @returns {JSON} 返回 JSON 格式对象。
+     */
+    toCompactJSON() {
         return {};
     }
 }

@@ -79,7 +79,7 @@ export class EntityInspector {
     }
 
     /**
-     * 托管存储了 {@linkcode Entity} 对象的映射。
+     * 托管存储了 {@link Entity} 对象的映射。
      * @param {OrderMap} map 指定映射。
      */
     depositMap(map) {
@@ -87,7 +87,7 @@ export class EntityInspector {
     }
 
     /**
-     * 托管存储了 {@linkcode Entity} 对象的数组。
+     * 托管存储了 {@link Entity} 对象的数组。
      * @param {Array} array 指定数组。
      */
     depositArray(array) {

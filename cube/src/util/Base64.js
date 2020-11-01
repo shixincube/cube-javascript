@@ -31,6 +31,8 @@ export const Base64 = {
 
     /**
      * Base64 解码。
+     * @param {string} base64String Base64 字符串。
+     * @returns {Array} 返回解码后的数据。
      */
     decode: (base64String) => {
         const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -47,6 +49,8 @@ export const Base64 = {
 
     /**
      * Base64 编码。
+     * @param {Array} bytes 存储字节数据的数组。
+     * @returns {string} 返回 Base64 字符串。
      */
     encode: (bytes) => {
         let binary = [];

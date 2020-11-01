@@ -267,6 +267,9 @@ export class AuthService extends Module {
         });
     }
 
+    /**
+     * 从服务器查询令牌进行检测。
+     */
     checkToken() {
         if (null == this.token) {
             return;

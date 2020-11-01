@@ -79,9 +79,9 @@ export class PrimaryDescription extends JSONable {
     }
 
     /**
-     * 通过指定 JSON 数据创建 {@linkcode PrimaryDescription} 实例。
-     * @param {JSON} json 符合 {@linkcode PrimaryDescription} 格式的 JSON 对象。
-     * @returns {PrimaryDescription} 返回由 JSON 创建的 {@linkcode PrimaryDescription} 实例。
+     * 通过 JSON 数据结构创建 {@link PrimaryDescription} 实例。
+     * @param {JSON} json 符合 {@link PrimaryDescription} 格式的 JSON 对象。
+     * @returns {PrimaryDescription} 返回由 JSON 创建的 {@link PrimaryDescription} 实例。
      */
     static create(json) {
         let pd = new PrimaryDescription(

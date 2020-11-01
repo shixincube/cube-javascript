@@ -120,9 +120,9 @@ export class AuthToken extends JSONable {
     }
 
     /**
-     * 从指定的 JSON 对象创建 {@linkcode AuthToken} 实例。
-     * @param {JSON} json 指定 {@linkcode AuthToken} 格式的 JSON 对象。
-     * @returns {AuthToken} 返回 {@linkcode AuthToken} 实例。
+     * 从 JSON 数据结构创建 {@link AuthToken} 实例。
+     * @param {JSON} json 指定 {@link AuthToken} 格式的 JSON 对象。
+     * @returns {AuthToken} 返回 {@link AuthToken} 实例。
      */
     static create(json) {
         let code = json["code"];

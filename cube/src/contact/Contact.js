@@ -141,9 +141,9 @@ export class Contact extends Entity {
     }
 
     /**
-     * 判断指定对象是否于当前对象具备数据相同。
-     * @param {Contact} other 
-     * @returns {boolean} 如果数据相同返回 {@linkcode true} 。
+     * 判断指定联系人实例是否于当前实例数据相同。
+     * @param {Contact} other 指定待比较的联系人。
+     * @returns {boolean} 如果联系人 ID 和域相同返回 {@linkcode true} ，否则返回 {@linkcode false} 。
      */
     equals(other) {
         if (other instanceof Contact) {
@@ -179,10 +179,11 @@ export class Contact extends Entity {
     }
 
     /**
-     * 返回紧凑结构的 JSON 数据，数据里只包含基础的联系人数据。
+     * 将对象序列化为数据内容紧凑的 JSON 格式。
+     * @returns {JSON} 返回紧凑结构的 JSON 数据，数据里只包含基础的联系人数据。
      */
     toCompactJSON() {
-        let json = super.toJSON();
+        let json = super.toCompactJSON();
         json["id"] = this.id;
         json["name"] = this.name;
         if (null != this.context) {
@@ -192,10 +193,10 @@ export class Contact extends Entity {
     }
 
     /**
-     * 从 JSON 数据格式创建 {@linkcode Contact} 实例。
-     * @param {JSON} json 指定 {@linkcode Contact} 格式的 JSON 对象。
+     * 通过 JSON 数据格式创建 {@link Contact} 实例。
+     * @param {JSON} json 指定 {@link Contact} 格式的 JSON 对象。
      * @param {string} [domainName] 指定域名称。
-     * @returns {Contact} 返回 {@linkcode Contact} 实例。
+     * @returns {Contact} 返回 {@link Contact} 实例。
      */
     static create(json, domainName) {
         let id = json.id;

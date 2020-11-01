@@ -25,6 +25,7 @@
  */
 
 import { JSONable } from "../util/JSONable";
+import { BroswerUtil } from "../util/BroswerUtil";
 
 /**
  * 设备描述。
@@ -52,9 +53,7 @@ export class Device extends JSONable {
         this.platform = null;
 
         if (undefined === platform) {
-            if (navigator) {
-                this.platform = navigator.userAgent;
-            }
+            this.platform = BroswerUtil.getBrowserName() + '/' + BroswerUtil.getSystem();
         }
         else {
             this.platform = platform;

@@ -25,21 +25,16 @@
  */
 
 import { JSONable } from "../util/JSONable";
+import { OrderMap } from "../util/OrderMap";
 import { Packet } from "./Packet";
 import { Kernel } from "./Kernel";
-import { OrderMap } from "../util/OrderMap";
+import { EntityAction } from "./EntityAction";
 
 /**
  * 信息实体对象。
  * 所有实体对象的基类。
  */
 export class Entity extends JSONable {
-
-    /**
-     * @type {string}
-     * @private
-     */
-    static PacketNameUpdate = 'UpdateEntity';
 
     /**
      * 构造函数。
@@ -86,13 +81,6 @@ export class Entity extends JSONable {
          * @type {string}
          */
         this.moduleName = null;
-
-        /**
-         * 实体名称。
-         * @protected
-         * @type {string}
-         */
-        this.entityName = null;
     }
 
     /**
@@ -143,22 +131,23 @@ export class Entity extends JSONable {
         return (this.expiry > Date.now());
     }
 
-    update(item, data) {
-        if (null == this.moduleName || null == this.entityName) {
+    /**
+     * 向该实体的所有副本进行数据广播。
+     * @param {JSON} data 指定广播数据。
+     */
+    broadcast(data) {
+        if (null == this.moduleName) {
             return false;
         }
 
-        let en = this.entityName;
         let id = this.id;
         let pipeline = Kernel.gsInstance.getPipeline('Cell');
         if (null == pipeline) {
             return false;
         }
 
-        let packet = new Packet(Entity.PacketNameUpdate, {
-            "entity" : en,
+        let packet = new Packet(EntityAction.Broadcast, {
             "id" : id,
-            "item" : item,
             "data" : data
         });
         pipeline.send(this.moduleName, packet);
@@ -170,14 +159,13 @@ export class Entity extends JSONable {
      * @inheritdoc
      */
     toJSON() {
-        let json = super.toJSON();
-        return json;
+        return super.toJSON();
     }
 
     /**
-     * 
+     * @inheritdoc
      */
-    touchUpdated(item, data) {
-
+    toCompactJSON() {
+        return super.toCompactJSON();
     }
 }

@@ -60,7 +60,8 @@ export class Announcer {
     }
 
     /**
-     * @returns {number} 
+     * 返回需要进行通知的总次数。
+     * @returns {number} 返回需要进行通知的总次数。
      */
     getTotal() {
         return this.total;
@@ -68,8 +69,8 @@ export class Announcer {
 
     /**
      * 事件结束后进行宣告。
-     * @param {*} name 
-     * @param {*} data 
+     * @param {string} name 事件名。
+     * @param {JSON} data 事件数据。
      */
     announce(name, data) {
         if (undefined === name) {
@@ -107,7 +108,7 @@ export class Announcer {
 
     /**
      * 添加监听宣告结束的听众函数。
-     * @param {function} audience 
+     * @param {function} audience 听众回调函数，参数：({@linkcode count}:number, {@linkcode dataMap}:{@link OrderMap}<JSON>) ，（通知次数，通知的数据映射）。
      */
     addAudience(audience) {
         let index = this.audienceList.indexOf(audience);
@@ -118,6 +119,9 @@ export class Announcer {
         this.audienceList.push(audience);
     }
 
+    /**
+     * 定时器执行函数。
+     */
     _fireTimeout() {
         for (let i = 0; i < this.audienceList.length; ++i) {
             let audience = this.audienceList[i];
