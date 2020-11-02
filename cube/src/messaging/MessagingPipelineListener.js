@@ -35,7 +35,6 @@ import { StateCode } from "../core/StateCode";
 export class MessagingPipelineListener extends PipelineListener {
 
     /**
-     * 构造函数。
      * @param {MessagingService} messagingService 
      */
     constructor(messagingService) {

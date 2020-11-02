@@ -31,26 +31,31 @@ export const MessagingEvent = {
     
     /**
      * 收到新消息。
+     * @type {string}
      */
     Notify: 'Notify',
 
     /**
      * 消息已经发出。
+     * @type {string}
      */
     Sent: 'Sent',
 
     /**
      * 消息正在发送。
+     * @type {string}
      */
     Sending: 'Sending',
 
     /**
      * 发送失败。
+     * @type {string}
      */
     SendFailed: 'SendFailed',
 
     /**
      * 未知时间。仅用于调试。
+     * @type {string}
      */
     Unknown: 'Unknown'
 }

@@ -58,6 +58,12 @@ export class ContactStorage {
          * @type {object}
          */
         this.groupStore = null;
+
+        /**
+         * 联系人库。
+         * @type {object}
+         */
+        this.contactStore = null;
     }
 
     /**
@@ -98,6 +104,14 @@ export class ContactStorage {
                     unique: false
                 }]
             }, {
+                name: 'contact',
+                keyPath: 'id',
+                indexes: [{
+                    name: 'id',
+                    keyPath: 'id',
+                    unique: true
+                }]
+            }, {
                 name: 'config',
                 keyPath: 'item',
                 indexes: [{
@@ -114,6 +128,7 @@ export class ContactStorage {
         //this.db.connect();
 
         this.groupStore = this.db.use('group');
+        this.contactStore = this.db.use('contact');
     }
 
     /**

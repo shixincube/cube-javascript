@@ -30,16 +30,19 @@
 export const MessagingAction = {
     /**
      * 向服务器发送消息。
+     * @type {string}
      */
     Push: 'push',
 
     /**
      * 从服务器拉取消息。
+     * @type {string}
      */
     Pull: 'pull',
 
     /**
      * 收到在线消息。
+     * @type {string}
      */
     Notify: 'notify'
 }

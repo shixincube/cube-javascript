@@ -30,37 +30,44 @@
 export const MessageState = {
 
     /**
-     * 
+     * 未知。
+     * @type {number}
      */
     Unknown: 0,
 
     /**
      * 未发送。
+     * @type {number}
      */
     Unsent: 1,
 
     /**
      * 发送中。
+     * @type {number}
      */
     Sending: 1 << 1,
 
     /**
      * 已发送。
+     * @type {number}
      */
     Sent: 1 << 2,
 
     /**
      * 已读。
+     * @type {number}
      */
     Read: 1 << 3,
 
     /**
      * 已召回。
+     * @type {number}
      */
     Recalled: 1 << 4,
 
     /**
      * 消息出现故障。
+     * @type {number}
      */
     Fault: 1 << 5
 }
