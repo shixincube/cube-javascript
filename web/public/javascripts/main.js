@@ -311,7 +311,7 @@ CubeApp.prototype.updateGroup = function(group) {
         }
     }
 
-    this.cubeContactList.push(group);
+    this.cubeGroupList.push(group);
 
     this.messageCatalogue.updateItem(group.getId(), null, group.getLastActiveTime(), group.getName());
     this.messagePanel.updateGroup(group);

@@ -68,7 +68,7 @@
 
 
     <section class="readme usertext">
-        <article><h1>Cube for Javascript client</h1>
+        <article><h1>Cube for Javascript</h1>
 <p><strong>Cube</strong> <strong>时信魔方</strong> 是面向开发者的实时协作开发框架。帮助开发者快速、高效的在项目中集成实时协作能力。</p>
 <p>支持的操作系统有：Windows、Linux 、macOS 、Android、iOS 等，支持的浏览器有：Chrome、Firefox、Safari 等。</p>
 <h2>功能列表</h2>
@@ -223,9 +223,59 @@
 </tbody>
 </table>
 <h2>简介</h2>
-<p>TODO</p>
+<p>Cube for Javascript 是 Cube 的浏览器端 SDK 解决方案。开发者可使用该项目快速集成 Cube 的各项功能和能力。</p>
 <h2>快速开始</h2>
-<p>TODO</p>
+<p>在您的页面中引入 Cube 的库文件：</p>
+<pre class="prettyprint source lang-html"><code>&lt;script type=&quot;text/javascript&quot; src=&quot;/javascripts/cube-3.0.0.js&quot;>&lt;/script>
+</code></pre>
+<p>仅需要两步即可开始使用 Cube 的各个模块功能：</p>
+<ol>
+<li>获取 Cube 实例并启动 Cube 引擎。</li>
+</ol>
+<pre class="prettyprint source lang-javascript"><code>// 获取 Cube 的实例
+var cube = window.cube();
+
+// 指定 Cube 工作的域和网关地址，启动 Cube 引擎。
+cube.start({
+    address: '127.0.0.1',
+    domain: 'shixincube.com',
+    appKey: 'shixin-cubeteam-opensource-appkey'
+}, function() {
+    console.log('启动成功');
+}, function(error) {
+    console.log('启动故障');
+});
+</code></pre>
+<ol start="2">
+<li>签入当前账号。例如：账号 ID 是 500123 。签入该 ID 之后，Cube 将以该 ID 为一个有效的联系人进行管理。<pre class="prettyprint source lang-javascript"><code>cube.signIn(500123);
+</code></pre>
+</li>
+</ol>
+<p>完成上述操作之后，即可使用 Cube 的各个模块及其相关功能，例如发送消息给 ID 为 500298 的联系人：</p>
+<pre class="prettyprint source lang-javascript"><code>cube.messaging.sendToContact(500298,  { &quot;content&quot;: &quot;今天是周一，上午有例会。&quot; });
+</code></pre>
+<p>更多功能请参考 Cube 手册和 API 文档。</p>
+<h2>如何从源代码构建项目</h2>
+<h3>1. 工具与软件准备</h3>
+<p>您需要在您的开发环境中正确安装以下工具：</p>
+<ul>
+<li><a href="https://nodejs.org/zh-cn/">node</a> (需要 11.0 及以上版本。)</li>
+<li><a href="https://www.npmjs.com/">npm</a></li>
+</ul>
+<h3>2. 下载工程源代码</h3>
+<p>从 <a href="https://gitee.com/shixinhulian/cube-javascript">cube-javascript</a> 获得 Cube for Javascript 的源代码。克隆 <a href="https://gitee.com/shixinhulian/cube-javascript">cube-javascript</a> 代码库：</p>
+<p><code>git clone https://gitee.com/shixinhulian/cube-javascript.git</code></p>
+<h3>3. 运行构建脚本</h3>
+<p>从代码库下载代码之后，进入 Cube 的工程目录 <code>cube</code> 目录下，依次执行以下步骤来进行项目构建。</p>
+<ol>
+<li>
+<p>在项目根目录下安装项目依赖的 NPM 模块：<code>npm install</code></p>
+</li>
+<li>
+<p>执行工程构建命令：<code>npm run build</code></p>
+</li>
+</ol>
+<p>成功执行构建命令之后，会在 <code>dist</code> 目录下生成 Cube 的库文件。</p>
 <h2>获得帮助</h2>
 <p>您可以访问 <a href="https://www.shixincube.com/">时信魔方官网</a> 获得更多信息。如果您在使用 Cube 的过程中需要帮助可以发送邮件到 <a href="mailto:cube@spap.com">cube@spap.com</a> 。</p></article>
     </section>
