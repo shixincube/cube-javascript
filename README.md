@@ -1,4 +1,4 @@
-# Cube for Javascript client
+# Cube for Javascript
 
 **Cube** **时信魔方** 是面向开发者的实时协作开发框架。帮助开发者快速、高效的在项目中集成实时协作能力。
 
@@ -71,12 +71,74 @@ Cube 包含以下协作功能：
 
 ## 简介
 
-TODO
-
+Cube for Javascript 是 Cube 的浏览器端 SDK 解决方案。开发者可使用该项目快速集成 Cube 的各项功能和能力。
 
 ## 快速开始
 
-TODO
+在您的页面中引入 Cube 的库文件：
+```html
+<script type="text/javascript" src="/javascripts/cube-3.0.0.js"></script>
+```
+
+仅需要两步即可开始使用 Cube 的各个模块功能：
+
+1. 获取 Cube 实例并启动 Cube 引擎。
+  ```javascript
+  // 获取 Cube 的实例
+  var cube = window.cube();
+
+  // 指定 Cube 工作的域和网关地址，启动 Cube 引擎。
+  cube.start({
+      address: '127.0.0.1',
+      domain: 'shixincube.com',
+      appKey: 'shixin-cubeteam-opensource-appkey'
+  }, function() {
+      console.log('启动成功');
+  }, function(error) {
+      console.log('启动故障');
+  });
+  ```
+
+2. 签入当前账号。例如：账号 ID 是 500123 。签入该 ID 之后，Cube 将以该 ID 为一个有效的联系人进行管理。
+   ```javascript
+   cube.signIn(500123);
+   ```
+
+完成上述操作之后，即可使用 Cube 的各个模块及其相关功能，例如发送消息给 ID 为 500298 的联系人：
+```javascript
+cube.messaging.sendToContact(500298,  { "content": "今天是周一，上午有例会。" });
+```
+
+更多功能请参考 Cube 手册和 API 文档。
+
+
+## 如何从源代码构建项目
+
+### 1. 工具与软件准备
+
+ 您需要在您的开发环境中正确安装以下工具：
+
+ * [node](https://nodejs.org/zh-cn/) (需要 11.0 及以上版本。)
+ * [npm](https://www.npmjs.com/)
+
+
+### 2. 下载工程源代码
+
+ 从 [cube-javascript](https://gitee.com/shixinhulian/cube-javascript) 获得 Cube for Javascript 的源代码。克隆 [cube-javascript](https://gitee.com/shixinhulian/cube-javascript) 代码库：
+
+   `git clone https://gitee.com/shixinhulian/cube-javascript.git`
+
+
+### 3. 运行构建脚本
+
+ 从代码库下载代码之后，进入 Cube 的工程目录 `cube` 目录下，依次执行以下步骤来进行项目构建。
+
+ 1. 在项目根目录下安装项目依赖的 NPM 模块：`npm install`
+
+ 2. 执行工程构建命令：`npm run build`
+
+成功执行构建命令之后，会在 `dist` 目录下生成 Cube 的库文件。
+
 
 
 ## 获得帮助
