@@ -57,8 +57,8 @@ export class GroupBundle {
 
     /**
      * 由 JSON 格式数据创建 {@link GroupBundle} 实例。
-     * @param {ContactService} service 
-     * @param {JSON} json 
+     * @param {ContactService} service 指定联系人服务。
+     * @param {JSON} json 符合 {@link GroupBundle} 格式的 JSON 数据。
      * @returns {GroupBundle}
      */
     static create(service, json) {

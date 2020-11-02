@@ -67,4 +67,13 @@ export class Self extends Contact {
         json["device"] = this.device.toJSON();
         return json;
     }
+
+    /**
+     * @inheritdoc
+     */
+    toCompactJSON() {
+        let json = super.toCompactJSON();
+        json["device"] = this.device.toCompactJSON();
+        return json;
+    }
 }

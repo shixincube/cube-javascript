@@ -188,7 +188,7 @@ export class ContactService extends Module {
         }
 
         if (!this.pipeline.isReady()) {
-            cell.Logger.w('ContactService', 'Pipeline "' + this.pipeline.getName() + '" is no ready');
+            cell.Logger.d('ContactService', 'Pipeline "' + this.pipeline.getName() + '" is no ready');
             return false;
         }
 
@@ -1333,8 +1333,8 @@ export class ContactService extends Module {
 
     /**
      * 修改群成员的信息。
-     * @param {Group} group 
-     * @param {Contact} member 
+     * @param {Group} group 指定群组。
+     * @param {Contact} member 指定修改信息的成员数据。
      * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode member}:{@link Contact}) 。
      * @param {function} [handleError] 操作错误回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode member}:{@link Contact}) 。
      * @returns {boolean} 返回是否能执行该操作。

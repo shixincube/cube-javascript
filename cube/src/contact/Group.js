@@ -93,9 +93,9 @@ export class Group extends Contact {
 
     /**
      * 修改群主。
-     * @param {Contact} newOwner 
-     * @param {function} handleSuccess 
-     * @param {function} handleError 
+     * @param {Contact} newOwner 指定新群组。
+     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}) 。
+     * @param {function} [handleError] 操作失败回调该方法，参数：({@linkcode group}:{@link Group}) 。
      * @returns {boolean} 返回是否能执行该操作。
      */
     changeOwner(newOwner, handleSuccess, handleError) {
@@ -111,9 +111,9 @@ export class Group extends Contact {
 
     /**
      * 修改群组名称。
-     * @param {string} name 
-     * @param {function} handleSuccess 
-     * @param {function} handleError 
+     * @param {string} name 指定新的群组名称。
+     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}) 。
+     * @param {function} [handleError] 操作失败回调该方法，参数：({@linkcode group}:{@link Group}) 。
      * @returns {boolean} 返回是否能执行该操作。
      */
     modifyName(name, handleSuccess, handleError) {
@@ -128,10 +128,10 @@ export class Group extends Contact {
     }
 
     /**
-     * 修改群组上下文。
-     * @param {JSON|object} context 
-     * @param {function} handleSuccess 
-     * @param {function} handleError 
+     * 修改群组上下文数据。
+     * @param {JSON|object} context 指定新的上下文数据。
+     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}) 。
+     * @param {function} [handleError] 操作失败回调该方法，参数：({@linkcode group}:{@link Group}) 。
      * @returns {boolean} 返回是否能执行该操作。
      */
     modifyContext(context, handleSuccess, handleError) {
@@ -176,13 +176,14 @@ export class Group extends Contact {
 
     /**
      * 获取群组的活跃时间。
+     * @returns {number} 返回群组的活跃时间。
      */
     getLastActiveTime() {
         return this.lastActiveTime;
     }
 
     /**
-     * 获取群组的状态。
+     * 获取群组的状态。群组状态由 {@link GroupState} 描述。
      * @returns {number} 返回状态描述码 {@link GroupState} 。
      */
     getState() {
@@ -199,7 +200,7 @@ export class Group extends Contact {
 
     /**
      * 获取群组的成员清单。
-     * @returns {Array<Contact>} 返回群组成员列表。
+     * @returns {Array<Contact>} 返回群组成员列表，该列表为群组列表的副本。
      */
     getMembers() {
         return this.memberList.concat();
@@ -311,11 +312,11 @@ export class Group extends Contact {
     }
 
     /**
-     * 创建 {@link Group} 对象实例。
-     * 
-     * @param {ContactService} service 
-     * @param {JSON} json 
-     * @param {Contact} [owner]
+     * 由 JSON 格式数据创建 {@link Group} 实例。
+     * @param {ContactService} service 联系人服务。
+     * @param {JSON} json 符合 {@link Group} 格式的 JSON 数据。
+     * @param {Contact} [owner] 群主。
+     * @returns {Group} 返回 {@link Group} 实例。
      */
     static create(service, json, owner) {
         if (undefined === owner) {

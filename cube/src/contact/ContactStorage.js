@@ -26,6 +26,7 @@
 
 import cell from "@lib/cell-lib";
 import InDB from "indb";
+import { ContactService } from "./ContactService";
 import { Group } from "./Group";
 
 /**
@@ -36,25 +37,29 @@ export class ContactStorage {
     constructor(service) {
         /**
          * 联系人服务。
+         * @type {ContactService}
          */
         this.service = service;
 
         /**
          * 存储器操作的域。
+         * @type {string}
          */
         this.domain = null;
 
         /**
          * 数据库实例。
+         * @type {InDB}
          */
         this.db = null;
 
         /**
          * 群组库。
+         * @type {object}
          */
         this.groupStore = null;
     }
-    
+
     /**
      * 打开存储器连接数据库连接。
      * @param {string} domain 指定操作的域。
@@ -128,8 +133,8 @@ export class ContactStorage {
     /**
      * 判断是否已经存储了指定 ID 的群组。
      * @param {number} id 群组 ID 。
-     * @param {function} handler 回调函数。
-     * @returns {boolean}
+     * @param {function} handler 回调函数，参数：({@linkcode id}:number, {@linkcode contains}:boolean) - (群组的ID, 是否存储了该群组)。
+     * @returns {boolean} 返回是否执行了查询操作。
      */
     containsGroup(id, handler) {
         if (null == this.db) {
@@ -150,10 +155,11 @@ export class ContactStorage {
 
     /**
      * 读取指定最近活跃时间的群组。
-     * @param {number} beginning 
-     * @param {number} ending 
-     * @param {function} handler 
-     * @param {Array} [matchingStates]
+     * @param {number} beginning 指定查询起始时间。
+     * @param {number} ending 指定查询结束时间。
+     * @param {function} handler 查询结果回调函数，参数：({@linkcode beginning}:number, {@linkcode ending}:number, {@linkcode groups}:Array<{@link Group}>) 。
+     * @param {Array} [matchingStates] 指定需要匹配的群组状态。
+     * @returns {boolean} 返回是否执行了查询操作。
      */
     readGroups(beginning, ending, handler, matchingStates) {
         if (null == this.db) {
@@ -209,8 +215,9 @@ export class ContactStorage {
 
     /**
      * 读取指定 ID 的群组。
-     * @param {number} id 
-     * @param {function} handler 
+     * @param {number} id 指定群组 ID 。
+     * @param {function} handler 查询结果回调函数，参数：({@linkcode id}:number, {@linkcode group}:{@link Group}) - (群组的ID, 查询到的群组) 。如果查询不到指定群组，参数 {@linkcode group} 为 {@linkcode null} 值。
+     * @returns {boolean} 返回是否执行了查询操作。
      */
     readGroup(id, handler) {
         if (null == this.db) {
@@ -232,8 +239,9 @@ export class ContactStorage {
     }
 
     /**
-     * 
-     * @param {Group} group 
+     * 写入群组数据到存储。
+     * @param {Group} group 指定群组。
+     * @returns {boolean} 返回是否执行了写入操作。
      */
     writeGroup(group) {
         if (null == this.db) {

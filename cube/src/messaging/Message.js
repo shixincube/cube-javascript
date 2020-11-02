@@ -202,9 +202,9 @@ export class Message extends Entity {
     }
 
     /**
-     * 从 JSON 数据创建 {@linkcode Message} 对象。
+     * 从 JSON 数据创建 {@link Message} 对象。
      * @param {JSON} json 符合格式的 JSON 对象。
-     * @returns {Message} 返回 {@linkcode Message} 实例。
+     * @returns {Message} 返回 {@link Message} 实例。
      */
     static create(json) {
         let message = new Message();

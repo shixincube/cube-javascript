@@ -346,6 +346,10 @@ export class MessagingService extends Module {
      * @returns {boolean} 如果成功执行查询返回 {@linkcode true} 。
      */
     queryMessage(time, handler) {
+        if (!this.started) {
+            this.start();
+        }
+
         let ret = this.storage.readMessage(time, (beginning, result) => {
             let list = result.sort((a, b) => {
                 if (a.remoteTS < b.remoteTS) return -1;
@@ -370,6 +374,10 @@ export class MessagingService extends Module {
      * @returns {boolean} 如果成功执行查询返回 {@linkcode true} 。
      */
     queryMessageWithContact(contactOrId, beginning, handler) {
+        if (!this.started) {
+            this.start();
+        }
+
         let id = contactOrId;
         if (contactOrId instanceof Contact) {
             id = contactOrId.getId();
@@ -402,6 +410,10 @@ export class MessagingService extends Module {
      * @returns {boolean} 如果成功执行查询返回 {@linkcode true} 。
      */
     queryMessageWithGroup(groupOrId, beginning, handler) {
+        if (!this.started) {
+            this.start();
+        }
+
         let id = groupOrId;
         if (groupOrId instanceof Group) {
             id = groupOrId.getId();
