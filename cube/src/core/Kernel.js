@@ -112,6 +112,9 @@ export class Kernel {
             config.address = '127.0.0.1';
         }
 
+        // 标记为已工作状态
+        this.working = true;
+
         // 配置
         this.config = config;
 
@@ -126,9 +129,6 @@ export class Kernel {
             handleError(new KernelError('Invalid token config data'));
             return;
         }
-
-        // 标记为已工作状态
-        this.working = true;
 
         // 配置模块
         this.configModules(config, token);

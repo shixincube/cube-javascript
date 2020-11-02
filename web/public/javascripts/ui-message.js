@@ -159,21 +159,10 @@ var CubeToast = {
 function MessageCatalogue(app) {
     this.app = app;
 
-    this.catalogues = app.catalogues.concat();
-
-    this.elItemMap = {};
+    this.catalogues = [];
 
     this.lastCatalogItem = null;
     this.clickListener = null;
-
-    var that = this;
-    for (var i = 0; i < this.catalogues.length; ++i) {
-        var el = $('#catalog_item_' + i);
-        this.elItemMap[parseInt(el.attr('data'))] = el;
-        el.on('click', function(e) {
-            that.onCatalogItemClick(parseInt($(this).attr('data')));
-        });
-    }
 }
 
 MessageCatalogue.prototype.setClickListener = function(listener) {
@@ -194,37 +183,52 @@ MessageCatalogue.prototype.getItem = function(itemId) {
 MessageCatalogue.prototype.appendItem = function(item) {
     var index = this.catalogues.length;
     var id = 0;
+    var el = null;
     var thumb = '/images/group-avatar.png';
     var label = null;
-    var sublabel = null;
+    var desc = null;
     var badge = null;
 
     if (item instanceof Group) {
         id = item.getId();
         label = item.getName();
-        sublabel = ' ';
+        desc = ' ';
         badge = formatShortTime(item.getLastActiveTime());
-
-        this.catalogues.push({
-            index: index,
-            id: id,
-            thumb: thumb,
-            label: label,
-            sublabel: sublabel,
-            badge: badge
-        });
     }
     else if (item instanceof Contact) {
-        // TODO
+        id = item.getId();
+        label = item.getName();
+        desc = ' ';
+        badge = '';
     }
-
-    if (undefined !== this.elItemMap[id]) {
-        return;
+    else {
+        id = item.id;
+        thumb = item.avatar;
+        label = item.name;
+        desc = ' ';
+        badge = '';
     }
 
     if (null == label) {
         return;
     }
+
+    var cur = this.getItem(id);
+    if (null != cur) {
+        return;
+    }
+
+    var item = {
+        index: index,
+        id: id,
+        el: el,
+        thumb: thumb,
+        label: label,
+        desc: desc,
+        badge: badge
+    };
+
+    this.catalogues.push(item);
 
     var html = [
     '<li id="catalog_item_', index, '" class="item pl-2 pr-2" data="', id, '">',
@@ -234,13 +238,13 @@ MessageCatalogue.prototype.appendItem = function(item) {
                 '<span class="title">', label, '</span>',
                 '<span class="badge badge-light float-right">', badge, '</span>',
             '</span>',
-            '<span class="product-description">', sublabel, '</span>',
+            '<span class="product-description">', desc, '</span>',
         '</div>',
     '</li>'];
 
     var el = $(html.join(''));
 
-    this.elItemMap[id] = el;
+    item.el = el;
 
     var elCatalogue = $('#catalogue');
     elCatalogue.append(el);
@@ -254,43 +258,43 @@ MessageCatalogue.prototype.appendItem = function(item) {
 
 MessageCatalogue.prototype.removeItem = function(item) {
     var id = item.getId();
+    var current = null;
 
-    var contains = false;
     // 从列表里删除
     for (var i = 0; i < this.catalogues.length; ++i) {
         var ca = this.catalogues[i];
         if (ca.id == id) {
+            current = ca;
             this.catalogues.splice(i, 1);
-            contains = true;
             break;
         }
     }
 
-    if (!contains) {
+    if (null == current) {
         return;
     }
 
     // 刷新界面
-    if (null != this.lastCatalogItem) {
+    if (null != this.lastCatalogItem && this.lastCatalogItem.id == id) {
         // 重新选中别的目录
         this.onCatalogItemClick(this.catalogues[0].id);
     }
 
-    var el = this.elItemMap[id];
-    if (el) {
-        el.remove();
-        delete this.elItemMap[id];
-    }
+    // 移除 DOM 节点
+    var el = current.el;
+    el.remove();
 }
 
-MessageCatalogue.prototype.updateItem = function(id, sub, time, label) {
-    var el = this.elItemMap[id];
-    if (undefined === el) {
+MessageCatalogue.prototype.updateItem = function(id, desc, time, label) {
+    var current = this.getItem(id);
+    if (null == current) {
         return;
     }
 
-    if (null != sub) {
-        el.find('.product-description').text(sub);
+    var el = current.el;
+
+    if (null != desc) {
+        el.find('.product-description').text(desc);
     }
 
     el.find('.badge').text(formatShortTime(time));
@@ -307,12 +311,14 @@ MessageCatalogue.prototype.onCatalogItemClick = function(itemId) {
             return;
         }
 
-        this.elItemMap[this.lastCatalogItem.id].removeClass('catalog-active');
+        this.lastCatalogItem.el.removeClass('catalog-active');
     }
 
-    this.elItemMap[itemId].addClass('catalog-active');
+    var current = this.getItem(itemId);
 
-    this.lastCatalogItem = this.getItem(itemId);
+    current.el.addClass('catalog-active');
+
+    this.lastCatalogItem = current;
 
     var account = this.app.getContact(itemId);
     if (null != account) {

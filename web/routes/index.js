@@ -33,13 +33,11 @@ router.get('/', function(req, res, next) {
 
         // 获取目录信息
         let contacts = manager.getContacts(aid);
-        let catalogues = manager.getMessageCatalogue(aid);
         res.render('main', {
             title: 'Cube - 时信魔方',
             bodyClass: 'hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed',
             account: account,
-            contacts: contacts,
-            catalogues: catalogues
+            contacts: contacts
         });
     }
     else {

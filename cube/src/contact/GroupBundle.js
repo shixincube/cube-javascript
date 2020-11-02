@@ -34,9 +34,24 @@ import { ContactService } from "./ContactService";
 export class GroupBundle {
 
     constructor() {
+        /**
+         * @type {Group}
+         */
         this.group = null;
+
+        /**
+         * @type {Array<Contact>}
+         */
         this.modified = [];
+
+        /**
+         * @type {Contact}
+         */
         this.operator = null;
+
+        /**
+         * @type {boolean}
+         */
         this.includeSelf = false;
     }
 
@@ -66,7 +81,10 @@ export class GroupBundle {
         }
 
         // 读取操作员
-        bundle.operator = Contact.create(json.operator, bundle.group.getDomain());
+        if (undefined !== json.operator) {
+            bundle.operator = Contact.create(json.operator, bundle.group.getDomain());
+        }
+
         return bundle;
     }
 }

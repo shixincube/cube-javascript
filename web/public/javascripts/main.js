@@ -5,13 +5,11 @@
  * @param {CubeEngine} cube 
  * @param {object} account 
  * @param {Array} contacts 
- * @param {Array} catalogues 
  */
-function CubeApp(cube, account, contacts, catalogues) {
+function CubeApp(cube, account, contacts) {
     this.cube = cube;           // Cube 实例
     this.account = account;     // App 的当前账号
     this.contacts = contacts;       // App 的联系人列表
-    this.catalogues = catalogues;   // 界面目录数据
 
     this.cubeContact = null;        // 对应的 Cube 的用户实例
     this.cubeContactList = [];      // 对应的 Cube 的联系人清单
@@ -22,9 +20,11 @@ function CubeApp(cube, account, contacts, catalogues) {
 
     var that = this;
     setTimeout(function() {
-        that.initUI();
         that.config(cube);
     }, 10);
+
+    // 初始化 UI
+    this.initUI();
 
     this.startHeartbeat();
 }
@@ -42,8 +42,8 @@ CubeApp.prototype.initUI = function() {
     });
 
     app.messageCatalogue = new MessageCatalogue(app);
-    app.messageCatalogue.setClickListener(function(contact) {
-        app.onCatalogClick(contact);
+    app.messageCatalogue.setClickListener(function(data) {
+        app.onCatalogClick(data);
     });
 
     app.messagePanel = new MessagePanel(app);
@@ -119,13 +119,6 @@ CubeApp.prototype.config = function(cube) {
  */
 CubeApp.prototype.prepareData = function() {
     var that = this;
-    if (null == this.messagePanel) {
-        setTimeout(function() {
-            that.prepareData();
-        }, 10);
-        return;
-    }
-
     var time = Date.now() - window.AWeek;
 
     // 使用 Cube 的联系人
@@ -204,6 +197,8 @@ CubeApp.prototype.prepareData = function() {
         // 将 App 的账号数据设置为 Cube 联系人的上下文
         cubeContact.setContext(contact);
         this.cubeContactList.push(cubeContact);
+
+        this.messageCatalogue.appendItem(contact);
     }
 
     // 宣布完成
@@ -571,13 +566,13 @@ CubeApp.prototype.onNewMessage = function(message) {
     }
 }
 
-
+// 启动
 $(document).ready(function() {
     // 实例化 Cube 引擎
     var cube = window.cube();
 
     // 创建 App 实例。
-    var app = new CubeApp(cube, gAccount, gContacts, gCatalogues);
+    var app = new CubeApp(cube, gAccount, gContacts);
     window.app = app;
 
     // 启动 Cube
@@ -591,13 +586,14 @@ $(document).ready(function() {
 
         // 启用消息模块
         cube.messaging.start();
-
-        // 将当前账号签入，将 App 的账号信息设置为 Cube Self 的上下文
-        cube.signIn(app.account.id, app.account.name, app.account);
-
-        // 应用程序准备数据
-        app.prepareData();
     }, function(error) {
-        console.log('Start Cube failed: ' + error);
+        console.log('Start Cube FAILED: ' + error);
     });
+
+    // 将当前账号签入，将 App 的账号信息设置为 Cube Self 的上下文
+    // 在执行 cube#start() 之后可直接签入，不需要等待 Cube 就绪
+    cube.signIn(app.account.id, app.account.name, app.account);
+
+    // 应用程序准备数据
+    app.prepareData();
 });

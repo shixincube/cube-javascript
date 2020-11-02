@@ -60,31 +60,6 @@ class CubeAppManager {
         return result;
     }
 
-    getMessageCatalogue(id) {
-        let result = [];
-        // 用户
-        let accounts = this.accountRepo.accounts;
-        for (let i = 0; i < accounts.length; ++i) {
-            let account = accounts[i];
-            if (account.id == id) {
-                // 过滤自己
-                continue;
-            }
-
-            let ca = {
-                index: result.length,
-                id: account.id,
-                thumb: account.avatar,
-                label: account.name,
-                sublabel: ' ',
-                badge: ''
-            };
-            result.push(ca);
-        }
-
-        return result;
-    }
-
     getOfflineAccounts() {
         let result = [];
         let list = this.accountRepo.accounts;

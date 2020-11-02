@@ -68,14 +68,6 @@ export class CubeEngine {
 
         // 启动内核
         this.kernel.startup(config, () => {
-            // 消息服务注册插件
-            /*let messagingService = this.kernel.getModule(MessagingService.NAME);
-            messagingService.getPluginSystem().register(MessagingEvent.Notify, new TypeTranslationPlugin());
-
-            messagingService.attach((state) => {
-                this._fireMessagingEvent(state);
-            });*/
-
             success();
         }, (e) => {
             error(e);

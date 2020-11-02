@@ -346,14 +346,20 @@ export class MessagingService extends Module {
      * @returns {boolean} 如果成功执行查询返回 {@linkcode true} 。
      */
     queryMessage(time, handler) {
-        return this.storage.readMessage(time, (start, result) => {
+        let ret = this.storage.readMessage(time, (beginning, result) => {
             let list = result.sort((a, b) => {
                 if (a.remoteTS < b.remoteTS) return -1;
                 else if (a.remoteTS > b.remoteTS) return 1;
                 else return 0;
             });
-            handler(start, list);
+            handler(beginning, list);
         });
+
+        if (!ret) {
+            handler(time, []);
+        }
+
+        return ret;
     }
 
     /**
@@ -372,14 +378,20 @@ export class MessagingService extends Module {
             id = parseInt(contactOrId.id);
         }
 
-        return this.storage.readMessageWithContact(id, beginning, (contactId, beginning, result) => {
+        let ret = this.storage.readMessageWithContact(id, beginning, (contactId, beginning, result) => {
             let list = result.sort((a, b) => {
                 if (a.remoteTS < b.remoteTS) return -1;
                 else if (a.remoteTS > b.remoteTS) return 1;
                 else return 0;
             });
-            handler(contactId, beginning, list); 
+            handler(contactId, beginning, list);
         });
+
+        if (!ret) {
+            handler(id, beginning, []);
+        }
+
+        return ret;
     }
 
     /**
@@ -398,7 +410,7 @@ export class MessagingService extends Module {
             id = parseInt(groupOrId.id);
         }
 
-        return this.storage.readMessageWithGroup(id, beginning, (groupId, beginning, result) => {
+        let ret = this.storage.readMessageWithGroup(id, beginning, (groupId, beginning, result) => {
             let list = result.sort((a, b) => {
                 if (a.remoteTS < b.remoteTS) return -1;
                 else if (a.remoteTS > b.remoteTS) return 1;
@@ -406,6 +418,12 @@ export class MessagingService extends Module {
             });
             handler(groupId, beginning, list); 
         });
+
+        if (!ret) {
+            handler(id, beginning, []);
+        }
+
+        return ret;
     }
 
     /**

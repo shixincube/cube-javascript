@@ -69,6 +69,9 @@ export class ContactPipelineListener extends PipelineListener {
         else if (packet.name == ContactAction.ModifyGroup) {
             this.contactService.triggerModifyGroup(packet.data, packet.context);
         }
+        else if (packet.name == ContactAction.ModifyGroupMember) {
+            this.contactService.triggerModifyGroupMember(packet.data, packet.context);
+        }
         else if (packet.name == ContactAction.CreateGroup) {
             this.contactService.triggerCreateGroup(packet.data, packet.context);
         }

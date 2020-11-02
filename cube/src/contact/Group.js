@@ -268,6 +268,19 @@ export class Group extends Contact {
     }
 
     /**
+     * 仅用于维护 memberList 数据。
+     * @private
+     * @param {Contact} member 
+     */
+    _replaceMember(member) {
+        this._removeMember(member);
+        this.memberList.push(member);
+        if (this.owner.getId() == member.getId()) {
+            this.owner = member;
+        }
+    }
+
+    /**
      * @inheritdoc
      */
     toJSON() {
@@ -314,10 +327,12 @@ export class Group extends Contact {
         group.lastActiveTime = json.lastActive;
         group.state = json.state;
 
-        for (let i = 0; i < json.members.length; ++i) {
-            let member = Contact.create(json.members[i], json.domain);
-            if (!group.hasMember(member)) {
-                group.memberList.push(member);
+        if (undefined !== json.members) {
+            for (let i = 0; i < json.members.length; ++i) {
+                let member = Contact.create(json.members[i], json.domain);
+                if (!group.hasMember(member)) {
+                    group.memberList.push(member);
+                }
             }
         }
 

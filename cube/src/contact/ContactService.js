@@ -575,7 +575,7 @@ export class ContactService extends Module {
             ending = Date.now();
         }
 
-        this.storage.readGroups(beginning, ending, (beginning, ending, result) => {
+        let ret = this.storage.readGroups(beginning, ending, (beginning, ending, result) => {
             let list = result.sort((a, b) => {
                 return this.sortGroup(a, b);
             });
@@ -585,6 +585,10 @@ export class ContactService extends Module {
             }
             handler(list);
         }, states);
+
+        if (!ret) {
+            handler([]);
+        }
     }
 
     /**
@@ -1309,7 +1313,7 @@ export class ContactService extends Module {
     }
 
     /**
-     * 接收修改群成员数据。
+     * 接收修改群组数据。
      * @param {JSON} payload 数据包数据。
      * @param {object} context 数据包携带的上下文。
      */
@@ -1325,5 +1329,91 @@ export class ContactService extends Module {
         this.storage.writeGroup(group);
 
         this.notifyObservers(new ObservableState(ContactEvent.GroupUpdated, group));
+    }
+
+    /**
+     * 修改群成员的信息。
+     * @param {Group} group 
+     * @param {Contact} member 
+     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode member}:{@link Contact}) 。
+     * @param {function} [handleError] 操作错误回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode member}:{@link Contact}) 。
+     * @returns {boolean} 返回是否能执行该操作。
+     */
+    modifyGroupMember(group, member, handleSuccess, handleError) {
+        if (!group.hasMember(member)) {
+            return false;
+        }
+
+        let data = {
+            groupId: group.getId(),
+            member: member.toCompactJSON()
+        };
+
+        let packet = new Packet(ContactAction.ModifyGroupMember, data);
+
+        this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+                if (handleError) {
+                    handleError(group, member);
+                }
+                return;
+            }
+
+            if (responsePacket.getPayload().code != 0) {
+                if (handleError) {
+                    handleError(group, member);
+                }
+                return;
+            }
+
+            let bundle = GroupBundle.create(this, responsePacket.getPayload().data);
+            // 设置上下文
+            responsePacket.context = bundle;
+
+            let modifiedMember = bundle.modified[0];
+
+            group.lastActiveTime = bundle.group.lastActiveTime;
+            group._replaceMember(modifiedMember);
+
+            if (handleSuccess) {
+                handleSuccess(group, modifiedMember);
+            }
+        });
+
+        return true;
+    }
+
+    /**
+     * 接收修改群成员数据。
+     * @param {JSON} payload 数据包数据。
+     * @param {object} context 数据包携带的上下文。
+     */
+    triggerModifyGroupMember(payload, context) {
+        if (payload.code != 0) {
+            return;
+        }
+
+        let bundle = (null == context) ? GroupBundle.create(this, payload.data) : context;
+
+        let modifiedGroup = bundle.group;
+        let member = bundle.modified[0];
+
+        let current = this.groups.get(modifiedGroup.getId());
+        if (null != current) {
+            current.lastActiveTime = modifiedGroup.lastActiveTime;
+            current._replaceMember(member);
+
+            this.storage.writeGroup(current);
+        }
+        else {
+            this.storage.readGroup(group.getId(), (groupId, group) => {
+                if (null != group) {
+                    group.lastActiveTime = modifiedGroup.lastActiveTime;
+                    group._replaceMember(member);
+
+                    this.storage.writeGroup(group);
+                }
+            });
+        }
     }
 }
