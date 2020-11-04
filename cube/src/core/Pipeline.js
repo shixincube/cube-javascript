@@ -98,6 +98,9 @@ export class Pipeline {
          * @type {number}
          */
         this.port = 7070;
+        if (window.location.protocol.toLowerCase().indexOf("https") >= 0) {
+            this.port = 7077;
+        }
 
         /**
          * 是否执行过开启操作。
@@ -124,11 +127,18 @@ export class Pipeline {
     /**
      * 设置服务的地址和端口。
      * @param {string} address 服务器访问地址。
-     * @param {number} port 服务器访问端口。
+     * @param {number} [port] 服务器访问端口。
      */
     setRemoteAddress(address, port) {
-        if (this.address == address && this.port == port) {
-            return;
+        if (undefined !== port) {
+            if (this.port == port && this.address == address) {
+                return;
+            }
+        }
+        else {
+            if (this.address == address) {
+                return;
+            }
         }
 
         let reset = this.opened;
@@ -138,7 +148,10 @@ export class Pipeline {
         }
 
         this.address = address;
-        this.port = port;
+
+        if (undefined !== port) {
+            this.port = port;
+        }
 
         if (reset) {
             this.open();

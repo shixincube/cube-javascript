@@ -14,29 +14,45 @@ var manager = require('../app/CubeAppManager');
 /**
  * Get port from environment and store in Express.
  */
+var httpPort = normalizePort(process.env.PORT || '8080');
+var httpsPort = normalizePort(parseInt(process.env.PORT) + 363 || '8443');
 
-var port = normalizePort(process.env.PORT || '8080');
-//app.set('port', port);
+app.set('httpPort', httpPort);
+app.set('httpsPort', httpsPort);
 app.set('manager', manager);
 
 /**
  * Create HTTP server.
  */
-
-var server = http.createServer(app);
+var httpServer = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
  */
+httpServer.listen(httpPort);
+httpServer.on('error', onHttpError);
+httpServer.on('listening', onHttpListening);
 
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+
+/**
+ * Create HTTPS server.
+ */
+let privateKey  = fs.readFileSync('./bin/server.key', 'utf8');
+let certificate = fs.readFileSync('./bin/server.cer', 'utf8');
+let credentials = { key: privateKey, cert: certificate };
+var httpsServer = https.createServer(credentials, app);
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+httpsServer.listen(httpsPort);
+httpsServer.on('error', onHttpsError);
+httpsServer.on('listening', onHttpsListening);
+
 
 /**
  * Normalize a port into a number, string, or false.
  */
-
 function normalizePort(val) {
     var port = parseInt(val, 10);
 
@@ -56,15 +72,14 @@ function normalizePort(val) {
 /**
  * Event listener for HTTP server "error" event.
  */
-
-function onError(error) {
+function onHttpError(error) {
     if (error.syscall !== 'listen') {
         throw error;
     }
 
-    var bind = typeof port === 'string'
-        ? 'Pipe ' + port
-        : 'Port ' + port;
+    var bind = typeof httpPort === 'string'
+        ? 'Pipe ' + httpPort
+        : 'Port ' + httpPort;
 
     // handle specific listen errors with friendly messages
     switch (error.code) {
@@ -84,9 +99,47 @@ function onError(error) {
 /**
  * Event listener for HTTP server "listening" event.
  */
+function onHttpListening() {
+    var addr = httpServer.address();
+    var bind = typeof addr === 'string'
+        ? 'pipe ' + addr
+        : 'port ' + addr.port;
+    debug('Listening on ' + bind);
+}
 
-function onListening() {
-    var addr = server.address();
+
+/**
+ * Event listener for HTTPS server "error" event.
+ */
+function onHttpsError(error) {
+    if (error.syscall !== 'listen') {
+        throw error;
+    }
+
+    var bind = typeof httpsPort === 'string'
+        ? 'Pipe ' + httpsPort
+        : 'Port ' + httpsPort;
+
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+        case 'EACCES':
+            console.error(bind + ' requires elevated privileges');
+            process.exit(1);
+            break;
+        case 'EADDRINUSE':
+            console.error(bind + ' is already in use');
+            process.exit(1);
+            break;
+        default:
+            throw error;
+    }
+}
+
+/**
+ * Event listener for HTTPS server "listening" event.
+ */
+function onHttpsListening() {
+    var addr = httpsServer.address();
     var bind = typeof addr === 'string'
         ? 'pipe ' + addr
         : 'port ' + addr.port;

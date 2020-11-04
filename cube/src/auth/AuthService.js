@@ -129,35 +129,51 @@ export class AuthService extends Module {
     /**
      * 分配令牌。
      * @param {number} id 指定待分配令牌的 ID 。
+     * @param {function} handler 分配处理回调函数。
      * @returns {AuthToken} 返回令牌实例。
      */
-    allocToken(id) {
-        if (null == this.token) {
-            return null;
-        }
-
+    allocToken(id, handler) {
         let storage = new TokenStorage();
+
         let activeToken = storage.load(id);
         if (null != activeToken) {
             this.token = activeToken;
             this.token.cid = id;
-            return this.token;
+            handler(this.token);
+            return;
         }
 
-        // 将候选令牌转为该 ID 令牌
-        if (!storage.raise(id)) {
-            this.token.cid = id;
-            storage.save(id, this.token);
+        if (null != this.token) {
+            // 将候选令牌转为该 ID 令牌
+            if (!storage.raise(id)) {
+                this.token.cid = id;
+                storage.save(id, this.token);
+            }
+
+            // 申请新的候选令牌
+            (async ()=> {
+                let newToken = await this.applyToken(this.token.domain, this.token.appKey);
+                if (null != newToken) {
+                    storage.saveCandidate(newToken);
+                }
+            })();
+
+            handler(this.token);
         }
-
-        // 申请新的候选令牌
-        let promise = this.applyToken(this.token.domain, this.token.appKey);
-        promise.then((newToken) => {
-            storage.saveCandidate(newToken);
-        }).catch(() => {
-        });
-
-        return this.token;
+        else {
+            (async ()=> {
+                let newToken = await this.applyToken(this.domain, this.appKey);
+                if (null != newToken) {
+                    storage.save(id, newToken);
+                    this.token = newToken;
+                    this.token.cid = id;
+                    handler(this.token);
+                }
+                else {
+                    handler(null);
+                }
+            })();
+        }
     }
 
     /**
@@ -196,7 +212,7 @@ export class AuthService extends Module {
 
         // 设置通道信息
         if (undefined !== address) {
-            this.pipeline.setRemoteAddress(address, 7070);
+            this.pipeline.setRemoteAddress(address);
         }
 
         // 开启通道

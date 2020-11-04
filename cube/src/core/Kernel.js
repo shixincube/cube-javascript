@@ -263,18 +263,22 @@ export class Kernel {
      * @returns {AuthToken} 返回令牌实例。
      */
     activeToken(id) {
-        let token = this.getModule(AuthService.NAME).allocToken(id);
-        if (null == token) {
-            return null;
-        }
+        return new Promise((resolve, reject) => {
+            this.getModule(AuthService.NAME).allocToken(id, (token) => {
+                if (null == token) {
+                    resolve(null);
+                    return;
+                }
 
-        let pipelines = this.pipelines.values();
-        for (let i = 0; i < pipelines.length; ++i) {
-            let pipeline = pipelines[i];
-            pipeline.setTokenCode(token.code);
-        }
+                let pipelines = this.pipelines.values();
+                for (let i = 0; i < pipelines.length; ++i) {
+                    let pipeline = pipelines[i];
+                    pipeline.setTokenCode(token.code);
+                }
 
-        return token;
+                resolve(token);
+            });
+        });
     }
 
     /**
@@ -381,7 +385,7 @@ export class Kernel {
         let pipelines = this.pipelines.values();
         for (let i = 0; i < pipelines.length; ++i) {
             let pipeline = pipelines[i];
-            pipeline.setRemoteAddress(token.getDescription().getAddress(), 7070);
+            pipeline.setRemoteAddress(token.getDescription().getAddress());
             pipeline.setTokenCode(token.code);
         }
 
