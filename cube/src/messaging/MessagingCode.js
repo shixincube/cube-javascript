@@ -25,25 +25,62 @@
  */
 
 /**
- * 文件存储模块事件。
+ * 消息模块处理消息时的状态码。
  */
-export const FileStorageEvent = {
+export const MessagingCode = {
 
     /**
-     * 正在进行文件上传。
-     * @type {string}
+     * 成功。
+     * @type {number}
      */
-    Uploading: 'Uploading',
+    Ok: 0,
 
     /**
-     * 文件上传完成。
-     * @type {string}
+     * 网络故障。
+     * @type {number}
      */
-    UploadCompleted: 'UploadCompleted',
+    NetFault: 1,
 
     /**
-     * 文件上传失败。
-     * @type {string}
+     * 遇到故障。
+     * @type {number}
      */
-    UploadFailed: 'UploadFailed'
-}
+    Failure: 9,
+
+    /**
+     * 无效域信息。
+     * @type {number}
+     */
+    InvalidDomain: 11,
+
+    /**
+     * 没有域信息。
+     * @type {number}
+     */
+    NoDomain: 12,
+
+    /**
+     * 没有设备信息。
+     * @type {number}
+     */
+    NoDevice: 15,
+
+    /**
+     * 没有找到联系人。
+     * @type {number}
+     */
+    NoContact: 16,
+
+    /**
+     * 数据结构错误。
+     * @type {number}
+     */
+    DataStructureError: 20,
+
+    /**
+     * 未知的状态。
+     * @type {number}
+     */
+    Unknown: 99
+
+};

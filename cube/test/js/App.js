@@ -90,7 +90,7 @@ var App = Class({
         var fileStorage = this.cube.getFileStorage();
 
         fileStorage.attachWithName(FileStorageEvent.Uploading, function(state) {
-            that.console.log('文件正在上传：' + state.getData().fileName + ' - ' + state.getData().cursor
+            that.console.log('文件正在上传：' + state.getData().fileName + ' - ' + state.getData().position
                  + '/' + state.getData().fileSize);
         });
         fileStorage.attachWithName(FileStorageEvent.UploadCompleted, function(state) {
@@ -122,7 +122,7 @@ var App = Class({
             this.cube = new CubeEngine();
             window.cube = cube;
             this.bindEvent();
-            this.extendGroup();
+            // this.extendGroup();
         }
 
         var that = this;
@@ -178,14 +178,14 @@ var App = Class({
         if (null == this.selectFileDom) {
             this.selectFileDom = document.createElement('div');
             this.selectFileDom.id = 'select_file';
-            var content = ['<div class=""><label for="uploade">选择一个文件：</label>',
-                '<input type="file" id="uploade" name="uploade" accept="*.*">',
+            var content = ['<div class=""><label for="upload">选择一个文件：</label>',
+                '<input type="file" id="upload" name="upload" accept="*.*">',
                 '</div>'
             ];
             this.selectFileDom.innerHTML = content.join('');
             document.body.appendChild(this.selectFileDom);
 
-            this.fileEl = document.getElementById('uploade');
+            this.fileEl = document.getElementById('upload');
             this.fileEl.onchange = function(e) {
                 var file = this.files[0];
                 if (undefined === file) {

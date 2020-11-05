@@ -48,10 +48,10 @@ export const MessagingEvent = {
     Sending: 'Sending',
 
     /**
-     * 发送失败。
+     * 消息处理故障。
      * @type {string}
      */
-    SendFailed: 'SendFailed',
+    Fault: 'Fault',
 
     /**
      * 未知时间。仅用于调试。

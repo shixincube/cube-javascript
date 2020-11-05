@@ -30,7 +30,6 @@ import { AjaxPipeline } from "../pipeline/AjaxPipeline";
 import { AjaxFileChunkPacket } from "../pipeline/AjaxFileChunkPacket";
 import { ContactService } from "../contact/ContactService";
 import { ContactEvent } from "../contact/ContactEvent";
-import { StateCode } from "../core/StateCode";
 import { FileAnchor } from "./FileAnchor";
 import { FileStorageEvent } from "./FileStorageEvent";
 import { ObservableState } from "../core/ObservableState";
@@ -62,15 +61,20 @@ export class FileStorage extends Module {
         this.require(ContactService.NAME);
 
         /**
-         * 自己的账号 ID 。
-         * @type {number}
+         * 联系人服务。
+         * @type {ContactService}
          */
-        this.cid = 0;
+        this.contactService = null;
+
+        /**
+         * 是否是安全连接。
+         */
+        this.secure = (window.location.protocol.toLowerCase().indexOf("https") >= 0);
 
         /**
          * 主机 URL 地址。
          */
-        this.uploadURL = 'https://api.shixincube.com/v1/upload';
+        this.uploadURL = 'https://cube.shixincube.com/filestorage/upload';
 
         /**
          * 文件分块大小。
@@ -96,15 +100,10 @@ export class FileStorage extends Module {
         this.filePipeline = this.kernel.getPipeline(AjaxPipeline.NAME);
 
         // 监听联系人事件
-        let cs = this.kernel.getModule(ContactService.NAME);
-        cs.attach((state) => {
+        this.contactService = this.kernel.getModule(ContactService.NAME);
+        this.contactService.attach((state) => {
             this._fireContactEvent(state);
         });
-
-        let self = cs.getSelf();
-        if (null != self) {
-            this.cid = self.getId();
-        }
 
         return true;
     }
@@ -117,11 +116,27 @@ export class FileStorage extends Module {
     }
 
     /**
+     * @inheritdoc
+     */
+    config(config) {
+        if (this.secure) {
+            if (config.uploadSecureURL) {
+                this.uploadURL = config.uploadSecureURL;
+            }
+        }
+        else {
+            if (config.uploadURL) {
+                this.uploadURL = config.uploadURL;
+            }
+        }
+    }
+
+    /**
      * 上传指定的文件。
      * @param {File} file 指定上传文件。
-     * @param {function} handleProcessing
-     * @param {function} handleSuccess
-     * @param {function} handleError
+     * @param {function} [handleProcessing]
+     * @param {function} [handleSuccess]
+     * @param {function} [handleError]
      */
     uploadFile(file, handleProcessing, handleSuccess, handleError) {
         let fileSize = file.size;
@@ -149,10 +164,12 @@ export class FileStorage extends Module {
                 fileAnchor.fileCode = null;
                 fileAnchor.url = null;
                 fileAnchor.success = false;
-                let state = new ObservableState(FileStorageEvent.UploadCompleted, fileAnchor);
+                let state = new ObservableState(FileStorageEvent.UploadFailed, fileAnchor);
                 this.notifyObservers(state);
 
-                handleError(fileAnchor);
+                if (handleError) {
+                    handleError(fileAnchor);
+                }
             }
             else {
                 // 上传成功
@@ -164,11 +181,15 @@ export class FileStorage extends Module {
                 let state = new ObservableState(FileStorageEvent.UploadCompleted, fileAnchor);
                 this.notifyObservers(state);
 
-                handleSuccess(fileAnchor);
+                if (handleSuccess) {
+                    handleSuccess(fileAnchor);
+                }
             }
         }, (fileAnchor) => {
             // 正在上传
-            handleProcessing(fileAnchor);
+            if (handleProcessing) {
+                handleProcessing(fileAnchor);
+            }
         });
     }
 
@@ -183,42 +204,49 @@ export class FileStorage extends Module {
      * @param {function} processing
      */
     _serialReadAndUpload(reader, file, fileAnchor, fileSize, completed, processing) {
-        // 读取文件
-        this._readFileBlock(reader, file, fileAnchor).then((filePacket) => {
+        (async ()=> {
+            // 读取文件
+            let filePacket = await this._readFileBlock(reader, file, fileAnchor);
+            if (null == filePacket) {
+                completed(null);
+                return;
+            }
 
             // 回调正在处理事件
             processing(fileAnchor);
 
+            // 发送数据
             this._submit(filePacket, (packet) => {
                 if (null == packet) {
                     cell.Logger.e(FileStorage.NAME, 'Upload failed: ' + file.name);
+                    completed(null);
                     return;
                 }
 
+                let payload = packet.getPayload();
+
                 // 检测回包状态
-                let stateCode = packet.getStateCode();
-                if (stateCode == StateCode.OK) {
+                if (payload.code == 0) {
                     cell.Logger.d(FileStorage.NAME, 'File cursor: ' + fileAnchor + '/' + fileSize);
 
-                    packet.data.cursor = fileAnchor.position;
-                    let state = new ObservableState(FileStorageEvent.Uploading, packet.data);
+                    let anchor = FileAnchor.create(payload.data);
+
+                    let state = new ObservableState(FileStorageEvent.Uploading, anchor);
                     this.notifyObservers(state);
 
                     if (fileAnchor.position < fileSize) {
                         this._serialReadAndUpload(reader, file, fileAnchor, fileSize, completed, processing);
                     }
                     else {
-                        completed(packet.data);
+                        completed(anchor);
                     }
                 }
                 else {
-                    cell.Logger.w(FileStorage.NAME, 'Packet state code: ' + stateCode);
+                    cell.Logger.w(FileStorage.NAME, 'Packet state code: ' + payload.code);
                     completed(null);
                 }
             });
-        }).catch(() => {
-            completed(null);
-        });
+        })();
     }
 
     /**
@@ -245,8 +273,14 @@ export class FileStorage extends Module {
             // 读取文件数据
             reader.readAsBinaryString(blob);
 
-            // 发送数据
-            let filePacket = new AjaxFileChunkPacket(this.cid, file.name, file.size, blob, fileAnchor.position, blob.size);
+            // 组装为 Packet
+            let filePacket = new AjaxFileChunkPacket(this.contactService.getSelf().getId(),
+                this.getAuthToken().domain,
+                file.name,
+                file.size,
+                blob,
+                fileAnchor.position,
+                blob.size);
             resolve(filePacket);
         });
     }
@@ -257,7 +291,7 @@ export class FileStorage extends Module {
      * @param {function} handler 数据响应回调。
      */
     _submit(filePacket, handler) {
-        this.filePipeline.send(this.uploadURL, filePacket, (pipeline, endpoint, packet) => {
+        this.filePipeline.send(this.uploadURL, filePacket, (pipeline, source, packet) => {
             handler(packet);
         });
     }

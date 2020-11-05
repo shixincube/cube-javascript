@@ -205,6 +205,14 @@ export class Module extends Subject {
     }
 
     /**
+     * 配置模块。
+     * @param {JSON} config 配置信息。
+     */
+    config(config) {
+        // Nothing
+    }
+
+    /**
      * 设置指定事件的监听回调函数。
      * @param {string} [event] 指定事件名。
      * @param {function} listener 当发生该事件时回调此函数，函数参数参看 {@link ModuleEvent} 。

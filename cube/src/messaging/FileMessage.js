@@ -32,7 +32,6 @@ import { Message } from "./Message";
 export class FileMessage extends Message {
 
     /**
-     * 构造函数。
      * @param {File} [file] 指定文件。
      */
     constructor(file) {

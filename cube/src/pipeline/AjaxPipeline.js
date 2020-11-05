@@ -28,6 +28,7 @@ import { Pipeline } from "../core/Pipeline";
 import { FastMap } from "../util/FastMap";
 import { AjaxFileChunkPacket } from "./AjaxFileChunkPacket";
 import { Packet } from "../core/Packet";
+import { StateCode } from "../core/StateCode";
 
 /**
  * AJAX 请求操作封装。
@@ -194,6 +195,11 @@ export class AjaxPipeline extends Pipeline {
             request.send((status, response) => {
                 if (status == 200) {
                     let responsePacket = Packet.create(response);
+                    responsePacket.state = {
+                        code: StateCode.OK,
+                        desc: 'Ok'
+                    };
+
                     if (undefined !== handleResponse) {
                         handleResponse(this, destination, responsePacket);
                     }
@@ -217,6 +223,11 @@ export class AjaxPipeline extends Pipeline {
             request.send((status, response) => {
                 if (status == 200) {
                     let responsePacket = Packet.create(response);
+                    responsePacket.state = {
+                        code: StateCode.OK,
+                        desc: 'Ok'
+                    };
+                    
                     if (undefined !== handleResponse) {
                         handleResponse(this, destination, responsePacket);
                     }

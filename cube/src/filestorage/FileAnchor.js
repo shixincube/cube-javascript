@@ -90,4 +90,18 @@ export class FileAnchor extends JSONable {
     toString() {
         return this.position.toString();
     }
+
+    /**
+     * 
+     * @param {JSON} json 
+     * @returns {FileAnchor}
+     */
+    static create(json) {
+        let anchor = new FileAnchor();
+        anchor.fileName = json.fileName;
+        anchor.fileSize = json.fileSize;
+        anchor.fileCode = json.fileCode;
+        anchor.position = json.position;
+        return anchor;
+    }
 }

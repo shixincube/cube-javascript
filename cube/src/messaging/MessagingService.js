@@ -38,6 +38,7 @@ import { MessageState } from "./MessageState";
 import { MessagingAction } from "./MessagingAction";
 import { MessagingPipelineListener } from "./MessagingPipelineListener";
 import { MessagingEvent } from "./MessagingEvent";
+import { MessagingCode } from "./MessagingCode";
 import { MessagingStorage } from "./MessagingStorage";
 import { FileMessage } from "./FileMessage";
 import { FileStorage } from "../filestorage/FileStorage"
@@ -607,8 +608,11 @@ export class MessagingService extends Module {
 
                                 respMessage.state = MessageState.Fault;
 
-                                // 回调错误
-                                let state = new ObservableState(MessagingEvent.SendFailed, respMessage);
+                                // 进行事件通知
+                                let state = new ObservableState(MessagingEvent.Fault, {
+                                    code: responsePacket.data.code,
+                                    message: respMessage
+                                });
                                 this.notifyObservers(state);
                             }
 
@@ -617,6 +621,15 @@ export class MessagingService extends Module {
                         }
                         else {
                             cell.Logger.e('MessagingService', 'Pipeline error : ' + MessagingAction.Push + ' - ' + responsePacket.getStateCode());
+
+                            this.sendingMap.remove(message.getId());
+
+                            message.state = MessageState.Fault;
+
+                            this.notifyObservers(new ObservableState(MessagingEvent.Fault, {
+                                code: MessagingCode.NetFault,
+                                message: message
+                            }));
                         }
                     });
                 }
@@ -630,6 +643,8 @@ export class MessagingService extends Module {
      */
     _processFile(fileMessage) {
         let fs = this.kernel.getModule(FileStorage.NAME);
+        fs.start();
+        
         fs.uploadFile(fileMessage.getFile(), (fileAnchor) => {
             // 正在发送文件
             fileMessage.payload._file_ = fileAnchor.toJSON();

@@ -98,10 +98,11 @@ export class Packet {
     }
 
     /**
-     * 从 JSON 格式创建 {@linkcode Packet} 实例。
-     * @param {JSON} json 
+     * 从 JSON 格式创建 {@link Packet} 实例。
+     * @param {JSON} json 符合格式的 JSON 对象。
      */
     static create(json) {
-        return new Packet(json.name, json.data, json.sn);
+        let packet = new Packet(json.name, json.data, json.sn);
+        return packet;
     }
 }

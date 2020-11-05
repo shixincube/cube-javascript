@@ -105,4 +105,11 @@ export class TokenStorage {
     remove(id) {
         window.localStorage.removeItem('_cube_' + id + '_');
     }
+
+    /**
+     * 删除所有令牌。
+     */
+    removeAll() {
+        window.localStorage.clear();
+    }
 }

@@ -324,6 +324,15 @@ export class AuthService extends Module {
     }
 
     /**
+     * 清除所有令牌。
+     */
+    cleanToken() {
+        let storage = new TokenStorage();
+        storage.removeAll();
+        storage = null;
+    }
+
+    /**
      * @private
      */
     _autoApply() {

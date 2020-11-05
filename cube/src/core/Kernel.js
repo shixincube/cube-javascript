@@ -404,9 +404,7 @@ export class Kernel {
             // 查找模块配置
             if (token.description.primaryContent.hasOwnProperty(mod.name)) {
                 let cfg = token.description.primaryContent[mod.name];
-                for (let item in cfg) {
-                    mod[item] = cfg[item];
-                }
+                mod.config(cfg);
             }
         }
 
