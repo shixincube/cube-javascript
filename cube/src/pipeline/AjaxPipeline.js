@@ -216,7 +216,7 @@ export class AjaxPipeline extends Pipeline {
             });
         }
         else if (packet instanceof Packet) {
-            request.setMethod('POST')
+            request.setMethod(packet.method)
                 .setParams({ token: tokenCode, sn: packet.sn })
                 .setData(packet.data);
 
@@ -227,7 +227,7 @@ export class AjaxPipeline extends Pipeline {
                         code: StateCode.OK,
                         desc: 'Ok'
                     };
-                    
+
                     if (undefined !== handleResponse) {
                         handleResponse(this, destination, responsePacket);
                     }

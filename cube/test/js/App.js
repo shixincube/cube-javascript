@@ -178,7 +178,7 @@ var App = Class({
         if (null == this.selectFileDom) {
             this.selectFileDom = document.createElement('div');
             this.selectFileDom.id = 'select_file';
-            var content = ['<div class=""><label for="upload">选择一个文件：</label>',
+            var content = ['<div style="padding:24px 0px 0px 24px;"><label for="upload">选择一个文件：</label>',
                 '<input type="file" id="upload" name="upload" accept="*.*">',
                 '</div>'
             ];

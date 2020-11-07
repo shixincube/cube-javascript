@@ -73,6 +73,11 @@ export class Packet {
          * @type {object}
          */
         this.context = null;
+
+        /**
+         * 用于 HTTP 协议的 Method 名。
+         */
+        this.method = 'POST';
     }
 
     /**

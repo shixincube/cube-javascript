@@ -74,13 +74,13 @@ export class FileStorage extends Module {
         /**
          * 主机 URL 地址。
          */
-        this.uploadURL = 'https://cube.shixincube.com/filestorage/upload';
+        this.fileURL = 'https://cube.shixincube.com/filestorage/file';
 
         /**
          * 文件分块大小。
          * @type {number}
          */
-        this.block = 512 * 1024;
+        this.block = 128 * 1024;
 
         /**
          * 文件数据通道。
@@ -120,13 +120,13 @@ export class FileStorage extends Module {
      */
     config(config) {
         if (this.secure) {
-            if (config.uploadSecureURL) {
-                this.uploadURL = config.uploadSecureURL;
+            if (config.fileSecureURL) {
+                this.fileURL = config.fileSecureURL;
             }
         }
         else {
-            if (config.uploadURL) {
-                this.uploadURL = config.uploadURL;
+            if (config.fileURL) {
+                this.fileURL = config.fileURL;
             }
         }
     }
@@ -291,7 +291,7 @@ export class FileStorage extends Module {
      * @param {function} handler 数据响应回调。
      */
     _submit(filePacket, handler) {
-        this.filePipeline.send(this.uploadURL, filePacket, (pipeline, source, packet) => {
+        this.filePipeline.send(this.fileURL, filePacket, (pipeline, source, packet) => {
             handler(packet);
         });
     }
