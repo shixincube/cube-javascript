@@ -31,7 +31,9 @@ import { AjaxFileChunkPacket } from "../pipeline/AjaxFileChunkPacket";
 import { ContactService } from "../contact/ContactService";
 import { ContactEvent } from "../contact/ContactEvent";
 import { FileAnchor } from "./FileAnchor";
+import { FileLabel } from "./FileLabel";
 import { FileStorageEvent } from "./FileStorageEvent";
+import { FileStoragePipeListener } from "./FileStoragePipeListener";
 import { ObservableState } from "../core/ObservableState";
 
 /**
@@ -83,6 +85,12 @@ export class FileStorage extends Module {
         this.block = 128 * 1024;
 
         /**
+         * 默认管道的监听器。
+         * @type {FileStoragePipeListener}
+         */
+        this.pipelineListener = new FileStoragePipeListener(this);
+
+        /**
          * 文件数据通道。
          * @type {AjaxPipeline}
          */
@@ -99,6 +107,9 @@ export class FileStorage extends Module {
 
         this.filePipeline = this.kernel.getPipeline(AjaxPipeline.NAME);
 
+        // 添加数据通道的监听器
+        this.pipeline.addListener(FileStorage.NAME, this.pipelineListener);
+
         // 监听联系人事件
         this.contactService = this.kernel.getModule(ContactService.NAME);
         this.contactService.attach((state) => {
@@ -113,6 +124,9 @@ export class FileStorage extends Module {
      */
     stop() {
         super.stop();
+
+        // 移除数据管道的监听器
+        this.pipeline.removeListener(FileStorage.NAME, this.pipelineListener);
     }
 
     /**
@@ -294,6 +308,14 @@ export class FileStorage extends Module {
         this.filePipeline.send(this.fileURL, filePacket, (pipeline, source, packet) => {
             handler(packet);
         });
+    }
+
+    triggerPutFile(payload, context) {
+        if (payload.code != 0) {
+            return;
+        }
+
+        let fileLabel = (null == context) ? FileLabel.create(payload.data) : context;
     }
 
     _fireContactEvent(state) {

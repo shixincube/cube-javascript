@@ -26,21 +26,22 @@
 
 import cell from "@lib/cell-lib";
 import { PipelineListener } from "../core/PipelineListener";
-import { MessagingService } from "./MessagingService";
-import { MessagingAction } from "./MessagingAction";
+import { FileStorage } from "./FileStorage";
+import { FileStorageAction } from "./FileStorageAction";
 import { StateCode } from "../core/StateCode";
 
 /**
- * 消息模块数据管道监听器。
+ * 文件存储模块数据管道监听器。
  */
-export class MessagingPipelineListener extends PipelineListener {
+export class FileStoragePipeListener extends PipelineListener {
 
     /**
-     * @param {MessagingService} messagingService 
+     * 
+     * @param {FileStorage} fileStorage 
      */
-    constructor(messagingService) {
+    constructor(fileStorage) {
         super();
-        this.messagingService = messagingService;
+        this.fileStorage = fileStorage;
     }
 
     /**
@@ -50,22 +51,12 @@ export class MessagingPipelineListener extends PipelineListener {
         super.onReceived(pipeline, source, packet);
 
         if (packet.getStateCode() != StateCode.OK) {
-            cell.Logger.w('MessagingPipelineListener', 'Pipeline error: ' + packet.name + ' - ' + packet.getStateCode());
+            cell.Logger.w('FileStoragePipeListener', 'Pipeline error: ' + packet.name + ' - ' + packet.getStateCode());
             return;
         }
 
-        if (packet.name == MessagingAction.Notify) {
-            this.messagingService.triggerNotify(packet.data);
+        if (packet.name == FileStorageAction.PutFile) {
+            this.fileStorage.triggerPutFile(packet.data, packet.context);
         }
-        else if (packet.name == MessagingAction.Pull) {
-            this.messagingService.triggerPull(packet.data);
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    onOpened(pipeline) {
-        super.onOpened(pipeline);
     }
 }

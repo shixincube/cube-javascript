@@ -24,48 +24,17 @@
  * SOFTWARE.
  */
 
-import cell from "@lib/cell-lib";
-import { PipelineListener } from "../core/PipelineListener";
-import { MessagingService } from "./MessagingService";
-import { MessagingAction } from "./MessagingAction";
-import { StateCode } from "../core/StateCode";
+import { Entity } from "../core/Entity";
 
 /**
- * 消息模块数据管道监听器。
+ * 文件标签。
  */
-export class MessagingPipelineListener extends PipelineListener {
-
-    /**
-     * @param {MessagingService} messagingService 
-     */
-    constructor(messagingService) {
+export class FileLabel extends Entity {
+    constructor() {
         super();
-        this.messagingService = messagingService;
     }
 
-    /**
-     * @inheritdoc
-     */
-    onReceived(pipeline, source, packet) {
-        super.onReceived(pipeline, source, packet);
-
-        if (packet.getStateCode() != StateCode.OK) {
-            cell.Logger.w('MessagingPipelineListener', 'Pipeline error: ' + packet.name + ' - ' + packet.getStateCode());
-            return;
-        }
-
-        if (packet.name == MessagingAction.Notify) {
-            this.messagingService.triggerNotify(packet.data);
-        }
-        else if (packet.name == MessagingAction.Pull) {
-            this.messagingService.triggerPull(packet.data);
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    onOpened(pipeline) {
-        super.onOpened(pipeline);
+    static create(json) {
+        
     }
 }

@@ -385,8 +385,8 @@ export class ContactService extends Module {
      * 获取指定 ID 列表里的联系人信息。
      * @protected
      * @param {Array} idList 联系人 ID 列表。
-     * @param {function} handleSuccess 操作成功回调该方法。
-     * @param {function} handleError 操作失败回调该方法。
+     * @param {function} [handleSuccess] 操作成功回调该方法。
+     * @param {function} [handleError] 操作失败回调该方法。
      */
     getContactList(idList, handleSuccess, handleError) {
         let promise = new Promise((resolve, reject) => {
@@ -397,7 +397,7 @@ export class ContactService extends Module {
             this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
                 if (null != responsePacket) {
                     if (responsePacket.getStateCode() == StateCode.OK && responsePacket.data.code == 0) {
-                        let list = responsePacket.data.data.list;
+                        let list = responsePacket.data.data;
                         let contactList = [];
 
                         for (let i = 0; i < list.length; ++i) {
