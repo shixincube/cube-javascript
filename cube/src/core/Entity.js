@@ -71,11 +71,6 @@ export class Entity extends JSONable {
         this.context = null;
 
         /**
-         *  
-         */
-        this.itemMap = new OrderMap();
-
-        /**
          * 模块名称。
          * @protected
          * @type {string}

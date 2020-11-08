@@ -35,6 +35,7 @@ import { FileLabel } from "./FileLabel";
 import { FileStorageEvent } from "./FileStorageEvent";
 import { FileStoragePipeListener } from "./FileStoragePipeListener";
 import { ObservableState } from "../core/ObservableState";
+import { OrderMap } from "../util/OrderMap";
 
 /**
  * 上传文件回调函数。
@@ -69,14 +70,22 @@ export class FileStorage extends Module {
         this.contactService = null;
 
         /**
+         * 缓存的文件标签。键为文件名。
+         * @type {OrderMap<string,FileLabel>}
+         */
+        this.fileLabels = new OrderMap();
+
+        /**
          * 是否是安全连接。
+         * @type {boolean}
          */
         this.secure = (window.location.protocol.toLowerCase().indexOf("https") >= 0);
 
         /**
          * 主机 URL 地址。
+         * @type {string}
          */
-        this.fileURL = 'https://cube.shixincube.com/filestorage/file';
+        this.fileURL = 'https://cube.shixincube.com/filestorage/file/';
 
         /**
          * 文件分块大小。
@@ -207,6 +216,10 @@ export class FileStorage extends Module {
         });
     }
 
+    getFileURL(fileName) {
+        return null;
+    }
+
     /**
      * 以串行方式读取并上传文件数据。
      * @private
@@ -316,6 +329,14 @@ export class FileStorage extends Module {
         }
 
         let fileLabel = (null == context) ? FileLabel.create(payload.data) : context;
+
+        // 文件的访问 URL
+        fileLabel.url = this.fileURL + fileLabel.getFileCode();
+
+        // 缓存到本地
+        this.fileLabels.put(fileLabel.getFileName(), fileLabel);
+
+        
     }
 
     _fireContactEvent(state) {
