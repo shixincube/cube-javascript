@@ -50,6 +50,7 @@ import { MessageState } from "./messaging/MessageState";
 import { FileMessage } from "./messaging/FileMessage";
 import { FileStorage } from "./filestorage/FileStorage";
 import { FileAnchor } from "./filestorage/FileAnchor";
+import { FileLabel } from "./filestorage/FileLabel";
 import { FileAttachment } from "./filestorage/FileAttachment";
 import { FileStorageEvent } from "./filestorage/FileStorageEvent";
 import { ConferenceService } from "./conference/ConferenceService";
@@ -93,6 +94,7 @@ import { FaceMonitor } from "./facemonitor/FaceMonitor";
 
     global.FileStorage = FileStorage;
     global.FileAnchor = FileAnchor;
+    global.FileLabel = FileLabel;
     global.FileAttachment = FileAttachment;
     global.FileStorageEvent = FileStorageEvent;
 

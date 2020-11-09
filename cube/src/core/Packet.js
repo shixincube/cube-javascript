@@ -75,9 +75,10 @@ export class Packet {
         this.context = null;
 
         /**
-         * 用于 HTTP 协议的 Method 名。
+         * 数据应答类型。
+         * @type {string}
          */
-        this.method = 'POST';
+        this.responseType = 'json';
     }
 
     /**

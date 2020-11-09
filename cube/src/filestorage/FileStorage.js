@@ -36,6 +36,8 @@ import { FileStorageEvent } from "./FileStorageEvent";
 import { FileStoragePipeListener } from "./FileStoragePipeListener";
 import { ObservableState } from "../core/ObservableState";
 import { OrderMap } from "../util/OrderMap";
+import { Packet } from "../core/Packet";
+import { FileStorageAction } from "./FileStorageAction";
 
 /**
  * 上传文件回调函数。
@@ -185,7 +187,6 @@ export class FileStorage extends Module {
             if (null == data) {
                 // 上传失败
                 fileAnchor.fileCode = null;
-                fileAnchor.url = null;
                 fileAnchor.success = false;
                 let state = new ObservableState(FileStorageEvent.UploadFailed, fileAnchor);
                 this.notifyObservers(state);
@@ -199,7 +200,6 @@ export class FileStorage extends Module {
                 fileAnchor.fileName = data.fileName;
                 fileAnchor.fileSize = data.fileSize;
                 fileAnchor.fileCode = data.code;
-                fileAnchor.url = data.url;
                 fileAnchor.success = true;
                 let state = new ObservableState(FileStorageEvent.UploadCompleted, fileAnchor);
                 this.notifyObservers(state);
@@ -213,6 +213,23 @@ export class FileStorage extends Module {
             if (handleProcessing) {
                 handleProcessing(fileAnchor);
             }
+        });
+    }
+
+    /**
+     * 下载文件。
+     * 
+     * @param {FileLabel|string} fileOrFileName
+     */
+    downloadFile(fileOrFileName) {
+        let fileLabel = (fileOrFileName instanceof FileLabel) ? fileOrFileName : this.fileLabels.get(fileOrFileName);
+        let fileCode = fileLabel.getFileCode();
+        let packet = new Packet('GET', null);
+        packet.responseType = 'blob';
+
+        let url = this.secure ? fileLabel.getFileSecureURL() : fileLabel.getFileURL();
+        this.filePipeline.send(url, packet, (pipeline, source, packet) => {
+
         });
     }
 
@@ -331,12 +348,21 @@ export class FileStorage extends Module {
         let fileLabel = (null == context) ? FileLabel.create(payload.data) : context;
 
         // 文件的访问 URL
-        fileLabel.url = this.fileURL + fileLabel.getFileCode();
+        if (this.secure) {
+            cell.Logger.d('FileStorage', 'File "' + fileLabel.getFileName() + '" URL : ' + fileLabel.getFileSecureURL());
+        }
+        else {
+            cell.Logger.d('FileStorage', 'File "' + fileLabel.getFileName() + '" URL : ' + fileLabel.getFileURL());
+        }
 
         // 缓存到本地
         this.fileLabels.put(fileLabel.getFileName(), fileLabel);
 
-        
+        // 写入存储
+
+        // 通知事件
+
+        // this.downloadFile(fileLabel);
     }
 
     _fireContactEvent(state) {

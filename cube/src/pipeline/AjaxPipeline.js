@@ -107,6 +107,14 @@ class AjaxRequest {
             else {
                 params = this.params;
             }
+
+            // 判断 URL 里是否已经包含了查询串
+            if (this.url.indexOf('?') > 0) {
+                params = '&' + params;
+            }
+            else {
+                params = '?' + params;
+            }
         }
 
         if (undefined !== responseCallback) {
@@ -119,7 +127,7 @@ class AjaxRequest {
         }
 
         // 启动 AJAX 请求
-        let url = (null == params) ? this.url : this.url + '?' + params;
+        let url = (null == params) ? this.url : this.url + params;
         this.xhr.open(this.method, url, true);
 
         // 处理请求头数据
@@ -216,9 +224,24 @@ export class AjaxPipeline extends Pipeline {
             });
         }
         else if (packet instanceof Packet) {
-            request.setMethod(packet.method)
-                .setParams({ token: tokenCode, sn: packet.sn })
-                .setData(packet.data);
+            if (packet.name.toUpperCase() == 'GET') {
+                var params = { token: tokenCode, sn: packet.sn };
+                if (packet.data) {
+                    for (let n in packet.data) {
+                        params[n] = packet.data[n];
+                    }
+                }
+                request.setMethod(packet.name)
+                    .setParams(params);
+            }
+            else {
+                request.setMethod(packet.name)
+                    .setParams({ token: tokenCode, sn: packet.sn })
+                    .setData(packet.data);
+            }
+
+            // 设置应答类型
+            request.setResponseType(packet.responseType);
 
             request.send((status, response) => {
                 if (status == 200) {

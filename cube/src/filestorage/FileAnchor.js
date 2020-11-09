@@ -62,12 +62,6 @@ export class FileAnchor extends JSONable {
         this.fileCode = null;
 
         /**
-         * 文件的云端 URL 。
-         * @type {string}
-         */
-        this.url = null;
-
-        /**
          * 是否处理成功。
          * @type {boolean}
          */
@@ -82,7 +76,6 @@ export class FileAnchor extends JSONable {
         json.fileName = this.fileName;
         json.fileSize = this.fileSize;
         json.fileCode = (null != this.fileCode) ? this.fileCode : '';
-        json.url = (null != this.url) ? this.url : '';
         json.position = this.position;
         return json;
     }

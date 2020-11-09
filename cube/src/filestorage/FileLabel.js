@@ -52,11 +52,15 @@ export class FileLabel extends Entity {
 
         this.fileCode = null;
 
+        this.fileType = 'unknown';
+
         this.md5Code = null;
 
         this.sha1Code = null;
 
-        this.url = null;
+        this.fileURL = null;
+
+        this.fileSecureURL = null;
     }
 
     getDomain() {
@@ -79,6 +83,10 @@ export class FileLabel extends Entity {
         return this.fileCode;
     }
 
+    getFileType() {
+        return this.fileType;
+    }
+
     getMD5Code() {
         return this.md5Code;
     }
@@ -87,8 +95,12 @@ export class FileLabel extends Entity {
         return this.sha1Code;
     }
 
-    getURL() {
-        return this.url;
+    getFileURL() {
+        return this.fileURL;
+    }
+
+    getFileSecureURL() {
+        return this.fileSecureURL;
     }
 
     /**
@@ -103,8 +115,11 @@ export class FileLabel extends Entity {
         label.fileSize = json.fileSize;
         label.completedTime = json.completed;
         label.fileCode = json.fileCode;
+        label.fileType = json.fileType;
         label.md5Code = json.md5;
         label.sha1Code = json.sha1;
+        label.fileURL = json.fileURL;
+        label.fileSecureURL = json.fileSecureURL;
         return label;
     }
 }

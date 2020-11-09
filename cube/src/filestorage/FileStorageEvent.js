@@ -45,5 +45,10 @@ export const FileStorageEvent = {
      * 文件上传失败。
      * @type {string}
      */
-    UploadFailed: 'UploadFailed'
+    UploadFailed: 'UploadFailed',
+
+    /**
+     * 文件已更新。
+     */
+    FileUpdated: 'FileUpdated'
 }
