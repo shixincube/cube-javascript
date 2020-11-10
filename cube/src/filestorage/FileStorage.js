@@ -229,12 +229,28 @@ export class FileStorage extends Module {
 
         let url = this.secure ? fileLabel.getFileSecureURL() : fileLabel.getFileURL();
         this.filePipeline.send(url, packet, (pipeline, source, packet) => {
+            let blob = packet.data;
+            let reader = new FileReader();
+            reader.readAsDataURL(blob);
+            reader.onload = function(e) {
+                let a = document.createElement('a');
+                a.style.display = 'inline';
+                a.style.cssFloat = 'left';
+                a.style.visibility = 'hidden';
+                a.download = fileLabel.getFileName();
+                a.href = e.target.result;
 
+                document.body.appendChild(a);
+                a.click();
+                a.parentElement.removeChild(a);
+            }
         });
     }
 
     getFileURL(fileName) {
-        return null;
+        let fileLabel = this.fileLabels.get(fileName);
+        let url = this.secure ? fileLabel.getFileURL() : fileLabel.getFileSecureURL();
+        return url;
     }
 
     /**
@@ -361,8 +377,7 @@ export class FileStorage extends Module {
         // 写入存储
 
         // 通知事件
-
-        // this.downloadFile(fileLabel);
+        this.notifyObservers(new ObservableState(FileStorageEvent.FileUpdated, fileLabel));
     }
 
     _fireContactEvent(state) {

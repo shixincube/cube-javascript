@@ -31,6 +31,7 @@ var App = Class({
 
         this.selectFileDom = null;
         this.fileEl = null;
+        this.fileName = null;
     },
 
     init: function() {
@@ -97,6 +98,12 @@ var App = Class({
             that.console.log('文件上传完成：' + state.getData().fileName);
             that.selectFileDom.style.display = 'none';
             that.console.open();
+        });
+
+        fileStorage.attachWithName(FileStorageEvent.FileUpdated, function(state) {
+            if (confirm('是否下载文件：' + state.getData().getFileName())) {
+                fileStorage.downloadFile(state.getData());
+            }
         });
     },
 
@@ -193,6 +200,8 @@ var App = Class({
                     that.console.open();
                     return;
                 }
+
+                that.fileName = file.name;
 
                 fileStorage.uploadFile(file);
             };

@@ -159,6 +159,16 @@ class AjaxRequest {
             this.xhr.send();
         }
     }
+
+    /**
+     * 获取应答的头数据。
+     * 
+     * @param {string} header 
+     * @returns {string}
+     */
+    getResponseHeader(header) {
+        return this.xhr.getResponseHeader(header);
+    }
 }
 
 
@@ -245,7 +255,14 @@ export class AjaxPipeline extends Pipeline {
 
             request.send((status, response) => {
                 if (status == 200) {
-                    let responsePacket = Packet.create(response);
+                    let contentType = request.getResponseHeader('Content-Type');
+                    let responsePacket = null;
+                    if (contentType.indexOf('octet-stream') >= 0) {
+                        responsePacket = new Packet(packet.name, response, packet.sn);
+                    }
+                    else {
+                        responsePacket = Packet.create(response);
+                    }
                     responsePacket.state = {
                         code: StateCode.OK,
                         desc: 'Ok'
