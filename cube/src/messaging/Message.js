@@ -28,6 +28,7 @@ import cell from "@lib/cell-lib";
 import { Entity } from "../core/Entity";
 import { MessageState } from "./MessageState";
 import { AuthService } from "../auth/AuthService";
+import { FileAttachment } from "../filestorage/FileAttachment";
 
 /**
  * 消息实体。
@@ -95,6 +96,16 @@ export class Message extends Entity {
         this.remoteTS = 0;
 
         /**
+         * 消息附件。
+         * @type {FileAttachment}
+         */
+        this.attachment = null;
+
+        if (payload instanceof File) {
+            this.attachment = new FileAttachment(payload);
+        }
+
+        /**
          * 消息状态描述。
          * @type {number}
          * @see MessageState
@@ -157,6 +168,17 @@ export class Message extends Entity {
      */
     getState() {
         return this.state;
+    }
+
+    /**
+     * 向消息追加文件附件。
+     * 
+     * @param {File} file 
+     */
+    attach(file) {
+        if (file instanceof File) {
+            this.attachment = new FileAttachment(file);
+        }
     }
 
     /**

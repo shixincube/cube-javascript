@@ -24,7 +24,6 @@
  * SOFTWARE.
  */
 
-import { FileMessage } from "../FileMessage";
 import { Message } from "../Message";
 
 /**

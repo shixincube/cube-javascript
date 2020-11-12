@@ -40,7 +40,6 @@ import { MessagingPipelineListener } from "./MessagingPipelineListener";
 import { MessagingEvent } from "./MessagingEvent";
 import { MessagingCode } from "./MessagingCode";
 import { MessagingStorage } from "./MessagingStorage";
-import { FileMessage } from "./FileMessage";
 import { FileStorage } from "../filestorage/FileStorage"
 import { ObservableState } from "../core/ObservableState";
 import { StateCode } from "../core/StateCode";
@@ -579,7 +578,8 @@ export class MessagingService extends Module {
                 // 进入发送中状态
                 this.sendingMap.put(message.getId(), message);
 
-                if (message instanceof FileMessage) {
+                if (null != message.attachment) {
+                    // 文件带附件，先处理文件
                     this._processFile(message);
                 }
                 else {
@@ -639,33 +639,33 @@ export class MessagingService extends Module {
 
     /**
      * 处理文件消息。
-     * @param {FileMessage} fileMessage 
+     * @param {Message} message 
      */
-    _processFile(fileMessage) {
+    _processFile(message) {
         let fs = this.kernel.getModule(FileStorage.NAME);
         fs.start();
-        
-        fs.uploadFile(fileMessage.getFile(), (fileAnchor) => {
-            // 正在发送文件
-            fileMessage.payload._file_ = fileAnchor.toJSON();
 
-            let state = new ObservableState(MessagingEvent.Sending, fileMessage);
+        fs.uploadFile(message.attachment.file, (fileAnchor) => {
+            // 正在发送文件
+            message.attachment.anchor = fileAnchor;
+
+            let state = new ObservableState(MessagingEvent.Sending, message);
             this.notifyObservers(state);
         }, (fileAnchor) => {
-            // 更新 Payload 内的 _file_ 字段
-            fileMessage.payload._file_ = fileAnchor.toJSON();
+            // 文件发送完成
+            message.attachment.anchor = fileAnchor;
 
             // 发送到服务器
-            let packet = new Packet(MessagingAction.Push, fileMessage.toJSON());
+            let packet = new Packet(MessagingAction.Push, message.toJSON());
             this.pipeline.send(MessagingService.NAME, packet, (pipeline, source, responsePacket) => {
                 if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
                     // TODO 错误处理
                     return;
                 }
 
-                fileMessage.state = MessageState.Sent;
+                message.state = MessageState.Sent;
 
-                let state = new ObservableState(MessagingEvent.Sent, fileMessage);
+                let state = new ObservableState(MessagingEvent.Sent, message);
                 this.notifyObservers(state);
             });
         }, (fileAnchor) => {

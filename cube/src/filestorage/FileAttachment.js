@@ -26,11 +26,19 @@
 
 
 /**
- * 文件的附件。
+ * 文件附件。
  */
 export class FileAttachment {
 
-    constructor() {
-        
+    /**
+     * 
+     * @param {*} file 
+     */
+    constructor(file) {
+        this.file = file;
+
+        this.anchor = null;
+
+        this.label = null;
     }
 }

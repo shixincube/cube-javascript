@@ -47,7 +47,6 @@ import { MessagingService } from "./messaging/MessagingService";
 import { MessagingEvent } from "./messaging/MessagingEvent";
 import { Message } from "./messaging/Message";
 import { MessageState } from "./messaging/MessageState";
-import { FileMessage } from "./messaging/FileMessage";
 import { FileStorage } from "./filestorage/FileStorage";
 import { FileAnchor } from "./filestorage/FileAnchor";
 import { FileLabel } from "./filestorage/FileLabel";
@@ -90,7 +89,6 @@ import { FaceMonitor } from "./facemonitor/FaceMonitor";
     global.MessagingEvent = MessagingEvent;
     global.Message = Message;
     global.MessageState = MessageState;
-    global.FileMessage = FileMessage;
 
     global.FileStorage = FileStorage;
     global.FileAnchor = FileAnchor;
