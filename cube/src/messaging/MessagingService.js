@@ -653,17 +653,36 @@ export class MessagingService extends Module {
             this.notifyObservers(state);
         }, (fileAnchor) => {
             // 文件发送完成
+
+            // 设置锚点
             message.attachment.anchor = fileAnchor;
 
             // 发送到服务器
             let packet = new Packet(MessagingAction.Push, message.toJSON());
             this.pipeline.send(MessagingService.NAME, packet, (pipeline, source, responsePacket) => {
                 if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
-                    // TODO 错误处理
+                    // 错误处理
+                    this.sendingMap.remove(message.getId());
+                    message.state = MessageState.Fault;
+                    this.notifyObservers(new ObservableState(MessagingEvent.Fault, message));
                     return;
                 }
 
+                // 收到的应答消息
+                let respMessage = Message.create(responsePacket.data.data);
+
+                // 从正在发送队列移除
+                this.sendingMap.remove(responsePacket.data.data.id);
+
+                // 更新状态
                 message.state = MessageState.Sent;
+
+                // 更新附件
+                message.setAttachment(respMessage.attachment);
+
+                // 更新时间戳
+                message.remoteTS = responsePacket.data.data.rts;
+                this.refreshLastMessageTime(message.remoteTS);
 
                 let state = new ObservableState(MessagingEvent.Sent, message);
                 this.notifyObservers(state);

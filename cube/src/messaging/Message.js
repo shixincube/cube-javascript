@@ -171,13 +171,16 @@ export class Message extends Entity {
     }
 
     /**
-     * 向消息追加文件附件。
+     * 设置文件附件。
      * 
      * @param {File} file 
      */
-    attach(file) {
+    setAttachment(file) {
         if (file instanceof File) {
             this.attachment = new FileAttachment(file);
+        }
+        else if (file instanceof FileAttachment) {
+            this.attachment = file;
         }
     }
 
@@ -203,6 +206,7 @@ export class Message extends Entity {
         this.localTS = src.localTS;
         this.remoteTS = src.remoteTS;
         this.payload = src.payload;
+        this.attachment = src.attachment;
         this.state = src.state;
     }
 
@@ -220,6 +224,10 @@ export class Message extends Entity {
         json["rts"] = this.remoteTS;
         json["state"] = this.state;
         json["payload"] = this.payload;
+
+        if (null != this.attachment) {
+            json["attachment"] = this.attachment.toJSON();
+        }
         return json;
     }
 
@@ -245,6 +253,11 @@ export class Message extends Entity {
         if (json.state !== undefined) {
             message.state = json.state;
         }
+
+        if (json.attachment !== undefined) {
+            message.attachment = FileAttachment.create(json.attachment);
+        }
+
         return message;
     }
 }

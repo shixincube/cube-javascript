@@ -363,6 +363,13 @@ function MessagePanel(app) {
             that.onSendClick(e);
         }
     });
+
+    // 发送文件按钮
+    $('#btn_send_file').on('click', function(e) {
+        that.onSendFileClick(e);
+    });
+
+
     // 详情按钮
     $('#details').on('click', function(e) {
         that.onDetailsClick(e);
@@ -421,18 +428,12 @@ function MessagePanel(app) {
         };
     }
 
-    // 发送事件监听器
-    this.sendListener = null;
     // 提交建群事件监听器
     this.submitCreateGroupListener = null;
     // 提交退出群事件监听器
     this.submitQuitGroupListener = null;
     // 提交解散群事件监听器
     this.submitDissolveGroupListener = null;
-}
-
-MessagePanel.prototype.setSendListener = function(listener) {
-    this.sendListener = listener;
 }
 
 MessagePanel.prototype.setCreateGroupListener = function(listener) {
@@ -677,7 +678,13 @@ MessagePanel.prototype.onSendClick = function(e) {
     this.elInput.val('');
 
     this.appendMessage(this.app.cubeContact, text, Date.now());
-    this.sendListener.call(null, this.current, text);
+
+    // 触发发送
+    this.app.fireSend(this.current, text);
+}
+
+MessagePanel.prototype.onSendFileClick = function(e) {
+    
 }
 
 MessagePanel.prototype.onNewGroupSubmitClick = function(e) {

@@ -75,7 +75,7 @@ export class CellPipeline extends Pipeline {
          * 应答超时时长。单位：毫秒。
          * @type {number}
          */
-        this.responseTimeout = 5000;
+        this.responseTimeout = 15000;
         /**
          * 定时器周期。单位：毫秒。
          * @type {number}

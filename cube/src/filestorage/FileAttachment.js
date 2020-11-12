@@ -24,21 +24,63 @@
  * SOFTWARE.
  */
 
+import { JSONable } from "../util/JSONable";
+import { FileAnchor } from "./FileAnchor";
+import { FileLabel } from "./FileLabel";
+
 
 /**
  * 文件附件。
  */
-export class FileAttachment {
+export class FileAttachment extends JSONable {
 
     /**
-     * 
-     * @param {*} file 
+     * @param {File} file 
      */
     constructor(file) {
+        /**
+         * 文件句柄。
+         * @type {File}
+         */
         this.file = file;
 
+        /**
+         * 文件处理时的记录信息。
+         * @type {FileAnchor}
+         */
         this.anchor = null;
 
+        /**
+         * 文件标签。
+         * @type {FileLabel}
+         */
         this.label = null;
+    }
+
+    toJSON() {
+        let json = super.toJSON();
+        if (null != this.anchor) {
+            json.anchor = this.anchor.toJSON();
+        }
+        
+        if (null != this.label) {
+            json.label = this.label.toJSON();
+        }
+        return json;
+    }
+
+    /**
+     * 从 JSON 数据创建 {@link FileAttachment} 对象。
+     * @param {JSON} json 
+     */
+    static create(json) {
+        let attachment = new FileAttachment(null);
+        if (undefined !== json.anchor) {
+            attachment.anchor = FileAnchor.create(json.anchor);
+        }
+        if (undefined !== json.label) {
+            attachment.label = FileLabel.create(json.label);
+        }
+        return attachment;
     }
 }

@@ -203,3 +203,9 @@ body {
 .select-group-member .custom-control-label span {
     padding-left: 4px;
 }
+
+.btn-shortcut {
+    margin-left: 6px;
+    max-width: 34px;
+    width: 34px;
+}

@@ -47,9 +47,6 @@ CubeApp.prototype.initUI = function() {
     });
 
     app.messagePanel = new MessagePanel(app);
-    app.messagePanel.setSendListener(function(to, content) {
-        app.fireSend(to, content);
-    });
     app.messagePanel.setCreateGroupListener(function(groupName, memberIdList) {
         return app.fireCreateGroup(groupName, memberIdList);
     });
@@ -596,4 +593,7 @@ $(document).ready(function() {
 
     // 应用程序准备数据
     app.prepareData();
+
+    // tips
+    $('[data-toggle="tooltip"]').tooltip();
 });

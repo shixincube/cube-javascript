@@ -25,6 +25,7 @@
  */
 
 import { Entity } from "../core/Entity";
+import { FileType } from "./FileType";
 
 /**
  * 文件标签。
@@ -38,28 +39,77 @@ export class FileLabel extends Entity {
     constructor(id, domain) {
         super();
 
+        /**
+         * 文件 ID 。
+         * @type {number}
+         */
         this.id = id;
 
+        /**
+         * 文件域。
+         * @type {string}
+         */
         this.domain = domain;
 
+        /**
+         * 文件所有人 ID 。
+         * @type {number}
+         */
         this.ownerId = 0;
 
+        /**
+         * 文件名。
+         * @type {string}
+         */
         this.fileName = null;
 
+        /**
+         * 文件大小。
+         * @type {number}
+         */
         this.fileSize = 0;
 
+        /**
+         * 文件完成处理的时间。
+         * @type {number}
+         */
         this.completedTime = 0;
 
+        /**
+         * 文件码。
+         * @type {string}
+         */
         this.fileCode = null;
 
+        /**
+         * 文件状态。
+         * @type {string}
+         * @see {@link FileType}
+         */
         this.fileType = 'unknown';
 
+        /**
+         * 文件 MD5 码。
+         * @type {string}
+         */
         this.md5Code = null;
 
+        /**
+         * 文件 SHA1 码。
+         * @type {string}
+         */
         this.sha1Code = null;
 
+        /**
+         * 文件的访问 URL 。
+         * @type {string}
+         */
         this.fileURL = null;
 
+        /**
+         * 文件的安全访问 URL 。
+         * @type {string}
+         */
         this.fileSecureURL = null;
     }
 
@@ -101,6 +151,11 @@ export class FileLabel extends Entity {
 
     getFileSecureURL() {
         return this.fileSecureURL;
+    }
+
+    toJSON() {
+        let json = super.toJSON();
+        return json;
     }
 
     /**

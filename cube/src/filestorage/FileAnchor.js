@@ -85,7 +85,7 @@ export class FileAnchor extends JSONable {
     }
 
     /**
-     * 
+     * 从 JSON 数据创建 {@link FileAnchor} 对象。
      * @param {JSON} json 
      * @returns {FileAnchor}
      */

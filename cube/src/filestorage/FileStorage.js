@@ -183,8 +183,8 @@ export class FileStorage extends Module {
         fileAnchor.fileSize = file.size;
 
         // 串行上传数据
-        this._serialReadAndUpload(reader, file, fileAnchor, fileSize, (data) => {
-            if (null == data) {
+        this._serialReadAndUpload(reader, file, fileAnchor, fileSize, (anchor) => {
+            if (null == anchor) {
                 // 上传失败
                 fileAnchor.fileCode = null;
                 fileAnchor.success = false;
@@ -197,9 +197,9 @@ export class FileStorage extends Module {
             }
             else {
                 // 上传成功
-                fileAnchor.fileName = data.fileName;
-                fileAnchor.fileSize = data.fileSize;
-                fileAnchor.fileCode = data.code;
+                fileAnchor.fileName = anchor.fileName;
+                fileAnchor.fileSize = anchor.fileSize;
+                fileAnchor.fileCode = anchor.fileCode;
                 fileAnchor.success = true;
                 let state = new ObservableState(FileStorageEvent.UploadCompleted, fileAnchor);
                 this.notifyObservers(state);
@@ -252,6 +252,8 @@ export class FileStorage extends Module {
         let url = this.secure ? fileLabel.getFileURL() : fileLabel.getFileSecureURL();
         return url;
     }
+
+
 
     /**
      * 以串行方式读取并上传文件数据。
