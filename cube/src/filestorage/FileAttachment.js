@@ -38,6 +38,8 @@ export class FileAttachment extends JSONable {
      * @param {File} file 
      */
     constructor(file) {
+        super();
+        
         /**
          * 文件句柄。
          * @type {File}

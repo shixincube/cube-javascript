@@ -217,7 +217,7 @@ body {
 }
 
 .file-label {
-    background-color: #28a745;
+    background-color: #ffc107;
     margin: 4px 0px 4px 0px;
     border-radius: 0.3rem;
 }
@@ -231,7 +231,6 @@ body {
 }
 .file-label .file-size {
     font-size: 12px;
-    color: #f8f9fa;
     vertical-align: top;
     padding-right: 10px;
 }

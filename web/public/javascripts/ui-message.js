@@ -600,12 +600,13 @@ MessagePanel.prototype.createGroupDetailsTable = function(group) {
 
 /**
  * 添加消息到面板。
+ * @param {number} id 消息 ID 。
  * @param {Contact} sender 发送人。
  * @param {string|File} content 消息内容。
  * @param {number} time 消息时间戳。
  * @param {Contact|Group} [target] 目标面板。
  */
-MessagePanel.prototype.appendMessage = function(sender, content, time, target) {
+MessagePanel.prototype.appendMessage = function(id, sender, content, time, target) {
     var targetId = (undefined !== target) ? target.getId() : this.current.getId();
 
     var view = this.views[targetId];
@@ -632,14 +633,14 @@ MessagePanel.prototype.appendMessage = function(sender, content, time, target) {
                     '<td>', '</td>',
                 '</tr>',
                 '<tr>',
-                    '<td class="file-size">', content.size, '</td>',
+                    '<td class="file-size">', formatSize(content.size), '</td>',
                     '<td>', '</td>',
                 '</tr>',
             '</table>'];
         text = fileDesc.join('');
     }
 
-    var html = ['<div class="direct-chat-msg ',
+    var html = ['<div id="', id, '" class="direct-chat-msg ',
             right, '"><div class="direct-chat-infos clearfix"><span class="direct-chat-name ', nfloat, '">',
         sender.getName(),
         '</span><span class="direct-chat-timestamp ', tfloat, '">',
@@ -699,16 +700,19 @@ MessagePanel.prototype.onSendClick = function(e) {
 
     this.elInput.val('');
 
-    this.appendMessage(this.app.cubeContact, text, Date.now());
-
     // 触发发送
-    this.app.fireSend(this.current, text);
+    var message = this.app.fireSend(this.current, text);
+
+    this.appendMessage(message.id, this.app.cubeContact, text, Date.now());
 }
 
 MessagePanel.prototype.onSendFile = function(e) {
     var file = e.target.files[0];
-    
-    this.appendMessage(this.app.cubeContact, file, Date.now());
+
+    // 触发发送
+    var message = this.app.fireSend(this.current, file);
+
+    this.appendMessage(message.id, this.app.cubeContact, file, Date.now());
 }
 
 MessagePanel.prototype.onNewGroupSubmitClick = function(e) {

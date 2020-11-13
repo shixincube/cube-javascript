@@ -148,7 +148,7 @@ CubeApp.prototype.prepareData = function() {
                 }
 
                 // 添加消息的消息面板
-                that.messagePanel.appendMessage(sender,
+                that.messagePanel.appendMessage(message.getId(), sender,
                     message.getPayload().content, message.getRemoteTimestamp(), target);
             }
 
@@ -389,14 +389,19 @@ CubeApp.prototype.onCatalogClick = function(item) {
 }
 
 CubeApp.prototype.fireSend = function(to, content) {
-    // 调用消息模块的 sendToContact 发送消息
-    var message = this.cube.messaging.sendTo(to, { "content": content });
+    // 调用消息模块的 sendTo 发送消息
+    var text = (typeof content === 'string') ? content : '[文件] ' + content.name;
+    var payload = { "content": text };
+    var file = (content instanceof File) ? content : null;
+
+    var message = this.cube.messaging.sendTo(to, payload, file);
     if (null == message) {
         this.launchToast(CubeToast.Warning, '发送消息失败');
-        return;
+        return null;
     }
 
-    this.messageCatalogue.updateItem(to.getId(), content, message.getTimestamp());
+    this.messageCatalogue.updateItem(to.getId(), text, message.getTimestamp());
+    return message;
 }
 
 CubeApp.prototype.fireCreateGroup = function(groupName, memberIdList) {
@@ -532,7 +537,7 @@ CubeApp.prototype.onNewMessage = function(message) {
             this.messageCatalogue.updateItem(group.getId(), content, message.getRemoteTimestamp());
 
             // 更新消息面板
-            this.messagePanel.appendMessage(this.getContact(message.getFrom()), content, message.getRemoteTimestamp(), group);
+            this.messagePanel.appendMessage(message.getId(), this.getContact(message.getFrom()), content, message.getRemoteTimestamp(), group);
         }
         else {
             // 从服务器获取新群组
@@ -559,7 +564,7 @@ CubeApp.prototype.onNewMessage = function(message) {
         this.messageCatalogue.updateItem(itemId, content, message.getRemoteTimestamp());
 
         // 更新消息面板
-        this.messagePanel.appendMessage(sender, content, message.getRemoteTimestamp(), target);
+        this.messagePanel.appendMessage(message.getId(), sender, content, message.getRemoteTimestamp(), target);
     }
 }
 

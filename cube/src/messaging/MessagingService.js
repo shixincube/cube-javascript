@@ -214,14 +214,15 @@ export class MessagingService extends Module {
      * 向指定的联系人或者群组发送消息。
      * @param {Contact|Group} destination 指定联系人或者群组。
      * @param {JSON|Message} message 指定消息实例或消息负载。
+     * @param {File} [file] 指定消息附件。
      * @returns {Message} 如果消息成功写入数据通道返回 {@link Message} 实例，否则返回 {@linkcode null} 值。
      */
-    sendTo(destination, message) {
+    sendTo(destination, message, file) {
         if (destination instanceof Group) {
-            return this.sendToGroup(destination, message);
+            return this.sendToGroup(destination, message, file);
         }
         else if (destination instanceof Contact) {
-            return this.sendToContact(destination, message);
+            return this.sendToContact(destination, message, file);
         }
         else {
             return null;
@@ -232,9 +233,10 @@ export class MessagingService extends Module {
      * 向指定联系人发送消息。
      * @param {Contact|number} contact 指定联系人或联系人 ID 。
      * @param {JSON|Message} message 指定消息实例或消息内容。
+     * @param {File} [file] 指定消息附件。
      * @returns {Message} 如果消息成功写入数据通道返回 {@link Message} 实例，否则返回 {@linkcode null} 值。
      */
-    sendToContact(contact, message) {
+    sendToContact(contact, message, file) {
         let self = this.contactService.getSelf();
         if (null == self) {
             return null;
@@ -242,7 +244,7 @@ export class MessagingService extends Module {
 
         var msg = message;
         if (!(message instanceof Message)) {
-            msg = new Message(message);
+            msg = new Message(message, file);
         }
 
         let to = 0;
@@ -289,9 +291,10 @@ export class MessagingService extends Module {
      * 向指定群组发送消息。
      * @param {Group|number} group 指定群组或群组 ID 。
      * @param {JSON|Message} message 指定消息实例或消息内容。
+     * @param {File} [file] 指定消息附件。
      * @returns {Message} 如果消息成功写入数据通道返回 {@link Message} 实例，否则返回 {@linkcode null} 值。
      */
-    sendToGroup(group, message) {
+    sendToGroup(group, message, file) {
         let self = this.contactService.getSelf();
         if (null == self) {
             return null;
@@ -299,7 +302,7 @@ export class MessagingService extends Module {
 
         var msg = message;
         if (!(message instanceof Message)) {
-            msg = new Message(message);
+            msg = new Message(message, file);
         }
 
         let source = 0;
@@ -580,7 +583,7 @@ export class MessagingService extends Module {
 
                 if (null != message.attachment) {
                     // 文件带附件，先处理文件
-                    this._processFile(message);
+                    this._processAttachment(message);
                 }
                 else {
                     // 发送到服务器
@@ -638,10 +641,10 @@ export class MessagingService extends Module {
     }
 
     /**
-     * 处理文件消息。
+     * 处理消息附件。
      * @param {Message} message 
      */
-    _processFile(message) {
+    _processAttachment(message) {
         let fs = this.kernel.getModule(FileStorage.NAME);
         fs.start();
 

@@ -36,10 +36,10 @@ import { FileAttachment } from "../filestorage/FileAttachment";
 export class Message extends Entity {
 
     /**
-     * 构造函数。
      * @param {JSON} payload 消息负载。
+     * @param {File} [file] 文件附件。
      */
-    constructor(payload) {
+    constructor(payload, file) {
         super();
 
         /**
@@ -61,7 +61,7 @@ export class Message extends Entity {
          */
         this.payload = {};
 
-        if (undefined !== payload && !(payload instanceof File)) {
+        if (undefined !== payload && null != payload && !(payload instanceof File)) {
             this.payload = payload;
         }
 
@@ -103,6 +103,9 @@ export class Message extends Entity {
 
         if (payload instanceof File) {
             this.attachment = new FileAttachment(payload);
+        }
+        else if (undefined !== file && null != file && file instanceof File) {
+            this.attachment = new FileAttachment(file);
         }
 
         /**

@@ -6,6 +6,11 @@
     var TwoDays = OneDay + OneDay;
     var AWeek = 7 * OneDay;
 
+    var KB = 1024;
+    var MB = 1024 * KB;
+    var GB = 1024 * MB;
+    var TB = 1024 * GB;
+
     g.AWeek = AWeek;
 
     var WeekDay = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
@@ -131,6 +136,20 @@
     }
 
     g.formatSize = function(size) {
-        
+        if (size < KB) {
+            return size + ' B';
+        }
+        else if (size >= KB && size < MB) {
+            return ((size / KB).toFixed(2)) + ' KB';
+        }
+        else if (size >= MB && size < GB) {
+            return ((size / MB).toFixed(2)) + ' MB';
+        }
+        else if (size >= GB && size < TB) {
+            return ((size / GB).toFixed(2)) + ' GB';
+        }
+        else {
+            return size;
+        }
     }
 })(window);
