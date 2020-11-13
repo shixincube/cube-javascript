@@ -28,16 +28,18 @@ import cell from "@lib/cell-lib";
 import { Module } from "../core/Module";
 import { AjaxPipeline } from "../pipeline/AjaxPipeline";
 import { AjaxFileChunkPacket } from "../pipeline/AjaxFileChunkPacket";
+import { AuthService } from "../auth/AuthService";
 import { ContactService } from "../contact/ContactService";
 import { ContactEvent } from "../contact/ContactEvent";
+import { ObservableState } from "../core/ObservableState";
+import { OrderMap } from "../util/OrderMap";
+import { Packet } from "../core/Packet";
 import { FileAnchor } from "./FileAnchor";
 import { FileLabel } from "./FileLabel";
 import { FileStorageEvent } from "./FileStorageEvent";
 import { FileStoragePipeListener } from "./FileStoragePipeListener";
-import { ObservableState } from "../core/ObservableState";
-import { OrderMap } from "../util/OrderMap";
-import { Packet } from "../core/Packet";
 import { FileStorageAction } from "./FileStorageAction";
+import { FileStructStorage } from "./FileStructStorage";
 
 /**
  * 上传文件回调函数。
@@ -106,6 +108,12 @@ export class FileStorage extends Module {
          * @type {AjaxPipeline}
          */
         this.filePipeline = null;
+
+        /**
+         * 结构存储库。
+         * @type {FileStructStorage}
+         */
+        this.storage = new FileStructStorage();
     }
 
     /**
@@ -127,6 +135,9 @@ export class FileStorage extends Module {
             this._fireContactEvent(state);
         });
 
+        // 开启存储库
+        this.storage.open(AuthService.DOMAIN);
+
         return true;
     }
 
@@ -138,6 +149,9 @@ export class FileStorage extends Module {
 
         // 移除数据管道的监听器
         this.pipeline.removeListener(FileStorage.NAME, this.pipelineListener);
+
+        // 关闭存储库
+        this.storage.close();
     }
 
     /**
@@ -218,12 +232,10 @@ export class FileStorage extends Module {
 
     /**
      * 下载文件。
-     * 
      * @param {FileLabel|string} fileOrFileName
      */
     downloadFile(fileOrFileName) {
         let fileLabel = (fileOrFileName instanceof FileLabel) ? fileOrFileName : this.fileLabels.get(fileOrFileName);
-        let fileCode = fileLabel.getFileCode();
         let packet = new Packet('GET', null);
         packet.responseType = 'blob';
 
@@ -235,6 +247,7 @@ export class FileStorage extends Module {
             reader.onload = function(e) {
                 let a = document.createElement('a');
                 a.style.display = 'inline';
+                a.style.position = 'absolute';
                 a.style.cssFloat = 'left';
                 a.style.visibility = 'hidden';
                 a.download = fileLabel.getFileName();
@@ -247,13 +260,16 @@ export class FileStorage extends Module {
         });
     }
 
-    getFileURL(fileName) {
+    getFileURL(fileName, handler) {
         let fileLabel = this.fileLabels.get(fileName);
-        let url = this.secure ? fileLabel.getFileURL() : fileLabel.getFileSecureURL();
-        return url;
+        if (null == fileLabel) {
+            return;
+        }
+
+        let url = this.secure ? fileLabel.getFileSecureURL() : fileLabel.getFileURL();
+        url += '&token=' + this.filePipeline.tokenCode;
+        handler(url);
     }
-
-
 
     /**
      * 以串行方式读取并上传文件数据。

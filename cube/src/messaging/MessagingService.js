@@ -45,6 +45,7 @@ import { ObservableState } from "../core/ObservableState";
 import { StateCode } from "../core/StateCode";
 import { PluginSystem } from "../core/PluginSystem";
 import { NotifyHook } from "./extends/NotifyHook";
+import { FileStorageEvent } from "../filestorage/FileStorageEvent";
 
 /**
  * 消息服务模块接口。
@@ -72,10 +73,16 @@ export class MessagingService extends Module {
         this.contactService = null;
 
         /**
-         * 联系模块的事件回调函数。
+         * 联系模块的事件监听函数。
          * @type {function}
          */
         this.contactEventFun = null;
+
+        /**
+         * 文件存储模块的事件监听函数。
+         * @type {function}
+         */
+        this.fileStorageEventFun = null;
 
         /**
          * 发送队列。
@@ -131,13 +138,20 @@ export class MessagingService extends Module {
         // 组装插件
         this.assemble();
 
-        // 获取联系人模块
+        // 监听联系人模块
         this.contactService = this.kernel.getModule(ContactService.NAME);
         let fun = (state) => {
             this._fireContactEvent(state);
         };
         this.contactService.attach(fun);
         this.contactEventFun = fun;
+
+        // 监听文件存储模块
+        fun = (state) => {
+            this._fireFileStorageEvent(state);
+        };
+        this.kernel.getModule(FileStorage.NAME).attach(fun);
+        this.fileStorageEventFun = fun;
 
         // 开启存储器
         this.storage.open(AuthService.DOMAIN);
@@ -181,6 +195,13 @@ export class MessagingService extends Module {
             let fun = this.contactEventFun;
             this.contactService.detach(fun);
             this.contactEventFun = null;
+        }
+
+        let fs = this.kernel.getModule(FileStorage.NAME);
+        if (null != fs) {
+            let fun = this.fileStorageEventFun;
+            fs.detach(fun);
+            this.fileStorageEventFun = null;
         }
 
         // 关闭存储器
@@ -675,7 +696,7 @@ export class MessagingService extends Module {
                 let respMessage = Message.create(responsePacket.data.data);
 
                 // 从正在发送队列移除
-                this.sendingMap.remove(responsePacket.data.data.id);
+                this.sendingMap.remove(respMessage.id);
 
                 // 更新状态
                 message.state = MessageState.Sent;
@@ -684,11 +705,14 @@ export class MessagingService extends Module {
                 message.setAttachment(respMessage.attachment);
 
                 // 更新时间戳
-                message.remoteTS = responsePacket.data.data.rts;
+                message.remoteTS = respMessage.remoteTS;
                 this.refreshLastMessageTime(message.remoteTS);
 
                 let state = new ObservableState(MessagingEvent.Sent, message);
                 this.notifyObservers(state);
+
+                // 更新存储
+                this.storage.updateMessage(respMessage);
             });
         }, (fileAnchor) => {
             // TODO 错误处理
@@ -721,6 +745,17 @@ export class MessagingService extends Module {
                     }
                 }, 500);
             }
+        }
+    }
+
+    /**
+     * 触发文件存储器事件。
+     * @private
+     * @param {ObservableState} state 
+     */
+    _fireFileStorageEvent(state) {
+        if (state.getName() == FileStorageEvent.FileUpdated) {
+
         }
     }
 }

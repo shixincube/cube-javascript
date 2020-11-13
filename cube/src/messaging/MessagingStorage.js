@@ -36,11 +36,13 @@ export class MessagingStorage {
     constructor() {
         /**
          * 存储器操作的域。
+         * @type {string}
          */
         this.domain = null;
 
         /**
          * 数据库实例。
+         * @type {InDB}
          */
         this.db = null;
 

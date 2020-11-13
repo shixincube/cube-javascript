@@ -39,7 +39,8 @@ export class Subject {
     constructor() {
         /**
          * 观察者列表。
-         * @type {Array}
+         * @type {Array<Observer>}
+         * @see {@link Observer}
          * @private
          */
         this.observers = [];
