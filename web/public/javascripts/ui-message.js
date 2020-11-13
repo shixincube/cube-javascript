@@ -366,9 +366,11 @@ function MessagePanel(app) {
 
     // 发送文件按钮
     $('#btn_send_file').on('click', function(e) {
-        that.onSendFileClick(e);
+        $('#select_file').click();
     });
-
+    $('#select_file').on('change', function(e) {
+        that.onSendFile(e);
+    });
 
     // 详情按钮
     $('#details').on('click', function(e) {
@@ -456,6 +458,7 @@ MessagePanel.prototype.changeTarget = function(target) {
     if (null == this.current) {
         this.elInput.removeAttr('disabled');
         $('#btn_send').removeAttr('disabled');
+        $('#btn_send_file').removeAttr('disabled');
     }
     else {
         // 记录
@@ -598,11 +601,11 @@ MessagePanel.prototype.createGroupDetailsTable = function(group) {
 /**
  * 添加消息到面板。
  * @param {Contact} sender 发送人。
- * @param {string} text 消息内容。
+ * @param {string|File} content 消息内容。
  * @param {number} time 消息时间戳。
  * @param {Contact|Group} [target] 目标面板。
  */
-MessagePanel.prototype.appendMessage = function(sender, text, time, target) {
+MessagePanel.prototype.appendMessage = function(sender, content, time, target) {
     var targetId = (undefined !== target) ? target.getId() : this.current.getId();
 
     var view = this.views[targetId];
@@ -615,6 +618,25 @@ MessagePanel.prototype.appendMessage = function(sender, text, time, target) {
         right = 'right';
         nfloat = 'float-right';
         tfloat = 'float-left';
+    }
+
+    var text = null;
+    if (typeof content === 'string') {
+        text = content;
+    }
+    else {
+        var fileDesc = ['<table class="file-label" border="0" cellspacing="4" cellpodding="0">',
+                '<tr>',
+                    '<td rowspan="2">', '<i class="fa fa-file file-icon"></i>', '</td>',
+                    '<td class="file-name">', content.name, '</td>',
+                    '<td>', '</td>',
+                '</tr>',
+                '<tr>',
+                    '<td class="file-size">', content.size, '</td>',
+                    '<td>', '</td>',
+                '</tr>',
+            '</table>'];
+        text = fileDesc.join('');
     }
 
     var html = ['<div class="direct-chat-msg ',
@@ -683,8 +705,10 @@ MessagePanel.prototype.onSendClick = function(e) {
     this.app.fireSend(this.current, text);
 }
 
-MessagePanel.prototype.onSendFileClick = function(e) {
+MessagePanel.prototype.onSendFile = function(e) {
+    var file = e.target.files[0];
     
+    this.appendMessage(this.app.cubeContact, file, Date.now());
 }
 
 MessagePanel.prototype.onNewGroupSubmitClick = function(e) {

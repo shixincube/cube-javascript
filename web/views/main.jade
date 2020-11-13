@@ -88,16 +88,21 @@ block pageContent
                 div.card-footer
                   div
                     div.input-group.mb-2
-                      button#btn_send_file.btn.btn-sm.btn-shortcut.btn-default(type='button',data-toggle='tooltip',data-placement='bottom',title='发送文件')
+                      button#btn_send_file.btn.btn-sm.btn-shortcut.btn-default(type='button',data-toggle='tooltip',data-placement='bottom',title='发送文件',disabled='disabled')
                         i.fas.fa-file
-                      button#btn_video.btn.btn-sm.btn-shortcut.btn-default(type='button',data-toggle='tooltip',data-placement='bottom',title='视频通话')
+                      button#btn_video.btn.btn-sm.btn-shortcut.btn-default(type='button',data-toggle='tooltip',data-placement='bottom',title='视频通话',disabled='disabled')
                         i.fas.fa-video
-                      button#btn_voice.btn.btn-sm.btn-shortcut.btn-default(type='button',data-toggle='tooltip',data-placement='bottom',title='语音通话')
+                      button#btn_voice.btn.btn-sm.btn-shortcut.btn-default(type='button',data-toggle='tooltip',data-placement='bottom',title='语音通话',disabled='disabled')
                         i.fas.fa-phone
                     div.input-group
                       textarea.form-control(rows='2', placeholder='请在此输入消息', disabled='disabled')
                       span.input-group-append
                         button#btn_send.btn.btn-default(type='button', disabled='disabled') 发送
+
+      //- Select file
+      div.select-file
+        label(for='select_file')
+        input#select_file(type='file', name='select_file', accept='*.*')
 
       //- Contact details
       div#modal_contact_details.modal.fade

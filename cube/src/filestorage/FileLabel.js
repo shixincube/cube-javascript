@@ -33,8 +33,8 @@ import { FileType } from "./FileType";
 export class FileLabel extends Entity {
 
     /**
-     * @param {number} id 
-     * @param {string} domain 
+     * @param {number} id 文件 ID 。
+     * @param {string} domain 文件的域。
      */
     constructor(id, domain) {
         super();
@@ -74,6 +74,12 @@ export class FileLabel extends Entity {
          * @type {number}
          */
         this.completedTime = 0;
+
+        /**
+         * 文件到期的时间。
+         * @type {number}
+         */
+        this.expiryTime = 0;
 
         /**
          * 文件码。
@@ -133,6 +139,14 @@ export class FileLabel extends Entity {
         return this.fileCode;
     }
 
+    getCompletedTime() {
+        return this.completedTime;
+    }
+
+    getExpiryTime() {
+        return this.expiryTime;
+    }
+
     getFileType() {
         return this.fileType;
     }
@@ -155,6 +169,19 @@ export class FileLabel extends Entity {
 
     toJSON() {
         let json = super.toJSON();
+        json.id = this.id;
+        json.domain = this.domain;
+        json.fileCode = this.fileCode;
+        json.ownerId = this.ownerId;
+        json.fileName = this.fileName;
+        json.fileSize = this.fileSize;
+        json.completed = this.completedTime;
+        json.expiry = this.expiryTime;
+        json.fileType = this.fileType;
+        if (null != this.md5Code) json.md5 = this.md5Code;
+        if (null != this.sha1Code) json.sha1 = this.sha1Code;
+        if (null != this.fileURL) json.fileURL = this.fileURL;
+        if (null != this.fileSecureURL) json.fileSecureURL = this.fileSecureURL;
         return json;
     }
 
@@ -165,16 +192,17 @@ export class FileLabel extends Entity {
      */
     static create(json) {
         let label = new FileLabel(json.id, json.domain);
+        label.fileCode = json.fileCode;
         label.ownerId = json.ownerId;
         label.fileName = json.fileName;
         label.fileSize = json.fileSize;
         label.completedTime = json.completed;
-        label.fileCode = json.fileCode;
+        label.expiryTime = json.expiry;
         label.fileType = json.fileType;
-        label.md5Code = json.md5;
-        label.sha1Code = json.sha1;
-        label.fileURL = json.fileURL;
-        label.fileSecureURL = json.fileSecureURL;
+        label.md5Code = (undefined !== json.md5) ? json.md5 : null;
+        label.sha1Code = (undefined !== json.sha1) ? json.sha1 : null;
+        label.fileURL = (undefined !== json.fileURL) ? json.fileURL : null;
+        label.fileSecureURL = (undefined !== json.fileSecureURL) ? json.fileSecureURL : null;
         return label;
     }
 }

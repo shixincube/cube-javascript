@@ -129,4 +129,8 @@
 
         return result.join('');
     }
+
+    g.formatSize = function(size) {
+        
+    }
 })(window);
