@@ -75,6 +75,10 @@ export class FileAttachment extends JSONable {
         }
     }
 
+    /**
+     * 返回文件名。
+     * @returns {string} 返回文件名。
+     */
     getFileName() {
         if (null != this.label) {
             return this.label.fileName;
@@ -96,6 +100,18 @@ export class FileAttachment extends JSONable {
         }
         else {
             return 0;
+        }
+    }
+
+    getFileType() {
+        if (null != this.label) {
+            return this.label.fileType;
+        }
+        else if (null != this.anchor) {
+            return this.anchor.getExtension().toLowerCase();
+        }
+        else {
+            return 'unknown';
         }
     }
 

@@ -68,6 +68,16 @@ export class FileAnchor extends JSONable {
         this.success = false;
     }
 
+    getExtension() {
+        let index = this.fileName.lastIndexOf('.');
+        if (index <= 0) {
+            return '';
+        }
+
+        let extension = this.fileName.substring(index + 1);
+        return extension;
+    }
+
     /**
      * @inheritdoc
      */

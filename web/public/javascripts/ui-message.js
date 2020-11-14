@@ -638,14 +638,17 @@ MessagePanel.prototype.appendMessage = function(id, sender, content, time, targe
     var text = null;
     var fileInfo = null;
 
+    var attachment = null;
+
     if (typeof content === 'string') {
         text = content;
     }
     else if (content instanceof Message) {
         if (content.hasAttachment()) {
+            attachment = content.getAttachment();
             fileInfo = {
-                name: content.getAttachment().getFileName(),
-                size: content.getAttachment().getFileSize()
+                name: attachment.getFileName(),
+                size: attachment.getFileSize()
             };
         }
         else {
@@ -660,15 +663,32 @@ MessagePanel.prototype.appendMessage = function(id, sender, content, time, targe
     }
 
     if (null != fileInfo) {
+        var action = null;
+        if (null == attachment) {
+            action = [];
+        }
+        else {
+            var type = attachment.getFileType();
+            if (type == 'png' || type == 'jpg' || type == 'gif') {
+                action = ['<a class="btn btn-xs btn-default" href="javascript:app.showImage(\'', attachment.getFileCode(), '\');">',
+                    '<i class="fas fa-file-image"></i>',
+                '</a>'];
+            }
+            else {
+                action = ['<a class="btn btn-xs btn-default">',
+                    '<i class="fas fa-download"></i>',
+                '</a>'];
+            }
+        }
+
         var fileDesc = ['<table class="file-label" border="0" cellspacing="4" cellpodding="0">',
                 '<tr>',
                     '<td rowspan="2">', '<i class="fa fa-file file-icon"></i>', '</td>',
-                    '<td class="file-name">', fileInfo.name, '</td>',
-                    '<td>', '</td>',
+                    '<td colspan="2" class="file-name">', fileInfo.name, '</td>',
                 '</tr>',
                 '<tr>',
                     '<td class="file-size">', formatSize(fileInfo.size), '</td>',
-                    '<td>', '</td>',
+                    '<td class="file-action">', action.join(''), '</td>',
                 '</tr>',
             '</table>'];
         text = fileDesc.join('');

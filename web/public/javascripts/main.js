@@ -370,6 +370,12 @@ CubeApp.prototype.requestAccount = function(id, handler) {
     }, 'json');
 }
 
+CubeApp.prototype.showImage = function(fileCode) {
+    this.cube.fileStorage.getFileURL(fileCode, function(fileCode, url) {
+        
+    });
+}
+
 /**
  * 显示一个 Toast 提示。
  * @param {CubeToast} toast 
