@@ -372,7 +372,14 @@ CubeApp.prototype.requestAccount = function(id, handler) {
 
 CubeApp.prototype.showImage = function(fileCode) {
     this.cube.fileStorage.getFileURL(fileCode, function(fileCode, url) {
-        
+        var image = new Image();
+        image.src = url;
+        var viewer = new Viewer(image, {
+            hidden: function () {
+                viewer.destroy();
+            }
+        });
+        viewer.show();
     });
 }
 

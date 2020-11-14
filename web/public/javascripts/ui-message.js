@@ -365,6 +365,8 @@ function MessagePanel(app) {
         this.elInput.attr('disabled', 'disabled');
     }
 
+    this.initContextMenu();
+
     var that = this;
     // 发送按钮 Click 事件
     $('#btn_send').on('click', function(e) {
@@ -450,6 +452,21 @@ function MessagePanel(app) {
     this.submitQuitGroupListener = null;
     // 提交解散群事件监听器
     this.submitDissolveGroupListener = null;
+}
+
+MessagePanel.prototype.initContextMenu = function() {
+    this.elMsgView.contextMenu({
+        selector: '.direct-chat-msg',
+        callback: function(key, options) {
+            var m = "clicked: " + key + " on " + $(this).attr('id');
+            console.log(m);
+        },
+        items: {
+            "forward": {name: "转发"},
+            "recall": {name: "撤回"},
+            "delete": {name: "删除"}
+        }
+    });
 }
 
 MessagePanel.prototype.setCreateGroupListener = function(listener) {
@@ -670,12 +687,12 @@ MessagePanel.prototype.appendMessage = function(id, sender, content, time, targe
         else {
             var type = attachment.getFileType();
             if (type == 'png' || type == 'jpg' || type == 'gif') {
-                action = ['<a class="btn btn-xs btn-default" href="javascript:app.showImage(\'', attachment.getFileCode(), '\');">',
+                action = ['<a class="btn btn-xs btn-default" title="查看图片" href="javascript:app.showImage(\'', attachment.getFileCode(), '\');">',
                     '<i class="fas fa-file-image"></i>',
                 '</a>'];
             }
             else {
-                action = ['<a class="btn btn-xs btn-default">',
+                action = ['<a class="btn btn-xs btn-default" title="下载文件">',
                     '<i class="fas fa-download"></i>',
                 '</a>'];
             }
