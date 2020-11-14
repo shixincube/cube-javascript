@@ -692,6 +692,14 @@ export class MessagingService extends Module {
                     return;
                 }
 
+                if (responsePacket.data.code != 0) {
+                    // 错误处理
+                    this.sendingMap.remove(message.getId());
+                    message.state = MessageState.Fault;
+                    this.notifyObservers(new ObservableState(MessagingEvent.Fault, message));
+                    return;
+                }
+
                 // 收到的应答消息
                 let respMessage = Message.create(responsePacket.data.data);
 
@@ -708,11 +716,11 @@ export class MessagingService extends Module {
                 message.remoteTS = respMessage.remoteTS;
                 this.refreshLastMessageTime(message.remoteTS);
 
+                // 更新存储
+                this.storage.updateMessage(message);
+
                 let state = new ObservableState(MessagingEvent.Sent, message);
                 this.notifyObservers(state);
-
-                // 更新存储
-                this.storage.updateMessage(respMessage);
             });
         }, (fileAnchor) => {
             // TODO 错误处理

@@ -175,7 +175,6 @@ export class Message extends Entity {
 
     /**
      * 设置文件附件。
-     * 
      * @param {File} file 
      */
     setAttachment(file) {
@@ -185,6 +184,22 @@ export class Message extends Entity {
         else if (file instanceof FileAttachment) {
             this.attachment = file;
         }
+    }
+
+    /**
+     * 获取消息的文件附件。
+     * @returns {FileAttachment} 返回消息的文件附件。
+     */
+    getAttachment() {
+        return this.attachment;
+    }
+
+    /**
+     * 消息是否有附件。
+     * @returns {boolean} 如果有附件返回 {@linkcode true} ，否则返回 {@linkcode false} 。
+     */
+    hasAttachment() {
+        return (null != this.attachment);
     }
 
     /**

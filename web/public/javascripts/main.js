@@ -98,6 +98,12 @@ CubeApp.prototype.config = function(cube) {
         var message = event.data;
 
         console.log('触发 "MessagingEvent.Sent" 事件，消息 ID : ' + message.getId());
+
+        if (message.hasAttachment()) {
+            cube.fileStorage.getFileURL(message.getAttachment().getFileCode(), function(code, url) {
+                console.log('消息附件的文件 URL : ' + url);
+            });
+        }
     });
 
     // 监听接收消息事件
@@ -149,12 +155,12 @@ CubeApp.prototype.prepareData = function() {
 
                 // 添加消息的消息面板
                 that.messagePanel.appendMessage(message.getId(), sender,
-                    message.getPayload().content, message.getRemoteTimestamp(), target);
+                    message, message.getRemoteTimestamp(), target);
             }
 
             if (list.length > 0) {
                 var last = list[list.length - 1];
-                that.messageCatalogue.updateItem(id, last.getPayload().content, last.getRemoteTimestamp());
+                that.messageCatalogue.updateItem(id, last, last.getRemoteTimestamp());
             }
         }
 
@@ -400,7 +406,7 @@ CubeApp.prototype.fireSend = function(to, content) {
         return null;
     }
 
-    this.messageCatalogue.updateItem(to.getId(), text, message.getTimestamp());
+    this.messageCatalogue.updateItem(to.getId(), content, message.getTimestamp());
     return message;
 }
 
@@ -526,18 +532,16 @@ CubeApp.prototype.fireRemoveMember = function(groupId, memberId) {
 }
 
 CubeApp.prototype.onNewMessage = function(message) {
-    var content = message.getPayload().content;
-
     // 判断消息是否来自群组
     if (message.isFromGroup()) {
         // 消息来自群组
         var group = this.getGroup(message.getSource());
         if (null != group) {
             // 更新目录
-            this.messageCatalogue.updateItem(group.getId(), content, message.getRemoteTimestamp());
+            this.messageCatalogue.updateItem(group.getId(), message, message.getRemoteTimestamp());
 
             // 更新消息面板
-            this.messagePanel.appendMessage(message.getId(), this.getContact(message.getFrom()), content, message.getRemoteTimestamp(), group);
+            this.messagePanel.appendMessage(message.getId(), this.getContact(message.getFrom()), message, message.getRemoteTimestamp(), group);
         }
         else {
             // 从服务器获取新群组
@@ -561,10 +565,10 @@ CubeApp.prototype.onNewMessage = function(message) {
         }
         
         // 更新目录
-        this.messageCatalogue.updateItem(itemId, content, message.getRemoteTimestamp());
+        this.messageCatalogue.updateItem(itemId, message, message.getRemoteTimestamp());
 
         // 更新消息面板
-        this.messagePanel.appendMessage(message.getId(), sender, content, message.getRemoteTimestamp(), target);
+        this.messagePanel.appendMessage(message.getId(), sender, message, message.getRemoteTimestamp(), target);
     }
 }
 

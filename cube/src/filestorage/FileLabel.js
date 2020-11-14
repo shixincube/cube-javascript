@@ -167,6 +167,10 @@ export class FileLabel extends Entity {
         return this.fileSecureURL;
     }
 
+    /**
+     * 序列化为 JSON 结构。
+     * @returns {JSON} 返回 JSON 结构的 {@link FileLabel} 。
+     */
     toJSON() {
         let json = super.toJSON();
         json.id = this.id;

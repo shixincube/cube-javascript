@@ -59,6 +59,46 @@ export class FileAttachment extends JSONable {
         this.label = null;
     }
 
+    /**
+     * 返回文件码。
+     * @returns {string} 返回文件码。
+     */
+    getFileCode() {
+        if (null != this.anchor) {
+            return this.anchor.fileCode;
+        }
+        else if (null != this.label) {
+            return this.label.fileCode;
+        }
+        else {
+            return null;
+        }
+    }
+
+    getFileName() {
+        if (null != this.label) {
+            return this.label.fileName;
+        }
+        else if (null != this.anchor) {
+            return this.anchor.fileName;
+        }
+        else {
+            return null;
+        }
+    }
+
+    getFileSize() {
+        if (null != this.label) {
+            return this.label.fileSize;
+        }
+        else if (null != this.anchor) {
+            return this.anchor.fileSize;
+        }
+        else {
+            return 0;
+        }
+    }
+
     toJSON() {
         let json = super.toJSON();
         if (null != this.anchor) {

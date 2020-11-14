@@ -48,11 +48,13 @@ export class MessagingStorage {
 
         /**
          * 配置库。
+         * @type {object}
          */
         this.configStore = null;
 
         /**
          * 消息库。
+         * @type {object}
          */
         this.messageStore = null;
     }

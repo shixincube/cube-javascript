@@ -26,6 +26,7 @@
 
 import cell from "@lib/cell-lib";
 import InDB from "indb";
+import { FileLabel } from "./FileLabel";
 
 /**
  * 文件的结构数据存储器。
@@ -44,6 +45,12 @@ export class FileStructStorage {
          * @type {InDB}
          */
         this.db = null;
+
+        /**
+         * 文件标签库。
+         * @type {object}
+         */
+        this.labelStore = null;
     }
 
     /**
@@ -69,6 +76,10 @@ export class FileStructStorage {
                 indexes: [{
                     name: 'fileCode',
                     keyPath: 'fileCode',
+                    unique: true
+                }, {
+                    name: 'id',
+                    keyPath: 'id',
                     unique: true
                 }, {
                     name: 'ownerId',
@@ -97,6 +108,13 @@ export class FileStructStorage {
                 }]
             }]
         };
+
+        this.db = new InDB(options);
+
+        // 考虑是否不再调用此函数？
+        //this.db.connect();
+
+        this.labelStore = this.db.use('label');
     }
 
     close() {
@@ -108,5 +126,50 @@ export class FileStructStorage {
 
         this.db.close();
         this.db = null;
+    }
+
+    /**
+     * 读取文件码对应的文件标签。
+     * @param {string} fileCode 文件码。
+     * @param {function} handler 回调函数，参数：({@linkcode fileCode}:string, {@linkcode fileLabel}:{@link FileLabel}) 。
+     * @returns {boolean} 返回是否执行了查询操作。
+     */
+    readFileLabel(fileCode, handler) {
+        if (null == this.db) {
+            return false;
+        }
+
+        (async ()=> {
+            let result = await this.labelStore.query('fileCode', fileCode);
+            if (result.length > 0) {
+                result[0].domain = this.domain;
+                let fileLabel = FileLabel.create(result[0]);
+                handler(fileCode, fileLabel);
+            }
+            else {
+                handler(fileCode, null);
+            }
+        })();
+
+        return true;
+    }
+
+    /**
+     * 写入文件标签。
+     * @param {FileLabel} fileLabel 文件标签实例。
+     * @returns {boolean} 返回是否执行了操作。
+     */
+    writeFileLabel(fileLabel) {
+        if (null == this.db) {
+            return false;
+        }
+
+        (async ()=> {
+            let data = fileLabel.toJSON();
+            delete data["domain"];
+            await this.labelStore.put(data);
+        })();
+
+        return true;
     }
 }

@@ -74,7 +74,7 @@ export class FileStorage extends Module {
         this.contactService = null;
 
         /**
-         * 缓存的文件标签。键为文件名。
+         * 缓存的文件标签。键为文件码。
          * @type {OrderMap<string,FileLabel>}
          */
         this.fileLabels = new OrderMap();
@@ -232,10 +232,10 @@ export class FileStorage extends Module {
 
     /**
      * 下载文件。
-     * @param {FileLabel|string} fileOrFileName
+     * @param {FileLabel|string} fileOrFileCode
      */
-    downloadFile(fileOrFileName) {
-        let fileLabel = (fileOrFileName instanceof FileLabel) ? fileOrFileName : this.fileLabels.get(fileOrFileName);
+    downloadFile(fileOrFileCode) {
+        let fileLabel = (fileOrFileCode instanceof FileLabel) ? fileOrFileCode : this.fileLabels.get(fileOrFileCode);
         let packet = new Packet('GET', null);
         packet.responseType = 'blob';
 
@@ -260,16 +260,35 @@ export class FileStorage extends Module {
         });
     }
 
-    getFileURL(fileName, handler) {
-        let fileLabel = this.fileLabels.get(fileName);
+    /**
+     * 获取文件的访问 URL 。
+     * @param {string} fileCode 
+     * @param {function} handler 回调函数，参数：({@linkcode fileCode}:string, {@linkcode fileURL}:string) 。
+     */
+    getFileURL(fileCode, handler) {
+        let fileLabel = this.fileLabels.get(fileCode);
         if (null == fileLabel) {
+            this.storage.readFileLabel(fileCode, (fileCode, fileLabel) => {
+                if (null == fileLabel) {
+                    handler(fileCode, null);
+                    return;
+                }
+
+                let url = [ this.secure ? fileLabel.getFileSecureURL() : fileLabel.getFileURL(),
+                    '&token=', this.filePipeline.tokenCode,
+                    '&type=', fileLabel.fileType
+                ];
+                handler(fileCode, url.join(''));
+            });
+
             return;
         }
 
-        let url = this.secure ? fileLabel.getFileSecureURL() : fileLabel.getFileURL();
-        url += '&token=' + this.filePipeline.tokenCode;
-        url += '&type=' + fileLabel.fileType;
-        handler(url);
+        let url = [ this.secure ? fileLabel.getFileSecureURL() : fileLabel.getFileURL(),
+            '&token=', this.filePipeline.tokenCode,
+            '&type=', fileLabel.fileType
+        ];
+        handler(fileCode, url.join(''));
     }
 
     /**
@@ -391,9 +410,10 @@ export class FileStorage extends Module {
         }
 
         // 缓存到本地
-        this.fileLabels.put(fileLabel.getFileName(), fileLabel);
+        this.fileLabels.put(fileLabel.getFileCode(), fileLabel);
 
         // 写入存储
+        this.storage.writeFileLabel(fileLabel);
 
         // 通知事件
         this.notifyObservers(new ObservableState(FileStorageEvent.FileUpdated, fileLabel));

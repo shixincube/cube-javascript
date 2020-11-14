@@ -27,6 +27,7 @@
 import { CubeEngine } from "./CubeEngine";
 import { ContactService } from "../contact/ContactService";
 import { MessagingService } from "../messaging/MessagingService";
+import { FileStorage } from "../filestorage/FileStorage";
 
 /**
  * Cube Engine 的快捷操作方式封装。
@@ -49,6 +50,13 @@ export class CubeShortcut {
          * @public
          */
         this.messaging = this.engine.getMessagingService();
+
+        /**
+         * 文件存储模块。
+         * @type {FileStorage}
+         * @public
+         */
+        this.fileStorage = this.engine.getFileStorage();
     }
 
     /**

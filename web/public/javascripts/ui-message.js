@@ -294,7 +294,21 @@ MessageCatalogue.prototype.updateItem = function(id, desc, time, label) {
     var el = current.el;
 
     if (null != desc) {
-        el.find('.product-description').text(desc);
+        if (typeof desc === 'string') {
+            el.find('.product-description').text(desc);
+        }
+        else if (desc instanceof Message) {
+            var msg = desc;
+            if (msg.hasAttachment()) {
+                el.find('.product-description').text('[文件] ' + msg.getAttachment().getFileName());
+            }
+            else {
+                el.find('.product-description').text(msg.getPayload().content);
+            }
+        }
+        else if (desc instanceof File) {
+            el.find('.product-description').text('[文件] ' + desc.name);
+        }
     }
 
     el.find('.badge').text(formatShortTime(time));
@@ -602,7 +616,7 @@ MessagePanel.prototype.createGroupDetailsTable = function(group) {
  * 添加消息到面板。
  * @param {number} id 消息 ID 。
  * @param {Contact} sender 发送人。
- * @param {string|File} content 消息内容。
+ * @param {string|File|Message} content 消息内容。
  * @param {number} time 消息时间戳。
  * @param {Contact|Group} [target] 目标面板。
  */
@@ -622,18 +636,38 @@ MessagePanel.prototype.appendMessage = function(id, sender, content, time, targe
     }
 
     var text = null;
+    var fileInfo = null;
+
     if (typeof content === 'string') {
         text = content;
     }
-    else {
+    else if (content instanceof Message) {
+        if (content.hasAttachment()) {
+            fileInfo = {
+                name: content.getAttachment().getFileName(),
+                size: content.getAttachment().getFileSize()
+            };
+        }
+        else {
+            text = content.getPayload().content;
+        }
+    }
+    else if (content instanceof File) {
+        fileInfo = {
+            name: content.name,
+            size: content.size
+        };
+    }
+
+    if (null != fileInfo) {
         var fileDesc = ['<table class="file-label" border="0" cellspacing="4" cellpodding="0">',
                 '<tr>',
                     '<td rowspan="2">', '<i class="fa fa-file file-icon"></i>', '</td>',
-                    '<td class="file-name">', content.name, '</td>',
+                    '<td class="file-name">', fileInfo.name, '</td>',
                     '<td>', '</td>',
                 '</tr>',
                 '<tr>',
-                    '<td class="file-size">', formatSize(content.size), '</td>',
+                    '<td class="file-size">', formatSize(fileInfo.size), '</td>',
                     '<td>', '</td>',
                 '</tr>',
             '</table>'];
