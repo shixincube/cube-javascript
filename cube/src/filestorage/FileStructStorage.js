@@ -58,6 +58,45 @@ export class FileStructStorage {
         cell.Logger.d('FileStructStorage', 'Open file struct storage : ' + domain);
 
         this.domain = domain;
+
+        // 数据库配置
+        let options = {
+            name: 'CubeFileStorage-' + domain,
+            version: 1,
+            stores: [{
+                name: 'label',
+                keyPath: 'fileCode',
+                indexes: [{
+                    name: 'fileCode',
+                    keyPath: 'fileCode',
+                    unique: true
+                }, {
+                    name: 'ownerId',
+                    keyPath: 'ownerId',
+                    unique: false
+                }, {
+                    name: 'fileName',
+                    keyPath: 'fileName',
+                    unique: false
+                }, {
+                    name: 'expiryTime',
+                    keyPath: 'expiryTime',
+                    unique: false
+                }, {
+                    name: 'fileType',
+                    keyPath: 'fileType',
+                    unique: false
+                }]
+            }, {
+                name: 'config',
+                keyPath: 'item',
+                indexes: [{
+                    name: 'item',
+                    keyPath: 'item',
+                    unique: true
+                }]
+            }]
+        };
     }
 
     close() {

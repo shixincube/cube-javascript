@@ -268,6 +268,7 @@ export class FileStorage extends Module {
 
         let url = this.secure ? fileLabel.getFileSecureURL() : fileLabel.getFileURL();
         url += '&token=' + this.filePipeline.tokenCode;
+        url += '&type=' + fileLabel.fileType;
         handler(url);
     }
 
