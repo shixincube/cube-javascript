@@ -729,6 +729,18 @@ MessagePanel.prototype.appendMessage = function(id, sender, content, time, targe
     this.elMsgView.scrollTop(offset);
 }
 
+/**
+ * 更新消息内容。
+ * @param {Message} message 
+ */
+MessagePanel.prototype.updateMessageContent = function(message) {
+    var el = this.elMsgView.find('#' + message.getId());
+    var attachment = message.getAttachment();
+    if (null != attachment) {
+        
+    }
+}
+
 MessagePanel.prototype.onDetailsClick = function(e) {
     if (null == this.current) {
         return;

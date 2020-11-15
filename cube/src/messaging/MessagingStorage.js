@@ -27,6 +27,7 @@
 import cell from "@lib/cell-lib";
 import InDB from "indb";
 import { Message } from "./Message";
+import { MessageState } from "./MessageState";
 
 /**
  * 消息存储器。
@@ -260,7 +261,9 @@ export class MessagingStorage {
             for (let i = 0; i < result.length; ++i) {
                 result[i].domain = this.domain;
                 let message = Message.create(result[i]);
-                messages.push(message);
+                if (message.state == MessageState.Sent || message.state == MessageState.Read) {
+                    messages.push(message);
+                }
             }
             handler(contactId, beginning, messages);
         })();
@@ -288,7 +291,9 @@ export class MessagingStorage {
             for (let i = 0; i < result.length; ++i) {
                 result[i].domain = this.domain;
                 let message = Message.create(result[i]);
-                messages.push(message);
+                if (message.state == MessageState.Sent || message.state == MessageState.Read) {
+                    messages.push(message);
+                }
             }
             handler(groupId, beginning, messages);
         })();

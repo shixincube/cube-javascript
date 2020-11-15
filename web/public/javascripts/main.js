@@ -102,6 +102,7 @@ CubeApp.prototype.config = function(cube) {
         if (message.hasAttachment()) {
             cube.fileStorage.getFileURL(message.getAttachment().getFileCode(), function(code, url) {
                 console.log('消息附件的文件 URL : ' + url);
+                app.messagePanel.updateMessageContent(message);
             });
         }
     });

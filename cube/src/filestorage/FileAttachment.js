@@ -24,6 +24,7 @@
  * SOFTWARE.
  */
 
+import { AuthService } from "../auth/AuthService";
 import { JSONable } from "../util/JSONable";
 import { FileAnchor } from "./FileAnchor";
 import { FileLabel } from "./FileLabel";
@@ -57,6 +58,12 @@ export class FileAttachment extends JSONable {
          * @type {FileLabel}
          */
         this.label = null;
+
+        /**
+         * 是否是安全连接。
+         * @type {boolean}
+         */
+        this.secure = (window.location.protocol.toLowerCase().indexOf("https") >= 0);
     }
 
     /**
@@ -113,6 +120,16 @@ export class FileAttachment extends JSONable {
         else {
             return 'unknown';
         }
+    }
+
+    getFileURL() {
+        if (null == this.label) {
+            return null;
+        }
+
+        let url = [ this.secure ? this.label.getFileSecureURL() : this.label.getFileURL(),
+            '&type=', this.label.fileType];
+        return url.join('');
     }
 
     toJSON() {

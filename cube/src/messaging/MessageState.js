@@ -39,35 +39,41 @@ export const MessageState = {
      * 未发送。
      * @type {number}
      */
-    Unsent: 1,
+    Unsent: 5,
 
     /**
      * 发送中。
      * @type {number}
      */
-    Sending: 1 << 1,
+    Sending: 9,
 
     /**
      * 已发送。
      * @type {number}
      */
-    Sent: 1 << 2,
+    Sent: 10,
 
     /**
      * 已读。
      * @type {number}
      */
-    Read: 1 << 3,
+    Read: 20,
 
     /**
      * 已召回。
      * @type {number}
      */
-    Recalled: 1 << 4,
+    Recalled: 30,
+
+    /**
+     * 已删除。
+     * @type {number}
+     */
+    Removed: 40,
 
     /**
      * 消息出现故障。
      * @type {number}
      */
-    Fault: 1 << 5
+    Fault: 1
 }

@@ -263,13 +263,10 @@ export class Message extends Entity {
         message.source = json.source;
         message.localTS = json.lts;
         message.remoteTS = json.rts;
+        message.state = json.state;
 
         if (json.payload !== undefined) {
             message.payload = json.payload;
-        }
-
-        if (json.state !== undefined) {
-            message.state = json.state;
         }
 
         if (json.attachment !== undefined) {
