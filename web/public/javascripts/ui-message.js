@@ -687,12 +687,14 @@ MessagePanel.prototype.appendMessage = function(id, sender, content, time, targe
         else {
             var type = attachment.getFileType();
             if (type == 'png' || type == 'jpg' || type == 'gif') {
-                action = ['<a class="btn btn-xs btn-default" title="查看图片" href="javascript:app.showImage(\'', attachment.getFileCode(), '\');">',
+                action = ['<a class="btn btn-xs btn-info" title="查看图片" href="javascript:app.showImage(\'',
+                                attachment.getFileCode(), '\');">',
                     '<i class="fas fa-file-image"></i>',
                 '</a>'];
             }
             else {
-                action = ['<a class="btn btn-xs btn-default" title="下载文件">',
+                action = ['<a class="btn btn-xs btn-info" title="下载文件" href="javascript:app.downloadFile(\'',
+                                attachment.getFileCode(), '\');">',
                     '<i class="fas fa-download"></i>',
                 '</a>'];
             }
@@ -737,7 +739,21 @@ MessagePanel.prototype.updateMessageContent = function(message) {
     var el = this.elMsgView.find('#' + message.getId());
     var attachment = message.getAttachment();
     if (null != attachment) {
-        
+        var action = null;
+        var type = attachment.getFileType();
+        if (type == 'png' || type == 'jpg' || type == 'gif') {
+            action = ['<a class="btn btn-xs btn-info" title="查看图片" href="javascript:app.showImage(\'',
+                            attachment.getFileCode(), '\');">',
+                    '<i class="fas fa-file-image"></i>',
+                '</a>'];
+        }
+        else {
+            action = ['<a class="btn btn-xs btn-info" title="下载文件" href="javascript:app.downloadFile(\'',
+                            attachment.getFileCode(), '\');">',
+                    '<i class="fas fa-download"></i>',
+                '</a>'];
+        }
+        el.find('.file-action').html(action.join(''));
     }
 }
 

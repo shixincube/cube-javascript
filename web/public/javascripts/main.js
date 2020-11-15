@@ -384,6 +384,10 @@ CubeApp.prototype.showImage = function(fileCode) {
     });
 }
 
+CubeApp.prototype.downloadFile = function(fileCode) {
+
+}
+
 /**
  * 显示一个 Toast 提示。
  * @param {CubeToast} toast 

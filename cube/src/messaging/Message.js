@@ -223,9 +223,9 @@ export class Message extends Entity {
         this.source = src.source;
         this.localTS = src.localTS;
         this.remoteTS = src.remoteTS;
+        this.state = src.state;
         this.payload = src.payload;
         this.attachment = src.attachment;
-        this.state = src.state;
     }
 
     /**

@@ -69,7 +69,7 @@ export const MessageState = {
      * 已删除。
      * @type {number}
      */
-    Removed: 40,
+    Deleted: 40,
 
     /**
      * 消息出现故障。
