@@ -54,6 +54,11 @@ export const MessagingEvent = {
     Recall: 'Recall',
 
     /**
+     * 消息被删除。
+     */
+    Delete: 'Delete',
+
+    /**
      * 消息处理故障。
      * @type {string}
      */

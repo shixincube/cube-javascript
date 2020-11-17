@@ -393,7 +393,7 @@ CubeApp.prototype.showImage = function(fileCode) {
 }
 
 CubeApp.prototype.downloadFile = function(fileCode) {
-
+    this.cube.fileStorage.downloadFile(fileCode);
 }
 
 /**
@@ -639,7 +639,7 @@ CubeApp.prototype.onRecallMessage = function(message) {
             if (null == message) {
                 return;
             }
-            
+
             that.messageCatalogue.updateItem(message.getGroupId(), message, message.getRemoteTimestamp());
         });
     }

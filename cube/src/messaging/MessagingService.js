@@ -396,6 +396,9 @@ export class MessagingService extends Module {
                         if (handleSuccess) {
                             handleSuccess(message);
                         }
+
+                        // 事件通知
+                        this.notifyObservers(new ObservableState(MessagingEvent.Delete, message));
                     });
                 }
                 else {

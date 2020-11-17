@@ -339,6 +339,12 @@ export class MessagingStorage {
         return true;
     }
 
+    /**
+     * 读取最近一条有效的消息。
+     * @param {number} contactId 指定该消息关联的联系人 ID 。
+     * @param {function} handler 指定查询结果回调函数，函数参数：({@linkcode message}:{@link Message}) 。
+     * @returns {boolean} 返回是否执行了读取操作。
+     */
     readLastMessageWtihContact(contactId, handler) {
         if (null == this.db) {
             return false;
@@ -369,6 +375,12 @@ export class MessagingStorage {
         return true;
     }
 
+    /**
+     * 读取最近一条有效的消息。
+     * @param {number} groupId 指定群组消息的群组 ID 。
+     * @param {function} handler 指定查询结果回调函数，函数参数：({@linkcode message}:{@link Message}) 。
+     * @returns {boolean} 返回是否执行了读取操作。
+     */
     readLastMessageWtihGroup(groupId, handler) {
         if (null == this.db) {
             return false;
@@ -398,18 +410,25 @@ export class MessagingStorage {
         return true;
     }
 
+    /**
+     * 读取最近一条有效的消息。
+     * @param {function} handler 指定查询结果回调函数，函数参数：({@linkcode message}:{@link Message}) 。
+     * @returns {boolean} 返回是否执行了读取操作。
+     */
     readLastMessage(handler) {
         if (null == this.db) {
             return false;
         }
 
         (async ()=> {
+            let result = null;
+
             await this.messageStore.iterate((cursor, next, stop) => {
                 var obj = cursor.value;
                 if (obj.state == MessageState.Read || obj.state == MessageState.Sent) {
                     obj.domain = this.domain;
                     let message = Message.create(obj);
-                    handler(message);
+                    result = message;
                     stop();
                 }
                 else {
@@ -419,6 +438,8 @@ export class MessagingStorage {
                 writable: false,
                 direction: 'prev'
             });
+
+            handler(result);
         })();
 
         return true;
