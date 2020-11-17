@@ -455,16 +455,23 @@ function MessagePanel(app) {
 }
 
 MessagePanel.prototype.initContextMenu = function() {
+    var app = this.app;
     this.elMsgView.contextMenu({
         selector: '.direct-chat-msg',
         callback: function(key, options) {
-            var m = "clicked: " + key + " on " + $(this).attr('id');
-            console.log(m);
+            // var m = "clicked: " + key + " on " + $(this).attr('id');
+            // console.log(m);
+            if (key == 'delete') {
+                app.fireDeleteMessage(parseInt($(this).attr('id')));
+            }
+            else if (key == 'recall') {
+                app.fireRecallMessage(parseInt($(this).attr('id')));
+            }
         },
         items: {
-            "forward": {name: "转发"},
-            "recall": {name: "撤回"},
-            "delete": {name: "删除"}
+            // "forward": { name: "转发" },
+            "recall": { name: "撤回" },
+            "delete": { name: "删除" }
         }
     });
 }
@@ -729,6 +736,25 @@ MessagePanel.prototype.appendMessage = function(id, sender, content, time, targe
     // 滚动条控制
     var offset = parseInt(this.elMsgView.prop('scrollHeight'));
     this.elMsgView.scrollTop(offset);
+}
+
+MessagePanel.prototype.removeMessage = function(message) {
+    var view = null;
+
+    if (message.isFromGroup()) {
+        view = this.views[message.getGroupId()];
+    }
+    else {
+        var targetId = message.getFrom() == this.app.cubeContact.getId() ? message.getTo() : message.getFrom();
+        view = this.views[targetId];
+    }
+
+    if (undefined === view || null == view) {
+        return;
+    }
+
+    var msgEl = view.el.find('#' + message.getId());
+    msgEl.remove();
 }
 
 /**

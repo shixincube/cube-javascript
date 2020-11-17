@@ -231,10 +231,41 @@ export class MessagingStorage {
             for (let i = 0; i < result.length; ++i) {
                 result[i].domain = this.domain;
                 let message = Message.create(result[i]);
+
+                if (message.state == MessageState.Deleted || message.state == MessageState.Recalled) {
+                    // 跳过被删除和已召回的消息
+                    continue;
+                }
+
                 messages.push(message);
             }
             handler(beginning, messages);
         })();
+        return true;
+    }
+
+    /**
+     * 读取指定消息 ID 的消息。
+     * @param {number} messageId 指定消息 ID 。
+     * @param {function} handler 指定回调函数，函数参数：({@linkcode message}:{@link Message}) 。
+     * @returns {boolean} 返回是否执行了读取操作。
+     */
+    readMessageById(messageId, handler) {
+        if (null == this.db) {
+            return false;
+        }
+
+        (async ()=> {
+            let value = await this.messageStore.get(messageId);
+            if (null == value) {
+                handler(null);
+                return;
+            }
+            value.domain = this.domain;
+            let message = Message.create(value);
+            handler(message);
+        })();
+
         return true;
     }
 
@@ -261,9 +292,13 @@ export class MessagingStorage {
             for (let i = 0; i < result.length; ++i) {
                 result[i].domain = this.domain;
                 let message = Message.create(result[i]);
-                if (message.state == MessageState.Sent || message.state == MessageState.Read) {
-                    messages.push(message);
+
+                if (message.state == MessageState.Deleted || message.state == MessageState.Recalled) {
+                    // 跳过被删除和已召回的消息
+                    continue;
                 }
+
+                messages.push(message);
             }
             handler(contactId, beginning, messages);
         })();
@@ -291,12 +326,101 @@ export class MessagingStorage {
             for (let i = 0; i < result.length; ++i) {
                 result[i].domain = this.domain;
                 let message = Message.create(result[i]);
-                if (message.state == MessageState.Sent || message.state == MessageState.Read) {
-                    messages.push(message);
+
+                if (message.state == MessageState.Deleted || message.state == MessageState.Recalled) {
+                    // 跳过被删除和已召回的消息
+                    continue;
                 }
+
+                messages.push(message);
             }
             handler(groupId, beginning, messages);
         })();
+        return true;
+    }
+
+    readLastMessageWtihContact(contactId, handler) {
+        if (null == this.db) {
+            return false;
+        }
+
+        (async ()=> {
+            let result = null;
+            await this.messageStore.iterate((cursor, next, stop) => {
+                var obj = cursor.value;
+                if ((obj.from == contactId || obj.to == contactId) && (obj.source == 0)
+                    && (obj.state == MessageState.Read || obj.state == MessageState.Sent)) {
+                    obj.domain = this.domain;
+                    let message = Message.create(obj);
+                    result = message;
+                    stop();
+                }
+                else {
+                    next();
+                }
+            }, {
+                writable: false,
+                direction: 'prev'
+            });
+
+            handler(result);
+        })();
+
+        return true;
+    }
+
+    readLastMessageWtihGroup(groupId, handler) {
+        if (null == this.db) {
+            return false;
+        }
+
+        (async ()=> {
+            let result = null;
+            await this.messageStore.iterate((cursor, next, stop) => {
+                var obj = cursor.value;
+                if ((obj.source == groupId) && (obj.state == MessageState.Read || obj.state == MessageState.Sent)) {
+                    obj.domain = this.domain;
+                    let message = Message.create(obj);
+                    result = message;
+                    stop();
+                }
+                else {
+                    next();
+                }
+            }, {
+                writable: false,
+                direction: 'prev'
+            });
+
+            handler(result);
+        })();
+
+        return true;
+    }
+
+    readLastMessage(handler) {
+        if (null == this.db) {
+            return false;
+        }
+
+        (async ()=> {
+            await this.messageStore.iterate((cursor, next, stop) => {
+                var obj = cursor.value;
+                if (obj.state == MessageState.Read || obj.state == MessageState.Sent) {
+                    obj.domain = this.domain;
+                    let message = Message.create(obj);
+                    handler(message);
+                    stop();
+                }
+                else {
+                    next();
+                }
+            }, {
+                writable: false,
+                direction: 'prev'
+            });
+        })();
+
         return true;
     }
 

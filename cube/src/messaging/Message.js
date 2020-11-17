@@ -84,6 +84,12 @@ export class Message extends Entity {
         this.source = 0;
 
         /**
+         * 消息持有者 ID 。
+         * @type {number}
+         */
+        this.owner = 0;
+
+        /**
          * 本地时间戳。
          * @type {number}
          */
@@ -211,6 +217,14 @@ export class Message extends Entity {
     }
 
     /**
+     * 获取群组 ID 。
+     * @returns {number} 返回群组 ID 。
+     */
+    getGroupId() {
+        return this.source;
+    }
+
+    /**
      * 从指定源复制消息数据。
      * @protected
      * @param {Message} src 指定复制源。
@@ -221,6 +235,7 @@ export class Message extends Entity {
         this.from = src.from;
         this.to = src.to;
         this.source = src.source;
+        this.owner = src.owner;
         this.localTS = src.localTS;
         this.remoteTS = src.remoteTS;
         this.state = src.state;
@@ -238,6 +253,7 @@ export class Message extends Entity {
         json["from"] = this.from;
         json["to"] = this.to;
         json["source"] = this.source;
+        json["owner"] = this.owner;
         json["lts"] = this.localTS;
         json["rts"] = this.remoteTS;
         json["state"] = this.state;
@@ -261,6 +277,7 @@ export class Message extends Entity {
         message.from = json.from;
         message.to = json.to;
         message.source = json.source;
+        message.owner = json.owner;
         message.localTS = json.lts;
         message.remoteTS = json.rts;
         message.state = json.state;

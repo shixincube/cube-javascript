@@ -44,5 +44,17 @@ export const MessagingAction = {
      * 收到在线消息。
      * @type {string}
      */
-    Notify: 'notify'
+    Notify: 'notify',
+
+    /**
+     * 撤回消息。
+     * @type {string}
+     */
+    Recall: 'recall',
+
+    /**
+     * 删除消息。
+     * @type {string}
+     */
+    Delete: 'delete'
 }

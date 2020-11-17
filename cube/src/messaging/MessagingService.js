@@ -364,6 +364,109 @@ export class MessagingService extends Module {
     }
 
     /**
+     * 删除消息。
+     * @param {Message|number} message 指定消息实例或者消息 ID 。
+     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode message}:{@link Message}) 。
+     * @param {function} [handleError] 操作错误回调该方法，参数：({@linkcode message}:{@link Message}) 。
+     * @returns {boolean} 返回是否能执行该操作。
+     */
+    deleteMessage(message, handleSuccess, handleError) {
+        let self = this.contactService.getSelf();
+        if (null == self) {
+            return false;
+        }
+
+        let messageId = (message instanceof Message) ? message.getId() : message;
+
+        let payload = {
+            contactId: self.getId(),
+            messageId: messageId
+        };
+        let packet = new Packet(MessagingAction.Delete, payload);
+        this.pipeline.send(MessagingService.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+                if (responsePacket.data.code == 0) {
+                    this.storage.readMessageById(messageId, (message) => {
+                        // 更新状态
+                        message.state = MessageState.Deleted;
+
+                        // 写存储
+                        this.storage.updateMessage(message);
+
+                        if (handleSuccess) {
+                            handleSuccess(message);
+                        }
+                    });
+                }
+                else {
+                    this.storage.readMessageById(messageId, (message) => {
+                        if (handleError) {
+                            handleError(message);
+                        }
+                    });
+                }
+            }
+            else {
+                this.storage.readMessageById(messageId, (message) => {
+                    if (handleError) {
+                        handleError(message);
+                    }
+                });
+            }
+        });
+
+        return true;
+    }
+
+    /**
+     * 撤回消息。
+     * @param {Message|number} message 指定消息 ID 或者消息实例。
+     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode message}:{@link Message}) 。
+     * @param {function} [handleError] 操作错误回调该方法，参数：({@linkcode message}:{@link Message}) 。
+     * @returns {boolean} 返回是否能执行该操作。
+     */
+    recallMessage(message, handleSuccess, handleError) {
+        let self = this.contactService.getSelf();
+        if (null == self) {
+            return false;
+        }
+
+        let messageId = (message instanceof Message) ? message.getId() : parseInt(message);
+
+        this.storage.readMessageById(messageId, (message) => {
+            if (message.getFrom() != self.getId()) {
+                // 不是本人发送的消息不能撤回
+                if (handleError) {
+                    handleError(message);
+                }
+                return;
+            }
+
+            let now = Date.now();
+            if (now - message.getRemoteTimestamp() > 2 * 60 * 1000) {
+                // 超过时限不能撤回
+                if (handleError) {
+                    handleError(message);
+                }
+                return;
+            }
+
+            let payload = {
+                contactId: self.getId(),
+                messageId: messageId
+            };
+            let packet = new Packet(MessagingAction.Recall, payload);
+            this.pipeline.send(MessagingService.NAME, packet);
+
+            if (handleSuccess) {
+                handleSuccess(message);
+            }
+        });
+
+        return true;
+    }
+
+    /**
      * 查询指定时间开始到当前时间的所有消息。
      * @param {number} time 指定查询的起始时间。
      * @param {function} handler 查询结果回调函数，函数参数：({@linkcode time}:number, {@linkcode result}:Array<{@link Message}>) 。
@@ -460,6 +563,38 @@ export class MessagingService extends Module {
         }
 
         return ret;
+    }
+
+    queryLastMessageWithContact(contactOrId, handler) {
+        if (!this.started) {
+            this.start();
+        }
+
+        let id = contactOrId;
+        if (contactOrId instanceof Contact) {
+            id = contactOrId.getId();
+        }
+        else if (undefined !== contactOrId.id) {
+            id = parseInt(contactOrId.id);
+        }
+
+        this.storage.readLastMessageWtihContact(id, handler);
+    }
+
+    queryLastMessageWithGroup(groupOrId, handler) {
+        if (!this.started) {
+            this.start();
+        }
+
+        let id = groupOrId;
+        if (groupOrId instanceof Group) {
+            id = groupOrId.getId();
+        }
+        else if (undefined !== groupOrId.id) {
+            id = parseInt(groupOrId.id);
+        }
+
+        this.storage.readLastMessageWtihGroup(id, handler);
     }
 
     /**
@@ -568,6 +703,22 @@ export class MessagingService extends Module {
         for (let i = 0, len = messages.length; i < len; ++i) {
             this.triggerNotify(messages[i]);
         }
+    }
+
+    triggerRecall(payload) {
+        if (payload.code != 0) {
+            this.triggerFail(MessagingAction.Recall, payload);
+            return;
+        }
+
+        let message = Message.create(payload.data);
+
+        // 更新消息内容
+        this.storage.updateMessage(message);
+
+        cell.Logger.d('MessagingService', 'Recall message: ' + message.getId());
+
+        this.notifyObservers(new ObservableState(MessagingEvent.Recall, message));
     }
 
     /**

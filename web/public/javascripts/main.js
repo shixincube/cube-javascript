@@ -110,11 +110,19 @@ CubeApp.prototype.config = function(cube) {
     // 监听接收消息事件
     cube.messaging.on(MessagingEvent.Notify, function(event) {
         var message = event.data;
-
         console.log('触发 "MessagingEvent.Notify" 事件，消息 ID : ' + message.getId());
 
         // 触发 UI 事件
         app.onNewMessage(message);
+    });
+
+    // 监听撤回消息事件
+    cube.messaging.on(MessagingEvent.Recall, function(event) {
+        var message = event.data;
+        console.log('触发 "MessagingEvent.Recall" 事件，消息 ID : ' + message.getId());
+
+        // 触发 UI 事件
+        app.onRecallMessage(message);
     });
 }
 
@@ -428,6 +436,37 @@ CubeApp.prototype.fireSend = function(to, content) {
     return message;
 }
 
+CubeApp.prototype.fireDeleteMessage = function(messageId) {
+    var that = this;
+    this.cube.messaging.deleteMessage(messageId, function(message) {
+        // 从消息面板移除
+        that.messagePanel.removeMessage(message);
+
+        if (message.isFromGroup()) {
+            that.cube.messaging.queryLastMessageWithGroup(message.getGroupId(), function(message) {
+                that.messageCatalogue.updateItem(message.getGroupId(), message, message.getRemoteTimestamp());
+            });
+        }
+        else {
+            var targetId = message.getFrom() == that.cubeContact.getId() ? message.getTo() : message.getFrom();
+            that.cube.messaging.queryLastMessageWithContact(targetId, function(message) {
+                that.messageCatalogue.updateItem(targetId, message, message.getRemoteTimestamp());
+            });
+        }
+    }, function(message) {
+        that.launchToast(CubeToast.Error, '删除消息失败');
+    });
+}
+
+CubeApp.prototype.fireRecallMessage = function(messageId) {
+    var that = this;
+    this.cube.messaging.recallMessage(messageId, function(message) {
+        that.launchToast(CubeToast.Success, '已撤回当前消息');
+    }, function(message) {
+        that.launchToast(CubeToast.Error, '无法撤回当前消息');
+    });
+}
+
 CubeApp.prototype.fireCreateGroup = function(groupName, memberIdList) {
     if (groupName.length == 0) {
         groupName = this.cubeContact.getName() + '创建的群组';
@@ -587,6 +626,32 @@ CubeApp.prototype.onNewMessage = function(message) {
 
         // 更新消息面板
         this.messagePanel.appendMessage(message.getId(), sender, message, message.getRemoteTimestamp(), target);
+    }
+}
+
+CubeApp.prototype.onRecallMessage = function(message) {
+    // 从消息面板移除
+    this.messagePanel.removeMessage(message);
+
+    var that = this;
+    if (message.isFromGroup()) {
+        this.cube.messaging.queryLastMessageWithGroup(message.getGroupId(), function(message) {
+            if (null == message) {
+                return;
+            }
+            
+            that.messageCatalogue.updateItem(message.getGroupId(), message, message.getRemoteTimestamp());
+        });
+    }
+    else {
+        var targetId = message.getFrom() == this.cubeContact.getId() ? message.getTo() : message.getFrom();
+        this.cube.messaging.queryLastMessageWithContact(targetId, function(message) {
+            if (null == message) {
+                return;
+            }
+
+            that.messageCatalogue.updateItem(targetId, message, message.getRemoteTimestamp());
+        });
     }
 }
 

@@ -48,6 +48,12 @@ export const MessagingEvent = {
     Sending: 'Sending',
 
     /**
+     * 消息被撤回。
+     * @type {string}
+     */
+    Recall: 'Recall',
+
+    /**
      * 消息处理故障。
      * @type {string}
      */
