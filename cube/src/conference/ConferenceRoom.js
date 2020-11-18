@@ -24,7 +24,7 @@
  * SOFTWARE.
  */
 
-import { Field } from "../multipointcomm/Field";
+import { CommField } from "../multipointcomm/CommField";
 import { Entity } from "../core/Entity";
 
 /**
@@ -34,13 +34,13 @@ export class ConferenceRoom extends Entity {
 
     /**
      * 构造函数。
-     * @param {Field} field 
+     * @param {CommField} commField 
      */
-    constructor(field) {
+    constructor(commField) {
         
         super();
 
-        this.field = field;
+        this.commField = commField;
     }
 
     configure(json) {

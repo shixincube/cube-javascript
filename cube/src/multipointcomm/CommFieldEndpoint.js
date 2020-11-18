@@ -31,7 +31,7 @@ import { Aggregation } from "../util/Aggregation";
 /**
  * 通信域里的媒体节点。
  */
-export class FieldEndpoint extends Aggregation(Endpoint, JSONable) {
+export class CommFieldEndpoint extends Aggregation(Endpoint, JSONable) {
 
     /**
      * 构造函数。
@@ -82,6 +82,12 @@ export class FieldEndpoint extends Aggregation(Endpoint, JSONable) {
          * @type {number}
          */
         this.audioDownstreamBandwidth = 0;
+
+        /**
+         * SDP 信息。
+         * @type {string}
+         */
+        this.sessionDescription = null;
     }
 
     /**

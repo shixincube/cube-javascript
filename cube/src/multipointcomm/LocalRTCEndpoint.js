@@ -24,25 +24,37 @@
  * SOFTWARE.
  */
 
-import { FieldEndpoint } from "./FieldEndpoint";
+import { Pipeline } from "../core/Pipeline";
+import { CommFieldEndpoint } from "./CommFieldEndpoint";
 import { MediaConstraint } from "./MediaConstraint";
+import { MultipointCommAction } from "./MultipointCommAction";
 
 /**
  * 本地 RTC 接入点。
  */
-export class LocalRTCEndpoint extends FieldEndpoint {
+export class LocalRTCEndpoint extends CommFieldEndpoint {
 
     /**
-     * 构造函数。
+     * @param {Pipeline} pipeline 信令通道。
      */
     constructor(pipeline) {
         super();
 
         this.pipeline = pipeline;
 
+        this.mediaConstraint = null;
+
         this.pc = null;
 
         this.mediaStream = null;
+    }
+
+    /**
+     * 正在呼叫状态。
+     * @returns {boolean} 如果正在通话返回 {@linkcode true} 。
+     */
+    isCalling() {
+        return (null != this.pc);
     }
 
     /**
@@ -57,6 +69,14 @@ export class LocalRTCEndpoint extends FieldEndpoint {
             return;
         }
 
+        this.mediaConstraint = mediaConstraint;
+        if (mediaConstraint.audioEnabled) {
+            this.audioEnabled = true;
+        }
+        if (mediaConstraint.videoEnabled) {
+            this.videoEnabled = true;
+        }
+
         this.pc = new RTCPeerConnection();
         this.pc.ontrack = (event) => {
             this.fireOnTrack(event);
@@ -67,16 +87,22 @@ export class LocalRTCEndpoint extends FieldEndpoint {
         };
 
         let constraints = mediaConstraint.toJSON();
-
-        if (mediaConstraint.audioEnabled) {
-            this.audioEnabled = true;
-        }
-        if (mediaConstraint.videoEnabled) {
-            this.videoEnabled = true;
-        }
-
         this.getUserMedia(constraints, (mediaStream) => {
             this.mediaStream = mediaStream;
+            this.pc.onaddstream({stream: mediaStream});
+            // 添加流
+            this.pc.addStream(mediaStream);
+
+            // 创建 Offer SDP
+            this.pc.createOffer().then((offer) => {
+                this.pc.setLocalDescription(new RTCSessionDescription(offer)).then(() => {
+                    this.sendSignaling(MultipointCommAction.SignalingOffer, this.pc.localDescription);
+                }).catch((error) => {
+                    // 设置 SDP 错误
+                });
+            }).catch((error) => {
+                // 创建 Offer 错误
+            });
         }, (e) => {
             this.mediaStream = null;
             // TODO 错误处理
@@ -112,6 +138,10 @@ export class LocalRTCEndpoint extends FieldEndpoint {
     }
 
     fireOnIceCandidate(event) {
+
+    }
+
+    sendSignaling(action, sdp) {
 
     }
 

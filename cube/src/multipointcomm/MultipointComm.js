@@ -25,10 +25,14 @@
  */
 
 import { Module } from "../core/Module";
-import { OrderMap } from "../util/OrderMap";
-import { Field } from "./Field";
+import { ContactService } from "../contact/ContactService";
 import { Packet } from "../core/Packet";
+import { OrderMap } from "../util/OrderMap";
+import { CommField } from "./CommField";
 import { MultipointCommAction } from "./MultipointCommAction";
+import { Contact } from "../contact/Contact";
+import { LocalRTCEndpoint } from "./LocalRTCEndpoint";
+import { MediaConstraint } from "./MediaConstraint";
 
 /**
  * 多方通信服务。
@@ -44,8 +48,20 @@ export class MultipointComm extends Module {
         super(MultipointComm.NAME);
 
         /**
+         * 个人的私有通信场。
+         * @type {CommField}
+         */
+        this.privateField = null;
+
+        /**
+         * 本地节点。
+         * @type {LocalRTCEndpoint}
+         */
+        this.localPoint = null;
+
+        /**
          * 管理的通信场域。
-         * @type {OrderMap<number,Field>}
+         * @type {OrderMap<number,CommField>}
          */
         this.fields = new OrderMap();
     }
@@ -58,6 +74,15 @@ export class MultipointComm extends Module {
             return false;
         }
 
+        let contactService = this.kernel.getModule(ContactService.NAME);
+        let self = contactService.getSelf();
+        if (null == self) {
+            return false;
+        }
+
+        // 创建个人通信场
+        this.privateField = new CommField(self.getId(), self);
+
         return true;
     }
 
@@ -66,6 +91,48 @@ export class MultipointComm extends Module {
      */
     stop() {
         super.stop();
+    }
+
+    /**
+     * 
+     * @param {CommField|Contact} fieldOrContact 
+     * @param {MediaConstraint} mediaConstraint 
+     * @returns {boolean}
+     */
+    makeCall(fieldOrContact, mediaConstraint) {
+        if (null == this.privateField) {
+            return false;
+        }
+
+        if (null == this.localPoint) {
+            this.localPoint = new LocalRTCEndpoint(this.pipeline);
+        }
+
+        if (this.localPoint.isCalling()) {
+            // 正在通话中
+            return false;
+        }
+
+        if (fieldOrContact instanceof Contact) {
+            this.privateField.join(this.localPoint, mediaConstraint);
+            this.privateField.invite(fieldOrContact);
+        }
+        else if (fieldOrContact instanceof CommField) {
+            fieldOrContact.join(this.localPoint, mediaConstraint);
+        }
+        else {
+            return false;
+        }
+
+        return true;
+    }
+
+    answerCall(fieldOrContact, mediaConstraint) {
+
+    }
+
+    terminateCall(fieldOrContact) {
+
     }
 
     /**
@@ -82,10 +149,9 @@ export class MultipointComm extends Module {
             return;
         }
 
-        this._requestGetField(id).then((field) => {
-
-        }).catch((e) => {
-
+        let requestPacket = new Packet(MultipointCommAction.GetField, { "id": fieldId });
+        this.pipeline.send(MultipointComm.NAME, requestPacket, (pipeline, source, packet) => {
+            
         });
     }
 
@@ -93,16 +159,8 @@ export class MultipointComm extends Module {
      * 删除指定的通信场域。
      * @param {number} id 
      */
-    removeField(id) {
+    deleteField(id) {
 
     }
 
-    _requestGetField(id) {
-        return new Promise((resolve, reject) => {
-            let requestPacket = new Packet(MultipointCommAction.GetField, { "id": fieldId });
-            this.pipeline.send(MultipointComm.NAME, requestPacket, (pipeline, source, packet) => {
-                
-            });
-        });
-    }
 }

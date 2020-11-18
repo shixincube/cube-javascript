@@ -31,12 +31,10 @@ import { CellPipeline } from "../pipeline/CellPipeline";
 import { AjaxPipeline } from "../pipeline/AjaxPipeline";
 import { AuthService } from "../auth/AuthService";
 import { ContactService } from "../contact/ContactService";
-import { MessagingService } from "../messaging/MessagingService";
 import { FileStorage } from "../filestorage/FileStorage";
+import { MessagingService } from "../messaging/MessagingService";
+import { MultipointComm } from "../multipointcomm/MultipointComm";
 import { FaceMonitor } from "../facemonitor/FaceMonitor";
-import { TypeTranslationPlugin } from "../messaging/extends/TypeTranslationPlugin";
-import { MessagingEvent } from "../messaging/MessagingEvent";
-import { PluginSystem } from "../core/PluginSystem";
 
 /**
  * Cube Engine 入口类。
@@ -51,8 +49,9 @@ export class CubeEngine {
         this.kernel.installPipeline(new AjaxPipeline());
         this.kernel.installModule(new AuthService());
         this.kernel.installModule(new ContactService());
-        this.kernel.installModule(new MessagingService());
         this.kernel.installModule(new FileStorage());
+        this.kernel.installModule(new MessagingService());
+        this.kernel.installModule(new MultipointComm());
         //this.kernel.installModule(new FaceMonitor());
     }
 

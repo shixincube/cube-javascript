@@ -27,22 +27,24 @@
 import { Contact } from "../contact/Contact";
 import { OrderMap } from "../util/OrderMap";
 import { Entity } from "../core/Entity";
-import { LocalRTCEndpoint } from "./LocalRTCEndpoint";
+import { CommFieldEndpoint } from "./CommFieldEndpoint";
 import { MediaConstraint } from "./MediaConstraint";
 
 /**
  * 多方通信场域。
  */
-export class Field extends Entity {
+export class CommField extends Entity {
 
     /**
-     * 构造函数。
+     * @param {number} id 
+     * @param {Contact} founder 
      */
-    constructor(id) {
+    constructor(id, founder) {
         super(7 * 24 * 60 * 60 * 1000);
 
         /**
          * 场域 ID 。
+         * @type {number}
          */
         this.id = id;
 
@@ -50,27 +52,19 @@ export class Field extends Entity {
          * 通信场创建人。
          * @type {Contact}
          */
-        this.founder = null;
+        this.founder = founder;
 
         /**
-         * 
+         * 默认的媒体约束。
+         * @type {MediaConstraint}
          */
-        this.endpoints = new OrderMap();
+        this.mediaConstraint = new MediaConstraint(true, true);
 
         /**
-         * 通信管道。
+         * 终端列表。
+         * @type {OrderMap}
          */
-        this.pipeline = null;
-
-        /**
-         * 媒体约束。
-         */
-        this.mediaConstraint = null;
-
-        /**
-         * 本地端点。
-         */
-        this.localPoint = null;
+        this.fieldEndpoints = new OrderMap();
     }
 
     /**
@@ -80,22 +74,19 @@ export class Field extends Entity {
         return this.founder;
     }
 
-    getEndpoint() {
-        return null;
-    }
-
     /**
      * 
-     * @param {MediaConstraint} mediaConstraint 
+     * @param {CommFieldEndpoint} endpoint
+     * @param {MediaConstraint} [mediaConstraint]
      */
-    join(mediaConstraint) {
-        this.mediaConstraint = mediaConstraint;
-
-        if (null == this.localPoint) {
-            this.localPoint = new LocalRTCEndpoint(this.pipeline);
+    join(endpoint, mediaConstraint) {
+        let mc = null;
+        if (undefined === mediaConstraint) {
+            mc = this.mediaConstraint;
         }
-        
-        this.localPoint.open(mediaConstraint);
+        else {
+            mc = mediaConstraint;
+        }
     }
 
     quit() {

@@ -52,6 +52,7 @@ import { FileAnchor } from "./filestorage/FileAnchor";
 import { FileLabel } from "./filestorage/FileLabel";
 import { FileAttachment } from "./filestorage/FileAttachment";
 import { FileStorageEvent } from "./filestorage/FileStorageEvent";
+import { MultipointComm } from "./multipointcomm/MultipointComm";
 import { ConferenceService } from "./conference/ConferenceService";
 import { Announcer } from "./util/Announcer";
 import { FaceMonitor } from "./facemonitor/FaceMonitor";
@@ -96,11 +97,13 @@ import { FaceMonitor } from "./facemonitor/FaceMonitor";
     global.FileAttachment = FileAttachment;
     global.FileStorageEvent = FileStorageEvent;
 
-    global.ConferenceService = ConferenceService;
+    global.MultipointComm = MultipointComm;
+
+    //global.ConferenceService = ConferenceService;
 
     global.Announcer = Announcer;
 
-    global.FaceMonitor = FaceMonitor;
+    //global.FaceMonitor = FaceMonitor;
 
     global.cell = cell;
 

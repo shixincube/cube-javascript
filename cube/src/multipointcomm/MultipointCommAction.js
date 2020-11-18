@@ -27,7 +27,7 @@
 export const MultipointCommAction = {
 
     /**
-     * 获取指定的通信场域。
+     * 信令 Offer 。
      */
-    GetField: 'getField'
+    SignalingOffer: 'signalingOffer'
 }
