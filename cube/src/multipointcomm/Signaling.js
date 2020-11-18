@@ -24,10 +24,14 @@
  * SOFTWARE.
  */
 
-export const MultipointCommAction = {
+import { JSONable } from "../util/JSONable";
 
-    /**
-     * 信令 Offer 。
-     */
-    Offer: 'offer'
+/**
+ * 信令。
+ */
+export class Signaling extends JSONable {
+
+    constructor() {
+
+    }
 }

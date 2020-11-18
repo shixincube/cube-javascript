@@ -60,6 +60,12 @@ export class MultipointComm extends Module {
         this.localPoint = null;
 
         /**
+         * 视频元素。
+         * @type {Element}
+         */
+        this.videoElem = null;
+
+        /**
          * 管理的通信场域。
          * @type {OrderMap<number,CommField>}
          */
@@ -83,6 +89,9 @@ export class MultipointComm extends Module {
         // 创建个人通信场
         this.privateField = new CommField(self.getId(), self);
 
+        // 创建 video DOM
+        this.videoElem = document.createElement("video");
+
         return true;
     }
 
@@ -91,6 +100,14 @@ export class MultipointComm extends Module {
      */
     stop() {
         super.stop();
+    }
+
+    getVideoElement() {
+        return this.videoElem;
+    }
+
+    setVideoElement(value) {
+        this.videoElem = value;
     }
 
     /**
@@ -112,6 +129,9 @@ export class MultipointComm extends Module {
             // 正在通话中
             return false;
         }
+
+        // 设置 video 元素
+        this.localPoint.videoElem = this.videoElem;
 
         if (fieldOrContact instanceof Contact) {
             this.privateField.join(this.localPoint, mediaConstraint);

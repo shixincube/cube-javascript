@@ -46,7 +46,9 @@ export class LocalRTCEndpoint extends CommFieldEndpoint {
 
         this.pc = null;
 
-        this.mediaStream = null;
+        this.videoElem = null;
+
+        this.inboundStream = null;
     }
 
     /**
@@ -78,45 +80,53 @@ export class LocalRTCEndpoint extends CommFieldEndpoint {
         }
 
         this.pc = new RTCPeerConnection();
+
+        // Bind event
         this.pc.ontrack = (event) => {
             this.fireOnTrack(event);
         };
-
         this.pc.onicecandidate = (event) => {
             this.fireOnIceCandidate(event);
         };
 
         let constraints = mediaConstraint.toJSON();
-        this.getUserMedia(constraints, (mediaStream) => {
-            this.mediaStream = mediaStream;
-            this.pc.onaddstream({stream: mediaStream});
-            // 添加流
-            this.pc.addStream(mediaStream);
+
+        (async () => {
+            let stream = await this.getUserMedia(constraints);
+            if (null == stream) {
+                handleError();
+                return;
+            }
+
+            // 添加 track
+            for (const track of stream.getTracks()) {
+                this.pc.addTrack(track);
+            }
 
             // 创建 Offer SDP
             this.pc.createOffer().then((offer) => {
                 this.pc.setLocalDescription(new RTCSessionDescription(offer)).then(() => {
-                    this.sendSignaling(MultipointCommAction.SignalingOffer, this.pc.localDescription);
+                    this.sendSignaling(MultipointCommAction.Offer, this.pc.localDescription);
                 }).catch((error) => {
                     // 设置 SDP 错误
+                    handleError();
                 });
             }).catch((error) => {
                 // 创建 Offer 错误
+                handleError();
             });
-        }, (e) => {
-            this.mediaStream = null;
-            // TODO 错误处理
-        });
+        })();
     }
 
     /**
      * 关闭 RTC 终端。
      */
     close() {
-        if (null != this.mediaStream) {
-            this.mediaStream.getTracks().forEach(track => {
+        if (null != this.inboundStream) {
+            this.inboundStream.getTracks().forEach((track) => {
                 track.stop();
             });
+            this.inboundStream = null;
         }
 
         if (null != this.pc) {
@@ -134,21 +144,30 @@ export class LocalRTCEndpoint extends CommFieldEndpoint {
     }
 
     fireOnTrack(event) {
+        if (event.streams && event.streams[0]) {
+            this.inboundStream = event.streams[0];
+            this.videoElem.srcObject = this.inboundStream;
+        }
+        else {
+            if (null == this.inboundStream) {
+                this.inboundStream = new MediaStream();
+                this.videoElem.srcObject = this.inboundStream;
+            }
 
+            this.inboundStream.addTrack(event.track);
+        }
     }
 
     fireOnIceCandidate(event) {
 
     }
 
-    sendSignaling(action, sdp) {
+    sendSignaling(action, sdp, handleSuccess, handleError) {
 
     }
 
     getUserMedia(constraints, handleSuccess, handleError) {
-        navigator.mediaDevices.getUserMedia(constraints)
-            .then(handleSuccess)
-            .catch(handleError);
+        return navigator.mediaDevices.getUserMedia(constraints);
     }
 
 }
