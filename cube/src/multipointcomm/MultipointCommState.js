@@ -59,12 +59,22 @@ export const MultipointCommState = {
     /**
      * 
      */
-    CreateOfferFailed: 111,
+    CreateOfferFailed: 121,
 
     /**
      * 
      */
-    LocalDescriptionFault: 112,
+    CreateAnswerFailed: 122,
+
+    /**
+     * 
+     */
+    LocalDescriptionFault: 125,
+
+    /**
+     * 
+     */
+    RemoteDescriptionFault: 126,
 
     /**
      * 服务器故障。

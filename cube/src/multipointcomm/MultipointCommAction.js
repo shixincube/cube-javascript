@@ -24,6 +24,9 @@
  * SOFTWARE.
  */
 
+/**
+ * 多方通讯动作。
+ */
 export const MultipointCommAction = {
 
     /**
@@ -45,6 +48,11 @@ export const MultipointCommAction = {
      * 信令忙 Busy 。
      */
     Busy: 'busy',
+
+    /**
+     * 信令 Ready 。
+     */
+    Ready: 'ready',
 
     /**
      * 

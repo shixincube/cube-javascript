@@ -85,10 +85,16 @@ export class MultipointComm extends Module {
         this.fields = new OrderMap();
 
         /**
-         * 需要应答的信令描述。
+         * 来自主叫的信令。
          * @type {Signaling}
          */
         this.offerSignaling = null;
+
+        /**
+         * 来自被叫的信令。
+         * @type {Signaling}
+         */
+        this.answerSignaling = null;
     }
 
     /**
@@ -292,7 +298,7 @@ export class MultipointComm extends Module {
     }
 
     terminateCall(fieldOrContact) {
-
+        this.offerSignaling = null;
     }
 
     triggerOffer(payload) {
@@ -321,6 +327,22 @@ export class MultipointComm extends Module {
             let packet = new Packet(MultipointCommAction.Ringing, ringing.toCompactJSON());
             this.pipeline.send(MultipointComm.NAME, packet);
         }
+    }
+
+    triggerAnswer(payload) {
+        let data = payload.data;
+    }
+
+    triggerRinging(payload) {
+        let data = payload.data;
+    }
+
+    triggerBusy(payload) {
+        let data = payload.data;
+    }
+
+    triggerReady(payload) {
+        let data = payload.data;
     }
 
     /**

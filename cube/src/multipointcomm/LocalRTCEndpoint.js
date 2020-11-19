@@ -146,6 +146,28 @@ export class LocalRTCEndpoint extends CommFieldEndpoint {
             return;
         }
 
+        this.mediaConstraint = mediaConstraint;
+        if (mediaConstraint.audioEnabled) {
+            this.audioEnabled = true;
+            this.audioStreamEnabled = true;
+        }
+        if (mediaConstraint.videoEnabled) {
+            this.videoEnabled = true;
+            this.videoStreamEnabled = true;
+        }
+
+        this.pc = new RTCPeerConnection();
+
+        // Bind event
+        this.pc.ontrack = (event) => {
+            this.fireOnTrack(event);
+        };
+        this.pc.onicecandidate = (event) => {
+            this.fireOnIceCandidate(event);
+        };
+
+        let constraints = mediaConstraint.toJSON();
+
         (async () => {
             let stream = await this.getUserMedia(constraints);
             if (null == stream) {
@@ -164,13 +186,19 @@ export class LocalRTCEndpoint extends CommFieldEndpoint {
                     this.pc.setLocalDescription(new RTCSessionDescription(answer)).then(() => {
                         handleSuccess(this.pc.localDescription);
                     }).catch((error) => {
-
+                        // 设置 SDP 错误
+                        handleFailure({ code: MultipointCommState.LocalDescriptionFault, data: this, error: error });
+                        this.pc = null;
                     });
                 }).catch((error) => {
-
+                    // 创建 Answer 错误
+                    handleFailure({ code: MultipointCommState.CreateAnswerFailed, data: this, error: error });
+                    this.pc = null;
                 });
             }).catch((error) => {
-
+                // 设置 SDP 错误
+                handleFailure({ code: MultipointCommState.RemoteDescriptionFault, data: this, error: error });
+                this.pc = null;
             });
         })();
     }
