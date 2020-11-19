@@ -29,5 +29,15 @@ export const MultipointCommAction = {
     /**
      * 信令 Offer 。
      */
-    Offer: 'offer'
+    Offer: 'offer',
+
+    /**
+     * 信令 Answer 。
+     */
+    Answer: 'answer',
+
+    /**
+     * 
+     */
+    FieldUpdated: 'fieldUpdated',
 }

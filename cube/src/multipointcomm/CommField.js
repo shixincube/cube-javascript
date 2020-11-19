@@ -29,6 +29,10 @@ import { OrderMap } from "../util/OrderMap";
 import { Entity } from "../core/Entity";
 import { CommFieldEndpoint } from "./CommFieldEndpoint";
 import { MediaConstraint } from "./MediaConstraint";
+import { LocalRTCEndpoint } from "./LocalRTCEndpoint";
+import { MultipointCommAction } from "./MultipointCommAction";
+import { AuthService } from "../auth/AuthService";
+import { Pipeline } from "../core/Pipeline";
 
 /**
  * 多方通信场域。
@@ -38,8 +42,9 @@ export class CommField extends Entity {
     /**
      * @param {number} id 
      * @param {Contact} founder 
+     * @param {Pipeline} pipeline
      */
-    constructor(id, founder) {
+    constructor(id, founder, pipeline) {
         super(7 * 24 * 60 * 60 * 1000);
 
         /**
@@ -53,6 +58,12 @@ export class CommField extends Entity {
          * @type {Contact}
          */
         this.founder = founder;
+
+        /**
+         * 通信管道。
+         * @type {Pipeline}
+         */
+        this.pipeline = pipeline;
 
         /**
          * 默认的媒体约束。
@@ -76,24 +87,72 @@ export class CommField extends Entity {
 
     /**
      * 
-     * @param {CommFieldEndpoint} endpoint
-     * @param {MediaConstraint} [mediaConstraint]
+     * @param {LocalRTCEndpoint} rtcEndpoint
      */
-    join(endpoint, mediaConstraint) {
-        let mc = null;
-        if (undefined === mediaConstraint) {
-            mc = this.mediaConstraint;
+    launchCaller(rtcEndpoint, mediaConstraint, handleSuccess, handleError) {
+        if ((!rtcEndpoint instanceof LocalRTCEndpoint)) {
+            return false;
+        }
+
+        rtcEndpoint.openOffer(mediaConstraint, (sdp) => {
+            this.sendSignaling(MultipointCommAction.Offer, rtcEndpoint.getContact(), sdp, handleSuccess, handleError);
+        }, (error) => {
+            handleError(error);
+        });
+
+        return true;
+    }
+
+    launchCallee() {
+
+    }
+
+    addEndpoint(endpoint) {
+        let ep = endpoint;
+
+        if (endpoint instanceof Contact) {
+            let contact = endpoint;
+            let dev = contact.getDevice();
+            let name = [contact.getId(), '_', AuthService.DOMAIN, '_',
+                        dev.getName(), '_', dev.getPlatform()];
+            ep = new CommFieldEndpoint(name.join(''), contact);
+        }
+
+        if (this.fieldEndpoints.containsKey(ep.getName())) {
+            return false;
+        }
+
+        this.fieldEndpoints.put(ep.getName(), ep);
+        return true;
+    }
+
+    /**
+     * 
+     */
+    removeEndpoint(endpoint) {
+
+    }
+
+    sendSignaling(signaling, contact, sdp, handleSuccess, handleError) {
+        let target = 0;
+
+        if (this.id == this.founder.getId()) {
+            // 本地的私有场
+            target = this.fieldEndpoints.values()[0].getContact().getId();
         }
         else {
-            mc = mediaConstraint;
+            target = this.id;
         }
+
+        let payload = {
+            "signaling": signaling,
+            "target": target,
+            "sdp": sdp,
+            "contact": contact.toCompactJSON()
+        };
+
+        handleSuccess(this);
     }
 
-    quit() {
 
-    }
-
-    invite(contact) {
-
-    }
 }

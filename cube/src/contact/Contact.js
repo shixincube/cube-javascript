@@ -141,6 +141,18 @@ export class Contact extends Entity {
     }
 
     /**
+     * 返回最近一次使用的设备。
+     * @return {Device} 返回最近一次使用的设备。
+     */
+    getDevice() {
+        if (this.devices.length == 0) {
+            return new Device('Unknown', 'null');
+        }
+
+        return this.devices[this.devices.length - 1];
+    }
+
+    /**
      * 判断指定联系人实例是否于当前实例数据相同。
      * @param {Contact} other 指定待比较的联系人。
      * @returns {boolean} 如果联系人 ID 和域相同返回 {@linkcode true} ，否则返回 {@linkcode false} 。

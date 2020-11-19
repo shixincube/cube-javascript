@@ -24,34 +24,23 @@
  * SOFTWARE.
  */
 
+import { PipelineListener } from "../core/PipelineListener";
+
 /**
- * 描述通信对端的类。
+ * 多方通讯管道监听器。
  */
-export class Endpoint {
+export class CommPipelineListener extends PipelineListener {
+
+    constructor(multipointComm) {
+        super();
+
+        this.multipointComm = multipointComm;
+    }
 
     /**
-     * @param {string} [name] 终端名称。
+     * @inheritdoc
      */
-    constructor(name) {
-        /**
-         * 名称。
-         * @type {string}
-         */
-        this.name = null;
-        if (undefined !== name) {
-            this.name = name;
-        }
-
-        /**
-         * 可访问地址。
-         * @type {string}
-         */
-        this.address = null;
-
-        /**
-         * 可访问端口。
-         * @type {number}
-         */
-        this.port = 0;
+    onReceived(pipeline, source, packet) {
+        super.onReceived(pipeline, source, packet);
     }
 }

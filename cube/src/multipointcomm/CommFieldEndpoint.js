@@ -27,6 +27,7 @@
 import { JSONable } from "../util/JSONable";
 import { Endpoint } from "../util/Endpoint";
 import { Aggregation } from "../util/Aggregation";
+import { Contact } from "../contact/Contact";
 
 /**
  * 通信域里的媒体节点。
@@ -34,10 +35,17 @@ import { Aggregation } from "../util/Aggregation";
 export class CommFieldEndpoint extends Aggregation(Endpoint, JSONable) {
 
     /**
-     * 构造函数。
+     * @param {string} name 节点名。
+     * @param {Contact} contact 联系人。
      */
-    constructor() {
-        super();
+    constructor(name, contact) {
+        super(name);
+
+        /**
+         * 关联的联系人。
+         * @type {Contact}
+         */
+        this.contact = contact;
 
         /**
          * 客户端是否启用视频设备。
@@ -84,10 +92,14 @@ export class CommFieldEndpoint extends Aggregation(Endpoint, JSONable) {
         this.audioDownstreamBandwidth = 0;
 
         /**
-         * SDP 信息。
+         * SDP 内容。
          * @type {string}
          */
         this.sessionDescription = null;
+    }
+
+    getContact() {
+        return this.contact;
     }
 
     /**

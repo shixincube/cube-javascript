@@ -25,14 +25,18 @@
  */
 
 import { Module } from "../core/Module";
+import { AuthService } from "../auth/AuthService";
+import { ContactEvent } from "../contact/ContactEvent";
+import { Contact } from "../contact/Contact";
 import { ContactService } from "../contact/ContactService";
 import { Packet } from "../core/Packet";
 import { OrderMap } from "../util/OrderMap";
 import { CommField } from "./CommField";
 import { MultipointCommAction } from "./MultipointCommAction";
-import { Contact } from "../contact/Contact";
 import { LocalRTCEndpoint } from "./LocalRTCEndpoint";
 import { MediaConstraint } from "./MediaConstraint";
+import { MultipointCommState } from "./MultipointCommState";
+import { CommPipelineListener } from "./CommPipelineListener";
 
 /**
  * 多方通信服务。
@@ -48,6 +52,12 @@ export class MultipointComm extends Module {
         super(MultipointComm.NAME);
 
         /**
+         * 管道监听器。
+         * @type {CommPipelineListener}
+         */
+        this.pipelineListener = new CommPipelineListener(this);
+
+        /**
          * 个人的私有通信场。
          * @type {CommField}
          */
@@ -61,7 +71,7 @@ export class MultipointComm extends Module {
 
         /**
          * 视频元素。
-         * @type {Element}
+         * @type {HTMLElement}
          */
         this.videoElem = null;
 
@@ -80,14 +90,22 @@ export class MultipointComm extends Module {
             return false;
         }
 
-        let contactService = this.kernel.getModule(ContactService.NAME);
-        let self = contactService.getSelf();
-        if (null == self) {
-            return false;
-        }
+        // 添加监听器
+        this.pipeline.addListener(this.pipelineListener);
 
-        // 创建个人通信场
-        this.privateField = new CommField(self.getId(), self);
+        let contactService = this.kernel.getModule(ContactService.NAME);
+        contactService.attachWithName(ContactEvent.SignIn, (state) => {
+            // 创建个人通信场
+            if (null == this.privateField) {
+                let self = state.data;
+                this.privateField = new CommField(self.getId(), self, this.pipeline);
+            }
+        });
+        let self = contactService.getSelf();
+        if (null != self) {
+            // 创建个人通信场
+            this.privateField = new CommField(self.getId(), self, this.pipeline);
+        }
 
         // 创建 video DOM
         this.videoElem = document.createElement("video");
@@ -100,6 +118,11 @@ export class MultipointComm extends Module {
      */
     stop() {
         super.stop();
+
+        this.videoElem.pause();
+        this.videoElem.remove();
+
+        this.pipeline.removeListener(this.pipelineListener);
     }
 
     getVideoElement() {
@@ -110,35 +133,59 @@ export class MultipointComm extends Module {
         this.videoElem = value;
     }
 
+    getLocalPoint() {
+        if (null == this.localPoint) {
+            let cs = this.kernel.getModule(ContactService.NAME);
+            let self = cs.getSelf();
+            let name = [self.getId(), '_', AuthService.DOMAIN, '_',
+                        self.getDevice().getName(), '_',
+                        self.getDevice().getPlatform()];
+            this.localPoint = new LocalRTCEndpoint(name.join(''), self);
+        }
+
+        return this.localPoint;
+    }
+
     /**
      * 
      * @param {CommField|Contact} fieldOrContact 
      * @param {MediaConstraint} mediaConstraint 
      * @returns {boolean}
      */
-    makeCall(fieldOrContact, mediaConstraint) {
+    makeCall(fieldOrContact, mediaConstraint, handleSuccess, handleError) {
         if (null == this.privateField) {
+            handleError({ code: MultipointCommState.Uninitialized, data: null });
             return false;
         }
 
-        if (null == this.localPoint) {
-            this.localPoint = new LocalRTCEndpoint(this.pipeline);
-        }
+        let localPoint = this.getLocalPoint();
 
-        if (this.localPoint.isCalling()) {
+        if (localPoint.isWorking()) {
             // 正在通话中
+            handleError({ code: MultipointCommState.CallerBusy, data: null });
             return false;
         }
 
         // 设置 video 元素
-        this.localPoint.videoElem = this.videoElem;
+        localPoint.videoElem = this.videoElem;
+
+        let successHandler = (field, target) => {
+            handleSuccess(field, target);
+        };
+
+        let errorHandler = (event) => {
+            handleError(event);
+        };
 
         if (fieldOrContact instanceof Contact) {
-            this.privateField.join(this.localPoint, mediaConstraint);
-            this.privateField.invite(fieldOrContact);
+            // 呼叫指定联系人
+            this.privateField.addEndpoint(fieldOrContact);
+            this.privateField.launchCaller(localPoint, mediaConstraint, successHandler, errorHandler);
         }
         else if (fieldOrContact instanceof CommField) {
-            fieldOrContact.join(this.localPoint, mediaConstraint);
+            // 呼入 Comm Field
+            fieldOrContact.addEndpoint(localPoint);
+            fieldOrContact.launchCaller(localPoint, mediaConstraint, successHandler, errorHandler);
         }
         else {
             return false;
@@ -148,7 +195,27 @@ export class MultipointComm extends Module {
     }
 
     answerCall(fieldOrContact, mediaConstraint) {
+        let localPoint = this.getLocalPoint();
 
+        if (localPoint.isWorking()) {
+            // 正在通话中
+            return false;
+        }
+
+        // 设置 video 元素
+        localPoint.videoElem = this.videoElem;
+
+        if (fieldOrContact instanceof Contact) {
+            this.privateField.addCallee(localPoint, mediaConstraint);
+        }
+        else if (fieldOrContact instanceof CommField) {
+            fieldOrContact.addCallee(localPoint, mediaConstraint);
+        }
+        else {
+            return false;
+        }
+
+        return true;
     }
 
     terminateCall(fieldOrContact) {
@@ -173,14 +240,6 @@ export class MultipointComm extends Module {
         this.pipeline.send(MultipointComm.NAME, requestPacket, (pipeline, source, packet) => {
             
         });
-    }
-
-    /**
-     * 删除指定的通信场域。
-     * @param {number} id 
-     */
-    deleteField(id) {
-
     }
 
 }

@@ -36,6 +36,12 @@ export class JSONable {
     }
 
     /**
+     * 聚合时的初始化函数。
+     */
+    initializer() {
+    }
+
+    /**
      * 将对象序列化为 JSON 格式。
      * @returns {JSON} 返回 JSON 格式对象。
      */

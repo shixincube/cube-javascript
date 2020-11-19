@@ -24,34 +24,45 @@
  * SOFTWARE.
  */
 
-/**
- * 描述通信对端的类。
- */
-export class Endpoint {
+export const MultipointCommState = {
 
     /**
-     * @param {string} [name] 终端名称。
+     * 正在建立通话。
      */
-    constructor(name) {
-        /**
-         * 名称。
-         * @type {string}
-         */
-        this.name = null;
-        if (undefined !== name) {
-            this.name = name;
-        }
+    Calling: 7,
 
-        /**
-         * 可访问地址。
-         * @type {string}
-         */
-        this.address = null;
+    /**
+     * 主叫忙。
+     */
+    CallerBusy: 8,
 
-        /**
-         * 可访问端口。
-         * @type {number}
-         */
-        this.port = 0;
-    }
+    /**
+     * 被叫忙。
+     */
+    CalleeBusy: 9,
+
+    /**
+     * 终端未初始化。
+     */
+    Uninitialized: 101,
+
+    /**
+     * 重复创建连接。
+     */
+    ConnRepeated: 103,
+
+    /**
+     * 拒绝访问媒体设备。
+     */
+    MediaPermissionDenied: 110,
+
+    /**
+     * 
+     */
+    CreateOfferFailed: 111,
+
+    /**
+     * 
+     */
+    LocalDescriptionFault: 112
 }
