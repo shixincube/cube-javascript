@@ -24,13 +24,20 @@
  * SOFTWARE.
  */
 
+import cell from "@lib/cell-lib";
 import { PipelineListener } from "../core/PipelineListener";
+import { MultipointComm } from "./MultipointComm";
+import { StateCode } from "../core/StateCode";
+import { MultipointCommAction } from "./MultipointCommAction";
 
 /**
  * 多方通讯管道监听器。
  */
 export class CommPipelineListener extends PipelineListener {
 
+    /**
+     * @param {MultipointComm} multipointComm 
+     */
     constructor(multipointComm) {
         super();
 
@@ -42,5 +49,14 @@ export class CommPipelineListener extends PipelineListener {
      */
     onReceived(pipeline, source, packet) {
         super.onReceived(pipeline, source, packet);
+
+        if (packet.getStateCode() != StateCode.OK) {
+            cell.Logger.w('CommPipelineListener', 'Pipeline error: ' + packet.name + ' - ' + packet.getStateCode());
+            return;
+        }
+
+        if (packet.name == MultipointCommAction.Offer) {
+            this.multipointComm.triggerOffer(packet.data);
+        }
     }
 }

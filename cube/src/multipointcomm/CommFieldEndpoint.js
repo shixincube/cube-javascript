@@ -107,6 +107,8 @@ export class CommFieldEndpoint extends Aggregation(Endpoint, JSONable) {
      */
     toJSON() {
         let json = super.toJSON();
+        json.name = this.name;
+        json.contact = this.contact.toCompactJSON();
         return json;
     }
 }

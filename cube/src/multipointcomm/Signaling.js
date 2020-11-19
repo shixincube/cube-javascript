@@ -24,16 +24,56 @@
  * SOFTWARE.
  */
 
+import { Contact } from "../contact/Contact";
 import { JSONable } from "../util/JSONable";
+import { CommField } from "./CommField";
 
 /**
  * 信令。
  */
 export class Signaling extends JSONable {
 
-    constructor() {
+    constructor(name, field, contact, sdp) {
+        super();
 
+        /**
+         * @type {string}
+         */
+        this.name = name;
+
+        /**
+         * @type {CommField}
+         */
+        this.field = field;
+
+        /**
+         * @type {Contact}
+         */
+        this.contact = contact;
+
+        /**
+         * @type {string}
+         */
+        this.sdp = (undefined !== sdp) ? sdp : null;
+
+        /**
+         * @type {number}
+         */
+        this.target = 0;
     }
 
-    
+    toJSON() {
+        let json = super.toJSON();
+        json["name"] = name;
+        json["target"] = target;
+        json["sdp"] = sdp;
+        json["contact"] = contact.toCompactJSON();
+        return json;
+    }
+
+    static create(json) {
+        let signaling = new Signaling(json.name, Contact.create(json.contact), json.sdp);
+        signaling.target = json.target;
+        return signaling;
+    }
 }

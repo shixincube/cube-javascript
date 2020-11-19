@@ -33,6 +33,11 @@ import { LocalRTCEndpoint } from "./LocalRTCEndpoint";
 import { MultipointCommAction } from "./MultipointCommAction";
 import { AuthService } from "../auth/AuthService";
 import { Pipeline } from "../core/Pipeline";
+import { MultipointComm } from "./MultipointComm";
+import { Packet } from "../core/Packet";
+import { StateCode } from "../core/StateCode";
+import { MultipointCommState } from "./MultipointCommState";
+import { Signaling } from "./Signaling";
 
 /**
  * 多方通信场域。
@@ -88,14 +93,18 @@ export class CommField extends Entity {
     /**
      * 
      * @param {LocalRTCEndpoint} rtcEndpoint
+     * @param {MediaConstraint} mediaConstraint
+     * @param {function} handleSuccess
+     * @param {function} handleError
      */
     launchCaller(rtcEndpoint, mediaConstraint, handleSuccess, handleError) {
-        if ((!rtcEndpoint instanceof LocalRTCEndpoint)) {
+        if (!(rtcEndpoint instanceof LocalRTCEndpoint)) {
             return false;
         }
 
         rtcEndpoint.openOffer(mediaConstraint, (sdp) => {
-            this.sendSignaling(MultipointCommAction.Offer, rtcEndpoint.getContact(), sdp, handleSuccess, handleError);
+            let signaling = new Signaling(MultipointCommAction.Offer, this, rtcEndpoint.getContact(), sdp);
+            this.sendSignaling(signaling, handleSuccess, handleError);
         }, (error) => {
             handleError(error);
         });
@@ -105,6 +114,14 @@ export class CommField extends Entity {
 
     launchCallee() {
 
+    }
+
+    getEndpoint() {
+        if (this.fieldEndpoints.size() == 0) {
+            return null;
+        }
+
+        return this.fieldEndpoints.values()[0];
     }
 
     addEndpoint(endpoint) {
@@ -133,9 +150,15 @@ export class CommField extends Entity {
 
     }
 
-    sendSignaling(signaling, contact, sdp, handleSuccess, handleError) {
+    /**
+     * 
+     * @param {Signaling} signaling 
+     * @param {*} handleSuccess 
+     * @param {*} handleError 
+     * @private
+     */
+    sendSignaling(signaling, handleSuccess, handleError) {
         let target = 0;
-
         if (this.id == this.founder.getId()) {
             // 本地的私有场
             target = this.fieldEndpoints.values()[0].getContact().getId();
@@ -144,15 +167,23 @@ export class CommField extends Entity {
             target = this.id;
         }
 
-        let payload = {
-            "signaling": signaling,
-            "target": target,
-            "sdp": sdp,
-            "contact": contact.toCompactJSON()
-        };
+        // 设置目标
+        signaling.target = target;
 
-        handleSuccess(this);
+        this.pipeline.send(MultipointComm.NAME, new Packet(signaling.name, signaling.toJSON()), (pipeline, source, packet) => {
+            if (null != packet && packet.getStateCode() == StateCode.OK) {
+                if (packet.data.code == 0) {
+                    let data = packet.data.data;
+                    let response = Signaling.create(data);
+                    handleSuccess(this, response);
+                }
+                else {
+                    handleError({ code: packet.data.code, data: this });
+                }
+            }
+            else {
+                handleError({ code: MultipointCommState.ServerFault, data: this });
+            }
+        });
     }
-
-
 }

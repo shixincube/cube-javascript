@@ -24,50 +24,22 @@
  * SOFTWARE.
  */
 
-export const MultipointCommState = {
+/**
+ * 
+ */
+export const MultipointCommEvent = {
 
-    /**
-     * 正在建立通话。
-     */
-    Calling: 7,
+    NewCall: 'NewCall',
 
-    /**
-     * 主叫忙。
-     */
-    CallerBusy: 8,
+    InProgress: 'InProgress',
 
-    /**
-     * 被叫忙。
-     */
-    CalleeBusy: 9,
+    CallRinging: 'CallRinging',
 
-    /**
-     * 终端未初始化。
-     */
-    Uninitialized: 101,
+    CallConnected: 'CallConnected',
 
-    /**
-     * 重复创建连接。
-     */
-    ConnRepeated: 103,
+    CallRejected: 'CallRejected',
 
-    /**
-     * 拒绝访问媒体设备。
-     */
-    MediaPermissionDenied: 110,
+    CallEnded: 'CallEnded',
 
-    /**
-     * 
-     */
-    CreateOfferFailed: 111,
-
-    /**
-     * 
-     */
-    LocalDescriptionFault: 112,
-
-    /**
-     * 服务器故障。
-     */
-    ServerFault: 200
+    CallFailed: 'CallFailed'
 }

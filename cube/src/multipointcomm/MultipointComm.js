@@ -37,6 +37,9 @@ import { LocalRTCEndpoint } from "./LocalRTCEndpoint";
 import { MediaConstraint } from "./MediaConstraint";
 import { MultipointCommState } from "./MultipointCommState";
 import { CommPipelineListener } from "./CommPipelineListener";
+import { ObservableState } from "../core/ObservableState";
+import { MultipointCommEvent } from "./MultipointCommEvent";
+import { Signaling } from "./Signaling";
 
 /**
  * 多方通信服务。
@@ -138,8 +141,7 @@ export class MultipointComm extends Module {
             let cs = this.kernel.getModule(ContactService.NAME);
             let self = cs.getSelf();
             let name = [self.getId(), '_', AuthService.DOMAIN, '_',
-                        self.getDevice().getName(), '_',
-                        self.getDevice().getPlatform()];
+                        self.getDevice().getName(), '_', self.getDevice().getPlatform()];
             this.localPoint = new LocalRTCEndpoint(name.join(''), self);
         }
 
@@ -150,31 +152,49 @@ export class MultipointComm extends Module {
      * 
      * @param {CommField|Contact} fieldOrContact 
      * @param {MediaConstraint} mediaConstraint 
+     * @param {function} [handleSuccess]
+     * @param {function} [handleError]
      * @returns {boolean}
      */
     makeCall(fieldOrContact, mediaConstraint, handleSuccess, handleError) {
         if (null == this.privateField) {
-            handleError({ code: MultipointCommState.Uninitialized, data: null });
+            // 联系人模块没有完成签入操作
+            let error = { code: MultipointCommState.Uninitialized, data: fieldOrContact };
+            if (handleError) {
+                handleError(error);
+            }
+            this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
             return false;
         }
 
+        // 获取本地 RTC 节点
         let localPoint = this.getLocalPoint();
 
         if (localPoint.isWorking()) {
             // 正在通话中
-            handleError({ code: MultipointCommState.CallerBusy, data: null });
+            let error = { code: MultipointCommState.CallerBusy, data: fieldOrContact };
+            if (handleError) {
+                handleError(error);
+            }
+            this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
             return false;
         }
 
         // 设置 video 元素
         localPoint.videoElem = this.videoElem;
 
-        let successHandler = (field, target) => {
-            handleSuccess(field, target);
+        let successHandler = (field, signaling) => {
+            if (handleSuccess) {
+                handleSuccess(field, signaling);
+            }
+            this.notifyObservers(new ObservableState(MultipointCommEvent.InProgress, field));
         };
 
-        let errorHandler = (event) => {
-            handleError(event);
+        let errorHandler = (error) => {
+            if (handleError) {
+                handleError(error);
+            }
+            this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
         };
 
         if (fieldOrContact instanceof Contact) {
@@ -206,10 +226,10 @@ export class MultipointComm extends Module {
         localPoint.videoElem = this.videoElem;
 
         if (fieldOrContact instanceof Contact) {
-            this.privateField.addCallee(localPoint, mediaConstraint);
+            this.privateField.addEndpoint(localPoint);
         }
         else if (fieldOrContact instanceof CommField) {
-            fieldOrContact.addCallee(localPoint, mediaConstraint);
+            fieldOrContact.addEndpoint(localPoint);
         }
         else {
             return false;
@@ -220,6 +240,12 @@ export class MultipointComm extends Module {
 
     terminateCall(fieldOrContact) {
 
+    }
+
+    triggerOffer(payload) {
+        let data = payload.data;
+        let signaling = Signaling.create(data);
+        this.notifyObservers(new ObservableState(MultipointCommEvent.NewCall, signaling));
     }
 
     /**
