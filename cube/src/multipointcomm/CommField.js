@@ -90,30 +90,45 @@ export class CommField extends Entity {
         return this.founder;
     }
 
+    isPrivate() {
+        return (this.id == this.founder.getId());
+    }
+
     /**
-     * 
+     * 启动为主叫。
      * @param {LocalRTCEndpoint} rtcEndpoint
      * @param {MediaConstraint} mediaConstraint
-     * @param {function} handleSuccess
-     * @param {function} handleError
+     * @param {function} successCallback
+     * @param {function} failureCallback
      */
-    launchCaller(rtcEndpoint, mediaConstraint, handleSuccess, handleError) {
+    launchCaller(rtcEndpoint, mediaConstraint, successCallback, failureCallback) {
         if (!(rtcEndpoint instanceof LocalRTCEndpoint)) {
             return false;
         }
 
         rtcEndpoint.openOffer(mediaConstraint, (sdp) => {
             let signaling = new Signaling(MultipointCommAction.Offer, this, rtcEndpoint.getContact(), sdp);
-            this.sendSignaling(signaling, handleSuccess, handleError);
+            this.sendSignaling(signaling, successCallback, failureCallback);
         }, (error) => {
-            handleError(error);
+            failureCallback(error);
         });
 
         return true;
     }
 
-    launchCallee() {
+    /**
+     * 启动为被叫。
+     * @param {LocalRTCEndpoint} rtcEndpoint 
+     * @param {MediaConstraint} mediaConstraint 
+     * @param {function} successCallback 
+     * @param {function} failureCallback 
+     */
+    launchCallee(rtcEndpoint, mediaConstraint, successCallback, failureCallback) {
+        if (!(rtcEndpoint instanceof LocalRTCEndpoint)) {
+            return false;
+        }
 
+        
     }
 
     getEndpoint() {
@@ -153,11 +168,11 @@ export class CommField extends Entity {
     /**
      * 
      * @param {Signaling} signaling 
-     * @param {*} handleSuccess 
-     * @param {*} handleError 
+     * @param {function} successCallback
+     * @param {function} failureCallback
      * @private
      */
-    sendSignaling(signaling, handleSuccess, handleError) {
+    sendSignaling(signaling, successCallback, failureCallback) {
         let target = 0;
         if (this.id == this.founder.getId()) {
             // 本地的私有场
@@ -175,15 +190,46 @@ export class CommField extends Entity {
                 if (packet.data.code == 0) {
                     let data = packet.data.data;
                     let response = Signaling.create(data);
-                    handleSuccess(this, response);
+                    successCallback(response);
                 }
                 else {
-                    handleError({ code: packet.data.code, data: this });
+                    failureCallback({ code: packet.data.code, data: this });
                 }
             }
             else {
-                handleError({ code: MultipointCommState.ServerFault, data: this });
+                failureCallback({ code: MultipointCommState.ServerFault, data: this });
             }
         });
+    }
+
+    toJSON() {
+        let json = super.toJSON();
+        json.id = this.id;
+        json.founder = this.founder.toCompactJSON();
+        json.fieldEndpoints = [];
+        let list = this.fieldEndpoints.values();
+        for (let i = 0; i < list.length; ++i) {
+            json.fieldEndpoints.push(list[i].toJSON());
+        }
+        return json;
+    }
+
+    toCompactJSON() {
+        let json = super.toCompactJSON();
+        json.id = this.id;
+        json.founder = this.founder.toCompactJSON();
+        return json;
+    }
+
+    static create(json, pipeline) {
+        let field = new CommField(json.id, Contact.create(json.founder), pipeline);
+        if (undefined !== json.fieldEndpoints) {
+            let list = json.fieldEndpoints;
+            for (let i = 0; i < list.length; ++i) {
+                let cfep = CommFieldEndpoint.create(list[i]);
+                field.fieldEndpoints.put(cfep.getName(), cfep);
+            }
+        }
+        return field;
     }
 }

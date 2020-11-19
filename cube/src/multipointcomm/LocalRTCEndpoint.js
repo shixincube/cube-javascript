@@ -70,23 +70,25 @@ export class LocalRTCEndpoint extends CommFieldEndpoint {
     }
 
     /**
-     * 启动 RTC 终端。
+     * 启动 RTC 终端为主叫。
      * @param {MediaConstraint} mediaConstraint 媒体约束。
      * @param {function} handleSuccess 启动成功回调函数。
-     * @param {function} handleError 启动失败回调函数。
+     * @param {function} handleFailure 启动失败回调函数。
      */
-    openOffer(mediaConstraint, handleSuccess, handleError) {
+    openOffer(mediaConstraint, handleSuccess, handleFailure) {
         if (null != this.pc) {
-            handleError({ code: MultipointCommState.ConnRepeated, data: this });
+            handleFailure({ code: MultipointCommState.ConnRepeated, data: this });
             return;
         }
 
         this.mediaConstraint = mediaConstraint;
         if (mediaConstraint.audioEnabled) {
             this.audioEnabled = true;
+            this.audioStreamEnabled = true;
         }
         if (mediaConstraint.videoEnabled) {
             this.videoEnabled = true;
+            this.videoStreamEnabled = true;
         }
 
         this.pc = new RTCPeerConnection();
@@ -104,7 +106,7 @@ export class LocalRTCEndpoint extends CommFieldEndpoint {
         (async () => {
             let stream = await this.getUserMedia(constraints);
             if (null == stream) {
-                handleError({ code: MultipointCommState.MediaPermissionDenied, data: this });
+                handleFailure({ code: MultipointCommState.MediaPermissionDenied, data: this });
                 this.pc = null;
                 return;
             }
@@ -120,19 +122,30 @@ export class LocalRTCEndpoint extends CommFieldEndpoint {
                     handleSuccess(this.pc.localDescription);
                 }).catch((error) => {
                     // 设置 SDP 错误
-                    handleError({ code: MultipointCommState.LocalDescriptionFault, data: this, error: error });
+                    handleFailure({ code: MultipointCommState.LocalDescriptionFault, data: this, error: error });
                     this.pc = null;
                 });
             }).catch((error) => {
                 // 创建 Offer 错误
-                handleError({ code: MultipointCommState.CreateOfferFailed, data: this, error: error });
+                handleFailure({ code: MultipointCommState.CreateOfferFailed, data: this, error: error });
                 this.pc = null;
             });
         })();
     }
 
-    openAnswer(mediaConstraint, handleSuccess, handleError) {
+    /**
+     * 启动 RTC 终端为被叫。
+     * @param {MediaConstraint} mediaConstraint 媒体约束。
+     * @param {function} handleSuccess 启动成功回调函数。
+     * @param {function} handleFailure 启动失败回调函数。
+     */
+    openAnswer(mediaConstraint, handleSuccess, handleFailure) {
+        if (null != this.pc) {
+            handleFailure({ code: MultipointCommState.ConnRepeated, data: this });
+            return;
+        }
 
+        
     }
 
     /**

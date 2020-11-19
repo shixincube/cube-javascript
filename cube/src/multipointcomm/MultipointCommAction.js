@@ -37,6 +37,16 @@ export const MultipointCommAction = {
     Answer: 'answer',
 
     /**
+     * 信令振铃 Ringing 。
+     */
+    Ringing: 'ringing',
+
+    /**
+     * 信令忙 Busy 。
+     */
+    Busy: 'busy',
+
+    /**
      * 
      */
     FieldUpdated: 'fieldUpdated',

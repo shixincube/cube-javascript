@@ -64,15 +64,29 @@ export class Signaling extends JSONable {
 
     toJSON() {
         let json = super.toJSON();
-        json["name"] = name;
-        json["target"] = target;
-        json["sdp"] = sdp;
-        json["contact"] = contact.toCompactJSON();
+        json["name"] = this.name;
+        json["field"] = this.field.toJSON();
+        json["contact"] = this.contact.toCompactJSON();
+        if (null != this.sdp) {
+            json["sdp"] = this.sdp;
+        }
+        json["target"] = this.target;
         return json;
     }
 
-    static create(json) {
-        let signaling = new Signaling(json.name, Contact.create(json.contact), json.sdp);
+    toCompactJSON() {
+        let json = super.toCompactJSON();
+        json["name"] = this.name;
+        json["field"] = this.field.toCompactJSON();
+        json["contact"] = this.contact.toCompactJSON();
+        if (null != this.sdp) {
+            json["sdp"] = this.sdp;
+        }
+        json["target"] = this.target;
+    }
+
+    static create(json, pipeline) {
+        let signaling = new Signaling(json.name, CommField.create(json.field, pipeline), Contact.create(json.contact), json.sdp);
         signaling.target = json.target;
         return signaling;
     }

@@ -83,6 +83,12 @@ export class MultipointComm extends Module {
          * @type {OrderMap<number,CommField>}
          */
         this.fields = new OrderMap();
+
+        /**
+         * 需要应答的信令描述。
+         * @type {Signaling}
+         */
+        this.answerSignaling = null;
     }
 
     /**
@@ -128,10 +134,17 @@ export class MultipointComm extends Module {
         this.pipeline.removeListener(this.pipelineListener);
     }
 
+    /**
+     * @returns {HTMLElement} 返回视频标签的 DOM 元素。
+     */
     getVideoElement() {
         return this.videoElem;
     }
 
+    /**
+     * 设置视频标签的 DOM 元素。
+     * @param {HTMLElement} value 
+     */
     setVideoElement(value) {
         this.videoElem = value;
     }
@@ -149,19 +162,19 @@ export class MultipointComm extends Module {
     }
 
     /**
-     * 
+     * 呼叫指定场域或者联系人。
      * @param {CommField|Contact} fieldOrContact 
      * @param {MediaConstraint} mediaConstraint 
-     * @param {function} [handleSuccess]
-     * @param {function} [handleError]
+     * @param {function} [successCallback]
+     * @param {function} [failureCallback]
      * @returns {boolean}
      */
-    makeCall(fieldOrContact, mediaConstraint, handleSuccess, handleError) {
+    makeCall(fieldOrContact, mediaConstraint, successCallback, failureCallback) {
         if (null == this.privateField) {
             // 联系人模块没有完成签入操作
             let error = { code: MultipointCommState.Uninitialized, data: fieldOrContact };
-            if (handleError) {
-                handleError(error);
+            if (failureCallback) {
+                failureCallback(error);
             }
             this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
             return false;
@@ -173,8 +186,8 @@ export class MultipointComm extends Module {
         if (localPoint.isWorking()) {
             // 正在通话中
             let error = { code: MultipointCommState.CallerBusy, data: fieldOrContact };
-            if (handleError) {
-                handleError(error);
+            if (failureCallback) {
+                failureCallback(error);
             }
             this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
             return false;
@@ -183,16 +196,16 @@ export class MultipointComm extends Module {
         // 设置 video 元素
         localPoint.videoElem = this.videoElem;
 
-        let successHandler = (field, signaling) => {
-            if (handleSuccess) {
-                handleSuccess(field, signaling);
+        let successHandler = (signaling) => {
+            if (successCallback) {
+                successCallback(signaling);
             }
-            this.notifyObservers(new ObservableState(MultipointCommEvent.InProgress, field));
+            this.notifyObservers(new ObservableState(MultipointCommEvent.InProgress, signaling));
         };
 
-        let errorHandler = (error) => {
-            if (handleError) {
-                handleError(error);
+        let failureHandler = (error) => {
+            if (failureCallback) {
+                failureCallback(error);
             }
             this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
         };
@@ -200,12 +213,12 @@ export class MultipointComm extends Module {
         if (fieldOrContact instanceof Contact) {
             // 呼叫指定联系人
             this.privateField.addEndpoint(fieldOrContact);
-            this.privateField.launchCaller(localPoint, mediaConstraint, successHandler, errorHandler);
+            this.privateField.launchCaller(localPoint, mediaConstraint, successHandler, failureHandler);
         }
         else if (fieldOrContact instanceof CommField) {
             // 呼入 Comm Field
             fieldOrContact.addEndpoint(localPoint);
-            fieldOrContact.launchCaller(localPoint, mediaConstraint, successHandler, errorHandler);
+            fieldOrContact.launchCaller(localPoint, mediaConstraint, successHandler, failureHandler);
         }
         else {
             return false;
@@ -214,22 +227,53 @@ export class MultipointComm extends Module {
         return true;
     }
 
-    answerCall(fieldOrContact, mediaConstraint) {
+    /**
+     * 应答呼叫。
+     * @param {CommField|Contact} fieldOrContact 
+     * @param {MediaConstraint} mediaConstraint 
+     * @param {function} [successCallback]
+     * @param {function} [failureCallback]
+     * @returns {boolean}
+     */
+    answerCall(fieldOrContact, mediaConstraint, successCallback, failureCallback) {
         let localPoint = this.getLocalPoint();
 
         if (localPoint.isWorking()) {
             // 正在通话中
+            let error = { code: MultipointCommState.CalleeBusy, data: fieldOrContact };
+            if (failureCallback) {
+                failureCallback(error);
+            }
+            this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
             return false;
         }
 
         // 设置 video 元素
         localPoint.videoElem = this.videoElem;
 
+        let successHandler = (signaling) => {
+            if (successCallback) {
+                successCallback(signaling);
+            }
+            this.notifyObservers(new ObservableState(MultipointCommEvent.InProgress, signaling));
+        };
+
+        let failureHandler = (error) => {
+            if (failureCallback) {
+                failureCallback(error);
+            }
+            this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
+        };
+
         if (fieldOrContact instanceof Contact) {
+            // 应答指定联系人
             this.privateField.addEndpoint(localPoint);
+            this.privateField.launchCallee(localPoint, mediaConstraint, successHandler, failureHandler);
         }
         else if (fieldOrContact instanceof CommField) {
+            // 应答 Comm Field
             fieldOrContact.addEndpoint(localPoint);
+            fieldOrContact.launchCallee(localPoint, mediaConstraint, successHandler, failureHandler);
         }
         else {
             return false;
@@ -244,8 +288,30 @@ export class MultipointComm extends Module {
 
     triggerOffer(payload) {
         let data = payload.data;
-        let signaling = Signaling.create(data);
-        this.notifyObservers(new ObservableState(MultipointCommEvent.NewCall, signaling));
+        this.answerSignaling = Signaling.create(data, this.pipeline);
+        if (this.answerSignaling.field.isPrivate()) {
+            // 来自个人的通话申请
+            this.notifyObservers(new ObservableState(MultipointCommEvent.NewCall, this.answerSignaling.field.getFounder()));
+        }
+        else {
+            // 来自场域的通话申请
+            this.notifyObservers(new ObservableState(MultipointCommEvent.NewCall, this.answerSignaling.field));
+        }
+
+        if (this.localPoint.isWorking()) {
+            // 应答忙音 Busy
+            let busy = new Signaling(MultipointCommAction.Busy, this.answerSignaling.field, this.localPoint.getContact());
+            busy.target = this.answerSignaling.target;
+            let packet = new Packet(MultipointCommAction.Busy, busy.toCompactJSON());
+            this.pipeline.send(MultipointComm.NAME, packet);
+        }
+        else {
+            // 应答振铃 Ringing
+            let ringing = new Signaling(MultipointCommAction.Ringing, this.answerSignaling.field, this.localPoint.getContact());
+            ringing.target = this.answerSignaling.target;
+            let packet = new Packet(MultipointCommAction.Ringing, ringing.toCompactJSON());
+            this.pipeline.send(MultipointComm.NAME, packet);
+        }
     }
 
     /**
@@ -267,5 +333,4 @@ export class MultipointComm extends Module {
             
         });
     }
-
 }

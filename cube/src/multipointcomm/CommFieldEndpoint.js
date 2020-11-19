@@ -98,6 +98,10 @@ export class CommFieldEndpoint extends Aggregation(Endpoint, JSONable) {
         this.sessionDescription = null;
     }
 
+    /**
+     * 获取联系人实例。
+     * @returns {Contact} 返回联系人实例。
+     */
     getContact() {
         return this.contact;
     }
@@ -108,7 +112,39 @@ export class CommFieldEndpoint extends Aggregation(Endpoint, JSONable) {
     toJSON() {
         let json = super.toJSON();
         json.name = this.name;
-        json.contact = this.contact.toCompactJSON();
+        json.contact = this.contact.toJSON();
+        json.video = {
+            enabled: this.videoEnabled,
+            streamEnabled: this.videoStreamEnabled
+        };
+        json.audio = {
+            enabled: this.audioEnabled,
+            streamEnabled: this.audioStreamEnabled
+        };
         return json;
+    }
+
+    toCompactJSON() {
+        let json = super.toCompactJSON();
+        json.name = this.name;
+        json.contact = this.contact.toCompactJSON();
+        json.video = {
+            enabled: this.videoEnabled,
+            streamEnabled: this.videoStreamEnabled
+        };
+        json.audio = {
+            enabled: this.audioEnabled,
+            streamEnabled: this.audioStreamEnabled
+        };
+        return json;
+    }
+
+    static create(json) {
+        let endpoint = new CommFieldEndpoint(json.name, Contact.create(json.contact));
+        endpoint.videoEnabled = json.video.enabled;
+        endpoint.videoStreamEnabled = json.video.streamEnabled;
+        endpoint.audioEnabled = json.audio.enabled;
+        endpoint.audioStreamEnabled = json.audio.streamEnabled;
+        return endpoint;
     }
 }
