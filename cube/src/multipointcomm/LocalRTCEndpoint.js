@@ -135,17 +135,44 @@ export class LocalRTCEndpoint extends CommFieldEndpoint {
 
     /**
      * 启动 RTC 终端为被叫。
+     * @param {string} offer 主叫的 SDP 。
      * @param {MediaConstraint} mediaConstraint 媒体约束。
      * @param {function} handleSuccess 启动成功回调函数。
      * @param {function} handleFailure 启动失败回调函数。
      */
-    openAnswer(mediaConstraint, handleSuccess, handleFailure) {
+    openAnswer(offer, mediaConstraint, handleSuccess, handleFailure) {
         if (null != this.pc) {
             handleFailure({ code: MultipointCommState.ConnRepeated, data: this });
             return;
         }
 
-        
+        (async () => {
+            let stream = await this.getUserMedia(constraints);
+            if (null == stream) {
+                handleFailure({ code: MultipointCommState.MediaPermissionDenied, data: this });
+                this.pc = null;
+                return;
+            }
+
+            // 添加 track
+            for (const track of stream.getTracks()) {
+                this.pc.addTrack(track);
+            }
+
+            this.pc.setRemoteDescription(new RTCSessionDescription(offer)).then(() => {
+                this.pc.createAnswer().then((answer) => {
+                    this.pc.setLocalDescription(new RTCSessionDescription(answer)).then(() => {
+                        handleSuccess(this.pc.localDescription);
+                    }).catch((error) => {
+
+                    });
+                }).catch((error) => {
+
+                });
+            }).catch((error) => {
+
+            });
+        })();
     }
 
     /**

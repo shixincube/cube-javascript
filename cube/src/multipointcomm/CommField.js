@@ -119,16 +119,23 @@ export class CommField extends Entity {
     /**
      * 启动为被叫。
      * @param {LocalRTCEndpoint} rtcEndpoint 
+     * @param {string} offerDescription
      * @param {MediaConstraint} mediaConstraint 
      * @param {function} successCallback 
      * @param {function} failureCallback 
      */
-    launchCallee(rtcEndpoint, mediaConstraint, successCallback, failureCallback) {
+    launchCallee(rtcEndpoint, offerDescription, mediaConstraint, successCallback, failureCallback) {
         if (!(rtcEndpoint instanceof LocalRTCEndpoint)) {
             return false;
         }
 
-        
+        rtcEndpoint.openAnswer(offerDescription, mediaConstraint, (sdp) => {
+
+        }, (error) => {
+
+        });
+
+        return true;
     }
 
     getEndpoint() {
