@@ -44,7 +44,7 @@ import { FileStorage } from "../filestorage/FileStorage"
 import { ObservableState } from "../core/ObservableState";
 import { StateCode } from "../core/StateCode";
 import { PluginSystem } from "../core/PluginSystem";
-import { NotifyHook } from "./extends/NotifyHook";
+import { NotifyHook } from "./hook/NotifyHook";
 import { FileStorageEvent } from "../filestorage/FileStorageEvent";
 
 /**
@@ -214,6 +214,15 @@ export class MessagingService extends Module {
      */
     assemble() {
         this.pluginSystem.addHook(new NotifyHook());
+        return this.pluginSystem;
+    }
+
+    /**
+     * 获取插件系统。
+     * @returns {PluginSystem} 返回插件系统。
+     */
+    getPluginSystem() {
+        return this.pluginSystem;
     }
 
     /**
