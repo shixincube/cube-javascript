@@ -60,6 +60,9 @@ export class MessagingPipelineListener extends PipelineListener {
         else if (packet.name == MessagingAction.Pull) {
             this.messagingService.triggerPull(packet.data);
         }
+        else if (packet.name == MessagingAction.Read) {
+            this.messagingService.triggerRead(packet.data);
+        }
         else if (packet.name == MessagingAction.Recall) {
             this.messagingService.triggerRecall(packet.data);
         }

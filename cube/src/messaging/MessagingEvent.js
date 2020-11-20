@@ -59,6 +59,11 @@ export const MessagingEvent = {
     Delete: 'Delete',
 
     /**
+     * 消息已读。
+     */
+    Read: 'Read',
+
+    /**
      * 消息处理故障。
      * @type {string}
      */

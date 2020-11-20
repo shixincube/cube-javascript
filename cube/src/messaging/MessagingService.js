@@ -785,8 +785,38 @@ export class MessagingService extends Module {
         }
     }
 
+    /**
+     * 处理 Read 数据。
+     * @private
+     * @param {JSON} payload 
+     */
+    triggerRead(payload) {
+        if (payload.code != MessagingServiceState.Ok) {
+            return;
+        }
+
+        let message = Message.create(payload.data);
+
+        if (message.getFrom() == this.contactService.getSelf().getId()) {
+            this.storage.readMessageById(message.getId(), (message) => {
+                if (null != message) {
+                    message.state = MessageState.Read;
+                    this.storage.updateMessage(message);
+
+                    // 事件通知
+                    this.notifyObservers(new ObservableState(MessagingEvent.Read, message));
+                }
+            });
+        }
+    }
+
+    /**
+     * 处理 Recall 数据。
+     * @private
+     * @param {JSON} payload 
+     */
     triggerRecall(payload) {
-        if (payload.code != 0) {
+        if (payload.code != MessagingServiceState.Ok) {
             this.triggerFail(MessagingAction.Recall, payload);
             return;
         }
@@ -803,6 +833,7 @@ export class MessagingService extends Module {
 
     /**
      * 处理接收到服务器的故障信息。
+     * @private
      * @param {string} name 动作指令名。
      * @param {JSON} payload 包负载数据。
      */
@@ -812,6 +843,7 @@ export class MessagingService extends Module {
 
     /**
      * 刷新最近一条消息时间戳。
+     * @private
      * @param {number} value 新的时间戳。
      */
     refreshLastMessageTime(value) {
@@ -894,6 +926,7 @@ export class MessagingService extends Module {
 
     /**
      * 处理消息附件。
+     * @private
      * @param {Message} message 
      */
     _processAttachment(message) {
