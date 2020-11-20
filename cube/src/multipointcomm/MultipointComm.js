@@ -173,9 +173,7 @@ export class MultipointComm extends Module {
         if (null == this.localPoint) {
             let cs = this.kernel.getModule(ContactService.NAME);
             let self = cs.getSelf();
-            let name = [self.getId(), '_', AuthService.DOMAIN, '_',
-                        self.getDevice().getName(), '_', self.getDevice().getPlatform()];
-            this.localPoint = new LocalRTCEndpoint(name.join(''), self);
+            this.localPoint = new LocalRTCEndpoint(self.getId(), self);
 
             this.localPoint.localVideoElem = document.createElement('video');
             this.localPoint.localVideoElem.width = 480;

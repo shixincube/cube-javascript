@@ -56,6 +56,12 @@ export class Endpoint {
     }
 
     /**
+     * 聚合时的初始化函数。
+     */
+    initializer() {
+    }
+
+    /**
      * 获取节点名称。
      * @returns {string} 返回节点名称。
      */

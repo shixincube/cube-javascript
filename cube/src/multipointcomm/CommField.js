@@ -79,7 +79,7 @@ export class CommField extends Entity {
 
         /**
          * 终端列表。
-         * @type {OrderMap}
+         * @type {OrderMap<number,CommFieldEndpoint>}
          */
         this.fieldEndpoints = new OrderMap();
     }
@@ -107,8 +107,9 @@ export class CommField extends Entity {
             return false;
         }
 
-        rtcEndpoint.openOffer(mediaConstraint, (sdp) => {
-            let signaling = new Signaling(MultipointCommAction.Offer, this, rtcEndpoint.getContact(), sdp);
+        rtcEndpoint.openOffer(mediaConstraint, (description) => {
+            let signaling = new Signaling(MultipointCommAction.Offer, this, rtcEndpoint.getContact());
+            signaling.sessionDescription = description;
             this.sendSignaling(signaling, successCallback, failureCallback);
         }, (error) => {
             failureCallback(error);
@@ -130,7 +131,7 @@ export class CommField extends Entity {
             return false;
         }
 
-        rtcEndpoint.openAnswer(offerDescription, mediaConstraint, (sdp) => {
+        rtcEndpoint.openAnswer(offerDescription, mediaConstraint, (description) => {
 
         }, (error) => {
 
@@ -148,21 +149,18 @@ export class CommField extends Entity {
     }
 
     addEndpoint(endpoint) {
-        let ep = endpoint;
+        let cfe = endpoint;
 
         if (endpoint instanceof Contact) {
             let contact = endpoint;
-            let dev = contact.getDevice();
-            let name = [contact.getId(), '_', AuthService.DOMAIN, '_',
-                        dev.getName(), '_', dev.getPlatform()];
-            ep = new CommFieldEndpoint(name.join(''), contact);
+            cfe = new CommFieldEndpoint(contact.getId(), contact);
         }
 
-        if (this.fieldEndpoints.containsKey(ep.getName())) {
+        if (this.fieldEndpoints.containsKey(cfe.getId())) {
             return false;
         }
 
-        this.fieldEndpoints.put(ep.getName(), ep);
+        this.fieldEndpoints.put(cfe.getId(), cfe);
         return true;
     }
 
@@ -213,11 +211,12 @@ export class CommField extends Entity {
     toJSON() {
         let json = super.toJSON();
         json.id = this.id;
+        json.domain = AuthService.DOMAIN;
         json.founder = this.founder.toCompactJSON();
-        json.fieldEndpoints = [];
+        json.endpoints = [];
         let list = this.fieldEndpoints.values();
         for (let i = 0; i < list.length; ++i) {
-            json.fieldEndpoints.push(list[i].toJSON());
+            json.endpoints.push(list[i].toJSON());
         }
         return json;
     }
@@ -225,17 +224,18 @@ export class CommField extends Entity {
     toCompactJSON() {
         let json = super.toCompactJSON();
         json.id = this.id;
+        json.domain = AuthService.DOMAIN;
         json.founder = this.founder.toCompactJSON();
         return json;
     }
 
     static create(json, pipeline) {
-        let field = new CommField(json.id, Contact.create(json.founder), pipeline);
-        if (undefined !== json.fieldEndpoints) {
-            let list = json.fieldEndpoints;
+        let field = new CommField(json.id, Contact.create(json.founder, json.domain), pipeline);
+        if (undefined !== json.endpoints) {
+            let list = json.endpoints;
             for (let i = 0; i < list.length; ++i) {
                 let cfep = CommFieldEndpoint.create(list[i]);
-                field.fieldEndpoints.put(cfep.getName(), cfep);
+                field.fieldEndpoints.put(cfep.getId(), cfep);
             }
         }
         return field;

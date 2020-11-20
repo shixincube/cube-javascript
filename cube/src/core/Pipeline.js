@@ -263,7 +263,7 @@ export class Pipeline {
                     listener({ "name": state, "pipeline": this });
                 }
                 else {
-                    if (listener.onClosed) {
+                    if (listener && listener.onClosed) {
                         listener.onClosed(this);
                     }
                 }

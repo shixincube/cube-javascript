@@ -33,7 +33,12 @@ import { CommField } from "./CommField";
  */
 export class Signaling extends JSONable {
 
-    constructor(name, field, contact, sdp) {
+    /**
+     * @param {string} name 
+     * @param {CommField} field 
+     * @param {Contact} contact 
+     */
+    constructor(name, field, contact) {
         super();
 
         /**
@@ -52,42 +57,55 @@ export class Signaling extends JSONable {
         this.contact = contact;
 
         /**
-         * @type {string}
-         */
-        this.sdp = (undefined !== sdp) ? sdp : null;
-
-        /**
          * @type {number}
          */
         this.target = 0;
+
+        /**
+         * @type {object}
+         */
+        this.sessionDescription = null;
+
+        /**
+         * @type {object}
+         */
+        this.candidate = null;
     }
 
     toJSON() {
         let json = super.toJSON();
         json["name"] = this.name;
-        json["field"] = this.field.toJSON();
+        json["field"] = this.field.toCompactJSON();
         json["contact"] = this.contact.toCompactJSON();
-        if (null != this.sdp) {
-            json["sdp"] = this.sdp;
-        }
         json["target"] = this.target;
+
+        if (null != this.sessionDescription) {
+            json["description"] = this.sessionDescription;
+        }
+
+        if (null != this.candidate) {
+            json["candidate"] = this.candidate;
+        }
+
         return json;
     }
 
     toCompactJSON() {
-        let json = super.toCompactJSON();
-        json["name"] = this.name;
-        json["field"] = this.field.toCompactJSON();
-        json["contact"] = this.contact.toCompactJSON();
-        if (null != this.sdp) {
-            json["sdp"] = this.sdp;
-        }
-        json["target"] = this.target;
+        return this.toJSON();
     }
 
     static create(json, pipeline) {
-        let signaling = new Signaling(json.name, CommField.create(json.field, pipeline), Contact.create(json.contact), json.sdp);
+        let signaling = new Signaling(json.name, CommField.create(json.field, pipeline), Contact.create(json.contact));
         signaling.target = json.target;
+
+        if (json.description) {
+            signaling.sessionDescription = json.description;
+        }
+
+        if (json.candidate) {
+            signaling.candidate = json.candidate;
+        }
+        
         return signaling;
     }
 }

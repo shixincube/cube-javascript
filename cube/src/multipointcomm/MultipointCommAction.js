@@ -40,6 +40,11 @@ export const MultipointCommAction = {
     Answer: 'answer',
 
     /**
+     * ICE 候选字收发。
+     */
+    Candidate: 'candidate',
+
+    /**
      * 信令振铃 Ringing 。
      */
     Ringing: 'ringing',

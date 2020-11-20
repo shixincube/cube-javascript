@@ -24,28 +24,44 @@
  * SOFTWARE.
  */
 
-import { JSONable } from "../util/JSONable";
-import { Endpoint } from "../util/Endpoint";
+import cell from "@lib/cell-lib";
 import { Aggregation } from "../util/Aggregation";
+import { Entity } from "../core/Entity";
+import { Endpoint } from "../util/Endpoint";
 import { Contact } from "../contact/Contact";
+import { AuthService } from "../auth/AuthService";
 
 /**
- * 通信域里的媒体节点。
+ * 通讯场域里的媒体节点。
  */
-export class CommFieldEndpoint extends Aggregation(Endpoint, JSONable) {
+export class CommFieldEndpoint extends Aggregation(Entity, Endpoint) {
 
     /**
-     * @param {string} name 节点名。
+     * @param {number} id 节点 ID 。
      * @param {Contact} contact 联系人。
      */
-    constructor(name, contact) {
-        super(name);
+    constructor(id, contact) {
+        super();
+
+        /**
+         * 节点的 ID 。
+         * @type {number}
+         */
+        this.id = id;
 
         /**
          * 关联的联系人。
          * @type {Contact}
          */
         this.contact = contact;
+
+        let device = contact.getDevice();
+        /**
+         * 节点名称。
+         * @type {string}
+         */
+        this.name = ([contact.getId(), '_', AuthService.DOMAIN, '_',
+                    device.getName(), '_', device.getPlatform()]).join('');
 
         /**
          * 客户端是否启用视频设备。
@@ -92,7 +108,7 @@ export class CommFieldEndpoint extends Aggregation(Endpoint, JSONable) {
         this.audioDownstreamBandwidth = 0;
 
         /**
-         * SDP 内容。
+         * 会话描述。
          * @type {string}
          */
         this.sessionDescription = null;
@@ -111,6 +127,8 @@ export class CommFieldEndpoint extends Aggregation(Endpoint, JSONable) {
      */
     toJSON() {
         let json = super.toJSON();
+        json.id = this.id;
+        json.domain = AuthService.DOMAIN;
         json.name = this.name;
         json.contact = this.contact.toJSON();
         json.video = {
@@ -126,6 +144,8 @@ export class CommFieldEndpoint extends Aggregation(Endpoint, JSONable) {
 
     toCompactJSON() {
         let json = super.toCompactJSON();
+        json.id = this.id;
+        json.domain = AuthService.DOMAIN;
         json.name = this.name;
         json.contact = this.contact.toCompactJSON();
         json.video = {
@@ -140,7 +160,8 @@ export class CommFieldEndpoint extends Aggregation(Endpoint, JSONable) {
     }
 
     static create(json) {
-        let endpoint = new CommFieldEndpoint(json.name, Contact.create(json.contact));
+        let endpoint = new CommFieldEndpoint(json.id, Contact.create(json.contact, json.domain));
+        endpoint.name = json.name;
         endpoint.videoEnabled = json.video.enabled;
         endpoint.videoStreamEnabled = json.video.streamEnabled;
         endpoint.audioEnabled = json.audio.enabled;

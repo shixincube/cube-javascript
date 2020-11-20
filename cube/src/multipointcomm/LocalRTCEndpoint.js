@@ -36,11 +36,11 @@ import { MultipointCommState } from "./MultipointCommState";
 export class LocalRTCEndpoint extends CommFieldEndpoint {
 
     /**
-     * @param {string} name 节点名。
+     * @param {number} id 节点 ID 。
      * @param {Contact} contact 联系人。
      */
-    constructor(name, contact) {
-        super(name, contact);
+    constructor(id, contact) {
+        super(id, contact);
 
         /**
          * @type {MediaConstraint}
@@ -97,7 +97,7 @@ export class LocalRTCEndpoint extends CommFieldEndpoint {
     enableICE() {
         this.configuration = {
             iceServers: [{
-                urls: "stun:52.83.195.35:3478",
+                urls: "turn:52.83.195.35:3478",
                 username: "cube",
                 credential: "cube887"
             }]
@@ -133,7 +133,7 @@ export class LocalRTCEndpoint extends CommFieldEndpoint {
             this.videoStreamEnabled = true;
         }
 
-        this.pc = new RTCPeerConnection();
+        this.pc = (null != this.configuration) ? new RTCPeerConnection(this.configuration) : new RTCPeerConnection();
 
         // Bind event
         this.pc.ontrack = (event) => {
@@ -203,7 +203,7 @@ export class LocalRTCEndpoint extends CommFieldEndpoint {
             this.videoStreamEnabled = true;
         }
 
-        this.pc = new RTCPeerConnection();
+        this.pc = (null != this.configuration) ? new RTCPeerConnection(this.configuration) : new RTCPeerConnection();
 
         // Bind event
         this.pc.ontrack = (event) => {
@@ -277,6 +277,8 @@ export class LocalRTCEndpoint extends CommFieldEndpoint {
             this.pc.close();
             this.pc = null;
         }
+
+        this.disableICE();
     }
 
     fireOnTrack(event) {
