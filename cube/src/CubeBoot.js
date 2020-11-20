@@ -53,6 +53,9 @@ import { FileLabel } from "./filestorage/FileLabel";
 import { FileAttachment } from "./filestorage/FileAttachment";
 import { FileStorageEvent } from "./filestorage/FileStorageEvent";
 import { MultipointComm } from "./multipointcomm/MultipointComm";
+import { MediaConstraint } from "./multipointcomm/MediaConstraint";
+import { VideoDimension } from "./multipointcomm/VideoDimension";
+import { MultipointCommEvent } from "./multipointcomm/MultipointCommEvent";
 import { ConferenceService } from "./conference/ConferenceService";
 import { Announcer } from "./util/Announcer";
 import { FaceMonitor } from "./facemonitor/FaceMonitor";
@@ -98,6 +101,9 @@ import { FaceMonitor } from "./facemonitor/FaceMonitor";
     global.FileStorageEvent = FileStorageEvent;
 
     global.MultipointComm = MultipointComm;
+    global.VideoDimension = VideoDimension;
+    global.MediaConstraint = MediaConstraint;
+    global.MultipointCommEvent = MultipointCommEvent;
 
     //global.ConferenceService = ConferenceService;
 

@@ -32,6 +32,8 @@ var App = Class({
         this.selectFileDom = null;
         this.fileEl = null;
         this.fileName = null;
+
+        this.callDom = null;
     },
 
     init: function() {
@@ -61,6 +63,15 @@ var App = Class({
             , usage: "selfile"
             , exec: function(console, name, args) {
                 self.selectFile(args);
+                console.println("");
+            }
+        });
+        this.console.register({ name: "call"
+            , shortName: "call"
+            , desc: "启动音视频通话。"
+            , usage: "call <target-id>"
+            , exec: function(console, name, args) {
+                self.newCall(args);
                 console.println("");
             }
         });
@@ -185,7 +196,7 @@ var App = Class({
         if (null == this.selectFileDom) {
             this.selectFileDom = document.createElement('div');
             this.selectFileDom.id = 'select_file';
-            var content = ['<div style="padding:24px 0px 0px 24px;"><label for="upload">选择一个文件：</label>',
+            var content = ['<div><label for="upload">选择一个文件：</label>',
                 '<input type="file" id="upload" name="upload" accept="*.*">',
                 '</div>'
             ];
@@ -212,5 +223,45 @@ var App = Class({
         }
 
         this.console.close();
+    },
+
+    newCall: function(args) {
+        if (args.length == 0) {
+            this.console.println('参数错误');
+            return;
+        }
+
+        var target = parseInt(args[0]);
+
+        if (null == this.callDom) {
+            this.callDom = document.createElement('div');
+            this.callDom.setAttribute('class', 'call');
+        }
+
+        var comm = this.cube.getMultipointComm();
+        comm.start();
+
+        var html = ['<div class="local" id="local_view">', '</div>',
+                    '<div class="remote" id="remote_view">', '</div>'];
+        this.callDom.innerHTML = html.join('');
+
+        document.body.appendChild(this.callDom);
+
+        var localView = document.getElementById('local_view');
+        localView.appendChild(comm.getLocalVideoElement());
+        
+        var remoteView = document.getElementById('remote_view');
+        remoteView.appendChild(comm.getRemoteVideoElement());
+
+        this.cube.getContactService().getContact(target, function(contact) {
+            var mediaConstraint = new MediaConstraint(true, false);
+            comm.makeCall(contact, mediaConstraint, function() {
+                console.log('Call OK ');
+            }, function(error) {
+                console.log(error);
+            });
+        }, function(error) {
+            console.log('获取联系人失败: ' + error);
+        });
     }
 });

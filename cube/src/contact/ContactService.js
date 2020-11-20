@@ -26,6 +26,7 @@
 
 import cell from "@lib/cell-lib";
 import { OrderMap } from "../util/OrderMap";
+import { ModuleError } from "../core/error/ModuleError";
 import { Module } from "../core/Module";
 import { Packet } from "../core/Packet";
 import { StateCode } from "../core/StateCode";
@@ -323,9 +324,9 @@ export class ContactService extends Module {
      * 获取指定 ID 的联系人信息。
      * @param {number} id 指定联系人 ID 。
      * @param {function} handleSuccess 成功获取到数据回调该方法，参数：({@linkcode contact}:{@link Contact}) ，(联系人实例)。
-     * @param {function} [handleError] 操作失败回调该方法，参数：({@linkcode id}:number) ，(失败的联系人ID)。
+     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError}) ，(故障信息))。
      */
-    getContact(id, handleSuccess, handleError) {
+    getContact(id, handleSuccess, handleFailure) {
         if (typeof id === 'string') {
             id = parseInt(id);
         }
@@ -334,9 +335,12 @@ export class ContactService extends Module {
             // 从缓存读取
             let contact = this.contacts.get(id);
 
-            // TODO 从存储读取
-
             if (null == contact) {
+                // 从存储读取
+                // this.storage.readContact(id, (contact) => {
+
+                // });
+
                 let packet = new Packet(ContactAction.GetContact, {
                     "id": id,
                     "domain": AuthService.DOMAIN
@@ -349,11 +353,11 @@ export class ContactService extends Module {
                             resolve(contact);
                         }
                         else {
-                            reject();
+                            reject(new ModuleError(ContactService.NAME, responsePacket.getStateCode(), id));
                         }
                     }
                     else {
-                        reject();
+                        reject(new ModuleError(ContactService.NAME, 101, id));
                     }
                 });
             }
@@ -362,11 +366,11 @@ export class ContactService extends Module {
             }
         });
 
-        if (handleSuccess && handleError) {
+        if (handleSuccess && handleFailure) {
             promise.then((contact) => {
                 handleSuccess(contact);
-            }).catch(() => {
-                handleError(id);
+            }).catch((error) => {
+                handleFailure(error);
             });
         }
         else if (handleSuccess) {

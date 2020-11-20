@@ -40,6 +40,7 @@ import { CommPipelineListener } from "./CommPipelineListener";
 import { ObservableState } from "../core/ObservableState";
 import { MultipointCommEvent } from "./MultipointCommEvent";
 import { Signaling } from "./Signaling";
+import { ModuleError } from "../core/error/ModuleError";
 
 /**
  * 多方通信服务。
@@ -71,12 +72,6 @@ export class MultipointComm extends Module {
          * @type {LocalRTCEndpoint}
          */
         this.localPoint = null;
-
-        /**
-         * 视频元素。
-         * @type {HTMLElement}
-         */
-        this.videoElem = null;
 
         /**
          * 管理的通信场域。
@@ -122,9 +117,6 @@ export class MultipointComm extends Module {
             this.privateField = new CommField(self.getId(), self, this.pipeline);
         }
 
-        // 创建 video DOM
-        this.videoElem = document.createElement("video");
-
         return true;
     }
 
@@ -141,20 +133,42 @@ export class MultipointComm extends Module {
     }
 
     /**
-     * @returns {HTMLElement} 返回视频标签的 DOM 元素。
+     * @returns {HTMLElement} 返回本地视频标签的 DOM 元素。
      */
-    getVideoElement() {
-        return this.videoElem;
+    getLocalVideoElement() {
+        let localPoint = this.getLocalPoint();
+        return localPoint.localVideoElem;
     }
 
     /**
-     * 设置视频标签的 DOM 元素。
+     * 设置本地视频标签的 DOM 元素。
      * @param {HTMLElement} value 
      */
-    setVideoElement(value) {
-        this.videoElem = value;
+    setLocalVideoElement(value) {
+        let localPoint = this.getLocalPoint();
+        localPoint.localVideoElem = value;
     }
 
+    /**
+     * @returns {HTMLElement} 返回远端视频标签的 DOM 元素。
+     */
+    getRemoteVideoElement() {
+        let localPoint = this.getLocalPoint();
+        return localPoint.remoteVideoElem;
+    }
+
+    /**
+     * 设置远端视频标签的 DOM 元素。
+     * @param {HTMLElement} value 
+     */
+    setRemoteVideoElement(value) {
+        let localPoint = this.getLocalPoint();
+        localPoint.remoteVideoElem = value;
+    }
+
+    /**
+     * @private
+     */
     getLocalPoint() {
         if (null == this.localPoint) {
             let cs = this.kernel.getModule(ContactService.NAME);
@@ -162,6 +176,14 @@ export class MultipointComm extends Module {
             let name = [self.getId(), '_', AuthService.DOMAIN, '_',
                         self.getDevice().getName(), '_', self.getDevice().getPlatform()];
             this.localPoint = new LocalRTCEndpoint(name.join(''), self);
+
+            this.localPoint.localVideoElem = document.createElement('video');
+            this.localPoint.localVideoElem.width = 480;
+            this.localPoint.localVideoElem.height = 360;
+
+            this.localPoint.remoteVideoElem = document.createElement('video');
+            this.localPoint.remoteVideoElem.width = 480;
+            this.localPoint.remoteVideoElem.height = 360;
         }
 
         return this.localPoint;
@@ -178,7 +200,7 @@ export class MultipointComm extends Module {
     makeCall(fieldOrContact, mediaConstraint, successCallback, failureCallback) {
         if (null == this.privateField) {
             // 联系人模块没有完成签入操作
-            let error = { code: MultipointCommState.Uninitialized, data: fieldOrContact };
+            let error = new ModuleError(MultipointComm.NAME, MultipointCommState.Uninitialized, fieldOrContact);
             if (failureCallback) {
                 failureCallback(error);
             }
@@ -191,16 +213,13 @@ export class MultipointComm extends Module {
 
         if (localPoint.isWorking()) {
             // 正在通话中
-            let error = { code: MultipointCommState.CallerBusy, data: fieldOrContact };
+            let error = new ModuleError(MultipointComm.NAME, MultipointCommState.CallerBusy, fieldOrContact);
             if (failureCallback) {
                 failureCallback(error);
             }
             this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
             return false;
         }
-
-        // 设置 video 元素
-        localPoint.videoElem = this.videoElem;
 
         let successHandler = (signaling) => {
             if (successCallback) {
@@ -243,7 +262,7 @@ export class MultipointComm extends Module {
      */
     answerCall(fieldOrContact, mediaConstraint, successCallback, failureCallback) {
         if (null == this.offerSignaling) {
-            let error = { code: MultipointCommState.Uninitialized, data: fieldOrContact };
+            let error = { code: MultipointCommState.SignalingError, data: fieldOrContact };
             if (failureCallback) {
                 failureCallback(error);
             }
@@ -262,9 +281,6 @@ export class MultipointComm extends Module {
             this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
             return false;
         }
-
-        // 设置 video 元素
-        localPoint.videoElem = this.videoElem;
 
         let successHandler = (signaling) => {
             if (successCallback) {

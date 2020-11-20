@@ -54,4 +54,12 @@ export class Endpoint {
          */
         this.port = 0;
     }
+
+    /**
+     * 获取节点名称。
+     * @returns {string} 返回节点名称。
+     */
+    getName() {
+        return this.name;
+    }
 }

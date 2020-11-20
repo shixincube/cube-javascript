@@ -38,6 +38,7 @@ import { Packet } from "../core/Packet";
 import { StateCode } from "../core/StateCode";
 import { MultipointCommState } from "./MultipointCommState";
 import { Signaling } from "./Signaling";
+import { ModuleError } from "../core/error/ModuleError";
 
 /**
  * 多方通信场域。
@@ -200,11 +201,11 @@ export class CommField extends Entity {
                     successCallback(response);
                 }
                 else {
-                    failureCallback({ code: packet.data.code, data: this });
+                    failureCallback(new ModuleError(MultipointComm.NAME, packet.data.code, this));
                 }
             }
             else {
-                failureCallback({ code: MultipointCommState.ServerFault, data: this });
+                failureCallback(new ModuleError(MultipointComm.NAME, MultipointCommState.ServerFault, this));
             }
         });
     }

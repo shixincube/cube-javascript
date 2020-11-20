@@ -30,8 +30,22 @@
     margin: 0 auto;
     padding: 0;
     z-index: 99;
+    padding: 24px 0px 0px 24px;
 }
 
 #select_file label {
     display: block;
+}
+
+.call {
+    position: absolute;
+    float: left;
+    z-index: 1001;
+}
+.call .local {
+    display: inline-block;
+}
+.call .remote {
+    display: inline-block;
+    margin-left: 24px;
 }

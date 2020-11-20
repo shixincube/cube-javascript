@@ -131,4 +131,11 @@ export class CubeEngine {
     getFileStorage() {
         return this.kernel.getModule(FileStorage.NAME);
     }
+
+    /**
+     * @returns {MultipointComm}
+     */
+    getMultipointComm() {
+        return this.kernel.getModule(MultipointComm.NAME);
+    }
 }

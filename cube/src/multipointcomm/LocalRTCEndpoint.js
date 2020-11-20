@@ -24,8 +24,10 @@
  * SOFTWARE.
  */
 
+import { ModuleError } from "../core/error/ModuleError";
 import { CommFieldEndpoint } from "./CommFieldEndpoint";
 import { MediaConstraint } from "./MediaConstraint";
+import { MultipointComm } from "./MultipointComm";
 import { MultipointCommState } from "./MultipointCommState";
 
 /**
@@ -53,12 +55,27 @@ export class LocalRTCEndpoint extends CommFieldEndpoint {
         /**
          * @type {HTMLElement}
          */
-        this.videoElem = null;
+        this.localVideoElem = null;
+
+        /**
+         * @type {HTMLElement}
+         */
+        this.remoteVideoElem = null;
+
+        /**
+         * @type {MediaStream}
+         */
+        this.outboundStream = null;
 
         /**
          * @type {MediaStream}
          */
         this.inboundStream = null;
+
+        /**
+         * @type {function}
+         */
+        this.localVideoOnLoad = null;
     }
 
     /**
@@ -77,7 +94,7 @@ export class LocalRTCEndpoint extends CommFieldEndpoint {
      */
     openOffer(mediaConstraint, handleSuccess, handleFailure) {
         if (null != this.pc) {
-            handleFailure({ code: MultipointCommState.ConnRepeated, data: this });
+            handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.ConnRepeated, this));
             return;
         }
 
@@ -106,10 +123,15 @@ export class LocalRTCEndpoint extends CommFieldEndpoint {
         (async () => {
             let stream = await this.getUserMedia(constraints);
             if (null == stream) {
-                handleFailure({ code: MultipointCommState.MediaPermissionDenied, data: this });
-                this.pc = null;
+                handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.MediaPermissionDenied, this));
+                this.close();
                 return;
             }
+
+            // 设置本地视频流
+            this.localVideoElem.autoplay = true;
+            this.localVideoElem.srcObject = stream;
+            this.outboundStream = stream;
 
             // 添加 track
             for (const track of stream.getTracks()) {
@@ -122,13 +144,13 @@ export class LocalRTCEndpoint extends CommFieldEndpoint {
                     handleSuccess(this.pc.localDescription);
                 }).catch((error) => {
                     // 设置 SDP 错误
-                    handleFailure({ code: MultipointCommState.LocalDescriptionFault, data: this, error: error });
-                    this.pc = null;
+                    handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.LocalDescriptionFault, this, error));
+                    this.close();
                 });
             }).catch((error) => {
                 // 创建 Offer 错误
-                handleFailure({ code: MultipointCommState.CreateOfferFailed, data: this, error: error });
-                this.pc = null;
+                handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.CreateOfferFailed, this, error));
+                this.close();
             });
         })();
     }
@@ -142,7 +164,7 @@ export class LocalRTCEndpoint extends CommFieldEndpoint {
      */
     openAnswer(offer, mediaConstraint, handleSuccess, handleFailure) {
         if (null != this.pc) {
-            handleFailure({ code: MultipointCommState.ConnRepeated, data: this });
+            handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.ConnRepeated, this));
             return;
         }
 
@@ -171,10 +193,15 @@ export class LocalRTCEndpoint extends CommFieldEndpoint {
         (async () => {
             let stream = await this.getUserMedia(constraints);
             if (null == stream) {
-                handleFailure({ code: MultipointCommState.MediaPermissionDenied, data: this });
-                this.pc = null;
+                handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.MediaPermissionDenied, this));
+                this.close();
                 return;
             }
+
+            // 设置本地视频流
+            this.localVideoElem.autoplay = true;
+            this.localVideoElem.srcObject = stream;
+            this.outboundStream = stream;
 
             // 添加 track
             for (const track of stream.getTracks()) {
@@ -187,18 +214,18 @@ export class LocalRTCEndpoint extends CommFieldEndpoint {
                         handleSuccess(this.pc.localDescription);
                     }).catch((error) => {
                         // 设置 SDP 错误
-                        handleFailure({ code: MultipointCommState.LocalDescriptionFault, data: this, error: error });
-                        this.pc = null;
+                        handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.LocalDescriptionFault, this, error));
+                        this.close();
                     });
                 }).catch((error) => {
                     // 创建 Answer 错误
-                    handleFailure({ code: MultipointCommState.CreateAnswerFailed, data: this, error: error });
-                    this.pc = null;
+                    handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.CreateAnswerFailed, this, error));
+                    this.close();
                 });
             }).catch((error) => {
                 // 设置 SDP 错误
-                handleFailure({ code: MultipointCommState.RemoteDescriptionFault, data: this, error: error });
-                this.pc = null;
+                handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.RemoteDescriptionFault, this, error));
+                this.close();
             });
         })();
     }
@@ -214,29 +241,30 @@ export class LocalRTCEndpoint extends CommFieldEndpoint {
             this.inboundStream = null;
         }
 
+        if (null != this.outboundStream) {
+            this.outboundStream.getTracks().forEach((track) => {
+                track.stop();
+            });
+            this.outboundStream = null;
+        }
+
         if (null != this.pc) {
             this.pc.close();
             this.pc = null;
         }
     }
 
-    resumeVideoStream() {
-
-    }
-
-    pauseVideoStream() {
-
-    }
-
     fireOnTrack(event) {
         if (event.streams && event.streams[0]) {
             this.inboundStream = event.streams[0];
-            this.videoElem.srcObject = this.inboundStream;
+            this.remoteVideoElem.autoplay = true;
+            this.remoteVideoElem.srcObject = this.inboundStream;
         }
         else {
             if (null == this.inboundStream) {
                 this.inboundStream = new MediaStream();
-                this.videoElem.srcObject = this.inboundStream;
+                this.remoteVideoElem.autoplay = true;
+                this.remoteVideoElem.srcObject = this.inboundStream;
             }
 
             this.inboundStream.addTrack(event.track);

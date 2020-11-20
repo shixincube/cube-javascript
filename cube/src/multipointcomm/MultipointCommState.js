@@ -59,6 +59,11 @@ export const MultipointCommState = {
     /**
      * 
      */
+    SignalingError: 111,
+
+    /**
+     * 
+     */
     CreateOfferFailed: 121,
 
     /**

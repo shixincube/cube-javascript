@@ -24,54 +24,20 @@
  * SOFTWARE.
  */
 
-import { VideoDimension } from "./VideoDimension";
-import { JSONable } from "../util/JSONable";
-
 /**
- * 媒体约束。
+ * 模块发生的错误。
  */
-export class MediaConstraint extends JSONable {
+export class ModuleError extends Error {
 
-    /**
-     * 构造函数。
-     * @param {boolean} videoEnabled 是否使用 Video 设备。
-     * @param {boolean} audioEnabled 是否使用 Audio 设备。
-     */
-    constructor(videoEnabled, audioEnabled) {
+    constructor(module, code, data, desc) {
         super();
-        this.videoEnabled = videoEnabled;
-        this.audioEnabled = audioEnabled;
-        this.dimension = VideoDimension.VGA;
+        this.module = module;
+        this.code = code;
+        this.data = data;
+        this.desc = desc
     }
 
-    /**
-     * 设置视频尺寸。
-     * @param {VideoDimension} dimension 指定视频尺寸规格。
-     */
-    setVideoDimension(dimension) {
-        this.dimension = dimension;
-    }
-
-    /**
-     * 获取视频尺寸。
-     * @returns {VideoDimension} 返回视频尺寸。
-     */
-    getVideoDimension() {
-        return this.dimension;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    toJSON() {
-        let json = super.toJSON();
-        json.audio = this.audioEnabled;
-        if (this.videoEnabled) {
-            json.video = this.dimension.constraints;
-        }
-        else {
-            json.video = false;
-        }
-        return json;
+    toString() {
+        return 'ModuleError: [' + this.module + '] ' + this.code;
     }
 }
