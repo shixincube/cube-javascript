@@ -68,6 +68,10 @@ export class FileAnchor extends JSONable {
         this.success = false;
     }
 
+    /**
+     * 获取文件扩展名。
+     * @returns {string} 返回文件扩展名。
+     */
     getExtension() {
         let index = this.fileName.lastIndexOf('.');
         if (index <= 0) {
@@ -90,14 +94,21 @@ export class FileAnchor extends JSONable {
         return json;
     }
 
+    /**
+     * @inheritdoc
+     */
+    toCompactJSON() {
+        return this.toJSON();
+    }
+
     toString() {
         return this.position.toString();
     }
 
     /**
      * 从 JSON 数据创建 {@link FileAnchor} 对象。
-     * @param {JSON} json 
-     * @returns {FileAnchor}
+     * @param {JSON} json 符合 {@link FileAnchor} 格式的 JSON 对象。
+     * @returns {FileAnchor} 返回 {@link FileAnchor} 实例。
      */
     static create(json) {
         let anchor = new FileAnchor();

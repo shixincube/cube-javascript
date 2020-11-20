@@ -48,6 +48,11 @@ export class LocalRTCEndpoint extends CommFieldEndpoint {
         this.mediaConstraint = null;
 
         /**
+         * @type {object}
+         */
+        this.configuration = null;
+
+        /**
          * @type {RTCPeerConnection}
          */
         this.pc = null;
@@ -84,6 +89,26 @@ export class LocalRTCEndpoint extends CommFieldEndpoint {
      */
     isWorking() {
         return (null != this.pc);
+    }
+
+    /**
+     * @private
+     */
+    enableICE() {
+        this.configuration = {
+            iceServers: [{
+                urls: "stun:52.83.195.35:3478",
+                username: "cube",
+                credential: "cube887"
+            }]
+        };
+    }
+
+    /**
+     * @private
+     */
+    disableICE() {
+        this.configuration = null;
     }
 
     /**

@@ -24,33 +24,38 @@
  * SOFTWARE.
  */
 
-import { Message } from "../Message";
-
 /**
- * 图片消息。
+ * 文件存储模块状态。
  */
-export class ImageMessage extends FileMessage {
+export const FileStorageState = {
 
     /**
-     * 构造函数。
-     * @param {File|Message} data
+     * 成功。
+     * @type {number}
      */
-    constructor(data) {
-        super(data);
+    Ok: 0,
 
-        this.payload.type = 'IMAGE';
+    /**
+     * 遇到故障。
+     * @type {number}
+     */
+    Failure: 9,
 
-        if (data instanceof Message) {
-            super.clone(data);
-        }
-    }
+    /**
+     * 无效的域信息。
+     * @type {number}
+     */
+    InvalidDomain: 11,
 
-    getType() {
-        return this.payload.type;
-    }
+    /**
+     * 上传失败。
+     * @type {number}
+     */
+    UploadFailed: 102,
 
-    setDimension(width, height) {
-        this.payload.width = width;
-        this.payload.height = height;
-    }
+    /**
+     * 未知的状态。
+     * @type {number}
+     */
+    Unknown: 99
 }

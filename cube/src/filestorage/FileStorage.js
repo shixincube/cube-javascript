@@ -40,6 +40,8 @@ import { FileStorageEvent } from "./FileStorageEvent";
 import { FileStoragePipeListener } from "./FileStoragePipeListener";
 import { FileStorageAction } from "./FileStorageAction";
 import { FileStructStorage } from "./FileStructStorage";
+import { ModuleError } from "../core/error/ModuleError";
+import { FileStorageState } from "./FileStorageState";
 
 /**
  * 上传文件回调函数。
@@ -118,6 +120,7 @@ export class FileStorage extends Module {
 
     /**
      * @inheritdoc
+     * @see Module#start
      */
     start() {
         if (!super.start()) {
@@ -143,6 +146,7 @@ export class FileStorage extends Module {
 
     /**
      * @inheritdoc
+     * @see Module#stop
      */
     stop() {
         super.stop();
@@ -156,6 +160,7 @@ export class FileStorage extends Module {
 
     /**
      * @inheritdoc
+     * @see Module#config
      */
     config(config) {
         if (this.secure) {
@@ -173,11 +178,11 @@ export class FileStorage extends Module {
     /**
      * 上传指定的文件。
      * @param {File} file 指定上传文件。
-     * @param {function} [handleProcessing]
-     * @param {function} [handleSuccess]
-     * @param {function} [handleError]
+     * @param {function} [handleProcessing] 正在进行文件处理的回调函数。函数参数：({@linkcode fileAnchor}:{@link FileAnchor}) 。
+     * @param {function} [handleSuccess] 上传文件成功的回调函数。函数参数：({@linkcode fileAnchor}:{@link FileAnchor}) 。
+     * @param {function} [handleFailure] 上传文件失败的回调函数。函数参数：({@linkcode error}:{@link ModuleError}) 。
      */
-    uploadFile(file, handleProcessing, handleSuccess, handleError) {
+    uploadFile(file, handleProcessing, handleSuccess, handleFailure) {
         let fileSize = file.size;
         let fileAnchor = new FileAnchor();
         let reader = new FileReader();
@@ -196,18 +201,22 @@ export class FileStorage extends Module {
         fileAnchor.fileName = file.name;
         fileAnchor.fileSize = file.size;
 
-        // 串行上传数据
+        // 串行方式上传数据
         this._serialReadAndUpload(reader, file, fileAnchor, fileSize, (anchor) => {
             if (null == anchor) {
                 // 上传失败
                 fileAnchor.fileCode = null;
                 fileAnchor.success = false;
-                let state = new ObservableState(FileStorageEvent.UploadFailed, fileAnchor);
-                this.notifyObservers(state);
 
-                if (handleError) {
-                    handleError(fileAnchor);
+                // 实例化错误
+                let error = new ModuleError(FileStorage.NAME, FileStorageState.UploadFailed, fileAnchor);
+
+                if (handleFailure) {
+                    handleFailure(error);
                 }
+
+                let state = new ObservableState(FileStorageEvent.UploadFailed, error);
+                this.notifyObservers(state);
             }
             else {
                 // 上传成功
@@ -215,6 +224,7 @@ export class FileStorage extends Module {
                 fileAnchor.fileSize = anchor.fileSize;
                 fileAnchor.fileCode = anchor.fileCode;
                 fileAnchor.success = true;
+
                 let state = new ObservableState(FileStorageEvent.UploadCompleted, fileAnchor);
                 this.notifyObservers(state);
 
@@ -232,12 +242,15 @@ export class FileStorage extends Module {
 
     /**
      * 下载文件。
-     * @param {FileLabel|string} fileOrFileCode
+     * @param {FileLabel|string} fileOrFileCode 文件标签或文件码。
      */
     downloadFile(fileOrFileCode) {
         let fileLabel = (fileOrFileCode instanceof FileLabel) ? fileOrFileCode : this.fileLabels.get(fileOrFileCode);
         let packet = new Packet('GET', null);
         packet.responseType = 'blob';
+
+        // 事件通知
+        this.notifyObservers(new ObservableState(FileStorageEvent.Downloading, fileLabel));
 
         let url = this.secure ? fileLabel.getFileSecureURL() : fileLabel.getFileURL();
         this.filePipeline.send(url, packet, (pipeline, source, packet) => {
@@ -245,6 +258,9 @@ export class FileStorage extends Module {
             let reader = new FileReader();
             reader.readAsDataURL(blob);
             reader.onload = function(e) {
+                // 事件通知
+                this.notifyObservers(new ObservableState(FileStorageEvent.DownloadCompleted, fileLabel));
+
                 let a = document.createElement('a');
                 a.style.display = 'inline';
                 a.style.position = 'absolute';
@@ -262,33 +278,41 @@ export class FileStorage extends Module {
 
     /**
      * 获取文件的访问 URL 。
-     * @param {string} fileCode 
-     * @param {function} handler 回调函数，参数：({@linkcode fileCode}:string, {@linkcode fileURL}:string) 。
+     * @param {string} fileCode 文件码。
+     * @param {function} handler 回调函数，函数参数：({@linkcode fileCode}:string, {@linkcode fileURL}:string, {@linkcode fileSecureURL}:string) 。
      */
     getFileURL(fileCode, handler) {
         let fileLabel = this.fileLabels.get(fileCode);
         if (null == fileLabel) {
             this.storage.readFileLabel(fileCode, (fileCode, fileLabel) => {
                 if (null == fileLabel) {
-                    handler(fileCode, null);
+                    handler(fileCode, null, null);
                     return;
                 }
 
-                let url = [ this.secure ? fileLabel.getFileSecureURL() : fileLabel.getFileURL(),
+                let url = [ fileLabel.getFileURL(),
                     '&token=', this.filePipeline.tokenCode,
                     '&type=', fileLabel.fileType
                 ];
-                handler(fileCode, url.join(''));
+                let surl = [ fileLabel.getFileSecureURL(),
+                    '&token=', this.filePipeline.tokenCode,
+                    '&type=', fileLabel.fileType
+                ];
+                handler(fileCode, url.join(''), surl.json(''));
             });
 
             return;
         }
 
-        let url = [ this.secure ? fileLabel.getFileSecureURL() : fileLabel.getFileURL(),
+        let url = [ fileLabel.getFileURL(),
             '&token=', this.filePipeline.tokenCode,
             '&type=', fileLabel.fileType
         ];
-        handler(fileCode, url.join(''));
+        let surl = [ fileLabel.getFileSecureURL(),
+            '&token=', this.filePipeline.tokenCode,
+            '&type=', fileLabel.fileType
+        ];
+        handler(fileCode, url.join(''), surl.json(''));
     }
 
     /**
@@ -348,7 +372,7 @@ export class FileStorage extends Module {
     }
 
     /**
-     * 
+     * @private
      * @param {FileReader} reader 
      * @param {File} file 
      * @param {FileAnchor} fileAnchor
@@ -385,6 +409,7 @@ export class FileStorage extends Module {
 
     /**
      * 发送文件块数据。
+     * @private
      * @param {AjaxFileChunkPacket} filePacket 文件数据块。
      * @param {function} handler 数据响应回调。
      */
@@ -394,6 +419,12 @@ export class FileStorage extends Module {
         });
     }
 
+    /**
+     * 处理文件标签更新。
+     * @private
+     * @param {object} payload 
+     * @param {object} context 
+     */
     triggerPutFile(payload, context) {
         if (payload.code != 0) {
             return;
@@ -419,6 +450,10 @@ export class FileStorage extends Module {
         this.notifyObservers(new ObservableState(FileStorageEvent.FileUpdated, fileLabel));
     }
 
+    /**
+     * @private
+     * @param {ObservableState} state 
+     */
     _fireContactEvent(state) {
         if (state.name == ContactEvent.SignIn) {
             let self = state.data;

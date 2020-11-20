@@ -223,9 +223,9 @@ export class MultipointComm extends Module {
 
         let successHandler = (signaling) => {
             if (successCallback) {
-                successCallback(signaling);
+                successCallback(fieldOrContact);
             }
-            this.notifyObservers(new ObservableState(MultipointCommEvent.InProgress, signaling));
+            this.notifyObservers(new ObservableState(MultipointCommEvent.InProgress, fieldOrContact));
         };
 
         let failureHandler = (error) => {
@@ -262,7 +262,7 @@ export class MultipointComm extends Module {
      */
     answerCall(fieldOrContact, mediaConstraint, successCallback, failureCallback) {
         if (null == this.offerSignaling) {
-            let error = { code: MultipointCommState.SignalingError, data: fieldOrContact };
+            let error = new ModuleError(MultipointComm.NAME, MultipointCommState.SignalingError, fieldOrContact);
             if (failureCallback) {
                 failureCallback(error);
             }
@@ -274,7 +274,7 @@ export class MultipointComm extends Module {
 
         if (localPoint.isWorking()) {
             // 正在通话中
-            let error = { code: MultipointCommState.CalleeBusy, data: fieldOrContact };
+            let error = new ModuleError(MultipointComm.NAME, MultipointCommState.CalleeBusy, fieldOrContact);
             if (failureCallback) {
                 failureCallback(error);
             }
@@ -284,9 +284,9 @@ export class MultipointComm extends Module {
 
         let successHandler = (signaling) => {
             if (successCallback) {
-                successCallback(signaling);
+                successCallback(fieldOrContact);
             }
-            this.notifyObservers(new ObservableState(MultipointCommEvent.InProgress, signaling));
+            this.notifyObservers(new ObservableState(MultipointCommEvent.InProgress, fieldOrContact));
         };
 
         let failureHandler = (error) => {
@@ -320,15 +320,8 @@ export class MultipointComm extends Module {
     triggerOffer(payload) {
         let data = payload.data;
         this.offerSignaling = Signaling.create(data, this.pipeline);
-        if (this.offerSignaling.field.isPrivate()) {
-            // 来自个人的通话申请
-            this.notifyObservers(new ObservableState(MultipointCommEvent.NewCall, this.offerSignaling.field.getFounder()));
-        }
-        else {
-            // 来自场域的通话申请
-            this.notifyObservers(new ObservableState(MultipointCommEvent.NewCall, this.offerSignaling.field));
-        }
 
+        // 先应答
         if (this.localPoint.isWorking()) {
             // 应答忙音 Busy
             let busy = new Signaling(MultipointCommAction.Busy, this.offerSignaling.field, this.localPoint.getContact());
@@ -342,6 +335,15 @@ export class MultipointComm extends Module {
             ringing.target = this.offerSignaling.target;
             let packet = new Packet(MultipointCommAction.Ringing, ringing.toCompactJSON());
             this.pipeline.send(MultipointComm.NAME, packet);
+        }
+
+        if (this.offerSignaling.field.isPrivate()) {
+            // 来自个人的通话申请
+            this.notifyObservers(new ObservableState(MultipointCommEvent.NewCall, this.offerSignaling.field.getFounder()));
+        }
+        else {
+            // 来自场域的通话申请
+            this.notifyObservers(new ObservableState(MultipointCommEvent.NewCall, this.offerSignaling.field));
         }
     }
 

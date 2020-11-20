@@ -48,6 +48,18 @@ export const FileStorageEvent = {
     UploadFailed: 'UploadFailed',
 
     /**
+     * 正在进行文件下载。
+     * @type {string}
+     */
+    Downloading: 'Downloading',
+
+    /**
+     * 文件下载完成。
+     * @type {string}
+     */
+    DownloadCompleted: 'DownloadCompleted',
+
+    /**
      * 文件已更新。
      */
     FileUpdated: 'FileUpdated'

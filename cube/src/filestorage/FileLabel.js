@@ -119,50 +119,86 @@ export class FileLabel extends Entity {
         this.fileSecureURL = null;
     }
 
+    /**
+     * @returns {string} 返回文件域。
+     */
     getDomain() {
         return this.domain;
     }
 
+    /**
+     * @returns {number} 返回文件所有人 ID 。
+     */
     getOwnderId() {
         return this.ownerId;
     }
 
+    /**
+     * @returns {string} 返回文件名。
+     */
     getFileName() {
         return this.fileName;
     }
 
+    /**
+     * @returns {number} 返回文件大小，单位：字节。
+     */
     getFileSize() {
         return this.fileSize;
     }
 
+    /**
+     * @returns {string} 返回文件码。
+     */
     getFileCode() {
         return this.fileCode;
     }
 
+    /**
+     * @returns {number} 返回文件完成时间。
+     */
     getCompletedTime() {
         return this.completedTime;
     }
 
+    /**
+     * @returns {number} 返回文件过期时间。
+     */
     getExpiryTime() {
         return this.expiryTime;
     }
 
+    /**
+     * @returns {string} 返回文件类型描述。
+     */
     getFileType() {
         return this.fileType;
     }
 
+    /**
+     * @returns {string} 返回文件 MD5 码。
+     */
     getMD5Code() {
         return this.md5Code;
     }
 
+    /**
+     * @returns {string} 返回文件 SHA1 码。
+     */
     getSHA1Code() {
         return this.sha1Code;
     }
 
+    /**
+     * @returns {string} 返回文件的访问 URL 地址。
+     */
     getFileURL() {
         return this.fileURL;
     }
 
+    /**
+     * @returns {string} 返回文件的访问 SSL URL 地址。
+     */
     getFileSecureURL() {
         return this.fileSecureURL;
     }
@@ -187,6 +223,13 @@ export class FileLabel extends Entity {
         if (null != this.fileURL) json.fileURL = this.fileURL;
         if (null != this.fileSecureURL) json.fileSecureURL = this.fileSecureURL;
         return json;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    toCompactJSON() {
+        return this.toJSON();
     }
 
     /**
