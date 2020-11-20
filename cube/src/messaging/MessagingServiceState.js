@@ -25,42 +25,61 @@
  */
 
 /**
- * 消息动作。
+ * 消息服务状态描述。
  */
-export const MessagingAction = {
-    /**
-     * 向服务器发送消息。
-     * @type {string}
-     */
-    Push: 'push',
+export const MessagingServiceState = {
 
     /**
-     * 从服务器拉取消息。
-     * @type {string}
+     * 成功。
+     * @type {number}
      */
-    Pull: 'pull',
+    Ok: 0,
 
     /**
-     * 收到在线消息。
-     * @type {string}
+     * 遇到故障。
+     * @type {number}
      */
-    Notify: 'notify',
+    Failure: 9,
 
     /**
-     * 撤回消息。
-     * @type {string}
+     * 无效域信息。
+     * @type {number}
      */
-    Recall: 'recall',
+    InvalidDomain: 11,
 
     /**
-     * 删除消息。
-     * @type {string}
+     * 没有域信息。
+     * @type {number}
      */
-    Delete: 'delete',
+    NoDomain: 12,
 
     /**
-     * 标记已读。
-     * @type {string}
+     * 没有设备信息。
+     * @type {number}
      */
-    Read: 'read'
+    NoDevice: 15,
+
+    /**
+     * 没有找到联系人。
+     * @type {number}
+     */
+    NoContact: 16,
+
+    /**
+     * 数据结构错误。
+     * @type {number}
+     */
+    DataStructureError: 20,
+
+    /**
+     * 禁止操作。
+     * @type {number}
+     */
+    Forbidden: 101,
+
+    /**
+     * 未知的状态。
+     * @type {number}
+     */
+    Unknown: 99
 }

@@ -46,6 +46,8 @@ import { StateCode } from "../core/StateCode";
 import { PluginSystem } from "../core/PluginSystem";
 import { NotifyHook } from "./hook/NotifyHook";
 import { FileStorageEvent } from "../filestorage/FileStorageEvent";
+import { ModuleError } from "../core/error/ModuleError";
+import { MessagingServiceState } from "./MessagingServiceState";
 
 /**
  * 消息服务模块接口。
@@ -218,14 +220,6 @@ export class MessagingService extends Module {
     }
 
     /**
-     * 获取插件系统。
-     * @returns {PluginSystem} 返回插件系统。
-     */
-    getPluginSystem() {
-        return this.pluginSystem;
-    }
-
-    /**
      * 消息是否是当前签入的联系人账号发出的。
      * 即当前账号是否是指定消息的发件人。
      * @param {Message} message 指定消息实例。
@@ -373,13 +367,87 @@ export class MessagingService extends Module {
     }
 
     /**
-     * 删除消息。
-     * @param {Message|number} message 指定消息实例或者消息 ID 。
+     * 标记消息已读。
+     * @param {Message|function} message 指定消息实例或者消息 ID 。
      * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode message}:{@link Message}) 。
-     * @param {function} [handleError] 操作错误回调该方法，参数：({@linkcode message}:{@link Message}) 。
+     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError}) 。
      * @returns {boolean} 返回是否能执行该操作。
      */
-    deleteMessage(message, handleSuccess, handleError) {
+    markRead(message, handleSuccess, handleFailure) {
+        let self = this.contactService.getSelf();
+        if (null == self) {
+            return false;
+        }
+
+        let messageId = 0;
+
+        if (message instanceof Message) {
+            messageId = message.getId();
+            if (message.getTo() != self.getId()) {
+                let error = new ModuleError(MessagingService.NAME, MessagingServiceState.Forbidden, message);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return false;
+            }
+        }
+        else {
+            messageId = message;
+        }
+
+        let payload = {
+            contactId: self.getId(),
+            messageId: messageId
+        };
+        let packet = new Packet(MessagingAction.Read, payload);
+        this.pipeline.send(MessagingService.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+                if (responsePacket.data.code == 0) {
+                    this.storage.readMessageById(messageId, (message) => {
+                        // 更新状态
+                        message.state = MessageState.Read;
+
+                        // 写存储
+                        this.storage.updateMessage(message);
+
+                        if (handleSuccess) {
+                            handleSuccess(message);
+                        }
+
+                        // 事件通知
+                        this.notifyObservers(new ObservableState(MessagingEvent.Read, message));
+                    });
+                }
+                else {
+                    this.storage.readMessageById(messageId, (message) => {
+                        let error = new ModuleError(MessagingService.NAME, responsePacket.data.code, message);
+                        if (handleFailure) {
+                            handleFailure(error);
+                        }
+                    });
+                }
+            }
+            else {
+                this.storage.readMessageById(messageId, (message) => {
+                    let error = new ModuleError(MessagingService.NAME, MessagingServiceState.Failure, message);
+                    if (handleFailure) {
+                        handleFailure(error);
+                    }
+                });
+            }
+        });
+
+        return true;
+    }
+
+    /**
+     * 删除消息。
+     * @param {Message|c} message 指定消息实例或者消息 ID 。
+     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode message}:{@link Message}) 。
+     * @param {function} [handleFailure] 操作错误回调该方法，参数：({@linkcode message}:{@link Message}) 。
+     * @returns {boolean} 返回是否能执行该操作。
+     */
+    deleteMessage(message, handleSuccess, handleFailure) {
         let self = this.contactService.getSelf();
         if (null == self) {
             return false;
@@ -412,16 +480,16 @@ export class MessagingService extends Module {
                 }
                 else {
                     this.storage.readMessageById(messageId, (message) => {
-                        if (handleError) {
-                            handleError(message);
+                        if (handleFailure) {
+                            handleFailure(message);
                         }
                     });
                 }
             }
             else {
                 this.storage.readMessageById(messageId, (message) => {
-                    if (handleError) {
-                        handleError(message);
+                    if (handleFailure) {
+                        handleFailure(message);
                     }
                 });
             }
@@ -434,10 +502,10 @@ export class MessagingService extends Module {
      * 撤回消息。
      * @param {Message|number} message 指定消息 ID 或者消息实例。
      * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode message}:{@link Message}) 。
-     * @param {function} [handleError] 操作错误回调该方法，参数：({@linkcode message}:{@link Message}) 。
+     * @param {function} [handleFailure] 操作错误回调该方法，参数：({@linkcode message}:{@link Message}) 。
      * @returns {boolean} 返回是否能执行该操作。
      */
-    recallMessage(message, handleSuccess, handleError) {
+    recallMessage(message, handleSuccess, handleFailure) {
         let self = this.contactService.getSelf();
         if (null == self) {
             return false;
@@ -448,8 +516,8 @@ export class MessagingService extends Module {
         this.storage.readMessageById(messageId, (message) => {
             if (message.getFrom() != self.getId()) {
                 // 不是本人发送的消息不能撤回
-                if (handleError) {
-                    handleError(message);
+                if (handleFailure) {
+                    handleFailure(message);
                 }
                 return;
             }
@@ -457,8 +525,8 @@ export class MessagingService extends Module {
             let now = Date.now();
             if (now - message.getRemoteTimestamp() > 2 * 60 * 1000) {
                 // 超过时限不能撤回
-                if (handleError) {
-                    handleError(message);
+                if (handleFailure) {
+                    handleFailure(message);
                 }
                 return;
             }
