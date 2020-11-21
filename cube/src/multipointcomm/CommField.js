@@ -108,7 +108,7 @@ export class CommField extends Entity {
         }
 
         rtcEndpoint.openOffer(mediaConstraint, (description) => {
-            let signaling = new Signaling(MultipointCommAction.Offer, this, rtcEndpoint.getContact());
+            let signaling = new Signaling(MultipointCommAction.Offer, this, rtcEndpoint.getContact(), rtcEndpoint.getDevice());
             signaling.sessionDescription = description;
             this.sendSignaling(signaling, successCallback, failureCallback);
         }, (error) => {

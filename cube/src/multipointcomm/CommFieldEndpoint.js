@@ -137,6 +137,10 @@ export class CommFieldEndpoint extends Aggregation(Entity, Endpoint) {
         return this.contact;
     }
 
+    getDevice() {
+        return this.device;
+    }
+
     /**
      * @inheritdoc
      */
