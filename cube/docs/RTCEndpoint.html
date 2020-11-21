@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>Entity - Cube for Javascript</title>
+    <title>RTCEndpoint - Cube for Javascript</title>
     
     <meta name="description" content="Cube Javascript" />
     
@@ -43,7 +43,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">Entity</h1>
+    <h1 class="page-title">RTCEndpoint</h1>
     
 
     
@@ -56,11 +56,10 @@
 <header>
     
         <h2>
-        Entity
+        RTCEndpoint
         </h2>
         
-            <div class="class-description usertext"><p>信息实体对象。
-所有实体对象的基类。</p></div>
+            <div class="class-description usertext"><p>本地 RTC 接入点。</p></div>
         
     
 </header>
@@ -75,7 +74,7 @@
     <h2>Constructor</h2>
     
 
-    <h4 class="name" id="Entity"><span class="type-signature"></span>new Entity<span class="signature">(lifespan)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="RTCEndpoint"><span class="type-signature"></span>new RTCEndpoint<span class="signature">(id, contact)</span><span class="type-signature"></span></h4>
 
     
 
@@ -121,10 +120,6 @@
 
 
 
-<div class="description usertext">
-    <p>构造函数。</p>
-</div>
-
 
 
 
@@ -160,7 +155,7 @@
 
         <tr>
             
-                <td class="name"><code>lifespan</code></td>
+                <td class="name"><code>id</code></td>
             
 
             <td class="type">
@@ -176,7 +171,30 @@
 
             
 
-            <td class="description last"><p>实体的生存周期，单位：毫秒。</p></td>
+            <td class="description last"><p>节点 ID 。</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>contact</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Contact.html">Contact</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>联系人。</p></td>
         </tr>
 
     
@@ -213,7 +231,7 @@
         <h3 class="subsection-title">Classes</h3>
 
         <dl>
-            <dt><a href="Entity.html">Entity</a></dt>
+            <dt><a href="RTCEndpoint.html">RTCEndpoint</a></dt>
             <dd></dd>
         </dl>
     
@@ -229,7 +247,7 @@
 
         
             
-<h4 class="name" id="id"><span class="type-signature">(protected) </span>id<span class="type-signature"> :number</span></h4>
+<h4 class="name" id="mediaConstraint"><span class="type-signature"></span>mediaConstraint<span class="type-signature"> :<a href="MediaConstraint.html">MediaConstraint</a></span></h4>
 
 
 
@@ -274,17 +292,13 @@
 
 
 
-<div class="description usertext">
-    <p>实体 ID 。</p>
-</div>
-
 
 
     <h5>Type:</h5>
     <ul>
         <li>
             
-<span class="param-type">number</span>
+<span class="param-type"><a href="MediaConstraint.html">MediaConstraint</a></span>
 
 
         </li>
@@ -297,7 +311,7 @@
 
         
             
-<h4 class="name" id="timestamp"><span class="type-signature"></span>timestamp<span class="type-signature"> :number</span></h4>
+<h4 class="name" id="configuration"><span class="type-signature"></span>configuration<span class="type-signature"> :object</span></h4>
 
 
 
@@ -342,17 +356,13 @@
 
 
 
-<div class="description usertext">
-    <p>实体创建时的时间戳。</p>
-</div>
-
 
 
     <h5>Type:</h5>
     <ul>
         <li>
             
-<span class="param-type">number</span>
+<span class="param-type">object</span>
 
 
         </li>
@@ -365,7 +375,7 @@
 
         
             
-<h4 class="name" id="expiry"><span class="type-signature"></span>expiry<span class="type-signature"> :number</span></h4>
+<h4 class="name" id="pc"><span class="type-signature"></span>pc<span class="type-signature"> :RTCPeerConnection</span></h4>
 
 
 
@@ -410,17 +420,13 @@
 
 
 
-<div class="description usertext">
-    <p>实体的有效期。</p>
-</div>
-
 
 
     <h5>Type:</h5>
     <ul>
         <li>
             
-<span class="param-type">number</span>
+<span class="param-type">RTCPeerConnection</span>
 
 
         </li>
@@ -433,7 +439,7 @@
 
         
             
-<h4 class="name" id="moduleName"><span class="type-signature">(protected) </span>moduleName<span class="type-signature"> :string</span></h4>
+<h4 class="name" id="localVideoElem"><span class="type-signature"></span>localVideoElem<span class="type-signature"> :HTMLElement</span></h4>
 
 
 
@@ -478,9 +484,69 @@
 
 
 
-<div class="description usertext">
-    <p>模块名称。</p>
-</div>
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">HTMLElement</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="remoteVideoElem"><span class="type-signature"></span>remoteVideoElem<span class="type-signature"> :HTMLElement</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
 
 
 
@@ -488,7 +554,199 @@
     <ul>
         <li>
             
-<span class="param-type">string</span>
+<span class="param-type">HTMLElement</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="outboundStream"><span class="type-signature"></span>outboundStream<span class="type-signature"> :MediaStream</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">MediaStream</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="inboundStream"><span class="type-signature"></span>inboundStream<span class="type-signature"> :MediaStream</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">MediaStream</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="localVideoOnLoad"><span class="type-signature"></span>localVideoOnLoad<span class="type-signature"> :function</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">function</span>
 
 
         </li>
@@ -510,7 +768,7 @@
 
     
 
-    <h4 class="name" id="getId"><span class="type-signature"></span>getId<span class="signature">()</span><span class="type-signature"> &rarr; {number}</span></h4>
+    <h4 class="name" id="isWorking"><span class="type-signature"></span>isWorking<span class="signature">()</span><span class="type-signature"> &rarr; {boolean}</span></h4>
 
     
 
@@ -557,7 +815,7 @@
 
 
 <div class="description usertext">
-    <p>获取实体 ID 。</p>
+    <p>当前本地 RTC 连接是否正在工作。</p>
 </div>
 
 
@@ -588,554 +846,7 @@
 
         
 <div class="param-desc">
-    <p>返回实体 ID 。</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">number</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="getTimestamp"><span class="type-signature"></span>getTimestamp<span class="signature">()</span><span class="type-signature"> &rarr; {number}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>获取实体创建时的时间戳。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>返回实体创建时的时间戳。</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">number</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="getExpiry"><span class="type-signature"></span>getExpiry<span class="signature">()</span><span class="type-signature"> &rarr; {number}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>获取实体的有效期。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>返回实体的有效期。</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">number</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="setContext"><span class="type-signature"></span>setContext<span class="signature">(context)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>设置关联的上下文。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>context</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>指定上下文对象。</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="getContext"><span class="type-signature"></span>getContext<span class="signature">()</span><span class="type-signature"> &rarr; {object}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>获取关联的上下文。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>返回关联的上下文。</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">object</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="overdue"><span class="type-signature"></span>overdue<span class="signature">()</span><span class="type-signature"> &rarr; {boolean}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>实体生命周期是否已经超期。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>如果超期返回 <code>true</code> ，否则返回 <code>false</code> 。</p>
+    <p>如果正在通话返回 <code>true</code> 。</p>
 </div>
 
 
@@ -1161,7 +872,7 @@
 
     
 
-    <h4 class="name" id="broadcast"><span class="type-signature"></span>broadcast<span class="signature">(data)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="openOffer"><span class="type-signature"></span>openOffer<span class="signature">(mediaConstraint, handleSuccess, handleFailure)</span><span class="type-signature"></span></h4>
 
     
 
@@ -1208,7 +919,7 @@
 
 
 <div class="description usertext">
-    <p>向该实体的所有副本进行数据广播。</p>
+    <p>启动 RTC 终端为主叫。</p>
 </div>
 
 
@@ -1246,13 +957,13 @@
 
         <tr>
             
-                <td class="name"><code>data</code></td>
+                <td class="name"><code>mediaConstraint</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">JSON</span>
+<span class="param-type"><a href="MediaConstraint.html">MediaConstraint</a></span>
 
 
             
@@ -1262,7 +973,53 @@
 
             
 
-            <td class="description last"><p>指定广播数据。</p></td>
+            <td class="description last"><p>媒体约束。</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>handleSuccess</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>启动成功回调函数。</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>handleFailure</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>启动失败回调函数。</p></td>
         </tr>
 
     
@@ -1292,7 +1049,7 @@
 
     
 
-    <h4 class="name" id="toJSON"><span class="type-signature"></span>toJSON<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="openAnswer"><span class="type-signature"></span>openAnswer<span class="signature">(offer, mediaConstraint, handleSuccess, handleFailure)</span><span class="type-signature"></span></h4>
 
     
 
@@ -1338,6 +1095,9 @@
 
 
 
+<div class="description usertext">
+    <p>启动 RTC 终端为被叫。</p>
+</div>
 
 
 
@@ -1346,6 +1106,125 @@
 
 
 
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>offer</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>主叫的 SDP 。</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>mediaConstraint</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="MediaConstraint.html">MediaConstraint</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>媒体约束。</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>handleSuccess</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>启动成功回调函数。</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>handleFailure</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>启动失败回调函数。</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -1370,7 +1249,7 @@
 
     
 
-    <h4 class="name" id="toCompactJSON"><span class="type-signature"></span>toCompactJSON<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="close"><span class="type-signature"></span>close<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 
@@ -1415,6 +1294,10 @@
 
 
 
+
+<div class="description usertext">
+    <p>关闭 RTC 终端。</p>
+</div>
 
 
 

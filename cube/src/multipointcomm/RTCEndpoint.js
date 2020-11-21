@@ -33,7 +33,7 @@ import { MultipointCommState } from "./MultipointCommState";
 /**
  * 本地 RTC 接入点。
  */
-export class LocalRTCEndpoint extends CommFieldEndpoint {
+export class RTCEndpoint extends CommFieldEndpoint {
 
     /**
      * @param {number} id 节点 ID 。

@@ -29,7 +29,7 @@ import { OrderMap } from "../util/OrderMap";
 import { Entity } from "../core/Entity";
 import { CommFieldEndpoint } from "./CommFieldEndpoint";
 import { MediaConstraint } from "./MediaConstraint";
-import { LocalRTCEndpoint } from "./LocalRTCEndpoint";
+import { RTCEndpoint } from "./RTCEndpoint";
 import { MultipointCommAction } from "./MultipointCommAction";
 import { AuthService } from "../auth/AuthService";
 import { Pipeline } from "../core/Pipeline";
@@ -97,13 +97,13 @@ export class CommField extends Entity {
 
     /**
      * 启动为主叫。
-     * @param {LocalRTCEndpoint} rtcEndpoint
+     * @param {RTCEndpoint} rtcEndpoint
      * @param {MediaConstraint} mediaConstraint
      * @param {function} successCallback
      * @param {function} failureCallback
      */
     launchCaller(rtcEndpoint, mediaConstraint, successCallback, failureCallback) {
-        if (!(rtcEndpoint instanceof LocalRTCEndpoint)) {
+        if (!(rtcEndpoint instanceof RTCEndpoint)) {
             return false;
         }
 
@@ -120,14 +120,14 @@ export class CommField extends Entity {
 
     /**
      * 启动为被叫。
-     * @param {LocalRTCEndpoint} rtcEndpoint 
+     * @param {RTCEndpoint} rtcEndpoint 
      * @param {string} offerDescription
      * @param {MediaConstraint} mediaConstraint 
      * @param {function} successCallback 
      * @param {function} failureCallback 
      */
     launchCallee(rtcEndpoint, offerDescription, mediaConstraint, successCallback, failureCallback) {
-        if (!(rtcEndpoint instanceof LocalRTCEndpoint)) {
+        if (!(rtcEndpoint instanceof RTCEndpoint)) {
             return false;
         }
 

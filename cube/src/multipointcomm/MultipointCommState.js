@@ -27,19 +27,54 @@
 export const MultipointCommState = {
 
     /**
+     * 成功。
+     */
+    Ok: 0,
+
+    /**
+     * 遇到故障。
+     */
+    Failure: 9,
+
+    /**
+     * 无效域信息。
+     */
+    InvalidDomain: 11,
+
+    /**
+     * 没有域信息。
+     */
+    NoDomain: 12,
+
+    /**
+     * 没有设备信息。
+     */
+    NoDevice: 15,
+
+    /**
+     * 没有找到联系人。
+     */
+    NoContact: 16,
+
+    /**
+     * 数据结构错误。
+     */
+    DataStructureError: 20,
+
+    /**
      * 正在建立通话。
      */
-    Calling: 7,
+    Calling: 27,
 
     /**
      * 主叫忙。
      */
-    CallerBusy: 8,
+    CallerBusy: 28,
 
     /**
      * 被叫忙。
      */
-    CalleeBusy: 9,
+    CalleeBusy: 29,
 
     /**
      * 终端未初始化。

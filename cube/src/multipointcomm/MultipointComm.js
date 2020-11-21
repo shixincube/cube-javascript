@@ -33,7 +33,7 @@ import { Packet } from "../core/Packet";
 import { OrderMap } from "../util/OrderMap";
 import { CommField } from "./CommField";
 import { MultipointCommAction } from "./MultipointCommAction";
-import { LocalRTCEndpoint } from "./LocalRTCEndpoint";
+import { RTCEndpoint } from "./RTCEndpoint";
 import { MediaConstraint } from "./MediaConstraint";
 import { MultipointCommState } from "./MultipointCommState";
 import { CommPipelineListener } from "./CommPipelineListener";
@@ -68,10 +68,10 @@ export class MultipointComm extends Module {
         this.privateField = null;
 
         /**
-         * 本地节点。
-         * @type {LocalRTCEndpoint}
+         * RTC 节点。
+         * @type {RTCEndpoint}
          */
-        this.localPoint = null;
+        this.rtcEndpoint = null;
 
         /**
          * 管理的通信场域。
@@ -136,8 +136,8 @@ export class MultipointComm extends Module {
      * @returns {HTMLElement} 返回本地视频标签的 DOM 元素。
      */
     getLocalVideoElement() {
-        let localPoint = this.getLocalPoint();
-        return localPoint.localVideoElem;
+        let rtcEndpoint = this.getRTCEndpoint();
+        return rtcEndpoint.localVideoElem;
     }
 
     /**
@@ -145,16 +145,16 @@ export class MultipointComm extends Module {
      * @param {HTMLElement} value 
      */
     setLocalVideoElement(value) {
-        let localPoint = this.getLocalPoint();
-        localPoint.localVideoElem = value;
+        let rtcEndpoint = this.getRTCEndpoint();
+        rtcEndpoint.localVideoElem = value;
     }
 
     /**
      * @returns {HTMLElement} 返回远端视频标签的 DOM 元素。
      */
     getRemoteVideoElement() {
-        let localPoint = this.getLocalPoint();
-        return localPoint.remoteVideoElem;
+        let rtcEndpoint = this.getRTCEndpoint();
+        return rtcEndpoint.remoteVideoElem;
     }
 
     /**
@@ -162,29 +162,29 @@ export class MultipointComm extends Module {
      * @param {HTMLElement} value 
      */
     setRemoteVideoElement(value) {
-        let localPoint = this.getLocalPoint();
-        localPoint.remoteVideoElem = value;
+        let rtcEndpoint = this.getRTCEndpoint();
+        rtcEndpoint.remoteVideoElem = value;
     }
 
     /**
      * @private
      */
-    getLocalPoint() {
-        if (null == this.localPoint) {
+    getRTCEndpoint() {
+        if (null == this.rtcEndpoint) {
             let cs = this.kernel.getModule(ContactService.NAME);
             let self = cs.getSelf();
-            this.localPoint = new LocalRTCEndpoint(self.getId(), self);
+            this.rtcEndpoint = new RTCEndpoint(self.getId(), self);
 
-            this.localPoint.localVideoElem = document.createElement('video');
-            this.localPoint.localVideoElem.width = 480;
-            this.localPoint.localVideoElem.height = 360;
+            this.rtcEndpoint.localVideoElem = document.createElement('video');
+            this.rtcEndpoint.localVideoElem.width = 480;
+            this.rtcEndpoint.localVideoElem.height = 360;
 
-            this.localPoint.remoteVideoElem = document.createElement('video');
-            this.localPoint.remoteVideoElem.width = 480;
-            this.localPoint.remoteVideoElem.height = 360;
+            this.rtcEndpoint.remoteVideoElem = document.createElement('video');
+            this.rtcEndpoint.remoteVideoElem.width = 480;
+            this.rtcEndpoint.remoteVideoElem.height = 360;
         }
 
-        return this.localPoint;
+        return this.rtcEndpoint;
     }
 
     /**
@@ -207,9 +207,9 @@ export class MultipointComm extends Module {
         }
 
         // 获取本地 RTC 节点
-        let localPoint = this.getLocalPoint();
+        let rtcEndpoint = this.getRTCEndpoint();
 
-        if (localPoint.isWorking()) {
+        if (rtcEndpoint.isWorking()) {
             // 正在通话中
             let error = new ModuleError(MultipointComm.NAME, MultipointCommState.CallerBusy, fieldOrContact);
             if (failureCallback) {
@@ -236,12 +236,12 @@ export class MultipointComm extends Module {
         if (fieldOrContact instanceof Contact) {
             // 呼叫指定联系人
             this.privateField.addEndpoint(fieldOrContact);
-            this.privateField.launchCaller(localPoint, mediaConstraint, successHandler, failureHandler);
+            this.privateField.launchCaller(rtcEndpoint, mediaConstraint, successHandler, failureHandler);
         }
         else if (fieldOrContact instanceof CommField) {
             // 呼入 Comm Field
-            fieldOrContact.addEndpoint(localPoint);
-            fieldOrContact.launchCaller(localPoint, mediaConstraint, successHandler, failureHandler);
+            fieldOrContact.addEndpoint(rtcEndpoint);
+            fieldOrContact.launchCaller(rtcEndpoint, mediaConstraint, successHandler, failureHandler);
         }
         else {
             return false;
@@ -268,9 +268,9 @@ export class MultipointComm extends Module {
             return false;
         }
 
-        let localPoint = this.getLocalPoint();
+        let rtcEndpoint = this.getRTCEndpoint();
 
-        if (localPoint.isWorking()) {
+        if (rtcEndpoint.isWorking()) {
             // 正在通话中
             let error = new ModuleError(MultipointComm.NAME, MultipointCommState.CalleeBusy, fieldOrContact);
             if (failureCallback) {
@@ -296,13 +296,13 @@ export class MultipointComm extends Module {
 
         if (fieldOrContact instanceof Contact) {
             // 应答指定联系人
-            this.privateField.addEndpoint(localPoint);
-            this.privateField.launchCallee(localPoint, this.offerSignaling.sdp, mediaConstraint, successHandler, failureHandler);
+            this.privateField.addEndpoint(rtcEndpoint);
+            this.privateField.launchCallee(rtcEndpoint, this.offerSignaling.sdp, mediaConstraint, successHandler, failureHandler);
         }
         else if (fieldOrContact instanceof CommField) {
             // 应答 Comm Field
-            fieldOrContact.addEndpoint(localPoint);
-            fieldOrContact.launchCallee(localPoint, this.offerSignaling.sdp, mediaConstraint, successHandler, failureHandler);
+            fieldOrContact.addEndpoint(rtcEndpoint);
+            fieldOrContact.launchCallee(rtcEndpoint, this.offerSignaling.sdp, mediaConstraint, successHandler, failureHandler);
         }
         else {
             return false;
@@ -320,16 +320,16 @@ export class MultipointComm extends Module {
         this.offerSignaling = Signaling.create(data, this.pipeline);
 
         // 先应答
-        if (this.localPoint.isWorking()) {
+        if (this.rtcEndpoint.isWorking()) {
             // 应答忙音 Busy
-            let busy = new Signaling(MultipointCommAction.Busy, this.offerSignaling.field, this.localPoint.getContact());
+            let busy = new Signaling(MultipointCommAction.Busy, this.offerSignaling.field, this.rtcEndpoint.getContact());
             busy.target = this.offerSignaling.target;
             let packet = new Packet(MultipointCommAction.Busy, busy.toCompactJSON());
             this.pipeline.send(MultipointComm.NAME, packet);
         }
         else {
             // 应答振铃 Ringing
-            let ringing = new Signaling(MultipointCommAction.Ringing, this.offerSignaling.field, this.localPoint.getContact());
+            let ringing = new Signaling(MultipointCommAction.Ringing, this.offerSignaling.field, this.rtcEndpoint.getContact());
             ringing.target = this.offerSignaling.target;
             let packet = new Packet(MultipointCommAction.Ringing, ringing.toCompactJSON());
             this.pipeline.send(MultipointComm.NAME, packet);
