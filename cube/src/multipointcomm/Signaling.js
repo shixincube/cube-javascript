@@ -25,6 +25,7 @@
  */
 
 import { Contact } from "../contact/Contact";
+import { Device } from "../contact/Device";
 import { JSONable } from "../util/JSONable";
 import { CommField } from "./CommField";
 
@@ -37,8 +38,9 @@ export class Signaling extends JSONable {
      * @param {string} name 
      * @param {CommField} field 
      * @param {Contact} contact 
+     * @param {Device} device
      */
-    constructor(name, field, contact) {
+    constructor(name, field, contact, device) {
         super();
 
         /**
@@ -57,9 +59,9 @@ export class Signaling extends JSONable {
         this.contact = contact;
 
         /**
-         * @type {number}
+         * @type {Device}
          */
-        this.target = 0;
+        this.device = device;
 
         /**
          * @type {object}
@@ -77,7 +79,7 @@ export class Signaling extends JSONable {
         json["name"] = this.name;
         json["field"] = this.field.toCompactJSON();
         json["contact"] = this.contact.toCompactJSON();
-        json["target"] = this.target;
+        json["device"] = this.device.toCompactJSON();
 
         if (null != this.sessionDescription) {
             json["description"] = this.sessionDescription;
@@ -95,8 +97,10 @@ export class Signaling extends JSONable {
     }
 
     static create(json, pipeline) {
-        let signaling = new Signaling(json.name, CommField.create(json.field, pipeline), Contact.create(json.contact));
-        signaling.target = json.target;
+        let signaling = new Signaling(json.name,
+            CommField.create(json.field, pipeline),
+            Contact.create(json.contact),
+            Device.create(json.device));
 
         if (json.description) {
             signaling.sessionDescription = json.description;
@@ -105,7 +109,7 @@ export class Signaling extends JSONable {
         if (json.candidate) {
             signaling.candidate = json.candidate;
         }
-        
+
         return signaling;
     }
 }

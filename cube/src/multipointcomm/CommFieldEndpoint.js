@@ -29,8 +29,9 @@ import { Aggregation } from "../util/Aggregation";
 import { Entity } from "../core/Entity";
 import { Endpoint } from "../util/Endpoint";
 import { Contact } from "../contact/Contact";
-import { AuthService } from "../auth/AuthService";
 import { MultipointCommState } from "./MultipointCommState";
+import { Device } from "../contact/Device";
+import { StringUtil } from "../util/StringUtil";
 
 /**
  * 通讯场域里的媒体节点。
@@ -40,15 +41,23 @@ export class CommFieldEndpoint extends Aggregation(Entity, Endpoint) {
     /**
      * @param {number} id 节点 ID 。
      * @param {Contact} contact 联系人。
+     * @param {Device} device 联系人使用的设备。
      */
-    constructor(id, contact) {
+    constructor(id, contact, device) {
         super();
+
+        /**
+         * 节点名称。
+         * @type {string}
+         */
+        this.name = ([contact.getId(), '_', contact.getDomain(), '_',
+                    device.getName(), '_', device.getPlatform()]).join('');
 
         /**
          * 节点的 ID 。
          * @type {number}
          */
-        this.id = id;
+        this.id = (null != id) ? id : StringUtil.fastHash(this.name);
 
         /**
          * 关联的联系人。
@@ -57,19 +66,17 @@ export class CommFieldEndpoint extends Aggregation(Entity, Endpoint) {
         this.contact = contact;
 
         /**
+         * 关联的联系人的设备。
+         * @type {Device}
+         */
+        this.device = device;
+
+        /**
          * 当前状态。
          * @type {number}
          * @see MultipointCommState
          */
         this.state = MultipointCommState.Ok;
-
-        let device = contact.getDevice();
-        /**
-         * 节点名称。
-         * @type {string}
-         */
-        this.name = ([contact.getId(), '_', AuthService.DOMAIN, '_',
-                    device.getName(), '_', device.getPlatform()]).join('');
 
         /**
          * 客户端是否启用视频设备。
@@ -136,10 +143,11 @@ export class CommFieldEndpoint extends Aggregation(Entity, Endpoint) {
     toJSON() {
         let json = super.toJSON();
         json.id = this.id;
-        json.domain = AuthService.DOMAIN;
-        json.name = this.name;
+        json.domain = this.contact.getDomain();
         json.contact = this.contact.toJSON();
+        json.device = this.device.toJSON();
         json.state = this.state;
+        json.name = this.name;
         json.video = {
             enabled: this.videoEnabled,
             streamEnabled: this.videoStreamEnabled
@@ -154,10 +162,11 @@ export class CommFieldEndpoint extends Aggregation(Entity, Endpoint) {
     toCompactJSON() {
         let json = super.toCompactJSON();
         json.id = this.id;
-        json.domain = AuthService.DOMAIN;
-        json.name = this.name;
+        json.domain = this.contact.getDomain();
         json.contact = this.contact.toCompactJSON();
+        json.device = this.device.toCompactJSON();
         json.state = this.state;
+        json.name = this.name;
         json.video = {
             enabled: this.videoEnabled,
             streamEnabled: this.videoStreamEnabled
@@ -170,9 +179,9 @@ export class CommFieldEndpoint extends Aggregation(Entity, Endpoint) {
     }
 
     static create(json) {
-        let endpoint = new CommFieldEndpoint(json.id, Contact.create(json.contact, json.domain));
-        endpoint.name = json.name;
+        let endpoint = new CommFieldEndpoint(json.id, Contact.create(json.contact, json.domain), Device.create(json.device));
         endpoint.state = json.state;
+        endpoint.name = json.name;
         endpoint.videoEnabled = json.video.enabled;
         endpoint.videoStreamEnabled = json.video.streamEnabled;
         endpoint.audioEnabled = json.audio.enabled;

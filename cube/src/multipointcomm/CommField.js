@@ -140,35 +140,36 @@ export class CommField extends Entity {
         return true;
     }
 
-    getEndpoint() {
-        if (this.fieldEndpoints.size() == 0) {
-            return null;
-        }
-
-        return this.fieldEndpoints.values()[0];
-    }
-
-    addEndpoint(endpoint) {
-        let cfe = endpoint;
-
-        if (endpoint instanceof Contact) {
-            let contact = endpoint;
-            cfe = new CommFieldEndpoint(contact.getId(), contact);
-        }
-
-        if (this.fieldEndpoints.containsKey(cfe.getId())) {
-            return false;
-        }
-
-        this.fieldEndpoints.put(cfe.getId(), cfe);
-        return true;
-    }
-
-    /**
-     * 
-     */
-    removeEndpoint(endpoint) {
-
+    applyCall(proposer, target, successCallback, failureCallback) {
+        let packet = new Packet(MultipointCommAction.ApplyCall, {
+            field: this.toCompactJSON(),
+            proposer: proposer.toCompactJSON(),
+            target: target.toCompactJSON()
+        });
+        this.pipeline.send(MultipointComm.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+                if (responsePacket.data.code == MultipointCommState.Ok) {
+                    let responseData = responsePacket.data.data;
+                    successCallback(this, proposer, target);
+                }
+                else {
+                    let error = new ModuleError(MultipointComm.NAME, responsePacket.data.code, {
+                        field: this,
+                        proposer: proposer,
+                        target: target
+                    });
+                    failureCallback(error);
+                }
+            }
+            else {
+                let error = new ModuleError(MultipointComm.NAME, MultipointCommState.ServerFault, {
+                    field: this,
+                    proposer: proposer,
+                    target: target
+                });
+                failureCallback(error);
+            }
+        });
     }
 
     /**
@@ -179,21 +180,9 @@ export class CommField extends Entity {
      * @private
      */
     sendSignaling(signaling, successCallback, failureCallback) {
-        let target = 0;
-        if (this.id == this.founder.getId()) {
-            // 本地的私有场
-            target = this.fieldEndpoints.values()[0].getContact().getId();
-        }
-        else {
-            target = this.id;
-        }
-
-        // 设置目标
-        signaling.target = target;
-
         this.pipeline.send(MultipointComm.NAME, new Packet(signaling.name, signaling.toJSON()), (pipeline, source, packet) => {
             if (null != packet && packet.getStateCode() == StateCode.OK) {
-                if (packet.data.code == 0) {
+                if (packet.data.code == MultipointCommState.Ok) {
                     let data = packet.data.data;
                     let response = Signaling.create(data);
                     successCallback(response);
@@ -211,7 +200,7 @@ export class CommField extends Entity {
     toJSON() {
         let json = super.toJSON();
         json.id = this.id;
-        json.domain = AuthService.DOMAIN;
+        json.domain = this.founder.getDomain();
         json.founder = this.founder.toCompactJSON();
         json.endpoints = [];
         let list = this.fieldEndpoints.values();
@@ -224,7 +213,7 @@ export class CommField extends Entity {
     toCompactJSON() {
         let json = super.toCompactJSON();
         json.id = this.id;
-        json.domain = AuthService.DOMAIN;
+        json.domain = this.founder.getDomain();
         json.founder = this.founder.toCompactJSON();
         return json;
     }

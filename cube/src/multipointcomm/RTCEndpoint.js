@@ -24,6 +24,7 @@
  * SOFTWARE.
  */
 
+import { Device } from "../contact/Device";
 import { ModuleError } from "../core/error/ModuleError";
 import { CommFieldEndpoint } from "./CommFieldEndpoint";
 import { MediaConstraint } from "./MediaConstraint";
@@ -36,11 +37,11 @@ import { MultipointCommState } from "./MultipointCommState";
 export class RTCEndpoint extends CommFieldEndpoint {
 
     /**
-     * @param {number} id 节点 ID 。
      * @param {Contact} contact 联系人。
+     * @param {Device} device 对应的设备。
      */
-    constructor(id, contact) {
-        super(id, contact);
+    constructor(contact, device) {
+        super(null, contact, device);
 
         /**
          * @type {MediaConstraint}
@@ -76,11 +77,6 @@ export class RTCEndpoint extends CommFieldEndpoint {
          * @type {MediaStream}
          */
         this.inboundStream = null;
-
-        /**
-         * @type {function}
-         */
-        this.localVideoOnLoad = null;
     }
 
     /**

@@ -25,7 +25,6 @@
  */
 
 import { Module } from "../core/Module";
-import { AuthService } from "../auth/AuthService";
 import { ContactEvent } from "../contact/ContactEvent";
 import { Contact } from "../contact/Contact";
 import { ContactService } from "../contact/ContactService";
@@ -173,7 +172,7 @@ export class MultipointComm extends Module {
         if (null == this.rtcEndpoint) {
             let cs = this.kernel.getModule(ContactService.NAME);
             let self = cs.getSelf();
-            this.rtcEndpoint = new RTCEndpoint(self.getId(), self);
+            this.rtcEndpoint = new RTCEndpoint(self, self.getDevice());
 
             this.rtcEndpoint.localVideoElem = document.createElement('video');
             this.rtcEndpoint.localVideoElem.width = 480;
@@ -235,12 +234,16 @@ export class MultipointComm extends Module {
 
         if (fieldOrContact instanceof Contact) {
             // 呼叫指定联系人
-            this.privateField.addEndpoint(fieldOrContact);
-            this.privateField.launchCaller(rtcEndpoint, mediaConstraint, successHandler, failureHandler);
+            // 1. 先申请主叫，从而设置目标
+            this.privateField.applyCall(this.privateField.getFounder(), fieldOrContact, (commField, proposer, target) => {
+                // 2. 启动 RTC 节点，发起 Offer
+                this.privateField.launchCaller(rtcEndpoint, mediaConstraint, successHandler, failureHandler);
+            }, (error) => {
+                failureHandler(error);
+            });
         }
         else if (fieldOrContact instanceof CommField) {
             // 呼入 Comm Field
-            fieldOrContact.addEndpoint(rtcEndpoint);
             fieldOrContact.launchCaller(rtcEndpoint, mediaConstraint, successHandler, failureHandler);
         }
         else {
@@ -296,13 +299,13 @@ export class MultipointComm extends Module {
 
         if (fieldOrContact instanceof Contact) {
             // 应答指定联系人
-            this.privateField.addEndpoint(rtcEndpoint);
-            this.privateField.launchCallee(rtcEndpoint, this.offerSignaling.sdp, mediaConstraint, successHandler, failureHandler);
+            this.privateField.launchCallee(rtcEndpoint,
+                this.offerSignaling.sessionDescription, mediaConstraint, successHandler, failureHandler);
         }
         else if (fieldOrContact instanceof CommField) {
             // 应答 Comm Field
-            fieldOrContact.addEndpoint(rtcEndpoint);
-            fieldOrContact.launchCallee(rtcEndpoint, this.offerSignaling.sdp, mediaConstraint, successHandler, failureHandler);
+            fieldOrContact.launchCallee(rtcEndpoint,
+                this.offerSignaling.sessionDescription, mediaConstraint, successHandler, failureHandler);
         }
         else {
             return false;

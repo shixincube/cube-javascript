@@ -25,42 +25,16 @@
  */
 
 /**
- * 多方通讯动作。
+ * 字符串适用函数库。
  */
-export const MultipointCommAction = {
+export const StringUtil = {
 
-    /**
-     * 信令 Offer 。
-     */
-    Offer: 'offer',
-
-    /**
-     * 信令 Answer 。
-     */
-    Answer: 'answer',
-
-    /**
-     * ICE 候选字收发。
-     */
-    Candidate: 'candidate',
-
-    /**
-     * 信令振铃 Ringing 。
-     */
-    Ringing: 'ringing',
-
-    /**
-     * 信令忙 Busy 。
-     */
-    Busy: 'busy',
-
-    /**
-     * 信令 Ready 。
-     */
-    Ready: 'ready',
-
-    /**
-     * 申请主叫对方。
-     */
-    ApplyCall: 'applyCall'
+    fastHash: (string) => {
+        let hash = 0;
+        for (let i = 0, len = string.length; i < len; ++i) {
+            let c = string.charCodeAt(i);
+            hash += c * 3 + hash * 3;
+        }
+        return Math.abs(hash);
+    }
 }

@@ -28,96 +28,121 @@ export const MultipointCommState = {
 
     /**
      * 成功。
+     * @type {number}
      */
     Ok: 0,
 
     /**
      * 遇到故障。
+     * @type {number}
      */
     Failure: 9,
 
     /**
      * 无效域信息。
+     * @type {number}
      */
     InvalidDomain: 11,
 
     /**
      * 没有域信息。
+     * @type {number}
      */
     NoDomain: 12,
 
     /**
      * 没有设备信息。
+     * @type {number}
      */
     NoDevice: 15,
 
     /**
      * 没有找到联系人。
+     * @type {number}
      */
     NoContact: 16,
 
     /**
+     * 没有找到通讯场域。
+     * @type {number}
+     */
+    NoCommField: 17,
+
+    /**
      * 数据结构错误。
+     * @type {number}
      */
     DataStructureError: 20,
 
     /**
      * 正在建立通话。
+     * @type {number}
      */
     Calling: 27,
 
     /**
      * 主叫忙。
+     * @type {number}
      */
     CallerBusy: 28,
 
     /**
      * 被叫忙。
+     * @type {number}
      */
     CalleeBusy: 29,
 
     /**
      * 终端未初始化。
+     * @type {number}
      */
     Uninitialized: 101,
 
     /**
      * 重复创建连接。
+     * @type {number}
      */
     ConnRepeated: 103,
 
     /**
      * 拒绝访问媒体设备。
+     * @type {number}
      */
     MediaPermissionDenied: 110,
 
     /**
-     * 
+     * 信令错误。
+     * @type {number}
      */
     SignalingError: 111,
 
     /**
-     * 
+     * 创建 RTC offer 错误。
+     * @type {number}
      */
     CreateOfferFailed: 121,
 
     /**
-     * 
+     * 创建 RTC answer 错误。
+     * @type {number}
      */
     CreateAnswerFailed: 122,
 
     /**
-     * 
+     * 设置本地 SDP 错误。
+     * @type {number}
      */
     LocalDescriptionFault: 125,
 
     /**
-     * 
+     * 设置远端 SDP 错误。
+     * @type {number}
      */
     RemoteDescriptionFault: 126,
 
     /**
      * 服务器故障。
+     * @type {number}
      */
     ServerFault: 200
 }
