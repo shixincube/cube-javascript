@@ -327,16 +327,7 @@ export class MultipointComm extends Module {
             // 应答忙音 Busy
             let busy = new Signaling(MultipointCommAction.Busy, this.offerSignaling.field,
                 this.rtcEndpoint.getContact(), this.rtcEndpoint.getDevice());
-            busy.target = this.offerSignaling.target;
-            let packet = new Packet(MultipointCommAction.Busy, busy.toCompactJSON());
-            this.pipeline.send(MultipointComm.NAME, packet);
-        }
-        else {
-            // 应答振铃 Ringing
-            let ringing = new Signaling(MultipointCommAction.Ringing, this.offerSignaling.field,
-                this.rtcEndpoint.getContact(), this.rtcEndpoint.getDevice());
-            ringing.target = this.offerSignaling.target;
-            let packet = new Packet(MultipointCommAction.Ringing, ringing.toCompactJSON());
+            let packet = new Packet(MultipointCommAction.Busy, busy.toJSON());
             this.pipeline.send(MultipointComm.NAME, packet);
         }
 

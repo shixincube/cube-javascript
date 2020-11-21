@@ -109,7 +109,9 @@ export class CommField extends Entity {
 
         rtcEndpoint.openOffer(mediaConstraint, (description) => {
             let signaling = new Signaling(MultipointCommAction.Offer, this, rtcEndpoint.getContact(), rtcEndpoint.getDevice());
+            // 设置 SDP 信息
             signaling.sessionDescription = description;
+            // 发送信令
             this.sendSignaling(signaling, successCallback, failureCallback);
         }, (error) => {
             failureCallback(error);
