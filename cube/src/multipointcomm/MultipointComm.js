@@ -66,6 +66,8 @@ export class MultipointComm extends Module {
          */
         this.privateField = null;
 
+        this.currentCallee = null;
+
         /**
          * RTC 节点。
          * @type {RTCEndpoint}
@@ -257,7 +259,7 @@ export class MultipointComm extends Module {
         (new Promise((resolve, reject) => {
             // 启动定时器
             this.callTimer = setTimeout(() => {
-                this.terminateCall();
+                this.fireCallTimeout();
             }, this.callTimeout);
 
             resolve();
@@ -271,6 +273,7 @@ export class MultipointComm extends Module {
             // 1. 先申请主叫，从而设置目标
             this.privateField.applyCall(this.privateField.getFounder(), fieldOrContact, (commField, proposer, target) => {
                 this.currentField = this.privateField;
+                this.currentCallee = fieldOrContact;
 
                 // 2. 启动 RTC 节点，发起 Offer
                 this.privateField.launchCaller(rtcEndpoint, mediaConstraint, successHandler, failureHandler);
@@ -408,8 +411,22 @@ export class MultipointComm extends Module {
         this.answerSignaling = null;
 
         rtcEndpoint.close();
+    }
 
-        return true;
+    fireCallTimeout() {
+        if (this.callTimer > 0) {
+            clearTimeout(this.callTimer);
+            this.callTimer = 0;
+        }
+
+        if (this.currentField.isPrivate()) {
+            this.notifyObservers(new ObservableState(MultipointCommEvent.CallTimeout, this.currentCallee));
+        }
+        else {
+            this.notifyObservers(new ObservableState(MultipointCommEvent.CallTimeout, this.currentField));
+        }
+
+        this.terminateCall();
     }
 
     triggerOffer(payload, context) {

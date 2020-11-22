@@ -242,7 +242,7 @@ var App = Class({
         comm.start();
 
         comm.attach(function(state) {
-            
+            console.log('[Event] ' + state);
         });
 
         var html = ['<div class="local" id="local_view">', '</div>',

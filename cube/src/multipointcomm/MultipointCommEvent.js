@@ -41,5 +41,7 @@ export const MultipointCommEvent = {
 
     Bye: 'Bye',
 
+    CallTimeout: 'CallTimeout',
+
     CallFailed: 'CallFailed'
 }

@@ -167,7 +167,8 @@ export class CommField extends Entity {
                 }
             }
             else {
-                let error = new ModuleError(MultipointComm.NAME, MultipointCommState.ServerFault, {
+                let error = new ModuleError(MultipointComm.NAME,
+                    (null != responsePacket) ? responsePacket.getStateCode() : MultipointCommState.ServerFault, {
                     field: this,
                     proposer: proposer,
                     target: target

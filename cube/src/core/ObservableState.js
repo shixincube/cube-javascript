@@ -55,4 +55,13 @@ export class ObservableState {
     getData() {
         return this.data;
     }
+
+    toString() {
+        if (null == this.data) {
+            return this.name;
+        }
+        else {
+            return this.name + ' ' + this.data.toString();
+        }
+    }
 }
