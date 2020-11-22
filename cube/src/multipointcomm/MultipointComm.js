@@ -222,7 +222,7 @@ export class MultipointComm extends Module {
             if (successCallback) {
                 successCallback(fieldOrContact);
             }
-            this.notifyObservers(new ObservableState(MultipointCommEvent.InProgress, fieldOrContact));
+            this.notifyObservers(new ObservableState(MultipointCommEvent.Ringing, fieldOrContact));
         };
 
         let failureHandler = (error) => {
@@ -231,6 +231,13 @@ export class MultipointComm extends Module {
             }
             this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
         };
+
+        (new Promise((resolve, reject) => {
+            resolve();
+        })).then(() => {
+            // 回调 InProgress 事件
+            this.notifyObservers(new ObservableState(MultipointCommEvent.InProgress, fieldOrContact));
+        });
 
         if (fieldOrContact instanceof Contact) {
             // 呼叫指定联系人
@@ -322,11 +329,13 @@ export class MultipointComm extends Module {
         let data = payload.data;
         this.offerSignaling = Signaling.create(data, this.pipeline);
 
+        let rtcEndpoint = this.getRTCEndpoint();
+
         // 先应答
-        if (this.rtcEndpoint.isWorking()) {
+        if (rtcEndpoint.isWorking()) {
             // 应答忙音 Busy
             let busy = new Signaling(MultipointCommAction.Busy, this.offerSignaling.field,
-                this.rtcEndpoint.getContact(), this.rtcEndpoint.getDevice());
+                rtcEndpoint.getContact(), rtcEndpoint.getDevice());
             let packet = new Packet(MultipointCommAction.Busy, busy.toJSON());
             this.pipeline.send(MultipointComm.NAME, packet);
         }
@@ -342,14 +351,6 @@ export class MultipointComm extends Module {
     }
 
     triggerAnswer(payload) {
-        let data = payload.data;
-    }
-
-    triggerRinging(payload) {
-        let data = payload.data;
-    }
-
-    triggerBusy(payload) {
         let data = payload.data;
     }
 

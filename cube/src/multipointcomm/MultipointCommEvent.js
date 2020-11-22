@@ -33,13 +33,13 @@ export const MultipointCommEvent = {
 
     InProgress: 'InProgress',
 
-    CallRinging: 'CallRinging',
+    Ringing: 'Ringing',
 
-    CallConnected: 'CallConnected',
+    Connected: 'Connected',
 
-    CallRejected: 'CallRejected',
+    Rejected: 'Rejected',
 
-    CallEnded: 'CallEnded',
+    Ended: 'Ended',
 
     CallFailed: 'CallFailed'
 }
