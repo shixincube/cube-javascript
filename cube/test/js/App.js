@@ -241,8 +241,17 @@ var App = Class({
         var comm = this.cube.getMultipointComm();
         comm.start();
 
+        comm.attach(function(state) {
+            
+        });
+
         var html = ['<div class="local" id="local_view">', '</div>',
-                    '<div class="remote" id="remote_view">', '</div>'];
+                    '<div class="remote" id="remote_view">', '</div>',
+                    '<div class="toolbar">',
+                        '<button class="btn" onclick="app.onClickMakeCall();">Make Call</button>',
+                        '<button class="btn" onclick="app.onClickAnswerCall();">Answer Call</button>',
+                        '<button class="btn" onclick="app.onClickTerminateCall();">Terminate Call</button>',
+                    '</div>'];
         this.callDom.innerHTML = html.join('');
 
         document.body.appendChild(this.callDom);
@@ -263,5 +272,17 @@ var App = Class({
         }, function(error) {
             console.log('获取联系人失败: ' + error);
         });
+    },
+
+    onClickMakeCall: function() {
+
+    },
+
+    onClickAnswerCall: function() {
+
+    },
+
+    onClickTerminateCall: function() {
+
     }
 });

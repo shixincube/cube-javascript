@@ -79,6 +79,12 @@ export class MultipointComm extends Module {
         this.fields = new OrderMap();
 
         /**
+         * 当前工作的通讯场域。
+         * @type {CommField}
+         */
+        this.currentField = null;
+
+        /**
          * 来自主叫的信令。
          * @type {Signaling}
          */
@@ -89,6 +95,18 @@ export class MultipointComm extends Module {
          * @type {Signaling}
          */
         this.answerSignaling = null;
+
+        /**
+         * 呼叫定时器。
+         * @type {number}
+         */
+        this.callTimer = 0;
+
+        /**
+         * 呼叫超时。
+         * @type {number}
+         */
+        this.callTimeout = 30000;
     }
 
     /**
@@ -229,10 +247,19 @@ export class MultipointComm extends Module {
             if (failureCallback) {
                 failureCallback(error);
             }
+            if (this.callTimer > 0) {
+                clearTimeout(this.callTimer);
+                this.callTimer = 0;
+            }
             this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
         };
 
         (new Promise((resolve, reject) => {
+            // 启动定时器
+            this.callTimer = setTimeout(() => {
+                this.terminateCall();
+            }, this.callTimeout);
+
             resolve();
         })).then(() => {
             // 回调 InProgress 事件
@@ -243,6 +270,8 @@ export class MultipointComm extends Module {
             // 呼叫指定联系人
             // 1. 先申请主叫，从而设置目标
             this.privateField.applyCall(this.privateField.getFounder(), fieldOrContact, (commField, proposer, target) => {
+                this.currentField = this.privateField;
+
                 // 2. 启动 RTC 节点，发起 Offer
                 this.privateField.launchCaller(rtcEndpoint, mediaConstraint, successHandler, failureHandler);
             }, (error) => {
@@ -250,6 +279,8 @@ export class MultipointComm extends Module {
             });
         }
         else if (fieldOrContact instanceof CommField) {
+            this.currentField = fieldOrContact;
+
             // 呼入 Comm Field
             fieldOrContact.launchCaller(rtcEndpoint, mediaConstraint, successHandler, failureHandler);
         }
@@ -294,7 +325,7 @@ export class MultipointComm extends Module {
             if (successCallback) {
                 successCallback(fieldOrContact);
             }
-            this.notifyObservers(new ObservableState(MultipointCommEvent.InProgress, fieldOrContact));
+            this.notifyObservers(new ObservableState(MultipointCommEvent.Connected, fieldOrContact));
         };
 
         let failureHandler = (error) => {
@@ -304,12 +335,23 @@ export class MultipointComm extends Module {
             this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
         };
 
+        (new Promise((resolve, reject) => {
+            resolve();
+        })).then(() => {
+            // 回调 InProgress 事件
+            this.notifyObservers(new ObservableState(MultipointCommEvent.InProgress, fieldOrContact));
+        });
+
         if (fieldOrContact instanceof Contact) {
+            this.currentField = this.privateField;
+
             // 应答指定联系人
             this.privateField.launchCallee(rtcEndpoint,
                 this.offerSignaling.sessionDescription, mediaConstraint, successHandler, failureHandler);
         }
         else if (fieldOrContact instanceof CommField) {
+            this.currentField = fieldOrContact;
+
             // 应答 Comm Field
             fieldOrContact.launchCallee(rtcEndpoint,
                 this.offerSignaling.sessionDescription, mediaConstraint, successHandler, failureHandler);
@@ -321,11 +363,60 @@ export class MultipointComm extends Module {
         return true;
     }
 
-    terminateCall(fieldOrContact) {
+    terminateCall() {
+        if (this.callTimer > 0) {
+            clearTimeout(this.callTimer);
+            this.callTimer = 0;
+        }
+
+        let rtcEndpoint = this.getRTCEndpoint();
+
+        let field = null;
+        let callee = null;
+        if (null != this.offerSignaling) {
+            field = this.offerSignaling.field;
+            callee = this.offerSignaling.callee;
+        }
+        else if (null != this.answerSignaling) {
+            field = this.answerSignaling.field;
+            callee = this.answerSignaling.callee;
+        }
+        else {
+            let signaling = new Signaling(MultipointCommAction.Bye, this.privateField, 
+                this.privateField.founder, this.privateField.founder.getDevice());
+            let packet = new Packet(MultipointCommAction.Bye, signaling.toJSON());
+            this.pipeline.send(MultipointComm.NAME, packet);
+
+            rtcEndpoint.close();
+            return;
+        }
+
+        if (!rtcEndpoint.ready && callee.getId() == this.privateField.founder.getId()) {
+            let signaling = new Signaling(MultipointCommAction.Busy, field, 
+                this.privateField.founder, this.privateField.founder.getDevice());
+            let packet = new Packet(MultipointCommAction.Busy, signaling.toJSON());
+            this.pipeline.send(MultipointComm.NAME, packet);
+        }
+        else {
+            let signaling = new Signaling(MultipointCommAction.Bye, field, 
+                this.privateField.founder, this.privateField.founder.getDevice());
+            let packet = new Packet(MultipointCommAction.Bye, signaling.toJSON());
+            this.pipeline.send(MultipointComm.NAME, packet);
+        }
+
         this.offerSignaling = null;
+        this.answerSignaling = null;
+
+        rtcEndpoint.close();
+
+        return true;
     }
 
-    triggerOffer(payload) {
+    triggerOffer(payload, context) {
+        if (null != context) {
+            return;
+        }
+
         let data = payload.data;
         this.offerSignaling = Signaling.create(data, this.pipeline);
 
@@ -342,7 +433,7 @@ export class MultipointComm extends Module {
 
         if (this.offerSignaling.field.isPrivate()) {
             // 来自个人的通话申请
-            this.notifyObservers(new ObservableState(MultipointCommEvent.NewCall, this.offerSignaling.field.getFounder()));
+            this.notifyObservers(new ObservableState(MultipointCommEvent.NewCall, this.offerSignaling.caller));
         }
         else {
             // 来自场域的通话申请
@@ -350,12 +441,53 @@ export class MultipointComm extends Module {
         }
     }
 
-    triggerAnswer(payload) {
+    triggerAnswer(payload, context) {
+        if (null != context) {
+            return;
+        }
+
+        let rtcEndpoint = this.getRTCEndpoint();
+        if (!rtcEndpoint.isWorking()) {
+            return;
+        }
+
         let data = payload.data;
+        this.answerSignaling = Signaling.create(data, this.pipeline);
+
+        if (this.answerSignaling.field.isPrivate()) {
+            rtcEndpoint.doAnswer(this.answerSignaling.sessionDescription, () => {
+                this.notifyObservers(new ObservableState(MultipointCommEvent.Connected, this.answerSignaling.callee));
+            }, (error) => {
+                this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
+            });
+        }
+        else {
+            rtcEndpoint.doAnswer(this.answerSignaling.sessionDescription, () => {
+                this.notifyObservers(new ObservableState(MultipointCommEvent.Connected, this.answerSignaling.field));
+            }, (error) => {
+                this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
+            });
+        }
     }
 
-    triggerReady(payload) {
-        let data = payload.data;
+    triggerBusy(payload) {
+        let signaling = Signaling.create(payload.data, this.pipeline);
+        if (signaling.field.isPrivate()) {
+            this.notifyObservers(new ObservableState(MultipointCommEvent.Busy, signaling.callee));
+        }
+        else {
+            this.notifyObservers(new ObservableState(MultipointCommEvent.Busy, signaling.field));
+        }
+    }
+
+    triggerBye(payload) {
+        let signaling = Signaling.create(payload.data, this.pipeline);
+        if (signaling.field.isPrivate()) {
+            this.notifyObservers(new ObservableState(MultipointCommEvent.Bye, signaling.callee));
+        }
+        else {
+            this.notifyObservers(new ObservableState(MultipointCommEvent.Bye, signaling.field));
+        }
     }
 
     /**

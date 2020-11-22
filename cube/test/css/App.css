@@ -41,6 +41,10 @@
     position: absolute;
     float: left;
     z-index: 1001;
+    background-color: #eef7f7;
+    border: 1px solid #000;
+    border-radius: 9px;
+    padding: 8px;
 }
 .call .local {
     display: inline-block;
@@ -48,4 +52,14 @@
 .call .remote {
     display: inline-block;
     margin-left: 24px;
+}
+.call .toolbar {
+    text-align: center;
+    display: block;
+}
+.call .toolbar .btn {
+    display: inline-block;
+    font-size: 14px;
+    height: 32px;
+    margin: 8px 8px 0px 8px;
 }

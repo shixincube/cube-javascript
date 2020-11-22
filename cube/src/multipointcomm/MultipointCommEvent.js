@@ -37,9 +37,9 @@ export const MultipointCommEvent = {
 
     Connected: 'Connected',
 
-    Rejected: 'Rejected',
+    Busy: 'Busy',
 
-    Ended: 'Ended',
+    Bye: 'Bye',
 
     CallFailed: 'CallFailed'
 }

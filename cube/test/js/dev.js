@@ -34,4 +34,6 @@
     app.init();
 
     app.showConsole();
+
+    global.app;
  }

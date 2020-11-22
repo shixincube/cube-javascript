@@ -77,6 +77,8 @@ export class RTCEndpoint extends CommFieldEndpoint {
          * @type {MediaStream}
          */
         this.inboundStream = null;
+
+        this.ready = false;
     }
 
     /**
@@ -177,6 +179,23 @@ export class RTCEndpoint extends CommFieldEndpoint {
     }
 
     /**
+     * 主叫执行 Answer 应答。
+     * @param {JSON} description 
+     * @param {function} handleSuccess 
+     * @param {function} handleFailure 
+     */
+    doAnswer(description, handleSuccess, handleFailure) {
+        this.pc.setRemoteDescription(new RTCSessionDescription(description)).then(() => {
+            handleSuccess();
+            this.ready = true;
+        }).catch((error) => {
+            // 设置 SDP 错误
+            handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.RemoteDescriptionFault, this, error));
+            this.close();
+        });
+    }
+
+    /**
      * 启动 RTC 终端为被叫。
      * @param {string} offer 主叫的 SDP 。
      * @param {MediaConstraint} mediaConstraint 媒体约束。
@@ -233,6 +252,7 @@ export class RTCEndpoint extends CommFieldEndpoint {
                 this.pc.createAnswer().then((answer) => {
                     this.pc.setLocalDescription(new RTCSessionDescription(answer)).then(() => {
                         handleSuccess(this.pc.localDescription);
+                        this.ready = true;
                     }).catch((error) => {
                         // 设置 SDP 错误
                         handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.LocalDescriptionFault, this, error));
@@ -275,6 +295,8 @@ export class RTCEndpoint extends CommFieldEndpoint {
         }
 
         this.disableICE();
+
+        this.ready = false;
     }
 
     fireOnTrack(event) {

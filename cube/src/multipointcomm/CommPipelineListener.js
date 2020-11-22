@@ -56,7 +56,16 @@ export class CommPipelineListener extends PipelineListener {
         }
 
         if (packet.name == MultipointCommAction.Offer) {
-            this.multipointComm.triggerOffer(packet.data);
+            this.multipointComm.triggerOffer(packet.data, packet.context);
+        }
+        else if (packet.name == MultipointCommAction.Answer) {
+            this.multipointComm.triggerAnswer(packet.data, packet.context);
+        }
+        else if (packet.name == MultipointCommAction.Bye) {
+            this.multipointComm.triggerBye(packet.data, packet.context);
+        }
+        else if (packet.name == MultipointCommAction.Busy) {
+            this.multipointComm.triggerBusy(packet.data, packet.context);
         }
     }
 }

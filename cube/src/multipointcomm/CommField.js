@@ -31,7 +31,6 @@ import { CommFieldEndpoint } from "./CommFieldEndpoint";
 import { MediaConstraint } from "./MediaConstraint";
 import { RTCEndpoint } from "./RTCEndpoint";
 import { MultipointCommAction } from "./MultipointCommAction";
-import { AuthService } from "../auth/AuthService";
 import { Pipeline } from "../core/Pipeline";
 import { MultipointComm } from "./MultipointComm";
 import { Packet } from "../core/Packet";
@@ -190,7 +189,8 @@ export class CommField extends Entity {
             if (null != packet && packet.getStateCode() == StateCode.OK) {
                 if (packet.data.code == MultipointCommState.Ok) {
                     let data = packet.data.data;
-                    let response = Signaling.create(data);
+                    let response = Signaling.create(data, this.pipeline);
+                    packet.context = response;
                     successCallback(response);
                 }
                 else {
