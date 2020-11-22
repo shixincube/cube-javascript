@@ -25,23 +25,55 @@
  */
 
 /**
- * 
+ * 多方通讯事件。
  */
 export const MultipointCommEvent = {
 
+    /**
+     * 有新的呼叫。
+     * @type {string}
+     */
     NewCall: 'NewCall',
 
+    /**
+     * 正在处理呼叫。
+     * @type {string}
+     */
     InProgress: 'InProgress',
 
+    /**
+     * 对方振铃。
+     * @type {string}
+     */
     Ringing: 'Ringing',
 
+    /**
+     * 已经建立连接。
+     * @type {string}
+     */
     Connected: 'Connected',
 
+    /**
+     * 对方忙。
+     * @type {string}
+     */
     Busy: 'Busy',
 
+    /**
+     * 结束当前呼叫。
+     * @type {string}
+     */
     Bye: 'Bye',
 
+    /**
+     * 呼叫超时。
+     * @type {string}
+     */
     CallTimeout: 'CallTimeout',
 
+    /**
+     * 呼叫发生错误。
+     * @type {string}
+     */
     CallFailed: 'CallFailed'
 }

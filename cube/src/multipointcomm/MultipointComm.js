@@ -366,6 +366,9 @@ export class MultipointComm extends Module {
         return true;
     }
 
+    /**
+     * 终止当前的通话。
+     */
     terminateCall() {
         if (this.callTimer > 0) {
             clearTimeout(this.callTimer);
@@ -390,6 +393,8 @@ export class MultipointComm extends Module {
             let packet = new Packet(MultipointCommAction.Bye, signaling.toJSON());
             this.pipeline.send(MultipointComm.NAME, packet);
 
+            this.offerSignaling = null;
+            this.answerSignaling = null;
             rtcEndpoint.close();
             return;
         }
@@ -413,6 +418,10 @@ export class MultipointComm extends Module {
         rtcEndpoint.close();
     }
 
+    /**
+     * 触发呼叫超时。
+     * @private
+     */
     fireCallTimeout() {
         if (this.callTimer > 0) {
             clearTimeout(this.callTimer);
@@ -429,6 +438,12 @@ export class MultipointComm extends Module {
         this.terminateCall();
     }
 
+    /**
+     * 处理 Offer 信令。
+     * @private
+     * @param {JSON} payload 
+     * @param {object} context 
+     */
     triggerOffer(payload, context) {
         if (null != context) {
             return;
@@ -458,6 +473,12 @@ export class MultipointComm extends Module {
         }
     }
 
+    /**
+     * 处理 Answer 信令。
+     * @private
+     * @param {JSON} payload 
+     * @param {object} context 
+     */
     triggerAnswer(payload, context) {
         if (null != context) {
             return;
@@ -487,6 +508,11 @@ export class MultipointComm extends Module {
         }
     }
 
+    /**
+     * 处理 Busy 信令。
+     * @private
+     * @param {JSON} payload 
+     */
     triggerBusy(payload) {
         let signaling = Signaling.create(payload.data, this.pipeline);
         if (signaling.field.isPrivate()) {
@@ -497,10 +523,17 @@ export class MultipointComm extends Module {
         }
     }
 
+    /**
+     * 处理 Bye 信令。
+     * @private
+     * @param {JSON} payload 
+     */
     triggerBye(payload) {
         let signaling = Signaling.create(payload.data, this.pipeline);
         if (signaling.field.isPrivate()) {
-            this.notifyObservers(new ObservableState(MultipointCommEvent.Bye, signaling.callee));
+            let peer = this.privateField.founder.getId() == signaling.caller.getId() ? 
+                        signaling.callee : signaling.caller;
+            this.notifyObservers(new ObservableState(MultipointCommEvent.Bye, peer));
         }
         else {
             this.notifyObservers(new ObservableState(MultipointCommEvent.Bye, signaling.field));

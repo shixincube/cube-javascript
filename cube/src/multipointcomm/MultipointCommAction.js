@@ -53,12 +53,7 @@ export const MultipointCommAction = {
      * ICE 候选字收发。
      */
     Candidate: 'candidate',
-
-    /**
-     * 信令 Ready 。
-     */
-    Ready: 'ready',
-
+    
     /**
      * 申请主叫对方。
      */
