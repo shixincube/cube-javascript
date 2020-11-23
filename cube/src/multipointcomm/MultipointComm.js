@@ -346,11 +346,17 @@ export class MultipointComm extends Module {
         });
 
         if (fieldOrContact instanceof Contact) {
-            this.currentField = this.privateField;
-
             // 应答指定联系人
-            this.privateField.launchCallee(rtcEndpoint,
-                this.offerSignaling.sessionDescription, mediaConstraint, successHandler, failureHandler);
+            // 1. 先申请进入
+            this.privateField.applyEnter(rtcEndpoint.getContact(), rtcEndpoint.getDevice(), (contact, device) => {
+                this.currentField = this.privateField;
+
+                // 2. 启动 RTC 节点，发起 Answer
+                this.privateField.launchCallee(rtcEndpoint,
+                    this.offerSignaling.sessionDescription, mediaConstraint, successHandler, failureHandler);
+            }, (error) => {
+                failureHandler(error);
+            });
         }
         else if (fieldOrContact instanceof CommField) {
             this.currentField = fieldOrContact;
@@ -520,8 +526,9 @@ export class MultipointComm extends Module {
      * 处理 Busy 信令。
      * @private
      * @param {JSON} payload 
+     * @param {object} context
      */
-    triggerBusy(payload) {
+    triggerBusy(payload, context) {
         let signaling = Signaling.create(payload.data, this.pipeline);
         if (signaling.field.isPrivate()) {
             if (signaling.field.getId() == this.privateField.getId()) {
@@ -550,8 +557,9 @@ export class MultipointComm extends Module {
      * 处理 Bye 信令。
      * @private
      * @param {JSON} payload 
+     * @param {object} context
      */
-    triggerBye(payload) {
+    triggerBye(payload, context) {
         if (payload.code != MultipointCommState.Ok) {
             return;
         }

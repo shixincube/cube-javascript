@@ -109,6 +109,10 @@ export class RTCEndpoint extends CommFieldEndpoint {
         this.configuration = null;
     }
 
+    onIceCandidate(candidate) {
+
+    }
+
     /**
      * 启动 RTC 终端为主叫。
      * @param {MediaConstraint} mediaConstraint 媒体约束。
@@ -318,7 +322,7 @@ export class RTCEndpoint extends CommFieldEndpoint {
 
     fireOnIceCandidate(event) {
         if (event.candidate) {
-            // let packet = new 
+            this.onIceCandidate(event.candidate);
         }
     }
 

@@ -69,6 +69,12 @@ export const MultipointCommState = {
     NoCommField: 17,
 
     /**
+     * 没有找到 Endpoint 。
+     * @type {number}
+     */
+    NoCommFieldEndpoint: 18,
+
+    /**
      * 数据结构错误。
      * @type {number}
      */

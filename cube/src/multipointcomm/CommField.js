@@ -24,9 +24,10 @@
  * SOFTWARE.
  */
 
-import { Contact } from "../contact/Contact";
 import { OrderMap } from "../util/OrderMap";
 import { Entity } from "../core/Entity";
+import { Contact } from "../contact/Contact";
+import { Device } from "../contact/Device";
 import { CommFieldEndpoint } from "./CommFieldEndpoint";
 import { MediaConstraint } from "./MediaConstraint";
 import { RTCEndpoint } from "./RTCEndpoint";
@@ -106,6 +107,10 @@ export class CommField extends Entity {
             return false;
         }
 
+        rtcEndpoint.onIceCandidate = (candidate) => {
+            this.onIceCandidate(candidate, rtcEndpoint);
+        };
+
         rtcEndpoint.openOffer(mediaConstraint, (description) => {
             let signaling = new Signaling(MultipointCommAction.Offer, this, rtcEndpoint.getContact(), rtcEndpoint.getDevice());
             // 设置 SDP 信息
@@ -132,6 +137,10 @@ export class CommField extends Entity {
             return false;
         }
 
+        rtcEndpoint.onIceCandidate = (candidate) => {
+            this.onIceCandidate(candidate, rtcEndpoint);
+        };
+
         rtcEndpoint.openAnswer(offerDescription, mediaConstraint, (description) => {
             let signaling = new Signaling(MultipointCommAction.Answer, this, rtcEndpoint.getContact(), rtcEndpoint.getDevice());
             // 设置 SDP 信息
@@ -145,6 +154,13 @@ export class CommField extends Entity {
         return true;
     }
 
+    /**
+     * 
+     * @param {Contact} proposer 
+     * @param {Contact} target 
+     * @param {function} successCallback 
+     * @param {function} failureCallback 
+     */
     applyCall(proposer, target, successCallback, failureCallback) {
         let packet = new Packet(MultipointCommAction.ApplyCall, {
             field: this.toCompactJSON(),
@@ -179,10 +195,50 @@ export class CommField extends Entity {
     }
 
     /**
+     * 
+     * @param {Contact} contact 
+     * @param {Device} device
+     * @param {function} successCallback 
+     * @param {function} failureCallback 
+     */
+    applyEnter(contact, device, successCallback, failureCallback) {
+        let packet = new Packet(MultipointCommAction.ApplyEnter, {
+            field: this.toCompactJSON(),
+            contact: contact.toCompactJSON(),
+            device: device.toCompactJSON()
+        });
+        this.pipeline.send(MultipointComm.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+                if (responsePacket.data.code == MultipointCommState.Ok) {
+                    let responseData = responsePacket.data.data;
+                    successCallback(this, contact, device);
+                }
+                else {
+                    let error = new ModuleError(MultipointComm.NAME, responsePacket.data.code, {
+                        field: this,
+                        contact: contact,
+                        device: device
+                    });
+                    failureCallback(error);
+                }
+            }
+            else {
+                let error = new ModuleError(MultipointComm.NAME,
+                    (null != responsePacket) ? responsePacket.getStateCode() : MultipointCommState.ServerFault, {
+                        field: this,
+                        contact: contact,
+                        device: device
+                });
+                failureCallback(error);
+            }
+        });
+    }
+
+    /**
      * 发送信令。
      * @param {Signaling} signaling 
-     * @param {function} successCallback
-     * @param {function} failureCallback
+     * @param {function} [successCallback]
+     * @param {function} [failureCallback]
      * @private
      */
     sendSignaling(signaling, successCallback, failureCallback) {
@@ -192,16 +248,34 @@ export class CommField extends Entity {
                     let data = packet.data.data;
                     let response = Signaling.create(data, this.pipeline);
                     packet.context = response;
-                    successCallback(response);
+
+                    if (successCallback) {
+                        successCallback(response);
+                    }
                 }
                 else {
-                    failureCallback(new ModuleError(MultipointComm.NAME, packet.data.code, this));
+                    if (failureCallback) {
+                        failureCallback(new ModuleError(MultipointComm.NAME, packet.data.code, this));
+                    }
                 }
             }
             else {
-                failureCallback(new ModuleError(MultipointComm.NAME, MultipointCommState.ServerFault, this));
+                if (failureCallback) {
+                    failureCallback(new ModuleError(MultipointComm.NAME, MultipointCommState.ServerFault, this));
+                }
             }
         });
+    }
+
+    /**
+     * @private
+     * @param {*} candidate 
+     * @param {*} rtcEndpoint 
+     */
+    onIceCandidate(candidate, rtcEndpoint) {
+        let signaling = new Signaling(MultipointCommAction.Candidate, this, rtcEndpoint.getContact(), rtcEndpoint.getDevice());
+        signaling.candidate = candidate;
+        this.sendSignaling(signaling);
     }
 
     toJSON() {

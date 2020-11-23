@@ -57,5 +57,10 @@ export const MultipointCommAction = {
     /**
      * 申请主叫对方。
      */
-    ApplyCall: 'applyCall'
+    ApplyCall: 'applyCall',
+
+    /**
+     * 申请进入场域。
+     */
+    ApplyEnter: 'applyEnter'
 }
