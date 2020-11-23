@@ -120,7 +120,7 @@ export class MultipointComm extends Module {
         }
 
         // 添加监听器
-        this.pipeline.addListener(this.pipelineListener);
+        this.pipeline.addListener(MultipointComm.NAME, this.pipelineListener);
 
         let contactService = this.kernel.getModule(ContactService.NAME);
         contactService.attachWithName(ContactEvent.SignIn, (state) => {
@@ -148,7 +148,7 @@ export class MultipointComm extends Module {
         this.videoElem.pause();
         this.videoElem.remove();
 
-        this.pipeline.removeListener(this.pipelineListener);
+        this.pipeline.removeListener(MultipointComm.NAME, this.pipelineListener);
     }
 
     /**
@@ -388,6 +388,10 @@ export class MultipointComm extends Module {
             callee = this.answerSignaling.callee;
         }
         else {
+            if (!rtcEndpoint.isWorking()) {
+                return false;
+            }
+
             let signaling = new Signaling(MultipointCommAction.Bye, this.privateField, 
                 this.privateField.founder, this.privateField.founder.getDevice());
             let packet = new Packet(MultipointCommAction.Bye, signaling.toJSON());
@@ -396,7 +400,7 @@ export class MultipointComm extends Module {
             this.offerSignaling = null;
             this.answerSignaling = null;
             rtcEndpoint.close();
-            return;
+            return true;
         }
 
         if (!rtcEndpoint.ready && callee.getId() == this.privateField.founder.getId()) {
@@ -416,6 +420,8 @@ export class MultipointComm extends Module {
         this.answerSignaling = null;
 
         rtcEndpoint.close();
+
+        return true;
     }
 
     /**
@@ -446,6 +452,7 @@ export class MultipointComm extends Module {
      */
     triggerOffer(payload, context) {
         if (null != context) {
+            // context 不是 null 值时，表示该信令是由本终端发出的，因此无需处理，直接返回
             return;
         }
 
@@ -481,6 +488,7 @@ export class MultipointComm extends Module {
      */
     triggerAnswer(payload, context) {
         if (null != context) {
+            // context 不是 null 值时，表示该信令是由本终端发出的，因此无需处理，直接返回
             return;
         }
 
@@ -516,7 +524,22 @@ export class MultipointComm extends Module {
     triggerBusy(payload) {
         let signaling = Signaling.create(payload.data, this.pipeline);
         if (signaling.field.isPrivate()) {
-            this.notifyObservers(new ObservableState(MultipointCommEvent.Busy, signaling.callee));
+            if (signaling.field.getId() == this.privateField.getId()) {
+                // 本终端发送的 Busy
+                let peer = this.privateField.founder.getId() == signaling.caller.getId() ? 
+                        signaling.callee : signaling.caller;
+                // 收到本终端 Busy 时，回调 Bye
+                this.notifyObservers(new ObservableState(MultipointCommEvent.Bye, peer));
+            }
+            else {
+                // 收到其他终端的 Busy
+                let peer = this.privateField.founder.getId() == signaling.caller.getId() ? 
+                        signaling.callee : signaling.caller;
+                this.notifyObservers(new ObservableState(MultipointCommEvent.Busy, peer));
+
+                // 终止通话
+                this.terminateCall();
+            }
         }
         else {
             this.notifyObservers(new ObservableState(MultipointCommEvent.Busy, signaling.field));
@@ -529,11 +552,23 @@ export class MultipointComm extends Module {
      * @param {JSON} payload 
      */
     triggerBye(payload) {
+        if (payload.code != MultipointCommState.Ok) {
+            return;
+        }
+
         let signaling = Signaling.create(payload.data, this.pipeline);
         if (signaling.field.isPrivate()) {
-            let peer = this.privateField.founder.getId() == signaling.caller.getId() ? 
+            if (signaling.field.getId() == this.privateField.getId()) {
+                // 本终端发送的 Bye
+                let peer = this.privateField.founder.getId() == signaling.caller.getId() ? 
                         signaling.callee : signaling.caller;
-            this.notifyObservers(new ObservableState(MultipointCommEvent.Bye, peer));
+                this.notifyObservers(new ObservableState(MultipointCommEvent.Bye, peer));
+            }
+            else {
+                // 收到其他终端的 Bye
+                // 终止通话
+                this.terminateCall();
+            }
         }
         else {
             this.notifyObservers(new ObservableState(MultipointCommEvent.Bye, signaling.field));

@@ -35,5 +35,5 @@
 
     app.showConsole();
 
-    global.app;
+    global.app = app;
  }

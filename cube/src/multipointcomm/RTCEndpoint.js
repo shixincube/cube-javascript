@@ -317,7 +317,9 @@ export class RTCEndpoint extends CommFieldEndpoint {
     }
 
     fireOnIceCandidate(event) {
-
+        if (event.candidate) {
+            // let packet = new 
+        }
     }
 
     getUserMedia(constraints, handleSuccess, handleError) {

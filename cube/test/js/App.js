@@ -238,6 +238,10 @@ var App = Class({
         else if (state.getName() == MultipointCommEvent.Ringing) {
             tips = '对方振铃: ' + state.getData().getId();
         }
+        else if (state.getName() == MultipointCommEvent.Bye) {
+            tips = '收到 Bye: ' + state.getData().getId();
+            clearInterval(this.callingTimer);
+        }
         else if (state.getName() == MultipointCommEvent.CallTimeout) {
             tips = '呼叫超时: ' + state.getData().getId();
             clearInterval(this.callingTimer);
@@ -276,10 +280,10 @@ var App = Class({
                     '<div class="local" id="local_view">', '</div>',
                     '<div class="remote" id="remote_view">', '</div>',
                     '<div class="toolbar">',
-                        '<button class="btn" onclick="window.app.onClickMakeCall();">Make Call</button>',
-                        '<button class="btn" onclick="window.app.onClickAnswerCall();">Answer Call</button>',
-                        '<button class="btn" onclick="window.app.onClickTerminateCall();">Terminate Call</button>',
-                        '<button class="btn" onclick="window.app.onClickCloseCall();">Close</button>',
+                        '<button class="btn" onclick="javascript:app.onClickMakeCall(event);">Make Call</button>',
+                        '<button class="btn" onclick="javascript:app.onClickAnswerCall(event);">Answer Call</button>',
+                        '<button class="btn" onclick="javascript:app.onClickTerminateCall(event);">Terminate Call</button>',
+                        '<button class="btn" onclick="javascript:app.onClickCloseCall(event);">Close</button>',
                     '</div>'];
         this.callDom.innerHTML = html.join('');
 
@@ -302,7 +306,7 @@ var App = Class({
                 that.callTipsElem.innerText = '已呼叫 ' + contact.getId();
                 that.callingTimer = setInterval(function() {
                     var el = document.getElementById('tips_mark');
-                    el.innerText = '(' + (++count) + ' s)';
+                    el.innerText = '(' + (++count) + 's)';
                 }, 1000);
             }, function(error) {
                 console.log(error);
@@ -314,16 +318,16 @@ var App = Class({
         });
     },
 
-    onClickMakeCall: function() {
+    onClickMakeCall: function(e) {
 
     },
 
-    onClickAnswerCall: function() {
+    onClickAnswerCall: function(e) {
 
     },
 
-    onClickTerminateCall: function() {
-
+    onClickTerminateCall: function(e) {
+        this.cube.getMultipointComm().terminateCall();
     },
 
     onClickCloseCall: function() {
