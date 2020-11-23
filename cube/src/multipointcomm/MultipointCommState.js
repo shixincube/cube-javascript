@@ -93,6 +93,18 @@ export const MultipointCommState = {
     CalleeBusy: 29,
 
     /**
+     * 通话已接通。
+     * @type {number}
+     */
+    CallConnected: 30,
+
+    /**
+     * 通话结束。
+     * @type {number}
+     */
+    CallBye: 33,
+
+    /**
      * 终端未初始化。
      * @type {number}
      */

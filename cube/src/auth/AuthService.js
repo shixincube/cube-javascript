@@ -205,7 +205,7 @@ export class AuthService extends Module {
                 clearTimeout(this.checkTimer);
                 this.checkTimer = 0;
                 this.checkToken();
-            }, 5000);
+            }, 2000);
 
             return this.token;
         }

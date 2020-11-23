@@ -46,6 +46,11 @@
     border-radius: 9px;
     padding: 8px;
 }
+.call .tips {
+    text-align: center;
+    font-size: 14px;
+    padding: 4px 0px 8px 0px;
+}
 .call .local {
     display: inline-block;
 }

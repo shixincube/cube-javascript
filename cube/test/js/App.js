@@ -225,11 +225,37 @@ var App = Class({
         this.console.close();
     },
 
+    callTipsElem: null,
+    callingTimer: 0,
+
+    callEventCallback: function(state) {
+        console.log('[Event] ' + state);
+        var tips = null;
+
+        if (state.getName() == MultipointCommEvent.InProgress) {
+            tips = '正在呼叫: ' + state.getData().getId();
+        }
+        else if (state.getName() == MultipointCommEvent.Ringing) {
+            tips = '对方振铃: ' + state.getData().getId();
+        }
+        else if (state.getName() == MultipointCommEvent.CallTimeout) {
+            tips = '呼叫超时: ' + state.getData().getId();
+            clearInterval(this.callingTimer);
+        }
+        else {
+            tips = '[Event] ' + state;
+        }
+
+        this.callTipsElem.innerText = tips;
+    },
+
     newCall: function(args) {
         if (args.length == 0) {
             this.console.println('参数错误');
             return;
         }
+
+        var that = this;
 
         var target = parseInt(args[0]);
 
@@ -239,35 +265,49 @@ var App = Class({
         }
 
         var comm = this.cube.getMultipointComm();
-        comm.start();
+        if (!comm.hasStarted()) {
+            comm.start();
+            comm.attach(function(state) {
+                that.callEventCallback(state);
+            });
+        }
 
-        comm.attach(function(state) {
-            console.log('[Event] ' + state);
-        });
-
-        var html = ['<div class="local" id="local_view">', '</div>',
+        var html = ['<div class="tips"><span id="tips_view"></span>&nbsp;&nbsp;<span id="tips_mark"></span></div>',
+                    '<div class="local" id="local_view">', '</div>',
                     '<div class="remote" id="remote_view">', '</div>',
                     '<div class="toolbar">',
-                        '<button class="btn" onclick="app.onClickMakeCall();">Make Call</button>',
-                        '<button class="btn" onclick="app.onClickAnswerCall();">Answer Call</button>',
-                        '<button class="btn" onclick="app.onClickTerminateCall();">Terminate Call</button>',
+                        '<button class="btn" onclick="window.app.onClickMakeCall();">Make Call</button>',
+                        '<button class="btn" onclick="window.app.onClickAnswerCall();">Answer Call</button>',
+                        '<button class="btn" onclick="window.app.onClickTerminateCall();">Terminate Call</button>',
+                        '<button class="btn" onclick="window.app.onClickCloseCall();">Close</button>',
                     '</div>'];
         this.callDom.innerHTML = html.join('');
 
         document.body.appendChild(this.callDom);
 
+        this.callTipsElem = document.getElementById('tips_view');
+
         var localView = document.getElementById('local_view');
         localView.appendChild(comm.getLocalVideoElement());
-        
+
         var remoteView = document.getElementById('remote_view');
         remoteView.appendChild(comm.getRemoteVideoElement());
+
+        var count = 0;
 
         this.cube.getContactService().getContact(target, function(contact) {
             var mediaConstraint = new MediaConstraint(true, false);
             comm.makeCall(contact, mediaConstraint, function() {
-                console.log('Call OK ');
+                console.log('Call ' + contact.getId());
+                that.callTipsElem.innerText = '已呼叫 ' + contact.getId();
+                that.callingTimer = setInterval(function() {
+                    var el = document.getElementById('tips_mark');
+                    el.innerText = '(' + (++count) + ' s)';
+                }, 1000);
             }, function(error) {
                 console.log(error);
+                clearInterval(that.callingTimer);
+                that.callTipsElem.innerText = '主叫发生错误: ' + error;
             });
         }, function(error) {
             console.log('获取联系人失败: ' + error);
@@ -284,5 +324,10 @@ var App = Class({
 
     onClickTerminateCall: function() {
 
+    },
+
+    onClickCloseCall: function() {
+        this.callDom.remove();
+        clearInterval(this.callingTimer);
     }
 });

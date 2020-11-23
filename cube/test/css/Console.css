@@ -24,6 +24,10 @@
  * SOFTWARE.
  */
 
+body {
+  font-family: "Courier New", Courier, monospace;
+}
+
 #_console {
   position: fixed;
   float: right;
