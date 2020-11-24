@@ -28,6 +28,7 @@ import { Contact } from "../contact/Contact";
 import { Device } from "../contact/Device";
 import { JSONable } from "../util/JSONable";
 import { CommField } from "./CommField";
+import { MediaConstraint } from "./MediaConstraint";
 
 /**
  * 信令。
@@ -79,6 +80,11 @@ export class Signaling extends JSONable {
         this.candidates = null;
 
         /**
+         * @type {object}
+         */
+        this.mediaConstraint = null;
+
+        /**
          * @type {Contact}
          */
         this.caller = null;
@@ -104,6 +110,10 @@ export class Signaling extends JSONable {
             json["candidate"] = this.candidate;
         }
 
+        if (null != this.mediaConstraint) {
+            json["constraint"] = this.mediaConstraint.toJSON();
+        }
+
         return json;
     }
 
@@ -127,6 +137,10 @@ export class Signaling extends JSONable {
 
         if (json.candidates) {
             signaling.candidates = json.candidates;
+        }
+
+        if (json.constraint) {
+            signaling.mediaConstraint = MediaConstraint.create(json.constraint);
         }
 
         if (json.caller) {

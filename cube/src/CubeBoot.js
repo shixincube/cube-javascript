@@ -56,6 +56,7 @@ import { MultipointComm } from "./multipointcomm/MultipointComm";
 import { MediaConstraint } from "./multipointcomm/MediaConstraint";
 import { VideoDimension } from "./multipointcomm/VideoDimension";
 import { MultipointCommEvent } from "./multipointcomm/MultipointCommEvent";
+import { CallRecord } from "./multipointcomm/CallRecord";
 import { ConferenceService } from "./conference/ConferenceService";
 import { Announcer } from "./util/Announcer";
 import { FaceMonitor } from "./facemonitor/FaceMonitor";
@@ -104,6 +105,7 @@ import { FaceMonitor } from "./facemonitor/FaceMonitor";
     global.VideoDimension = VideoDimension;
     global.MediaConstraint = MediaConstraint;
     global.MultipointCommEvent = MultipointCommEvent;
+    global.CallRecord = CallRecord;
 
     //global.ConferenceService = ConferenceService;
 

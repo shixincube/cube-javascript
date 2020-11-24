@@ -119,6 +119,8 @@ export class CommField extends Entity {
             let signaling = new Signaling(MultipointCommAction.Offer, this, rtcEndpoint.getContact(), rtcEndpoint.getDevice());
             // 设置 SDP 信息
             signaling.sessionDescription = description;
+            // 设置媒体约束
+            signaling.mediaConstraint = mediaConstraint;
             // 发送信令
             this.sendSignaling(signaling, successCallback, failureCallback);
         }, (error) => {
@@ -149,6 +151,8 @@ export class CommField extends Entity {
             let signaling = new Signaling(MultipointCommAction.Answer, this, rtcEndpoint.getContact(), rtcEndpoint.getDevice());
             // 设置 SDP 信息
             signaling.sessionDescription = description;
+            // 设置媒体约束
+            signaling.mediaConstraint = mediaConstraint;
             // 发送信令
             this.sendSignaling(signaling, successCallback, failureCallback);
         }, (error) => {

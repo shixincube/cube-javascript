@@ -145,7 +145,7 @@ export class RTCEndpoint extends CommFieldEndpoint {
             this.fireOnIceCandidate(event);
         };
 
-        let constraints = mediaConstraint.toJSON();
+        let constraints = mediaConstraint.getConstraints();
 
         (async () => {
             let stream = await this.getUserMedia(constraints);
@@ -232,7 +232,7 @@ export class RTCEndpoint extends CommFieldEndpoint {
             this.fireOnIceCandidate(event);
         };
 
-        let constraints = mediaConstraint.toJSON();
+        let constraints = mediaConstraint.getConstraints();
 
         (async () => {
             let stream = await this.getUserMedia(constraints);

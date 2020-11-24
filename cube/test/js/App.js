@@ -239,12 +239,22 @@ var App = Class({
             tips = '对方振铃: ' + state.getData().getId();
         }
         else if (state.getName() == MultipointCommEvent.Bye) {
-            tips = '收到 Bye: ' + state.getData().getId();
+            tips = '收到 Bye: ' + state.getData().getPeer().getId();
             clearInterval(this.callingTimer);
         }
         else if (state.getName() == MultipointCommEvent.CallTimeout) {
             tips = '呼叫超时: ' + state.getData().getId();
             clearInterval(this.callingTimer);
+        }
+        else if (state.getName() == MultipointCommEvent.NewCall) {
+            var promise = new Promise(function(resolve, reject) {
+                tips = '收到来自 "' + state.getData().getCaller().getId() + '" 的通话邀请';
+            });
+            promise.then(function() {
+
+            }).catch(function() {
+
+            });
         }
         else {
             tips = '[Event] ' + state;
@@ -319,11 +329,12 @@ var App = Class({
     },
 
     onClickMakeCall: function(e) {
-
+        alert('未实现');
     },
 
     onClickAnswerCall: function(e) {
-
+        var mediaConstraint = new MediaConstraint(true, false);
+        this.cube.getMultipointComm().answerCall(mediaConstraint);
     },
 
     onClickTerminateCall: function(e) {

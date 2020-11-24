@@ -33,7 +33,6 @@ import { JSONable } from "../util/JSONable";
 export class MediaConstraint extends JSONable {
 
     /**
-     * 构造函数。
      * @param {boolean} videoEnabled 是否使用 Video 设备。
      * @param {boolean} audioEnabled 是否使用 Audio 设备。
      */
@@ -61,10 +60,11 @@ export class MediaConstraint extends JSONable {
     }
 
     /**
-     * @inheritdoc
+     * 获取媒体约束描述。
+     * @returns {JSON}
      */
-    toJSON() {
-        let json = super.toJSON();
+    getConstraints() {
+        let json = {};
         json.audio = this.audioEnabled;
         if (this.videoEnabled) {
             json.video = this.dimension.constraints;
@@ -73,5 +73,26 @@ export class MediaConstraint extends JSONable {
             json.video = false;
         }
         return json;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    toJSON() {
+        let json = super.toJSON();
+        json.audio = this.audioEnabled;
+        json.video = this.videoEnabled;
+        json.dimension = this.dimension;
+        return json;
+    }
+
+    /**
+     * 
+     * @param {JSON} json 
+     */
+    static create(json) {
+        let mc = new MediaConstraint(json.video, json.audio);
+        mc.dimension = json.dimension;
+        return mc;
     }
 }
