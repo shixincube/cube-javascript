@@ -110,7 +110,7 @@ export class RTCEndpoint extends CommFieldEndpoint {
     }
 
     onIceCandidate(candidate) {
-
+        // Nothing
     }
 
     /**
@@ -273,6 +273,17 @@ export class RTCEndpoint extends CommFieldEndpoint {
                 this.close();
             });
         })();
+    }
+
+    doCandidate(candidate) {
+        if (null == this.pc) {
+            return;
+        }
+
+        let iceCandidate = new RTCIceCandidate(candidate);
+        this.pc.addIceCandidate(iceCandidate).catch((error) => {
+            console.log('Ice Candidate error: ' + error);
+        });
     }
 
     /**

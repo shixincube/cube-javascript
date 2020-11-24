@@ -66,8 +66,6 @@ export class MultipointComm extends Module {
          */
         this.privateField = null;
 
-        this.currentCallee = null;
-
         /**
          * RTC 节点。
          * @type {RTCEndpoint}
@@ -103,6 +101,12 @@ export class MultipointComm extends Module {
          * @type {number}
          */
         this.callTimer = 0;
+
+        /**
+         * 被叫定时器。
+         * @type {number}
+         */
+        this.newCallTimer = 0;
 
         /**
          * 呼叫超时。
@@ -144,6 +148,12 @@ export class MultipointComm extends Module {
      */
     stop() {
         super.stop();
+
+        if (null != this.rtcEndpoint) {
+            if (this.rtcEndpoint.isWorking()) {
+                this.terminateCall();
+            }
+        }
 
         this.videoElem.pause();
         this.videoElem.remove();
@@ -272,8 +282,9 @@ export class MultipointComm extends Module {
             // 呼叫指定联系人
             // 1. 先申请主叫，从而设置目标
             this.privateField.applyCall(this.privateField.getFounder(), fieldOrContact, (commField, proposer, target) => {
+                this.privateField.caller = this.privateField.getFounder();
+                this.privateField.callee = fieldOrContact;
                 this.currentField = this.privateField;
-                this.currentCallee = fieldOrContact;
 
                 // 2. 启动 RTC 节点，发起 Offer
                 this.privateField.launchCaller(rtcEndpoint, mediaConstraint, successHandler, failureHandler);
@@ -303,6 +314,11 @@ export class MultipointComm extends Module {
      * @returns {boolean}
      */
     answerCall(fieldOrContact, mediaConstraint, successCallback, failureCallback) {
+        if (this.newCallTimer > 0) {
+            clearTimeout(this.newCallTimer);
+            this.newCallTimer = 0;
+        }
+
         if (null == this.offerSignaling) {
             let error = new ModuleError(MultipointComm.NAME, MultipointCommState.SignalingError, fieldOrContact);
             if (failureCallback) {
@@ -349,6 +365,8 @@ export class MultipointComm extends Module {
             // 应答指定联系人
             // 1. 先申请进入
             this.privateField.applyEnter(rtcEndpoint.getContact(), rtcEndpoint.getDevice(), (contact, device) => {
+                this.privateField.caller = fieldOrContact;
+                this.privateField.callee = this.privateField.getFounder();
                 this.currentField = this.privateField;
 
                 // 2. 启动 RTC 节点，发起 Answer
@@ -381,16 +399,20 @@ export class MultipointComm extends Module {
             this.callTimer = 0;
         }
 
+        if (this.newCallTimer > 0) {
+            clearTimeout(this.newCallTimer);
+            this.newCallTimer = 0;
+        }
+
         let rtcEndpoint = this.getRTCEndpoint();
 
-        let field = null;
+        let field = this.currentField;
         let callee = null;
+
         if (null != this.offerSignaling) {
-            field = this.offerSignaling.field;
             callee = this.offerSignaling.callee;
         }
         else if (null != this.answerSignaling) {
-            field = this.answerSignaling.field;
             callee = this.answerSignaling.callee;
         }
         else {
@@ -398,7 +420,7 @@ export class MultipointComm extends Module {
                 return false;
             }
 
-            let signaling = new Signaling(MultipointCommAction.Bye, this.privateField, 
+            let signaling = new Signaling(MultipointCommAction.Bye, field, 
                 this.privateField.founder, this.privateField.founder.getDevice());
             let packet = new Packet(MultipointCommAction.Bye, signaling.toJSON());
             this.pipeline.send(MultipointComm.NAME, packet);
@@ -410,6 +432,7 @@ export class MultipointComm extends Module {
         }
 
         if (!rtcEndpoint.ready && callee.getId() == this.privateField.founder.getId()) {
+            // 被叫端拒绝通话
             let signaling = new Signaling(MultipointCommAction.Busy, field, 
                 this.privateField.founder, this.privateField.founder.getDevice());
             let packet = new Packet(MultipointCommAction.Busy, signaling.toJSON());
@@ -441,13 +464,31 @@ export class MultipointComm extends Module {
         }
 
         if (this.currentField.isPrivate()) {
-            this.notifyObservers(new ObservableState(MultipointCommEvent.CallTimeout, this.currentCallee));
+            this.notifyObservers(new ObservableState(MultipointCommEvent.CallTimeout, this.privateField.callee));
         }
         else {
             this.notifyObservers(new ObservableState(MultipointCommEvent.CallTimeout, this.currentField));
         }
 
         this.terminateCall();
+    }
+
+    /**
+     * 触发被叫超时。
+     * @private
+     */
+    fireNewCallTimeout() {
+        if (this.newCallTimer > 0) {
+            clearTimeout(this.newCallTimer);
+            this.newCallTimer = 0;
+        }
+
+        if (this.offerSignaling.field.isPrivate()) {
+            this.terminateCall();
+        }
+        else {
+            this.terminateCall();
+        }
     }
 
     /**
@@ -462,19 +503,32 @@ export class MultipointComm extends Module {
             return;
         }
 
+        if (null != this.offerSignaling) {
+            // 已经有一个呼叫未结束
+            if (this.newCallTimer > 0) {
+                clearTimeout(this.newCallTimer);
+                this.newCallTimer = 0;
+            }
+        }
+
         let data = payload.data;
         this.offerSignaling = Signaling.create(data, this.pipeline);
 
         let rtcEndpoint = this.getRTCEndpoint();
 
-        // 先应答
+        // 检查当期是否有通话正在进行
         if (rtcEndpoint.isWorking()) {
             // 应答忙音 Busy
             let busy = new Signaling(MultipointCommAction.Busy, this.offerSignaling.field,
                 rtcEndpoint.getContact(), rtcEndpoint.getDevice());
             let packet = new Packet(MultipointCommAction.Busy, busy.toJSON());
             this.pipeline.send(MultipointComm.NAME, packet);
+            return;
         }
+
+        this.newCallTimer = setTimeout(() => {
+            this.fireNewCallTimeout();
+        }, this.callTimeout - 5000);
 
         if (this.offerSignaling.field.isPrivate()) {
             // 来自个人的通话申请
@@ -519,6 +573,33 @@ export class MultipointComm extends Module {
             }, (error) => {
                 this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
             });
+        }
+    }
+
+    /**
+     * 处理 Candidate 信令。
+     * @private
+     * @param {JSON} payload 
+     * @param {object} context 
+     */
+    triggerCandidate(payload, context) {
+        if (null != context) {
+            // context 不是 null 值时，表示该信令是由本终端发出的，因此无需处理，直接返回
+            return;
+        }
+
+        let signaling = Signaling.create(payload.data, this.pipeline);
+
+        let rtcEndpoint = this.getRTCEndpoint();
+
+        if (null != signaling.candidate) {
+            rtcEndpoint.doCandidate(signaling.candidate);
+        }
+        else if (null != signaling.candidates) {
+            let list = signaling.candidates;
+            for (let i = 0; i < list.length; ++i) {
+                rtcEndpoint.doCandidate(list[i]);
+            }
         }
     }
 

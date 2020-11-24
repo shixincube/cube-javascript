@@ -82,6 +82,10 @@ export class CommField extends Entity {
          * @type {OrderMap<number,CommFieldEndpoint>}
          */
         this.fieldEndpoints = new OrderMap();
+
+        this.caller = null;
+
+        this.callee = null;
     }
 
     /**
