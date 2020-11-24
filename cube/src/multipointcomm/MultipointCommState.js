@@ -81,6 +81,12 @@ export const MultipointCommState = {
     DataStructureError: 20,
 
     /**
+     * 场域状态错误。
+     * @type {number}
+     */ 
+    CommFieldStateError: 21,
+
+    /**
      * 正在建立通话。
      * @type {number}
      */

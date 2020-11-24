@@ -74,6 +74,11 @@ export class Signaling extends JSONable {
         this.candidate = null;
 
         /**
+         * @type {Array<object>}
+         */
+        this.candidates = null;
+
+        /**
          * @type {Contact}
          */
         this.caller = null;
@@ -118,6 +123,10 @@ export class Signaling extends JSONable {
 
         if (json.candidate) {
             signaling.candidate = json.candidate;
+        }
+
+        if (json.candidates) {
+            signaling.candidates = json.candidates;
         }
 
         if (json.caller) {
