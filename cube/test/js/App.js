@@ -227,6 +227,7 @@ var App = Class({
 
     callTipsElem: null,
     callingTimer: 0,
+    callTarget: 0,
 
     callEventCallback: function(state) {
         console.log('[Event] ' + state);
@@ -247,20 +248,25 @@ var App = Class({
             clearInterval(this.callingTimer);
         }
         else if (state.getName() == MultipointCommEvent.NewCall) {
+            var that = this;
             var promise = new Promise(function(resolve, reject) {
                 tips = '收到来自 "' + state.getData().getCaller().getId() + '" 的通话邀请';
+                that.callTipsElem.innerText = tips;
+                resolve(state.getData());
             });
-            promise.then(function() {
-
+            promise.then(function(record) {
+                if (confirm('是否应答来自 "' + record.getCaller().getId() + '" 的呼叫？')) {
+                    var mediaConstraint = new MediaConstraint(true, false);
+                    that.cube.getMultipointComm().answerCall(mediaConstraint);
+                }
             }).catch(function() {
-
             });
         }
         else {
             tips = '[Event] ' + state;
         }
 
-        this.callTipsElem.innerText = tips;
+        this.callTipsElem.innerText = (null != tips) ? tips : '';
     },
 
     newCall: function(args) {
@@ -271,7 +277,7 @@ var App = Class({
 
         var that = this;
 
-        var target = parseInt(args[0]);
+        this.callTarget = parseInt(args[0]);
 
         if (null == this.callDom) {
             this.callDom = document.createElement('div');
@@ -286,7 +292,7 @@ var App = Class({
             });
         }
 
-        var html = ['<div class="tips"><span id="tips_view"></span>&nbsp;&nbsp;<span id="tips_mark"></span></div>',
+        var html = ['<div class="tips"><span id="tips_view">通话目标：', this.callTarget, '</span>&nbsp;<span id="tips_mark"></span></div>',
                     '<div class="local" id="local_view">', '</div>',
                     '<div class="remote" id="remote_view">', '</div>',
                     '<div class="toolbar">',
@@ -306,10 +312,15 @@ var App = Class({
 
         var remoteView = document.getElementById('remote_view');
         remoteView.appendChild(comm.getRemoteVideoElement());
+    },
+
+    onClickMakeCall: function(e) {
+        var comm = this.cube.getMultipointComm();
 
         var count = 0;
 
-        this.cube.getContactService().getContact(target, function(contact) {
+        var that = this;
+        this.cube.getContactService().getContact(this.callTarget, function(contact) {
             var mediaConstraint = new MediaConstraint(true, false);
             comm.makeCall(contact, mediaConstraint, function() {
                 console.log('Call ' + contact.getId());
@@ -326,10 +337,6 @@ var App = Class({
         }, function(error) {
             console.log('获取联系人失败: ' + error);
         });
-    },
-
-    onClickMakeCall: function(e) {
-        alert('未实现');
     },
 
     onClickAnswerCall: function(e) {

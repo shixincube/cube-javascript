@@ -34,10 +34,11 @@ export class ModuleError extends Error {
         this.module = module;
         this.code = code;
         this.data = data;
-        this.desc = desc
+        this.desc = desc;
     }
 
     toString() {
-        return 'ModuleError: [' + this.module + '] ' + this.code;
+        return 'ModuleError [' + this.module + '] : ' + this.code
+            + (this.desc ? ' - ' + this.desc.toString() : '');
     }
 }

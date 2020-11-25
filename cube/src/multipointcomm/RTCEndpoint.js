@@ -59,6 +59,11 @@ export class RTCEndpoint extends CommFieldEndpoint {
         this.pc = null;
 
         /**
+         * @type {Array}
+         */
+        this.candidates = [];
+
+        /**
          * @type {HTMLElement}
          */
         this.localVideoElem = null;
@@ -78,6 +83,14 @@ export class RTCEndpoint extends CommFieldEndpoint {
          */
         this.inboundStream = null;
 
+        /**
+         * 是否已启动 PeerConnection 。
+         */
+        this.started = false;
+
+        /**
+         * 是否已就绪。
+         */
         this.ready = false;
     }
 
@@ -165,20 +178,24 @@ export class RTCEndpoint extends CommFieldEndpoint {
                 this.pc.addTrack(track);
             }
 
-            // 创建 Offer SDP
-            this.pc.createOffer().then((offer) => {
-                this.pc.setLocalDescription(new RTCSessionDescription(offer)).then(() => {
-                    handleSuccess(this.pc.localDescription);
+            this.pc.onnegotiationneeded = (event) => {
+                // 创建 Offer SDP
+                this.pc.createOffer().then((offer) => {
+                    this.pc.setLocalDescription(new RTCSessionDescription(offer)).then(() => {
+                        handleSuccess(this.pc.localDescription);
+                    }).catch((error) => {
+                        // 设置 SDP 错误
+                        handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.LocalDescriptionFault, this, error));
+                        this.close();
+                    });
                 }).catch((error) => {
-                    // 设置 SDP 错误
-                    handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.LocalDescriptionFault, this, error));
+                    // 创建 Offer 错误
+                    handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.CreateOfferFailed, this, error));
                     this.close();
                 });
-            }).catch((error) => {
-                // 创建 Offer 错误
-                handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.CreateOfferFailed, this, error));
-                this.close();
-            });
+
+                this.started = true;
+            };
         })();
     }
 
@@ -191,7 +208,7 @@ export class RTCEndpoint extends CommFieldEndpoint {
     doAnswer(description, handleSuccess, handleFailure) {
         this.pc.setRemoteDescription(new RTCSessionDescription(description)).then(() => {
             handleSuccess();
-            this.ready = true;
+            this.doReady();
         }).catch((error) => {
             // 设置 SDP 错误
             handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.RemoteDescriptionFault, this, error));
@@ -201,12 +218,12 @@ export class RTCEndpoint extends CommFieldEndpoint {
 
     /**
      * 启动 RTC 终端为被叫。
-     * @param {string} offer 主叫的 SDP 。
+     * @param {JSON} description 主叫的 Session Description 。
      * @param {MediaConstraint} mediaConstraint 媒体约束。
      * @param {function} handleSuccess 启动成功回调函数。
      * @param {function} handleFailure 启动失败回调函数。
      */
-    openAnswer(offer, mediaConstraint, handleSuccess, handleFailure) {
+    openAnswer(description, mediaConstraint, handleSuccess, handleFailure) {
         if (null != this.pc) {
             handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.ConnRepeated, this));
             return;
@@ -234,29 +251,29 @@ export class RTCEndpoint extends CommFieldEndpoint {
 
         let constraints = mediaConstraint.getConstraints();
 
-        (async () => {
-            let stream = await this.getUserMedia(constraints);
-            if (null == stream) {
-                handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.MediaPermissionDenied, this));
-                this.close();
-                return;
-            }
+        this.pc.setRemoteDescription(new RTCSessionDescription(description)).then(() => {
+            (async () => {
+                let stream = await this.getUserMedia(constraints);
+                if (null == stream) {
+                    handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.MediaPermissionDenied, this));
+                    this.close();
+                    return;
+                }
 
-            // 设置本地视频流
-            this.localVideoElem.autoplay = true;
-            this.localVideoElem.srcObject = stream;
-            this.outboundStream = stream;
+                // 设置本地视频流
+                this.localVideoElem.autoplay = true;
+                this.localVideoElem.srcObject = stream;
+                this.outboundStream = stream;
 
-            // 添加 track
-            for (const track of stream.getTracks()) {
-                this.pc.addTrack(track);
-            }
+                // 添加 track
+                for (const track of stream.getTracks()) {
+                    this.pc.addTrack(track);
+                }
 
-            this.pc.setRemoteDescription(new RTCSessionDescription(offer)).then(() => {
                 this.pc.createAnswer().then((answer) => {
                     this.pc.setLocalDescription(new RTCSessionDescription(answer)).then(() => {
                         handleSuccess(this.pc.localDescription);
-                        this.ready = true;
+                        this.doReady();
                     }).catch((error) => {
                         // 设置 SDP 错误
                         handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.LocalDescriptionFault, this, error));
@@ -267,16 +284,23 @@ export class RTCEndpoint extends CommFieldEndpoint {
                     handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.CreateAnswerFailed, this, error));
                     this.close();
                 });
-            }).catch((error) => {
-                // 设置 SDP 错误
-                handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.RemoteDescriptionFault, this, error));
-                this.close();
-            });
-        })();
+
+                this.started = true;
+            })();
+        }).catch((error) => {
+            // 设置 SDP 错误
+            handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.RemoteDescriptionFault, this, error));
+            this.close();
+        });
     }
 
     doCandidate(candidate) {
         if (null == this.pc) {
+            return;
+        }
+
+        if (!this.ready) {
+            this.candidates.push(candidate);
             return;
         }
 
@@ -286,10 +310,28 @@ export class RTCEndpoint extends CommFieldEndpoint {
         });
     }
 
+    doReady() {
+        this.ready = true;
+
+        for (let i = 0; i < this.candidates.length; ++i) {
+            let candidate = this.candidates[i];
+            let iceCandidate = new RTCIceCandidate(candidate);
+            this.pc.addIceCandidate(iceCandidate).catch((error) => {
+                console.log('Ice Candidate error: ' + error);
+            });
+        }
+
+        this.candidates.splice(0, this.candidates.length);
+    }
+
     /**
      * 关闭 RTC 终端。
      */
     close() {
+        this.started = false;
+
+        this.candidates = [];
+
         if (null != this.inboundStream) {
             this.inboundStream.getTracks().forEach((track) => {
                 track.stop();

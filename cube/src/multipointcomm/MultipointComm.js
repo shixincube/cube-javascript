@@ -274,6 +274,8 @@ export class MultipointComm extends Module {
                 this.callTimer = 0;
             }
             this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
+
+            this.terminateCall();
         };
 
         (new Promise((resolve, reject) => {
@@ -305,6 +307,7 @@ export class MultipointComm extends Module {
                 this.activeCallRecord.callerMediaConstraint = mediaConstraint;
 
                 // 2. 启动 RTC 节点，发起 Offer
+                rtcEndpoint.enableICE();
                 this.privateField.launchCaller(rtcEndpoint, mediaConstraint, successHandler, failureHandler);
             }, (error) => {
                 failureHandler(error);
@@ -396,6 +399,8 @@ export class MultipointComm extends Module {
                 failureCallback(error);
             }
             this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
+
+            this.terminateCall();
         };
 
         (new Promise((resolve, reject) => {
@@ -422,6 +427,7 @@ export class MultipointComm extends Module {
                 this.activeCallRecord.calleeMediaConstraint = mediaConstraint;
 
                 // 2. 启动 RTC 节点，发起 Answer
+                rtcEndpoint.enableICE();
                 this.privateField.launchCallee(rtcEndpoint,
                     this.offerSignaling.sessionDescription, mediaConstraint, successHandler, failureHandler);
             }, (error) => {
@@ -445,7 +451,7 @@ export class MultipointComm extends Module {
     /**
      * 终止当前的通话。
      */
-    terminateCall() {
+    terminateCall(successCallback, failureCallback) {
         if (this.callTimer > 0) {
             clearTimeout(this.callTimer);
             this.callTimer = 0;
@@ -461,6 +467,28 @@ export class MultipointComm extends Module {
         let field = this.currentField;
         let callee = null;
 
+        let byeHandler = (pipeline, source, packet) => {
+            if (packet.data.code == MultipointCommState.Ok) {
+                let signaling = Signaling.create(packet.data.data, this.pipeline);
+
+                // 记录结束时间
+                this.activeCallRecord.endTime = Date.now();
+
+                if (successCallback) {
+                    successCallback(this.activeCallRecord);
+                }
+
+                this.notifyObservers(new ObservableState(MultipointCommEvent.Bye, this.activeCallRecord));
+            }
+            else {
+                let error = new ModuleError(MultipointComm.NAME, packet.data.code, signaling.field);
+                if (failureCallback) {
+                    failureCallback(error);
+                }
+                this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
+            }
+        };
+
         if (null != this.offerSignaling) {
             callee = this.offerSignaling.callee;
         }
@@ -475,7 +503,7 @@ export class MultipointComm extends Module {
             let signaling = new Signaling(MultipointCommAction.Bye, field, 
                 this.privateField.founder, this.privateField.founder.getDevice());
             let packet = new Packet(MultipointCommAction.Bye, signaling.toJSON());
-            this.pipeline.send(MultipointComm.NAME, packet);
+            this.pipeline.send(MultipointComm.NAME, packet, byeHandler);
 
             this.offerSignaling = null;
             this.answerSignaling = null;
@@ -494,7 +522,7 @@ export class MultipointComm extends Module {
             let signaling = new Signaling(MultipointCommAction.Bye, field, 
                 this.privateField.founder, this.privateField.founder.getDevice());
             let packet = new Packet(MultipointCommAction.Bye, signaling.toJSON());
-            this.pipeline.send(MultipointComm.NAME, packet);
+            this.pipeline.send(MultipointComm.NAME, packet, byeHandler);
         }
 
         this.offerSignaling = null;
@@ -572,9 +600,9 @@ export class MultipointComm extends Module {
 
         // 创建记录
         this.activeCallRecord = new CallRecord(this.privateField.getFounder());
-        this.activeCallRecord.field = signaling.field;
-        this.activeCallRecord.field.caller = signaling.caller;
-        this.activeCallRecord.field.callee = signaling.callee;
+        this.activeCallRecord.field = this.offerSignaling.field;
+        this.activeCallRecord.field.caller = this.offerSignaling.caller;
+        this.activeCallRecord.field.callee = this.offerSignaling.callee;
 
         // 记录媒体约束
         this.activeCallRecord.callerMediaConstraint = this.offerSignaling.mediaConstraint;
@@ -672,21 +700,16 @@ export class MultipointComm extends Module {
     triggerBusy(payload, context) {
         let signaling = Signaling.create(payload.data, this.pipeline);
         if (signaling.field.isPrivate()) {
-            if (signaling.field.getId() == this.privateField.getId()) {
+            if (signaling.callee.getId() == this.privateField.getId()) {
                 // 记录
                 this.activeCallRecord.endTime = Date.now();
 
-                // 本终端发送的 Busy
-                let peer = this.privateField.founder.getId() == signaling.caller.getId() ? 
-                        signaling.callee : signaling.caller;
                 // 收到本终端 Busy 时，回调 Bye
                 this.notifyObservers(new ObservableState(MultipointCommEvent.Bye, this.activeCallRecord));
             }
             else {
                 // 收到其他终端的 Busy
-                let peer = this.privateField.founder.getId() == signaling.caller.getId() ? 
-                        signaling.callee : signaling.caller;
-                this.notifyObservers(new ObservableState(MultipointCommEvent.Busy, peer));
+                this.notifyObservers(new ObservableState(MultipointCommEvent.Busy, this.activeCallRecord));
 
                 // 终止通话
                 this.terminateCall();
@@ -704,26 +727,9 @@ export class MultipointComm extends Module {
      * @param {object} context
      */
     triggerBye(payload, context) {
-        if (payload.code != MultipointCommState.Ok) {
-            return;
-        }
-
         let signaling = Signaling.create(payload.data, this.pipeline);
         if (signaling.field.isPrivate()) {
-            if (signaling.field.getId() == this.privateField.getId()) {
-                // 记录结束时间
-                this.activeCallRecord.endTime = Date.now();
-
-                // 本终端发送的 Bye
-                let peer = this.privateField.founder.getId() == signaling.caller.getId() ? 
-                        signaling.callee : signaling.caller;
-                this.notifyObservers(new ObservableState(MultipointCommEvent.Bye, this.activeCallRecord));
-            }
-            else {
-                // 收到其他终端的 Bye
-                // 终止通话
-                this.terminateCall();
-            }
+            this.terminateCall();
         }
         else {
             this.notifyObservers(new ObservableState(MultipointCommEvent.Bye, signaling.field));

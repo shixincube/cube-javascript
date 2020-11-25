@@ -24,6 +24,7 @@
  * SOFTWARE.
  */
 
+import { Self } from "../contact/Self";
 import { ModuleError } from "../core/error/ModuleError";
 import { CommField } from "./CommField";
 import { MediaConstraint } from "./MediaConstraint";
@@ -33,9 +34,12 @@ import { MediaConstraint } from "./MediaConstraint";
  */
 export class CallRecord {
 
+    /**
+     * @param {Self} self 
+     */
     constructor(self) {
         /**
-         * 
+         * @type {Self}
          */
         this.self = self;
 
