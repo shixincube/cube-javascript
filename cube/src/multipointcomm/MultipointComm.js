@@ -80,12 +80,6 @@ export class MultipointComm extends Module {
         this.fields = new OrderMap();
 
         /**
-         * 当前工作的通讯场域。
-         * @type {CommField}
-         */
-        this.currentField = null;
-
-        /**
          * 来自主叫的信令。
          * @type {Signaling}
          */
@@ -300,10 +294,8 @@ export class MultipointComm extends Module {
                 this.privateField.caller = this.privateField.getFounder();
                 this.privateField.callee = fieldOrContact;
 
-                this.currentField = this.privateField;
-
                 // 记录
-                this.activeCallRecord.field = this.currentField;
+                this.activeCallRecord.field = this.privateField;
                 this.activeCallRecord.callerMediaConstraint = mediaConstraint;
 
                 // 2. 启动 RTC 节点，发起 Offer
@@ -314,8 +306,6 @@ export class MultipointComm extends Module {
             });
         }
         else if (fieldOrContact instanceof CommField) {
-            this.currentField = fieldOrContact;
-
             // 呼入 Comm Field
             fieldOrContact.launchCaller(rtcEndpoint, mediaConstraint, successHandler, failureHandler);
         }
@@ -420,10 +410,8 @@ export class MultipointComm extends Module {
                 this.privateField.caller = fieldOrContact;
                 this.privateField.callee = this.privateField.getFounder();
 
-                this.currentField = this.privateField;
-
                 // 记录
-                this.activeCallRecord.field = this.currentField;
+                this.activeCallRecord.field = this.privateField;
                 this.activeCallRecord.calleeMediaConstraint = mediaConstraint;
 
                 // 2. 启动 RTC 节点，发起 Answer
@@ -435,8 +423,6 @@ export class MultipointComm extends Module {
             });
         }
         else if (fieldOrContact instanceof CommField) {
-            this.currentField = fieldOrContact;
-
             // 应答 Comm Field
             fieldOrContact.launchCallee(rtcEndpoint,
                 this.offerSignaling.sessionDescription, mediaConstraint, successHandler, failureHandler);
@@ -450,6 +436,9 @@ export class MultipointComm extends Module {
 
     /**
      * 终止当前的通话。
+     * @param {function} [successCallback]
+     * @param {function} [failureCallback]
+     * @returns {boolean}
      */
     terminateCall(successCallback, failureCallback) {
         if (this.callTimer > 0) {
@@ -464,7 +453,7 @@ export class MultipointComm extends Module {
 
         let rtcEndpoint = this.getRTCEndpoint();
 
-        let field = this.currentField;
+        let field = this.activeCallRecord.field;
         let callee = null;
 
         let byeHandler = (pipeline, source, packet) => {
@@ -482,6 +471,9 @@ export class MultipointComm extends Module {
             }
             else {
                 let error = new ModuleError(MultipointComm.NAME, packet.data.code, signaling.field);
+
+                this.activeCallRecord.lastError = error;
+
                 if (failureCallback) {
                     failureCallback(error);
                 }
@@ -543,11 +535,11 @@ export class MultipointComm extends Module {
             this.callTimer = 0;
         }
 
-        if (this.currentField.isPrivate()) {
+        if (this.activeCallRecord.field.isPrivate()) {
             this.notifyObservers(new ObservableState(MultipointCommEvent.CallTimeout, this.privateField.callee));
         }
         else {
-            this.notifyObservers(new ObservableState(MultipointCommEvent.CallTimeout, this.currentField));
+            this.notifyObservers(new ObservableState(MultipointCommEvent.CallTimeout, this.activeCallRecord.field));
         }
 
         this.terminateCall();
@@ -591,7 +583,7 @@ export class MultipointComm extends Module {
         // 检查当期是否有通话正在进行
         if (rtcEndpoint.isWorking()) {
             // 应答忙音 Busy
-            let busy = new Signaling(MultipointCommAction.Busy, this.offerSignaling.field,
+            let busy = new Signaling(MultipointCommAction.Busy, this.privateField,
                 rtcEndpoint.getContact(), rtcEndpoint.getDevice());
             let packet = new Packet(MultipointCommAction.Busy, busy.toJSON());
             this.pipeline.send(MultipointComm.NAME, packet);
@@ -698,6 +690,12 @@ export class MultipointComm extends Module {
      * @param {object} context
      */
     triggerBusy(payload, context) {
+        if (payload.code != MultipointCommState.Ok) {
+            let error = new ModuleError(MultipointComm.NAME, payload.code, this);
+            this.notifyObservers(new ObservableState(MultipointCommAction.CallFailed, error));
+            return;
+        }
+
         let signaling = Signaling.create(payload.data, this.pipeline);
         if (signaling.field.isPrivate()) {
             if (signaling.callee.getId() == this.privateField.getId()) {
@@ -732,7 +730,7 @@ export class MultipointComm extends Module {
             this.terminateCall();
         }
         else {
-            this.notifyObservers(new ObservableState(MultipointCommEvent.Bye, signaling.field));
+            this.terminateCall();
         }
     }
 
