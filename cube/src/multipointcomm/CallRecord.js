@@ -35,7 +35,7 @@ import { MediaConstraint } from "./MediaConstraint";
 export class CallRecord {
 
     /**
-     * @param {Self} self 
+     * @param {Self} self 创建该记录的联系人。
      */
     constructor(self) {
         /**

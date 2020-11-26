@@ -46,9 +46,9 @@ import { ModuleError } from "../core/error/ModuleError";
 export class CommField extends Entity {
 
     /**
-     * @param {number} id 
-     * @param {Contact} founder 
-     * @param {Pipeline} pipeline
+     * @param {number} id 场域 ID 。
+     * @param {Contact} founder 创建人 ID 。
+     * @param {Pipeline} pipeline 数据通道。
      */
     constructor(id, founder, pipeline) {
         super(7 * 24 * 60 * 60 * 1000);
@@ -83,8 +83,16 @@ export class CommField extends Entity {
          */
         this.fieldEndpoints = new OrderMap();
 
+        /**
+         * 当前主叫，仅适用于私有域。
+         * @type {Contact}
+         */
         this.caller = null;
 
+        /**
+         * 当前被叫，仅适用于私有域。
+         * @type {Contact}
+         */
         this.callee = null;
     }
 

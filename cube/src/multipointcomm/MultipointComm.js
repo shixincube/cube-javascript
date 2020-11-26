@@ -737,11 +737,11 @@ export class MultipointComm extends Module {
     /**
      * 获取指定 ID 的通信场域。
      * @param {number} id 
-     * @param {function} handleSuccess
-     * @param {function} [handleError]
+     * @param {function} successCallback
+     * @param {function} [failureCallback]
      * @returns {boolean} 返回操作是否被正确执行。
      */
-    getField(id, handleSuccess, handleError) {
+    getField(id, successCallback, failureCallback) {
         let field = this.fields.get(id);
         if (null != field) {
             handleSuccess(field);
