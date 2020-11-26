@@ -124,7 +124,7 @@ export class CommFieldEndpoint extends Aggregation(Entity, Endpoint) {
 
         /**
          * 会话描述。
-         * @type {string}
+         * @type {object}
          */
         this.sessionDescription = null;
     }
@@ -137,6 +137,10 @@ export class CommFieldEndpoint extends Aggregation(Entity, Endpoint) {
         return this.contact;
     }
 
+    /**
+     * 获取设备实例。
+     * @returns {Device} 返回设备实例。
+     */
     getDevice() {
         return this.device;
     }

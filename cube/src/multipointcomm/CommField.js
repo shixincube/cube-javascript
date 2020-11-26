@@ -97,12 +97,17 @@ export class CommField extends Entity {
     }
 
     /**
+     * 返回创建人。
      * @returns {Contact} 返回创建人。
      */
     getFounder() {
         return this.founder;
     }
 
+    /**
+     * 当前通信场是否是私有场域。
+     * @returns {boolean} 如果是私有场域返回 {@linkcode true} ，否则返回 {@linkcode false} 。
+     */
     isPrivate() {
         return (this.id == this.founder.getId());
     }

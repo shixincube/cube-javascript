@@ -152,7 +152,7 @@ export class MultipointComm extends Module {
 
         if (null != this.rtcEndpoint) {
             if (this.rtcEndpoint.isWorking()) {
-                this.terminateCall();
+                this.hangupCall();
             }
         }
 
@@ -269,7 +269,7 @@ export class MultipointComm extends Module {
             }
             this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
 
-            this.terminateCall();
+            this.hangupCall();
         };
 
         (new Promise((resolve, reject) => {
@@ -390,7 +390,7 @@ export class MultipointComm extends Module {
             }
             this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
 
-            this.terminateCall();
+            this.hangupCall();
         };
 
         (new Promise((resolve, reject) => {
@@ -440,7 +440,7 @@ export class MultipointComm extends Module {
      * @param {function} [failureCallback]
      * @returns {boolean}
      */
-    terminateCall(successCallback, failureCallback) {
+    hangupCall(successCallback, failureCallback) {
         if (this.callTimer > 0) {
             clearTimeout(this.callTimer);
             this.callTimer = 0;
@@ -542,7 +542,7 @@ export class MultipointComm extends Module {
             this.notifyObservers(new ObservableState(MultipointCommEvent.CallTimeout, this.activeCallRecord.field));
         }
 
-        this.terminateCall();
+        this.hangupCall();
     }
 
     /**
@@ -556,10 +556,10 @@ export class MultipointComm extends Module {
         }
 
         if (this.offerSignaling.field.isPrivate()) {
-            this.terminateCall();
+            this.hangupCall();
         }
         else {
-            this.terminateCall();
+            this.hangupCall();
         }
     }
 
@@ -710,7 +710,7 @@ export class MultipointComm extends Module {
                 this.notifyObservers(new ObservableState(MultipointCommEvent.Busy, this.activeCallRecord));
 
                 // 终止通话
-                this.terminateCall();
+                this.hangupCall();
             }
         }
         else {
@@ -727,10 +727,10 @@ export class MultipointComm extends Module {
     triggerBye(payload, context) {
         let signaling = Signaling.create(payload.data, this.pipeline);
         if (signaling.field.isPrivate()) {
-            this.terminateCall();
+            this.hangupCall();
         }
         else {
-            this.terminateCall();
+            this.hangupCall();
         }
     }
 

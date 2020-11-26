@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>Signaling - Cube for Javascript</title>
+    <title>CallRecord - Cube for Javascript</title>
     
     <meta name="description" content="Cube Javascript" />
     
@@ -43,7 +43,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">Signaling</h1>
+    <h1 class="page-title">CallRecord</h1>
     
 
     
@@ -56,10 +56,10 @@
 <header>
     
         <h2>
-        Signaling
+        CallRecord
         </h2>
         
-            <div class="class-description usertext"><p>信令。</p></div>
+            <div class="class-description usertext"><p>通话记录。</p></div>
         
     
 </header>
@@ -74,7 +74,7 @@
     <h2>Constructor</h2>
     
 
-    <h4 class="name" id="Signaling"><span class="type-signature"></span>new Signaling<span class="signature">(name, field, contact, device)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="CallRecord"><span class="type-signature"></span>new CallRecord<span class="signature">(self)</span><span class="type-signature"></span></h4>
 
     
 
@@ -155,13 +155,13 @@
 
         <tr>
             
-                <td class="name"><code>name</code></td>
+                <td class="name"><code>self</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type"><a href="Self.html">Self</a></span>
 
 
             
@@ -171,76 +171,7 @@
 
             
 
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>field</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="CommField.html">CommField</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>contact</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="Contact.html">Contact</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>device</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="Device.html">Device</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
+            <td class="description last"><p>创建该记录的联系人。</p></td>
         </tr>
 
     
@@ -277,7 +208,7 @@
         <h3 class="subsection-title">Classes</h3>
 
         <dl>
-            <dt><a href="Signaling.html">Signaling</a></dt>
+            <dt><a href="CallRecord.html">CallRecord</a></dt>
             <dd></dd>
         </dl>
     
@@ -293,7 +224,7 @@
 
         
             
-<h4 class="name" id="name"><span class="type-signature"></span>name<span class="type-signature"> :string</span></h4>
+<h4 class="name" id="self"><span class="type-signature"></span>self<span class="type-signature"> :<a href="Self.html">Self</a></span></h4>
 
 
 
@@ -344,7 +275,211 @@
     <ul>
         <li>
             
-<span class="param-type">string</span>
+<span class="param-type"><a href="Self.html">Self</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="startTime"><span class="type-signature"></span>startTime<span class="type-signature"> :number</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>开始时间。</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">number</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="answerTime"><span class="type-signature"></span>answerTime<span class="type-signature"> :number</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>应答时间。</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">number</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="endTime"><span class="type-signature"></span>endTime<span class="type-signature"> :number</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>结束时间。</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">number</span>
 
 
         </li>
@@ -421,7 +556,7 @@
 
         
             
-<h4 class="name" id="contact"><span class="type-signature"></span>contact<span class="type-signature"> :<a href="Contact.html">Contact</a></span></h4>
+<h4 class="name" id="callerMediaConstraint"><span class="type-signature"></span>callerMediaConstraint<span class="type-signature"> :<a href="MediaConstraint.html">MediaConstraint</a></span></h4>
 
 
 
@@ -472,7 +607,7 @@
     <ul>
         <li>
             
-<span class="param-type"><a href="Contact.html">Contact</a></span>
+<span class="param-type"><a href="MediaConstraint.html">MediaConstraint</a></span>
 
 
         </li>
@@ -485,7 +620,7 @@
 
         
             
-<h4 class="name" id="device"><span class="type-signature"></span>device<span class="type-signature"> :<a href="Device.html">Device</a></span></h4>
+<h4 class="name" id="calleeMediaConstraint"><span class="type-signature"></span>calleeMediaConstraint<span class="type-signature"> :<a href="MediaConstraint.html">MediaConstraint</a></span></h4>
 
 
 
@@ -536,7 +671,7 @@
     <ul>
         <li>
             
-<span class="param-type"><a href="Device.html">Device</a></span>
+<span class="param-type"><a href="MediaConstraint.html">MediaConstraint</a></span>
 
 
         </li>
@@ -549,7 +684,7 @@
 
         
             
-<h4 class="name" id="sessionDescription"><span class="type-signature"></span>sessionDescription<span class="type-signature"> :object</span></h4>
+<h4 class="name" id="lastError"><span class="type-signature"></span>lastError<span class="type-signature"> :<a href="ModuleError.html">ModuleError</a></span></h4>
 
 
 
@@ -600,327 +735,7 @@
     <ul>
         <li>
             
-<span class="param-type">object</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="candidate"><span class="type-signature"></span>candidate<span class="type-signature"> :object</span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">object</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="candidates"><span class="type-signature"></span>candidates<span class="type-signature"> :Array.&lt;object></span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">Array.&lt;object></span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="mediaConstraint"><span class="type-signature"></span>mediaConstraint<span class="type-signature"> :object</span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">object</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="caller"><span class="type-signature"></span>caller<span class="type-signature"> :<a href="Contact.html">Contact</a></span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type"><a href="Contact.html">Contact</a></span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="callee"><span class="type-signature"></span>callee<span class="type-signature"> :<a href="Contact.html">Contact</a></span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type"><a href="Contact.html">Contact</a></span>
+<span class="param-type"><a href="ModuleError.html">ModuleError</a></span>
 
 
         </li>

@@ -298,7 +298,7 @@ var App = Class({
                     '<div class="toolbar">',
                         '<button class="btn" onclick="javascript:app.onClickMakeCall(event);">Make Call</button>',
                         '<button class="btn" onclick="javascript:app.onClickAnswerCall(event);">Answer Call</button>',
-                        '<button class="btn" onclick="javascript:app.onClickTerminateCall(event);">Terminate Call</button>',
+                        '<button class="btn" onclick="javascript:app.onClickHangupCall(event);">Hangup Call</button>',
                         '<button class="btn" onclick="javascript:app.onClickCloseCall(event);">Close</button>',
                     '</div>'];
         this.callDom.innerHTML = html.join('');
@@ -344,8 +344,8 @@ var App = Class({
         this.cube.getMultipointComm().answerCall(mediaConstraint);
     },
 
-    onClickTerminateCall: function(e) {
-        this.cube.getMultipointComm().terminateCall();
+    onClickHangupCall: function(e) {
+        this.cube.getMultipointComm().hangupCall();
     },
 
     onClickCloseCall: function() {
