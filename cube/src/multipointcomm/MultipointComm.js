@@ -253,7 +253,14 @@ export class MultipointComm extends Module {
             if (successCallback) {
                 successCallback(fieldOrContact);
             }
-            this.notifyObservers(new ObservableState(MultipointCommEvent.Ringing, fieldOrContact));
+            if (signaling.field.isPrivate()) {
+                // 私有场域，触发 Ringing 事件
+                this.notifyObservers(new ObservableState(MultipointCommEvent.Ringing, fieldOrContact));
+            }
+            else {
+                // 处理返回的信令
+                // TODO
+            }
         };
 
         let failureHandler = (error) => {

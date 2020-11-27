@@ -61,7 +61,7 @@ export class MediaConstraint extends JSONable {
 
     /**
      * 获取媒体约束描述。
-     * @returns {JSON}
+     * @returns {JSON} 返回约束的 JSON 格式。
      */
     getConstraints() {
         let json = {};
@@ -87,8 +87,9 @@ export class MediaConstraint extends JSONable {
     }
 
     /**
-     * 
-     * @param {JSON} json 
+     * 创建 {@link MediaConstraint} 实例。
+     * @param {JSON} json 指定符合 {@linkcode MediaConstraint} 格式的 JSON 对象。
+     * @returns {MediaConstraint} 返回 {@link MediaConstraint} 实例。
      */
     static create(json) {
         let mc = new MediaConstraint(json.video, json.audio);

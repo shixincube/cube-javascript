@@ -87,6 +87,12 @@ export const MultipointCommState = {
     CommFieldStateError: 21,
 
     /**
+     * 媒体单元故障。
+     * @type {number}
+     */
+    MediaUnitField: 23,
+
+    /**
      * 正在建立通话。
      * @type {number}
      */

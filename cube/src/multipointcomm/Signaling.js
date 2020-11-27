@@ -26,6 +26,7 @@
 
 import { Contact } from "../contact/Contact";
 import { Device } from "../contact/Device";
+import { Pipeline } from "../core/Pipeline";
 import { JSONable } from "../util/JSONable";
 import { CommField } from "./CommField";
 import { MediaConstraint } from "./MediaConstraint";
@@ -36,65 +37,78 @@ import { MediaConstraint } from "./MediaConstraint";
 export class Signaling extends JSONable {
 
     /**
-     * @param {string} name 
-     * @param {CommField} field 
-     * @param {Contact} contact 
-     * @param {Device} device
+     * @param {string} name 信令名。
+     * @param {CommField} field 信令的通讯场域。
+     * @param {Contact} contact 传送/接收该信令的联系人。
+     * @param {Device} device 传送/接收该信令的设备。
      */
     constructor(name, field, contact, device) {
         super();
 
         /**
+         * 信令名。
          * @type {string}
          */
         this.name = name;
 
         /**
+         * 信令的通讯场域。
          * @type {CommField}
          */
         this.field = field;
 
         /**
+         * 传送/接收该信令的联系人。
          * @type {Contact}
          */
         this.contact = contact;
 
         /**
+         * 传送/接收该信令的设备。
          * @type {Device}
          */
         this.device = device;
 
         /**
+         * 通话的 SDP 信息。
          * @type {object}
          */
         this.sessionDescription = null;
 
         /**
+         * 媒体通道的 ICE candidate 。
          * @type {object}
          */
         this.candidate = null;
 
         /**
+         * 媒体通道的 ICE candidate 列表。
          * @type {Array<object>}
          */
         this.candidates = null;
 
         /**
-         * @type {object}
+         * 媒体约束。
+         * @type {MediaConstraint}
          */
         this.mediaConstraint = null;
 
         /**
+         * 主叫。
          * @type {Contact}
          */
         this.caller = null;
 
         /**
+         * 被叫。
          * @type {Contact}
          */
         this.callee = null;
     }
 
+    /**
+     * @inheritdoc
+     */
     toJSON() {
         let json = super.toJSON();
         json["name"] = this.name;
@@ -117,10 +131,19 @@ export class Signaling extends JSONable {
         return json;
     }
 
+    /**
+     * @inheritdoc
+     */
     toCompactJSON() {
         return this.toJSON();
     }
 
+    /**
+     * 创建 {@link Signaling} 实例。
+     * @param {JSON} json JSON 数据对象。
+     * @param {Pipeline} pipeline 数据管道。
+     * @returns {Signaling} 返回 {@linkcode Signaling} 实例。
+     */
     static create(json, pipeline) {
         let signaling = new Signaling(json.name,
             CommField.create(json.field, pipeline),

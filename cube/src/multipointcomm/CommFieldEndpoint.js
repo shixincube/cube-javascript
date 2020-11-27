@@ -167,6 +167,9 @@ export class CommFieldEndpoint extends Aggregation(Entity, Endpoint) {
         return json;
     }
 
+    /**
+     * @inheritdoc
+     */
     toCompactJSON() {
         let json = super.toCompactJSON();
         json.id = this.id;
@@ -186,6 +189,11 @@ export class CommFieldEndpoint extends Aggregation(Entity, Endpoint) {
         return json;
     }
 
+    /**
+     * 创建 {@link CommFieldEndpoint} 实例。
+     * @param {JSON} json 符合 {@linkcode CommFieldEndpoint} 格式的 JSON 对象。
+     * @returns {CommFieldEndpoint} 返回 {@link CommFieldEndpoint} 实例。
+     */
     static create(json) {
         let endpoint = new CommFieldEndpoint(json.id, Contact.create(json.contact, json.domain), Device.create(json.device));
         endpoint.state = json.state;
