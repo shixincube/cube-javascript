@@ -26,6 +26,7 @@
 
 import { OrderMap } from "../util/OrderMap";
 import { Hook } from "./Hook";
+import { Plugin } from "./Plugin";
 
 /**
  * 哑元钩子。
@@ -68,7 +69,7 @@ export class PluginSystem {
      */
     addHook(hook) {
         hook.system = this;
-        this.hooks.put(hook.getName());
+        this.hooks.put(hook.getName(), hook);
     }
 
     /**

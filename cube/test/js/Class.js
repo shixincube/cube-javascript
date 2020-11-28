@@ -33,6 +33,17 @@ function argumentNames(fn) {
 	return names.length == 1 && !names[0] ? [] : names;
 }
 
+function $super(superClass, parameter) {
+    var instance = superClass.prototype.constructor.call(this, parameter);
+    for (var attr in instance) {
+        if (typeof instance[attr] === 'function') {
+            continue;
+        }
+
+        this[attr] = instance[attr];
+    }
+}
+
 /**
  * 对象类实用函数。
  */
@@ -40,12 +51,12 @@ function Class(baseClass, prop) {
 	// 只接受一个参数的情况 - Class(prop)
 	if (typeof (baseClass) === "object") {
 		prop = baseClass;
-		baseClass = null;
+        baseClass = null;
 	}
 
 	// 本次调用所创建的类（构造函数）
 	function F() {
-		// 如果父类存在，则实例对象的baseprototype指向父类的原型
+		// 如果父类存在，则实例对象的 baseprototype 指向父类的原型
 		// 这里提供了在实例对象中调用父类方法的途径
 		if (baseClass) {
 			this.baseprototype = baseClass.prototype;
@@ -58,17 +69,17 @@ function Class(baseClass, prop) {
 		var middleClass = function() {};
 		middleClass.prototype = baseClass.prototype;
 		F.prototype = new middleClass();
-		F.prototype.constructor = F;
-	}
+        F.prototype.constructor = F;
+    }
 
 	// 覆盖父类的同名函数
 	for (var name in prop) {
 		if (prop.hasOwnProperty(name)) {
-			// 如果此类继承自父类baseClass并且父类原型中存在同名函数name
+			// 如果此类继承自父类 baseClass 并且父类原型中存在同名函数 name
 			if (baseClass
 				&& typeof (prop[name]) === "function"
 				&& argumentNames(prop[name])[0] === "$super") {
-				// 重定义子类的原型方法prop[name]
+				// 重定义子类的原型方法 prop[name]
 				// - 比如$super封装了父类方法的调用，但是调用时的上下文指针要指向当前子类的实例对象
 				// - 将$super作为方法调用的第一个参数
 				F.prototype[name] = (function(name, fn) {
@@ -85,7 +96,13 @@ function Class(baseClass, prop) {
 				F.prototype[name] = prop[name];
 			}
 		}
-	}
+    }
+    
+    F.prototype.$super = function(_super) {
+        for (var attr in _super) {
+            F.prototype[attr] = _super[attr];
+        }
+    }
 
 	return F;
 };

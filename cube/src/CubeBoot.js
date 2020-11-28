@@ -33,6 +33,7 @@ import { Entity } from "./core/Entity";
 import { CubeEngine } from "./engine/CubeEngine";
 import { CubeShortcut } from "./engine/CubeShortcut";
 import { Kernel } from "./core/Kernel";
+import { Plugin } from "./core/Plugin";
 import { CellPipeline } from "./pipeline/CellPipeline";
 import { AuthToken } from "./auth/AuthToken";
 import { PrimaryDescription } from "./auth/PrimaryDescription";
@@ -75,6 +76,7 @@ import { Announcer } from "./util/Announcer";
 
     global.CubeEngine = CubeEngine;
     global.Kernel = Kernel;
+    global.Plugin = Plugin;
 
     global.CellPipeline = CellPipeline;
 

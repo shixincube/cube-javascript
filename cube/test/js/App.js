@@ -118,16 +118,9 @@ var App = Class({
         });
     },
 
-    extendGroup: function() {
-        var groupPlugin = Class(Plugin, {
-            ctor: function() {
-
-            },
-
-            onEvent: function(name, data) {
-                return data;
-            }
-        });
+    extend: function() {
+        var messaging = this.cube.getMessagingService();
+        var messageTypePlugin = new MessageTypePlugin();
     },
 
     startCube: function(args) {
@@ -140,7 +133,7 @@ var App = Class({
             this.cube = new CubeEngine();
             window.cube = cube;
             this.bindEvent();
-            // this.extendGroup();
+            this.extend();
         }
 
         var that = this;

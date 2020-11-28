@@ -1,5 +1,5 @@
 /**
- * This file is part of Cube.
+ * This source file is part of Cell.
  * 
  * The MIT License (MIT)
  *
@@ -24,23 +24,14 @@
  * SOFTWARE.
  */
 
-/**
- * 插件。
- */
-export class Plugin {
 
-    /**
-     */
-    constructor() {
-    }
+var TextMessage = Class(Message, {
 
-    /**
-     * 当指定的钩子事件发生时回调该函数。
-     * @param {string} name 事件名称。
-     * @param {*} data 事件发生时的数据。
-     * @returns {*} 返回处理后的数据。
-     */
-    onEvent(name, data) {
-        return data;
+    ctor: function(text) {
+        $super.call(this, Message, { text: text });
+    },
+
+    getText: function() {
+        return this.getPayload().text;
     }
-}
+});
