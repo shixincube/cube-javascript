@@ -237,14 +237,14 @@ var App = Class({
             tips = '正在呼叫: ' + state.getData().getId();
         }
         else if (state.getName() == MultipointCommEvent.Ringing) {
-            tips = '对方振铃: ' + state.getData().getId();
+            tips = '对方振铃: ' + state.getData().getPeer().getId();
         }
         else if (state.getName() == MultipointCommEvent.Bye) {
             tips = '收到 Bye: ' + state.getData().getPeer().getId();
             clearInterval(this.callingTimer);
         }
         else if (state.getName() == MultipointCommEvent.CallTimeout) {
-            tips = '呼叫超时: ' + state.getData().getId();
+            tips = '呼叫超时: ' + state.getData().getPeer().getId();
             clearInterval(this.callingTimer);
         }
         else if (state.getName() == MultipointCommEvent.NewCall) {
