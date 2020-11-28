@@ -26,7 +26,10 @@ var CubeConfig = {
         rules: [
             {
                 test: /\.js$/,
-                exclude: /(node_modules|bower_components)/,
+                exclude: [
+                    /(node_modules|bower_components)/,
+                    path.resolve(__dirname, './src/facemonitor')
+                ],
                 use: {
                     loader: 'babel-loader',
                     options: {
@@ -64,13 +67,11 @@ var CubeConfig = {
 };
 
 var CubeLibConfig = {
-    target: "node",
-    entry: './src/CubeLibBoot.js',
+    target: "web",
+    entry: [ 'babel-polyfill', './src/CubeLibBoot.js' ],
     output: {
         path: path.resolve(__dirname, "./dist"),
-        filename: "cube-" + version + ".js",
-        library: 'cube',
-        libraryTarget: 'umd'
+        filename: "cube-lib-"+ version + ".js"
     },
     resolve: {
         extensions: ['.js', '.ts'],
@@ -97,7 +98,10 @@ var CubeLibConfig = {
             }
         ]
     },
-    devtool: "source-map"
+    devtool: "source-map",
+    plugins: [
+        new CleanWebpackPlugin()
+    ]
 };
 
 module.exports = [ CubeConfig ];

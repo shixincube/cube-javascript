@@ -59,7 +59,6 @@ import { MultipointCommEvent } from "./multipointcomm/MultipointCommEvent";
 import { CallRecord } from "./multipointcomm/CallRecord";
 import { ConferenceService } from "./conference/ConferenceService";
 import { Announcer } from "./util/Announcer";
-import { FaceMonitor } from "./facemonitor/FaceMonitor";
 
 /**
  * 引导程序, 负责模块导入。

@@ -34,7 +34,6 @@ import { ContactService } from "../contact/ContactService";
 import { FileStorage } from "../filestorage/FileStorage";
 import { MessagingService } from "../messaging/MessagingService";
 import { MultipointComm } from "../multipointcomm/MultipointComm";
-import { FaceMonitor } from "../facemonitor/FaceMonitor";
 
 /**
  * Cube Engine 入口类。

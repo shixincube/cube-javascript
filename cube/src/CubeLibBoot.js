@@ -24,6 +24,7 @@
  * SOFTWARE.
  */
 
+import cell from "@lib/cell-lib";
 import { CubeEngine } from './engine/CubeEngine';
 import { Kernel } from './core/Kernel';
 
