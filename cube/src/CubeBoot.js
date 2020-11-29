@@ -48,6 +48,7 @@ import { MessagingService } from "./messaging/MessagingService";
 import { MessagingEvent } from "./messaging/MessagingEvent";
 import { Message } from "./messaging/Message";
 import { MessageState } from "./messaging/MessageState";
+import { MessageNotifyPlugin } from "./messaging/MessageNotifyPlugin";
 import { FileStorage } from "./filestorage/FileStorage";
 import { FileAnchor } from "./filestorage/FileAnchor";
 import { FileLabel } from "./filestorage/FileLabel";
@@ -95,6 +96,7 @@ import { Announcer } from "./util/Announcer";
     global.MessagingEvent = MessagingEvent;
     global.Message = Message;
     global.MessageState = MessageState;
+    global.MessageNotifyPlugin = MessageNotifyPlugin;
 
     global.FileStorage = FileStorage;
     global.FileAnchor = FileAnchor;

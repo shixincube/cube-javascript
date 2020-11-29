@@ -47,7 +47,6 @@ class DummyHook extends Hook {
 export class PluginSystem {
 
     /**
-     * 构造函数。
      */
     constructor() {
         /**
@@ -65,7 +64,7 @@ export class PluginSystem {
 
     /**
      * 添加事件钩子。
-     * @param {Hook} hook 
+     * @param {Hook} hook 指定钩子实例。
      */
     addHook(hook) {
         hook.system = this;
@@ -74,7 +73,7 @@ export class PluginSystem {
 
     /**
      * 移除事件钩子。
-     * @param {Hook} hook 
+     * @param {Hook} hook 指定钩子实例。
      */
     removeHook(hook) {
         this.hooks.remove(hook.getName());
@@ -96,8 +95,8 @@ export class PluginSystem {
 
     /**
      * 注册插件。
-     * @param {string} name 
-     * @param {Plugin} plugin 
+     * @param {string} name 钩子事件名。
+     * @param {Plugin} plugin 插件实例。
      */
     register(name, plugin) {
         let list = this.plugins.get(name);
@@ -110,9 +109,27 @@ export class PluginSystem {
     }
 
     /**
+     * 注销插件。
+     * @param {string} name 钩子事件名。
+     * @param {Plugin} plugin 插件实例。
+     */
+    deregister(name, plugin) {
+        let list = this.plugins.get(name);
+        if (null == list) {
+            return;
+        }
+
+        let index = list.indexOf(plugin);
+        if (index >= 0) {
+            list.splice(index, 1);
+        }
+    }
+
+    /**
      * 同步方式进行数据处理。
-     * @param {string} name 
-     * @param {*} data 
+     * @param {string} name 事件名。
+     * @param {*} data 事件数据。
+     * @returns {*} 返回事件处理数据。
      */
     syncApply(name, data) {
         let list = this.plugins.get(name);

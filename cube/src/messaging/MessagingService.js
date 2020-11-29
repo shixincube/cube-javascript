@@ -48,6 +48,7 @@ import { NotifyHook } from "./hook/NotifyHook";
 import { FileStorageEvent } from "../filestorage/FileStorageEvent";
 import { ModuleError } from "../core/error/ModuleError";
 import { MessagingServiceState } from "./MessagingServiceState";
+import { MessageNotifyPlugin } from "./MessageNotifyPlugin";
 
 /**
  * 消息服务模块接口。
@@ -720,6 +721,26 @@ export class MessagingService extends Module {
     }
 
     /**
+     * 注册插件。
+     * @param {MessageNotifyPlugin} plugin 
+     */
+    register(plugin) {
+        if (plugin instanceof MessageNotifyPlugin) {
+            this.pluginSystem.register(MessagingEvent.Notify, plugin);
+        }
+    }
+
+    /**
+     * 注销插件。
+     * @param {MessageNotifyPlugin} plugin 
+     */
+    deregister(plugin) {
+        if (plugin instanceof MessageNotifyPlugin) {
+            this.pluginSystem.deregister(MessagingEvent.Notify, plugin);
+        }
+    }
+
+    /**
      * 触发观察者 Notify 回调。
      * @private
      * @param {JSON|Message} payload 
@@ -733,11 +754,6 @@ export class MessagingService extends Module {
 
         // 使用服务器的时间戳设置为最新消息时间
         this.refreshLastMessageTime(message.getRemoteTimestamp());
-
-        // 下钩子
-        let hook = this.pluginSystem.getHook(MessagingEvent.Notify);
-        // 调用插件处理
-        message = hook.apply(message);
 
         let promise = new Promise((resolve, reject) => {
             // 如果是群组消息，更新群组的活跃时间
@@ -755,6 +771,11 @@ export class MessagingService extends Module {
         promise.then((contained) => {
             // 对于已经在数据库里的消息不回调 Notify 事件
             if (!contained) {
+                // 下钩子
+                let hook = this.pluginSystem.getHook(MessagingEvent.Notify);
+                // 调用插件处理
+                message = hook.apply(message);
+
                 // 回调事件
                 this.notifyObservers(new ObservableState(MessagingEvent.Notify, message));
             }

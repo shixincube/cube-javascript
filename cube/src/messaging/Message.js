@@ -36,70 +36,81 @@ import { FileAttachment } from "../filestorage/FileAttachment";
 export class Message extends Entity {
 
     /**
-     * @param {JSON} payload 消息负载。
+     * @param {JSON|Message} payload 消息负载。
      * @param {File} [file] 文件附件。
      */
     constructor(payload, file) {
         super();
 
+        let cloning = (undefined !== payload && payload instanceof Message);
+
         /**
          * 消息 ID 。
          * @type {number}
          */
-        this.id = cell.Utils.generateSerialNumber();
+        this.id = cloning ? payload.id : cell.Utils.generateSerialNumber();
 
         /**
          * 所在域。
          * @private
          * @type {string}
          */
-        this.domain = AuthService.DOMAIN;
+        this.domain = cloning ? payload.domain : AuthService.DOMAIN;
 
         /**
          * 消息负载数据。
          * @type {JSON}
          */
-        this.payload = {};
+        this.payload = null;
 
-        if (undefined !== payload && null != payload && !(payload instanceof File)) {
-            this.payload = payload;
+        if (cloning) {
+            this.payload = payload.payload;
         }
+        else {
+            if (undefined !== payload && null != payload && !(payload instanceof File)) {
+                this.payload = payload;
+            }
+            else {
+                this.payload = {};
+            }
+        }
+        
 
         /**
          * 消息发送方 ID 。
          * @type {number}
          */
-        this.from = 0;
+        this.from = cloning ? payload.from : 0;
 
         /**
          * 消息接收方 ID 。
          * @type {number}
          */
-        this.to = 0;
+        this.to = cloning ? payload.to : 0;
 
         /**
          * 消息的收发源。该属性表示消息在一个广播域里的域标识或者域 ID 。
          * @type {number}
          */
-        this.source = 0;
+        this.source = cloning ? payload.source : 0;
 
         /**
          * 消息持有者 ID 。
          * @type {number}
          */
-        this.owner = 0;
+        this.owner = cloning ? payload.owner : 0;
 
         /**
          * 本地时间戳。
          * @type {number}
          */
-        this.localTS = 0;
+        this.localTS = cloning ? payload.localTS : 0;
 
         /**
          * 服务器端时间戳。
          * @type {number}
          */
-        this.remoteTS = 0;
+        this.remoteTS = cloning ? payload.remoteTS : 0;
 
         /**
          * 消息附件。
@@ -107,7 +118,10 @@ export class Message extends Entity {
          */
         this.attachment = null;
 
-        if (payload instanceof File) {
+        if (cloning) {
+            this.attachment = payload.attachment;
+        }
+        else if (payload instanceof File) {
             this.attachment = new FileAttachment(payload);
         }
         else if (undefined !== file && null != file && file instanceof File) {
@@ -119,7 +133,7 @@ export class Message extends Entity {
          * @type {number}
          * @see MessageState
          */
-        this.state = MessageState.Unknown;
+        this.state = cloning ? payload.state : MessageState.Unknown;
     }
 
     /**

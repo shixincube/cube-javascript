@@ -27,8 +27,13 @@
 
 var TextMessage = Class(Message, {
 
-    ctor: function(text) {
-        $super.call(this, Message, { text: text });
+    ctor: function(param) {
+        if (typeof param === 'string') {
+            $super.call(this, Message, { type: "text", text: param });
+        }
+        else {
+            $super.call(this, Message, param);
+        }
     },
 
     getText: function() {

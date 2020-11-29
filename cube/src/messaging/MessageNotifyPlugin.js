@@ -1,5 +1,5 @@
 /**
- * This source file is part of Cell.
+ * This file is part of Cube.
  * 
  * The MIT License (MIT)
  *
@@ -24,19 +24,25 @@
  * SOFTWARE.
  */
 
-var MessageTypePlugin = Class(MessageNotifyPlugin, {
+import { Plugin } from "../core/Plugin";
 
-    ctor: function() {
-        $super.call(this, MessageNotifyPlugin);
-    },
+/**
+ * 通知插件。
+ */
+export class MessageNotifyPlugin extends Plugin {
 
-    onNotify: function(message) {
-        var payload = message.getPayload();
-        if (undefined !== payload.type && payload.type == 'text') {
-            return new TextMessage(message);
-        }
-        else {
-            return message;
-        }
+    constructor() {
+        super();
     }
-});
+
+    /**
+     * @protected
+     */
+    onEvent(name, data) {
+        return this.onNotify(data);
+    }
+
+    onNotify(message) {
+        return message;
+    }
+}

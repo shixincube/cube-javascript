@@ -97,12 +97,6 @@ function Class(baseClass, prop) {
 			}
 		}
     }
-    
-    F.prototype.$super = function(_super) {
-        for (var attr in _super) {
-            F.prototype[attr] = _super[attr];
-        }
-    }
 
 	return F;
 };
