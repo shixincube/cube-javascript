@@ -149,9 +149,6 @@ export class MultipointComm extends Module {
             }
         }
 
-        this.videoElem.pause();
-        this.videoElem.remove();
-
         this.pipeline.removeListener(MultipointComm.NAME, this.pipelineListener);
     }
 

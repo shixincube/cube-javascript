@@ -24,26 +24,33 @@
  * SOFTWARE.
  */
 
-import { ImageMessage } from "../messaging/extends/ImageMessage";
-import { CardMessage } from "../messaging/extends/CardMessage";
+section#contactSetting div {
+    display: inline-block;
+    margin-right: 2em;
+}
 
+section#messages textarea {
+    width: 80%;
+    font-family: 'Courier New', Courier, monospace, 'Microsoft YaHei', '微软雅黑';
+    font-size: 14px;
+}
 
-export class MessageListener {
+section#operate div {
+    display: inline-block;
+    padding: 0em 0 1em 0;
+}
 
-    constructor() {
+input#messsageInput {
+    width: 300px;
+    margin-right: 20px;
+}
 
-    }
+.tip {
+    display: block !important;
+    font-size: 12px;
+    font-weight: bold;
+}
 
-    onMessageSending(message) {
-
-    }
-
-    onReceivedMessage(message) {
-        if (message instanceof ImageMessage) {
-            // TODO
-        }
-        else if (message instanceof CardMessage) {
-            // TODO
-        }
-    }
+span#state {
+    font-style: italic;
 }

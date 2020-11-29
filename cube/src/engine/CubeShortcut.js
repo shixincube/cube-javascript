@@ -35,6 +35,10 @@ import { FileStorage } from "../filestorage/FileStorage";
 export class CubeShortcut {
 
     constructor() {
+        /**
+         * 引擎实例。
+         * @type {CubeEngine}
+         */
         this.engine = new CubeEngine();
 
         /**
@@ -61,16 +65,16 @@ export class CubeShortcut {
 
     /**
      * 启动 Cube 并与服务器建立连接。
-     * @param {KernelConfig} config 
-     * @param {function} handleSuccess 
-     * @param {function} handleError 
+     * @param {KernelConfig} config 配置信息。
+     * @param {function} handleSuccess 启动成功回调。
+     * @param {function} handleFailure 启动失败回调。
      */
-    start(config, handleSuccess, handleError) {
+    start(config, handleSuccess, handleFailure) {
         if (config.pipelineReady === undefined) {
             config.pipelineReady = true;
         }
 
-        this.engine.start(config, handleSuccess, handleError);
+        this.engine.start(config, handleSuccess, handleFailure);
     }
 
     /**

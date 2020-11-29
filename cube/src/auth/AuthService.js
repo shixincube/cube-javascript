@@ -110,6 +110,10 @@ export class AuthService extends Module {
     stop() {
         super.stop();
 
+        if (null == this.pipeline) {
+            return;
+        }
+
         if (this.checkTimer > 0) {
             clearTimeout(this.checkTimer);
             this.checkTimer = 0;

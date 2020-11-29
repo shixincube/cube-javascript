@@ -177,6 +177,14 @@ export class Message extends Entity {
     }
 
     /**
+     * 获取消息的本地时间戳。
+     * @returns {number} 返回消息的本地时间戳。
+     */
+    getLocalTimestamp() {
+        return this.localTS;
+    }
+
+    /**
      * 获取消息的服务器时间戳。
      * @returns {number} 返回消息的服务器时间戳。
      */

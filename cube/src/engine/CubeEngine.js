@@ -56,17 +56,17 @@ export class CubeEngine {
 
     /**
      * 启动引擎。
-     * @param {KernelConfig} config 
-     * @param {function} handleSuccess 
-     * @param {function} handleError 
+     * @param {KernelConfig} config 配置信息。
+     * @param {function} handleSuccess 启动成功回调。
+     * @param {function} handleFailure 启动失败回调。
      */
-    start(config, handleSuccess, handleError) {
+    start(config, handleSuccess, handleFailure) {
         let success = handleSuccess || function() {};
-        let error = handleError || function() {};
+        let error = handleFailure || function() {};
 
         // 启动内核
         this.kernel.startup(config, () => {
-            success();
+            success(this);
         }, (e) => {
             error(e);
         });

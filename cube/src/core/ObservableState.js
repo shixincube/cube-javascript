@@ -25,7 +25,7 @@
  */
 
 /**
- * 观察者观察到的状态。
+ * 观察者观察到的事件。
  */
 export class ObservableState {
 

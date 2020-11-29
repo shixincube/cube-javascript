@@ -262,6 +262,10 @@ export class MessagingService extends Module {
      * @returns {Message} 如果消息成功写入数据通道返回 {@link Message} 实例，否则返回 {@linkcode null} 值。
      */
     sendToContact(contact, message, file) {
+        if (!this.started) {
+            this.start();
+        }
+
         let self = this.contactService.getSelf();
         if (null == self) {
             return null;
@@ -320,6 +324,10 @@ export class MessagingService extends Module {
      * @returns {Message} 如果消息成功写入数据通道返回 {@link Message} 实例，否则返回 {@linkcode null} 值。
      */
     sendToGroup(group, message, file) {
+        if (!this.started) {
+            this.start();
+        }
+
         let self = this.contactService.getSelf();
         if (null == self) {
             return null;
@@ -375,6 +383,10 @@ export class MessagingService extends Module {
      * @returns {boolean} 返回是否能执行该操作。
      */
     markRead(message, handleSuccess, handleFailure) {
+        if (!this.started) {
+            this.start();
+        }
+
         let self = this.contactService.getSelf();
         if (null == self) {
             return false;
@@ -449,6 +461,10 @@ export class MessagingService extends Module {
      * @returns {boolean} 返回是否能执行该操作。
      */
     deleteMessage(message, handleSuccess, handleFailure) {
+        if (!this.started) {
+            this.start();
+        }
+
         let self = this.contactService.getSelf();
         if (null == self) {
             return false;
@@ -507,6 +523,10 @@ export class MessagingService extends Module {
      * @returns {boolean} 返回是否能执行该操作。
      */
     recallMessage(message, handleSuccess, handleFailure) {
+        if (!this.started) {
+            this.start();
+        }
+
         let self = this.contactService.getSelf();
         if (null == self) {
             return false;
@@ -917,11 +937,8 @@ export class MessagingService extends Module {
                                 respMessage.state = MessageState.Fault;
 
                                 // 进行事件通知
-                                let state = new ObservableState(MessagingEvent.Fault, {
-                                    code: responsePacket.data.code,
-                                    message: respMessage
-                                });
-                                this.notifyObservers(state);
+                                let error = new ModuleError(MessagingService.NAME, responsePacket.data.code, respMessage);
+                                this.notifyObservers(new ObservableState(MessagingEvent.Fault, error));
                             }
 
                             // 更新存储
@@ -934,10 +951,8 @@ export class MessagingService extends Module {
 
                             message.state = MessageState.Fault;
 
-                            this.notifyObservers(new ObservableState(MessagingEvent.Fault, {
-                                code: MessagingCode.NetFault,
-                                message: message
-                            }));
+                            let error = new ModuleError(MessagingService.NAME, MessagingCode.NetFault, message);
+                            this.notifyObservers(new ObservableState(MessagingEvent.Fault, error));
                         }
                     });
                 }
@@ -973,7 +988,8 @@ export class MessagingService extends Module {
                     // 错误处理
                     this.sendingMap.remove(message.getId());
                     message.state = MessageState.Fault;
-                    this.notifyObservers(new ObservableState(MessagingEvent.Fault, message));
+                    let error = new ModuleError(MessagingService.NAME, MessageState.Fault, message);
+                    this.notifyObservers(new ObservableState(MessagingEvent.Fault, error));
                     return;
                 }
 
@@ -981,7 +997,8 @@ export class MessagingService extends Module {
                     // 错误处理
                     this.sendingMap.remove(message.getId());
                     message.state = MessageState.Fault;
-                    this.notifyObservers(new ObservableState(MessagingEvent.Fault, message));
+                    let error = new ModuleError(MessagingService.NAME, responsePacket.data.code, message);
+                    this.notifyObservers(new ObservableState(MessagingEvent.Fault, error));
                     return;
                 }
 
