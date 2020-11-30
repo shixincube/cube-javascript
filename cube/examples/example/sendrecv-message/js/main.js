@@ -60,9 +60,9 @@ function startCube() {
     }
 
     let config = {
-        address: '127.0.0.1',
-        domain: 'shixincube.com',
-        appKey: 'shixin-cubeteam-opensource-appkey'
+        "address": "127.0.0.1",
+        "domain": "shixincube.com",
+        "appKey": "shixin-cubeteam-opensource-appkey"
     };
     // 获取 Cube 实例，并启动
     cube.start(config, function() {
