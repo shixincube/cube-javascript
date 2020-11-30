@@ -255,25 +255,6 @@ export class MultipointComm extends Module {
             else {
                 // 触发 Ringing 事件
                 this.notifyObservers(new ObservableState(MultipointCommEvent.Ringing, this.activeCallRecord));
-
-                if (this.callTimer > 0) {
-                    clearTimeout(this.callTimer);
-                    this.callTimer = 0;
-                }
-
-                // 处理返回的信令
-                rtcEndpoint.doAnswer(signaling.sessionDescription, () => {
-                    this.activeCallRecord.answerTime = Date.now();
-                    this.notifyObservers(new ObservableState(MultipointCommEvent.Connected, this.activeCallRecord));
-                }, (error) => {
-                    this.activeCallRecord.lastError = error;
-                    if (failureCallback) {
-                        failureCallback(error);
-                    }
-                    this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
-
-                    this.hangupCall();
-                });
             }
         };
 
@@ -645,21 +626,12 @@ export class MultipointComm extends Module {
         // 记录媒体约束
         this.activeCallRecord.calleeMediaConstraint = this.answerSignaling.mediaConstraint;
 
-        if (this.answerSignaling.field.isPrivate()) {
-            rtcEndpoint.doAnswer(this.answerSignaling.sessionDescription, () => {
-                this.notifyObservers(new ObservableState(MultipointCommEvent.Connected, this.activeCallRecord));
-            }, (error) => {
-                this.activeCallRecord.lastError = error;
-                this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
-            });
-        }
-        else {
-            rtcEndpoint.doAnswer(this.answerSignaling.sessionDescription, () => {
-                this.notifyObservers(new ObservableState(MultipointCommEvent.Connected, this.activeCallRecord));
-            }, (error) => {
-                this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
-            });
-        }
+        rtcEndpoint.doAnswer(this.answerSignaling.sessionDescription, () => {
+            this.notifyObservers(new ObservableState(MultipointCommEvent.Connected, this.activeCallRecord));
+        }, (error) => {
+            this.activeCallRecord.lastError = error;
+            this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
+        });
     }
 
     /**
