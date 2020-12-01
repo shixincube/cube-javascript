@@ -61,7 +61,8 @@ body {
 }
 
 button {
-    background-color: #d84a38;
+    /*background-color: #d84a38;*/
+    background-color: #0074e8;
     border: none;
     border-radius: 2px;
     color: white;
@@ -72,11 +73,13 @@ button {
 }
 
 button:active {
-    background-color: #cf402f;
+    /*background-color: #cf402f;*/
+    background-color: #489bee;
 }
 
 button:hover {
-    background-color: #cf402f;
+    /*background-color: #cf402f;*/
+    background-color: #489bee;
 }
 
 button[disabled] {
@@ -84,7 +87,8 @@ button[disabled] {
 }
 
 button[disabled]:hover {
-    background-color: #d84a38;
+    /*background-color: #d84a38;*/
+    background-color: #489bee;
 }
 
 canvas {

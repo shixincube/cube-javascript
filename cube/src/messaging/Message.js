@@ -177,6 +177,14 @@ export class Message extends Entity {
     }
 
     /**
+     * 设置消息的负载。
+     * @param {JSON} payload 负载数据。
+     */
+    setPayload(payload) {
+        this.payload = payload;
+    }
+
+    /**
      * 获取消息的本地时间戳。
      * @returns {number} 返回消息的本地时间戳。
      */

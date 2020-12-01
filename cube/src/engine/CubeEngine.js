@@ -33,6 +33,7 @@ import { AuthService } from "../auth/AuthService";
 import { ContactService } from "../contact/ContactService";
 import { FileStorage } from "../filestorage/FileStorage";
 import { MessagingService } from "../messaging/MessagingService";
+import { FileProcessor } from "../fileprocessor/FileProcessor";
 import { MultipointComm } from "../multipointcomm/MultipointComm";
 
 /**
@@ -50,8 +51,11 @@ export class CubeEngine {
         this.kernel.installModule(new ContactService());
         this.kernel.installModule(new FileStorage());
         this.kernel.installModule(new MessagingService());
+        this.kernel.installModule(new FileProcessor());
         this.kernel.installModule(new MultipointComm());
         //this.kernel.installModule(new FaceMonitor());
+
+        this.selectFileHandle = null;
     }
 
     /**
@@ -111,30 +115,83 @@ export class CubeEngine {
     }
 
     /**
-     * @returns {ContactService}
+     * @returns {ContactService} 返回联系人模块。
      */
     getContactService() {
         return this.kernel.getModule(ContactService.NAME);
     }
 
     /**
-     * @returns {MessagingService}
-     */
-    getMessagingService() {
-        return this.kernel.getModule(MessagingService.NAME);
-    }
-
-    /**
-     * @returns {FileStorage}
+     * @returns {FileStorage} 返回文件存储模块。
      */
     getFileStorage() {
         return this.kernel.getModule(FileStorage.NAME);
     }
 
     /**
-     * @returns {MultipointComm}
+     * @returns {MessagingService} 返回消息模块。
+     */
+    getMessagingService() {
+        return this.kernel.getModule(MessagingService.NAME);
+    }
+
+    /**
+     * @returns {FileProcessor} 返回文件处理模块。
+     */
+    getFileProcessor() {
+        return this.kernel.getModule(FileProcessor.NAME);
+    }
+
+    /**
+     * @returns {MultipointComm} 返回多方通讯模块。
      */
     getMultipointComm() {
         return this.kernel.getModule(MultipointComm.NAME);
+    }
+
+    /**
+     * 启动文件选择器。
+     * @param {function} handle 文件选择回调函数。
+     * @param {string} [accept] input 标签的 accept 属性值。
+     */
+    launchFileSelector(handle, accept) {
+        if (undefined === accept) {
+            accept = "*.*";
+        }
+
+        let el = document.querySelector('div#_cube_file_selector');
+        if (null == el) {
+            el = document.createElement('div');
+            el.setAttribute('id', '_cube_file_selector');
+            el.style.position = 'absolute';
+            el.style.float = 'left';
+            el.style.top = '0';
+            el.style.zIndex = -99;
+            el.style.visibility = 'hidden';
+
+            let html = ['<label for="_cube_file_input"></label>',
+                '<input type="file" id="_cube_file_input" name="_cube_file_input" accept="', accept, '"></input>'];
+            el.innerHTML = html.join('');
+            document.body.appendChild(el);
+
+            let inputEl = document.getElementById('_cube_file_input');
+            inputEl.onchange = (event) => {
+                this._onFileInputChanged(event);
+            };
+        }
+
+        this.selectFileHandle = handle;
+
+        let inputEl = document.getElementById('_cube_file_input');
+        inputEl.setAttribute("accept", accept);
+        inputEl.click();
+    }
+
+    /**
+     * @private
+     * @param {Event} event 
+     */
+    _onFileInputChanged(event) {
+        this.selectFileHandle(event);
     }
 }

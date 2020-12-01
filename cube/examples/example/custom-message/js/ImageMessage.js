@@ -35,5 +35,11 @@ var ImageMessage = Class(Message, {
      */
     ctor: function(param) {
         $super.call(this, Message, param);
+
+        this.setPayload({ "type": "image" });
     },
+
+    getType() {
+        return this.getPayload().type;
+    }
 });

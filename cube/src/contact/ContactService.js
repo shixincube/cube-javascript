@@ -137,6 +137,10 @@ export class ContactService extends Module {
     stop() {
         super.stop();
 
+        if (null == this.pipeline) {
+            return;
+        }
+
         this.pipeline.removeListener(ContactService.NAME, this.pipelineListener);
 
         this.inspector.stop();

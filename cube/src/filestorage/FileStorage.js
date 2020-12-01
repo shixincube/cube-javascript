@@ -151,6 +151,10 @@ export class FileStorage extends Module {
     stop() {
         super.stop();
 
+        if (null == this.pipeline) {
+            return;
+        }
+
         // 移除数据管道的监听器
         this.pipeline.removeListener(FileStorage.NAME, this.pipelineListener);
 

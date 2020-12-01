@@ -121,13 +121,26 @@ function sendText() {
     // 发送消息给联系人
     cube.messaging.sendToContact(target, message);
 
-    stateLabel.innerHTML = '正在发送消息……';
+    stateLabel.innerHTML = '正在发送文本消息……';
 
     messsageInput.value = '';
 }
 
 function sendImage() {
+    let target = messsageTagetInput.value;
+    if (target.length == 0) {
+        stateLabel.innerHTML = '请指定“发送目标”';
+        return;
+    }
 
+    // 使用 Cube 提供的辅助方法选择图片文件
+    cube.launchFileSelector(function(event) {
+        let file = event.target.files[0];
+        let message = new ImageMessage(file);
+        cube.messaging.sendToContact(target, message);
+
+        stateLabel.innerHTML = '正在发送图片消息……';
+    }, 'image/*');
 }
 
 function onSent(event) {
@@ -141,6 +154,13 @@ function onSent(event) {
 
     if (message.getType() == 'text') {
         text.push(message.getText());
+    }
+    else if (message.getType() == 'image') {
+        text.push(message.getAttachment().getFileName());
+        // cube.fileProcessor.makeThumb(message.getAttachment());
+    }
+    else {
+        text.push(JSON.stringify(message.getPayload()));
     }
 
     text.push('\n');
@@ -163,6 +183,12 @@ function onNotify(event) {
 
     if (message.getType() == 'text') {
         text.push(message.getText());
+    }
+    else if (message.getType() == 'image') {
+        text.push(message.getAttachment().getFileName());
+    }
+    else {
+        text.push(JSON.stringify(message.getPayload()));
     }
 
     text.push('\n');

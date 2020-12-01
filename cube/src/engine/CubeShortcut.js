@@ -26,8 +26,9 @@
 
 import { CubeEngine } from "./CubeEngine";
 import { ContactService } from "../contact/ContactService";
-import { MessagingService } from "../messaging/MessagingService";
 import { FileStorage } from "../filestorage/FileStorage";
+import { MessagingService } from "../messaging/MessagingService";
+import { FileProcessor } from "../fileprocessor/FileProcessor";
 
 /**
  * Cube Engine 的快捷操作方式封装。
@@ -49,6 +50,13 @@ export class CubeShortcut {
         this.contact = this.engine.getContactService();
 
         /**
+         * 文件存储模块。
+         * @type {FileStorage}
+         * @public
+         */
+        this.fileStorage = this.engine.getFileStorage();
+
+        /**
          * 消息模块。
          * @type {MessagingService}
          * @public
@@ -56,11 +64,11 @@ export class CubeShortcut {
         this.messaging = this.engine.getMessagingService();
 
         /**
-         * 文件存储模块。
-         * @type {FileStorage}
+         * 文件处理模块。
+         * @type {FileProcessor}
          * @public
          */
-        this.fileStorage = this.engine.getFileStorage();
+        this.fileProcessor = this.engine.getFileProcessor();
     }
 
     /**
@@ -114,5 +122,14 @@ export class CubeShortcut {
      */
     signOut() {
         return this.engine.getContactService.signOut();
+    }
+
+    /**
+     * 启动文件选择器。
+     * @param {function} handle 文件选择回调函数。
+     * @param {string} [accept] input 标签的 accept 属性值。
+     */
+    launchFileSelector(handle, accept) {
+        this.engine.launchFileSelector(handle, accept);
     }
 }

@@ -43,11 +43,16 @@ var MessageTypePlugin = Class(MessagePlugin, {
      */
     onInstantiate: function(message) {
         var payload = message.getPayload();
-        if (undefined !== payload.type && payload.type == 'text') {
-            return new TextMessage(message);
+
+        if (undefined !== payload.type) {
+            if (payload.type == 'text') {
+                return new TextMessage(message);
+            }
+            else if (payload.type == 'image') {
+                return new ImageMessage(message);
+            }
         }
-        else {
-            return message;
-        }
+
+        return message;
     }
 });
