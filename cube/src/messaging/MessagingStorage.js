@@ -187,9 +187,20 @@ export class MessagingStorage {
             return false;
         }
 
+        let cur = message;
         (async ()=> {
-            let value = await this.messageStore.get(message.getId());
-            handler(message, (undefined !== value && null != value));
+            let contained = true;
+            let value = await this.messageStore.get(cur.getId());
+            if (undefined !== value && null != value) {
+                if (value.owner == 0) {
+                    contained = false;
+                }
+            }
+            else {
+                contained = false;
+            }
+
+            handler(cur, contained);
         })();
         return true;
     }

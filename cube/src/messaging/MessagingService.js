@@ -44,11 +44,11 @@ import { FileStorage } from "../filestorage/FileStorage"
 import { ObservableState } from "../core/ObservableState";
 import { StateCode } from "../core/StateCode";
 import { PluginSystem } from "../core/PluginSystem";
-import { NotifyHook } from "./hook/NotifyHook";
+import { InstantiateHook } from "./hook/InstantiateHook";
 import { FileStorageEvent } from "../filestorage/FileStorageEvent";
 import { ModuleError } from "../core/error/ModuleError";
 import { MessagingServiceState } from "./MessagingServiceState";
-import { MessageNotifyPlugin } from "./MessageNotifyPlugin";
+import { MessagePlugin } from "./MessagePlugin";
 
 /**
  * 消息服务模块接口。
@@ -216,7 +216,7 @@ export class MessagingService extends Module {
      * @returns {PluginSystem}
      */
     assemble() {
-        this.pluginSystem.addHook(new NotifyHook());
+        this.pluginSystem.addHook(new InstantiateHook());
         return this.pluginSystem;
     }
 
@@ -423,6 +423,10 @@ export class MessagingService extends Module {
                         // 写存储
                         this.storage.updateMessage(message);
 
+                        // 使用插件
+                        let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+                        message = hook.apply(message);
+
                         if (handleSuccess) {
                             handleSuccess(message);
                         }
@@ -486,6 +490,10 @@ export class MessagingService extends Module {
 
                         // 写存储
                         this.storage.updateMessage(message);
+
+                        // 使用插件
+                        let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+                        message = hook.apply(message);
 
                         if (handleSuccess) {
                             handleSuccess(message);
@@ -584,7 +592,15 @@ export class MessagingService extends Module {
                 else if (a.remoteTS > b.remoteTS) return 1;
                 else return 0;
             });
-            handler(beginning, list);
+
+            // 使用插件
+            let reslist = [];
+            for (let i = 0; i < list.length; ++i) {
+                let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+                reslist.push(hook.apply(list[i]));
+            }
+
+            handler(beginning, reslist);
         });
 
         if (!ret) {
@@ -620,7 +636,15 @@ export class MessagingService extends Module {
                 else if (a.remoteTS > b.remoteTS) return 1;
                 else return 0;
             });
-            handler(contactId, beginning, list);
+
+            // 使用插件
+            let reslist = [];
+            for (let i = 0; i < list.length; ++i) {
+                let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+                reslist.push(hook.apply(list[i]));
+            }
+
+            handler(contactId, beginning, reslist);
         });
 
         if (!ret) {
@@ -656,7 +680,15 @@ export class MessagingService extends Module {
                 else if (a.remoteTS > b.remoteTS) return 1;
                 else return 0;
             });
-            handler(groupId, beginning, list); 
+
+            // 使用插件
+            let reslist = [];
+            for (let i = 0; i < list.length; ++i) {
+                let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+                reslist.push(hook.apply(list[i]));
+            }
+
+            handler(groupId, beginning, reslist); 
         });
 
         if (!ret) {
@@ -666,6 +698,11 @@ export class MessagingService extends Module {
         return ret;
     }
 
+    /**
+     * 查询指定联系人的最后一条消息。
+     * @param {Contact|number} contactOrId 指定联系人或联系人 ID 。
+     * @param {function} handler 回调函数，参数：({@linkcode message}:{@link Message}) 。
+     */
     queryLastMessageWithContact(contactOrId, handler) {
         if (!this.started) {
             this.start();
@@ -679,9 +716,24 @@ export class MessagingService extends Module {
             id = parseInt(contactOrId.id);
         }
 
-        this.storage.readLastMessageWtihContact(id, handler);
+        this.storage.readLastMessageWtihContact(id, (message) => {
+            if (null == message) {
+                handler(null);
+                return;
+            }
+
+            // 使用插件
+            let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+            let result = hook.apply(message);
+            handler(result);
+        });
     }
 
+    /**
+     * 查询指定联系人的最后一条消息。
+     * @param {Group|number} groupOrId 指定群组或群组 ID 。
+     * @param {function} handler 回调函数，参数：({@linkcode message}:{@link Message}) 。
+     */
     queryLastMessageWithGroup(groupOrId, handler) {
         if (!this.started) {
             this.start();
@@ -695,7 +747,17 @@ export class MessagingService extends Module {
             id = parseInt(groupOrId.id);
         }
 
-        this.storage.readLastMessageWtihGroup(id, handler);
+        this.storage.readLastMessageWtihGroup(id, (message) => {
+            if (null == message) {
+                handler(null);
+                return;
+            }
+
+            // 使用插件
+            let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+            let result = hook.apply(message);
+            handler(result);
+        });
     }
 
     /**
@@ -742,21 +804,21 @@ export class MessagingService extends Module {
 
     /**
      * 注册插件。
-     * @param {MessageNotifyPlugin} plugin 
+     * @param {MessagePlugin} plugin 
      */
     register(plugin) {
-        if (plugin instanceof MessageNotifyPlugin) {
-            this.pluginSystem.register(MessagingEvent.Notify, plugin);
+        if (plugin instanceof MessagePlugin) {
+            this.pluginSystem.register(InstantiateHook.NAME, plugin);
         }
     }
 
     /**
      * 注销插件。
-     * @param {MessageNotifyPlugin} plugin 
+     * @param {MessagePlugin} plugin 
      */
     deregister(plugin) {
-        if (plugin instanceof MessageNotifyPlugin) {
-            this.pluginSystem.deregister(MessagingEvent.Notify, plugin);
+        if (plugin instanceof MessagePlugin) {
+            this.pluginSystem.deregister(InstantiateHook.NAME, plugin);
         }
     }
 
@@ -792,7 +854,7 @@ export class MessagingService extends Module {
             // 对于已经在数据库里的消息不回调 Notify 事件
             if (!contained) {
                 // 下钩子
-                let hook = this.pluginSystem.getHook(MessagingEvent.Notify);
+                let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
                 // 调用插件处理
                 message = hook.apply(message);
 
@@ -844,6 +906,10 @@ export class MessagingService extends Module {
                     message.state = MessageState.Read;
                     this.storage.updateMessage(message);
 
+                    // 使用插件
+                    let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+                    message = hook.apply(message);
+
                     // 事件通知
                     this.notifyObservers(new ObservableState(MessagingEvent.Read, message));
                 }
@@ -868,6 +934,10 @@ export class MessagingService extends Module {
         this.storage.updateMessage(message);
 
         cell.Logger.d('MessagingService', 'Recall message: ' + message.getId());
+
+        // 使用插件
+        let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+        message = hook.apply(message);
 
         this.notifyObservers(new ObservableState(MessagingEvent.Recall, message));
     }

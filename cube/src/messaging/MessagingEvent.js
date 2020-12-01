@@ -72,6 +72,7 @@ export const MessagingEvent = {
     /**
      * 未知时间。仅用于调试。
      * @type {string}
+     * @private
      */
     Unknown: 'Unknown'
 }

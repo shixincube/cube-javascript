@@ -24,10 +24,10 @@
  * SOFTWARE.
  */
 
-var MessageTypePlugin = Class(MessageNotifyPlugin, {
+var MessageTypePlugin = Class(MessagePlugin, {
 
     ctor: function() {
-        $super.call(this, MessageNotifyPlugin);
+        $super.call(this, MessagePlugin);
     },
 
     onNotify: function(message) {

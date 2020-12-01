@@ -31,6 +31,8 @@ import { Module } from "../core/Module";
  */
 export class FileProcessor extends Module {
     
+    static NAME = 'FileProcessor';
+
     constructor() {
         super('FileProcessor');
     }
@@ -53,7 +55,7 @@ export class FileProcessor extends Module {
 
     }
 
-    getThumb(fileCode, handle) {
-
+    makeThumb(fileCode, successCallback, failureCallback) {
+        
     }
 }

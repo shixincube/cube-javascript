@@ -1,5 +1,5 @@
 /**
- * This file is part of Cube.
+ * This source file is part of Cell.
  * 
  * The MIT License (MIT)
  *
@@ -24,25 +24,30 @@
  * SOFTWARE.
  */
 
-import { Plugin } from "../core/Plugin";
-
 /**
- * 通知插件。
+ * 消息类型插件。
  */
-export class MessageNotifyPlugin extends Plugin {
-
-    constructor() {
-        super();
-    }
+var MessageTypePlugin = Class(MessagePlugin, {
 
     /**
-     * @protected
+     * 构造函数。
      */
-    onEvent(name, data) {
-        return this.onNotify(data);
-    }
+    ctor: function() {
+        $super.call(this, MessagePlugin);
+    },
 
-    onNotify(message) {
-        return message;
+    /**
+     * 当消息需要实例化（分化）时调用该回调。
+     * @param {Message} message 原始消息实例。
+     * @returns {*} 消息实例。
+     */
+    onInstantiate: function(message) {
+        var payload = message.getPayload();
+        if (undefined !== payload.type && payload.type == 'text') {
+            return new TextMessage(message);
+        }
+        else {
+            return message;
+        }
     }
-}
+});

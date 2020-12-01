@@ -24,37 +24,37 @@
  * SOFTWARE.
  */
 
+import { Plugin } from "../core/Plugin";
+import { InstantiateHook } from "./hook/InstantiateHook";
+import { Message } from "./Message";
+
 /**
- * 文本消息。
+ * 通知插件。
  */
-var TextMessage = Class(Message, {
+export class MessagePlugin extends Plugin {
+
+    constructor() {
+        super();
+    }
 
     /**
-     * 构造函数。
-     * @param {string|Message} param 文本或 Message 实例。
+     * @private
      */
-    ctor: function(param) {
-        if (typeof param === 'string') {
-            $super.call(this, Message, { "type": "text", "content" : param });
+    onEvent(name, data) {
+        if (name == InstantiateHook.NAME) {
+            return this.onInstantiate(data);
         }
         else {
-            $super.call(this, Message, param);
+            return data;
         }
-    },
-
-    /**
-     * 获取消息类型。
-     * @returns {string} 返回消息类型。
-     */
-    getType: function() {
-        return this.getPayload().type;
-    },
-
-    /**
-     * 获取消息的文本内容。
-     * @returns {string} 返回消息的文本内容。
-     */
-    getText: function() {
-        return this.getPayload().content;
     }
-});
+
+    /**
+     * 当消息需要实例化（分化）时调用该回调。
+     * @param {Message} message 原始消息实例。
+     * @returns {*} 消息实例。
+     */
+    onInstantiate(message) {
+        return message;
+    }
+}

@@ -25,36 +25,15 @@
  */
 
 /**
- * 文本消息。
+ * 图片消息。
  */
-var TextMessage = Class(Message, {
+var ImageMessage = Class(Message, {
 
     /**
      * 构造函数。
-     * @param {string|Message} param 文本或 Message 实例。
+     * @param {File|Message} param 文件或 Message 实例。
      */
     ctor: function(param) {
-        if (typeof param === 'string') {
-            $super.call(this, Message, { "type": "text", "content" : param });
-        }
-        else {
-            $super.call(this, Message, param);
-        }
+        $super.call(this, Message, param);
     },
-
-    /**
-     * 获取消息类型。
-     * @returns {string} 返回消息类型。
-     */
-    getType: function() {
-        return this.getPayload().type;
-    },
-
-    /**
-     * 获取消息的文本内容。
-     * @returns {string} 返回消息的文本内容。
-     */
-    getText: function() {
-        return this.getPayload().content;
-    }
 });

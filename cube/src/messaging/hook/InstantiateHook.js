@@ -25,18 +25,19 @@
  */
 
 import { Hook } from "../../core/Hook";
-import { MessagingEvent } from "../MessagingEvent";
 
 /**
  * 新消息通知钩子。
  */
-export class NotifyHook extends Hook {
+export class InstantiateHook extends Hook {
+
+    static NAME = 'Instantiate';
 
     /**
      * 构造函数。
      */
     constructor() {
-        super(MessagingEvent.Notify);
+        super(InstantiateHook.NAME);
     }
 
 }

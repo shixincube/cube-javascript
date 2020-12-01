@@ -31,12 +31,10 @@ const stateLabel = document.querySelector('span#state');
 const startCubeButton = document.querySelector('button#start');
 const stopCubeButton = document.querySelector('button#stop');
 const sendButton = document.querySelector('button#send');
-const clearButton = document.querySelector('button#clear');
 
 startCubeButton.onclick = startCube;
 stopCubeButton.onclick = stopCube;
 sendButton.onclick = sendMessage;
-clearButton.onclick = clearInput;
 
 const contactIdInput = document.querySelector('input#contactId');
 const contactNameInput = document.querySelector('input#contactName');
@@ -71,13 +69,15 @@ function startCube() {
         startCubeButton.setAttribute('disabled', 'disabled');
         stopCubeButton.removeAttribute('disabled');
         sendButton.removeAttribute('disabled');
-        clearButton.removeAttribute('disabled');
         contactIdInput.setAttribute('readonly', 'readonly');
         contactNameInput.setAttribute('readonly', 'readonly');
 
         if (contactNameInput.value.length == 0) {
             contactNameInput.value = '时信魔方-' + contactIdInput.value;
         }
+
+        // 启动消息模块
+        cube.messaging.start();
 
         // 签入账号
         cube.signIn(contactIdInput.value, contactNameInput.value);
@@ -92,7 +92,6 @@ function stopCube() {
     startCubeButton.removeAttribute('disabled');
     stopCubeButton.setAttribute('disabled', 'disabled');
     sendButton.setAttribute('disabled', 'disabled');
-    clearButton.setAttribute('disabled', 'disabled');
     contactIdInput.removeAttribute('readonly');
     contactNameInput.removeAttribute('readonly');
 }
@@ -110,15 +109,13 @@ function sendMessage() {
         return;
     }
 
+    // 创建 Message 实例
     let message = new Message({ content: content });
+    // 发送消息给目标联系人
     cube.messaging.sendToContact(target, message);
 
     stateLabel.innerHTML = '正在发送消息……';
 
-    messsageInput.value = '';
-}
-
-function clearInput() {
     messsageInput.value = '';
 }
 
@@ -151,4 +148,10 @@ function formatDate(timestamp) {
     let date = new Date(timestamp);
     let text = [date.getMonth() + 1, '-', date.getDate(), ' ', date.getHours(), ':', date.getMinutes(), ':', date.getSeconds()];
     return text.join('');
+}
+
+messsageInput.onkeyup = function(event) {
+    if (event.keyCode == 13) {
+        sendMessage();
+    }
 }
