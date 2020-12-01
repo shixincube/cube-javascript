@@ -157,7 +157,11 @@ function onSent(event) {
     }
     else if (message.getType() == 'image') {
         text.push(message.getAttachment().getFileName());
-        // cube.fileProcessor.makeThumb(message.getAttachment());
+        // 图片消息已发送，为图片生成缩略图
+        cube.fileProcessor.makeThumb(message.getAttachment().getFileCode(), function(thumb) {
+            // 将生成的缩略图更新到消息
+            cube.messaging.updateAttachment(message, thumb);
+        });
     }
     else {
         text.push(JSON.stringify(message.getPayload()));

@@ -575,6 +575,10 @@ export class MessagingService extends Module {
         return true;
     }
 
+    updateAttachment() {
+        
+    }
+
     /**
      * 查询指定时间开始到当前时间的所有消息。
      * @param {number} time 指定查询的起始时间。
