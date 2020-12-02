@@ -136,7 +136,14 @@ function sendImage() {
     // 使用 Cube 提供的辅助方法选择图片文件
     cube.launchFileSelector(function(event) {
         let file = event.target.files[0];
+
+        // 创建 ImageMessage 实例
         let message = new ImageMessage(file);
+
+        // 为消息附件生成缩略图
+        message.getAttachment().enableThumb();
+
+        // 发送图片消息
         cube.messaging.sendToContact(target, message);
 
         stateLabel.innerHTML = '正在发送图片消息……';

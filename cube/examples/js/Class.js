@@ -33,8 +33,11 @@ function argumentNames(fn) {
 	return names.length == 1 && !names[0] ? [] : names;
 }
 
-function $super(superClass, parameter) {
-    var instance = superClass.prototype.constructor.call(this, parameter);
+function $super(superClass) {
+    const args = Array.from(arguments);
+    args.shift();
+
+    var instance = superClass.prototype.constructor.apply(this, args);
     for (var attr in instance) {
         if (typeof instance[attr] === 'function') {
             continue;

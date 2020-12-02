@@ -24,11 +24,10 @@
  * SOFTWARE.
  */
 
-import { AuthService } from "../auth/AuthService";
 import { JSONable } from "../util/JSONable";
 import { FileAnchor } from "./FileAnchor";
 import { FileLabel } from "./FileLabel";
-
+import { FileThumbnail } from "../fileprocessor/FileThumbnail";
 
 /**
  * 文件附件。
@@ -61,10 +60,16 @@ export class FileAttachment extends JSONable {
 
         /**
          * 是否生成文件的缩略图。
-         * @type {boolean}
+         * @type {JSON}
          * @protected
          */
-        this.thumbEnabled = false;
+        this.thumbConfig = null;
+
+        /**
+         * 缩略图列表。
+         * @type {Array<FileThumbnail>}
+         */
+        this.thumbs = null;
 
         /**
          * 是否是安全连接。
@@ -160,9 +165,18 @@ export class FileAttachment extends JSONable {
 
     /**
      * 启用缩略图。
+     * @param {JSON} 缩略图参数。
      */
-    enableThumb() {
-        this.thumbEnabled = true;
+    enableThumb(config) {
+        if (undefined === config) {
+            this.thumbConfig = {
+                "size": 480,
+                "quality": 0.7
+            };
+        }
+        else {
+            this.thumbConfig = config;
+        }
     }
 
     /**
@@ -177,6 +191,11 @@ export class FileAttachment extends JSONable {
         if (null != this.label) {
             json.label = this.label.toJSON();
         }
+
+        if (null != this.thumbConfig) {
+            json.thumbConfig = this.thumbConfig;
+        }
+
         return json;
     }
 
@@ -191,6 +210,9 @@ export class FileAttachment extends JSONable {
         }
         if (undefined !== json.label) {
             attachment.label = FileLabel.create(json.label);
+        }
+        if (undefined !== json.thumbConfig) {
+            attachment.thumbConfig = json.thumbConfig;
         }
         return attachment;
     }

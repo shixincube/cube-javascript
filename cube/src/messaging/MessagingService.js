@@ -44,7 +44,6 @@ import { MessagingServiceState } from "./MessagingServiceState";
 import { MessagingStorage } from "./MessagingStorage";
 import { FileStorage } from "../filestorage/FileStorage";
 import { FileStorageEvent } from "../filestorage/FileStorageEvent";
-import { FileProcessor } from "../fileprocessor/FileProcessor";
 import { ObservableState } from "../core/ObservableState";
 import { StateCode } from "../core/StateCode";
 import { PluginSystem } from "../core/PluginSystem";
@@ -1077,10 +1076,6 @@ export class MessagingService extends Module {
 
             // 设置锚点
             message.attachment.anchor = fileAnchor;
-
-            // 生成缩略图
-            let fileProcessor = this.getModule(FileProcessor.NAME);
-
 
             // 发送到服务器
             let packet = new Packet(MessagingAction.Push, message.toJSON());

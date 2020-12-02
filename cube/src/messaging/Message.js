@@ -36,7 +36,7 @@ import { FileAttachment } from "../filestorage/FileAttachment";
 export class Message extends Entity {
 
     /**
-     * @param {JSON|Message} payload 消息负载。
+     * @param {JSON|Message|File} payload 消息负载或者消息文件附件。
      * @param {File} [file] 文件附件。
      */
     constructor(payload, file) {
