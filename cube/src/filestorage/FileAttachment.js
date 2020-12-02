@@ -36,7 +36,7 @@ import { FileLabel } from "./FileLabel";
 export class FileAttachment extends JSONable {
 
     /**
-     * @param {File} file 
+     * @param {File} file 文件实例。
      */
     constructor(file) {
         super();
@@ -58,6 +58,13 @@ export class FileAttachment extends JSONable {
          * @type {FileLabel}
          */
         this.label = null;
+
+        /**
+         * 是否生成文件的缩略图。
+         * @type {boolean}
+         * @protected
+         */
+        this.thumbEnabled = false;
 
         /**
          * 是否是安全连接。
@@ -98,6 +105,10 @@ export class FileAttachment extends JSONable {
         }
     }
 
+    /**
+     * 返回文件大小。
+     * @returns {number} 返回文件大小。
+     */
     getFileSize() {
         if (null != this.label) {
             return this.label.fileSize;
@@ -110,6 +121,10 @@ export class FileAttachment extends JSONable {
         }
     }
 
+    /**
+     * 返回文件类型。
+     * @returns {string} 返回文件类型。
+     */
     getFileType() {
         if (null != this.label) {
             return this.label.fileType;
@@ -122,22 +137,43 @@ export class FileAttachment extends JSONable {
         }
     }
 
-    getFileURL() {
+    /**
+     * 返回文件 URL 地址。
+     * @returns {string} 返回 URL 地址。
+     */
+    getFileURL(autoSecure) {
         if (null == this.label) {
             return null;
         }
 
-        let url = [ this.secure ? this.label.getFileSecureURL() : this.label.getFileURL(),
-            '&type=', this.label.fileType];
+        let url = null;
+        if (autoSecure) {
+            url = [ this.secure ? this.label.getFileSecureURL() : this.label.getFileURL(),
+                '&type=', this.label.fileType];
+        }
+        else {
+            url = [ this.label.getFileURL(), '&type=', this.label.fileType];
+        }
+
         return url.join('');
     }
 
+    /**
+     * 启用缩略图。
+     */
+    enableThumb() {
+        this.thumbEnabled = true;
+    }
+
+    /**
+     * @inheritdoc
+     */
     toJSON() {
         let json = super.toJSON();
         if (null != this.anchor) {
             json.anchor = this.anchor.toJSON();
         }
-        
+
         if (null != this.label) {
             json.label = this.label.toJSON();
         }

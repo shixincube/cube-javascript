@@ -27,7 +27,8 @@
 import cell from "@lib/cell-lib";
 import { AuthService } from "../auth/AuthService";
 import { OrderMap } from "../util/OrderMap";
-import { Module } from "../core/Module"
+import { Module } from "../core/Module";
+import { ModuleError } from "../core/error/ModuleError";
 import { ContactService } from "../contact/ContactService";
 import { ContactEvent } from "../contact/ContactEvent";
 import { Contact } from "../contact/Contact";
@@ -39,15 +40,15 @@ import { MessagingAction } from "./MessagingAction";
 import { MessagingPipelineListener } from "./MessagingPipelineListener";
 import { MessagingEvent } from "./MessagingEvent";
 import { MessagingCode } from "./MessagingCode";
+import { MessagingServiceState } from "./MessagingServiceState";
 import { MessagingStorage } from "./MessagingStorage";
-import { FileStorage } from "../filestorage/FileStorage"
+import { FileStorage } from "../filestorage/FileStorage";
+import { FileStorageEvent } from "../filestorage/FileStorageEvent";
+import { FileProcessor } from "../fileprocessor/FileProcessor";
 import { ObservableState } from "../core/ObservableState";
 import { StateCode } from "../core/StateCode";
 import { PluginSystem } from "../core/PluginSystem";
 import { InstantiateHook } from "./hook/InstantiateHook";
-import { FileStorageEvent } from "../filestorage/FileStorageEvent";
-import { ModuleError } from "../core/error/ModuleError";
-import { MessagingServiceState } from "./MessagingServiceState";
 import { MessagePlugin } from "./MessagePlugin";
 
 /**
@@ -156,9 +157,6 @@ export class MessagingService extends Module {
         this.kernel.getModule(FileStorage.NAME).attach(fun);
         this.fileStorageEventFun = fun;
 
-        // 开启存储器
-        this.storage.open(AuthService.DOMAIN);
-
         // 添加数据通道的监听器
         this.pipeline.addListener(MessagingService.NAME, this.pipelineListener);
 
@@ -169,14 +167,35 @@ export class MessagingService extends Module {
             this._processQueue();
         }, 100);
 
-        this.storage.queryLastMessageTime((value) => {
-            if (value == 0) {
-                this.lastMessageTime = Date.now() - this.defaultRetrospect;
+        let self = this.contactService.getSelf();
+        if (null != self) {
+            // 开启存储器
+            this.storage.open(self.getId(), AuthService.DOMAIN);
+
+            this.storage.queryLastMessageTime((value) => {
+                if (value == 0) {
+                    this.lastMessageTime = Date.now() - this.defaultRetrospect;
+                }
+                else {
+                    this.lastMessageTime = value;
+                }
+            });
+
+            if (this.lastMessageTime > 0) {
+                this.queryRemoteMessage();
             }
             else {
-                this.lastMessageTime = value;
+                setTimeout(() => {
+                    if (this.lastMessageTime > 0) {
+                        this.queryRemoteMessage();
+                    }
+                    else {
+                        let now = Date.now();
+                        this.queryRemoteMessage(now - this.defaultRetrospect, now);
+                    }
+                }, 500);
             }
-        });
+        }
 
         return true;
     }
@@ -186,6 +205,10 @@ export class MessagingService extends Module {
      */
     stop() {
         super.stop();
+
+        if (null == this.pipeline) {
+            return;
+        }
 
         if (0 != this.timer) {
             clearInterval(this.timer);
@@ -1055,6 +1078,10 @@ export class MessagingService extends Module {
             // 设置锚点
             message.attachment.anchor = fileAnchor;
 
+            // 生成缩略图
+            let fileProcessor = this.getModule(FileProcessor.NAME);
+
+
             // 发送到服务器
             let packet = new Packet(MessagingAction.Push, message.toJSON());
             this.pipeline.send(MessagingService.NAME, packet, (pipeline, source, responsePacket) => {
@@ -1109,11 +1136,24 @@ export class MessagingService extends Module {
      * @param {ObservableState} state 
      */
     _fireContactEvent(state) {
+        if (!this.started) {
+            return;
+        }
+
         if (state.name == ContactEvent.SignIn || state.name == ContactEvent.Comeback) {
             let self = state.data;
 
             // 启动存储
-            this.storage.open(self.getDomain());
+            this.storage.open(self.getId(), self.getDomain());
+
+            this.storage.queryLastMessageTime((value) => {
+                if (value == 0) {
+                    this.lastMessageTime = Date.now() - this.defaultRetrospect;
+                }
+                else {
+                    this.lastMessageTime = value;
+                }
+            });
 
             if (this.lastMessageTime > 0) {
                 this.queryRemoteMessage();
@@ -1130,6 +1170,10 @@ export class MessagingService extends Module {
                 }, 500);
             }
         }
+        else if (state.name == ContactEvent.SignOut) {
+            // 关闭存储
+            this.storage.close();
+        }
     }
 
     /**
@@ -1138,6 +1182,10 @@ export class MessagingService extends Module {
      * @param {ObservableState} state 
      */
     _fireFileStorageEvent(state) {
+        if (!this.started) {
+            return;
+        }
+
         if (state.getName() == FileStorageEvent.FileUpdated) {
 
         }

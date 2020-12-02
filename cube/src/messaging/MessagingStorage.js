@@ -62,9 +62,10 @@ export class MessagingStorage {
 
     /**
      * 打开存储器连接数据库连接。
+     * @param {number} contactId 指定当前签入的联系人 ID 。
      * @param {string} domain 指定操作的域。
      */
-    open(domain) {
+    open(contactId, domain) {
         if (null != this.db) {
             return;
         }
@@ -75,7 +76,7 @@ export class MessagingStorage {
 
         // 数据库配置
         let options = {
-            name: 'CubeMessaging-' + domain,
+            name: 'CubeMessaging-' + domain + '-' + contactId,
             version: 1,
             stores: [{
                 name: 'message',
