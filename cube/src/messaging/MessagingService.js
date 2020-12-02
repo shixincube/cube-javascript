@@ -807,7 +807,7 @@ export class MessagingService extends Module {
 
         this.lastQueryTime = now;
 
-        let beginningTime = (undefined === beginning) ? this.lastMessageTime : beginning;
+        let beginningTime = (undefined === beginning) ? (this.lastMessageTime + 1) : beginning;
         let endingTime = (undefined === ending) ? now : ending;
 
         let self = this.contactService.getSelf();
@@ -879,6 +879,10 @@ export class MessagingService extends Module {
         promise.then((contained) => {
             // 对于已经在数据库里的消息不回调 Notify 事件
             if (!contained) {
+                if (null != message.attachment) {
+                    message.attachment.token = this.getAuthToken().code;
+                }
+
                 // 下钩子
                 let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
                 // 调用插件处理
@@ -1108,6 +1112,7 @@ export class MessagingService extends Module {
                 message.state = MessageState.Sent;
 
                 // 更新附件
+                respMessage.attachment.token = this.getAuthToken().code;
                 message.setAttachment(respMessage.attachment);
 
                 // 更新时间戳

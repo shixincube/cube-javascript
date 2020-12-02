@@ -28,6 +28,7 @@ import { JSONable } from "../util/JSONable";
 import { FileAnchor } from "./FileAnchor";
 import { FileLabel } from "./FileLabel";
 import { FileThumbnail } from "../fileprocessor/FileThumbnail";
+import { AuthService } from "../auth/AuthService";
 
 /**
  * 文件附件。
@@ -76,6 +77,11 @@ export class FileAttachment extends JSONable {
          * @type {boolean}
          */
         this.secure = (window.location.protocol.toLowerCase().indexOf("https") >= 0);
+
+        /**
+         * @private
+         */
+        this.token = null;
     }
 
     /**
@@ -154,10 +160,11 @@ export class FileAttachment extends JSONable {
         let url = null;
         if (autoSecure) {
             url = [ this.secure ? this.label.getFileSecureURL() : this.label.getFileURL(),
-                '&type=', this.label.fileType];
+                '&token=', this.token,
+                '&type=', this.label.fileType ];
         }
         else {
-            url = [ this.label.getFileURL(), '&type=', this.label.fileType];
+            url = [ this.label.getFileURL(), '&token=', this.token, '&type=', this.label.fileType ];
         }
 
         return url.join('');

@@ -30,9 +30,69 @@
 }
 
 section#messages textarea {
-    width: 80%;
+    width: 600px;
     font-family: 'Courier New', Courier, monospace, 'Microsoft YaHei', '微软雅黑';
     font-size: 14px;
+}
+
+section#messages div {
+    display: inline-block;
+    margin-left: 8px;
+}
+
+div#imageName {
+    display: block !important;
+    margin-bottom: 4px;
+}
+
+div#images {
+    margin-left: 12px;
+}
+
+div#images div {
+    display: inline-block;
+    text-align: center;
+    overflow: hidden;
+}
+
+div#images img {
+    border: 1px solid #999;
+    min-width: 140px;
+    min-height: 140px;
+    max-width: 140px;
+    max-height: 140px;
+}
+
+div#images img:hover {
+    cursor: pointer;
+}
+
+div#images p {
+    font-size: 12px;
+}
+
+div#imageFrame {
+    display: block;
+    position: absolute;
+    float: left;
+    top: 100px;
+    max-width: 600px;
+    max-height: 600px;
+    width: 600px;
+    height: 600px;
+    overflow: hidden;
+    visibility: hidden;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid #999;
+}
+div#imageFrame:hover {
+    cursor: pointer;
+}
+
+div#imageFrame img {
+    margin: auto;
+    padding: auto;
 }
 
 section#operate div {

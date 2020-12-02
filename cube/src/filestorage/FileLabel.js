@@ -25,7 +25,6 @@
  */
 
 import { Entity } from "../core/Entity";
-import { FileType } from "./FileType";
 
 /**
  * 文件标签。
