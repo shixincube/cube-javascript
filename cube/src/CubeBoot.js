@@ -54,6 +54,8 @@ import { FileAnchor } from "./filestorage/FileAnchor";
 import { FileLabel } from "./filestorage/FileLabel";
 import { FileAttachment } from "./filestorage/FileAttachment";
 import { FileStorageEvent } from "./filestorage/FileStorageEvent";
+import { FileProcessor } from "./fileprocessor/FileProcessor";
+import { FileThumbnail } from "./fileprocessor/FileThumbnail";
 import { MultipointComm } from "./multipointcomm/MultipointComm";
 import { MediaConstraint } from "./multipointcomm/MediaConstraint";
 import { VideoDimension } from "./multipointcomm/VideoDimension";
@@ -103,6 +105,9 @@ import { Announcer } from "./util/Announcer";
     global.FileLabel = FileLabel;
     global.FileAttachment = FileAttachment;
     global.FileStorageEvent = FileStorageEvent;
+
+    global.FileProcessor = FileProcessor;
+    global.FileThumbnail = FileThumbnail;
 
     global.MultipointComm = MultipointComm;
     global.VideoDimension = VideoDimension;

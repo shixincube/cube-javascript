@@ -445,6 +445,11 @@ export class MessagingService extends Module {
                         // 写存储
                         this.storage.updateMessage(message);
 
+                        // 标注 Token
+                        if (null != message.attachment) {
+                            message.attachment.token = this.getAuthToken().code;
+                        }
+
                         // 使用插件
                         let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
                         message = hook.apply(message);
@@ -512,6 +517,11 @@ export class MessagingService extends Module {
 
                         // 写存储
                         this.storage.updateMessage(message);
+
+                        // 标注 Token
+                        if (null != message.attachment) {
+                            message.attachment.token = this.getAuthToken().code;
+                        }
 
                         // 使用插件
                         let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
@@ -619,11 +629,18 @@ export class MessagingService extends Module {
                 else return 0;
             });
 
-            // 使用插件
             let reslist = [];
             for (let i = 0; i < list.length; ++i) {
+                let message = list[i];
+
+                // 标注 Token
+                if (null != message.attachment) {
+                    message.attachment.token = this.getAuthToken().code;
+                }
+
+                // 使用插件
                 let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
-                reslist.push(hook.apply(list[i]));
+                reslist.push(hook.apply(message));
             }
 
             handler(beginning, reslist);
@@ -663,11 +680,18 @@ export class MessagingService extends Module {
                 else return 0;
             });
 
-            // 使用插件
             let reslist = [];
             for (let i = 0; i < list.length; ++i) {
+                let message = list[i];
+
+                // 标注 Token
+                if (null != message.attachment) {
+                    message.attachment.token = this.getAuthToken().code;
+                }
+
+                // 使用插件
                 let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
-                reslist.push(hook.apply(list[i]));
+                reslist.push(hook.apply(message));
             }
 
             handler(contactId, beginning, reslist);
@@ -707,11 +731,18 @@ export class MessagingService extends Module {
                 else return 0;
             });
 
-            // 使用插件
             let reslist = [];
             for (let i = 0; i < list.length; ++i) {
+                let message = list[i];
+
+                // 标注 Token
+                if (null != message.attachment) {
+                    message.attachment.token = this.getAuthToken().code;
+                }
+
+                // 使用插件
                 let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
-                reslist.push(hook.apply(list[i]));
+                reslist.push(hook.apply(message));
             }
 
             handler(groupId, beginning, reslist); 
@@ -748,6 +779,11 @@ export class MessagingService extends Module {
                 return;
             }
 
+            // 标注 Token
+            if (null != message.attachment) {
+                message.attachment.token = this.getAuthToken().code;
+            }
+
             // 使用插件
             let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
             let result = hook.apply(message);
@@ -777,6 +813,11 @@ export class MessagingService extends Module {
             if (null == message) {
                 handler(null);
                 return;
+            }
+
+            // 标注 Token
+            if (null != message.attachment) {
+                message.attachment.token = this.getAuthToken().code;
             }
 
             // 使用插件
@@ -879,11 +920,12 @@ export class MessagingService extends Module {
         promise.then((contained) => {
             // 对于已经在数据库里的消息不回调 Notify 事件
             if (!contained) {
+                // 标注 Token
                 if (null != message.attachment) {
                     message.attachment.token = this.getAuthToken().code;
                 }
 
-                // 下钩子
+                // 获取事件钩子
                 let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
                 // 调用插件处理
                 message = hook.apply(message);
@@ -936,6 +978,11 @@ export class MessagingService extends Module {
                     message.state = MessageState.Read;
                     this.storage.updateMessage(message);
 
+                    // 标注 Token
+                    if (null != message.attachment) {
+                        message.attachment.token = this.getAuthToken().code;
+                    }
+
                     // 使用插件
                     let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
                     message = hook.apply(message);
@@ -964,6 +1011,11 @@ export class MessagingService extends Module {
         this.storage.updateMessage(message);
 
         cell.Logger.d('MessagingService', 'Recall message: ' + message.getId());
+
+        // 标注 Token
+        if (null != message.attachment) {
+            message.attachment.token = this.getAuthToken().code;
+        }
 
         // 使用插件
         let hook = this.pluginSystem.getHook(InstantiateHook.NAME);

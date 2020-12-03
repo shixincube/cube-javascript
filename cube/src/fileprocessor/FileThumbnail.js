@@ -25,6 +25,7 @@
  */
 
 import { Entity } from "../core/Entity";
+import { FileLabel } from "../filestorage/FileLabel";
 
 /**
  * 文件缩略图。
@@ -33,5 +34,88 @@ export class FileThumbnail extends Entity {
 
     constructor() {
         super();
+
+        /**
+         * @type {string}
+         */
+        this.domain = null;
+
+        /**
+         * @type {FileLabel}
+         */
+        this.fileLabel = null;
+
+        /**
+         * @type {number}
+         */
+        this.width = 0;
+
+        /**
+         * @type {number}
+         */
+        this.height = 0;
+
+        /**
+         * @type {string}
+         */
+        this.sourceFileCode = null;
+
+        /**
+         * @type {number}
+         */
+        this.sourceWidth = 0;
+
+        /**
+         * @type {number}
+         */
+        this.sourceHeight = 0;
+
+        /**
+         * @type {number}
+         */
+        this.quality = 1.0;
+
+        /**
+         * @type {string}
+         * @private
+         */
+        this.token = 'cube';
+    }
+
+    /**
+     * 获取文件的 URL 地址。
+     * @param {boolean} [secure] 
+     */
+    getFileURL(secure) {
+        let url = null;
+        if (undefined !== secure) {
+            url = [ secure ? this.fileLabel.getFileSecureURL() : this.fileLabel.getFileURL(),
+                '&token=', this.token,
+                '&type=', this.fileLabel.fileType ];
+        }
+        else {
+            url = [ this.fileLabel.getFileURL(), '&token=', this.token, '&type=', this.fileLabel.fileType ];
+        }
+
+        return url.join('');
+    }
+
+    /**
+     * 从 JSON 数据创建 {@link FileThumbnail} 对象。
+     * @param {JSON} json 符合格式的 JSON 数据。
+     * @returns {FileThumbnail} 返回 {@link FileThumbnail} 对象实例。
+     */
+    static create(json) {
+        let thumb = new FileThumbnail();
+        thumb.id = json.id;
+        thumb.domain = json.domain;
+        thumb.fileLabel = FileLabel.create(json.fileLabel);
+        thumb.width = json.width;
+        thumb.height = json.height;
+        thumb.sourceFileCode = json.sourceFileCode;
+        thumb.sourceWidth = json.sourceWidth;
+        thumb.sourceHeight = json.sourceHeight;
+        thumb.quality = json.quality;
+        return thumb;
     }
 }

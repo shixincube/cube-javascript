@@ -57,8 +57,6 @@ div#images div {
 
 div#images img {
     border: 1px solid #999;
-    min-width: 140px;
-    min-height: 140px;
     max-width: 140px;
     max-height: 140px;
 }
@@ -72,19 +70,22 @@ div#images p {
 }
 
 div#imageFrame {
-    display: block;
+    display: table-cell;
     position: absolute;
     float: left;
     top: 100px;
+    padding: 0;
+    margin: 0;
     max-width: 600px;
     max-height: 600px;
     width: 600px;
     height: 600px;
-    overflow: hidden;
-    visibility: hidden;
+    overflow: auto;
     text-align: center;
     vertical-align: middle;
     border: 1px solid #999;
+    background-color: #efefef;
+    visibility: hidden;
 }
 div#imageFrame:hover {
     cursor: pointer;

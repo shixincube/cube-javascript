@@ -75,10 +75,12 @@ export class FileAttachment extends JSONable {
         /**
          * 是否是安全连接。
          * @type {boolean}
+         * @private
          */
-        this.secure = (window.location.protocol.toLowerCase().indexOf("https") >= 0);
+        // this.secure = (window.location.protocol.toLowerCase().indexOf("https") >= 0);
 
         /**
+         * @type {string}
          * @private
          */
         this.token = null;
@@ -152,14 +154,14 @@ export class FileAttachment extends JSONable {
      * 返回文件 URL 地址。
      * @returns {string} 返回 URL 地址。
      */
-    getFileURL(autoSecure) {
+    getFileURL(secure) {
         if (null == this.label) {
             return null;
         }
 
         let url = null;
-        if (autoSecure) {
-            url = [ this.secure ? this.label.getFileSecureURL() : this.label.getFileURL(),
+        if (undefined !== secure) {
+            url = [ secure ? this.label.getFileSecureURL() : this.label.getFileURL(),
                 '&token=', this.token,
                 '&type=', this.label.fileType ];
         }
@@ -187,6 +189,32 @@ export class FileAttachment extends JSONable {
     }
 
     /**
+     * @returns {FileThumbnail} 返回文件默认缩略图。
+     */
+    getDefaultThumb() {
+        if (null == this.thumbs) {
+            return null;
+        }
+
+        let thumb = this.thumbs[0];
+        thumb.token = this.token;
+        return thumb;
+    }
+
+    /**
+     * @returns {string} 返回文件默认缩略图的 URL 信息。
+     */
+    getDefaultThumbURL(secure) {
+        if (null == this.thumbs) {
+            return null;
+        }
+
+        let thumb = this.thumbs[0];
+        thumb.token = this.token;
+        return thumb.getFileURL(secure);
+    }
+
+    /**
      * @inheritdoc
      */
     toJSON() {
@@ -201,6 +229,13 @@ export class FileAttachment extends JSONable {
 
         if (null != this.thumbConfig) {
             json.thumbConfig = this.thumbConfig;
+        }
+
+        if (null != this.thumbs) {
+            json.thumbs = [];
+            for (let i = 0; i < this.thumbs.length; ++i) {
+                json.thumbs.push(this.thumbs[i].toJSON());
+            }
         }
 
         return json;
@@ -220,6 +255,13 @@ export class FileAttachment extends JSONable {
         }
         if (undefined !== json.thumbConfig) {
             attachment.thumbConfig = json.thumbConfig;
+        }
+        if (undefined !== json.thumbs) {
+            attachment.thumbs = [];
+            for (let i = 0; i < json.thumbs.length; ++i) {
+                let thumb = FileThumbnail.create(json.thumbs[i]);
+                attachment.thumbs.push(thumb);
+            }
         }
         return attachment;
     }

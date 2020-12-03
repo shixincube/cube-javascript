@@ -174,7 +174,9 @@ function onSent(event) {
     }
     else if (message.getType() == 'image') {
         text.push(message.getAttachment().getFileName());
+        imageNameElem.innerHTML = message.getAttachment().getFileName();
         imageOriginalElem.src = message.getAttachment().getFileURL();
+        imageThumbElem.src = message.getAttachment().getDefaultThumbURL();
     }
     else {
         text.push(JSON.stringify(message.getPayload()));
@@ -203,6 +205,9 @@ function onNotify(event) {
     }
     else if (message.getType() == 'image') {
         text.push(message.getAttachment().getFileName());
+        imageNameElem.innerHTML = message.getAttachment().getFileName();
+        imageOriginalElem.src = message.getAttachment().getFileURL();
+        imageThumbElem.src = message.getAttachment().getDefaultThumbURL();
     }
     else {
         text.push(JSON.stringify(message.getPayload()));
