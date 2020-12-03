@@ -36,7 +36,7 @@ const sendImageButton = document.querySelector('button#sendImage');
 const imageNameElem = document.querySelector('div#imageName');
 const imageOriginalElem = document.querySelector('img#imageOriginal');
 const imageThumbElem = document.querySelector('img#imageThumb');
-const imageFrameElem = document.querySelector('div#imageFrame');
+const imageShowcase = document.querySelector('div#imageShowcase');
 
 startCubeButton.onclick = startCube;
 stopCubeButton.onclick = stopCube;
@@ -45,7 +45,7 @@ sendImageButton.onclick = sendImage;
 
 imageOriginalElem.onclick = showImage;
 imageThumbElem.onclick = showImage;
-imageFrameElem.onclick = hideImage;
+imageShowcase.onclick = hideImage;
 
 const contactIdInput = document.querySelector('input#contactId');
 const contactNameInput = document.querySelector('input#contactName');
@@ -150,9 +150,6 @@ function sendImage() {
         // 创建 ImageMessage 实例
         let message = new ImageMessage(file);
 
-        // 为消息附件生成缩略图
-        message.getAttachment().enableThumb();
-
         // 发送图片消息
         cube.messaging.sendToContact(target, message);
 
@@ -225,26 +222,26 @@ function onNotify(event) {
 function showImage(event) {
     let src = event.target.src;
 
-    if (imageFrameElem.style.visibility == 'visible') {
-        if (imageFrameElem.children[0].src == src) {
-            imageFrameElem.style.visibility = 'hidden';
+    if (imageShowcase.style.visibility == 'visible') {
+        if (imageShowcase.children[0].children[0].src == src) {
+            imageShowcase.style.visibility = 'hidden';
             return;
         }
 
-        imageFrameElem.children[0].src = src;
+        imageShowcase.children[0].children[0].src = src;
     }
     else {
-        imageFrameElem.children[0].src = src;
-        imageFrameElem.style.visibility = 'visible';
+        imageShowcase.children[0].children[0].src = src;
+        imageShowcase.style.visibility = 'visible';
     }
 }
 
 function hideImage(event) {
-    if (imageFrameElem.style.visibility == 'hidden') {
+    if (imageShowcase.style.visibility == 'hidden') {
         return;
     }
 
-    imageFrameElem.style.visibility = 'hidden';
+    imageShowcase.style.visibility = 'hidden';
 }
 
 function formatDate(timestamp) {

@@ -37,6 +37,9 @@ var ImageMessage = Class(Message, {
         $super.call(this, Message, param);
 
         this.setPayload({ "type": "image" });
+
+        // 生成缩略图
+        this.getAttachment().enableThumb();
     },
 
     getType() {

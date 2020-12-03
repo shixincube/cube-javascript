@@ -143,6 +143,10 @@ export class MultipointComm extends Module {
     stop() {
         super.stop();
 
+        if (null == this.pipeline) {
+            return;
+        }
+
         if (null != this.rtcEndpoint) {
             if (this.rtcEndpoint.isWorking()) {
                 this.hangupCall();
