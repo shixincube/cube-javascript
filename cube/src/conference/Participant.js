@@ -24,35 +24,14 @@
  * SOFTWARE.
  */
 
-import { CommField } from "../multipointcomm/CommField";
 import { Entity } from "../core/Entity";
 
 /**
- * 会议房间。
+ * 会议参与者。
  */
-export class ConferenceRoom extends Entity {
+export class Participant extends Entity {
 
-    /**
-     * 构造函数。
-     * @param {CommField} commField 
-     */
-    constructor(commField) {
-        
+    constructor() {
         super();
-
-        this.commField = commField;
-    }
-
-    configure(json) {
-        
-    }
-
-    mute(contact) {
-
-    }
-
-    toJSON() {
-        let json = super.toJSON();
-        return json;
     }
 }

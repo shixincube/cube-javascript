@@ -49,8 +49,15 @@ export class AuthService extends Module {
 
     /**
      * 域。
+     * @type {string}
      */
     static DOMAIN = '';
+
+    /**
+     * 终端持有的有效令牌码。
+     * @type {string}
+     */
+    static TOKEN = '';
 
     /**
      * 构造函数。
@@ -211,6 +218,8 @@ export class AuthService extends Module {
                 this.checkToken();
             }, 2000);
 
+            AuthService.TOKEN = this.token.code;
+
             return this.token;
         }
 
@@ -225,8 +234,12 @@ export class AuthService extends Module {
         // 从授权服务器申请
         this.token = await this.applyToken(domain, appKey);
 
-        if (null != this.token && window.localStorage) {
-            storage.saveCandidate(this.token);
+        if (null != this.token) {
+            AuthService.TOKEN = this.token.code;
+
+            if (window.localStorage) {
+                storage.saveCandidate(this.token);
+            }
         }
 
         return this.token;

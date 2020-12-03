@@ -36,41 +36,49 @@ export class FileThumbnail extends Entity {
         super();
 
         /**
+         * 域。
          * @type {string}
          */
         this.domain = null;
 
         /**
+         * 缩略图文件标签。
          * @type {FileLabel}
          */
         this.fileLabel = null;
 
         /**
+         * 缩略图宽度。
          * @type {number}
          */
         this.width = 0;
 
         /**
+         * 缩略图高度。
          * @type {number}
          */
         this.height = 0;
 
         /**
+         * 原文件文件码。
          * @type {string}
          */
         this.sourceFileCode = null;
 
         /**
+         * 原文件宽度。
          * @type {number}
          */
         this.sourceWidth = 0;
 
         /**
+         * 原文件高度。
          * @type {number}
          */
         this.sourceHeight = 0;
 
         /**
+         * 缩略图使用的图像质量参数。
          * @type {number}
          */
         this.quality = 1.0;
@@ -84,7 +92,8 @@ export class FileThumbnail extends Entity {
 
     /**
      * 获取文件的 URL 地址。
-     * @param {boolean} [secure] 
+     * @param {boolean} [secure] 是否返回安全的 URL 地址。
+     * @returns {string} 返回文件的访问 URL 地址。
      */
     getFileURL(secure) {
         let url = null;

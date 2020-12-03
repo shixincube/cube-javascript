@@ -26,10 +26,10 @@
 
 import { JSONable } from "../util/JSONable";
 import { Contact } from "../contact/Contact";
-import { Group } from "../contact/Group";
-import { Invitation } from "./Invitation";
-import { ConferenceRoom } from "./ConferenceRoom";
 import { OrderMap } from "../util/OrderMap";
+import { Invitation } from "./Invitation";
+import { Room } from "./Room";
+import { Participant } from "./Participant";
 
 /**
  * 会议描述。
@@ -88,15 +88,15 @@ export class Conference extends JSONable {
 
         /**
          * 会议房间。
-         * @type {ConferenceRoom}
+         * @type {Room}
          */
         this.room = null;
 
         /**
-         * 会议群组。
-         * @type {Group}
+         * 会议参与者列表。
+         * @type {Array<Participant>}
          */
-        this.group = null;
+        this.participantList = [];
     }
 
     /**

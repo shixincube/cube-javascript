@@ -25,15 +25,15 @@
  */
 
 import { Module } from "../core/Module";
+import { Packet } from "../core/Packet";
+import { StateCode } from "../core/StateCode";
+import { Announcer } from "../util/Announcer";
 import { ContactService } from "../contact/ContactService";
 import { MultipointComm } from "../multipointcomm/MultipointComm";
 import { Conference } from "./Conference";
 import { ConferencePipelineListener } from "./ConferencePipelineListener";
-import { Packet } from "../core/Packet";
 import { ConferenceAction } from "./ConferenceAction";
-import { StateCode } from "../core/StateCode";
-import { ConferenceRoom } from "./ConferenceRoom";
-import { Announcer } from "../util/Announcer";
+import { Room } from "./Room";
 
 /**
  * 会议服务。
@@ -140,7 +140,7 @@ export class ConferenceService extends Module {
 
             // 获取房间对应的通信场域
             this.mpcomm.getField(rdata.room.field, (filed) => {
-                conference.room = new ConferenceRoom(filed);
+                conference.room = new Room(filed);
                 conference.room.configure(rdata.room);
                 announcer.announce();
             });
