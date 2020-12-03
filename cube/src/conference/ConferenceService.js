@@ -27,13 +27,14 @@
 import { Module } from "../core/Module";
 import { Packet } from "../core/Packet";
 import { StateCode } from "../core/StateCode";
-import { Announcer } from "../util/Announcer";
+import { ObservableState } from "../core/ObservableState";
 import { ContactService } from "../contact/ContactService";
 import { MultipointComm } from "../multipointcomm/MultipointComm";
 import { Conference } from "./Conference";
+import { ConferenceServiceState } from "./ConferenceServiceState";
 import { ConferencePipelineListener } from "./ConferencePipelineListener";
 import { ConferenceAction } from "./ConferenceAction";
-import { Room } from "./Room";
+import { ConferenceEvent } from "./ConferenceEvent";
 
 /**
  * 会议服务。
@@ -98,58 +99,59 @@ export class ConferenceService extends Module {
     stop() {
         super.stop();
 
+        if (null == this.pipeline) {
+            return;
+        }
+
         this.pipeline.removeListener(ConferenceService.NAME, this.pipelineListener);
     }
 
     /**
      * 创建会议。
-     * @param {Conference} conference 
-     * @param {function} handleSuccess 
-     * @param {function} handleError 
+     * @param {string} title 会议标题。
+     * @param {string} password 会议密码，设置为 {@linkcode null} 时表示不需要密码。
+     * @param {function} successCallback
+     * @param {function} failureCallback
      */
-    createConference(conference, handleSuccess, handleError) {
-        conference.founder = this.contact.getSelf();
+    createConference(title, password, successCallback, failureCallback) {
+        let dataPacket = new Packet(ConferenceAction.Create, {
+            "title": title,
+            "password": (null == password) ? "" : password,
+            "founder": this.contact.getSelf().toCompactJSON()
+        });
 
-        let data = new Packet(ConferenceAction.Create, conference.toJSON());
-        this.pipeline.send(ConferenceService.NAME, data, (pipeline, source, packet) => {
-            if (null == packet || packet.getStateCode() != StateCode.OK) {
-                // TODO 错误处理
+        this.pipeline.send(ConferenceService.NAME, dataPacket, (pipeline, source, packet) => {
+            if (null == packet) {
+                // TODO
+                if (failureCallback) {
+                    failureCallback(title);
+                }
                 return;
             }
 
-            // 建立通知方式进行回调
-            let announcer = new Announcer(3, 5000);
-            announcer.addAudience((count, map) => {
-                if (count == announcer.getTotal()) {
-                    handleSuccess(conference);
+            if (packet.getStateCode() != StateCode.OK) {
+                // TODO
+                if (failureCallback) {
+                    failureCallback(title);
                 }
-                else {
-                    handleError();
+                return;
+            }
+
+            if (packet.data.code != ConferenceServiceState.Ok) {
+                // TODO
+                if (failureCallback) {
+                    failureCallback(title);
                 }
-            });
+                return;
+            }
 
-            let rdata = packet.data;
-            conference.id = rdata.id;
-            conference.access = rdata.access;
+            let conference = Conference.create(this, packet.data.data);
 
-            // 获取主持人信息
-            this.contact.getContact(rdata.presenter, (contact) => {
-                conference.presenter = contact;
-                announcer.announce();
-            });
+            if (successCallback) {
+                successCallback(conference);
+            }
 
-            // 获取房间对应的通信场域
-            this.mpcomm.getField(rdata.room.field, (filed) => {
-                conference.room = new Room(filed);
-                conference.room.configure(rdata.room);
-                announcer.announce();
-            });
-
-            // 获取房间对应的群组
-            this.contact.getGroup(rdata.group, (group) => {
-                conference.group = group;
-                announcer.announce();
-            });
+            this.notifyObservers(new ObservableState(ConferenceEvent.Created, conference));
         });
     }
 }

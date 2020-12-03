@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>KernelError - Cube for Javascript</title>
+    <title>Room - Cube for Javascript</title>
     
     <meta name="description" content="Cube Javascript" />
     
@@ -43,7 +43,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">KernelError</h1>
+    <h1 class="page-title">Room</h1>
     
 
     
@@ -56,10 +56,12 @@
 <header>
     
         <h2>
-        KernelError
+        Room
         </h2>
         
-            <div class="class-description usertext"><p>内核错误。</p></div>
+            <div class="class-description usertext"><p>会议房间。
+会议房间里所有持有 Cube 联系人的参与者都加入到房间对应的群组里。
+所有音视频参与的终端都使用对应的通讯场域进行通讯。</p></div>
         
     
 </header>
@@ -74,7 +76,7 @@
     <h2>Constructor</h2>
     
 
-    <h4 class="name" id="KernelError"><span class="type-signature"></span>new KernelError<span class="signature">(message)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Room"><span class="type-signature"></span>new Room<span class="signature">(group, commField)</span><span class="type-signature"></span></h4>
 
     
 
@@ -155,13 +157,13 @@
 
         <tr>
             
-                <td class="name"><code>message</code></td>
+                <td class="name"><code>group</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type"><a href="Group.html">Group</a></span>
 
 
             
@@ -171,7 +173,30 @@
 
             
 
-            <td class="description last"><p>错误信息。</p></td>
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>commField</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="CommField.html">CommField</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
         </tr>
 
     
@@ -208,7 +233,7 @@
         <h3 class="subsection-title">Classes</h3>
 
         <dl>
-            <dt><a href="KernelError.html">KernelError</a></dt>
+            <dt><a href="Room.html">Room</a></dt>
             <dd></dd>
         </dl>
     
@@ -221,114 +246,6 @@
 
     
 
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-
-    
-
-    <h4 class="name" id="toString"><span class="type-signature"></span>toString<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>返回错误的文本描述。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>返回错误的文本描述。</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">string</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
     
 
     

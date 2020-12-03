@@ -24,50 +24,19 @@
  * SOFTWARE.
  */
 
-import { Entity } from "../core/Entity";
-import { Group } from "../contact/Group";
-import { CommField } from "../multipointcomm/CommField";
-
 /**
- * 会议房间。
- * 会议房间里所有持有 Cube 联系人的参与者都加入到房间对应的群组里。
- * 所有音视频参与的终端都使用对应的通讯场域进行通讯。
+ * 会议服务状态。
  */
-export class Room extends Entity {
+export const ConferenceServiceState = {
+    /**
+     * 成功。
+     * @type {number}
+     */
+    Ok: 0,
 
     /**
-     * @param {Group} group
-     * @param {CommField} commField 
+     * 遇到故障。
+     * @type {number}
      */
-    constructor(group, commField) {
-        super();
-
-        /**
-         * 房间的群组。
-         * @type {Group}
-         * @private
-         */
-        this.group = group;
-
-        /**
-         * 房间的通讯场。
-         * @type {CommField}
-         * @private
-         */
-        this.commField = commField;
-    }
-
-    mute(contact, device) {
-
-    }
-
-    toJSON() {
-        let json = super.toJSON();
-        return json;
-    }
-
-    toCompactJSON() {
-        let json = super.toCompactJSON();
-        return json;
-    }
+    Failure: 9
 }

@@ -24,9 +24,11 @@
  * SOFTWARE.
  */
 
-import { JSONable } from "../util/JSONable";
+import cell from "@lib/cell-lib";
+import { Entity } from "../core/Entity";
 import { Contact } from "../contact/Contact";
 import { OrderMap } from "../util/OrderMap";
+import { ConferenceService } from "./ConferenceService";
 import { Invitation } from "./Invitation";
 import { Room } from "./Room";
 import { Participant } from "./Participant";
@@ -34,27 +36,20 @@ import { Participant } from "./Participant";
 /**
  * 会议描述。
  */
-export class Conference extends JSONable {
+export class Conference extends Entity {
 
     /**
-     * 构造函数。
-     * @param {string} title
-     * @param {string} [password] 
+     * @param {ConferenceService} service 会议服务模块实例。
      */
-    constructor(title, password) {
+    constructor(service) {
         super();
 
         /**
-         * 会议标题。
-         * @type {string}
+         * 会议服务模块实例。
+         * @type {ConferenceService}
+         * @private
          */
-        this.title = title;
-
-        /**
-         * 会议密码。
-         * @type {string}
-         */
-        this.password = (password !== undefined) ? password : null;
+        this.service = service;
 
         /**
          * 会议 ID 。
@@ -63,10 +58,34 @@ export class Conference extends JSONable {
         this.id = 0;
 
         /**
+         * 会议标题。
+         * @type {string}
+         */
+        this.title = null;
+
+        /**
+         * 会议密码。
+         * @type {string}
+         */
+        this.password = null;
+
+        /**
          * 会议号/会议访问码。
          * @type {string}
          */
         this.access = null;
+
+        /**
+         * 会议预约开始时间。
+         * @type {number}
+         */
+        this.appointmentTime = 0;
+
+        /**
+         * 会议预估时长，单位：分钟。
+         * @type {number}
+         */
+        this.estimatedDurationInMinutes = 0;
 
         /**
          * 会议创建人。
@@ -96,7 +115,7 @@ export class Conference extends JSONable {
          * 会议参与者列表。
          * @type {Array<Participant>}
          */
-        this.participantList = [];
+        this.participants = [];
     }
 
     /**
@@ -113,28 +132,30 @@ export class Conference extends JSONable {
         return this.founder;
     }
 
+    /**
+     * @returns {Contact}
+     */
     getPresenter() {
         return this.presenter;
     }
 
-    setPresenter(presenter) {
-        this.presenter = presenter;
+    /**
+     * @returns {Room}
+     */
+    getRoom() {
+        return this.room;
     }
 
-    addInvitation(name, displayName) {
+    sendOutInvitation(name, displayName) {
         this.invitees.put(name, new Invitation(name, displayName));
     }
 
-    removeInvitation(name) {
-        this.invitees.remove(name);
+    join() {
+
     }
 
-    setRoom(room) {
-        this.room = room;
-    }
-
-    getRoom() {
-        return this.room;
+    getParticipants() {
+        return this.participants;
     }
 
     /**
@@ -142,19 +163,17 @@ export class Conference extends JSONable {
      */
     toJSON() {
         let json = super.toJSON();
+        json.id = this.id;
         json.title = this.title;
         if (null != this.password) {
             json.password = this.password;
         }
 
-        json.id = this.id;
-        json.founder = this.founder.getId();
+        json.founder = this.founder.toCompactJSON();
+        json.access = this.access;
 
-        if (null != this.access) {
-            json.access = this.access;
-        }
         if (null != this.presenter) {
-            json.presenter = this.presenter.getId();
+            json.presenter = this.presenter.toCompactJSON();
         }
 
         let inviteeArray = [];
@@ -166,5 +185,24 @@ export class Conference extends JSONable {
         json.invitees = inviteeArray;
 
         return json;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    toCompactJSON() {
+        return this.toJSON();
+    }
+
+    /**
+     * 从 JSON 数据创建 {@link Conference} 会议对象实例。
+     * @param {ConferenceService} service 
+     * @param {JSON} json 
+     * @returns {Conference}
+     */
+    static create(service, json) {
+        let conference = new Conference(service);
+        conference.id = json.id;
+        return conference;
     }
 }
