@@ -146,6 +146,15 @@ export class Conference extends Entity {
         return this.room;
     }
 
+    /**
+     * 设置预约时间。
+     * @param {number} time 
+     */
+    setAppointmentTime(time)  {
+        this.appointmentTime =  time;
+        this.service.updateAppointment(this);
+    }
+
     sendOutInvitation(name, displayName) {
         this.invitees.put(name, new Invitation(name, displayName));
     }

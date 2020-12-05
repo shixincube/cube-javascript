@@ -154,4 +154,8 @@ export class ConferenceService extends Module {
             this.notifyObservers(new ObservableState(ConferenceEvent.Created, conference));
         });
     }
+
+    updateAppointment(conference) {
+
+    }
 }
