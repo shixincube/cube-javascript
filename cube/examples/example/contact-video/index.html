@@ -33,7 +33,7 @@
     <meta id="theme-color" name="theme-color" content="#ffffff">
     <base target="_blank">
 
-    <title>时信魔方示例 - xxx</title>
+    <title>时信魔方示例 - 联系人视频通话</title>
 
     <link rel="icon" sizes="192x192" href="../../images/favicon.png">
     <link rel="stylesheet" href="../../css/main.css">
@@ -43,13 +43,55 @@
 <body>
 <div id="container">
 
-    <h1><a href="https://docs.shixincube.com/examples/" title="时信魔方示例">时信魔方示例</a> <span>xxx</span>
+    <h1><a href="../../" title="时信魔方示例">时信魔方示例</a> <span>联系人视频通话</span>
     </h1>
 
     <section id="blurb">
-        <p>该示例演示。</p>
+        <p>该示例演示如何在两个用户（联系人）之间进行音视频通话。</p>
     </section>
 
+    <section id="contactSetting">
+        <h2>通话设置</h2>
+        <div>
+            <label for="peerId">对端 ID：</label>
+            <input id="peerId">
+        </div>
+        <div>
+            <label for="myId">我的 ID：</label>
+            <input id="myId">
+        </div>
+        <div>
+            <button id="start">登录</button>
+            <button id="stop" disabled>退出</button>
+        </div>
+    </section>
+
+    <section id="videoPanel">
+        <h2><span>视频通话</span>&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:14px;font-style:italic;">#<span id="state"></span></span></h2>
+        <div id="videoWindow">
+            <div id="peerVideo">
+                <div>对端画面</div>
+                <video id="peerVideo" autoplay></video>
+                <div>
+                    <button id="peerVideoCtrl" disabled>关闭视频</button>
+                    <button id="peerAudioCtrl" disabled>关闭音频</button>
+                </div>
+            </div>
+            <div id="myVideo">
+                <div>我的画面</div>
+                <video id="myVideo" autoplay></video>
+                <div>
+                    <button id="myVideoCtrl" disabled>关闭视频</button>
+                    <button id="myAudioCtrl" disabled>关闭音频</button>
+                </div>
+            </div>
+        </div>
+        <div id="controls">
+            <button id="makeCall" disabled>呼叫</button>
+            <button id="answerCall" disabled>应答</button>
+            <button id="hangupCall" disabled>挂断</button>
+        </div>
+    </section>
 </div>
 
 <script type="text/javascript" src="../../js/cube-3.0.0.js"></script>

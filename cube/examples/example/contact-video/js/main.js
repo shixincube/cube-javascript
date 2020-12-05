@@ -26,7 +26,51 @@
 
 'use strict';
 
+const stateLabel = document.querySelector('span#state');
+
+const peerIdInput = document.querySelector('input#peerId');
+const myIdInput = document.querySelector('input#myId');
+
+const startButton = document.querySelector('button#start');
+const stopButton = document.querySelector('button#stop');
+
+startButton.onclick = start;
+stopButton.onclick = stop;
+
+const peerVideo = document.querySelector('video#peerVideo');
+const myVideo = document.querySelector('video#myVideo');
+
+const peerVideoButton = document.querySelector('button#peerVideoCtrl');
+const peerAudioButton = document.querySelector('button#peerAudioCtrl');
+const myVideoButton = document.querySelector('button#myVideoCtrl');
+const myAudioButton = document.querySelector('button#myAudioCtrl');
+
+const makeCallButton = document.querySelector('button#makeCall');
+const answerCallButton = document.querySelector('button#answerCall');
+const hangupCallButton = document.querySelector('button#hangupCall');
 
 // 获取 Cube 实例
 const cube = window.cube();
 
+function start() {
+    if (myIdInput.value.length < 3) {
+        stateLabel.innerHTML = '<span class="warning">请输入“我的 ID”</span>';
+        return;
+    }
+
+    let config = {
+        "address": "127.0.0.1",
+        "domain": "shixincube.com",
+        "appKey": "shixin-cubeteam-opensource-appkey"
+    };
+    // 获取 Cube 实例，并启动
+    cube.start(config, function() {
+        stateLabel.innerHTML = '启动 Cube 成功';
+    }, function() {
+        stateLabel.innerHTML = '启动 Cube 失败';
+    });
+}
+
+function stop() {
+    cube.stop();
+}

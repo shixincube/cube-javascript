@@ -51,9 +51,8 @@ cube.messaging.on(MessagingEvent.Sent, onSent);
 cube.messaging.on(MessagingEvent.Notify, onNotify);
 
 function startCube() {
-    messagesTextarea.value = '';
     if (contactIdInput.value.length < 3) {
-        stateLabel.innerHTML = '请输入当前账号的 ID';
+        stateLabel.innerHTML = '<span class="warning">请输入当前账号的 ID</span>';
         return;
     }
 
@@ -94,18 +93,20 @@ function stopCube() {
     sendButton.setAttribute('disabled', 'disabled');
     contactIdInput.removeAttribute('readonly');
     contactNameInput.removeAttribute('readonly');
+
+    messagesTextarea.value = '';
 }
 
 function sendMessage() {
     let target = messsageTagetInput.value;
     if (target.length == 0) {
-        stateLabel.innerHTML = '请指定“发送目标”';
+        stateLabel.innerHTML = '<span class="warning">请指定“发送目标”</span>';
         return;
     }
 
     let content = messsageInput.value;
     if (content.length == 0) {
-        stateLabel.innerHTML = '请输入需要发送的内容';
+        stateLabel.innerHTML = '<span class="warning">请输入需要发送的内容</span>';
         return;
     }
 

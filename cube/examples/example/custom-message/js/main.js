@@ -115,13 +115,13 @@ function stopCube() {
 function sendText() {
     let target = messsageTagetInput.value;
     if (target.length == 0) {
-        stateLabel.innerHTML = '请指定“发送目标”';
+        stateLabel.innerHTML = '<span class="warning">请指定“发送目标”</span>';
         return;
     }
 
     let text = messsageInput.value;
     if (text.length == 0) {
-        stateLabel.innerHTML = '请输入需要发送的文本';
+        stateLabel.innerHTML = '<span class="warning">请输入需要发送的文本</span>';
         return;
     }
 
@@ -138,10 +138,12 @@ function sendText() {
 function sendImage() {
     let target = messsageTagetInput.value;
     if (target.length == 0) {
-        stateLabel.innerHTML = '请指定“发送目标”';
+        stateLabel.innerHTML = '<span class="warning">请指定“发送目标”</span>';
         alert('请输入“发送目标”');
         return;
     }
+
+    stateLabel.innerHTML = '';
 
     // 使用 Cube 提供的辅助方法选择图片文件
     cube.launchFileSelector(function(event) {
@@ -160,7 +162,7 @@ function sendImage() {
 function onSent(event) {
     let message = event.getData();
     if (undefined === message.getType()) {
-        stateLabel.innerHTML = '不支持的消息类型';
+        stateLabel.innerHTML = '<span class="warning">不支持的消息负载格式</span>';
         return;
     }
 

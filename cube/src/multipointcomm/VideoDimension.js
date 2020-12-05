@@ -37,7 +37,7 @@ export const VideoDimension = {
         width: 320,
         height: 240,
         constraints: {
-            width: {exact: 320}, height: {exact: 240}
+            video: { width: {exact: 320}, height: {exact: 240} }
         }
     },
 
@@ -50,6 +50,18 @@ export const VideoDimension = {
         height: 480,
         constraints: {
             video: { width: {exact: 640}, height: {exact: 480} }
+        }
+    },
+
+    /**
+     * SVGA 规格。
+     * @type {object}
+     */
+    SVGA: {
+        width: 800,
+        height: 600,
+        constraints: {
+            video: { width: {exact: 800}, height: {exact: 600} }
         }
     },
 

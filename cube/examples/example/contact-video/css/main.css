@@ -24,3 +24,38 @@
  * SOFTWARE.
  */
 
+video {
+    margin: 0px 0px 4px 0px;
+}
+
+section#contactSetting div {
+    display: inline-block;
+    margin-right: 2em;
+}
+
+div#videoWindow {
+    display: table;
+    text-align: center;
+    width: 100%;
+}
+
+div#videoWindow div {
+    margin: 8px 16px;
+}
+
+div#peerVideo {
+    width: 50%;
+    display: table-cell;
+    padding-right: 8px;
+}
+
+div#myVideo {
+    width: 50%;
+    display: table-cell;
+    padding-left: 8px;
+}
+
+div#controls {
+    width: 100%;
+    text-align: center;
+}
