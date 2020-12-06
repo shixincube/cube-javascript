@@ -4,6 +4,12 @@
 
 支持的操作系统有：Windows、Linux 、macOS 、Android、iOS 等，支持的浏览器有：Chrome、Firefox、Safari 等。
 
+
+## 简介
+
+Cube for Javascript 是 Cube 的浏览器端 SDK 解决方案。开发者可使用该项目快速集成 Cube 的各项功能和能力。
+
+
 ## 功能列表
 
 Cube 包含以下协作功能：
@@ -22,56 +28,6 @@ Cube 包含以下协作功能：
 * 安全与运维管理（Operation and Maintenance management）。所有数据通道支持加密，可支持国密算法等。
 * 风控管理（Risk Management）。对系统内所有文本、图片、视频、文件等内容进行包括 NLP、OCR、IR 等技术手段的风险控制和预警等。
 
-
-## 功能展示
-
-| 即时消息 |
-|:----:|
-|![IM](https://static.shixincube.com/cube/assets/showcase/im.gif)|
-
-| 视频聊天(1) | 视频聊天(2) |
-|:----:|:----:|
-|![VideoChat1](https://static.shixincube.com/cube/assets/showcase/videochat_1.gif)|![VideoChat2](https://static.shixincube.com/cube/assets/showcase/videochat_2.gif)|
-
-| 多人视频聊天(1) | 多人视频聊天(2) |
-|:----:|:----:|
-|![VideoChat3](https://static.shixincube.com/cube/assets/showcase/videochat_3.gif)|![VideoChat4](https://static.shixincube.com/cube/assets/showcase/videochat_4.gif)|
-
-| 会议 |
-|:----:|
-|![Conf100](https://static.shixincube.com/cube/assets/showcase/screen_conference.jpg)|
-|![ConfTile](https://static.shixincube.com/cube/assets/showcase/screen_conference_tile.jpg)|
-|![StartConf](https://static.shixincube.com/cube/assets/showcase/start_conference.gif)|
-
-| 共享桌面 |
-|:----:|
-|![ScreenSharing](https://static.shixincube.com/cube/assets/showcase/screen_sharing.gif)|
-
-| 云端文件存储 |
-|:----:|
-|![CFS](https://static.shixincube.com/cube/assets/showcase/cloud_file.gif)|
-
-| 白板 |
-|:----:|
-|![Whiteboard](https://static.shixincube.com/cube/assets/showcase/whiteboard.gif)|
-
-| 直播 |
-|:----:|
-|![Live](https://static.shixincube.com/cube/assets/showcase/live.gif)|
-
-| 在线课堂 |
-|:----:|
-|![OnlineClassroom](https://static.shixincube.com/cube/assets/showcase/online_classroom.gif)|
-
-| 文档协作 |
-|:----:|
-|![DocCollaboration](https://static.shixincube.com/cube/assets/showcase/doc_collaboration_excel.gif)|
-|![DocCollaboration](https://static.shixincube.com/cube/assets/showcase/doc_collaboration.gif)|
-
-
-## 简介
-
-Cube for Javascript 是 Cube 的浏览器端 SDK 解决方案。开发者可使用该项目快速集成 Cube 的各项功能和能力。
 
 ## 快速开始
 
@@ -139,6 +95,50 @@ cube.messaging.sendToContact(500298,  { "content": "今天是周一，上午有�
 
 成功执行构建命令之后，会在 `dist` 目录下生成 Cube 的库文件。
 
+## 功能展示
+
+| 即时消息 |
+|:----:|
+|![IM](https://static.shixincube.com/cube/assets/showcase/im.gif)|
+
+| 视频聊天(1) | 视频聊天(2) |
+|:----:|:----:|
+|![VideoChat1](https://static.shixincube.com/cube/assets/showcase/videochat_1.gif)|![VideoChat2](https://static.shixincube.com/cube/assets/showcase/videochat_2.gif)|
+
+| 多人视频聊天(1) | 多人视频聊天(2) |
+|:----:|:----:|
+|![VideoChat3](https://static.shixincube.com/cube/assets/showcase/videochat_3.gif)|![VideoChat4](https://static.shixincube.com/cube/assets/showcase/videochat_4.gif)|
+
+| 会议 |
+|:----:|
+|![Conf100](https://static.shixincube.com/cube/assets/showcase/screen_conference.jpg)|
+|![ConfTile](https://static.shixincube.com/cube/assets/showcase/screen_conference_tile.jpg)|
+|![StartConf](https://static.shixincube.com/cube/assets/showcase/start_conference.gif)|
+
+| 共享桌面 |
+|:----:|
+|![ScreenSharing](https://static.shixincube.com/cube/assets/showcase/screen_sharing.gif)|
+
+| 云端文件存储 |
+|:----:|
+|![CFS](https://static.shixincube.com/cube/assets/showcase/cloud_file.gif)|
+
+| 白板 |
+|:----:|
+|![Whiteboard](https://static.shixincube.com/cube/assets/showcase/whiteboard.gif)|
+
+| 直播 |
+|:----:|
+|![Live](https://static.shixincube.com/cube/assets/showcase/live.gif)|
+
+| 在线课堂 |
+|:----:|
+|![OnlineClassroom](https://static.shixincube.com/cube/assets/showcase/online_classroom.gif)|
+
+| 文档协作 |
+|:----:|
+|![DocCollaboration](https://static.shixincube.com/cube/assets/showcase/doc_collaboration_excel.gif)|
+|![DocCollaboration](https://static.shixincube.com/cube/assets/showcase/doc_collaboration.gif)|
 
 
 ## 获得帮助
