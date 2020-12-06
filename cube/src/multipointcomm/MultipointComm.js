@@ -97,6 +97,13 @@ export class MultipointComm extends Module {
         this.activeCallRecord = null;
 
         /**
+         * 视频标签 DOM Element 。
+         * @type {object}
+         * @private
+         */
+        this.videoElem = { local: null, remote: null };
+
+        /**
          * 呼叫定时器。
          * @type {number}
          */
@@ -162,16 +169,25 @@ export class MultipointComm extends Module {
      */
     getLocalVideoElement() {
         let rtcEndpoint = this.getRTCEndpoint();
-        return rtcEndpoint.localVideoElem;
+        if (null != rtcEndpoint) {
+            return rtcEndpoint.localVideoElem;
+        }
+
+        return this.videoElem.local;
     }
 
     /**
      * 设置本地视频标签的 DOM 元素。
-     * @param {HTMLElement} value 指定本地视频标签的 DOM 元素。
+     * @param {HTMLElement} element 指定本地视频标签的 DOM 元素。
      */
-    setLocalVideoElement(value) {
+    setLocalVideoElement(element) {
         let rtcEndpoint = this.getRTCEndpoint();
-        rtcEndpoint.localVideoElem = value;
+        if (null != rtcEndpoint) {
+            rtcEndpoint.localVideoElem = element;
+        }
+        else {
+            this.videoElem.local = element;
+        }
     }
 
     /**
@@ -180,16 +196,25 @@ export class MultipointComm extends Module {
      */
     getRemoteVideoElement() {
         let rtcEndpoint = this.getRTCEndpoint();
-        return rtcEndpoint.remoteVideoElem;
+        if (null != rtcEndpoint) {
+            return rtcEndpoint.remoteVideoElem;
+        }
+
+        return this.videoElem.remote;
     }
 
     /**
      * 设置远端视频标签的 DOM 元素。
-     * @param {HTMLElement} value 指定远端视频标签的 DOM 元素。
+     * @param {HTMLElement} element 指定远端视频标签的 DOM 元素。
      */
-    setRemoteVideoElement(value) {
+    setRemoteVideoElement(element) {
         let rtcEndpoint = this.getRTCEndpoint();
-        rtcEndpoint.remoteVideoElem = value;
+        if (null != rtcEndpoint) {
+            rtcEndpoint.remoteVideoElem = element;
+        }
+        else {
+            this.videoElem.remote = element;
+        }
     }
 
     /**
@@ -200,15 +225,29 @@ export class MultipointComm extends Module {
         if (null == this.rtcEndpoint) {
             let cs = this.kernel.getModule(ContactService.NAME);
             let self = cs.getSelf();
+            if (null == self) {
+                return null;
+            }
+
             this.rtcEndpoint = new RTCEndpoint(self, self.getDevice());
 
-            this.rtcEndpoint.localVideoElem = document.createElement('video');
-            this.rtcEndpoint.localVideoElem.width = 480;
-            this.rtcEndpoint.localVideoElem.height = 360;
+            if (null != this.videoElem.local) {
+                this.rtcEndpoint.localVideoElem = this.videoElem.local;
+            }
+            else {
+                this.rtcEndpoint.localVideoElem = document.createElement('video');
+                this.rtcEndpoint.localVideoElem.width = 480;
+                this.rtcEndpoint.localVideoElem.height = 360;
+            }
 
-            this.rtcEndpoint.remoteVideoElem = document.createElement('video');
-            this.rtcEndpoint.remoteVideoElem.width = 480;
-            this.rtcEndpoint.remoteVideoElem.height = 360;
+            if (null != this.videoElem.remote) {
+                this.rtcEndpoint.remoteVideoElem = this.videoElem.remote;
+            }
+            else {
+                this.rtcEndpoint.remoteVideoElem = document.createElement('video');
+                this.rtcEndpoint.remoteVideoElem.width = 480;
+                this.rtcEndpoint.remoteVideoElem.height = 360;
+            }
         }
 
         return this.rtcEndpoint;
@@ -235,6 +274,9 @@ export class MultipointComm extends Module {
 
         // 获取本地 RTC 节点
         let rtcEndpoint = this.getRTCEndpoint();
+        if (null == rtcEndpoint) {
+            return false;
+        }
 
         if (rtcEndpoint.isWorking() || null != this.offerSignaling) {
             // 正在通话中
@@ -460,6 +502,11 @@ export class MultipointComm extends Module {
         }
 
         let rtcEndpoint = this.getRTCEndpoint();
+
+        if (!this.started) {
+            // 如果模块已经关闭，则需要将 this.rtcEndpoint 置为空指针
+            this.rtcEndpoint = null;
+        }
 
         let field = this.activeCallRecord.field;
         let callee = null;

@@ -63,12 +63,22 @@ function start() {
         "domain": "shixincube.com",
         "appKey": "shixin-cubeteam-opensource-appkey"
     };
-    // 获取 Cube 实例，并启动
+    // 启动 Cube
     cube.start(config, function() {
         stateLabel.innerHTML = '启动 Cube 成功';
+
+        // 启动多方通讯模块
+        cube.mpComm.start();
+
+        // 签入账号
+        cube.signIn(myIdInput.value);
     }, function() {
         stateLabel.innerHTML = '启动 Cube 失败';
     });
+
+    // 设置视频标签元素到 Cube
+    cube.mpComm.setRemoteVideoElement(peerVideo);
+    cube.mpComm.setLocalVideoElement(myVideo);
 }
 
 function stop() {

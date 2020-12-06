@@ -29,6 +29,7 @@ import { ContactService } from "../contact/ContactService";
 import { FileStorage } from "../filestorage/FileStorage";
 import { MessagingService } from "../messaging/MessagingService";
 import { FileProcessor } from "../fileprocessor/FileProcessor";
+import { MultipointComm } from "../multipointcomm/MultipointComm";
 
 /**
  * Cube Engine 的快捷操作方式封装。
@@ -69,6 +70,12 @@ export class CubeShortcut {
          * @public
          */
         this.fileProcessor = this.engine.getFileProcessor();
+
+        /**
+         * 多方通讯模块。
+         * @type {MultipointComm}
+         */
+        this.mpComm = this.engine.getMultipointComm();
     }
 
     /**
