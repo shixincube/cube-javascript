@@ -146,6 +146,50 @@ export class CommFieldEndpoint extends Aggregation(Entity, Endpoint) {
     }
 
     /**
+     * 视频流是否被停用。
+     * @returns {boolean} 返回视频流是否被停用。
+     */
+    videoMuted() {
+        return this.videoStreamEnabled;
+    }
+
+    /**
+     * 停用视频流。
+     */
+    muteVideo() {
+        this.videoStreamEnabled = false;
+    }
+
+    /**
+     * 恢复视频流。
+     */
+    unmuteVideo() {
+        this.videoStreamEnabled = true;
+    }
+
+    /**
+     * 音频流是否被停用。
+     * @returns {boolean} 返回音频流是否被停用。
+     */
+    audioMuted() {
+        return this.audioStreamEnabled;
+    }
+
+    /**
+     * 停用音频流。
+     */
+    muteAudio() {
+        this.audioStreamEnabled = false;
+    }
+
+    /**
+     * 恢复音频流。
+     */
+    unmuteAudio() {
+        this.audioStreamEnabled = true;
+    }
+
+    /**
      * @inheritdoc
      */
     toJSON() {

@@ -95,6 +95,23 @@ export class RTCEndpoint extends CommFieldEndpoint {
     }
 
     /**
+     * @inheritdoc
+     */
+    muteVideo() {
+        if (null == this.outboundStream) {
+            return;
+        }
+
+        this.outboundStream.getTracks.some((track) => {
+            if (track.kind == 'video') {
+                track.enabled = false;
+                super.muteVideo();
+                return true;
+            }
+        });
+    }
+
+    /**
      * 当前本地 RTC 连接是否正在工作。
      * @returns {boolean} 如果正在通话返回 {@linkcode true} 。
      */
@@ -122,6 +139,9 @@ export class RTCEndpoint extends CommFieldEndpoint {
         this.configuration = null;
     }
 
+    /**
+     * @private
+     */
     onIceCandidate(candidate) {
         // Nothing
     }
@@ -294,6 +314,9 @@ export class RTCEndpoint extends CommFieldEndpoint {
         });
     }
 
+    /**
+     * @private
+     */
     doCandidate(candidate) {
         if (null == this.pc) {
             return;
@@ -310,6 +333,9 @@ export class RTCEndpoint extends CommFieldEndpoint {
         });
     }
 
+    /**
+     * @private
+     */
     doReady() {
         this.ready = true;
 
@@ -326,6 +352,7 @@ export class RTCEndpoint extends CommFieldEndpoint {
 
     /**
      * 关闭 RTC 终端。
+     * @private
      */
     close() {
         this.started = false;
@@ -356,6 +383,9 @@ export class RTCEndpoint extends CommFieldEndpoint {
         this.ready = false;
     }
 
+    /**
+     * @private
+     */
     fireOnTrack(event) {
         if (event.streams && event.streams[0]) {
             this.inboundStream = event.streams[0];
@@ -373,12 +403,18 @@ export class RTCEndpoint extends CommFieldEndpoint {
         }
     }
 
+    /**
+     * @private
+     */
     fireOnIceCandidate(event) {
         if (event.candidate) {
             this.onIceCandidate(event.candidate);
         }
     }
 
+    /**
+     * @private
+     */
     getUserMedia(constraints, handleSuccess, handleError) {
         return navigator.mediaDevices.getUserMedia(constraints);
     }

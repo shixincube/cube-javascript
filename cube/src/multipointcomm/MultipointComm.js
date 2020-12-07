@@ -41,6 +41,7 @@ import { MultipointCommEvent } from "./MultipointCommEvent";
 import { Signaling } from "./Signaling";
 import { ModuleError } from "../core/error/ModuleError";
 import { CallRecord } from "./CallRecord";
+import { CommFieldEndpoint } from "./CommFieldEndpoint";
 
 /**
  * 多方通信服务。
@@ -578,6 +579,22 @@ export class MultipointComm extends Module {
         rtcEndpoint.close();
 
         return true;
+    }
+
+    /**
+     * 获取当前通话的通信场域。
+     * @returns {CommField} 返回当前通话的通信场域。
+     */
+    getActiveField() {
+        return this.activeCallRecord.field;
+    }
+
+    /**
+     * 获取自己当前设备的终端节点。
+     * @returns {CommFieldEndpoint} 返回自己当前设备的终端节点。
+     */
+    getOwnEndpoint() {
+        return this.rtcEndpoint;
     }
 
     /**
