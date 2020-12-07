@@ -82,6 +82,10 @@ export class CallRecord {
         this.lastError = null;
     }
 
+    isActive() {
+        return (null != this.field && this.field.numRTCEndpoints() > 0);
+    }
+
     getCaller() {
         return this.field.caller;
     }

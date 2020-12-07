@@ -24,9 +24,9 @@
  * SOFTWARE.
  */
 
+import { Contact } from "../contact/Contact";
 import { Device } from "../contact/Device";
 import { ModuleError } from "../core/error/ModuleError";
-import { CommFieldEndpoint } from "./CommFieldEndpoint";
 import { MediaConstraint } from "./MediaConstraint";
 import { MultipointComm } from "./MultipointComm";
 import { MultipointCommState } from "./MultipointCommState";
@@ -34,14 +34,22 @@ import { MultipointCommState } from "./MultipointCommState";
 /**
  * 本地 RTC 接入点。
  */
-export class RTCEndpoint extends CommFieldEndpoint {
+export class RTCEndpoint {
 
     /**
      * @param {Contact} contact 联系人。
      * @param {Device} device 对应的设备。
      */
     constructor(contact, device) {
-        super(null, contact, device);
+        /**
+         * @type {Contact}
+         */
+        this.contact = contact;
+
+        /**
+         * @type {Device}
+         */
+        this.device = device;
 
         /**
          * @type {MediaConstraint}
@@ -85,11 +93,13 @@ export class RTCEndpoint extends CommFieldEndpoint {
 
         /**
          * 是否已启动 PeerConnection 。
+         * @type {boolean}
          */
         this.started = false;
 
         /**
          * 是否已就绪。
+         * @type {boolean}
          */
         this.ready = false;
     }
@@ -98,14 +108,69 @@ export class RTCEndpoint extends CommFieldEndpoint {
      * @inheritdoc
      */
     muteVideo() {
+        let stream = this.outboundStream;
+        if (null == stream) {
+            stream = this.inboundStream;
+            if (null == stream) {
+                return;
+            }
+        }
+
+        stream.getTracks.some((track) => {
+            if (track.kind == 'video') {
+                track.enabled = false;
+                super.muteVideo();
+                return true;
+            }
+        });
+    }
+
+    /**
+     * @inheritdoc
+     */
+    unmuteVideo() {
         if (null == this.outboundStream) {
             return;
         }
 
         this.outboundStream.getTracks.some((track) => {
             if (track.kind == 'video') {
+                track.enabled = true;
+                super.unmuteVideo();
+                return true;
+            }
+        });
+    }
+
+    /**
+     * @inheritdoc
+     */
+    muteAudio() {
+        if (null == this.outboundStream) {
+            return;
+        }
+
+        this.outboundStream.getTracks.some((track) => {
+            if (track.kind == 'audio') {
                 track.enabled = false;
-                super.muteVideo();
+                super.muteAudio();
+                return true;
+            }
+        });
+    }
+
+    /**
+     * @inheritdoc
+     */
+    unmuteAudio() {
+        if (null == this.outboundStream) {
+            return;
+        }
+
+        this.outboundStream.getTracks.some((track) => {
+            if (track.kind == 'audio') {
+                track.enabled = true;
+                super.unmuteAudio();
                 return true;
             }
         });
@@ -188,9 +253,12 @@ export class RTCEndpoint extends CommFieldEndpoint {
                 return;
             }
 
-            // 设置本地视频流
-            this.localVideoElem.autoplay = true;
-            this.localVideoElem.srcObject = stream;
+            if (null != this.localVideoElem) {
+                // 设置本地视频流
+                this.localVideoElem.autoplay = true;
+                this.localVideoElem.srcObject = stream;
+            }
+
             this.outboundStream = stream;
 
             // 添加 track
@@ -280,9 +348,12 @@ export class RTCEndpoint extends CommFieldEndpoint {
                     return;
                 }
 
-                // 设置本地视频流
-                this.localVideoElem.autoplay = true;
-                this.localVideoElem.srcObject = stream;
+                if (null != this.localVideoElem) {
+                    // 设置本地视频流
+                    this.localVideoElem.autoplay = true;
+                    this.localVideoElem.srcObject = stream;
+                }
+
                 this.outboundStream = stream;
 
                 // 添加 track
@@ -389,14 +460,20 @@ export class RTCEndpoint extends CommFieldEndpoint {
     fireOnTrack(event) {
         if (event.streams && event.streams[0]) {
             this.inboundStream = event.streams[0];
-            this.remoteVideoElem.autoplay = true;
-            this.remoteVideoElem.srcObject = this.inboundStream;
+
+            if (null != this.remoteVideoElem) {
+                this.remoteVideoElem.autoplay = true;
+                this.remoteVideoElem.srcObject = this.inboundStream;
+            }
         }
         else {
             if (null == this.inboundStream) {
                 this.inboundStream = new MediaStream();
-                this.remoteVideoElem.autoplay = true;
-                this.remoteVideoElem.srcObject = this.inboundStream;
+
+                if (null != this.remoteVideoElem) {
+                    this.remoteVideoElem.autoplay = true;
+                    this.remoteVideoElem.srcObject = this.inboundStream;
+                }
             }
 
             this.inboundStream.addTrack(event.track);

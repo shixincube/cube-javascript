@@ -24,7 +24,6 @@
  * SOFTWARE.
  */
 
-import { OrderMap } from "../util/OrderMap";
 import { Entity } from "../core/Entity";
 import { Contact } from "../contact/Contact";
 import { Device } from "../contact/Device";
@@ -72,6 +71,12 @@ export class CommField extends Entity {
         this.pipeline = pipeline;
 
         /**
+         * RTC 终端列表。
+         * @type {Array<RTCEndpoint>}
+         */
+        this.rtcEndpoints = [];
+
+        /**
          * 默认的媒体约束。
          * @type {MediaConstraint}
          */
@@ -79,9 +84,9 @@ export class CommField extends Entity {
 
         /**
          * 终端列表。
-         * @type {OrderMap<number,CommFieldEndpoint>}
+         * @type {Array<CommFieldEndpoint>}
          */
-        this.fieldEndpoints = new OrderMap();
+        this.endpoints = [];
 
         /**
          * 当前主叫，仅适用于私有域。
@@ -112,17 +117,19 @@ export class CommField extends Entity {
         return (this.id == this.founder.getId());
     }
 
+    numRTCEndpoints() {
+        return this.rtcEndpoints.length;
+    }
+
     /**
      * 启动为主叫。
-     * @param {RTCEndpoint} rtcEndpoint
+     * @param {RTCEndpoint} endpoint
      * @param {MediaConstraint} mediaConstraint
      * @param {function} successCallback
      * @param {function} failureCallback
      */
-    launchCaller(rtcEndpoint, mediaConstraint, successCallback, failureCallback) {
-        if (!(rtcEndpoint instanceof RTCEndpoint)) {
-            return false;
-        }
+    launchCaller(endpoint, mediaConstraint, successCallback, failureCallback) {
+        let rtcEndpoint = endpoint;
 
         rtcEndpoint.onIceCandidate = (candidate) => {
             this.onIceCandidate(candidate, rtcEndpoint);
@@ -145,16 +152,14 @@ export class CommField extends Entity {
 
     /**
      * 启动为被叫。
-     * @param {RTCEndpoint} rtcEndpoint 
+     * @param {RTCEndpoint} endpoint 
      * @param {string} offerDescription
      * @param {MediaConstraint} mediaConstraint 
      * @param {function} successCallback 
      * @param {function} failureCallback 
      */
-    launchCallee(rtcEndpoint, offerDescription, mediaConstraint, successCallback, failureCallback) {
-        if (!(rtcEndpoint instanceof RTCEndpoint)) {
-            return false;
-        }
+    launchCallee(endpoint, offerDescription, mediaConstraint, successCallback, failureCallback) {
+        let rtcEndpoint = endpoint;
 
         rtcEndpoint.onIceCandidate = (candidate) => {
             this.onIceCandidate(candidate, rtcEndpoint);
@@ -173,6 +178,10 @@ export class CommField extends Entity {
         });
 
         return true;
+    }
+
+    launch(target, endpoint, mediaConstraint, successCallback, failureCallback) {
+
     }
 
     /**
@@ -255,6 +264,12 @@ export class CommField extends Entity {
         });
     }
 
+    closeRTCEndpoints() {
+        this.rtcEndpoints.forEach((rtcEndpoint, index, array) => {
+            rtcEndpoint.close();
+        });
+    }
+
     /**
      * 发送信令。
      * @param {Signaling} signaling 
@@ -299,19 +314,24 @@ export class CommField extends Entity {
         this.sendSignaling(signaling);
     }
 
+    /**
+     * @inheritdoc
+     */
     toJSON() {
         let json = super.toJSON();
         json.id = this.id;
         json.domain = this.founder.getDomain();
         json.founder = this.founder.toCompactJSON();
         json.endpoints = [];
-        let list = this.fieldEndpoints.values();
-        for (let i = 0; i < list.length; ++i) {
-            json.endpoints.push(list[i].toJSON());
+        for (let i = 0; i < this.endpoints.length; ++i) {
+            json.endpoints.push(this.endpoints[i].toJSON());
         }
         return json;
     }
 
+    /**
+     * @inheritdoc
+     */
     toCompactJSON() {
         let json = super.toCompactJSON();
         json.id = this.id;
@@ -320,13 +340,20 @@ export class CommField extends Entity {
         return json;
     }
 
+    /**
+     * 创建由 JSON 格式定义的 {@link CommField} 对象。
+     * @param {JSON} json 指定 JSON 格式。
+     * @param {Pipeline} pipeline 指定数据管道。
+     * @returns {CommField} 返回 {@link CommField} 对象实例。
+     */
     static create(json, pipeline) {
         let field = new CommField(json.id, Contact.create(json.founder, json.domain), pipeline);
         if (undefined !== json.endpoints) {
             let list = json.endpoints;
             for (let i = 0; i < list.length; ++i) {
                 let cfep = CommFieldEndpoint.create(list[i]);
-                field.fieldEndpoints.put(cfep.getId(), cfep);
+                cfep.field = field;
+                field.endpoints.put(cfep.getId(), cfep);
             }
         }
         return field;

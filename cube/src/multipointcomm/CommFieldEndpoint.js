@@ -32,6 +32,7 @@ import { Contact } from "../contact/Contact";
 import { MultipointCommState } from "./MultipointCommState";
 import { Device } from "../contact/Device";
 import { StringUtil } from "../util/StringUtil";
+import { CommField } from "./CommField";
 
 /**
  * 通讯场域里的媒体节点。
@@ -70,6 +71,12 @@ export class CommFieldEndpoint extends Aggregation(Entity, Endpoint) {
          * @type {Device}
          */
         this.device = device;
+
+        /**
+         * 对应的 CommField
+         * @type {CommField}
+         */
+        this.field = null;
 
         /**
          * 当前状态。
@@ -149,7 +156,7 @@ export class CommFieldEndpoint extends Aggregation(Entity, Endpoint) {
      * 视频流是否被停用。
      * @returns {boolean} 返回视频流是否被停用。
      */
-    videoMuted() {
+    isVideoMuted() {
         return this.videoStreamEnabled;
     }
 
@@ -171,7 +178,7 @@ export class CommFieldEndpoint extends Aggregation(Entity, Endpoint) {
      * 音频流是否被停用。
      * @returns {boolean} 返回音频流是否被停用。
      */
-    audioMuted() {
+    isAudioMuted() {
         return this.audioStreamEnabled;
     }
 
