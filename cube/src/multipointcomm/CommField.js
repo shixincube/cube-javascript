@@ -89,6 +89,12 @@ export class CommField extends Entity {
         this.endpoints = [];
 
         /**
+         * 私域的设备，仅适用于私有域。
+         * @type {Device}
+         */
+        this.device = null;
+
+        /**
          * 当前主叫，仅适用于私有域。
          * @type {Contact}
          */
@@ -110,15 +116,19 @@ export class CommField extends Entity {
     }
 
     /**
+     * 返回设备。
+     * @returns {Device} 返回设备。
+     */
+    getDevice() {
+        return this.device;
+    }
+
+    /**
      * 当前通信场是否是私有场域。
      * @returns {boolean} 如果是私有场域返回 {@linkcode true} ，否则返回 {@linkcode false} 。
      */
     isPrivate() {
         return (this.id == this.founder.getId());
-    }
-
-    numRTCEndpoints() {
-        return this.rtcEndpoints.length;
     }
 
     /**
@@ -130,6 +140,8 @@ export class CommField extends Entity {
      */
     launchCaller(endpoint, mediaConstraint, successCallback, failureCallback) {
         let rtcEndpoint = endpoint;
+
+        this.rtcEndpoints.push(rtcEndpoint);
 
         rtcEndpoint.onIceCandidate = (candidate) => {
             this.onIceCandidate(candidate, rtcEndpoint);
@@ -146,8 +158,6 @@ export class CommField extends Entity {
         }, (error) => {
             failureCallback(error);
         });
-
-        return true;
     }
 
     /**
@@ -160,6 +170,8 @@ export class CommField extends Entity {
      */
     launchCallee(endpoint, offerDescription, mediaConstraint, successCallback, failureCallback) {
         let rtcEndpoint = endpoint;
+
+        this.rtcEndpoints.push(rtcEndpoint);
 
         rtcEndpoint.onIceCandidate = (candidate) => {
             this.onIceCandidate(candidate, rtcEndpoint);
@@ -176,12 +188,35 @@ export class CommField extends Entity {
         }, (error) => {
             failureCallback(error);
         });
-
-        return true;
     }
 
-    launch(target, endpoint, mediaConstraint, successCallback, failureCallback) {
+    /**
+     * 启动无出站流呼叫目标。
+     * @param {CommFieldEndpoint} target 
+     * @param {RTCEndpoint} endpoint 
+     * @param {function} successCallback 
+     * @param {function} failureCallback 
+     */
+    launchFollow(target, endpoint, successCallback, failureCallback) {
+        let rtcEndpoint = endpoint;
 
+        this.rtcEndpoints.push(rtcEndpoint);
+
+        rtcEndpoint.onIceCandidate = (candidate) => {
+            this.onIceCandidate(candidate, rtcEndpoint);
+        };
+
+        rtcEndpoint.openOffer(null, (description) => {
+            let signaling = new Signaling(MultipointCommAction.Follow, this, rtcEndpoint.getContact(), rtcEndpoint.getDevice());
+            // 设置 SDP 信息
+            signaling.sessionDescription = description;
+            // 设置目标
+            signaling.target = target;
+            // 发送信令
+            this.sendSignaling(signaling, successCallback, failureCallback);
+        }, (error) => {
+            failureCallback(error);
+        });
     }
 
     /**
@@ -264,10 +299,26 @@ export class CommField extends Entity {
         });
     }
 
+    numRTCEndpoints() {
+        return this.rtcEndpoints.length;
+    }
+
+    getRTCEndpoint() {
+        return this.rtcEndpoints[0];
+    }
+
+    /**
+     * 关闭并清空所有 RTC 终端。
+     */
     closeRTCEndpoints() {
+        if (this.rtcEndpoints.length == 0) {
+            return;
+        }
+
         this.rtcEndpoints.forEach((rtcEndpoint, index, array) => {
             rtcEndpoint.close();
         });
+        this.rtcEndpoints.splice(0, this.rtcEndpoints.length);
     }
 
     /**

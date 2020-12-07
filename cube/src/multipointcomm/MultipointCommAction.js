@@ -45,6 +45,11 @@ export const MultipointCommAction = {
     Bye: 'bye',
 
     /**
+     * 信令 Follow 。
+     */
+    Follow: 'follow',
+
+    /**
      * 信令忙 Busy 。
      */
     Busy: 'busy',

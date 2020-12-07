@@ -213,7 +213,7 @@ export class RTCEndpoint {
 
     /**
      * 启动 RTC 终端为主叫。
-     * @param {MediaConstraint} mediaConstraint 媒体约束。
+     * @param {MediaConstraint} mediaConstraint 媒体约束，设置为 {@linkcode null} 值时不使用用户媒体设备。
      * @param {function} handleSuccess 启动成功回调函数。
      * @param {function} handleFailure 启动失败回调函数。
      */
@@ -224,18 +224,10 @@ export class RTCEndpoint {
         }
 
         this.mediaConstraint = mediaConstraint;
-        if (mediaConstraint.audioEnabled) {
-            this.audioEnabled = true;
-            this.audioStreamEnabled = true;
-        }
-        if (mediaConstraint.videoEnabled) {
-            this.videoEnabled = true;
-            this.videoStreamEnabled = true;
-        }
 
         this.pc = (null != this.configuration) ? new RTCPeerConnection(this.configuration) : new RTCPeerConnection();
 
-        // Bind event
+        // binding event
         this.pc.ontrack = (event) => {
             this.fireOnTrack(event);
         };
@@ -243,47 +235,51 @@ export class RTCEndpoint {
             this.fireOnIceCandidate(event);
         };
 
-        let constraints = mediaConstraint.getConstraints();
-
         (async () => {
-            let stream = await this.getUserMedia(constraints);
-            if (null == stream) {
-                handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.MediaPermissionDenied, this));
-                this.close();
-                return;
+            // 判断是否忽略获取媒体
+            if (null != mediaConstraint) {
+                let constraints = mediaConstraint.getConstraints();
+
+                let stream = await this.getUserMedia(constraints);
+                if (null == stream) {
+                    handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.MediaPermissionDenied, this));
+                    this.close();
+                    return;
+                }
+
+                if (null != this.localVideoElem) {
+                    // 设置本地视频流
+                    this.localVideoElem.autoplay = true;
+                    this.localVideoElem.srcObject = stream;
+                }
+
+                // 设置出站流
+                this.outboundStream = stream;
+
+                // 添加 track
+                for (const track of stream.getTracks()) {
+                    this.pc.addTrack(track);
+                }
             }
 
-            if (null != this.localVideoElem) {
-                // 设置本地视频流
-                this.localVideoElem.autoplay = true;
-                this.localVideoElem.srcObject = stream;
-            }
+            // this.pc.onnegotiationneeded = (event) => {};
 
-            this.outboundStream = stream;
-
-            // 添加 track
-            for (const track of stream.getTracks()) {
-                this.pc.addTrack(track);
-            }
-
-            this.pc.onnegotiationneeded = (event) => {
-                // 创建 Offer SDP
-                this.pc.createOffer().then((offer) => {
-                    this.pc.setLocalDescription(new RTCSessionDescription(offer)).then(() => {
-                        handleSuccess(this.pc.localDescription);
-                    }).catch((error) => {
-                        // 设置 SDP 错误
-                        handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.LocalDescriptionFault, this, error));
-                        this.close();
-                    });
+            // 创建 Offer SDP
+            this.pc.createOffer().then((offer) => {
+                this.pc.setLocalDescription(new RTCSessionDescription(offer)).then(() => {
+                    handleSuccess(this.pc.localDescription);
                 }).catch((error) => {
-                    // 创建 Offer 错误
-                    handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.CreateOfferFailed, this, error));
+                    // 设置 SDP 错误
+                    handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.LocalDescriptionFault, this, error));
                     this.close();
                 });
+            }).catch((error) => {
+                // 创建 Offer 错误
+                handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.CreateOfferFailed, this, error));
+                this.close();
+            });
 
-                this.started = true;
-            };
+            this.started = true;
         })();
     }
 
@@ -307,7 +303,7 @@ export class RTCEndpoint {
     /**
      * 启动 RTC 终端为被叫。
      * @param {JSON} description 主叫的 Session Description 。
-     * @param {MediaConstraint} mediaConstraint 媒体约束。
+     * @param {MediaConstraint} mediaConstraint 媒体约束，设置为 {@linkcode null} 值时不使用用户媒体设备。
      * @param {function} handleSuccess 启动成功回调函数。
      * @param {function} handleFailure 启动失败回调函数。
      */
@@ -318,14 +314,6 @@ export class RTCEndpoint {
         }
 
         this.mediaConstraint = mediaConstraint;
-        if (mediaConstraint.audioEnabled) {
-            this.audioEnabled = true;
-            this.audioStreamEnabled = true;
-        }
-        if (mediaConstraint.videoEnabled) {
-            this.videoEnabled = true;
-            this.videoStreamEnabled = true;
-        }
 
         this.pc = (null != this.configuration) ? new RTCPeerConnection(this.configuration) : new RTCPeerConnection();
 
@@ -337,28 +325,30 @@ export class RTCEndpoint {
             this.fireOnIceCandidate(event);
         };
 
-        let constraints = mediaConstraint.getConstraints();
-
         this.pc.setRemoteDescription(new RTCSessionDescription(description)).then(() => {
             (async () => {
-                let stream = await this.getUserMedia(constraints);
-                if (null == stream) {
-                    handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.MediaPermissionDenied, this));
-                    this.close();
-                    return;
-                }
+                if (null != mediaConstraint) {
+                    let constraints = mediaConstraint.getConstraints();
+                    let stream = await this.getUserMedia(constraints);
+                    if (null == stream) {
+                        handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.MediaPermissionDenied, this));
+                        this.close();
+                        return;
+                    }
 
-                if (null != this.localVideoElem) {
-                    // 设置本地视频流
-                    this.localVideoElem.autoplay = true;
-                    this.localVideoElem.srcObject = stream;
-                }
+                    if (null != this.localVideoElem) {
+                        // 设置本地视频流
+                        this.localVideoElem.autoplay = true;
+                        this.localVideoElem.srcObject = stream;
+                    }
 
-                this.outboundStream = stream;
+                    // 设置出站流
+                    this.outboundStream = stream;
 
-                // 添加 track
-                for (const track of stream.getTracks()) {
-                    this.pc.addTrack(track);
+                    // 添加 track
+                    for (const track of stream.getTracks()) {
+                        this.pc.addTrack(track);
+                    }
                 }
 
                 this.pc.createAnswer().then((answer) => {

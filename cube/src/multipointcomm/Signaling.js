@@ -29,6 +29,7 @@ import { Device } from "../contact/Device";
 import { Pipeline } from "../core/Pipeline";
 import { JSONable } from "../util/JSONable";
 import { CommField } from "./CommField";
+import { CommFieldEndpoint } from "./CommFieldEndpoint";
 import { MediaConstraint } from "./MediaConstraint";
 
 /**
@@ -68,6 +69,12 @@ export class Signaling extends JSONable {
          * @type {Device}
          */
         this.device = device;
+
+        /**
+         * 目标。
+         * @type {CommFieldEndpoint}
+         */
+        this.target = null;
 
         /**
          * 通话的 SDP 信息。
