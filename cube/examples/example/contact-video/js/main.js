@@ -49,6 +49,12 @@ const makeCallButton = document.querySelector('button#makeCall');
 const answerCallButton = document.querySelector('button#answerCall');
 const hangupCallButton = document.querySelector('button#hangupCall');
 
+makeCallButton.onclick = makeCall;
+answerCallButton.onclick = answerCall;
+hangupCallButton.onclick = hangupCall;
+
+let timer = 0;
+
 // 获取 Cube 实例
 const cube = window.cube();
 
@@ -72,6 +78,10 @@ function start() {
 
         // 签入账号
         cube.signIn(myIdInput.value);
+
+        startButton.setAttribute('disabled', 'disabled');
+        stopButton.removeAttribute('disabled');
+        makeCallButton.removeAttribute('disabled');
     }, function() {
         stateLabel.innerHTML = '启动 Cube 失败';
     });
@@ -79,8 +89,94 @@ function start() {
     // 设置视频标签元素到 Cube
     cube.mpComm.setRemoteVideoElement(peerVideo);
     cube.mpComm.setLocalVideoElement(myVideo);
+
+    // 监听通话相关事件
+    cube.mpComm.on(CallEvent.InProgress, onInProgress);
+    cube.mpComm.on(CallEvent.Ringing, onRinging);
+    cube.mpComm.on(CallEvent.NewCall, onNewCall);
+    cube.mpComm.on(CallEvent.Connected, onConnected);
+    cube.mpComm.on(CallEvent.Bye, onBye);
+    cube.mpComm.on(CallEvent.Timeout, onTimeout);
+    cube.mpComm.on(CallEvent.CallFailed, onCallFailed);
 }
 
 function stop() {
     cube.stop();
+
+    startButton.removeAttribute('disabled');
+    stopButton.setAttribute('disabled', 'disabled');
+    makeCallButton.setAttribute('disabled', 'disabled');
+    answerCallButton.setAttribute('disabled', 'disabled');
+    hangupCallButton.setAttribute('disabled', 'disabled');
+}
+
+function makeCall() {
+    if (peerIdInput.value.length < 3) {
+        stateLabel.innerHTML = '<span class="warning">请输入“对端 ID”</span>';
+        return;
+    }
+
+    cube.contact.getContact(peerIdInput.value, function(contact) {
+        let mediaConstraint = new MediaConstraint(true, true);
+
+        cube.mpComm.makeCall(contact, mediaConstraint, function() {
+            stateLabel.innerHTML = '呼叫 ' + contact.getId();
+            hangupCallButton.removeAttribute('disabled');
+        }, function(error) {
+            stateLabel.innerHTML = '发生呼叫错误 ' + error;
+        });
+    });
+}
+
+function answerCall() {
+
+}
+
+function hangupCall() {
+    cube.mpComm.hangupCall();
+}
+
+function onInProgress() {
+    stateLabel.innerHTML = '正在处理呼叫...';
+}
+
+function onRinging(record) {
+    stateLabel.innerHTML = '对方振铃...';
+
+    let count = 0;
+    timer = setInterval(function() {
+        stateLabel.innerHTML = '对方振铃，等待接通 (' + (++count) + ')';
+    }, 1000);
+}
+
+function onNewCall(record) {
+    stateLabel.innerHTML = '收到来自 ' + record.getCaller().getId() + ' 通话邀请';
+    hangupCallButton.removeAttribute('disabled');
+    answerCallButton.removeAttribute('disabled');
+}
+
+function onConnected(record) {
+    clearInterval(timer);
+
+    stateLabel.innerHTML = '已经接通 ' + record.getPeer().getId();
+}
+
+function onBye(record) {
+    clearInterval(timer);
+
+    stateLabel.innerHTML = '通话结束';
+    hangupCallButton.setAttribute('disabled', 'disabled');
+    answerCallButton.setAttribute('disabled', 'disabled');
+}
+
+function onTimeout(record) {
+    clearInterval(timer);
+
+    stateLabel.innerHTML = '<span class="warning">呼叫超时</span>';
+    hangupCallButton.setAttribute('disabled', 'disabled');
+    answerCallButton.setAttribute('disabled', 'disabled');
+}
+
+function onCallFailed(error) {
+    stateLabel.innerHTML = '发生错误:' + error;
 }

@@ -105,6 +105,22 @@ export class RTCEndpoint {
     }
 
     /**
+     * 返回当前联系人。
+     * @returns {Contact} 返回当前联系人。
+     */
+    getContact() {
+        return this.contact;
+    }
+
+    /**
+     * 返回当前设备。
+     * @returns {Device} 返回当前设备。
+     */
+    getDevice() {
+        return this.device;
+    }
+
+    /**
      * @inheritdoc
      */
     muteVideo() {

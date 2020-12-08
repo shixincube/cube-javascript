@@ -437,6 +437,9 @@ export class MultipointComm extends Module {
             // 记录
             this.activeCall.answerTime = Date.now();
 
+            // 创建 RTC 终端
+            let rtcEndpoint = this.createRTCEndpoint(this.videoElem.local, this.videoElem.remote);
+
             // 1. 先申请进入
             this.privateField.applyEnter(rtcEndpoint.getContact(), rtcEndpoint.getDevice(), (contact, device) => {
                 this.privateField.caller = target;
@@ -455,6 +458,9 @@ export class MultipointComm extends Module {
             });
         }
         else if (target instanceof CommField) {
+            // 创建 RTC 终端
+            let rtcEndpoint = this.createRTCEndpoint();
+
             // 记录
             this.activeCall.field = this.offerSignaling.field;
 
@@ -596,10 +602,10 @@ export class MultipointComm extends Module {
         }
 
         if (this.activeCall.field.isPrivate()) {
-            this.notifyObservers(new ObservableState(MultipointCommEvent.CallTimeout, this.activeCall));
+            this.notifyObservers(new ObservableState(MultipointCommEvent.Timeout, this.activeCall));
         }
         else {
-            this.notifyObservers(new ObservableState(MultipointCommEvent.CallTimeout, this.activeCall));
+            this.notifyObservers(new ObservableState(MultipointCommEvent.Timeout, this.activeCall));
         }
 
         this.hangupCall();

@@ -236,7 +236,7 @@ var App = Class({
             tips = '收到 Bye: ' + state.getData().getPeer().getId();
             clearInterval(this.callingTimer);
         }
-        else if (state.getName() == MultipointCommEvent.CallTimeout) {
+        else if (state.getName() == MultipointCommEvent.Timeout) {
             tips = '呼叫超时: ' + state.getData().getPeer().getId();
             clearInterval(this.callingTimer);
         }
