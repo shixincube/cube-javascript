@@ -129,7 +129,12 @@ function makeCall() {
 }
 
 function answerCall() {
-
+    let mediaConstraint = new MediaConstraint(true, true);
+    cube.mpComm.answerCall(mediaConstraint, function(record) {
+        stateLabel.innerHTML = '应答 ' + record.getPeer().getId();
+    }, function(error) {
+        stateLabel.innerHTML = '应答错误:' + error;
+    });
 }
 
 function hangupCall() {
@@ -153,6 +158,12 @@ function onNewCall(record) {
     stateLabel.innerHTML = '收到来自 ' + record.getCaller().getId() + ' 通话邀请';
     hangupCallButton.removeAttribute('disabled');
     answerCallButton.removeAttribute('disabled');
+
+    setTimeout(function() {
+        if (confirm('是否接听来自 ' + record.getCaller().getId() + ' 的通话？')) {
+            answerCall();
+        }
+    }, 100);
 }
 
 function onConnected(record) {
