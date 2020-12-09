@@ -345,6 +345,9 @@ export class MultipointComm extends Module {
         else if (target instanceof CommFieldEndpoint) {
             let rtcEndpoint = this.createRTCEndpoint();
 
+            // 记录
+            this.activeCall.field = target.field;
+
             // 订阅 CommFieldEndpoint 的流
             target.field.launchFollow(target, rtcEndpoint, successHandler, failureHandler);
         }
@@ -488,14 +491,44 @@ export class MultipointComm extends Module {
             this.callTimer = 0;
         }
 
-        if (null == this.activeCall) {
+        if (null == this.activeCall || !this.activeCall.isActive()) {
             return false;
         }
 
+         // 当前通话的场域
         let field = this.activeCall.field;
-        let callee = null;
+        let endpoint = null;
+
+        if (undefined !== target) {
+            if (typeof target === 'function') {
+                failureCallback = successCallback;
+                successCallback = target;
+            }
+            else if (target instanceof CommField) {
+                if (this.activeCall.field.getId() != target.getId()) {
+                    return false;
+                }
+            }
+            else if (target instanceof CommFieldEndpoint) {
+                endpoint = target;
+            }
+        }
 
         let byeHandler = (pipeline, source, packet) => {
+            if (field.isPrivate()) {
+                this.offerSignaling = null;
+                this.answerSignaling = null;
+                field.closeRTCEndpoints();
+            }
+            else {
+                if (null == endpoint) {
+                    field.closeRTCEndpoints();
+                }
+                else {
+                    field.closeRTCEndpoint(endpoint);
+                }
+            }
+
             if (packet.data.code == MultipointCommState.Ok) {
                 let signaling = Signaling.create(packet.data.data, this.pipeline);
 
@@ -519,46 +552,44 @@ export class MultipointComm extends Module {
             }
         };
 
-        if (null != this.offerSignaling) {
-            callee = this.offerSignaling.callee;
-        }
-        else if (null != this.answerSignaling) {
-            callee = this.answerSignaling.callee;
-        }
-        else {
-            if (!this.activeCall.isActive()) {
-                return false;
+        if (field.isPrivate()) {
+            let callee = null;
+
+            if (null != this.offerSignaling) {
+                callee = this.offerSignaling.callee;
+            }
+            else if (null != this.answerSignaling) {
+                callee = this.answerSignaling.callee;
+            }
+            else {
+                let signaling = new Signaling(MultipointCommAction.Bye, field, 
+                    this.privateField.founder, this.privateField.founder.getDevice());
+                let packet = new Packet(MultipointCommAction.Bye, signaling.toJSON());
+                this.pipeline.send(MultipointComm.NAME, packet, byeHandler);
+                return true;
             }
 
-            let signaling = new Signaling(MultipointCommAction.Bye, field, 
-                this.privateField.founder, this.privateField.founder.getDevice());
-            let packet = new Packet(MultipointCommAction.Bye, signaling.toJSON());
-            this.pipeline.send(MultipointComm.NAME, packet, byeHandler);
-
-            this.offerSignaling = null;
-            this.answerSignaling = null;
-            field.closeRTCEndpoints();
-            return true;
-        }
-
-        if (null != callee && callee.getId() == this.privateField.founder.getId() && this.privateField.rtcEndpoints[0].ready) {
-            // 被叫端拒绝通话
-            let signaling = new Signaling(MultipointCommAction.Busy, field, 
-                this.privateField.founder, this.privateField.founder.getDevice());
-            let packet = new Packet(MultipointCommAction.Busy, signaling.toJSON());
-            this.pipeline.send(MultipointComm.NAME, packet);
+            if (null != callee && callee.getId() == this.privateField.founder.getId() && this.privateField.rtcEndpoints[0].ready) {
+                // 被叫端拒绝通话
+                let signaling = new Signaling(MultipointCommAction.Busy, field, 
+                    this.privateField.founder, this.privateField.founder.getDevice());
+                let packet = new Packet(MultipointCommAction.Busy, signaling.toJSON());
+                this.pipeline.send(MultipointComm.NAME, packet);
+            }
+            else {
+                let signaling = new Signaling(MultipointCommAction.Bye, field, 
+                    this.privateField.founder, this.privateField.founder.getDevice());
+                let packet = new Packet(MultipointCommAction.Bye, signaling.toJSON());
+                this.pipeline.send(MultipointComm.NAME, packet, byeHandler);
+            }
         }
         else {
             let signaling = new Signaling(MultipointCommAction.Bye, field, 
                 this.privateField.founder, this.privateField.founder.getDevice());
+            signaling.target = endpoint;
             let packet = new Packet(MultipointCommAction.Bye, signaling.toJSON());
             this.pipeline.send(MultipointComm.NAME, packet, byeHandler);
         }
-
-        this.offerSignaling = null;
-        this.answerSignaling = null;
-
-        field.closeRTCEndpoints();
 
         return true;
     }

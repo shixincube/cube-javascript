@@ -27,6 +27,7 @@
 import { Contact } from "../contact/Contact";
 import { Device } from "../contact/Device";
 import { ModuleError } from "../core/error/ModuleError";
+import { CommFieldEndpoint } from "./CommFieldEndpoint";
 import { MediaConstraint } from "./MediaConstraint";
 import { MultipointComm } from "./MultipointComm";
 import { MultipointCommState } from "./MultipointCommState";
@@ -50,6 +51,11 @@ export class RTCEndpoint {
          * @type {Device}
          */
         this.device = device;
+
+        /**
+         * @type {CommFieldEndpoint}
+         */
+        this.target = null;
 
         /**
          * @type {MediaConstraint}

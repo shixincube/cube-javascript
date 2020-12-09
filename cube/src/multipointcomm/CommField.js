@@ -200,6 +200,7 @@ export class CommField extends Entity {
     launchFollow(target, endpoint, successCallback, failureCallback) {
         let rtcEndpoint = endpoint;
 
+        rtcEndpoint.target = target;
         this.rtcEndpoints.push(rtcEndpoint);
 
         rtcEndpoint.onIceCandidate = (candidate) => {
@@ -305,6 +306,17 @@ export class CommField extends Entity {
 
     getRTCEndpoint() {
         return this.rtcEndpoints[0];
+    }
+
+    closeRTCEndpoint(endpoint) {
+        for (let i = 0; i < this.rtcEndpoints.length; ++i) {
+            let rtcEndpoint = this.rtcEndpoints[i];
+            if (null != rtcEndpoint.target && rtcEndpoint.target.getId() == endpoint.getId()) {
+                rtcEndpoint.close();
+                this.rtcEndpoints.splice(i, 1);
+                break;
+            }
+        }
     }
 
     /**

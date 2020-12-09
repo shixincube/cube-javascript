@@ -127,6 +127,10 @@ export class Signaling extends JSONable {
             json["description"] = this.sessionDescription;
         }
 
+        if (null != this.target) {
+            json["target"] = target.toCompactJSON();
+        }
+
         if (null != this.candidate) {
             json["candidate"] = this.candidate;
         }
@@ -159,6 +163,10 @@ export class Signaling extends JSONable {
 
         if (json.description) {
             signaling.sessionDescription = json.description;
+        }
+
+        if (json.target) {
+            signaling.target = CommFieldEndpoint.create(json.target);
         }
 
         if (json.candidate) {

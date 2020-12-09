@@ -229,14 +229,6 @@ export class CommFieldEndpoint extends Aggregation(Entity, Endpoint) {
         json.device = this.device.toCompactJSON();
         json.state = this.state;
         json.name = this.name;
-        json.video = {
-            enabled: this.videoEnabled,
-            streamEnabled: this.videoStreamEnabled
-        };
-        json.audio = {
-            enabled: this.audioEnabled,
-            streamEnabled: this.audioStreamEnabled
-        };
         return json;
     }
 
