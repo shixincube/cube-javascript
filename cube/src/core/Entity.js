@@ -25,7 +25,6 @@
  */
 
 import { JSONable } from "../util/JSONable";
-import { OrderMap } from "../util/OrderMap";
 import { Packet } from "./Packet";
 import { Kernel } from "./Kernel";
 import { EntityAction } from "./EntityAction";

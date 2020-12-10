@@ -50,6 +50,11 @@ export const MultipointCommAction = {
     Follow: 'follow',
 
     /**
+     * 信令 Revoke 。
+     */
+    Revoke: 'revoke',
+
+    /**
      * 信令忙 Busy 。
      */
     Busy: 'busy',

@@ -24,6 +24,7 @@
  * SOFTWARE.
  */
 
+import cell from "@lib/cell-lib";
 import { Module } from "../core/Module";
 import { ContactEvent } from "../contact/ContactEvent";
 import { Contact } from "../contact/Contact";
@@ -541,7 +542,9 @@ export class MultipointComm extends Module {
             }
             this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
 
-            this.hangupCall();
+            if (this.activeCall.field.isPrivate()) {
+                this.hangupCall();
+            }
         };
 
         (new Promise((resolve, reject) => {
@@ -589,9 +592,7 @@ export class MultipointComm extends Module {
         else if (target instanceof CommField) {
             // 创建 RTC 终端
             let rtcEndpoint = this.createRTCEndpoint();
-
-            // 记录
-            this.activeCall.field = this.offerSignaling.field;
+            rtcEndpoint.sn = this.offerSignaling.endpointSN;
 
             // 应答 Comm Field
             target.launchCallee(rtcEndpoint,
@@ -606,7 +607,7 @@ export class MultipointComm extends Module {
 
     /**
      * 终止当前的通话。
-     * @param {CommFieldEndpoint} [target] 指定终止的目标。
+     * @param {CommField|CommFieldEndpoint} [target] 指定终止的目标。
      * @param {function} [successCallback] 成功回调函数，函数参数：({@linkcode callRecord}:{@link CallRecord}) 。
      * @param {function} [failureCallback] 失败回调函数，函数参数：({@linkcode error}:{@link ModuleError}) 。
      * @returns {boolean} 返回是否允许执行该操作。
@@ -636,11 +637,13 @@ export class MultipointComm extends Module {
         }
 
         let byeHandler = (pipeline, source, packet) => {
+            let activeCall = this.activeCall;
+
             if (field.isPrivate()) {
                 field.closeRTCEndpoints();
-            }
-            else if (null == endpoint) {
-                field.closeRTCEndpoints();
+                this.offerSignaling = null;
+                this.answerSignaling = null;
+                this.activeCall = null;
             }
 
             if (null != packet && packet.getStateCode() == StateCode.OK) {
@@ -651,27 +654,30 @@ export class MultipointComm extends Module {
                         // 非私域，指定是否关闭指定的终端
                         if (null != signaling.target) {
                             field.closeRTCEndpoint(signaling.target);
-                            this.activeCall.currentFieldEndpoint = field.getEndpoint(signaling.target);
+                            activeCall.currentFieldEndpoint = field.getEndpoint(signaling.target);
                         }
                         else {
-                            // 记录结束时间
-                            this.activeCall.endTime = Date.now();
+                            field.closeRTCEndpoint(field.outboundRTC);
                         }
                     }
                     else {
                         // 记录结束时间
-                        this.activeCall.endTime = Date.now();
+                        activeCall.endTime = Date.now();
                     }
 
                     if (successCallback) {
-                        successCallback(this.activeCall);
+                        successCallback(activeCall);
                     }
-                    this.notifyObservers(new ObservableState(MultipointCommEvent.Bye, this.activeCall));
+                    this.notifyObservers(new ObservableState(MultipointCommEvent.Bye, activeCall));
+
+                    if (activeCall.field.numRTCEndpoints() == 0) {
+                        this.activeCall = null;
+                    }
                 }
                 else {
-                    let error = new ModuleError(MultipointComm.NAME, packet.data.code, this.activeCall);
+                    let error = new ModuleError(MultipointComm.NAME, packet.data.code, activeCall);
 
-                    this.activeCall.lastError = error;
+                    activeCall.lastError = error;
 
                     if (failureCallback) {
                         failureCallback(error);
@@ -680,19 +686,15 @@ export class MultipointComm extends Module {
                 }
             }
             else {
-                let error = new ModuleError(MultipointComm.NAME, packet.getStateCode(), this.activeCall);
+                let error = new ModuleError(MultipointComm.NAME, packet.getStateCode(), activeCall);
 
-                this.activeCall.lastError = error;
+                activeCall.lastError = error;
 
                 if (failureCallback) {
                     failureCallback(error);
                 }
                 this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
             }
-
-            this.offerSignaling = null;
-            this.answerSignaling = null;
-            this.activeCall = null;
         };
 
         if (field.isPrivate()) {
@@ -727,6 +729,10 @@ export class MultipointComm extends Module {
             }
         }
         else {
+            if (null == field.outboundRTC) {
+                return false;
+            }
+
             let signaling = new Signaling(MultipointCommAction.Bye, field, 
                 this.privateField.founder, this.privateField.founder.getDevice());
             // 设置目标，如果不订阅目标设置为 null
@@ -734,6 +740,101 @@ export class MultipointComm extends Module {
             let packet = new Packet(MultipointCommAction.Bye, signaling.toJSON());
             this.pipeline.send(MultipointComm.NAME, packet, byeHandler);
         }
+
+        return true;
+    }
+
+    /**
+     * 取消指定场域或者指定场域终端的入站流。
+     * @param {CommField|CommFieldEndpoint} target 指定场域或者场域终端。
+     * @param {function} [successCallback] 成功回调函数，函数参数：({@linkcode callRecord}:{@link CallRecord}) 。
+     * @param {function} [failureCallback] 失败回调函数，函数参数：({@linkcode error}:{@link ModuleError}) 。
+     * @returns {boolean} 返回是否允许执行该操作。
+     */
+    revokeCall(target, successCallback, failureCallback) {
+        if (null == this.activeCall || !this.activeCall.isActive()) {
+            return false;
+        }
+
+        if (this.activeCall.field.isPrivate()) {
+            return false;
+        }
+
+        // 当前通话的场域
+        let field = this.activeCall.field;
+        let endpoint = null;
+
+        if (target instanceof Contact) {
+            return false;
+        }
+        else if (target instanceof CommField) {
+            if (field.getId() != target.getId()) {
+                return false;
+            }
+
+            if (null == field.inboundRTC) {
+                // 没有拉取场域的流
+                return false;
+            }
+        }
+        else if (target instanceof CommFieldEndpoint) {
+            endpoint = target;
+        }
+
+        let revokeHandler = (pipeline, source, packet) => {
+            let activeCall = this.activeCall;
+
+            if (null != packet && packet.getStateCode() == StateCode.OK) {
+                if (packet.data.code == MultipointCommState.Ok) {
+                    let signaling = Signaling.create(packet.data.data, this.pipeline);
+
+                    // 非私域，指定是否关闭指定的终端
+                    if (null != signaling.target) {
+                        field.closeRTCEndpoint(signaling.target);
+                        activeCall.currentFieldEndpoint = field.getEndpoint(signaling.target);
+                    }
+                    else {
+                        field.closeRTCEndpoint(field.inboundRTC);
+                    }
+
+                    if (successCallback) {
+                        successCallback(activeCall);
+                    }
+                    this.notifyObservers(new ObservableState(MultipointCommEvent.Bye, activeCall));
+
+                    if (field.numRTCEndpoints() == 0) {
+                        this.activeCall = null;
+                    }
+                }
+                else {
+                    let error = new ModuleError(MultipointComm.NAME, packet.data.code, activeCall);
+
+                    activeCall.lastError = error;
+
+                    if (failureCallback) {
+                        failureCallback(error);
+                    }
+                    this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
+                }
+            }
+            else {
+                let error = new ModuleError(MultipointComm.NAME, packet.getStateCode(), activeCall);
+
+                activeCall.lastError = error;
+
+                if (failureCallback) {
+                    failureCallback(error);
+                }
+                this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
+            }
+        };
+
+        let signaling = new Signaling(MultipointCommAction.Revoke, field, 
+            this.privateField.founder, this.privateField.founder.getDevice());
+        // 设置目标，如果不订阅目标设置为 null
+        signaling.target = endpoint;
+        let packet = new Packet(MultipointCommAction.Revoke, signaling.toJSON());
+        this.pipeline.send(MultipointComm.NAME, packet, revokeHandler);
 
         return true;
     }
@@ -854,8 +955,28 @@ export class MultipointComm extends Module {
         let data = payload.data;
         this.answerSignaling = Signaling.create(data, this.pipeline);
 
-        // 记录媒体约束
-        this.activeCall.calleeMediaConstraint = this.answerSignaling.mediaConstraint;
+        let rtcEndpoint = null;
+
+        if (this.activeCall.field.isPrivate()) {
+            // 记录媒体约束
+            this.activeCall.calleeMediaConstraint = this.answerSignaling.mediaConstraint;
+            rtcEndpoint = this.activeCall.field.getRTCEndpoint();
+        }
+        else {
+            if (null != this.answerSignaling.target) {
+                rtcEndpoint = this.activeCall.field.getRTCEndpoint(this.answerSignaling.target);
+            }
+            else {
+                if (null != this.answerSignaling.mediaConstraint) {
+                    // 应答数据带媒体约束表示是来自 CommField 的入站流
+                    rtcEndpoint = this.activeCall.field.inboundRTC;
+                }
+                else {
+                    // 没有携带媒体约束表示是出站 Offer 的流
+                    rtcEndpoint = this.activeCall.field.outboundRTC;
+                }
+            }
+        }
 
         rtcEndpoint.doAnswer(this.answerSignaling.sessionDescription, () => {
             this.notifyObservers(new ObservableState(MultipointCommEvent.Connected, this.activeCall));
@@ -881,11 +1002,12 @@ export class MultipointComm extends Module {
 
         let rtcEndpoint = null;
 
-        if (null == signaling.target) {
-            rtcEndpoint = this.activeCall.field.getRTCEndpoint();
-        }
-        else {
-            // TODO Ambrose
+        // 获取 RTCEndpoint 实例
+        rtcEndpoint = this.activeCall.field.getRTCEndpointBySN(signaling.endpointSN);
+
+        if (null == rtcEndpoint) {
+            cell.Logger.e('MultipointComm', 'Can NOT find rtc endpoint: ' + signaling.endpointSN);
+            return;
         }
 
         if (null != signaling.candidate) {

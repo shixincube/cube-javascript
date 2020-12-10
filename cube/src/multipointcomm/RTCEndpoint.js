@@ -24,6 +24,7 @@
  * SOFTWARE.
  */
 
+import cell from "@lib/cell-lib";
 import { Contact } from "../contact/Contact";
 import { Device } from "../contact/Device";
 import { ModuleError } from "../core/error/ModuleError";
@@ -42,6 +43,11 @@ export class RTCEndpoint {
      * @param {Device} device 对应的设备。
      */
     constructor(contact, device) {
+        /**
+         * @type {number}
+         */
+        this.sn = cell.Utils.generateSerialNumber();
+
         /**
          * @type {Contact}
          */

@@ -139,10 +139,10 @@ export class CommField extends Entity {
 
     /**
      * 启动为主叫。
-     * @param {RTCEndpoint} endpoint
-     * @param {MediaConstraint} mediaConstraint
-     * @param {function} successCallback
-     * @param {function} failureCallback
+     * @param {RTCEndpoint} endpoint RTC 终端。
+     * @param {MediaConstraint} mediaConstraint 媒体约束。
+     * @param {function} successCallback 成功回调。
+     * @param {function} failureCallback 失败回调。
      */
     launchCaller(endpoint, mediaConstraint, successCallback, failureCallback) {
         let rtcEndpoint = endpoint;
@@ -154,7 +154,8 @@ export class CommField extends Entity {
         };
 
         rtcEndpoint.openOffer(mediaConstraint, (description) => {
-            let signaling = new Signaling(MultipointCommAction.Offer, this, rtcEndpoint.getContact(), rtcEndpoint.getDevice());
+            let signaling = new Signaling(MultipointCommAction.Offer, this,
+                rtcEndpoint.getContact(), rtcEndpoint.getDevice(), rtcEndpoint.sn);
             // 设置 SDP 信息
             signaling.sessionDescription = description;
             // 设置媒体约束
@@ -184,7 +185,8 @@ export class CommField extends Entity {
         };
 
         rtcEndpoint.openAnswer(offerDescription, mediaConstraint, (description) => {
-            let signaling = new Signaling(MultipointCommAction.Answer, this, rtcEndpoint.getContact(), rtcEndpoint.getDevice());
+            let signaling = new Signaling(MultipointCommAction.Answer, this,
+                rtcEndpoint.getContact(), rtcEndpoint.getDevice(), rtcEndpoint.sn);
             // 设置 SDP 信息
             signaling.sessionDescription = description;
             // 设置媒体约束
@@ -207,6 +209,7 @@ export class CommField extends Entity {
         let rtcEndpoint = endpoint;
 
         rtcEndpoint.target = target;
+
         this.rtcEndpoints.push(rtcEndpoint);
 
         rtcEndpoint.onIceCandidate = (candidate) => {
@@ -214,7 +217,8 @@ export class CommField extends Entity {
         };
 
         rtcEndpoint.openOffer(null, (description) => {
-            let signaling = new Signaling(MultipointCommAction.Follow, this, rtcEndpoint.getContact(), rtcEndpoint.getDevice());
+            let signaling = new Signaling(MultipointCommAction.Follow, this,
+                rtcEndpoint.getContact(), rtcEndpoint.getDevice(), rtcEndpoint.sn);
             // 设置 SDP 信息
             signaling.sessionDescription = description;
             // 设置目标
@@ -321,29 +325,70 @@ export class CommField extends Entity {
     }
 
     /**
+     * 返回 RTC 终端数量。
      * @returns {number} 返回 RTC 终端数量。
      */
     numRTCEndpoints() {
         return this.rtcEndpoints.length;
     }
 
-    getRTCEndpoint() {
-        return this.rtcEndpoints[0];
+    getRTCEndpointBySN(sn) {
+        for (let i = 0; i < this.rtcEndpoints.length; ++i) {
+            let rtcEndpoint = this.rtcEndpoints[i];
+            if (rtcEndpoint.sn == sn) {
+                return rtcEndpoint;
+            }
+        }
+
+        return null;
+    }
+
+    getRTCEndpoint(fieldEndpoint) {
+        if (undefined === fieldEndpoint) {
+            return this.rtcEndpoints[0];
+        }
+        else {
+            for (let i = 0; i < this.rtcEndpoints.length; ++i) {
+                let rtcEndpoint = this.rtcEndpoints[i];
+                if (null != rtcEndpoint.target && rtcEndpoint.target.getId() == fieldEndpoint.getId()) {
+                    return rtcEndpoint;
+                }
+            }
+
+            return null;
+        }
     }
 
     closeRTCEndpoint(endpoint) {
-        for (let i = 0; i < this.rtcEndpoints.length; ++i) {
-            let rtcEndpoint = this.rtcEndpoints[i];
-            if (null != rtcEndpoint.target && rtcEndpoint.target.getId() == endpoint.getId()) {
-                rtcEndpoint.close();
-                if (this.outboundRTC == rtcEndpoint) {
-                    this.outboundRTC = null;
+        if (endpoint instanceof RTCEndpoint) {
+            for (let i = 0; i < this.rtcEndpoints.length; ++i) {
+                let rtcEndpoint = this.rtcEndpoints[i];
+                if (rtcEndpoint == endpoint) {
+                    if (this.outboundRTC == rtcEndpoint) {
+                        this.outboundRTC = null;
+                    }
+                    if (this.inboundRTC == rtcEndpoint) {
+                        this.inboundRTC = null;
+                    }
+                    rtcEndpoint.close();
+                    break;
                 }
-                if (this.inboundRTC == rtcEndpoint) {
-                    this.inboundRTC = null;
+            }
+        }
+        else {
+            for (let i = 0; i < this.rtcEndpoints.length; ++i) {
+                let rtcEndpoint = this.rtcEndpoints[i];
+                if (null != rtcEndpoint.target && rtcEndpoint.target.getId() == endpoint.getId()) {
+                    rtcEndpoint.close();
+                    if (this.outboundRTC == rtcEndpoint) {
+                        this.outboundRTC = null;
+                    }
+                    if (this.inboundRTC == rtcEndpoint) {
+                        this.inboundRTC = null;
+                    }
+                    this.rtcEndpoints.splice(i, 1);
+                    break;
                 }
-                this.rtcEndpoints.splice(i, 1);
-                break;
             }
         }
     }
