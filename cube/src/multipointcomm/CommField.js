@@ -77,10 +77,16 @@ export class CommField extends Entity {
         this.rtcEndpoints = [];
 
         /**
-         * 默认的媒体约束。
-         * @type {MediaConstraint}
+         * 出站流的 RTC 终端。
+         * @type {RTCEndpoint}
          */
-        this.mediaConstraint = new MediaConstraint(true, true);
+        this.outboundRTC = null;
+
+        /**
+         * 入站流的 RTC 终端。
+         * @type {RTCEndpoint}
+         */
+        this.inboundRTC = null;
 
         /**
          * 终端列表。
@@ -300,6 +306,23 @@ export class CommField extends Entity {
         });
     }
 
+    /**
+     * 返回指定的终端节点的实际实例。
+     * @param {CommFieldEndpoint} fieldEndpoint 
+     * @returns {CommFieldEndpoint}
+     */
+    getEndpoint(fieldEndpoint) {
+        for (let i = 0; i < this.endpoints.length; ++i) {
+            let ep = this.endpoints[i];
+            if (ep.getId() == fieldEndpoint.getId()) {
+                return ep;
+            }
+        }
+    }
+
+    /**
+     * @returns {number} 返回 RTC 终端数量。
+     */
     numRTCEndpoints() {
         return this.rtcEndpoints.length;
     }
@@ -313,6 +336,12 @@ export class CommField extends Entity {
             let rtcEndpoint = this.rtcEndpoints[i];
             if (null != rtcEndpoint.target && rtcEndpoint.target.getId() == endpoint.getId()) {
                 rtcEndpoint.close();
+                if (this.outboundRTC == rtcEndpoint) {
+                    this.outboundRTC = null;
+                }
+                if (this.inboundRTC == rtcEndpoint) {
+                    this.inboundRTC = null;
+                }
                 this.rtcEndpoints.splice(i, 1);
                 break;
             }
@@ -331,6 +360,9 @@ export class CommField extends Entity {
             rtcEndpoint.close();
         });
         this.rtcEndpoints.splice(0, this.rtcEndpoints.length);
+
+        this.outboundRTC = null;
+        this.inboundRTC = null;
     }
 
     /**

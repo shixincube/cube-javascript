@@ -27,6 +27,7 @@
 import { Self } from "../contact/Self";
 import { ModuleError } from "../core/error/ModuleError";
 import { CommField } from "./CommField";
+import { CommFieldEndpoint } from "./CommFieldEndpoint";
 import { MediaConstraint } from "./MediaConstraint";
 
 /**
@@ -65,6 +66,12 @@ export class CallRecord {
          * @type {CommField}
          */
         this.field = null;
+
+        /**
+         * 当前事件的终端。
+         * @type {CommFieldEndpoint}
+         */
+        this.currentFieldEndpoint = null;
 
         /**
          * @type {MediaConstraint}

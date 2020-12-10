@@ -207,6 +207,7 @@ export class MultipointComm extends Module {
      * @private
      * @param {HTMLElement} localVideoElem 
      * @param {HTMLElement} remoteVideoElem 
+     * @returns {RTCEndpoint} 返回 {@ink RTCEndpoint} 实例。
      */
     createRTCEndpoint(localVideoElem, remoteVideoElem) {
         let cs = this.kernel.getModule(ContactService.NAME);
@@ -232,7 +233,7 @@ export class MultipointComm extends Module {
 
     /**
      * 呼叫指定场域或者联系人。
-     * @param {CommField|CommFieldEndpoint|Contact} target 指定呼叫对象。
+     * @param {CommField|Contact} target 指定通话对象。指定 {@link CommField} 表示呼入通讯场，指定 {@link Contact} 表示呼叫联系人。
      * @param {MediaConstraint} mediaConstraint 指定通话的媒体约束。
      * @param {function} [successCallback] 成功回调函数，函数参数：({@linkcode callRecord}:{@link CallRecord}) 。
      * @param {function} [failureCallback] 失败回调函数，函数参数：({@linkcode error}:{@link ModuleError}) 。
@@ -277,20 +278,10 @@ export class MultipointComm extends Module {
 
             this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
 
-            this.hangupCall();
+            if (this.activeCall.field.isPrivate()) {
+                this.hangupCall();
+            }
         };
-
-        (new Promise((resolve, reject) => {
-            // 启动定时器
-            this.callTimer = setTimeout(() => {
-                this.fireCallTimeout();
-            }, this.callTimeout);
-
-            resolve();
-        })).then(() => {
-            // 回调 InProgress 事件
-            this.notifyObservers(new ObservableState(MultipointCommEvent.InProgress, target));
-        });
 
         if (target instanceof Contact) {
             // 呼叫指定联系人
@@ -304,6 +295,18 @@ export class MultipointComm extends Module {
                 this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
                 return false;
             }
+
+            (new Promise((resolve, reject) => {
+                // 启动定时器
+                this.callTimer = setTimeout(() => {
+                    this.fireCallTimeout();
+                }, this.callTimeout);
+    
+                resolve();
+            })).then(() => {
+                // 回调 InProgress 事件
+                this.notifyObservers(new ObservableState(MultipointCommEvent.InProgress, target));
+            });
 
             // 创建通话记录
             this.activeCall = new CallRecord(this.privateField.getFounder());
@@ -328,24 +331,148 @@ export class MultipointComm extends Module {
             });
         }
         else if (target instanceof CommField) {
-            if (null != this.activeCall && this.activeCall.field.getId() != target.getId()) {
-                // TODO
-                return false;
+            if (null != this.activeCall) {
+                if (this.activeCall.field.getId() != target.getId()) {
+                    return false;
+                }
+
+                if (null != this.activeCall.field.outboundRTC) {
+                    // 正在通话中
+                    let error = new ModuleError(MultipointComm.NAME, MultipointCommState.CallerBusy, target);
+                    if (failureCallback) {
+                        failureCallback(error);
+                    }
+                    this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
+                    return false;
+                }
+            }
+            else {
+                // 创建通话记录
+                this.activeCall = new CallRecord(this.privateField.getFounder());
+                // 记录
+                this.activeCall.field = target;
             }
 
-            // 记录
-            this.activeCall.field = target;
+            (new Promise((resolve, reject) => {
+                resolve();
+            })).then(() => {
+                // 回调 InProgress 事件
+                this.notifyObservers(new ObservableState(MultipointCommEvent.InProgress, target));
+            });
 
             let rtcEndpoint = this.createRTCEndpoint();
 
             // 发布本地流到 Comm Field
             target.launchCaller(rtcEndpoint, mediaConstraint, successHandler, failureHandler);
+            target.outboundRTC = rtcEndpoint;
         }
-        else if (target instanceof CommFieldEndpoint) {
+        else {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 获取指定场域或者终端的通讯数据。
+     * @param {CommField|CommFieldEndpoint} target 指定待获取数据的场域或者终端。
+     * @param {function} [successCallback] 成功回调函数，函数参数：({@linkcode callRecord}:{@link CallRecord}) 。
+     * @param {function} [failureCallback] 失败回调函数，函数参数：({@linkcode error}:{@link ModuleError}) 。
+     * @returns {boolean} 返回是否允许执行该操作。
+     */
+    followCall(target, successCallback, failureCallback) {
+        if (null == this.privateField) {
+            // 联系人模块没有完成签入操作
+            let error = new ModuleError(MultipointComm.NAME, MultipointCommState.Uninitialized, target);
+            if (failureCallback) {
+                failureCallback(error);
+            }
+            this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
+            return false;
+        }
+
+        // 处理操作成功
+        let successHandler = (signaling) => {
+            if (successCallback) {
+                successCallback(this.activeCall);
+            }
+        };
+
+        // 处理操作失败
+        let failureHandler = (error) => {
+            // 记录错误
+            this.activeCall.lastError = error;
+
+            if (failureCallback) {
+                failureCallback(error);
+            }
+
+            this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
+
+            if (target instanceof CommField) {
+                this.activeCall.field.closeRTCEndpoints();
+            }
+            else if (target instanceof CommFieldEndpoint) {
+                this.activeCall.field.closeRTCEndpoint(target);
+            }
+        };
+
+        if (target instanceof CommField) {
+            if (null != this.activeCall) {
+                if (this.activeCall.field.getId() != target.getId()) {
+                    return false;
+                }
+
+                if (null != this.activeCall.field.inboundRTC) {
+                    // 正在通话中
+                    let error = new ModuleError(MultipointComm.NAME, MultipointCommState.CallerBusy, target);
+                    if (failureCallback) {
+                        failureCallback(error);
+                    }
+                    this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
+                    return false;
+                }
+            }
+            else {
+                // 创建通话记录
+                this.activeCall = new CallRecord(this.privateField.getFounder());
+                // 记录
+                this.activeCall.field = target;
+            }
+
+            (new Promise((resolve, reject) => {
+                resolve();
+            })).then(() => {
+                // 回调 InProgress 事件
+                this.notifyObservers(new ObservableState(MultipointCommEvent.InProgress, target));
+            });
+
             let rtcEndpoint = this.createRTCEndpoint();
 
-            // 记录
-            this.activeCall.field = target.field;
+            // 获取 Comm Field 的混码流
+            target.launchCaller(rtcEndpoint, null, successHandler, failureHandler);
+            target.inboundRTC = rtcEndpoint;
+        }
+        else if (target instanceof CommFieldEndpoint) {
+            if (null != this.activeCall) {
+                if (this.activeCall.field.getId() != target.field.getId()) {
+                    return false;
+                }
+            }
+            else {
+                // 记录
+                this.activeCall = new CallRecord(this.privateField.getFounder());
+                this.activeCall.field = target.field;
+            }
+
+            (new Promise((resolve, reject) => {
+                resolve();
+            })).then(() => {
+                // 回调 InProgress 事件
+                this.notifyObservers(new ObservableState(MultipointCommEvent.InProgress, target));
+            });
+
+            let rtcEndpoint = this.createRTCEndpoint();
 
             // 订阅 CommFieldEndpoint 的流
             target.field.launchFollow(target, rtcEndpoint, successHandler, failureHandler);
@@ -485,27 +612,9 @@ export class MultipointComm extends Module {
      * @returns {boolean} 返回是否允许执行该操作。
      */
     hangupCall(target, successCallback, failureCallback) {
-        if (this.callTimer > 0) {
-            clearTimeout(this.callTimer);
-            this.callTimer = 0;
-        }
-
         if (null == this.activeCall || !this.activeCall.isActive()) {
             return false;
         }
-
-        // 设置超时处理
-        this.callTimer = setTimeout(() => {
-            if (this.callTimer > 0) {
-                clearTimeout(this.callTimer);
-                this.callTimer = 0;
-            }
-
-            this.activeCall.field.closeRTCEndpoints();
-            this.activeCall = null;
-            this.offerSignaling = null;
-            this.answerSignaling = null;
-        }, 5000);
 
          // 当前通话的场域
         let field = this.activeCall.field;
@@ -527,11 +636,6 @@ export class MultipointComm extends Module {
         }
 
         let byeHandler = (pipeline, source, packet) => {
-            if (this.callTimer > 0) {
-                clearTimeout(this.callTimer);
-                this.callTimer = 0;
-            }
-
             if (field.isPrivate()) {
                 field.closeRTCEndpoints();
             }
@@ -547,12 +651,17 @@ export class MultipointComm extends Module {
                         // 非私域，指定是否关闭指定的终端
                         if (null != signaling.target) {
                             field.closeRTCEndpoint(signaling.target);
+                            this.activeCall.currentFieldEndpoint = field.getEndpoint(signaling.target);
+                        }
+                        else {
+                            // 记录结束时间
+                            this.activeCall.endTime = Date.now();
                         }
                     }
-
-                    // 记录结束时间
-                    this.activeCall.endTime = Date.now();
-                    // TODO 标记 Bye 的 target
+                    else {
+                        // 记录结束时间
+                        this.activeCall.endTime = Date.now();
+                    }
 
                     if (successCallback) {
                         successCallback(this.activeCall);
@@ -667,12 +776,7 @@ export class MultipointComm extends Module {
             this.callTimer = 0;
         }
 
-        if (this.activeCall.field.isPrivate()) {
-            this.notifyObservers(new ObservableState(MultipointCommEvent.Timeout, this.activeCall));
-        }
-        else {
-            this.notifyObservers(new ObservableState(MultipointCommEvent.Timeout, this.activeCall));
-        }
+        this.notifyObservers(new ObservableState(MultipointCommEvent.Timeout, this.activeCall));
 
         this.hangupCall();
     }
