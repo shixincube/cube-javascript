@@ -37,4 +37,22 @@ export class WhiteboardService extends Module {
     constructor() {
         super(WhiteboardService.NAME);
     }
+
+    /**
+     * @inheritdoc
+     */
+    start() {
+        if (!super.start()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    stop() {
+        super.stop();
+    }
 }
