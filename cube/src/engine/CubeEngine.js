@@ -35,6 +35,7 @@ import { FileStorage } from "../filestorage/FileStorage";
 import { MessagingService } from "../messaging/MessagingService";
 import { FileProcessor } from "../fileprocessor/FileProcessor";
 import { MultipointComm } from "../multipointcomm/MultipointComm";
+import { WhiteboardService } from "../whiteboard/WhiteboardService";
 
 /**
  * Cube Engine 入口类。
@@ -53,6 +54,7 @@ export class CubeEngine {
         this.kernel.installModule(new MessagingService());
         this.kernel.installModule(new FileProcessor());
         this.kernel.installModule(new MultipointComm());
+        this.kernel.installModule(new WhiteboardService());
         //this.kernel.installModule(new FaceMonitor());
 
         this.selectFileHandle = null;
