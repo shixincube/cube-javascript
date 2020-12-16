@@ -26,6 +26,7 @@
 
 import cell from "@lib/cell-lib";
 import { Module } from "../core/Module";
+import { WhiteboardPipelineListener } from "./WhiteboardPipelineListener";
 
 /**
  * 白板服务。
@@ -36,6 +37,8 @@ export class WhiteboardService extends Module {
 
     constructor() {
         super(WhiteboardService.NAME);
+
+        this.pipelineListener = new WhiteboardPipelineListener(this);
     }
 
     /**
@@ -46,6 +49,8 @@ export class WhiteboardService extends Module {
             return false;
         }
 
+        this.pipeline.addListener(this.pipelineListener);
+
         return true;
     }
 
@@ -54,5 +59,11 @@ export class WhiteboardService extends Module {
      */
     stop() {
         super.stop();
+
+        if (null == this.pipeline) {
+            return;
+        }
+
+        this.pipeline.removeListener(this.pipelineListener);
     }
 }

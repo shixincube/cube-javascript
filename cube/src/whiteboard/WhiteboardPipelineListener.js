@@ -26,13 +26,26 @@
 
 import cell from "@lib/cell-lib";
 import { PipelineListener } from "../core/PipelineListener";
+import { WhiteboardService } from "./WhiteboardService";
 
 /**
  * 白板的数据通道监听器。
  */
 export class WhiteboardPipelineListener extends PipelineListener {
 
-    constructor() {
+    constructor(service) {
         super();
+
+        /**
+         * @type {WhiteboardService}
+         */
+        this.service = service;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    onReceived(pipeline, source, packet) {
+        super.onReceived(pipeline, source, packet);
     }
 }
