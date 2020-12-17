@@ -395,6 +395,8 @@ export class GraphBoard {
                         this.setImage(data.value, false);
                         if (save) this.record.push(data);
                         break;
+                    default:
+                        break;
                 }
 
                 data.zoom = zoom;
