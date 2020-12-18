@@ -384,7 +384,7 @@ export class GraphBoard {
                         if (save) this.record.push(data);
                         break;
                     case ToolType.MOSAIC:
-                        Mosaic.draw(this.viewctx, data, ratio);
+                        Mosaic.draw(this, this.viewctx, data, ratio);
                         if (save) this.record.push(data);
                         break;
                     case ToolType.CROP:

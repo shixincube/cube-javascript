@@ -666,7 +666,7 @@ $(document).ready(function() {
 
     // 启动 Cube
     cube.start({
-        address: '127.0.0.1',
+        address: '211.157.135.152',
         domain: 'shixincube.com',
         appKey: 'shixin-cubeteam-opensource-appkey'
     }, function() {
