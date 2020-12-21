@@ -133,75 +133,117 @@ export class RTCDevice {
     }
 
     /**
-     * @inheritdoc
+     * 返回出站视频是否已启用。
+     * @returns {boolean} 返回出站视频是否已启用。
      */
-    muteVideo() {
-        let stream = this.outboundStream;
+    outboundVideoEnabled() {
+        return this.streamEnabled(this.outboundStream, 'video');
+    }
+
+    /**
+     * 返回出站音频是否已启用。
+     * @returns {boolean} 返回出站音频是否已启用。
+     */
+    outboundAudioEnabled() {
+        return this.streamEnabled(this.outboundStream, 'audio');
+    }
+
+    /**
+     * 返回入站视频是否已启用。
+     * @returns {boolean} 返回入站视频是否已启用。
+     */
+    inboundVideoEnabled() {
+        return this.streamEnabled(this.inboundStream, 'video');
+    }
+
+    /**
+     * 返回入站音频是否已启用。
+     * @returns {boolean} 返回入站音频是否已启用。
+     */
+    inboundAudioEnabled() {
+        return this.streamEnabled(this.inboundStream, 'audio');
+    }
+
+    /**
+     * 流是否已启动状态。
+     * @private
+     * @param {MediaStream} stream 
+     * @param {string} kind 
+     * @returns {boolean}
+     */
+    streamEnabled(stream, kind) {
         if (null == stream) {
-            stream = this.inboundStream;
-            if (null == stream) {
-                return;
-            }
+            return false;
         }
 
+        let ret = false;
         stream.getTracks.some((track) => {
-            if (track.kind == 'video') {
-                track.enabled = false;
-                super.muteVideo();
+            if (track.kind == kind) {
+                ret = track.enabled;
                 return true;
             }
         });
+        return ret;
     }
 
     /**
-     * @inheritdoc
+     * 启用/停用出站视频。
+     * @param {boolean} enabled 指定是否启用。
+     * @returns {boolean} 返回设置是否有效。
      */
-    unmuteVideo() {
-        if (null == this.outboundStream) {
-            return;
-        }
-
-        this.outboundStream.getTracks.some((track) => {
-            if (track.kind == 'video') {
-                track.enabled = true;
-                super.unmuteVideo();
-                return true;
-            }
-        });
+    enableOutboundVideo(enabled) {
+        return this.enableStream(this.outboundStream, 'video', enabled);
     }
 
     /**
-     * @inheritdoc
+     * 启用/停用出站音频。
+     * @param {boolean} enabled 指定是否启用。
+     * @returns {boolean} 返回设置是否有效。
      */
-    muteAudio() {
-        if (null == this.outboundStream) {
-            return;
-        }
-
-        this.outboundStream.getTracks.some((track) => {
-            if (track.kind == 'audio') {
-                track.enabled = false;
-                super.muteAudio();
-                return true;
-            }
-        });
+    enableOutboundAudio(enabled) {
+        return this.enableStream(this.outboundStream, 'audio', enabled);
     }
 
     /**
-     * @inheritdoc
+     * 启用/停用入站视频。
+     * @param {boolean} enabled 指定是否启用。
+     * @returns {boolean} 返回设置是否有效。
      */
-    unmuteAudio() {
-        if (null == this.outboundStream) {
-            return;
+    enableInboundVideo(enabled) {
+        return this.enableStream(this.inboundStream, 'video', enabled);
+    }
+
+    /**
+     * 启用/停用入站音频。
+     * @param {boolean} enabled 指定是否启用。
+     * @returns {boolean} 返回设置是否有效。
+     */
+    enableInboundAudio(enabled) {
+        return this.enableStream(this.inboundStream, 'audio', enabled);
+    }
+
+    /**
+     * 启用/停用指定流。
+     * @private
+     * @param {MediaStream} stream 指定媒体流。
+     * @param {string} kind 指定 Track kind 。
+     * @param {boolean} enabled 指定是否启用。
+     * @returns {boolean} 返回设置是有效的设置。
+     */
+    enableStream(stream, kind, enabled) {
+        if (null == stream) {
+            return false;
         }
 
-        this.outboundStream.getTracks.some((track) => {
-            if (track.kind == 'audio') {
-                track.enabled = true;
-                super.unmuteAudio();
+        let ret = false;
+        stream.getTracks.some((track) => {
+            if (track.kind == kind) {
+                track.enabled = enabled;
+                ret = true;
                 return true;
             }
         });
+        return ret;
     }
 
     /**

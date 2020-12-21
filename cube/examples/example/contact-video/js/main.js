@@ -142,7 +142,14 @@ function hangupCall() {
 }
 
 function muteLocalVideo() {
+    let field = cube.mpComm.getActiveField();
+    if (null == field) {
+        console.log('没有找到活跃 Field');
+        return;
+    }
 
+    let rtcDevice = field.getRTCDevice();
+    
 }
 
 function onInProgress() {
@@ -187,6 +194,11 @@ function onBye(record) {
     let newNode = document.createElement('video');
     parentNode.replaceChild(newNode, myVideo);
     myVideo = newNode;
+
+    parentNode = peerVideo.parentNode;
+    newNode = document.createElement('video');
+    parentNode.replaceChild(newNode, peerVideo);
+    peerVideo = newNode;
 }
 
 function onTimeout(record) {

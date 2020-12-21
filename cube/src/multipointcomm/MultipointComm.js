@@ -233,11 +233,12 @@ export class MultipointComm extends Module {
             return null;
         }
 
-        // rtcDevice.localVideoElem = document.createElement('video');
-
         let rtcDevice = new RTCDevice(self, self.getDevice());
 
         if (localVideoElem) {
+            localVideoElem.volume = 0;
+            localVideoElem.setAttribute('muted', 'muted');
+
             rtcDevice.localVideoElem = localVideoElem;
         }
 
