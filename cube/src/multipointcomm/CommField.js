@@ -343,8 +343,9 @@ export class CommField extends Entity {
     }
 
     /**
-     * 
-     * @param {CommFieldEndpoint} fieldEndpoint 
+     * 获取指定终端的 RTC 设备。
+     * @param {CommFieldEndpoint} [fieldEndpoint] 指定终端。
+     * @returns {RTCDevice} 返回指定终端的 RTC 设备。
      */
     getRTCDevice(fieldEndpoint) {
         if (undefined === fieldEndpoint) {

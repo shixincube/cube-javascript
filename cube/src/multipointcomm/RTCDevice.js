@@ -449,16 +449,26 @@ export class RTCDevice {
         this.candidates = [];
 
         if (null != this.inboundStream) {
+            let tracks = [];
             this.inboundStream.getTracks().forEach((track) => {
                 track.stop();
+                tracks.push(track);
             });
+            for (let i = 0; i < tracks.length; ++i) {
+                this.inboundStream.removeTrack(tracks[i]);
+            }
             this.inboundStream = null;
         }
 
         if (null != this.outboundStream) {
+            let tracks = [];
             this.outboundStream.getTracks().forEach((track) => {
                 track.stop();
+                tracks.push(track);
             });
+            for (let i = 0; i < tracks.length; ++i) {
+                this.outboundStream.removeTrack(tracks[i]);
+            }
             this.outboundStream = null;
         }
 
@@ -468,6 +478,13 @@ export class RTCDevice {
         }
 
         this.disableICE();
+
+        if (null != this.localVideoElem) {
+            this.localVideoElem.pause();
+        }
+        if (null != this.remoteVideoElem) {
+            this.remoteVideoElem.pause();
+        }
 
         this.ready = false;
     }

@@ -885,6 +885,10 @@ export class MultipointComm extends Module {
      * @returns {CommField} 返回当前通话的通信场域。
      */
     getActiveField() {
+        if (null == this.activeCall) {
+            return null;
+        }
+
         return this.activeCall.field;
     }
 
@@ -1089,7 +1093,7 @@ export class MultipointComm extends Module {
             this.hangupCall();
         }
         else {
-            this.hangupCall();
+            this.hangupCall(signaling.field);
         }
     }
 }

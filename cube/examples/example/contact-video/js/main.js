@@ -37,8 +37,8 @@ const stopButton = document.querySelector('button#stop');
 startButton.onclick = start;
 stopButton.onclick = stop;
 
-const peerVideo = document.querySelector('video#peerVideo');
-const myVideo = document.querySelector('video#myVideo');
+var peerVideo = document.querySelector('video#peerVideo');
+var myVideo = document.querySelector('video#myVideo');
 
 const peerVideoButton = document.querySelector('button#peerVideoCtrl');
 const peerAudioButton = document.querySelector('button#peerAudioCtrl');
@@ -86,10 +86,6 @@ function start() {
         stateLabel.innerHTML = '启动 Cube 失败';
     });
 
-    // 设置视频标签元素到 Cube
-    cube.mpComm.setRemoteVideoElement(peerVideo);
-    cube.mpComm.setLocalVideoElement(myVideo);
-
     // 监听通话相关事件
     cube.mpComm.on(CallEvent.InProgress, onInProgress);
     cube.mpComm.on(CallEvent.Ringing, onRinging);
@@ -111,6 +107,10 @@ function stop() {
 }
 
 function makeCall() {
+    // 设置视频标签元素到 Cube
+    cube.mpComm.setRemoteVideoElement(peerVideo);
+    cube.mpComm.setLocalVideoElement(myVideo);
+
     if (peerIdInput.value.length < 3) {
         stateLabel.innerHTML = '<span class="warning">请输入“对端 ID”</span>';
         return;
@@ -139,6 +139,10 @@ function answerCall() {
 
 function hangupCall() {
     cube.mpComm.hangupCall();
+}
+
+function muteLocalVideo() {
+
 }
 
 function onInProgress() {
@@ -178,6 +182,11 @@ function onBye(record) {
     stateLabel.innerHTML = '通话结束';
     hangupCallButton.setAttribute('disabled', 'disabled');
     answerCallButton.setAttribute('disabled', 'disabled');
+
+    let parentNode = myVideo.parentNode;
+    let newNode = document.createElement('video');
+    parentNode.replaceChild(newNode, myVideo);
+    myVideo = newNode;
 }
 
 function onTimeout(record) {
