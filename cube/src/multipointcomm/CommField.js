@@ -29,7 +29,7 @@ import { Contact } from "../contact/Contact";
 import { Device } from "../contact/Device";
 import { CommFieldEndpoint } from "./CommFieldEndpoint";
 import { MediaConstraint } from "./MediaConstraint";
-import { RTCEndpoint } from "./RTCEndpoint";
+import { RTCDevice } from "./RTCDevice";
 import { MultipointCommAction } from "./MultipointCommAction";
 import { Pipeline } from "../core/Pipeline";
 import { MultipointComm } from "./MultipointComm";
@@ -72,19 +72,19 @@ export class CommField extends Entity {
 
         /**
          * RTC 终端列表。
-         * @type {Array<RTCEndpoint>}
+         * @type {Array<RTCDevice>}
          */
-        this.rtcEndpoints = [];
+        this.rtcDevices = [];
 
         /**
          * 出站流的 RTC 终端。
-         * @type {RTCEndpoint}
+         * @type {RTCDevice}
          */
         this.outboundRTC = null;
 
         /**
          * 入站流的 RTC 终端。
-         * @type {RTCEndpoint}
+         * @type {RTCDevice}
          */
         this.inboundRTC = null;
 
@@ -139,23 +139,21 @@ export class CommField extends Entity {
 
     /**
      * 启动为主叫。
-     * @param {RTCEndpoint} endpoint RTC 终端。
+     * @param {RTCDevice} device RTC 设备。
      * @param {MediaConstraint} mediaConstraint 媒体约束。
      * @param {function} successCallback 成功回调。
      * @param {function} failureCallback 失败回调。
      */
-    launchCaller(endpoint, mediaConstraint, successCallback, failureCallback) {
-        let rtcEndpoint = endpoint;
+    launchCaller(device, mediaConstraint, successCallback, failureCallback) {
+        this.rtcDevices.push(device);
 
-        this.rtcEndpoints.push(rtcEndpoint);
-
-        rtcEndpoint.onIceCandidate = (candidate) => {
-            this.onIceCandidate(candidate, rtcEndpoint);
+        device.onIceCandidate = (candidate) => {
+            this.onIceCandidate(candidate, device);
         };
 
-        rtcEndpoint.openOffer(mediaConstraint, (description) => {
+        device.openOffer(mediaConstraint, (description) => {
             let signaling = new Signaling(MultipointCommAction.Offer, this,
-                rtcEndpoint.getContact(), rtcEndpoint.getDevice(), rtcEndpoint.sn);
+                device.getContact(), device.getDevice(), device.sn);
             // 设置 SDP 信息
             signaling.sessionDescription = description;
             // 设置媒体约束
@@ -169,24 +167,22 @@ export class CommField extends Entity {
 
     /**
      * 启动为被叫。
-     * @param {RTCEndpoint} endpoint 
+     * @param {RTCDevice} device RTC 设备。
      * @param {string} offerDescription
      * @param {MediaConstraint} mediaConstraint 
      * @param {function} successCallback 
      * @param {function} failureCallback 
      */
-    launchCallee(endpoint, offerDescription, mediaConstraint, successCallback, failureCallback) {
-        let rtcEndpoint = endpoint;
+    launchCallee(device, offerDescription, mediaConstraint, successCallback, failureCallback) {
+        this.rtcDevices.push(device);
 
-        this.rtcEndpoints.push(rtcEndpoint);
-
-        rtcEndpoint.onIceCandidate = (candidate) => {
-            this.onIceCandidate(candidate, rtcEndpoint);
+        device.onIceCandidate = (candidate) => {
+            this.onIceCandidate(candidate, device);
         };
 
-        rtcEndpoint.openAnswer(offerDescription, mediaConstraint, (description) => {
+        device.openAnswer(offerDescription, mediaConstraint, (description) => {
             let signaling = new Signaling(MultipointCommAction.Answer, this,
-                rtcEndpoint.getContact(), rtcEndpoint.getDevice(), rtcEndpoint.sn);
+                device.getContact(), device.getDevice(), device.sn);
             // 设置 SDP 信息
             signaling.sessionDescription = description;
             // 设置媒体约束
@@ -201,24 +197,22 @@ export class CommField extends Entity {
     /**
      * 启动无出站流呼叫目标。
      * @param {CommFieldEndpoint} target 
-     * @param {RTCEndpoint} endpoint 
+     * @param {RTCDevice} device 
      * @param {function} successCallback 
      * @param {function} failureCallback 
      */
-    launchFollow(target, endpoint, successCallback, failureCallback) {
-        let rtcEndpoint = endpoint;
+    launchFollow(target, device, successCallback, failureCallback) {
+        device.target = target;
 
-        rtcEndpoint.target = target;
+        this.rtcDevices.push(device);
 
-        this.rtcEndpoints.push(rtcEndpoint);
-
-        rtcEndpoint.onIceCandidate = (candidate) => {
-            this.onIceCandidate(candidate, rtcEndpoint);
+        device.onIceCandidate = (candidate) => {
+            this.onIceCandidate(candidate, device);
         };
 
-        rtcEndpoint.openOffer(null, (description) => {
+        device.openOffer(null, (description) => {
             let signaling = new Signaling(MultipointCommAction.Follow, this,
-                rtcEndpoint.getContact(), rtcEndpoint.getDevice(), rtcEndpoint.sn);
+                device.getContact(), device.getDevice(), device.sn);
             // 设置 SDP 信息
             signaling.sessionDescription = description;
             // 设置目标
@@ -325,33 +319,47 @@ export class CommField extends Entity {
     }
 
     /**
-     * 返回 RTC 终端数量。
+     * 获取 RTC 设备数量。
      * @returns {number} 返回 RTC 终端数量。
      */
-    numRTCEndpoints() {
-        return this.rtcEndpoints.length;
+    numRTCDevices() {
+        return this.rtcDevices.length;
     }
 
-    getRTCEndpointBySN(sn) {
-        for (let i = 0; i < this.rtcEndpoints.length; ++i) {
-            let rtcEndpoint = this.rtcEndpoints[i];
-            if (rtcEndpoint.sn == sn) {
-                return rtcEndpoint;
+    /**
+     * 获取指定 SN 的 RTC 设备。
+     * @param {number} sn 
+     * @returns {number} 返回指定 SN 的 RTC 终端。
+     */
+    getRTCDeviceBySN(sn) {
+        for (let i = 0; i < this.rtcDevices.length; ++i) {
+            let device = this.rtcDevices[i];
+            if (device.sn == sn) {
+                return device;
             }
         }
 
         return null;
     }
 
-    getRTCEndpoint(fieldEndpoint) {
+    /**
+     * 
+     * @param {CommFieldEndpoint} fieldEndpoint 
+     */
+    getRTCDevice(fieldEndpoint) {
         if (undefined === fieldEndpoint) {
-            return this.rtcEndpoints[0];
+            if (this.rtcDevices.length > 0) {
+                return this.rtcDevices[0];
+            }
+            else {
+                return null;
+            }
         }
         else {
-            for (let i = 0; i < this.rtcEndpoints.length; ++i) {
-                let rtcEndpoint = this.rtcEndpoints[i];
-                if (null != rtcEndpoint.target && rtcEndpoint.target.getId() == fieldEndpoint.getId()) {
-                    return rtcEndpoint;
+            for (let i = 0; i < this.rtcDevices.length; ++i) {
+                let device = this.rtcDevices[i];
+                if (null != device.target && device.target.getId() == fieldEndpoint.getId()) {
+                    return device;
                 }
             }
 
@@ -359,34 +367,35 @@ export class CommField extends Entity {
         }
     }
 
-    closeRTCEndpoint(endpoint) {
-        if (endpoint instanceof RTCEndpoint) {
-            for (let i = 0; i < this.rtcEndpoints.length; ++i) {
-                let rtcEndpoint = this.rtcEndpoints[i];
-                if (rtcEndpoint == endpoint) {
-                    if (this.outboundRTC == rtcEndpoint) {
+    closeRTCDevice(device) {
+        if (device instanceof RTCDevice) {
+            for (let i = 0; i < this.rtcDevices.length; ++i) {
+                let rtcDevice = this.rtcDevices[i];
+                if (rtcDevice == device) {
+                    if (this.outboundRTC == rtcDevice) {
                         this.outboundRTC = null;
                     }
-                    if (this.inboundRTC == rtcEndpoint) {
+                    if (this.inboundRTC == rtcDevice) {
                         this.inboundRTC = null;
                     }
-                    rtcEndpoint.close();
+                    rtcDevice.close();
+                    this.rtcDevices.splice(i, 1);
                     break;
                 }
             }
         }
         else {
-            for (let i = 0; i < this.rtcEndpoints.length; ++i) {
-                let rtcEndpoint = this.rtcEndpoints[i];
-                if (null != rtcEndpoint.target && rtcEndpoint.target.getId() == endpoint.getId()) {
-                    rtcEndpoint.close();
-                    if (this.outboundRTC == rtcEndpoint) {
+            for (let i = 0; i < this.rtcDevices.length; ++i) {
+                let rtcDevice = this.rtcDevices[i];
+                if (null != rtcDevice.target && rtcDevice.target.getId() == endpoint.getId()) {
+                    rtcDevice.close();
+                    if (this.outboundRTC == rtcDevice) {
                         this.outboundRTC = null;
                     }
-                    if (this.inboundRTC == rtcEndpoint) {
+                    if (this.inboundRTC == rtcDevice) {
                         this.inboundRTC = null;
                     }
-                    this.rtcEndpoints.splice(i, 1);
+                    this.rtcDevices.splice(i, 1);
                     break;
                 }
             }
@@ -396,15 +405,15 @@ export class CommField extends Entity {
     /**
      * 关闭并清空所有 RTC 终端。
      */
-    closeRTCEndpoints() {
-        if (this.rtcEndpoints.length == 0) {
+    closeRTCDevices() {
+        if (this.rtcDevices.length == 0) {
             return;
         }
 
-        this.rtcEndpoints.forEach((rtcEndpoint, index, array) => {
-            rtcEndpoint.close();
+        this.rtcDevices.forEach((device, index, array) => {
+            device.close();
         });
-        this.rtcEndpoints.splice(0, this.rtcEndpoints.length);
+        this.rtcDevices.splice(0, this.rtcDevices.length);
 
         this.outboundRTC = null;
         this.inboundRTC = null;
@@ -446,10 +455,11 @@ export class CommField extends Entity {
     /**
      * @private
      * @param {*} candidate 
-     * @param {*} rtcEndpoint 
+     * @param {*} rtcDevice
      */
-    onIceCandidate(candidate, rtcEndpoint) {
-        let signaling = new Signaling(MultipointCommAction.Candidate, this, rtcEndpoint.getContact(), rtcEndpoint.getDevice());
+    onIceCandidate(candidate, rtcDevice) {
+        let signaling = new Signaling(MultipointCommAction.Candidate,
+            this, rtcDevice.getContact(), rtcDevice.getDevice(), rtcDevice.sn);
         signaling.candidate = candidate;
         this.sendSignaling(signaling);
     }

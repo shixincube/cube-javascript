@@ -90,7 +90,7 @@ export class CallRecord {
     }
 
     isActive() {
-        return (null != this.field && this.field.numRTCEndpoints() > 0);
+        return (null != this.field && this.field.numRTCDevices() > 0);
     }
 
     getCaller() {

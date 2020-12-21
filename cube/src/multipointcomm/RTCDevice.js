@@ -34,9 +34,9 @@ import { MultipointComm } from "./MultipointComm";
 import { MultipointCommState } from "./MultipointCommState";
 
 /**
- * 本地 RTC 接入点。
+ * RTC 设备。
  */
-export class RTCEndpoint {
+export class RTCDevice {
 
     /**
      * @param {Contact} contact 联系人。
@@ -215,13 +215,13 @@ export class RTCEndpoint {
     /**
      * @private
      */
-    enableICE() {
+    enableICE(iceServers) {
+        if (null == iceServers) {
+            return;
+        }
+
         this.configuration = {
-            iceServers: [{
-                urls: "turn:52.83.195.35:3478",
-                username: "cube",
-                credential: "cube887"
-            }]
+            iceServers: iceServers
         };
     }
 

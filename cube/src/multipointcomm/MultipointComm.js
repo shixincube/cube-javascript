@@ -34,7 +34,7 @@ import { StateCode } from "../core/StateCode";
 import { OrderMap } from "../util/OrderMap";
 import { CommField } from "./CommField";
 import { MultipointCommAction } from "./MultipointCommAction";
-import { RTCEndpoint } from "./RTCEndpoint";
+import { RTCDevice } from "./RTCDevice";
 import { MediaConstraint } from "./MediaConstraint";
 import { MultipointCommState } from "./MultipointCommState";
 import { CommPipelineListener } from "./CommPipelineListener";
@@ -62,6 +62,12 @@ export class MultipointComm extends Module {
          * @type {CommPipelineListener}
          */
         this.pipelineListener = new CommPipelineListener(this);
+
+        /**
+         * ICE Servers 。
+         * @type {Array}
+         */
+        this.iceServers = null;
 
         /**
          * 个人的私有通信场。
@@ -154,7 +160,7 @@ export class MultipointComm extends Module {
         }
 
         if (null != this.privateField) {
-            this.privateField.closeRTCEndpoints();
+            this.privateField.closeRTCDevices();
         }
 
         if (null != this.activeCall && this.activeCall.isActive()) {
@@ -168,6 +174,16 @@ export class MultipointComm extends Module {
         }
         else {
             this.pipeline.removeListener(MultipointComm.NAME, this.pipelineListener);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     * @see Module#config
+     */
+    config(config) {
+        if (config.iceServers) {
+            this.iceServers = config.iceServers;
         }
     }
 
@@ -208,28 +224,28 @@ export class MultipointComm extends Module {
      * @private
      * @param {HTMLElement} localVideoElem 
      * @param {HTMLElement} remoteVideoElem 
-     * @returns {RTCEndpoint} 返回 {@ink RTCEndpoint} 实例。
+     * @returns {RTCDevice} 返回 {@ink RTCDevice} 实例。
      */
-    createRTCEndpoint(localVideoElem, remoteVideoElem) {
+    createRTCDevice(localVideoElem, remoteVideoElem) {
         let cs = this.kernel.getModule(ContactService.NAME);
         let self = cs.getSelf();
         if (null == self) {
             return null;
         }
 
-        // rtcEndpoint.localVideoElem = document.createElement('video');
+        // rtcDevice.localVideoElem = document.createElement('video');
 
-        let rtcEndpoint = new RTCEndpoint(self, self.getDevice());
+        let rtcDevice = new RTCDevice(self, self.getDevice());
 
         if (localVideoElem) {
-            rtcEndpoint.localVideoElem = localVideoElem;
+            rtcDevice.localVideoElem = localVideoElem;
         }
 
         if (remoteVideoElem) {
-            rtcEndpoint.remoteVideoElem = remoteVideoElem;
+            rtcDevice.remoteVideoElem = remoteVideoElem;
         }
 
-        return rtcEndpoint;
+        return rtcDevice;
     }
 
     /**
@@ -312,8 +328,8 @@ export class MultipointComm extends Module {
             // 创建通话记录
             this.activeCall = new CallRecord(this.privateField.getFounder());
 
-            // 创建 RTC 终端
-            let rtcEndpoint = this.createRTCEndpoint(this.videoElem.local, this.videoElem.remote);
+            // 创建 RTC 设备
+            let rtcDevice = this.createRTCDevice(this.videoElem.local, this.videoElem.remote);
 
             // 1. 先申请主叫，从而设置目标
             this.privateField.applyCall(this.privateField.getFounder(), target, (commField, proposer, target) => {
@@ -325,8 +341,8 @@ export class MultipointComm extends Module {
                 this.activeCall.callerMediaConstraint = mediaConstraint;
 
                 // 2. 启动 RTC 节点，发起 Offer
-                rtcEndpoint.enableICE();
-                this.privateField.launchCaller(rtcEndpoint, mediaConstraint, successHandler, failureHandler);
+                rtcDevice.enableICE(this.iceServers);
+                this.privateField.launchCaller(rtcDevice, mediaConstraint, successHandler, failureHandler);
             }, (error) => {
                 failureHandler(error);
             });
@@ -361,11 +377,11 @@ export class MultipointComm extends Module {
                 this.notifyObservers(new ObservableState(MultipointCommEvent.InProgress, target));
             });
 
-            let rtcEndpoint = this.createRTCEndpoint();
+            let rtcDevice = this.createRTCDevice();
 
             // 发布本地流到 Comm Field
-            target.launchCaller(rtcEndpoint, mediaConstraint, successHandler, failureHandler);
-            target.outboundRTC = rtcEndpoint;
+            target.launchCaller(rtcDevice, mediaConstraint, successHandler, failureHandler);
+            target.outboundRTC = rtcDevice;
         }
         else {
             return false;
@@ -411,10 +427,10 @@ export class MultipointComm extends Module {
             this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
 
             if (target instanceof CommField) {
-                this.activeCall.field.closeRTCEndpoints();
+                this.activeCall.field.closeRTCDevices();
             }
             else if (target instanceof CommFieldEndpoint) {
-                this.activeCall.field.closeRTCEndpoint(target);
+                this.activeCall.field.closeRTCDevice(target);
             }
         };
 
@@ -448,11 +464,11 @@ export class MultipointComm extends Module {
                 this.notifyObservers(new ObservableState(MultipointCommEvent.InProgress, target));
             });
 
-            let rtcEndpoint = this.createRTCEndpoint();
+            let rtcDevice = this.createRTCDevice();
 
             // 获取 Comm Field 的混码流
-            target.launchCaller(rtcEndpoint, null, successHandler, failureHandler);
-            target.inboundRTC = rtcEndpoint;
+            target.launchCaller(rtcDevice, null, successHandler, failureHandler);
+            target.inboundRTC = rtcDevice;
         }
         else if (target instanceof CommFieldEndpoint) {
             if (null != this.activeCall) {
@@ -473,10 +489,10 @@ export class MultipointComm extends Module {
                 this.notifyObservers(new ObservableState(MultipointCommEvent.InProgress, target));
             });
 
-            let rtcEndpoint = this.createRTCEndpoint();
+            let rtcDevice = this.createRTCDevice();
 
             // 订阅 CommFieldEndpoint 的流
-            target.field.launchFollow(target, rtcEndpoint, successHandler, failureHandler);
+            target.field.launchFollow(target, rtcDevice, successHandler, failureHandler);
         }
         else {
             return false;
@@ -569,11 +585,11 @@ export class MultipointComm extends Module {
             // 记录
             this.activeCall.answerTime = Date.now();
 
-            // 创建 RTC 终端
-            let rtcEndpoint = this.createRTCEndpoint(this.videoElem.local, this.videoElem.remote);
+            // 创建 RTC 设备
+            let rtcDevice = this.createRTCDevice(this.videoElem.local, this.videoElem.remote);
 
             // 1. 先申请进入
-            this.privateField.applyEnter(rtcEndpoint.getContact(), rtcEndpoint.getDevice(), (contact, device) => {
+            this.privateField.applyEnter(rtcDevice.getContact(), rtcDevice.getDevice(), (contact, device) => {
                 this.privateField.caller = target;
                 this.privateField.callee = this.privateField.getFounder();
 
@@ -582,8 +598,8 @@ export class MultipointComm extends Module {
                 this.activeCall.calleeMediaConstraint = mediaConstraint;
 
                 // 2. 启动 RTC 节点，发起 Answer
-                rtcEndpoint.enableICE();
-                this.privateField.launchCallee(rtcEndpoint,
+                rtcDevice.enableICE(this.iceServers);
+                this.privateField.launchCallee(rtcDevice,
                     this.offerSignaling.sessionDescription, mediaConstraint, successHandler, failureHandler);
             }, (error) => {
                 failureHandler(error);
@@ -591,11 +607,11 @@ export class MultipointComm extends Module {
         }
         else if (target instanceof CommField) {
             // 创建 RTC 终端
-            let rtcEndpoint = this.createRTCEndpoint();
-            rtcEndpoint.sn = this.offerSignaling.endpointSN;
+            let rtcDevice = this.createRTCDevice();
+            rtcDevice.sn = this.offerSignaling.rtcSN;
 
             // 应答 Comm Field
-            target.launchCallee(rtcEndpoint,
+            target.launchCallee(rtcDevice,
                 this.offerSignaling.sessionDescription, mediaConstraint, successHandler, failureHandler);
         }
         else {
@@ -640,7 +656,7 @@ export class MultipointComm extends Module {
             let activeCall = this.activeCall;
 
             if (field.isPrivate()) {
-                field.closeRTCEndpoints();
+                field.closeRTCDevices();
                 this.offerSignaling = null;
                 this.answerSignaling = null;
                 this.activeCall = null;
@@ -653,11 +669,11 @@ export class MultipointComm extends Module {
                     if (!signaling.field.isPrivate()) {
                         // 非私域，指定是否关闭指定的终端
                         if (null != signaling.target) {
-                            field.closeRTCEndpoint(signaling.target);
+                            field.closeRTCDevice(signaling.target);
                             activeCall.currentFieldEndpoint = field.getEndpoint(signaling.target);
                         }
                         else {
-                            field.closeRTCEndpoint(field.outboundRTC);
+                            field.closeRTCDevice(field.outboundRTC);
                         }
                     }
                     else {
@@ -670,7 +686,7 @@ export class MultipointComm extends Module {
                     }
                     this.notifyObservers(new ObservableState(MultipointCommEvent.Bye, activeCall));
 
-                    if (activeCall.field.numRTCEndpoints() == 0) {
+                    if (activeCall.field.numRTCDevices() == 0) {
                         this.activeCall = null;
                     }
                 }
@@ -708,22 +724,25 @@ export class MultipointComm extends Module {
             }
             else {
                 let signaling = new Signaling(MultipointCommAction.Bye, field, 
-                    this.privateField.founder, this.privateField.founder.getDevice());
+                    this.privateField.founder, this.privateField.founder.getDevice(),
+                    null != field.getRTCDevice() ? field.getRTCDevice().sn : 0);
                 let packet = new Packet(MultipointCommAction.Bye, signaling.toJSON());
                 this.pipeline.send(MultipointComm.NAME, packet, byeHandler);
                 return true;
             }
 
-            if (null != callee && callee.getId() == this.privateField.founder.getId() && this.privateField.rtcEndpoints[0].ready) {
+            if (null != callee && callee.getId() == this.privateField.founder.getId() && this.privateField.getRTCDevice().ready) {
                 // 被叫端拒绝通话
                 let signaling = new Signaling(MultipointCommAction.Busy, field, 
-                    this.privateField.founder, this.privateField.founder.getDevice());
+                    this.privateField.founder, this.privateField.founder.getDevice(),
+                    null != field.getRTCDevice() ? field.getRTCDevice().sn : 0);
                 let packet = new Packet(MultipointCommAction.Busy, signaling.toJSON());
                 this.pipeline.send(MultipointComm.NAME, packet);
             }
             else {
                 let signaling = new Signaling(MultipointCommAction.Bye, field, 
-                    this.privateField.founder, this.privateField.founder.getDevice());
+                    this.privateField.founder, this.privateField.founder.getDevice(),
+                    null != field.getRTCDevice() ? field.getRTCDevice().sn : 0);
                 let packet = new Packet(MultipointCommAction.Bye, signaling.toJSON());
                 this.pipeline.send(MultipointComm.NAME, packet, byeHandler);
             }
@@ -734,7 +753,8 @@ export class MultipointComm extends Module {
             }
 
             let signaling = new Signaling(MultipointCommAction.Bye, field, 
-                this.privateField.founder, this.privateField.founder.getDevice());
+                this.privateField.founder, this.privateField.founder.getDevice(),
+                field.outboundRTC.sn);
             // 设置目标，如果不订阅目标设置为 null
             signaling.target = endpoint;
             let packet = new Packet(MultipointCommAction.Bye, signaling.toJSON());
@@ -790,11 +810,11 @@ export class MultipointComm extends Module {
 
                     // 非私域，指定是否关闭指定的终端
                     if (null != signaling.target) {
-                        field.closeRTCEndpoint(signaling.target);
+                        field.closeRTCDevice(signaling.target);
                         activeCall.currentFieldEndpoint = field.getEndpoint(signaling.target);
                     }
                     else {
-                        field.closeRTCEndpoint(field.inboundRTC);
+                        field.closeRTCDevice(field.inboundRTC);
                     }
 
                     if (successCallback) {
@@ -802,7 +822,7 @@ export class MultipointComm extends Module {
                     }
                     this.notifyObservers(new ObservableState(MultipointCommEvent.Bye, activeCall));
 
-                    if (field.numRTCEndpoints() == 0) {
+                    if (field.numRTCDevices() == 0) {
                         this.activeCall = null;
                     }
                 }
@@ -830,7 +850,8 @@ export class MultipointComm extends Module {
         };
 
         let signaling = new Signaling(MultipointCommAction.Revoke, field, 
-            this.privateField.founder, this.privateField.founder.getDevice());
+            this.privateField.founder, this.privateField.founder.getDevice(),
+            field.getRTCDevice(endpoint).sn);
         // 设置目标，如果不订阅目标设置为 null
         signaling.target = endpoint;
         let packet = new Packet(MultipointCommAction.Revoke, signaling.toJSON());
@@ -901,7 +922,7 @@ export class MultipointComm extends Module {
         if (null != this.activeCall && this.activeCall.isActive()) {
             // 应答忙音 Busy
             let busy = new Signaling(MultipointCommAction.Busy, this.offerSignaling.field,
-                this.privateField.getFounder(), this.privateField.getDevice());
+                this.privateField.getFounder(), this.privateField.getDevice(), 0);
             let packet = new Packet(MultipointCommAction.Busy, busy.toJSON());
             this.pipeline.send(MultipointComm.NAME, packet);
 
@@ -955,30 +976,30 @@ export class MultipointComm extends Module {
         let data = payload.data;
         this.answerSignaling = Signaling.create(data, this.pipeline);
 
-        let rtcEndpoint = null;
+        let rtcDevice = null;
 
         if (this.activeCall.field.isPrivate()) {
             // 记录媒体约束
             this.activeCall.calleeMediaConstraint = this.answerSignaling.mediaConstraint;
-            rtcEndpoint = this.activeCall.field.getRTCEndpoint();
+            rtcDevice = this.activeCall.field.getRTCDevice();
         }
         else {
             if (null != this.answerSignaling.target) {
-                rtcEndpoint = this.activeCall.field.getRTCEndpoint(this.answerSignaling.target);
+                rtcDevice = this.activeCall.field.getRTCDevice(this.answerSignaling.target);
             }
             else {
                 if (null != this.answerSignaling.mediaConstraint) {
                     // 应答数据带媒体约束表示是来自 CommField 的入站流
-                    rtcEndpoint = this.activeCall.field.inboundRTC;
+                    rtcDevice = this.activeCall.field.inboundRTC;
                 }
                 else {
                     // 没有携带媒体约束表示是出站 Offer 的流
-                    rtcEndpoint = this.activeCall.field.outboundRTC;
+                    rtcDevice = this.activeCall.field.outboundRTC;
                 }
             }
         }
 
-        rtcEndpoint.doAnswer(this.answerSignaling.sessionDescription, () => {
+        rtcDevice.doAnswer(this.answerSignaling.sessionDescription, () => {
             this.notifyObservers(new ObservableState(MultipointCommEvent.Connected, this.activeCall));
         }, (error) => {
             this.activeCall.lastError = error;
@@ -1000,23 +1021,23 @@ export class MultipointComm extends Module {
 
         let signaling = Signaling.create(payload.data, this.pipeline);
 
-        let rtcEndpoint = null;
+        let rtcDevice = null;
 
-        // 获取 RTCEndpoint 实例
-        rtcEndpoint = this.activeCall.field.getRTCEndpointBySN(signaling.endpointSN);
+        // 获取 RTCDevice 实例
+        rtcDevice = this.activeCall.field.getRTCDeviceBySN(signaling.rtcSN);
 
-        if (null == rtcEndpoint) {
-            cell.Logger.e('MultipointComm', 'Can NOT find rtc endpoint: ' + signaling.endpointSN);
+        if (null == rtcDevice) {
+            cell.Logger.e('MultipointComm', 'Can NOT find rtc device: ' + signaling.rtcSN);
             return;
         }
 
         if (null != signaling.candidate) {
-            rtcEndpoint.doCandidate(signaling.candidate);
+            rtcDevice.doCandidate(signaling.candidate);
         }
         else if (null != signaling.candidates) {
             let list = signaling.candidates;
             for (let i = 0; i < list.length; ++i) {
-                rtcEndpoint.doCandidate(list[i]);
+                rtcDevice.doCandidate(list[i]);
             }
         }
     }

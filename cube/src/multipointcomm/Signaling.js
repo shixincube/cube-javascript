@@ -42,9 +42,9 @@ export class Signaling extends JSONable {
      * @param {CommField} field 信令的通讯场域。
      * @param {Contact} contact 传送/接收该信令的联系人。
      * @param {Device} device 传送/接收该信令的设备。
-     * @param {number} endpointSN RTC 终端的 SN 。
+     * @param {number} rtcSN RTC 设备的 SN 。
      */
-    constructor(name, field, contact, device, endpointSN) {
+    constructor(name, field, contact, device, rtcSN) {
         super();
 
         /**
@@ -75,7 +75,7 @@ export class Signaling extends JSONable {
          * RTC 的 SN 。
          * @type {number}
          */
-        this.endpointSN = endpointSN;
+        this.rtcSN = rtcSN;
 
         /**
          * 目标。
@@ -129,7 +129,7 @@ export class Signaling extends JSONable {
         json["field"] = this.field.toCompactJSON();
         json["contact"] = this.contact.toCompactJSON();
         json["device"] = this.device.toCompactJSON();
-        json["endpointSN"] = this.endpointSN;
+        json["rtcSN"] = this.rtcSN;
 
         if (null != this.sessionDescription) {
             json["description"] = this.sessionDescription;
@@ -168,7 +168,7 @@ export class Signaling extends JSONable {
             CommField.create(json.field, pipeline),
             Contact.create(json.contact),
             Device.create(json.device),
-            json.endpointSN);
+            json.rtcSN);
 
         if (json.description) {
             signaling.sessionDescription = json.description;
