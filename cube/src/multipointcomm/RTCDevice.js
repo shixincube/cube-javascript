@@ -305,6 +305,8 @@ export class RTCDevice {
             this.fireOnIceCandidate(event);
         };
 
+        // this.pc.oniceconnectionstatechange
+
         (async () => {
             // 判断是否忽略获取媒体
             if (null != mediaConstraint) {
@@ -458,10 +460,25 @@ export class RTCDevice {
             return;
         }
 
+        if (this.candidates.length > 0) {
+            for (let i = 0; i < this.candidates.length; ++i) {
+                let candidate = this.candidates[i];
+                let iceCandidate = new RTCIceCandidate(candidate);
+                this.pc.addIceCandidate(iceCandidate).catch((error) => {
+                    cell.Logger.e('RTCDevice', 'Ice Candidate error: ' + error);
+                });
+
+                cell.Logger.d('RTCDevice', '#doCandidate add candidate: ' + candidate.sdpMid);
+            }
+            this.candidates.splice(0, this.candidates.length);
+        }
+
         let iceCandidate = new RTCIceCandidate(candidate);
         this.pc.addIceCandidate(iceCandidate).catch((error) => {
-            console.log('Ice Candidate error: ' + error);
+            cell.Logger.e('RTCDevice', 'Ice Candidate error: ' + error);
         });
+
+        cell.Logger.d('RTCDevice', '#doCandidate add candidate: ' + candidate.sdpMid);
     }
 
     /**
@@ -474,8 +491,10 @@ export class RTCDevice {
             let candidate = this.candidates[i];
             let iceCandidate = new RTCIceCandidate(candidate);
             this.pc.addIceCandidate(iceCandidate).catch((error) => {
-                console.log('Ice Candidate error: ' + error);
+                cell.Logger.e('RTCDevice', 'Ice Candidate error: ' + error);
             });
+
+            cell.Logger.d('RTCDevice', '#doReady add candidate: ' + candidate.sdpMid);
         }
 
         this.candidates.splice(0, this.candidates.length);

@@ -319,7 +319,7 @@ export class MultipointComm extends Module {
                 this.callTimer = setTimeout(() => {
                     this.fireCallTimeout();
                 }, this.callTimeout);
-    
+
                 resolve();
             })).then(() => {
                 // 回调 InProgress 事件
@@ -516,6 +516,7 @@ export class MultipointComm extends Module {
         }
 
         if (null == this.offerSignaling) {
+            cell.Logger.w(MultipointComm.NAME, '#answerCall offer signaling is null');
             return false;
         }
 
@@ -583,6 +584,16 @@ export class MultipointComm extends Module {
                 return false;
             }
 
+            if (null == this.videoElem.local && null == this.videoElem.remote) {
+                // 没有设置任何视频元素标签
+                let error = new ModuleError(MultipointComm.NAME, MultipointCommState.VideoElementNotSet, target);
+                if (failureCallback) {
+                    failureCallback(error);
+                }
+                this.notifyObservers(new ObservableState(MultipointCommEvent.CallFailed, error));
+                return false;
+            }
+
             // 记录
             this.activeCall.answerTime = Date.now();
 
@@ -609,7 +620,6 @@ export class MultipointComm extends Module {
         else if (target instanceof CommField) {
             // 创建 RTC 终端
             let rtcDevice = this.createRTCDevice();
-            rtcDevice.sn = this.offerSignaling.rtcSN;
 
             // 应答 Comm Field
             target.launchCallee(rtcDevice,
@@ -715,12 +725,15 @@ export class MultipointComm extends Module {
         };
 
         if (field.isPrivate()) {
+            let caller = null;
             let callee = null;
 
             if (null != this.offerSignaling) {
+                caller = this.offerSignaling.caller;
                 callee = this.offerSignaling.callee;
             }
             else if (null != this.answerSignaling) {
+                caller = this.answerSignaling.caller;
                 callee = this.answerSignaling.callee;
             }
             else {
@@ -967,6 +980,7 @@ export class MultipointComm extends Module {
         }
 
         if (null == this.activeCall || !this.activeCall.isActive()) {
+            cell.Logger.e(MultipointComm.NAME, '#triggerAnswer no active call record');
             return;
         }
 
@@ -1019,17 +1033,10 @@ export class MultipointComm extends Module {
      * @param {object} context 
      */
     triggerCandidate(payload, context) {
-        if (null != context) {
-            // context 不是 null 值时，表示该信令是由本终端发出的，因此无需处理，直接返回
-            return;
-        }
-
         let signaling = Signaling.create(payload.data, this.pipeline);
 
-        let rtcDevice = null;
-
         // 获取 RTCDevice 实例
-        rtcDevice = this.activeCall.field.getRTCDeviceBySN(signaling.rtcSN);
+        let rtcDevice = this.activeCall.field.getRTCDeviceBySN(signaling.rtcSN);
 
         if (null == rtcDevice) {
             cell.Logger.e('MultipointComm', 'Can NOT find rtc device: ' + signaling.rtcSN);
@@ -1039,7 +1046,8 @@ export class MultipointComm extends Module {
         if (null != signaling.candidate) {
             rtcDevice.doCandidate(signaling.candidate);
         }
-        else if (null != signaling.candidates) {
+
+        if (null != signaling.candidates) {
             let list = signaling.candidates;
             for (let i = 0; i < list.length; ++i) {
                 rtcDevice.doCandidate(list[i]);

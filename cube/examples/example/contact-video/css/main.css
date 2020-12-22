@@ -59,3 +59,7 @@ div#controls {
     width: 100%;
     text-align: center;
 }
+
+video {
+    min-height: 240px;
+}

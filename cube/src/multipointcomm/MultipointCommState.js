@@ -141,10 +141,16 @@ export const MultipointCommState = {
     MediaPermissionDenied: 110,
 
     /**
+     * 视频元素未设置。
+     * @type {number}
+     */
+    VideoElementNotSet: 112,
+
+    /**
      * 信令错误。
      * @type {number}
      */
-    SignalingError: 111,
+    SignalingError: 115,
 
     /**
      * 创建 RTC offer 错误。

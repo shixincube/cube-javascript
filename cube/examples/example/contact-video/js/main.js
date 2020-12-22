@@ -108,8 +108,9 @@ function stop() {
     hangupCallButton.setAttribute('disabled', 'disabled');
 }
 
+// 呼叫联系人
 function makeCall() {
-    // 设置视频标签元素到 Cube
+    // 设置视频标签元素
     cube.mpComm.setRemoteVideoElement(peerVideo);
     cube.mpComm.setLocalVideoElement(myVideo);
 
@@ -130,7 +131,12 @@ function makeCall() {
     });
 }
 
+// 应答来电
 function answerCall() {
+    // 设置视频标签元素
+    cube.mpComm.setRemoteVideoElement(peerVideo);
+    cube.mpComm.setLocalVideoElement(myVideo);
+
     let mediaConstraint = new MediaConstraint(true, true);
     cube.mpComm.answerCall(mediaConstraint, function(record) {
         stateLabel.innerHTML = '应答 ' + record.getPeer().getId();
@@ -139,6 +145,7 @@ function answerCall() {
     });
 }
 
+// 挂断通话
 function hangupCall() {
     cube.mpComm.hangupCall();
 }
@@ -185,7 +192,7 @@ function onInProgress() {
     stateLabel.innerHTML = '正在处理呼叫...';
 }
 
-function onRinging(record) {
+function onRinging() {
     stateLabel.innerHTML = '对方振铃...';
 
     let count = 0;
@@ -194,7 +201,8 @@ function onRinging(record) {
     }, 1000);
 }
 
-function onNewCall(record) {
+function onNewCall(event) {
+    let record = event.getData();
     stateLabel.innerHTML = '收到来自 ' + record.getCaller().getId() + ' 通话邀请';
     hangupCallButton.removeAttribute('disabled');
     answerCallButton.removeAttribute('disabled');
@@ -206,14 +214,16 @@ function onNewCall(record) {
     }, 100);
 }
 
-function onConnected(record) {
+function onConnected(event) {
+    let record = event.getData();
+
     clearInterval(timer);
 
     stateLabel.innerHTML = '已经接通 ' + record.getPeer().getId();
     enableCtrlButtons(true);
 }
 
-function onBye(record) {
+function onBye() {
     clearInterval(timer);
 
     stateLabel.innerHTML = '通话结束';
@@ -233,10 +243,10 @@ function onBye(record) {
     peerVideo = newNode;
 }
 
-function onTimeout(record) {
+function onTimeout() {
     clearInterval(timer);
 
-    stateLabel.innerHTML = '<span class="warning">呼叫超时</span>';
+    stateLabel.innerHTML = '<span class="warning">呼叫/应答超时</span>';
     hangupCallButton.setAttribute('disabled', 'disabled');
     answerCallButton.setAttribute('disabled', 'disabled');
 }
