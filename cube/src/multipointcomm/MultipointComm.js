@@ -725,41 +725,11 @@ export class MultipointComm extends Module {
         };
 
         if (field.isPrivate()) {
-            let caller = null;
-            let callee = null;
-
-            if (null != this.offerSignaling) {
-                caller = this.offerSignaling.caller;
-                callee = this.offerSignaling.callee;
-            }
-            else if (null != this.answerSignaling) {
-                caller = this.answerSignaling.caller;
-                callee = this.answerSignaling.callee;
-            }
-            else {
-                let signaling = new Signaling(MultipointCommAction.Bye, field, 
-                    this.privateField.founder, this.privateField.founder.getDevice(),
-                    null != field.getRTCDevice() ? field.getRTCDevice().sn : 0);
-                let packet = new Packet(MultipointCommAction.Bye, signaling.toJSON());
-                this.pipeline.send(MultipointComm.NAME, packet, byeHandler);
-                return true;
-            }
-
-            if (null != callee && callee.getId() == this.privateField.founder.getId() && this.privateField.getRTCDevice().ready) {
-                // 被叫端拒绝通话
-                let signaling = new Signaling(MultipointCommAction.Busy, field, 
-                    this.privateField.founder, this.privateField.founder.getDevice(),
-                    null != field.getRTCDevice() ? field.getRTCDevice().sn : 0);
-                let packet = new Packet(MultipointCommAction.Busy, signaling.toJSON());
-                this.pipeline.send(MultipointComm.NAME, packet);
-            }
-            else {
-                let signaling = new Signaling(MultipointCommAction.Bye, field, 
-                    this.privateField.founder, this.privateField.founder.getDevice(),
-                    null != field.getRTCDevice() ? field.getRTCDevice().sn : 0);
-                let packet = new Packet(MultipointCommAction.Bye, signaling.toJSON());
-                this.pipeline.send(MultipointComm.NAME, packet, byeHandler);
-            }
+            let signaling = new Signaling(MultipointCommAction.Bye, field, 
+                this.privateField.founder, this.privateField.founder.getDevice(),
+                null != field.getRTCDevice() ? field.getRTCDevice().sn : 0);
+            let packet = new Packet(MultipointCommAction.Bye, signaling.toJSON());
+            this.pipeline.send(MultipointComm.NAME, packet, byeHandler);
         }
         else {
             if (null == field.outboundRTC) {
@@ -928,11 +898,6 @@ export class MultipointComm extends Module {
      * @param {object} context 
      */
     triggerOffer(payload, context) {
-        if (null != context) {
-            // context 不是 null 值时，表示该信令是由本终端发出的，因此无需处理，直接返回
-            return;
-        }
-
         let data = payload.data;
         this.offerSignaling = Signaling.create(data, this.pipeline);
 
@@ -974,11 +939,6 @@ export class MultipointComm extends Module {
      * @param {object} context 
      */
     triggerAnswer(payload, context) {
-        if (null != context) {
-            // context 不是 null 值时，表示该信令是由本终端发出的，因此无需处理，直接返回
-            return;
-        }
-
         if (null == this.activeCall || !this.activeCall.isActive()) {
             cell.Logger.e(MultipointComm.NAME, '#triggerAnswer no active call record');
             return;
@@ -1043,15 +1003,15 @@ export class MultipointComm extends Module {
             return;
         }
 
-        if (null != signaling.candidate) {
-            rtcDevice.doCandidate(signaling.candidate);
-        }
-
         if (null != signaling.candidates) {
             let list = signaling.candidates;
             for (let i = 0; i < list.length; ++i) {
                 rtcDevice.doCandidate(list[i]);
             }
+        }
+
+        if (null != signaling.candidate) {
+            rtcDevice.doCandidate(signaling.candidate);
         }
     }
 

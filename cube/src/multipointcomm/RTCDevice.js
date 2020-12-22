@@ -468,7 +468,7 @@ export class RTCDevice {
                     cell.Logger.e('RTCDevice', 'Ice Candidate error: ' + error);
                 });
 
-                cell.Logger.d('RTCDevice', '#doCandidate add candidate: ' + candidate.sdpMid);
+                cell.Logger.d('RTCDevice', '#doCandidate [array] add candidate: ' + candidate.sdpMid);
             }
             this.candidates.splice(0, this.candidates.length);
         }
