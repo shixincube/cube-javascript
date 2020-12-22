@@ -45,6 +45,8 @@ const peerAudioButton = document.querySelector('button#peerAudioCtrl');
 const myVideoButton = document.querySelector('button#myVideoCtrl');
 const myAudioButton = document.querySelector('button#myAudioCtrl');
 
+myVideoButton.onclick = switchLocalVideo;
+
 const makeCallButton = document.querySelector('button#makeCall');
 const answerCallButton = document.querySelector('button#answerCall');
 const hangupCallButton = document.querySelector('button#hangupCall');
@@ -141,7 +143,22 @@ function hangupCall() {
     cube.mpComm.hangupCall();
 }
 
-function muteLocalVideo() {
+function enableCtrlButtons(enabled) {
+    if (enabled) {
+        peerVideoButton.removeAttribute('disabled');
+        peerAudioButton.removeAttribute('disabled');
+        myVideoButton.removeAttribute('disabled');
+        myAudioButton.removeAttribute('disabled');
+    }
+    else {
+        peerVideoButton.setAttribute('disabled', 'disabled');
+        peerAudioButton.setAttribute('disabled', 'disabled');
+        myVideoButton.setAttribute('disabled', 'disabled');
+        myAudioButton.setAttribute('disabled', 'disabled');
+    }
+}
+
+function switchLocalVideo() {
     let field = cube.mpComm.getActiveField();
     if (null == field) {
         console.log('没有找到活跃 Field');
@@ -149,7 +166,19 @@ function muteLocalVideo() {
     }
 
     let rtcDevice = field.getRTCDevice();
-    
+    if (null == rtcDevice) {
+        console.log('当前状态不能操作');
+        return;
+    }
+
+    if (rtcDevice.outboundVideoEnabled()) {
+        myVideoButton.innerHTML = '打开视频';
+        rtcDevice.enableOutboundVideo(false);
+    }
+    else {
+        myVideoButton.innerHTML = '关闭视频';
+        rtcDevice.enableOutboundVideo(true);
+    }
 }
 
 function onInProgress() {
@@ -181,6 +210,7 @@ function onConnected(record) {
     clearInterval(timer);
 
     stateLabel.innerHTML = '已经接通 ' + record.getPeer().getId();
+    enableCtrlButtons(true);
 }
 
 function onBye(record) {
@@ -189,6 +219,8 @@ function onBye(record) {
     stateLabel.innerHTML = '通话结束';
     hangupCallButton.setAttribute('disabled', 'disabled');
     answerCallButton.setAttribute('disabled', 'disabled');
+
+    enableCtrlButtons(false);
 
     let parentNode = myVideo.parentNode;
     let newNode = document.createElement('video');
