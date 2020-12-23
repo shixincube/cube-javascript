@@ -925,13 +925,16 @@ export class MultipointComm extends Module {
 
         // 创建记录
         this.activeCall = new CallRecord(this.privateField.getFounder());
-        this.activeCall.field = this.offerSignaling.field;
 
         if (this.offerSignaling.field.isPrivate()) {
+            this.activeCall.field = this.privateField;
             this.activeCall.field.caller = this.offerSignaling.caller;
             this.activeCall.field.callee = this.offerSignaling.callee;
             // 记录媒体约束
             this.activeCall.callerMediaConstraint = this.offerSignaling.mediaConstraint;
+        }
+        else {
+            this.activeCall.field = this.offerSignaling.field;
         }
 
         // 新的通话申请

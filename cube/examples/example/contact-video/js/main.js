@@ -45,7 +45,10 @@ const peerAudioButton = document.querySelector('button#peerAudioCtrl');
 const myVideoButton = document.querySelector('button#myVideoCtrl');
 const myAudioButton = document.querySelector('button#myAudioCtrl');
 
+peerVideoButton.onclick = switchRemoteVideo;
+peerAudioButton.onclick = switchRemoteAudio;
 myVideoButton.onclick = switchLocalVideo;
+myAudioButton.onclick = switchLocalAudio;
 
 const makeCallButton = document.querySelector('button#makeCall');
 const answerCallButton = document.querySelector('button#answerCall');
@@ -150,44 +153,6 @@ function hangupCall() {
     cube.mpComm.hangupCall();
 }
 
-function enableCtrlButtons(enabled) {
-    if (enabled) {
-        peerVideoButton.removeAttribute('disabled');
-        peerAudioButton.removeAttribute('disabled');
-        myVideoButton.removeAttribute('disabled');
-        myAudioButton.removeAttribute('disabled');
-    }
-    else {
-        peerVideoButton.setAttribute('disabled', 'disabled');
-        peerAudioButton.setAttribute('disabled', 'disabled');
-        myVideoButton.setAttribute('disabled', 'disabled');
-        myAudioButton.setAttribute('disabled', 'disabled');
-    }
-}
-
-function switchLocalVideo() {
-    let field = cube.mpComm.getActiveField();
-    if (null == field) {
-        console.log('没有找到活跃 Field');
-        return;
-    }
-
-    let rtcDevice = field.getRTCDevice();
-    if (null == rtcDevice) {
-        console.log('当前状态不能操作');
-        return;
-    }
-
-    if (rtcDevice.outboundVideoEnabled()) {
-        myVideoButton.innerHTML = '打开视频';
-        rtcDevice.enableOutboundVideo(false);
-    }
-    else {
-        myVideoButton.innerHTML = '关闭视频';
-        rtcDevice.enableOutboundVideo(true);
-    }
-}
-
 function onInProgress() {
     stateLabel.innerHTML = '正在处理呼叫...';
 }
@@ -202,6 +167,7 @@ function onRinging() {
 }
 
 function onNewCall(event) {
+    // 当前的通话记录
     let record = event.getData();
     stateLabel.innerHTML = '收到来自 ' + record.getCaller().getId() + ' 通话邀请';
     hangupCallButton.removeAttribute('disabled');
@@ -253,4 +219,112 @@ function onTimeout() {
 
 function onCallFailed(error) {
     stateLabel.innerHTML = '发生错误:' + error;
+}
+
+
+function enableCtrlButtons(enabled) {
+    if (enabled) {
+        peerVideoButton.removeAttribute('disabled');
+        peerAudioButton.removeAttribute('disabled');
+        myVideoButton.removeAttribute('disabled');
+        myAudioButton.removeAttribute('disabled');
+    }
+    else {
+        peerVideoButton.setAttribute('disabled', 'disabled');
+        peerAudioButton.setAttribute('disabled', 'disabled');
+        myVideoButton.setAttribute('disabled', 'disabled');
+        myAudioButton.setAttribute('disabled', 'disabled');
+    }
+}
+
+function switchLocalVideo() {
+    let field = cube.mpComm.getActiveField();
+    if (null == field) {
+        console.log('没有找到活跃 Field');
+        return;
+    }
+
+    let rtcDevice = field.getRTCDevice();
+    if (null == rtcDevice) {
+        console.log('当前状态不能操作');
+        return;
+    }
+
+    if (rtcDevice.outboundVideoEnabled()) {
+        myVideoButton.innerHTML = '打开视频';
+        rtcDevice.enableOutboundVideo(false);
+    }
+    else {
+        myVideoButton.innerHTML = '关闭视频';
+        rtcDevice.enableOutboundVideo(true);
+    }
+}
+
+function switchLocalAudio() {
+    let field = cube.mpComm.getActiveField();
+    if (null == field) {
+        console.log('没有找到活跃 Field');
+        return;
+    }
+
+    let rtcDevice = field.getRTCDevice();
+    if (null == rtcDevice) {
+        console.log('当前状态不能操作');
+        return;
+    }
+
+    if (rtcDevice.outboundAudioEnabled()) {
+        myAudioButton.innerHTML = '打开音频';
+        rtcDevice.enableOutboundAudio(false);
+    }
+    else {
+        myAudioButton.innerHTML = '关闭音频';
+        rtcDevice.enableOutboundAudio(true);
+    }
+}
+
+function switchRemoteVideo() {
+    let field = cube.mpComm.getActiveField();
+    if (null == field) {
+        console.log('没有找到活跃 Field');
+        return;
+    }
+
+    let rtcDevice = field.getRTCDevice();
+    if (null == rtcDevice) {
+        console.log('当前状态不能操作');
+        return;
+    }
+
+    if (rtcDevice.inboundVideoEnabled()) {
+        peerVideoButton.innerHTML = '打开视频';
+        rtcDevice.enableInboundVideo(false);
+    }
+    else {
+        peerVideoButton.innerHTML = '关闭视频';
+        rtcDevice.enableInboundVideo(true);
+    }
+}
+
+function switchRemoteAudio() {
+    let field = cube.mpComm.getActiveField();
+    if (null == field) {
+        console.log('没有找到活跃 Field');
+        return;
+    }
+
+    let rtcDevice = field.getRTCDevice();
+    if (null == rtcDevice) {
+        console.log('当前状态不能操作');
+        return;
+    }
+
+    if (rtcDevice.inboundAudioEnabled()) {
+        peerAudioButton.innerHTML = '打开音频';
+        rtcDevice.enableInboundAudio(false);
+    }
+    else {
+        peerAudioButton.innerHTML = '关闭音频';
+        rtcDevice.enableInboundAudio(true);
+    }
 }
