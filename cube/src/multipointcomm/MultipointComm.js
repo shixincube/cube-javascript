@@ -139,6 +139,12 @@ export class MultipointComm extends Module {
                 this.privateField.device = self.getDevice();
             }
         });
+        contactService.attachWithName(ContactEvent.SignOut, (state) => {
+            // 停止所有的通话
+            if (null != this.activeCall) {
+                this.hangupCall();
+            }
+        });
         let self = contactService.getSelf();
         if (null != self) {
             // 创建个人通信场
