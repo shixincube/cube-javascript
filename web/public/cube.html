@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>登录 - 时信魔方 - 全能力协作平台</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="images/favicon.png" size="32x32" type="image/png">
+    <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="plugins/ionicons/css/ionicons.min.css">
+    <link rel="stylesheet" href="plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <link rel="stylesheet" href="plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+    <link rel="stylesheet" href="stylesheets/adminlte.min.css">
+    <link rel="stylesheet" href="stylesheets/viewer.min.css">
+    <link rel="stylesheet" href="stylesheets/jquery.contextMenu.min.css">
+    <link rel="stylesheet" href="plugins/bootstrap-select/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="stylesheets/login.css">
+</head>
+
+<body class="hold-transition login-page">
+<div class="login-box">
+    <div class="login-logo">
+        <a href="https://shixincube.com/" target="_blank">
+            <img class="mb4" src="images/cube_banner_h512.png" alt="Cube 3" height="64" />
+        </a>
+    </div>
+    <div class="card">
+        <div class="card-body login-card-body">
+            <p class="login-box-msg">
+                <span>请选择登录账号</span>
+                <form>
+                    <div class="form-group">
+                        <label class="col-form-label">
+                            <i class="fas fa-id-card"></i>
+                            <span class="label">账号</span>
+                        </label>
+                        <select id="accout_id" class="selectpicker form-control" name="id">
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label">
+                            <i class="fas fa-user-circle"></i>
+                            <span class="label">昵称</span>
+                        </label>
+                        <input id="account_name" class="form-control" name="name" type="text", value="" />
+                    </div>
+                    <button id="btn_login" class="btn btn-lg btn-primary btn-block" type="button">登 录</button>
+                </form>
+                <p class="mt-5 mb-3 text-muted copyright">版权所有 &copy; 2015-2021 时信魔方</p>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="plugins/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script type="text/javascript" src="plugins/sweetalert2/sweetalert2.min.js"></script>
+<script type="text/javascript" src="javascripts/adminlte.min.js"></script>
+<script type="text/javascript" src="javascripts/viewer.min.js"></script>
+<script type="text/javascript" src="javascripts/jquery.contextMenu.min.js"></script>
+<script type="text/javascript" src="javascripts/jquery.ui.position.min.js"></script>
+<script type="text/javascript" src="plugins/bootstrap-select/bootstrap-select.min.js"></script>
+<script type="text/javascript" src="plugins/popper/umd/popper.min.js"></script>
+<script type="text/javascript" src="javascripts/app-login.js"></script>
+</body>
+</html>

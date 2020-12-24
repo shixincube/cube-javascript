@@ -25,6 +25,7 @@
  */
 
 const AccountRepository = require('./AccountRepository');
+const stringRandom = require('string-random');
 
 /**
  * 模拟应用程序管理的类。
@@ -39,8 +40,29 @@ class CubeAppManager {
         }, 60000);
     }
 
+    /**
+     * 返回所有账号
+     */
+    getAccounts() {
+        return this.accountRepo.accounts;
+    }
+
+    /**
+     * 返回指定 ID 的账号
+     * @param {*} id 
+     */
     getAccount(id) {
         return this.accountRepo.queryAccount(id);
+    }
+
+    getAccountByToken(token) {
+        for (let i = 0, len = this.accountRepo.accounts.length; i < len; ++i) {
+            let account = this.accountRepo.accounts[i];
+            if (account.token && account.token == token) {
+                return account;
+            }
+        }
+        return null;
     }
 
     getContacts(id) {
@@ -85,8 +107,9 @@ class CubeAppManager {
             account.name = name;
         }
 
-        let cookie = account.id + ',' + account.name;
-        return cookie;
+        let token = stringRandom(32, {numbers: false});
+        account.token = token;
+        return token;
     }
 
     logout(id) {

@@ -1,17 +1,47 @@
 var express = require('express');
 var router = express.Router();
 
-/* GET */
-router.get('/info', function(req, res, next) {
-    if (undefined === req.query.id) {
+/* GET /all */
+router.get('/all', function(req, res, next) {
+    let mgr = req.app.get('manager');
+    let list = mgr.getAccounts();
+    res.json(list);
+});
+
+/* GET /get */
+router.get('/get', function(req, res, next) {
+    if (undefined !== req.query.t) {
         res.sendStatus(400);
         return;
     }
 
-    let id = parseInt(req.query.id);
     let mgr = req.app.get('manager');
-    let account = mgr.getAccount(id);
+    let account = mgr.getAccountByToken(id);
+    if (null == account) {
+        res.sendStatus(404);
+        return;
+    }
+
     res.json(account);
+});
+
+/* GET /info */
+router.get('/info', function(req, res, next) {
+    if (undefined !== req.query.id) {
+        let id = parseInt(req.query.id);
+        let mgr = req.app.get('manager');
+        let account = mgr.getAccount(id);
+        res.json(account);
+    }
+    else {
+        res.sendStatus(400);
+    }
+});
+
+/* POST /login */
+router.post('/login', function(req, res, next) {
+    let token = req.app.get('manager').login(parseInt(req.body.id), req.body.name);
+    res.json({ "token" : token });
 });
 
 /* POST /login/form */
