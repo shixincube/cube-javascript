@@ -115,15 +115,7 @@
 
         this.lastItem = current;
 
-        var account = app.getContact(itemId);
-        if (null != account) {
-            // 点击是联系人
-            this.clickListener(account);
-            return;
-        }
-
-        // 点击的是群组
-        this.clickListener(this.app.getGroup(itemId));
+        
     }
 
     g.MessageCatalogue = MessageCatalogue;

@@ -120,6 +120,7 @@ class CubeAppManager {
 
         account.last = Date.now();
         account.state = 'offline';
+        account.token = null;
     }
 
     heartbeat(id) {
