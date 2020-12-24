@@ -10,13 +10,13 @@ router.get('/all', function(req, res, next) {
 
 /* GET /get */
 router.get('/get', function(req, res, next) {
-    if (undefined !== req.query.t) {
+    if (undefined === req.query.t) {
         res.sendStatus(400);
         return;
     }
 
     let mgr = req.app.get('manager');
-    let account = mgr.getAccountByToken(id);
+    let account = mgr.getAccountByToken(req.query.t);
     if (null == account) {
         res.sendStatus(404);
         return;

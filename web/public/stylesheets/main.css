@@ -4,6 +4,10 @@ body {
     font-family: MicrosoftYaHei, "Microsoft YaHei", "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
+.content-wrapper-hidden {
+    display: none;
+}
+
 .loading-overlay {
     background-color: unset !important;
 }
@@ -61,11 +65,11 @@ body {
     border-radius: 10%;
 }
 
-.user-panel .opt {
+.account-panel .opt {
     border: none;
 }
 
-.user-panel .opt .right {
+.account-panel .opt .right {
     position: absolute;
     right: 1rem;
     top: .7rem;
