@@ -5,6 +5,24 @@
 (function(g) {
     'use strict'
 
+    /**
+     * Toast 提示类型。
+     */
+    var Toast = {
+        Success: 'success',
+        Info: 'info',
+        Error: 'error',
+        Warning: 'warning',
+        Question: 'question'
+    };
+
+    var toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000
+    });
+
     var promptCallback = function() {};
 
     var confirmCallback = function() {};
@@ -15,6 +33,13 @@
     var loading = false;
 
     var dialog = {
+        launchToast: function(type, text) {
+            toast.fire({
+                icon: type,
+                title: text
+            });
+        },
+
         /**
          * 显示提示输入框。
          * @param {*} title 
@@ -154,5 +179,7 @@
     };
 
     g.dialog = dialog;
+
+    g.Toast = Toast;
 
 })(window);

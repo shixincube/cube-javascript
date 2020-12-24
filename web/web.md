@@ -51,6 +51,7 @@
 }]
 ```
 
+&nbsp;
 
 ## /account/login
 
@@ -74,6 +75,33 @@ Respond
 }
 ```
 
+&nbsp;
+
+## /account/logout
+
+账号登出
+
+> /account/logout
+> POST
+
+Request
+```json
+{
+    "id": 50001003,
+    "token": "JSZeCEqjQgHpeoMAqwVVtmzLcDyJxGUK"
+}
+```
+
+Respond
+```json
+{
+    "id": 50001003,
+    "token": "JSZeCEqjQgHpeoMAqwVVtmzLcDyJxGUK"
+}
+```
+
+
+&nbsp;
 
 ## /account/get
 
@@ -82,7 +110,22 @@ Respond
 > /account/get
 > GET
 
-`?t=JSZeCEqjQgHpeoMAqwVVtmzLcDyJxGUK`
+
+Request query string: `?t=JSZeCEqjQgHpeoMAqwVVtmzLcDyJxGUK`
+
+
+Respond
+```json
+{
+    "id": 50001003,
+    "name": "郝思雁",
+    "avatar": "images/avatar03.png",
+    "state": "online",
+    "region": "上海",
+    "department": "公关部",
+    "last": 0
+}
+```
 
 
 &nbsp;

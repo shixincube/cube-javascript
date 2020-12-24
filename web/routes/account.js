@@ -57,19 +57,28 @@ router.post('/logout', function(req, res, next) {
     let id = parseInt(req.body.id);
 
     let cookie = req.cookies['CubeAppToken'];
-    let aid = parseInt(cookie.split(',')[0]);
+    if (cookie) {
+        let aid = parseInt(cookie.split(',')[0]);
 
-    if (id == aid) {
+        if (id == aid) {
+            console.log('账号 ' + id + ' 退出登录');
+            mgr.logout(id);
+    
+            // 设置 Cookie
+            res.cookie('CubeAppToken', '', { maxAge: 1000 });
+            res.json({ "id": id });
+        }
+        else {
+            console.warn('登录 ID 不一致');
+            res.sendStatus(404);
+        }
+    }
+    else {
         console.log('账号 ' + id + ' 退出登录');
         mgr.logout(id);
 
-        // 设置 Cookie
-        res.cookie('CubeAppToken', '', { maxAge: 1000 });
-        res.json({ "id": id });
-    }
-    else {
-        console.warn('登录 ID 不一致');
-        res.sendStatus(404);
+        let token = req.body.token;
+        res.json({ "id": id, "token": token });
     }
 });
 

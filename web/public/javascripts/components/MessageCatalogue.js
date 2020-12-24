@@ -6,6 +6,7 @@
     var MessageCatalogue = function(el) {
         this.el = el;
         this.items = [];
+        this.lastItem = null;
     };
 
     MessageCatalogue.prototype.getItem = function(itemId) {
@@ -74,7 +75,7 @@
         this.items.push(item);
 
         var html = [
-            '<li id="catalog_item_', index, '" class="item pl-2 pr-2" data="', id, '">',
+            '<li id="mc_item_', index, '" class="item pl-2 pr-2" data="', id, '">',
                 '<div class="product-img"><img class="img-size-50 img-round-rect" src="', thumb ,'"/></div>',
                 '<div class="product-info ellipsis">',
                     '<span class="product-title ellipsis">',
@@ -99,7 +100,30 @@
     }
 
     MessageCatalogue.prototype.onItemClick = function(id) {
+        if (null != this.lastItem) {
+            if (this.lastItem.id == id) {
+                // 同一个 item 元素
+                return;
+            }
 
+            this.lastItem.el.removeClass('catalog-active');
+        }
+
+        var current = this.getItem(itemId);
+
+        current.el.addClass('catalog-active');
+
+        this.lastItem = current;
+
+        var account = app.getContact(itemId);
+        if (null != account) {
+            // 点击是联系人
+            this.clickListener(account);
+            return;
+        }
+
+        // 点击的是群组
+        this.clickListener(this.app.getGroup(itemId));
     }
 
     g.MessageCatalogue = MessageCatalogue;
