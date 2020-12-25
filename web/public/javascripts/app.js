@@ -67,7 +67,7 @@
         },
 
         getGroup: function(id, callback) {
-
+            
         },
 
         startupCube: function() {
