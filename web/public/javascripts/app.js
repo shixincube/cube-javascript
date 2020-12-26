@@ -198,6 +198,9 @@
         }
     };
 
+    //  Public 属性赋值
+    app.messageCatalog = messageCatalog;
+
     that = app;
     g.app = app;
 

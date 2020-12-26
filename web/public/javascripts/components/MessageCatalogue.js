@@ -21,7 +21,7 @@
     }
 
     /**
-     * 
+     * 追加菜单项
      * @param {Contact|Group|Account} value 
      */
     MessageCatalogue.prototype.appendItem = function(value) {
@@ -99,6 +99,28 @@
         });
     }
 
+    MessageCatalogue.prototype.updateItem = function(item, message) {
+        var id = 0;
+        var desc = null;
+        var badge = null;
+        var label = null;
+
+        if (typeof item === 'number') {
+            id = item;
+        }
+        else if (item instanceof Contact) {
+            id = item.getId();
+        }
+        else if (item instanceof Group) {
+            id = item.getId();
+        }
+        else {
+            return;
+        }
+
+        
+    }
+
     MessageCatalogue.prototype.onItemClick = function(id) {
         if (null != this.lastItem) {
             if (this.lastItem.id == id) {
@@ -116,7 +138,16 @@
         this.lastItem = current;
 
         var handle = function(item) {
+            if (null == item) {
+                return;
+            }
 
+            if (item instanceof Contact) {
+                var contact = item;
+            }
+            else if (item instanceof Group) {
+                var group = item;
+            }
         }
 
         g.app.getGroup(current.id, function(group) {
