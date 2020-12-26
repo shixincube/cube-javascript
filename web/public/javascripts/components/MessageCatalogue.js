@@ -115,7 +115,13 @@
 
         this.lastItem = current;
 
-        
+        g.app.getGroup(current.id, function(group) {
+            if (null == group) {
+                return;
+            }
+
+            
+        });
     }
 
     g.MessageCatalogue = MessageCatalogue;

@@ -62,12 +62,14 @@
 
         getContact: function(id, callback) {
             cube.contact.getContact(id, function(contact) {
-
+                callback(contact);
             });
         },
 
         getGroup: function(id, callback) {
-            
+            cube.contact.getGroup(id, function(group) {
+                callback(group);
+            });
         },
 
         startupCube: function() {
