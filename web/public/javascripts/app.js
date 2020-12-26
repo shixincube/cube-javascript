@@ -3,6 +3,8 @@
 (function (g) {
     'use strict'
 
+    var that = null;
+
     var token = null;
 
     var cube = null;
@@ -11,13 +13,17 @@
 
     var contactAccounts = [];
 
+    var cubeContacts = [];
+
     var sidebarAccountPanel = null;
 
     var messageCatalog = null;
 
+    var messagingCtrl = null;
+
     var app = {
         /**
-         * 进行程序初始化。
+         * 启动程序并进行初始化。
          */
         launch: function() {
             token = g.getQueryString('t');
@@ -36,6 +42,10 @@
             });
         },
 
+        /**
+         * 启动。
+         * @param {*} current 
+         */
         start: function(current) {
             account = current;
             console.log('account: ' + account.id + ' - ' + account.state);
@@ -47,31 +57,56 @@
             var messagingEl = $('#messaging');
             messageCatalog = new MessageCatalogue(messagingEl.find('ul[data-target="catalogue"]'));
 
-            this._refreshView();
+            messagingCtrl = new MessagingController(cube);
+
+            this.prepare();
         },
 
+        /**
+         * 停止。
+         */
         stop: function() {
             window.location.href = 'cube.html?ts=' + Date.now();
         },
 
+        /**
+         * 登出并返回登录界面。
+         */
         logout: function() {
             $.post('/account/logout', { "id": account.id, "token": token}, function(response, status, xhr) {
                 window.location.href = 'cube.html?ts=' + Date.now();
             });
         },
 
+        /**
+         * 获取联系人。
+         * @param {*} id 
+         * @param {*} callback 
+         */
         getContact: function(id, callback) {
             cube.contact.getContact(id, function(contact) {
                 callback(contact);
+            }, function(id) {
+                callback(null);
             });
         },
 
+        /**
+         * 获取群组。
+         * @param {*} id 
+         * @param {*} callback 
+         */
         getGroup: function(id, callback) {
             cube.contact.getGroup(id, function(group) {
                 callback(group);
+            }, function(id) {
+                callback(null);
             });
         },
 
+        /**
+         * 启动 Cube Engine 。
+         */
         startupCube: function() {
             // 实例化 Cube 引擎
             cube = window.cube();
@@ -105,7 +140,10 @@
             cube.signIn(account.id, account.name, account);
         },
 
-        _refreshView: function() {
+        /**
+         * 进行数据加载和界面信息更新。
+         */
+        prepare: function() {
             sidebarAccountPanel.updateAvatar(account.avatar);
             sidebarAccountPanel.updateName(account.name);
 
@@ -116,16 +154,51 @@
                     if (item.id != account.id) {
                         contactAccounts.push(item);
 
+                        // 联系人
+                        var contact = new Contact(item.id, item.name);
+                        // 将 App 的账号数据设置为 Cube 联系人的上下文
+                        contact.setContext(item);
+                        cubeContacts.push(contact);
+
                         messageCatalog.appendItem(item);
                     }
                 });
 
+                // 消息控制器准备数据
+                messagingCtrl.updateContactMessages(cubeContacts);
+
+                // 加载群组信息
+                that.prepareGroups();
+
                 // 隐藏进度提示
-                dialog.hideLoading();
+                setTimeout(function() {
+                    dialog.hideLoading();
+                }, 1000);
             });
+        },
+
+        /**
+         * 准备群组数据。
+         */
+        prepareGroups: function() {
+            cube.contact.queryGroups(function(groups) {
+                for (var i = 0; i < groups.length; ++i) {
+                    var group = groups[i];
+                    that.addGroup(group);
+                }
+            });
+        },
+
+        addGroup: function(group) {
+
+        },
+
+        removeGroup: function(group) {
+
         }
     };
 
+    that = app;
     g.app = app;
 
 })(window);

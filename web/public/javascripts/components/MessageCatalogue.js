@@ -115,12 +115,17 @@
 
         this.lastItem = current;
 
+        var handle = function(item) {
+
+        }
+
         g.app.getGroup(current.id, function(group) {
             if (null == group) {
-                return;
+                g.app.getContact(current.id, handle);
             }
-
-            
+            else {
+                handle(group);
+            }
         });
     }
 
