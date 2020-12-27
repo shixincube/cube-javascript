@@ -76,7 +76,7 @@ class AccountRepository {
     queryAccount(id) {
         for (let i = 0; i < this.accounts.length; ++i) {
             let account = this.accounts[i];
-            if (account.id === id) {
+            if (account.id == id) {
                 return account;
             }
         }

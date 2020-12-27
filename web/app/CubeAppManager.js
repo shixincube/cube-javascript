@@ -95,7 +95,7 @@ class CubeAppManager {
         return result;
     }
 
-    login(id, name) {
+    login(id, name, useCookie) {
         let account = this.accountRepo.queryAccount(id);
         if (null == account) {
             return null;
@@ -107,9 +107,16 @@ class CubeAppManager {
             account.name = name;
         }
 
-        let token = stringRandom(32, {numbers: false});
-        account.token = token;
-        return token;
+        if (useCookie) {
+            let cookie = id + ',' + stringRandom(16, {numbers: false});
+            account.token = cookie;
+            return cookie;
+        }
+        else {
+            let token = stringRandom(32, {numbers: false});
+            account.token = token;
+            return token;
+        }
     }
 
     logout(id) {

@@ -73,8 +73,33 @@
          * 登出并返回登录界面。
          */
         logout: function() {
-            $.post('/account/logout', { "id": account.id, "token": token}, function(response, status, xhr) {
-                window.location.href = 'cube.html?ts=' + Date.now();
+            dialog.showConfirm('退出登录', '是否确认退出当前账号登录？', function(confirmed) {
+                if (confirmed) {
+                    dialog.showLoading('账号正在登出，请稍后', 5000);
+
+                    var timer = 0;
+                    var id = account.id;
+
+                    var logout = function() {
+                        $.post('/account/logout', { "id": account.id, "token": token }, function(response, status, xhr) {
+                            clearTimeout(timer);
+
+                            // 回到登录界面，停止引擎
+                            cube.stop();
+
+                            window.location.href = 'cube.html?ts=' + Date.now();
+                        }, 'json');
+                    };
+
+                    // 将 Cube 账号签出
+                    cube.contact.signOut(function(self) {
+                        logout();
+                    });
+
+                    timer = setTimeout(function() {
+                        logout();
+                    }, 4000);
+                }
             });
         },
 

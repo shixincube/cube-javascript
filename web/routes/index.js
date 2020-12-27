@@ -23,13 +23,18 @@ router.get('/', function(req, res, next) {
         // 获取账号
         let account = manager.getAccount(aid);
 
+        if (null == account) {
+            gotoLogin(req, res);
+            return;
+        }
+
         if (account.state == 'offline') {
             gotoLogin(req, res);
             return;
         }
 
         // 执行登录
-        manager.login(account.id, account.name);
+        manager.login(account.id, account.name, true);
 
         // 获取目录信息
         let contacts = manager.getContacts(aid);

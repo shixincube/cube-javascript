@@ -55,9 +55,10 @@ router.post('/login/form', function(req, res, next) {
 router.post('/logout', function(req, res, next) {
     let mgr = req.app.get('manager');
     let id = parseInt(req.body.id);
+    let token = req.body.token;
 
     let cookie = req.cookies['CubeAppToken'];
-    if (cookie) {
+    if (cookie && undefined === token) {
         let aid = parseInt(cookie.split(',')[0]);
 
         if (id == aid) {
