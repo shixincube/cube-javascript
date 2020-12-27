@@ -6,14 +6,15 @@ const babelpolyfill = require('babel-polyfill');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const FileManagerPlugin = require('filemanager-webpack-plugin');
 
-const version = '3.0.0';
-
 var CubeConfig = {
     target: 'web',
-    entry: [ 'babel-polyfill', './src/CubeBoot.js' ],
+    entry: {
+        "cube": [ 'babel-polyfill', './src/CubeBoot.js' ],
+        "cube-extend": [ 'babel-polyfill', './src/CubeExtendBoot.js' ]
+    },
     output: {
         path: path.resolve(__dirname, './dist'),
-        filename: 'cube-' + version + '.js'
+        filename: '[name].js'
     },
     resolve: {
         extensions: ['.js', '.ts'],
@@ -28,7 +29,6 @@ var CubeConfig = {
                 test: /\.js$/,
                 exclude: [
                     /(node_modules|bower_components)/,
-                    path.resolve(__dirname, './src/messaging/extend'),
                     path.resolve(__dirname, './src/facemonitor')
                 ],
                 use: {
@@ -48,21 +48,24 @@ var CubeConfig = {
     plugins: [
         new CleanWebpackPlugin({
             dry: false,
-            cleanOnceBeforeBuildPatterns: [ path.resolve(__dirname, './dist') + '/cube-' + version + '.js' ]
+            cleanOnceBeforeBuildPatterns: [
+                path.resolve(__dirname, './dist') + '/*.js',
+                path.resolve(__dirname, './dist') + '/*.map'
+            ]
         }),
         new FileManagerPlugin({
             onEnd: {
                 copy: [{
-                    source: path.resolve(__dirname, './dist') + '/cube-' + version + '.js',
+                    source: path.resolve(__dirname, './dist') + '/cube.js',
                     destination: path.resolve(__dirname, '../web/public/javascripts/')
                 }, {
-                    source: path.resolve(__dirname, './dist') + '/cube-' + version + '.js.map',
+                    source: path.resolve(__dirname, './dist') + '/cube.js.map',
                     destination: path.resolve(__dirname, '../web/public/javascripts/')
                 }, {
-                    source: path.resolve(__dirname, './dist') + '/cube-' + version + '.js',
+                    source: path.resolve(__dirname, './dist') + '/cube.js',
                     destination: path.resolve(__dirname, './examples/js/')
                 }, {
-                    source: path.resolve(__dirname, './dist') + '/cube-' + version + '.js.map',
+                    source: path.resolve(__dirname, './dist') + '/cube.js.map',
                     destination: path.resolve(__dirname, './examples/js/')
                 }]
             }
@@ -75,7 +78,7 @@ var CubeLibConfig = {
     entry: [ 'babel-polyfill', './src/CubeLibBoot.js' ],
     output: {
         path: path.resolve(__dirname, './dist'),
-        filename: 'cube-lib-' + version + '.js'
+        filename: 'cube-lib.js'
     },
     resolve: {
         extensions: ['.js', '.ts'],
@@ -106,7 +109,7 @@ var CubeLibConfig = {
     plugins: [
         new CleanWebpackPlugin({
             dry: false,
-            cleanOnceBeforeBuildPatterns: [ path.resolve(__dirname, './dist') + '/cube-' + version + '.js' ]
+            cleanOnceBeforeBuildPatterns: [ path.resolve(__dirname, './dist') + '/cube.js' ]
         })
     ]
 };

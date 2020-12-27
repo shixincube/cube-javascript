@@ -16,7 +16,7 @@ Cube 包含以下协作功能：
 
 * 即时消息（Instant Messaging / IM）。支持卡片消息、通知消息、文件消息和自定义消息等。
 * 实时多人语音/多人视频（Multipoint RTC）。支持自适应码率、超低延迟等，支持实时图像识别等。
-* 超大规模(100+)会议 （Video Conference）。支持会议控制、演讲模式，自定义 MCU 和 SFU 布局等。
+* 超大规模(100+)视频会议 （Video Conference）。支持会议控制、演讲模式，自定义 MCU 和 SFU 布局等。
 * 群组管理（Group management）。支持集成式管理和扩展组织架构等。
 * 共享桌面（Remote Desktop Sharing）。支持无缝集成白板等。
 * 云端文件存储（Cloud File Storage）。支持无缝集成文档在线协作等。
@@ -33,7 +33,7 @@ Cube 包含以下协作功能：
 
 在您的页面中引入 Cube 的库文件：
 ```html
-<script type="text/javascript" src="/javascripts/cube-3.0.0.js"></script>
+<script type="text/javascript" src="/javascripts/cube.js"></script>
 ```
 
 仅需要两步即可开始使用 Cube 的各个模块功能：
