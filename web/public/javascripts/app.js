@@ -18,6 +18,7 @@
     var sidebarAccountPanel = null;
 
     var messageCatalog = null;
+    var messagePanel = null;
 
     var messagingCtrl = null;
 
@@ -56,6 +57,8 @@
 
             var messagingEl = $('#messaging');
             messageCatalog = new MessageCatalogue(messagingEl.find('ul[data-target="catalogue"]'));
+
+            messagePanel = new MessagePanel(messagingEl.find('#messages'));
 
             messagingCtrl = new MessagingController(cube);
 
