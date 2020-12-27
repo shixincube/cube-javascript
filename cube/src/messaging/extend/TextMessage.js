@@ -25,15 +25,29 @@
  */
 
 import { Message } from "../Message";
+import { TypeableMessage } from "./TypeableMessage";
 
 /**
  * 文本消息。
  */
-export class TextMessage extends Message {
+export class TextMessage extends TypeableMessage {
 
-    constructor(text) {
-        super({
-            "content" : text
-        });
+    /**
+     * @param {string|Message} param 文本消息的文本参数。
+     */
+    constructor(param) {
+        super(param);
+
+        if (typeof param === 'string') {
+            this.payload = { "type" : "text", "content" : param };
+        }
+    }
+
+    /**
+     * 获取文本内容。
+     * @returns {string} 返回文本内容。
+     */
+    getText() {
+        return this.payload.content;
     }
 }

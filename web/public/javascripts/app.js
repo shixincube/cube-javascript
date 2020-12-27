@@ -78,7 +78,6 @@
                     dialog.showLoading('账号正在登出，请稍后', 5000);
 
                     var timer = 0;
-                    var id = account.id;
 
                     var logout = function() {
                         $.post('/account/logout', { "id": account.id, "token": token }, function(response, status, xhr) {

@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack --config webpack.config.dist.js -p",
+    "build-extend": "webpack --config webpack.config.dist.extend.js -p",
     "doc": "jsdoc -c jsdoc.json",
     "dev": "webpack-dev-server",
     "example": "node ./examples/server.js"

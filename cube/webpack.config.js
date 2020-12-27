@@ -1,13 +1,15 @@
+// webpack.config.js
+
 const path = require('path');
-const webpack = require("webpack");
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-    target: "web",
+    target: 'web',
     entry: [ 'babel-polyfill', './src/CubeBoot.js' ], 
     output: {
-        path: path.resolve(__dirname, "./test/"),
-        filename: "cube-dev.js"
+        path: path.resolve(__dirname, './test/'),
+        filename: 'cube-dev.js'
     },
     resolve: {
         extensions: ['.js', '.ts'],
@@ -26,15 +28,15 @@ module.exports = {
                     options: {
                         presets: ['@babel/preset-env'],
                         plugins: [
-                            "@babel/plugin-transform-async-to-generator",
-                            "@babel/plugin-proposal-class-properties"
+                            '@babel/plugin-transform-async-to-generator',
+                            '@babel/plugin-proposal-class-properties'
                         ]
                     }
                 }
             }
         ]
     },
-    devtool: "source-map",
+    devtool: 'source-map',
     devServer: {
         open: false,    // 'google chrome',
         inline: true,

@@ -1,5 +1,5 @@
 /**
- * This file is part of Cube.
+ * This source file is part of Cell.
  * 
  * The MIT License (MIT)
  *
@@ -24,32 +24,36 @@
  * SOFTWARE.
  */
 
-import { Message } from "../Message";
-import { TypeableMessage } from "./TypeableMessage";
+import { MessagePlugin } from "../MessagePlugin";
+import { TextMessage } from "./TextMessage";
+import { ImageMessage } from "./ImageMessage";
 
 /**
- * 图片消息。
+ * 消息类型插件。
  */
-export class ImageMessage extends TypeableMessage {
+export class MessageTypePlugin extends MessagePlugin {
 
-    /**
-     * @param {File|Message} param 图片文件。
-     */
-    constructor(param) {
-        super(param);
-
-        if (this.hasAttachment()) {
-            this.getAttachment().enableThumb();
-        }
-
-        this.payload = { "type" : "image" };
+    constructor() {
+        super();
     }
 
     /**
-     * 获取文件名。
-     * @returns {string} 返回文件名。
+     * 当消息需要实例化（分化）时调用该回调。
+     * @param {Message} message 原始消息实例。
+     * @returns {*} 消息实例。
      */
-    getFileName() {
-        return this.attachment.getFileName();
+    onInstantiate(message) {
+        let payload = message.getPayload();
+
+        if (undefined !== payload.type) {
+            if (payload.type == 'text') {
+                return new TextMessage(message);
+            }
+            else if (payload.type == 'image') {
+                return new ImageMessage(message);
+            }
+        }
+
+        return message;
     }
 }

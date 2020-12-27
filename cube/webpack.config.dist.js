@@ -9,11 +9,11 @@ const FileManagerPlugin = require('filemanager-webpack-plugin');
 const version = '3.0.0';
 
 var CubeConfig = {
-    target: "web",
+    target: 'web',
     entry: [ 'babel-polyfill', './src/CubeBoot.js' ],
     output: {
-        path: path.resolve(__dirname, "./dist"),
-        filename: "cube-"+ version + ".js"
+        path: path.resolve(__dirname, './dist'),
+        filename: 'cube-' + version + '.js'
     },
     resolve: {
         extensions: ['.js', '.ts'],
@@ -28,6 +28,7 @@ var CubeConfig = {
                 test: /\.js$/,
                 exclude: [
                     /(node_modules|bower_components)/,
+                    path.resolve(__dirname, './src/messaging/extend'),
                     path.resolve(__dirname, './src/facemonitor')
                 ],
                 use: {
@@ -35,17 +36,20 @@ var CubeConfig = {
                     options: {
                         presets: ['@babel/preset-env'],
                         plugins: [
-                            "@babel/plugin-transform-async-to-generator",
-                            "@babel/plugin-proposal-class-properties"
+                            '@babel/plugin-transform-async-to-generator',
+                            '@babel/plugin-proposal-class-properties'
                         ]
                     }
                 }
             }
         ]
     },
-    devtool: "source-map",
+    devtool: 'source-map',
     plugins: [
-        new CleanWebpackPlugin(),
+        new CleanWebpackPlugin({
+            dry: false,
+            cleanOnceBeforeBuildPatterns: [ path.resolve(__dirname, './dist') + '/cube-' + version + '.js' ]
+        }),
         new FileManagerPlugin({
             onEnd: {
                 copy: [{
@@ -67,11 +71,11 @@ var CubeConfig = {
 };
 
 var CubeLibConfig = {
-    target: "web",
+    target: 'web',
     entry: [ 'babel-polyfill', './src/CubeLibBoot.js' ],
     output: {
-        path: path.resolve(__dirname, "./dist"),
-        filename: "cube-lib-"+ version + ".js"
+        path: path.resolve(__dirname, './dist'),
+        filename: 'cube-lib-' + version + '.js'
     },
     resolve: {
         extensions: ['.js', '.ts'],
@@ -90,17 +94,20 @@ var CubeLibConfig = {
                     options: {
                         presets: ['@babel/preset-env'],
                         plugins: [
-                            "@babel/plugin-transform-async-to-generator",
-                            "@babel/plugin-proposal-class-properties"
+                            '@babel/plugin-transform-async-to-generator',
+                            '@babel/plugin-proposal-class-properties'
                         ]
                     }
                 }
             }
         ]
     },
-    devtool: "source-map",
+    devtool: 'source-map',
     plugins: [
-        new CleanWebpackPlugin()
+        new CleanWebpackPlugin({
+            dry: false,
+            cleanOnceBeforeBuildPatterns: [ path.resolve(__dirname, './dist') + '/cube-' + version + '.js' ]
+        })
     ]
 };
 

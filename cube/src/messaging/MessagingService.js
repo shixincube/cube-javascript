@@ -46,7 +46,6 @@ import { FileStorage } from "../filestorage/FileStorage";
 import { FileStorageEvent } from "../filestorage/FileStorageEvent";
 import { ObservableState } from "../core/ObservableState";
 import { StateCode } from "../core/StateCode";
-import { PluginSystem } from "../core/PluginSystem";
 import { InstantiateHook } from "./hook/InstantiateHook";
 import { MessagePlugin } from "./MessagePlugin";
 
@@ -235,11 +234,9 @@ export class MessagingService extends Module {
 
     /**
      * 组装插件系统。
-     * @returns {PluginSystem}
      */
     assemble() {
         this.pluginSystem.addHook(new InstantiateHook());
-        return this.pluginSystem;
     }
 
     /**

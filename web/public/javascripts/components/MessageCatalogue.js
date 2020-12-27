@@ -131,7 +131,7 @@
             this.lastItem.el.removeClass('catalog-active');
         }
 
-        var current = this.getItem(itemId);
+        var current = this.getItem(id);
 
         current.el.addClass('catalog-active');
 

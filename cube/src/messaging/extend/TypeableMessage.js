@@ -25,31 +25,21 @@
  */
 
 import { Message } from "../Message";
-import { TypeableMessage } from "./TypeableMessage";
 
 /**
- * 图片消息。
+ * 可分类消息。
  */
-export class ImageMessage extends TypeableMessage {
+export class TypeableMessage extends Message {
 
-    /**
-     * @param {File|Message} param 图片文件。
-     */
     constructor(param) {
         super(param);
-
-        if (this.hasAttachment()) {
-            this.getAttachment().enableThumb();
-        }
-
-        this.payload = { "type" : "image" };
     }
 
     /**
-     * 获取文件名。
-     * @returns {string} 返回文件名。
+     * 获取消息类型描述。
+     * @returns {string} 返回消息类型。
      */
-    getFileName() {
-        return this.attachment.getFileName();
+    getType() {
+        return this.payload.type;
     }
 }

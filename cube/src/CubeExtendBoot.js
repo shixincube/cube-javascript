@@ -24,32 +24,14 @@
  * SOFTWARE.
  */
 
-import { Message } from "../Message";
-import { TypeableMessage } from "./TypeableMessage";
+import { MessageTypePlugin } from "./messaging/extend/MessageTypePlugin";
 
 /**
- * 图片消息。
+ * 导入扩展程序。
  */
-export class ImageMessage extends TypeableMessage {
+(function (global) {
+    // 提供全局的接口类
 
-    /**
-     * @param {File|Message} param 图片文件。
-     */
-    constructor(param) {
-        super(param);
+    global.MessageTypePlugin = MessageTypePlugin;
 
-        if (this.hasAttachment()) {
-            this.getAttachment().enableThumb();
-        }
-
-        this.payload = { "type" : "image" };
-    }
-
-    /**
-     * 获取文件名。
-     * @returns {string} 返回文件名。
-     */
-    getFileName() {
-        return this.attachment.getFileName();
-    }
-}
+})(window);
