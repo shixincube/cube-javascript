@@ -7,6 +7,11 @@
         this.el = el;
         this.panels = {};
 
+        /**
+         * 当前面板
+         */
+        this.current = null;
+
         this.elTitle = this.el.find('.card-title');
         this.elContent = this.el.find('.card-body');
         this.elInput = this.el.find('textarea');
@@ -14,6 +19,9 @@
         if (!this.elInput[0].hasAttribute('disabled')) {
             this.elInput.attr('disabled', 'disabled');
         }
+
+        this.btnSend = this.el.find('button[data-target="send"]');
+        this.btnSendFile = this.el.find('button[data-target="send-file"]');
 
         this.initContextMenu();
     }
@@ -39,19 +47,33 @@
         });
     }
 
-    MessagePanel.prototype.changePanel = function(id) {
+    MessagePanel.prototype.changePanel = function(id, entity) {
         var panel = this.panels[id.toString()];
         if (undefined === panel) {
             var el = $('<div class="direct-chat-messages"></div>');
             panel = {
+                id: id,
                 el: el,
-                isGroup: false,
+                entity: entity,
                 messageIds: []
             };
             this.panels[id.toString()] = panel;
         }
 
+        if (null == this.current) {
+            this.elInput.removeAttr('disabled');
+            this.btnSend.removeAttr('disabled');
+            this.btnSendFile.removeAttr('disabled');
+        }
+        else {
+            this.current.el.remove();
+        }
 
+        this.elContent.append(panel.el);
+
+        this.current = panel;
+
+        this.elTitle.text(entity.getName());
     }
 
     MessagePanel.prototype.onSend = function(e) {

@@ -137,27 +137,8 @@
 
         this.lastItem = current;
 
-        var handle = function(item) {
-            if (null == item) {
-                return;
-            }
-
-            if (item instanceof Contact) {
-                var contact = item;
-            }
-            else if (item instanceof Group) {
-                var group = item;
-            }
-        }
-
-        g.app.getGroup(current.id, function(group) {
-            if (null == group) {
-                g.app.getContact(current.id, handle);
-            }
-            else {
-                handle(group);
-            }
-        });
+        // 切换消息面板
+        g.app.messagingCtrl.toggle(this.lastItem.id);
     }
 
     g.MessageCatalogue = MessageCatalogue;

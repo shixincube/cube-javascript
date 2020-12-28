@@ -51,6 +51,7 @@
             account = current;
             console.log('account: ' + account.id + ' - ' + account.state);
 
+            // 启动 Cube Engine
             this.startupCube();
 
             sidebarAccountPanel = new SidebarAccountPanel($('.account-panel'));
@@ -63,6 +64,10 @@
             messagingCtrl = new MessagingController(cube);
 
             this.prepare();
+
+            that.messageCatalog = messageCatalog;
+            that.messagePanel = messagePanel;
+            that.messagingCtrl = messagingCtrl;
         },
 
         /**
@@ -224,9 +229,6 @@
 
         }
     };
-
-    //  Public 属性赋值
-    app.messageCatalog = messageCatalog;
 
     that = app;
     g.app = app;

@@ -55,5 +55,32 @@
         }
     }
 
+    MessagingController.prototype.toggle = function(id) {
+        var handle = function(item) {
+            if (null == item) {
+                return;
+            }
+
+            // if (item instanceof Contact) {
+            //     var contact = item;
+            // }
+            // else if (item instanceof Group) {
+            //     var group = item;
+            // }
+
+            g.app.messagePanel.changePanel(id, item);
+        }
+
+        g.app.getGroup(id, function(group) {
+            if (null == group) {
+                g.app.getContact(id, handle);
+            }
+            else {
+                handle(group);
+            }
+        });
+    }
+
     g.MessagingController = MessagingController;
+
 })(window);
