@@ -92,21 +92,23 @@
 
     /**
      * 向指定面板内追加消息。
-     * @param {number} panelId 
+     * @param {Contact|Group} target 
      * @param {Contact} sender 
      * @param {Message} message 
      */
-    MessagePanel.prototype.appendMessage = function(panelId, sender, message) {
+    MessagePanel.prototype.appendMessage = function(target, sender, message) {
+        var panelId = target.getId();
+
         var panel = this.panels[panelId.toString()];
         if (undefined === panel) {
             var el = $('<div class="direct-chat-messages"></div>');
             panel = {
-                id: id,
+                id: panelId,
                 el: el,
-                entity: entity,
+                entity: target,
                 messageIds: []
             };
-            this.panels[id.toString()] = panel;
+            this.panels[panelId.toString()] = panel;
         }
 
         var id = message.getId();
@@ -226,7 +228,7 @@
             return;
         }
 
-        this.appendMessage(this.current.id, g.app.getSelf(), message);
+        this.appendMessage(this.current.entity, g.app.getSelf(), message);
     }
 
     g.MessagePanel = MessagePanel;

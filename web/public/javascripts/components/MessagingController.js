@@ -56,6 +56,7 @@
                 }
 
                 // 添加到消息面板
+                g.app.messagePanel.appendMessage(target, getContact(message.getFrom()), message);
             }
 
             if (list.length > 0) {

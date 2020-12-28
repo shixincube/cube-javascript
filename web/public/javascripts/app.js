@@ -179,6 +179,9 @@
                 }
             });
 
+            // 注册消息插件
+            cube.messaging.register(new MessageTypePlugin());
+
             // 启动 Cube
             cube.start({
                 address: '127.0.0.1',
@@ -221,6 +224,9 @@
                         messageCatalog.appendItem(item);
                     }
                 });
+
+                // 添加自己
+                cubeContacts.push(cube.contact.getSelf());
 
                 // 消息控制器准备数据
                 messagingCtrl.updateContactMessages(cubeContacts);
