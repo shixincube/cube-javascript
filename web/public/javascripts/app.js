@@ -19,6 +19,7 @@
 
     var messageCatalog = null;
     var messagePanel = null;
+    var contactDetails = null;
 
     var messagingCtrl = null;
 
@@ -51,6 +52,9 @@
                     app.stop();
                 }
             });
+
+            // tips
+            $('[data-toggle="tooltip"]').tooltip();
         },
 
         /**
@@ -70,13 +74,14 @@
             messageCatalog = new MessageCatalogue(messagingEl.find('ul[data-target="catalogue"]'));
 
             messagePanel = new MessagePanel(messagingEl.find('#messages'));
-
             messagingCtrl = new MessagingController(cube);
+            contactDetails = new ContactDetails();
 
             this.prepare();
 
             that.messageCatalog = messageCatalog;
             that.messagePanel = messagePanel;
+            that.contactDetails = contactDetails;
             that.messagingCtrl = messagingCtrl;
         },
 
@@ -261,6 +266,8 @@
 
         }
     };
+
+    app.queryCubeContact = queryCubeContact;
 
     that = app;
     g.app = app;

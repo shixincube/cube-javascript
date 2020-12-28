@@ -84,6 +84,19 @@ body {
     transition: opacity .3s ease-in-out;
 }
 
+.control-sidebar p {
+    font-size: 14px;
+}
+.control-sidebar ul {
+    margin-left: -10px;
+}
+.control-sidebar li {
+    font-size: 14px;
+}
+.control-sidebar {
+    overflow-y: auto;
+}
+
 .main-sidebar:hover .opt .right {
     visibility: visible;
     opacity: 1.0;

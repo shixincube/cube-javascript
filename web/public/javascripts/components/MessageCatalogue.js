@@ -69,7 +69,8 @@
             thumb: thumb,
             label: label,
             desc: desc,
-            badge: badge
+            badge: badge,
+            time: 0
         };
 
         this.items.push(item);
@@ -92,11 +93,8 @@
 
         this.el.append(el);
 
-        var that = this;
-        el.on('click', function(e) {
-            var itemId = parseInt($(this).attr('data'));
-            that.onItemClick(itemId);
-        });
+        // 绑定事件
+        this.bindEvent(el);
     }
 
     MessageCatalogue.prototype.updateItem = function(target, desc, time, label) {
@@ -120,6 +118,9 @@
         if (null == item) {
             return;
         }
+
+        // 更新时间
+        item.time = time;
 
         var el = item.el;
 
@@ -149,6 +150,18 @@
         if (label) {
             el.find('.title').text(label);
         }
+
+        el.remove();
+        this.el.prepend(el);
+
+        // 绑定事件
+        this.bindEvent(el);
+    }
+
+    MessageCatalogue.prototype.refreshOrder = function() {
+        this.items.sort(function(a, b) {
+            return b.time - a.time;
+        });
     }
 
     MessageCatalogue.prototype.onItemClick = function(id) {
@@ -169,6 +182,25 @@
 
         // 切换消息面板
         g.app.messagingCtrl.toggle(this.lastItem.id);
+    }
+
+    MessageCatalogue.prototype.onItemDoubleClick = function(id) {
+        var entity = g.app.queryCubeContact(id);
+        if (entity instanceof Contact) {
+            g.app.contactDetails.show(entity);
+        }
+    }
+
+    MessageCatalogue.prototype.bindEvent = function(el) {
+        var that = this;
+        el.on('click', function(e) {
+            var itemId = parseInt($(this).attr('data'));
+            that.onItemClick(itemId);
+        });
+        el.on('dblclick', function(e) {
+            var itemId = parseInt($(this).attr('data'));
+            that.onItemDoubleClick(itemId);
+        });
     }
 
     g.MessageCatalogue = MessageCatalogue;

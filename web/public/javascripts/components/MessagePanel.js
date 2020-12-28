@@ -23,7 +23,7 @@
         }
 
         // 发送按钮 Click 事件
-        this.btnSend = this.el.find('button[data-target="send"]');
+        this.btnSend = el.find('button[data-target="send"]');
         this.btnSend.on('click', function(event) {
             that.onSend(event);
         });
@@ -37,6 +37,12 @@
 
         this.btnSendFile = this.el.find('button[data-target="send-file"]');
 
+        // 详情按钮
+        el.find('button[data-target="details"]').on('click', function(e) {
+            that.onDetailsClick(e);
+        });
+
+        // 初始化上下文菜单
         this.initContextMenu();
     }
 
@@ -69,7 +75,8 @@
                 id: id,
                 el: el,
                 entity: entity,
-                messageIds: []
+                messageIds: [],
+                groupable: (entity instanceof Group)
             };
             this.panels[id.toString()] = panel;
         }
@@ -106,7 +113,8 @@
                 id: panelId,
                 el: el,
                 entity: target,
-                messageIds: []
+                messageIds: [],
+                groupable: (target instanceof Group)
             };
             this.panels[panelId.toString()] = panel;
         }
@@ -229,6 +237,31 @@
         }
 
         this.appendMessage(this.current.entity, g.app.getSelf(), message);
+    }
+
+    MessagePanel.prototype.onDetailsClick = function(e) {
+        if (null == this.current) {
+            return;
+        }
+
+        var entity = this.current.entity;
+
+        if (this.current.groupable) {
+            var el = $('#modal_group_details');
+            el.find('.widget-user-username').text(entity.getName());
+    
+            // 设置数据
+            $('#group_details_quit').attr('data', entity.getId());
+            $('#group_details_dissolve').attr('data', entity.getId());
+
+            var table = el.find('.table');
+            table.find('tbody').remove();
+            table.append(this.current.detailMemberTable);
+            el.modal('show');
+        }
+        else {
+            g.app.contactDetails.show(entity);
+        }
     }
 
     g.MessagePanel = MessagePanel;

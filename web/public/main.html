@@ -98,7 +98,7 @@
                     <div class="col-md-9">
                         <div id="messages" class="card direct-chat direct-chat-primary main-content card-background">
                             <div class="card-header">
-                                <h3 class="card-title">消息</h3>
+                                <h3 class="card-title">&nbsp;</h3>
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-tool" data-target="new-group">
                                         <i class="fas fa-user-plus"></i>
@@ -123,7 +123,7 @@
                                         </button>
                                     </div>
                                     <div class="input-group">
-                                        <textarea class="form-control" rows="2" placeholder="请在此输入消息" disabled></textarea>
+                                        <textarea class="form-control" rows="2" placeholder="请在此输入消息内容" disabled></textarea>
                                         <span class="input-group-append">
                                             <button type="button" class="btn btn-default" data-target="send" disabled>发送</button>
                                         </span>
@@ -135,6 +135,52 @@
                 </div>
             </div>
         </section>
+
+        <!-- Select file -->
+        <div class="select-file">
+            <label for="select_file"></label>
+            <input id="select_file" type="file" name="select-file" accept="*.*" />
+        </div>
+
+        <!-- Contact Details - begin -->
+        <div id="modal_contact_details" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="card card-widget widget-user details-card">
+                        <div class="widget-user-header bg-info">
+                            <h3 class="widget-user-username">Cube</h3>
+                            <h5 class="widget-user-desc">20200927</h5>
+                        </div>
+                        <div class="widget-user-image">
+                            <img class="img-circle elevation-2 user-avatar" src="images/cube_256.png" />
+                        </div>
+                        <div class="card-footer">
+                            <div class="row">
+                                <div class="col-sm-4 border-right">
+                                    <div class="description-block">
+                                        <h5 class="description-header user-state">离线</h5>
+                                        <span class="description-text">状态</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4 border-right">
+                                    <div class="description-block">
+                                        <h5 class="description-header user-region">北京</h5>
+                                        <span class="description-text">地区</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="description-block">
+                                        <h5 class="description-header user-department">技术部</h5>
+                                        <span class="description-text">部门</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Contact Details - end -->
     </div>
     <!-- Messaging Page - end  -->
 
@@ -238,6 +284,27 @@
 
     <!-- Common Element - end -->
 
+    <!-- Right Sidebar - begin -->
+    <aside class="control-sidebar control-sidebar-dark">
+        <div class="p-3">
+            <h5>时信魔方</h5>
+            <p><a href="https://shixincube.com" target="_blank">时信魔方</a>是面向开发者的实时协作开发框架。帮助开发者快速、高效的在项目中集成实时协作能力。</p>
+            <ul>
+                <li>即时消息（Instant Messaging / IM）。</li>
+                <li>实时多人语音/多人视频（Multipoint RTC）。</li>
+                <li>超大规模(100+)视频会议 （Video Conference）。支持会议控制、演讲模式，自定义 MCU 和 SFU 布局等。</li>
+                <li>群组管理（Group management）。</li>
+                <li>共享桌面（Remote Desktop Sharing）。</li>
+                <li>云端文件存储（Cloud File Storage）。</li>
+                <li>实时白板（Realtime Whiteboard）。</li>
+                <li>视频直播（Live video）。</li>
+                <li>在线文档协作（Online Document Collaboration）。支持 Word、PowerPoint、Excel 等主流格式文多人在写协作。</li>
+                <li>支持安全与运维管理（Operation and Maintenance management）。</li>
+            </ul>
+        </div>
+    </aside>
+    <!-- Right Sidebar - end -->
+
     <!-- Page Footer - begin -->
     <footer class="main-footer">
         <span>Copyright &copy; 2015-2021 ShiXin Cube. All rights reserved.</span>
@@ -264,6 +331,7 @@
 <script type="text/javascript" src="javascripts/components/MessageCatalogue.js"></script>
 <script type="text/javascript" src="javascripts/components/MessagePanel.js"></script>
 <script type="text/javascript" src="javascripts/components/MessagingController.js"></script>
+<script type="text/javascript" src="javascripts/components/ContactDetails.js"></script>
 <script type="text/javascript" src="javascripts/app.js"></script>
 <script type="text/javascript">
 (function ($) {
