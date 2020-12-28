@@ -22,6 +22,16 @@
 
     var messagingCtrl = null;
 
+    var queryCubeContact = function(id) {
+        for (var i = 0; i < cubeContacts.length; ++i) {
+            var c = cubeContacts[i];
+            if (c.getId() == id) {
+                return c;
+            }
+        }
+        return null;
+    }
+
     var app = {
         /**
          * 启动程序并进行初始化。
@@ -111,12 +121,28 @@
         },
 
         /**
+         * 获取自己的账号实例。
+         * @returns {Contact} 返回自己的账号实例。
+         */
+        getSelf: function() {
+            return cube.contact.getSelf();
+        },
+
+        /**
          * 获取联系人。
          * @param {*} id 
          * @param {*} callback 
          */
         getContact: function(id, callback) {
             cube.contact.getContact(id, function(contact) {
+                let ctx = contact.getContext();
+                if (null == ctx) {
+                    var localContact = queryCubeContact(contact.getId());
+                    if (null != localContact) {
+                        contact = localContact;
+                    }
+                }
+
                 callback(contact);
             }, function(id) {
                 callback(null);

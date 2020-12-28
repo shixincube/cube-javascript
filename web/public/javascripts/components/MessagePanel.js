@@ -92,18 +92,124 @@
 
     /**
      * 向指定面板内追加消息。
-     * @param {number} id 
+     * @param {number} panelId 
      * @param {Contact} sender 
-     * @param {Message|File|string} content 
-     * @param {number} time 
+     * @param {Message} message 
      */
-    MessagePanel.prototype.appendMessage = function(id, sender, content, time) {
-        var panel = this.panels[id.toString()];
+    MessagePanel.prototype.appendMessage = function(panelId, sender, message) {
+        var panel = this.panels[panelId.toString()];
         if (undefined === panel) {
-            return;
+            var el = $('<div class="direct-chat-messages"></div>');
+            panel = {
+                id: id,
+                el: el,
+                entity: entity,
+                messageIds: []
+            };
+            this.panels[id.toString()] = panel;
         }
 
+        var id = message.getId();
+        var time = message.getLocalTimestamp();
 
+        var index = panel.messageIds.indexOf(id);
+        if (index >= 0) {
+            return;
+        }
+        // 更新消息 ID 列表
+        panel.messageIds.push(id);
+
+        var right = '';
+        var nfloat = 'float-left';
+        var tfloat = 'float-right';
+
+        if (sender.id == g.app.getSelf().getId()) {
+            right = 'right';
+            nfloat = 'float-right';
+            tfloat = 'float-left';
+        }
+
+        var text = null;
+        var fileInfo = null;
+
+        var attachment = null;
+
+        if (message instanceof TextMessage) {
+            text = message.getText();
+        }
+
+        // if (typeof content === 'string') {
+        //     text = content;
+        // }
+        // else if (content instanceof Message) {
+        //     if (content.hasAttachment()) {
+        //         attachment = content.getAttachment();
+        //         fileInfo = {
+        //             name: attachment.getFileName(),
+        //             size: attachment.getFileSize()
+        //         };
+        //     }
+        //     else {
+        //         text = content.getPayload().content;
+        //     }
+        // }
+        // else if (content instanceof File) {
+        //     fileInfo = {
+        //         name: content.name,
+        //         size: content.size
+        //     };
+        // }
+
+        if (null != fileInfo) {
+            var action = null;
+            if (null == attachment) {
+                action = [];
+            }
+            else {
+                var type = attachment.getFileType();
+                if (type == 'png' || type == 'jpg' || type == 'gif') {
+                    action = ['<a class="btn btn-xs btn-info" title="查看图片" href="javascript:app.showImage(\'',
+                                    attachment.getFileCode(), '\');">',
+                        '<i class="fas fa-file-image"></i>',
+                    '</a>'];
+                }
+                else {
+                    action = ['<a class="btn btn-xs btn-info" title="下载文件" href="javascript:app.downloadFile(\'',
+                                    attachment.getFileCode(), '\');">',
+                        '<i class="fas fa-download"></i>',
+                    '</a>'];
+                }
+            }
+
+            var fileDesc = ['<table class="file-label" border="0" cellspacing="4" cellpodding="0">',
+                    '<tr>',
+                        '<td rowspan="2">', '<i class="fa fa-file file-icon"></i>', '</td>',
+                        '<td colspan="2" class="file-name">', fileInfo.name, '</td>',
+                    '</tr>',
+                    '<tr>',
+                        '<td class="file-size">', formatSize(fileInfo.size), '</td>',
+                        '<td class="file-action">', action.join(''), '</td>',
+                    '</tr>',
+                '</table>'];
+            text = fileDesc.join('');
+        }
+
+        var html = ['<div id="', id, '" class="direct-chat-msg ',
+                right, '"><div class="direct-chat-infos clearfix"><span class="direct-chat-name ', nfloat, '">',
+            sender.getName(),
+            '</span><span class="direct-chat-timestamp ', tfloat, '">',
+            formatFullTime(time),
+            '</span></div>',
+            '<img src="', sender.getContext().avatar, '" class="direct-chat-img">',
+            '<div class="direct-chat-text">', text, '</div></div>'
+        ];
+
+        var parentEl = panel.el;
+        parentEl.append($(html.join('')));
+
+        // 滚动条控制
+        var offset = parseInt(this.elContent.prop('scrollHeight'));
+        this.elContent.scrollTop(offset);
     }
 
     MessagePanel.prototype.onSend = function(e) {
@@ -116,8 +222,11 @@
 
         // 触发发送
         var message = g.app.messagingCtrl.fireSend(this.current.entity, text);
+        if (null == message) {
+            return;
+        }
 
-        //this.appendMessage(message.id, g.app.contact, text, Date.now());
+        this.appendMessage(this.current.id, g.app.getSelf(), message);
     }
 
     g.MessagePanel = MessagePanel;

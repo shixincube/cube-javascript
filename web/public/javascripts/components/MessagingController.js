@@ -19,6 +19,20 @@
 
     var MessagingController = function(cubeEngine) {
         cube = cubeEngine;
+        var that = this;
+
+        // 监听消息已发送事件
+        cube.messaging.on(MessagingEvent.Sent, function(event) {
+            var message = event.data;
+            g.app.messageCatalog.updateItem(message.getTo(), message, message.getLocalTimestamp());
+        });
+
+        // 监听接收消息事件
+        cube.messaging.on(MessagingEvent.Notify, function(event) {
+            var message = event.data;
+            // 触发 UI 事件
+            that.onNewMessage(message);
+        });
     }
 
     /**
@@ -47,7 +61,7 @@
             if (list.length > 0) {
                 var last = list[list.length - 1];
                 // 更新目录项
-                g.app.messageCatalog.updateItem(id, last);
+                g.app.messageCatalog.updateItem(id, last, last.getRemoteTimestamp());
             }
         }
 
@@ -72,14 +86,15 @@
             message = new TextMessage(content);
         }
         else if (content instanceof File) {
-            //message = new Im
+            //message = new FileMessage(content);
         }
         else {
             g.dialog.launchToast(Toast.Warning, '程序内部错误');
-            return;
+            return null;
         }
 
-        //cube.messaging.sendTo(target, message);
+        message = cube.messaging.sendTo(target, message);
+        return message;
     }
 
     MessagingController.prototype.toggle = function(id) {
@@ -99,6 +114,10 @@
                 handle(group);
             }
         });
+    }
+
+    MessagingController.prototype.onNewMessage = function(message) {
+
     }
 
     g.MessagingController = MessagingController;

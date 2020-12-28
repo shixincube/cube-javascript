@@ -99,26 +99,56 @@
         });
     }
 
-    MessageCatalogue.prototype.updateItem = function(item, message) {
+    MessageCatalogue.prototype.updateItem = function(target, desc, time, label) {
         var id = 0;
-        var desc = null;
-        var badge = null;
-        var label = null;
 
-        if (typeof item === 'number') {
-            id = item;
+        if (typeof target === 'number') {
+            id = target;
         }
-        else if (item instanceof Contact) {
-            id = item.getId();
+        else if (target instanceof Contact) {
+            id = target.getId();
         }
-        else if (item instanceof Group) {
-            id = item.getId();
+        else if (target instanceof Group) {
+            id = target.getId();
         }
         else {
+            console.log('[App] MessageCatalogue#updateItem() 输入参数错误');
             return;
         }
 
-        
+        var item = this.getItem(id);
+        if (null == item) {
+            return;
+        }
+
+        var el = item.el;
+
+        if (null != desc) {
+            if (typeof desc === 'string') {
+                el.find('.product-description').text(desc);
+            }
+            else if (desc instanceof TextMessage) {
+                el.find('.product-description').text(desc.getText());
+            }
+            else if (desc instanceof Message) {
+                var msg = desc;
+                if (msg.hasAttachment()) {
+                    el.find('.product-description').text('[文件] ' + msg.getAttachment().getFileName());
+                }
+                else {
+                    el.find('.product-description').text(msg.getPayload().content);
+                }
+            }
+            else if (desc instanceof File) {
+                el.find('.product-description').text('[文件] ' + desc.name);
+            }
+        }
+
+        el.find('.badge').text(formatShortTime(time));
+
+        if (label) {
+            el.find('.title').text(label);
+        }
     }
 
     MessageCatalogue.prototype.onItemClick = function(id) {
