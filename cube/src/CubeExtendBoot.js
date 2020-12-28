@@ -25,6 +25,8 @@
  */
 
 import { MessageTypePlugin } from "./messaging/extend/MessageTypePlugin";
+import { TextMessage } from "./messaging/extend/TextMessage";
+import { ImageMessage } from "./messaging/extend/ImageMessage";
 
 /**
  * 导入扩展程序。
@@ -33,5 +35,7 @@ import { MessageTypePlugin } from "./messaging/extend/MessageTypePlugin";
     // 提供全局的接口类
 
     global.MessageTypePlugin = MessageTypePlugin;
+    global.TextMessage = TextMessage;
+    global.ImageMessage = ImageMessage;
 
 })(window);

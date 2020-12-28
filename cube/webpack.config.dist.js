@@ -6,11 +6,10 @@ const babelpolyfill = require('babel-polyfill');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const FileManagerPlugin = require('filemanager-webpack-plugin');
 
-var CubeConfig = {
+var CubeAllConfig = {
     target: 'web',
     entry: {
-        "cube": [ 'babel-polyfill', './src/CubeBoot.js' ],
-        "cube-extend": [ 'babel-polyfill', './src/CubeExtendBoot.js' ]
+        "cube": [ 'babel-polyfill', './src/CubeBoot.js', './src/CubeExtendBoot.js' ]
     },
     output: {
         path: path.resolve(__dirname, './dist'),
@@ -56,16 +55,16 @@ var CubeConfig = {
         new FileManagerPlugin({
             onEnd: {
                 copy: [{
-                    source: path.resolve(__dirname, './dist') + '/cube.js',
+                    source: path.resolve(__dirname, './dist') + '/*.js',
                     destination: path.resolve(__dirname, '../web/public/javascripts/')
                 }, {
-                    source: path.resolve(__dirname, './dist') + '/cube.js.map',
+                    source: path.resolve(__dirname, './dist') + '/*.js.map',
                     destination: path.resolve(__dirname, '../web/public/javascripts/')
                 }, {
-                    source: path.resolve(__dirname, './dist') + '/cube.js',
+                    source: path.resolve(__dirname, './dist') + '/*.js',
                     destination: path.resolve(__dirname, './examples/js/')
                 }, {
-                    source: path.resolve(__dirname, './dist') + '/cube.js.map',
+                    source: path.resolve(__dirname, './dist') + '/*.js.map',
                     destination: path.resolve(__dirname, './examples/js/')
                 }]
             }
@@ -73,12 +72,21 @@ var CubeConfig = {
     ]
 };
 
-var CubeLibConfig = {
+
+var CubeConfig = {
     target: 'web',
-    entry: [ 'babel-polyfill', './src/CubeLibBoot.js' ],
+    entry: {
+        "cube": [ 'babel-polyfill', './src/CubeBoot.js' ],
+        "cube-extend": [ 'babel-polyfill', './src/CubeExtendBoot.js' ]
+    },
     output: {
         path: path.resolve(__dirname, './dist'),
-        filename: 'cube-lib.js'
+        filename: '[name].js'
+    },
+    optimization: {
+        runtimeChunk: {
+            name: 'cube-runtime'
+        }
     },
     resolve: {
         extensions: ['.js', '.ts'],
@@ -91,7 +99,10 @@ var CubeLibConfig = {
         rules: [
             {
                 test: /\.js$/,
-                exclude: /(node_modules|bower_components)/,
+                exclude: [
+                    /(node_modules|bower_components)/,
+                    path.resolve(__dirname, './src/facemonitor')
+                ],
                 use: {
                     loader: 'babel-loader',
                     options: {
@@ -109,9 +120,29 @@ var CubeLibConfig = {
     plugins: [
         new CleanWebpackPlugin({
             dry: false,
-            cleanOnceBeforeBuildPatterns: [ path.resolve(__dirname, './dist') + '/cube.js' ]
+            cleanOnceBeforeBuildPatterns: [
+                path.resolve(__dirname, './dist') + '/*.js',
+                path.resolve(__dirname, './dist') + '/*.map'
+            ]
+        }),
+        new FileManagerPlugin({
+            onEnd: {
+                copy: [{
+                    source: path.resolve(__dirname, './dist') + '/*.js',
+                    destination: path.resolve(__dirname, '../web/public/javascripts/')
+                }, {
+                    source: path.resolve(__dirname, './dist') + '/*.js.map',
+                    destination: path.resolve(__dirname, '../web/public/javascripts/')
+                }, {
+                    source: path.resolve(__dirname, './dist') + '/*.js',
+                    destination: path.resolve(__dirname, './examples/js/')
+                }, {
+                    source: path.resolve(__dirname, './dist') + '/*.js.map',
+                    destination: path.resolve(__dirname, './examples/js/')
+                }]
+            }
         })
     ]
 };
 
-module.exports = [ CubeConfig ];
+module.exports = [ CubeAllConfig ];

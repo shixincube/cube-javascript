@@ -21,6 +21,10 @@
         cube = cubeEngine;
     }
 
+    /**
+     * 更新联系人的消息清单。
+     * @param {Array} cubeContacts 
+     */
     MessagingController.prototype.updateContactMessages = function(cubeContacts) {
         contacts = cubeContacts;
         var time = Date.now() - window.AWeek;
@@ -55,18 +59,34 @@
         }
     }
 
+    /**
+     * 发送消息。
+     * @param {number} id 
+     * @param {Contact|Group} target 
+     * @param {string|File} content 
+     */
+    MessagingController.prototype.fireSend = function(target, content) {
+        var message = null;
+
+        if (typeof content === 'string') {
+            message = new TextMessage(content);
+        }
+        else if (content instanceof File) {
+            //message = new Im
+        }
+        else {
+            g.dialog.launchToast(Toast.Warning, '程序内部错误');
+            return;
+        }
+
+        //cube.messaging.sendTo(target, message);
+    }
+
     MessagingController.prototype.toggle = function(id) {
         var handle = function(item) {
             if (null == item) {
                 return;
             }
-
-            // if (item instanceof Contact) {
-            //     var contact = item;
-            // }
-            // else if (item instanceof Group) {
-            //     var group = item;
-            // }
 
             g.app.messagePanel.changePanel(id, item);
         }

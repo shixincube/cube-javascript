@@ -7,6 +7,8 @@
         this.el = el;
         this.panels = {};
 
+        var that = this;
+
         /**
          * 当前面板
          */
@@ -20,7 +22,19 @@
             this.elInput.attr('disabled', 'disabled');
         }
 
+        // 发送按钮 Click 事件
         this.btnSend = this.el.find('button[data-target="send"]');
+        this.btnSend.on('click', function(event) {
+            that.onSend(event);
+        });
+        // 发送框键盘事件
+        this.elInput.keypress(function(event) {
+            var e = event || window.event;
+            if (e && e.keyCode == 13 && e.ctrlKey) {
+                that.onSend(e);
+            }
+        });
+
         this.btnSendFile = this.el.find('button[data-target="send-file"]');
 
         this.initContextMenu();
@@ -76,8 +90,34 @@
         this.elTitle.text(entity.getName());
     }
 
-    MessagePanel.prototype.onSend = function(e) {
+    /**
+     * 向指定面板内追加消息。
+     * @param {number} id 
+     * @param {Contact} sender 
+     * @param {Message|File|string} content 
+     * @param {number} time 
+     */
+    MessagePanel.prototype.appendMessage = function(id, sender, content, time) {
+        var panel = this.panels[id.toString()];
+        if (undefined === panel) {
+            return;
+        }
 
+
+    }
+
+    MessagePanel.prototype.onSend = function(e) {
+        var text = this.elInput.val();
+        if (text.length == 0) {
+            return;
+        }
+
+        this.elInput.val('');
+
+        // 触发发送
+        var message = g.app.messagingCtrl.fireSend(this.current.entity, text);
+
+        //this.appendMessage(message.id, g.app.contact, text, Date.now());
     }
 
     g.MessagePanel = MessagePanel;
