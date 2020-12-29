@@ -27,6 +27,7 @@
 import { MessagePlugin } from "../MessagePlugin";
 import { TextMessage } from "./TextMessage";
 import { ImageMessage } from "./ImageMessage";
+import { FileMessage } from "./FileMessage";
 
 /**
  * 消息类型插件。
@@ -48,6 +49,9 @@ export class MessageTypePlugin extends MessagePlugin {
         if (undefined !== payload.type) {
             if (payload.type == 'text') {
                 return new TextMessage(message);
+            }
+            else if (payload.type == 'file') {
+                return new FileMessage(message);
             }
             else if (payload.type == 'image') {
                 return new ImageMessage(message);

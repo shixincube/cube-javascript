@@ -137,4 +137,4 @@ import { Announcer } from "./util/Announcer";
         return global._cube_;
     }
 
-})(undefined === window.CubeNamespace ? window : CubeNamespace);
+})(undefined === window.CubeNamespace ? window : window.CubeNamespace);

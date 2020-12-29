@@ -24,41 +24,43 @@
  * SOFTWARE.
  */
 
-import { Message } from "../Message";
 import { TypeableMessage } from "./TypeableMessage";
 
 /**
- * 文本消息。
+ * 文件消息。
  */
-export class TextMessage extends TypeableMessage {
+export class FileMessage extends TypeableMessage {
 
-    /**
-     * @param {string|Message} param 文本消息的文本参数。
-     */
     constructor(param) {
         super(param);
 
-        if (typeof param === 'string') {
-            this.payload = { "type" : "text", "content" : param };
-        }
-        else if (undefined === param || null == param) {
-            this.payload = { "type" : "text" };
-        }
+        this.payload = { "type" : "file" };
     }
 
     /**
-     * 设置文本内容。
-     * @param {string} text 指定文本内容。
+     * 获取文件名。
+     * @returns {string} 返回文件名。
      */
-    setText(text) {
-        this.payload.content = text;
+    getFileName() {
+        return this.attachment.getFileName();
     }
 
     /**
-     * 获取文本内容。
-     * @returns {string} 返回文本内容。
+     * 获取文件扩展名。
+     * @returns {string} 返回文件扩展名。
      */
-    getText() {
-        return this.payload.content;
+    getExtension() {
+        if (!this.hasAttachment()) {
+            return null;
+        }
+
+        let name = this.attachment.getFileName();
+        let index = name.lastIndexOf('.');
+        if (index > 0) {
+            return name.substring(index + 1, name.length);
+        }
+        else {
+            return null;
+        }
     }
 }

@@ -51,6 +51,7 @@
 
         // 发送按钮 Click 事件
         this.btnSend = el.find('button[data-target="send"]');
+        this.btnSend.attr('disabled', 'disabled');
         this.btnSend.on('click', function(event) {
             that.onSend(event);
         });
@@ -62,7 +63,12 @@
             }
         });
 
+        // 发送文件
         this.btnSendFile = el.find('button[data-target="send-file"]');
+        this.btnSendFile.attr('disabled', 'disabled');
+        this.btnSendFile.on('click', function(event) {
+            g.app.messagingCtrl.selectFile($('#select_file'));
+        });
 
         // 详情按钮
         el.find('button[data-target="details"]').on('click', function(e) {

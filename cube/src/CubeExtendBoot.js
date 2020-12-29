@@ -27,6 +27,7 @@
 import { MessageTypePlugin } from "./messaging/extend/MessageTypePlugin";
 import { TextMessage } from "./messaging/extend/TextMessage";
 import { ImageMessage } from "./messaging/extend/ImageMessage";
+import { FileMessage } from "./messaging/extend/FileMessage";
 
 /**
  * 导入扩展程序。
@@ -37,5 +38,6 @@ import { ImageMessage } from "./messaging/extend/ImageMessage";
     global.MessageTypePlugin = MessageTypePlugin;
     global.TextMessage = TextMessage;
     global.ImageMessage = ImageMessage;
+    global.FileMessage = FileMessage;
 
-})(undefined === window.CubeNamespace ? window : CubeNamespace);
+})(undefined === window.CubeNamespace ? window : window.CubeNamespace);

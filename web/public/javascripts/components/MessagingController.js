@@ -31,6 +31,8 @@
 
     var contacts = null;
 
+    var elSelectFile = null;
+
     var getContact = function(id) {
         for (var i = 0; i < contacts.length; ++i) {
             var c = contacts[i];
@@ -98,6 +100,19 @@
         }
     }
 
+    MessagingController.prototype.selectFile = function(el) {
+        if (null == elSelectFile) {
+            var that = this;
+            elSelectFile = el;
+            elSelectFile.on('change', function(e) {
+                var file = e.target.files[0];
+                that.fireSend(g.app.messagePanel.current.entity, file);
+            });
+        }
+
+        elSelectFile.cick();
+    }
+
     /**
      * 发送消息。
      * @param {number} id 
@@ -122,6 +137,10 @@
         return message;
     }
 
+    /**
+     * 切换消息面板。
+     * @param {number} id 
+     */
     MessagingController.prototype.toggle = function(id) {
         var handle = function(item) {
             if (null == item) {
