@@ -38,4 +38,4 @@ import { ImageMessage } from "./messaging/extend/ImageMessage";
     global.TextMessage = TextMessage;
     global.ImageMessage = ImageMessage;
 
-})(undefined === CubeNamespace ? window : CubeNamespace);
+})(undefined === window.CubeNamespace ? window : CubeNamespace);

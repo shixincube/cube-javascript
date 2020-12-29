@@ -24,6 +24,9 @@
  * SOFTWARE.
  */
 
+/**
+ * 消息操作主面板。
+ */
 (function(g) {
     'use strict'
 
@@ -69,7 +72,7 @@
         // 新建群组
         this.btnNewGroup = el.find('button[data-target="new-group"]');
         this.btnNewGroup.on('click', function(e) {
-            $('#new_group_dialog').modal('show');
+            g.app.newGroupDialog.show();
         });
 
         // 初始化上下文菜单
@@ -97,6 +100,11 @@
         });
     }
 
+    /**
+     * 切换面板。
+     * @param {number} id 
+     * @param {Contact|Group} entity 
+     */
     MessagePanel.prototype.changePanel = function(id, entity) {
         var panel = this.panels[id.toString()];
         if (undefined === panel) {

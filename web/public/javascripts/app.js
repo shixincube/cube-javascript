@@ -24,6 +24,9 @@
  * SOFTWARE.
  */
 
+/**
+ * Web Application Main
+ */
 (function (g) {
     'use strict'
 
@@ -44,6 +47,7 @@
     var messageCatalog = null;
     var messagePanel = null;
     var contactDetails = null;
+    var newGroupDialog = null;
 
     var messagingCtrl = null;
 
@@ -100,12 +104,14 @@
             messagePanel = new MessagePanel(messagingEl.find('#messages'));
             messagingCtrl = new MessagingController(cube);
             contactDetails = new ContactDetails();
+            newGroupDialog = new NewGroupDialog($('#new_group_dialog'));
 
             this.prepare();
 
             that.messageCatalog = messageCatalog;
             that.messagePanel = messagePanel;
             that.contactDetails = contactDetails;
+            that.newGroupDialog = newGroupDialog;
             that.messagingCtrl = messagingCtrl;
         },
 
@@ -189,6 +195,22 @@
             }, function(id) {
                 callback(null);
             });
+        },
+
+        /**
+         * @returns {Array} 返回我的联系人列表。
+         */
+        getMyContacts: function() {
+            var list = [];
+            for (var i = 0; i < cubeContacts.length; ++i) {
+                var c = cubeContacts[i];
+                if (c.getId() == account.id) {
+                    continue;
+                }
+
+                list.push(c);
+            }
+            return list;
         },
 
         /**

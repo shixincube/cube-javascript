@@ -24,8 +24,47 @@
  * SOFTWARE.
  */
 
+/**
+ * 新建群组对话框。
+ */
 (function(g) {
     'use strict'
 
-    
+    var contacts = null;
+
+    var NewGroupDialog = function(el) {
+        this.el = el;
+        this.elMyContacts = el.find('div[data-target="my-contacts"]');
+        this.elGroupName = el.find('input[data-target="group-name"]');
+    }
+
+    NewGroupDialog.prototype.show = function() {
+        contacts = g.app.getMyContacts();
+
+        this.elMyContacts.empty();
+
+        for (var i = 0; i < contacts.length; ++i) {
+            var contact = contacts[i];
+            var id = contact.getId();
+            var avatar = contact.getContext().avatar;
+            var name = contact.getName();
+
+            var html = [
+                '<div class="col-6"><div class="form-group"><div class="custom-control custom-checkbox select-group-member">',
+                    '<input class="custom-control-input" type="checkbox" id="group_member_', i, '" data="', id, '" />',
+                    '<label class="custom-control-label" for="group_member_', i, '">',
+                        '<img src="', avatar, '" />',
+                        '<span>', name, '</span>',
+                    '</label>',
+                '</div></div></div>'
+            ];
+
+            this.elMyContacts.append($(html.join('')));
+        }
+
+        this.el.modal('show');
+    }
+
+    g.NewGroupDialog = NewGroupDialog;
+
 })(window);

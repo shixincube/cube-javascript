@@ -182,7 +182,7 @@
         </div>
         <!-- Contact Details - end -->
 
-        <!-- Create Group Dialog - begin -->
+        <!-- New Group Dialog - begin -->
         <div id="new_group_dialog" class="modal fade">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -201,7 +201,7 @@
                         </div>
                         <div class="form-group">
                             <label>选择群组成员</label>
-                            <div class="row">
+                            <div class="row" data-target="my-contacts">
                                 <div class="col-6">
                                     <div class="form-group">
                                         <div class="custom-control custom-checkbox select-group-member">
@@ -223,7 +223,7 @@
                 </div>
             </div>
         </div>
-        <!-- Create Group Dialog - end -->
+        <!-- New Group Dialog - end -->
     </div>
     <!-- Messaging Page - end  -->
 
@@ -375,6 +375,7 @@
 <script type="text/javascript" src="javascripts/components/MessagePanel.js"></script>
 <script type="text/javascript" src="javascripts/components/MessagingController.js"></script>
 <script type="text/javascript" src="javascripts/components/ContactDetails.js"></script>
+<script type="text/javascript" src="javascripts/components/NewGroupDialog.js"></script>
 <script type="text/javascript" src="javascripts/app.js"></script>
 <script type="text/javascript">
 (function ($) {
