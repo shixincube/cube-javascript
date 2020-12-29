@@ -186,6 +186,13 @@
         this.items.sort(function(a, b) {
             return b.time - a.time;
         });
+
+        this.el.empty();
+        var that = this;
+        this.items.forEach(function(item) {
+            that.el.append(item.el);
+            that.bindEvent(item.el);
+        });
     }
 
     MessageCatalogue.prototype.onItemClick = function(id) {

@@ -91,6 +91,7 @@
          */
         start: function(current) {
             account = current;
+            that.account = account;
             console.log('account: ' + account.id + ' - ' + account.state);
 
             // 启动 Cube Engine
@@ -309,14 +310,6 @@
         },
 
         removeGroup: function(group) {
-
-        },
-
-        showImage: function(fileCode) {
-
-        },
-
-        downloadFile: function(fileCode) {
 
         }
     };

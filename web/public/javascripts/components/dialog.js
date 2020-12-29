@@ -198,6 +198,23 @@
             else {
                 $('#modal_loading').modal('hide');
             }
+        },
+
+        showImage: function(fileCode) {
+            g.cube().fileStorage.getFileURL(fileCode, function(fileCode, url, surl) {
+                var image = new Image();
+                image.src = url;
+                var viewer = new Viewer(image, {
+                    hidden: function () {
+                        viewer.destroy();
+                    }
+                });
+                viewer.show();
+            });
+        },
+
+        downloadFile: function(fileCode) {
+
         }
     };
 

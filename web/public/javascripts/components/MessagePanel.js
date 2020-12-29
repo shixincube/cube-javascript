@@ -198,13 +198,13 @@
 
             var type = attachment.getFileType();
             if (type == 'png' || type == 'jpg' || type == 'gif') {
-                action = ['<a class="btn btn-xs btn-info" title="查看图片" href="javascript:app.showImage(\'',
+                action = ['<a class="btn btn-xs btn-info" title="查看图片" href="javascript:dialog.showImage(\'',
                                 attachment.getFileCode(), '\');">',
                     '<i class="fas fa-file-image"></i>',
                 '</a>'];
             }
             else {
-                action = ['<a class="btn btn-xs btn-info" title="下载文件" href="javascript:app.downloadFile(\'',
+                action = ['<a class="btn btn-xs btn-info" title="下载文件" href="javascript:dialog.downloadFile(\'',
                                 attachment.getFileCode(), '\');">',
                     '<i class="fas fa-download"></i>',
                 '</a>'];

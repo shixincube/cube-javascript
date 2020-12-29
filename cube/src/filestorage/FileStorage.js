@@ -286,6 +286,10 @@ export class FileStorage extends Module {
      * @param {function} handler 回调函数，函数参数：({@linkcode fileCode}:string, {@linkcode fileURL}:string, {@linkcode fileSecureURL}:string) 。
      */
     getFileURL(fileCode, handler) {
+        if (!this.started) {
+            this.start();
+        }
+
         let fileLabel = this.fileLabels.get(fileCode);
         if (null == fileLabel) {
             this.storage.readFileLabel(fileCode, (fileCode, fileLabel) => {
@@ -302,7 +306,7 @@ export class FileStorage extends Module {
                     '&token=', this.filePipeline.tokenCode,
                     '&type=', fileLabel.fileType
                 ];
-                handler(fileCode, url.join(''), surl.json(''));
+                handler(fileCode, url.join(''), surl.join(''));
             });
 
             return;
@@ -316,7 +320,7 @@ export class FileStorage extends Module {
             '&token=', this.filePipeline.tokenCode,
             '&type=', fileLabel.fileType
         ];
-        handler(fileCode, url.join(''), surl.json(''));
+        handler(fileCode, url.join(''), surl.join(''));
     }
 
     /**

@@ -70,6 +70,11 @@
         contacts = cubeContacts;
         var time = Date.now() - window.AWeek;
 
+        var announcer = new Announcer(contacts.length - 1, 10000);
+        announcer.addAudience(function(total, map) {
+            g.app.messageCatalog.refreshOrder();
+        });
+
         var handler = function(id, list) {
             for (var i = 0; i < list.length; ++i) {
                 var message = list[i];
@@ -91,10 +96,17 @@
                 // 更新目录项
                 g.app.messageCatalog.updateItem(id, last, last.getRemoteTimestamp());
             }
+
+            announcer.announce(id.toString(), list);
         }
 
         for (var i = 0; i < cubeContacts.length; ++i) {
             var contact = cubeContacts[i];
+            if (contact.getId() == g.app.account.id) {
+                // 跳过自己
+                continue;
+            }
+
             cube.messaging.queryMessageWithContact(contact, time, function(id, time, list) {
                 handler(id, list);
             });
