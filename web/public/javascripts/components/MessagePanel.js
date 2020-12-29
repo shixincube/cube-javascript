@@ -184,75 +184,50 @@
         }
 
         var text = null;
-        var fileInfo = null;
-
         var attachment = null;
 
         if (message instanceof TextMessage) {
             text = message.getText();
         }
+        else if (message instanceof FileMessage) {
+            attachment = message.getAttachment();
+        }
 
-        // if (typeof content === 'string') {
-        //     text = content;
-        // }
-        // else if (content instanceof Message) {
-        //     if (content.hasAttachment()) {
-        //         attachment = content.getAttachment();
-        //         fileInfo = {
-        //             name: attachment.getFileName(),
-        //             size: attachment.getFileSize()
-        //         };
-        //     }
-        //     else {
-        //         text = content.getPayload().content;
-        //     }
-        // }
-        // else if (content instanceof File) {
-        //     fileInfo = {
-        //         name: content.name,
-        //         size: content.size
-        //     };
-        // }
-
-        if (null != fileInfo) {
+        if (null != attachment) {
             var action = null;
-            if (null == attachment) {
-                action = [];
+
+            var type = attachment.getFileType();
+            if (type == 'png' || type == 'jpg' || type == 'gif') {
+                action = ['<a class="btn btn-xs btn-info" title="查看图片" href="javascript:app.showImage(\'',
+                                attachment.getFileCode(), '\');">',
+                    '<i class="fas fa-file-image"></i>',
+                '</a>'];
             }
             else {
-                var type = attachment.getFileType();
-                if (type == 'png' || type == 'jpg' || type == 'gif') {
-                    action = ['<a class="btn btn-xs btn-info" title="查看图片" href="javascript:app.showImage(\'',
-                                    attachment.getFileCode(), '\');">',
-                        '<i class="fas fa-file-image"></i>',
-                    '</a>'];
-                }
-                else {
-                    action = ['<a class="btn btn-xs btn-info" title="下载文件" href="javascript:app.downloadFile(\'',
-                                    attachment.getFileCode(), '\');">',
-                        '<i class="fas fa-download"></i>',
-                    '</a>'];
-                }
+                action = ['<a class="btn btn-xs btn-info" title="下载文件" href="javascript:app.downloadFile(\'',
+                                attachment.getFileCode(), '\');">',
+                    '<i class="fas fa-download"></i>',
+                '</a>'];
             }
 
             var fileDesc = ['<table class="file-label" border="0" cellspacing="4" cellpodding="0">',
                     '<tr>',
                         '<td rowspan="2">', '<i class="fa fa-file file-icon"></i>', '</td>',
-                        '<td colspan="2" class="file-name">', fileInfo.name, '</td>',
+                        '<td colspan="2" class="file-name">', attachment.getFileName(), '</td>',
                     '</tr>',
                     '<tr>',
-                        '<td class="file-size">', formatSize(fileInfo.size), '</td>',
+                        '<td class="file-size">', formatSize(attachment.getFileSize()), '</td>',
                         '<td class="file-action">', action.join(''), '</td>',
                     '</tr>',
                 '</table>'];
             text = fileDesc.join('');
         }
 
-        var html = ['<div id="', id, '" class="direct-chat-msg ',
-                right, '"><div class="direct-chat-infos clearfix"><span class="direct-chat-name ', nfloat, '">',
-            sender.getName(),
+        var html = ['<div id="', id, '" class="direct-chat-msg ', right, '"><div class="direct-chat-infos clearfix">',
+            '<span class="direct-chat-name ', nfloat, '">',
+                sender.getName(),
             '</span><span class="direct-chat-timestamp ', tfloat, '">',
-            formatFullTime(time),
+                formatFullTime(time),
             '</span></div>',
             '<img src="', sender.getContext().avatar, '" class="direct-chat-img">',
             '<div class="direct-chat-text">', text, '</div></div>'
@@ -277,10 +252,8 @@
         // 触发发送
         var message = g.app.messagingCtrl.fireSend(this.current.entity, text);
         if (null == message) {
-            return;
+            g.dialog.launchToast(Toast.Error, '发送消息失败');
         }
-
-        this.appendMessage(this.current.entity, g.app.getSelf(), message);
     }
 
     MessagePanel.prototype.onDetailsClick = function(e) {

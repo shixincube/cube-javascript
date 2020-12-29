@@ -50,6 +50,7 @@
         // 监听消息已发送事件
         cube.messaging.on(MessagingEvent.Sent, function(event) {
             var message = event.data;
+            g.app.messagePanel.appendMessage(g.app.messagePanel.current.entity, g.app.getSelf(), message);
             g.app.messageCatalog.updateItem(message.getTo(), message, message.getLocalTimestamp());
         });
 
@@ -110,7 +111,7 @@
             });
         }
 
-        elSelectFile.cick();
+        elSelectFile.click();
     }
 
     /**
@@ -126,7 +127,7 @@
             message = new TextMessage(content);
         }
         else if (content instanceof File) {
-            //message = new FileMessage(content);
+            message = new FileMessage(content);
         }
         else {
             g.dialog.launchToast(Toast.Warning, '程序内部错误');

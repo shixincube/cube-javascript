@@ -46,6 +46,14 @@ export class FileMessage extends TypeableMessage {
     }
 
     /**
+     * 获取文件大小。
+     * @returns {number} 返回文件大小。
+     */
+    getFileSize() {
+        return this.attachment.getFileSize();
+    }
+
+    /**
      * 获取文件扩展名。
      * @returns {string} 返回文件扩展名。
      */

@@ -310,6 +310,14 @@
 
         removeGroup: function(group) {
 
+        },
+
+        showImage: function(fileCode) {
+
+        },
+
+        downloadFile: function(fileCode) {
+
         }
     };
 
