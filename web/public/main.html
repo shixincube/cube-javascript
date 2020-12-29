@@ -181,6 +181,49 @@
             </div>
         </div>
         <!-- Contact Details - end -->
+
+        <!-- Create Group Dialog - begin -->
+        <div id="new_group_dialog" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">新建群组</h4>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">群组名称</span>
+                            </div>
+                            <input class="form-control" type="text" placeholder="请在此输入群组名称" data-target="group-name" />
+                        </div>
+                        <div class="form-group">
+                            <label>选择群组成员</label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <div class="custom-control custom-checkbox select-group-member">
+                                            <input class="custom-control-input" type="checkbox" id="group_member_0" data="0" />
+                                            <label class="custom-control-label" for="group_member_0">
+                                                <img src="" />
+                                                <span>name</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">关闭</button>
+                        <button class="btn btn-primary" type="button">确定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Create Group Dialog - end -->
     </div>
     <!-- Messaging Page - end  -->
 
