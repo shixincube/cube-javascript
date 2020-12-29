@@ -238,19 +238,19 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="video-main">
-                            <video autoplay></video>
+                        <div class="video-main" data-target="video-remote">
+                            <video autoplay="autoplay"></video>
                         </div>
-                        <div class="video-pip">
-                            <video autoplay></video>
+                        <div class="video-pip" data-target="video-local">
+                            <video autoplay="autoplay"></video>
                         </div>
                     </div>
                     <div class="modal-footer justify-content-between">
                         <div class="btn-group">
-                            <button class="btn btn-primary" type="button"><i class="ci ci-camera-closed"></i></button>
-                            <button class="btn btn-primary" type="button"><i class="ci ci-microphone-closed"></i></button>
+                            <button class="btn btn-primary" type="button" title="操作摄像头"><i class="ci ci-camera-closed"></i></button>
+                            <button class="btn btn-primary" type="button" title="操作麦克风"><i class="ci ci-microphone-closed"></i></button>
                         </div>
-                        <button class="btn btn-danger" type="button"><i class="ci ci-hangup"></i></button>
+                        <button class="btn btn-danger" type="button" title="挂断通话"><i class="ci ci-hangup"></i></button>
                     </div>
                 </div>
             </div>

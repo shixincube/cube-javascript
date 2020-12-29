@@ -30,8 +30,18 @@
 (function(g) {
     'use strict'
 
+    var remoteContainer = null;
+    var localContainer = null;
+
+    var remoteVideo = null;
+    var localVideo = null;
+
+    var mainVideo = null;
+
     var VideoChatPanel = function(el) {
         this.el = el;
+        var that = this;
+
         el.draggable({
             handle: ".modal-header"
         });
@@ -39,6 +49,26 @@
         el.on('shown.bs.modal', function() {
             //el.css('marginLeft', '-320px');
         });
+
+        remoteContainer = el.find('div[data-target="video-remote"]');
+        localContainer = el.find('div[data-target="video-local"]');
+
+        remoteContainer.on('click', function(e) {
+            if (mainVideo == localVideo) {
+                that.switchVideo();
+            }
+        });
+
+        localContainer.on('click', function(e) {
+            if (mainVideo == remoteVideo) {
+                that.switchVideo();
+            }
+        });
+
+        remoteVideo = remoteContainer[0].querySelector('video');
+        localVideo = localContainer[0].querySelector('video');
+
+        mainVideo = remoteVideo;
     }
 
     VideoChatPanel.prototype.show = function() {
@@ -46,6 +76,27 @@
             keyboard: false,
             backdrop: false
         });
+    }
+
+    VideoChatPanel.prototype.switchVideo = function() {
+        if (mainVideo == remoteVideo) {
+            remoteContainer.removeClass('video-main');
+            localContainer.removeClass('video-pip');
+
+            remoteContainer.addClass('video-pip');
+            localContainer.addClass('video-main');
+
+            mainVideo = localVideo;
+        }
+        else {
+            localContainer.removeClass('video-main');
+            remoteContainer.removeClass('video-pip');
+
+            localContainer.addClass('video-pip');
+            remoteContainer.addClass('video-main');
+
+            mainVideo = remoteVideo;
+        }
     }
 
     g.VideoChatPanel = VideoChatPanel;

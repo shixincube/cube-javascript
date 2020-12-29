@@ -338,6 +338,9 @@ body {
     background-color: #000;
     width: 640px;
     height: 480px;
+    position: relative;
+    float: none;
+    z-index: 0;
 }
 
 .video-main video {
@@ -351,9 +354,14 @@ body {
     height: 120px;
     position: absolute;
     float: left;
+    z-index: 9;
     right: 1px;
     bottom: 1px;
     border: 1px #ececec solid;
+}
+
+.video-pip:hover {
+    cursor: pointer;
 }
 
 .video-pip video {
