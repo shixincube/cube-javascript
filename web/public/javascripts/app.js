@@ -296,7 +296,7 @@
                 // 隐藏进度提示
                 setTimeout(function() {
                     dialog.hideLoading();
-                }, 1000);
+                }, 500);
             });
         },
 

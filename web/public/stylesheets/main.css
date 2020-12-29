@@ -1,4 +1,28 @@
-/* main.css */
+/**
+ * This file is part of Cube.
+ * 
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2020 Shixin Cube Team.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
 body {
     font-family: MicrosoftYaHei, "Microsoft YaHei", "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
@@ -285,4 +309,54 @@ body {
     height: 20px;
     width: 24px;
     padding: 0;
+}
+
+.video-chat-panel {
+    width: 640px;
+    margin-left: -320px;
+}
+.video-chat-panel .modal-dialog {
+    max-width: 640px;
+}
+.video-chat-panel .modal-content {
+    width: 640px;
+}
+.video-chat-panel .modal-header {
+    padding: 10px 20px 10px 20px;
+}
+.video-chat-panel .modal-body {
+    padding: 0;
+}
+.video-chat-panel .modal-footer {
+    padding: 10px 20px 10px 20px;
+}
+.video-chat-panel .modal-footer .btn {
+    font-size: 14px;
+}
+
+.video-main {
+    background-color: #000;
+    width: 640px;
+    height: 480px;
+}
+
+.video-main video {
+    width: 100%;
+    height: 100%;
+}
+
+.video-pip {
+    background-color: #000;
+    width: 160px;
+    height: 120px;
+    position: absolute;
+    float: left;
+    right: 1px;
+    bottom: 1px;
+    border: 1px #ececec solid;
+}
+
+.video-pip video {
+    width: 100%;
+    height: 100%;
 }

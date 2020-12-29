@@ -24,30 +24,38 @@
  * SOFTWARE.
  */
 
-/**
- * 视频聊天面板。
- */
-(function(g) {
-    'use strict'
+ /*
+  * ci - cube icon
+  */
 
-    var VideoChatPanel = function(el) {
-        this.el = el;
-        el.draggable({
-            handle: ".modal-header"
-        });
+.ci {
+    display: block;
+    padding: 0;
+    margin: 0;
+    font-size: 8px;
+    width: 22px;
+    height: 22px;
+}
 
-        el.on('shown.bs.modal', function() {
-            //el.css('marginLeft', '-320px');
-        });
-    }
+.ci-camera-closed {
+    background-image: url(../images/icon/camera-closed@2x.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 22px 22px;
+}
 
-    VideoChatPanel.prototype.show = function() {
-        this.el.modal({
-            keyboard: false,
-            backdrop: false
-        });
-    }
+.ci-microphone-closed {
+    background-image: url(../images/icon/microphone-closed@2x.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 22px 22px;
+}
 
-    g.VideoChatPanel = VideoChatPanel;
-
-})(window);
+.ci-hangup {
+    width: 44px;
+    height: 22px;
+    background-image: url(../images/icon/hangup@2x.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 44px 16px;
+}

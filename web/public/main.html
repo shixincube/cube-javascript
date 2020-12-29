@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="plugins/bootstrap-select/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="plugins/jquery-ui/jquery-ui.min.css">
     <link rel="stylesheet" href="stylesheets/main.css">
+    <link rel="stylesheet" href="stylesheets/icon.css">
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
@@ -227,21 +228,29 @@
         <!-- New Group Dialog - end -->
 
         <!-- Video Chat - begin -->
-        <div id="video_chat" class="modal fade modeless">
+        <div id="video_chat" class="modal fade modeless video-chat-panel">
             <div class="modal-dialog modal-dialog-modeless">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title">视频聊天</h4>
+                        <h6 class="modal-title">视频聊天</h6>
                         <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-
+                        <div class="video-main">
+                            <video autoplay></video>
+                        </div>
+                        <div class="video-pip">
+                            <video autoplay></video>
+                        </div>
                     </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" type="button">静音</button>
-                        <button class="btn btn-primary" type="button">挂断</button>
+                    <div class="modal-footer justify-content-between">
+                        <div class="btn-group">
+                            <button class="btn btn-primary" type="button"><i class="ci ci-camera-closed"></i></button>
+                            <button class="btn btn-primary" type="button"><i class="ci ci-microphone-closed"></i></button>
+                        </div>
+                        <button class="btn btn-danger" type="button"><i class="ci ci-hangup"></i></button>
                     </div>
                 </div>
             </div>

@@ -178,7 +178,7 @@
     }
 
     MessagingController.prototype.makeVideoCall = function() {
-        
+        g.app.videoChatPanel.show();
     }
 
     MessagingController.prototype.onNewMessage = function(message) {
