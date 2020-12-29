@@ -173,8 +173,50 @@
         });
     }
 
-    MessagingController.prototype.onNewMessage = function(message) {
+    MessagingController.prototype.makeCall = function() {
 
+    }
+
+    MessagingController.prototype.makeVideoCall = function() {
+        
+    }
+
+    MessagingController.prototype.onNewMessage = function(message) {
+        // 判断消息是否来自群组
+        if (message.isFromGroup()) {
+            // 消息来自群组
+            /*var group = this.getGroup(message.getSource());
+            if (null != group) {
+                // 更新目录
+                this.messageCatalogue.updateItem(group.getId(), message, message.getRemoteTimestamp());
+
+                // 更新消息面板
+                this.messagePanel.appendMessage(message.getId(), this.getContact(message.getFrom()), message, message.getRemoteTimestamp(), group);
+            }
+            else {
+                // 从服务器获取新群组
+                // TODO
+            }*/
+        }
+        else {
+            // 消息来自联系人
+            var itemId = 0;
+            var sender = g.app.queryContact(message.getFrom());
+            var target = null;
+
+            if (g.app.account.id == message.getFrom()) {
+                // 从“我”的其他终端发送的消息
+                itemId = message.getTo();
+                target = g.app.queryContact(message.getTo());
+            }
+            else {
+                itemId = message.getFrom();
+                target = sender;
+            }
+
+            g.app.messagePanel.appendMessage(target, sender, message);
+            g.app.messageCatalog.updateItem(itemId, message, message.getLocalTimestamp());
+        }
     }
 
     g.MessagingController = MessagingController;

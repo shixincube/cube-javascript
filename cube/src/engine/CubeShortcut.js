@@ -58,6 +58,13 @@ export class CubeShortcut {
         this.fileStorage = this.engine.getFileStorage();
 
         /**
+         * 文件存储模块。
+         * @type {FileStorage}
+         * @public
+         */
+        this.fs = this.fileStorage;
+
+        /**
          * 消息模块。
          * @type {MessagingService}
          * @public
@@ -70,6 +77,13 @@ export class CubeShortcut {
          * @public
          */
         this.fileProcessor = this.engine.getFileProcessor();
+
+        /**
+         * 文件处理模块。
+         * @type {FileProcessor}
+         * @public
+         */
+        this.fp = this.fileProcessor;
 
         /**
          * 多方通讯模块。

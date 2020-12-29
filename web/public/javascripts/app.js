@@ -46,12 +46,13 @@
 
     var messageCatalog = null;
     var messagePanel = null;
+    var videoChatPanel = null;
     var contactDetails = null;
     var newGroupDialog = null;
 
     var messagingCtrl = null;
 
-    var queryCubeContact = function(id) {
+    var queryContact = function(id) {
         for (var i = 0; i < cubeContacts.length; ++i) {
             var c = cubeContacts[i];
             if (c.getId() == id) {
@@ -104,6 +105,7 @@
 
             messagePanel = new MessagePanel(messagingEl.find('#messages'));
             messagingCtrl = new MessagingController(cube);
+            videoChatPanel = new VideoChatPanel($('#video_chat'));
             contactDetails = new ContactDetails();
             newGroupDialog = new NewGroupDialog($('#new_group_dialog'));
 
@@ -111,6 +113,7 @@
 
             that.messageCatalog = messageCatalog;
             that.messagePanel = messagePanel;
+            that.videoChatPanel = videoChatPanel;
             that.contactDetails = contactDetails;
             that.newGroupDialog = newGroupDialog;
             that.messagingCtrl = messagingCtrl;
@@ -173,7 +176,7 @@
             cube.contact.getContact(id, function(contact) {
                 let ctx = contact.getContext();
                 if (null == ctx) {
-                    var localContact = queryCubeContact(contact.getId());
+                    var localContact = queryContact(contact.getId());
                     if (null != localContact) {
                         contact = localContact;
                     }
@@ -244,6 +247,10 @@
 
                 // 启用消息模块
                 cube.messaging.start();
+                // 启动存储模块
+                cube.fs.start();
+                // 启用音视频模块
+                cube.mpComm.start();
             }, function(error) {
                 console.log('Start Cube FAILED: ' + error);
             });
@@ -314,7 +321,7 @@
         }
     };
 
-    app.queryCubeContact = queryCubeContact;
+    app.queryContact = queryContact;
 
     that = app;
     g.app = app;

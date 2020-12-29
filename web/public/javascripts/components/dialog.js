@@ -214,7 +214,7 @@
         },
 
         downloadFile: function(fileCode) {
-
+            g.cube().fileStorage.downloadFile(fileCode);
         }
     };
 

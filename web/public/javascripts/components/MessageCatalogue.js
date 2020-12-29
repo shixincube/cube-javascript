@@ -216,7 +216,7 @@
     }
 
     MessageCatalogue.prototype.onItemDoubleClick = function(id) {
-        var entity = g.app.queryCubeContact(id);
+        var entity = g.app.queryContact(id);
         if (entity instanceof Contact) {
             g.app.contactDetails.show(entity);
         }

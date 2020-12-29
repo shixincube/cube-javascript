@@ -70,6 +70,20 @@
             g.app.messagingCtrl.selectFile($('#select_file'));
         });
 
+        // 视频通话
+        this.btnVideoCall = el.find('button[data-target="video-call"]');
+        this.btnVideoCall.attr('disabled', 'disabled');
+        this.btnVideoCall.on('click', function() {
+            g.app.messagingCtrl.makeVideoCall();
+        });
+
+        // 语音通话
+        this.btnVoiceCall = el.find('button[data-target="voice-call"]');
+        this.btnVoiceCall.attr('disabled', 'disabled');
+        this.btnVoiceCall.on('click', function() {
+            g.app.messagingCtrl.makeCall();
+        });
+
         // 详情按钮
         el.find('button[data-target="details"]').on('click', function(e) {
             that.onDetailsClick(e);
@@ -137,6 +151,19 @@
         this.elContent.append(panel.el);
 
         this.current = panel;
+
+        if (panel.groupable) {
+            if (!this.btnVideoCall[0].hasAttribute('disabled')) {
+                this.btnVideoCall.attr('disabled', 'disabled');
+            }
+            if (!this.btnVoiceCall[0].hasAttribute('disabled')) {
+                this.btnVoiceCall.attr('disabled', 'disabled');
+            }
+        }
+        else {
+            this.btnVideoCall.removeAttr('disabled');
+            this.btnVoiceCall.removeAttr('disabled');
+        }
 
         this.elTitle.text(entity.getName());
     }

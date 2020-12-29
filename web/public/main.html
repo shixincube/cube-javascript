@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="stylesheets/viewer.min.css">
     <link rel="stylesheet" href="stylesheets/jquery.contextMenu.min.css">
     <link rel="stylesheet" href="plugins/bootstrap-select/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="plugins/jquery-ui/jquery-ui.min.css">
     <link rel="stylesheet" href="stylesheets/main.css">
 </head>
 
@@ -224,6 +225,28 @@
             </div>
         </div>
         <!-- New Group Dialog - end -->
+
+        <!-- Video Chat - begin -->
+        <div id="video_chat" class="modal fade modeless">
+            <div class="modal-dialog modal-dialog-modeless">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">视频聊天</h4>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button">静音</button>
+                        <button class="btn btn-primary" type="button">挂断</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Video Chat - end -->
     </div>
     <!-- Messaging Page - end  -->
 
@@ -359,6 +382,7 @@
 </div>
 
 <script type="text/javascript" src="plugins/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="plugins/jquery-ui/jquery-ui.min.js"></script>
 <script type="text/javascript" src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script type="text/javascript" src="plugins/sweetalert2/sweetalert2.min.js"></script>
 <script type="text/javascript" src="javascripts/adminlte.min.js"></script>
@@ -373,6 +397,7 @@
 <script type="text/javascript" src="javascripts/components/SidebarAccountPanel.js"></script>
 <script type="text/javascript" src="javascripts/components/MessageCatalogue.js"></script>
 <script type="text/javascript" src="javascripts/components/MessagePanel.js"></script>
+<script type="text/javascript" src="javascripts/components/VideoChatPanel.js"></script>
 <script type="text/javascript" src="javascripts/components/MessagingController.js"></script>
 <script type="text/javascript" src="javascripts/components/ContactDetails.js"></script>
 <script type="text/javascript" src="javascripts/components/NewGroupDialog.js"></script>
