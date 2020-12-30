@@ -24,52 +24,20 @@
  * SOFTWARE.
  */
 
- /*
-  * ci - cube icon
-  */
+/**
+ * 语音通话面板。
+ */
+(function(g) {
+    'use strict'
 
-.ci {
-    display: block;
-    padding: 0;
-    margin: 0;
-    font-size: 8px;
-    width: 22px;
-    height: 22px;
-}
+    var VideoChatPanel = function(el) {
+        this.el = el;
+    }
 
-.ci-camera-closed {
-    background-image: url(../images/icon/camera-closed@2x.png);
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 22px 22px;
-}
+    VideoChatPanel.prototype.show = function(target) {
 
-.ci-microphone-closed {
-    background-image: url(../images/icon/microphone-closed@2x.png);
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 22px 22px;
-}
+    }
 
-.ci-volume-muted {
-    background-image: url(../images/icon/volume-muted@2x.png);
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 22px 22px;
-}
-
-.ci-volume-unmuted {
-    background-image: url(../images/icon/volume-unmuted@2x.png);
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 22px 22px;
-}
-
-.ci-hangup {
-    width: 44px;
-    height: 22px;
-    background-image: url(../images/icon/hangup@2x.png);
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 44px 16px;
-}
+    g.VideoChatPanel = VideoChatPanel;
+    
+})(window);

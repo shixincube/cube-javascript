@@ -315,6 +315,9 @@ body {
     width: 640px;
     margin-left: -320px;
 }
+.video-chat-panel .close {
+    font-size: 20px;
+}
 .video-chat-panel .modal-dialog {
     max-width: 640px;
 }
@@ -367,4 +370,12 @@ body {
 .video-pip video {
     width: 100%;
     height: 100%;
+}
+
+.voice-call-panel {
+    width: 360px;
+    margin-left: -180px;
+}
+.voice-call-panel .close {
+    font-size: 20px;
 }
