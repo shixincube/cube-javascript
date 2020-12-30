@@ -30,14 +30,49 @@
 (function(g) {
     'use strict'
 
-    var VideoChatPanel = function(el) {
+    var VoiceCallPanel = function(el) {
         this.el = el;
+
+        this.elPeerAvatar = el.find('img[data-target="avatar"]');
+        this.elPeerName = el.find('span[data-target="name"]');
+        this.elInfo = el.find('span[data-target="info"]');
+
+        var that = this;
+
+        this.btnHangup = el.find('button[data-target="hangup"]');
+        this.btnHangup.on('click', function() {
+            that.hangup(that);
+        });
+
+        el.draggable({
+            handle: ".modal-header"
+        });
+
+        el.on('shown.bs.modal', function() {
+        });
     }
 
-    VideoChatPanel.prototype.show = function(target) {
+    VoiceCallPanel.prototype.show = function(target) {
+        console.log('语音通话 ' + target.getId());
 
+        this.elPeerAvatar.attr('src', target.getContext().avatar);
+        this.elPeerName.text(target.getName());
+        this.elInfo.text('正在呼叫...');
+
+        this.el.modal({
+            keyboard: false,
+            backdrop: false
+        });
     }
 
-    g.VideoChatPanel = VideoChatPanel;
-    
+    VoiceCallPanel.prototype.close = function() {
+        this.el.modal('hide');
+    }
+
+    VoiceCallPanel.prototype.hangup = function() {
+        this.close();
+    }
+
+    g.VoiceCallPanel = VoiceCallPanel;
+
 })(window);

@@ -46,6 +46,7 @@
 
     var messageCatalog = null;
     var messagePanel = null;
+    var voiceCallPanel = null;
     var videoChatPanel = null;
     var contactDetails = null;
     var newGroupDialog = null;
@@ -105,6 +106,7 @@
 
             messagePanel = new MessagePanel(messagingEl.find('#messages'));
             messagingCtrl = new MessagingController(cube);
+            voiceCallPanel = new VoiceCallPanel($('#voice_call'));
             videoChatPanel = new VideoChatPanel($('#video_chat'));
             contactDetails = new ContactDetails();
             newGroupDialog = new NewGroupDialog($('#new_group_dialog'));
@@ -113,6 +115,7 @@
 
             that.messageCatalog = messageCatalog;
             that.messagePanel = messagePanel;
+            that.voiceCallPanel = voiceCallPanel;
             that.videoChatPanel = videoChatPanel;
             that.contactDetails = contactDetails;
             that.newGroupDialog = newGroupDialog;

@@ -29,47 +29,51 @@
   */
 
 .ci {
-    display: block;
+    display: inline-block;
     padding: 0;
     margin: 0;
     font-size: 8px;
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
+}
+
+.ci-btn {
+    margin-top: 4px;
 }
 
 .ci-camera-closed {
     background-image: url(../images/icon/camera-closed@2x.png);
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 22px 22px;
+    background-size: 20px auto;
 }
 
 .ci-microphone-closed {
     background-image: url(../images/icon/microphone-closed@2x.png);
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 22px 22px;
+    background-size: 20px auto;
 }
 
 .ci-volume-muted {
     background-image: url(../images/icon/volume-muted@2x.png);
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 22px 22px;
+    background-size: 20px auto;
 }
 
 .ci-volume-unmuted {
     background-image: url(../images/icon/volume-unmuted@2x.png);
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 22px 22px;
+    background-size: 20px auto;
 }
 
 .ci-hangup {
-    width: 44px;
-    height: 22px;
+    width: 22px;
+    height: 8px;
     background-image: url(../images/icon/hangup@2x.png);
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 44px 16px;
+    background-size: 22px 8px;
 }

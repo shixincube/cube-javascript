@@ -173,12 +173,20 @@
         });
     }
 
-    MessagingController.prototype.makeCall = function(target) {
+    MessagingController.prototype.openVoiceCall = function(target) {
+        g.app.voiceCallPanel.show(target);
+    }
+
+    MessagingController.prototype.closeVoiceCall = function() {
 
     }
 
-    MessagingController.prototype.makeVideoCall = function(target) {
+    MessagingController.prototype.openVideoChat = function(target) {
         g.app.videoChatPanel.show(target);
+    }
+
+    MessagingController.prototype.closeVideoChat = function() {
+        
     }
 
     MessagingController.prototype.onNewMessage = function(message) {

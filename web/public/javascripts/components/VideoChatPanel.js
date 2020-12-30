@@ -47,7 +47,6 @@
         });
 
         el.on('shown.bs.modal', function() {
-            //el.css('marginLeft', '-320px');
         });
 
         remoteContainer = el.find('div[data-target="video-remote"]');

@@ -233,15 +233,24 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h6 class="modal-title">语音通话</h6>
-                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">➖</span>
-                        </button>
+                        <!--button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <i class="fas fa-minus"></i>
+                        </button-->
                     </div>
                     <div class="modal-body">
-
+                        <div class="info-box">
+                            <span class="info-box-icon"><img src="" data-target="avatar" /></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text" data-target="name">&nbsp;</span>
+                                <span class="info-box-number" data-target="info">&nbsp;</span>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer justify-content-between">
-
+                        <div class="btn-group">
+                            <button class="btn btn-primary media-btn" type="button" title="操作麦克风"><i class="ci ci-btn ci-microphone-closed"></i></button>
+                        </div>
+                        <button class="btn btn-danger media-btn" type="button" title="挂断通话" data-target="hangup"><i class="ci ci-hangup"></i> 取消</button>
                     </div>
                 </div>
             </div>
@@ -427,6 +436,7 @@
 <script type="text/javascript" src="javascripts/components/SidebarAccountPanel.js"></script>
 <script type="text/javascript" src="javascripts/components/MessageCatalogue.js"></script>
 <script type="text/javascript" src="javascripts/components/MessagePanel.js"></script>
+<script type="text/javascript" src="javascripts/components/VoiceCallPanel.js"></script>
 <script type="text/javascript" src="javascripts/components/VideoChatPanel.js"></script>
 <script type="text/javascript" src="javascripts/components/MessagingController.js"></script>
 <script type="text/javascript" src="javascripts/components/ContactDetails.js"></script>
