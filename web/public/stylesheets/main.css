@@ -37,9 +37,16 @@ body {
     height: auto;
 }
 
+.info-box .info-box-desc {
+    display: block;
+    margin-top: .5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: normal;
+}
+
 .modal-dialog-modeless {
-    margin-right: 0;
-    margin-left: 0;
+    margin: 0 0;
 }
 
 .content-wrapper-hidden {
@@ -313,6 +320,10 @@ body {
 
 .media-btn {
     padding-top: 4px;
+    padding-bottom: 2px;
+}
+.hangup-btn {
+    padding-top: 4px;
     padding-bottom: 4px;
 }
 
@@ -379,8 +390,9 @@ body {
 }
 
 .voice-call-panel {
-    width: 360px;
-    margin-left: -180px;
+    width: 362px;
+    margin-left: -181px;
+    color: #f8f9fa;
 }
 .voice-call-panel h6 {
     font-size: 16px;
@@ -391,6 +403,7 @@ body {
 }
 .voice-call-panel .info-box {
     font-size: 14px;
+    background-color: #343a40;
     border-radius: 0;
     margin-bottom: 0;
     box-shadow: none;
@@ -405,16 +418,20 @@ body {
 }
 .voice-call-panel .modal-content {
     width: 360px;
+    background-color: #343a40;
     box-shadow: none;
 }
 .voice-call-panel .modal-header {
     padding: 10px 16px 10px 16px;
+    border-bottom: 1px solid #545a60;
+    cursor: move;
 }
 .voice-call-panel .modal-body {
     padding: 0;
 }
 .voice-call-panel .modal-footer {
     padding: 10px 16px 10px 16px;
+    border-top: 1px solid #545a60;
 }
 .voice-call-panel .modal-footer button {
     font-size: 14px;

@@ -30,25 +30,34 @@
 (function(g) {
     'use strict'
 
+    var that = null;
+
+    var wfaTimer = 0;
+
     var VoiceCallPanel = function(el) {
+        that = this;
+
         this.el = el;
 
         this.elPeerAvatar = el.find('img[data-target="avatar"]');
         this.elPeerName = el.find('span[data-target="name"]');
         this.elInfo = el.find('span[data-target="info"]');
 
-        var that = this;
-
         this.btnHangup = el.find('button[data-target="hangup"]');
         this.btnHangup.on('click', function() {
-            that.hangup(that);
+            that.terminate(that);
+            that.close();
         });
 
         el.draggable({
             handle: ".modal-header"
         });
 
-        el.on('shown.bs.modal', function() {
+        el.on('hide.bs.modal', function() {
+            if (wfaTimer > 0) {
+                clearInterval(wfaTimer);
+                wfaTimer = 0;
+            }
         });
     }
 
@@ -59,18 +68,33 @@
         this.elPeerName.text(target.getName());
         this.elInfo.text('正在呼叫...');
 
-        this.el.modal({
-            keyboard: false,
-            backdrop: false
-        });
+        if (g.app.callCtrl.callContact(target)) {
+            this.el.modal({
+                keyboard: false,
+                backdrop: false
+            });
+        }
+        else {
+            g.dialog.launchToast(Toast.Warning, '呼叫' + target.getName() + '是发生错误');
+        }
     }
 
     VoiceCallPanel.prototype.close = function() {
         this.el.modal('hide');
     }
 
-    VoiceCallPanel.prototype.hangup = function() {
-        this.close();
+    VoiceCallPanel.prototype.tipWaitForAnswer = function() {
+        var time = 0;
+        wfaTimer = setInterval(function() {
+            that.elInfo.text('等待应答，已等待 ' + (++time) + ' 秒...');
+        }, 1000);
+    }
+
+    /**
+     * 由控制器覆盖该方法。
+     */
+    VoiceCallPanel.prototype.terminate = function() {
+        // Nothing
     }
 
     g.VoiceCallPanel = VoiceCallPanel;

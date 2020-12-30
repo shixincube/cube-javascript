@@ -52,6 +52,7 @@
     var newGroupDialog = null;
 
     var messagingCtrl = null;
+    var callCtrl = null;
 
     var queryContact = function(id) {
         for (var i = 0; i < cubeContacts.length; ++i) {
@@ -105,11 +106,13 @@
             messageCatalog = new MessageCatalogue(messagingEl.find('ul[data-target="catalogue"]'));
 
             messagePanel = new MessagePanel(messagingEl.find('#messages'));
-            messagingCtrl = new MessagingController(cube);
             voiceCallPanel = new VoiceCallPanel($('#voice_call'));
             videoChatPanel = new VideoChatPanel($('#video_chat'));
             contactDetails = new ContactDetails();
             newGroupDialog = new NewGroupDialog($('#new_group_dialog'));
+
+            messagingCtrl = new MessagingController(cube);
+            callCtrl = new CallController(cube);
 
             this.prepare();
 
@@ -120,6 +123,7 @@
             that.contactDetails = contactDetails;
             that.newGroupDialog = newGroupDialog;
             that.messagingCtrl = messagingCtrl;
+            that.callCtrl = callCtrl;
         },
 
         /**
