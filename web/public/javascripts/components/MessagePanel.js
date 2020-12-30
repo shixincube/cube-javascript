@@ -74,14 +74,14 @@
         this.btnVideoCall = el.find('button[data-target="video-call"]');
         this.btnVideoCall.attr('disabled', 'disabled');
         this.btnVideoCall.on('click', function() {
-            g.app.messagingCtrl.makeVideoCall();
+            g.app.messagingCtrl.makeVideoCall(that.current.entity);
         });
 
         // 语音通话
         this.btnVoiceCall = el.find('button[data-target="voice-call"]');
         this.btnVoiceCall.attr('disabled', 'disabled');
         this.btnVoiceCall.on('click', function() {
-            g.app.messagingCtrl.makeCall();
+            g.app.messagingCtrl.makeCall(that.current.entity);
         });
 
         // 详情按钮

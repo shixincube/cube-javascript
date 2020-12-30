@@ -173,12 +173,12 @@
         });
     }
 
-    MessagingController.prototype.makeCall = function() {
+    MessagingController.prototype.makeCall = function(target) {
 
     }
 
-    MessagingController.prototype.makeVideoCall = function() {
-        g.app.videoChatPanel.show();
+    MessagingController.prototype.makeVideoCall = function(target) {
+        g.app.videoChatPanel.show(target);
     }
 
     MessagingController.prototype.onNewMessage = function(message) {

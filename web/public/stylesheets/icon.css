@@ -51,6 +51,13 @@
     background-size: 22px 22px;
 }
 
+.ci-volume-unmuted {
+    background-image: url(../images/icon/volume-unmuted@2x.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 22px 22px;
+}
+
 .ci-hangup {
     width: 44px;
     height: 22px;

@@ -71,7 +71,9 @@
         mainVideo = remoteVideo;
     }
 
-    VideoChatPanel.prototype.show = function() {
+    VideoChatPanel.prototype.show = function(target) {
+        console.log('尝试视频连线 ' + target.getId());
+
         this.el.modal({
             keyboard: false,
             backdrop: false
