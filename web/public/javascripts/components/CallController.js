@@ -129,6 +129,7 @@
 
     CallController.prototype.answerCall = function() {
         g.app.voiceCallPanel.closeNewCallToast();
+        
     }
 
     CallController.prototype.hangupCall = function() {

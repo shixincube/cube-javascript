@@ -74,7 +74,7 @@
         });
     }
 
-    VoiceCallPanel.prototype.show = function(target) {
+    VoiceCallPanel.prototype.showMakeCall = function(target) {
         console.log('语音通话 ' + target.getId());
 
         this.elPeerAvatar.attr('src', target.getContext().avatar);
@@ -90,6 +90,9 @@
         else {
             g.dialog.launchToast(Toast.Warning, '呼叫"' + target.getName() + '"时发生错误');
         }
+    }
+
+    VoiceCallPanel.prototype.showAnswerCall = function(target) {
     }
 
     VoiceCallPanel.prototype.close = function() {

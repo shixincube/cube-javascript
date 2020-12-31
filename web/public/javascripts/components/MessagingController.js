@@ -174,8 +174,7 @@
     }
 
     MessagingController.prototype.openVoiceCall = function(target) {
-        //g.app.voiceCallPanel.show(target);
-        g.app.voiceCallPanel.openNewCallToast(target);
+        g.app.voiceCallPanel.showMakeCall(target);
     }
 
     MessagingController.prototype.closeVoiceCall = function() {
