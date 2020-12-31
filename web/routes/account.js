@@ -86,11 +86,26 @@ router.post('/logout', function(req, res, next) {
 /* POST /hb */
 router.post('/hb', function(req, res, next) {
     let mgr = req.app.get('manager');
-    let id = parseInt(req.body.id);
 
-    let online = mgr.heartbeat(id);
-
-    res.json({ "id": id, "state": online });
+    let id = req.body.id;
+    if (undefined !== id) {
+        let cookie = req.cookies['CubeAppToken'];
+        if (mgr.heartbeat(parseInt(id), cookie)) {
+            res.json({ "id": id, "state": "online" });
+        }
+        else {
+            res.json({ "id": id, "state": "offline" });
+        }
+    }
+    else {
+        let token = req.body.token;
+        if (mgr.heartbeat(token)) {
+            res.json({ "token": token, "state": "online" });
+        }
+        else {
+            res.json({ "token": token, "state": "offline" });
+        }
+    }
 });
 
 module.exports = router;

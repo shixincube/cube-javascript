@@ -130,18 +130,33 @@ class CubeAppManager {
         account.token = null;
     }
 
-    heartbeat(id) {
-        let account = this.accountRepo.queryAccount(id);
-        if (null == account) {
-            return false;
-        }
+    heartbeat(token, cookie) {
+        if (undefined !== cookie) {
+            let account = this.accountRepo.queryAccount(token);
+            if (null == account) {
+                return false;
+            }
 
-        if (account.state == 'offline') {
-            return false;
-        }
+            if (account.state == 'offline') {
+                return false;
+            }
 
-        account.last = Date.now();
-        return true;
+            account.last = Date.now();
+            return true;
+        }
+        else {
+            let account = this.getAccountByToken(token);
+            if (null == account) {
+                return false;
+            }
+
+            if (account.state == 'offline') {
+                return false;
+            }
+
+            account.last = Date.now();
+            return true;
+        }
     }
 
     onTick() {

@@ -27,12 +27,11 @@
 /**
  * 观察者观察到的事件。
  */
-export class ObservableState {
+export class ObservableEvent {
 
     /**
-     * 构造函数。
-     * @param {string} name 状态名称。
-     * @param {object} [data] 状态数据。
+     * @param {string} name 事件名称。
+     * @param {object} [data] 事件数据。
      */
     constructor(name, data) {
         this.name = name;
@@ -41,16 +40,16 @@ export class ObservableState {
     }
 
     /**
-     * 获取状态名称。
-     * @returns {string} 返回状态名称。
+     * 获取事件名称。
+     * @returns {string} 返回事件名称。
      */
     getName() {
         return this.name;
     }
 
     /**
-     * 获取状态数据。
-     * @returns {object} 返回状态数据。
+     * 获取事件数据。
+     * @returns {object} 返回事件数据。
      */
     getData() {
         return this.data;

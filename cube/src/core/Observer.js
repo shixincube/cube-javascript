@@ -24,7 +24,7 @@
  * SOFTWARE.
  */
 
-import { ObservableState } from "./ObservableState";
+import { ObservableEvent } from "./ObservableEvent";
 
 /**
  * 观察者角色类。
@@ -38,9 +38,9 @@ export class Observer {
     }
 
     /**
-     * 更新状态。
-     * @param {ObservableState} state 
+     * 更新事件。
+     * @param {ObservableEvent} event 
      */
-    update(state) {
+    update(event) {
     }
 }

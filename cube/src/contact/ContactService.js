@@ -33,7 +33,7 @@ import { StateCode } from "../core/StateCode";
 import { AuthService } from "../auth/AuthService";
 import { ContactPipelineListener } from "./ContactPipelineListener";
 import { Self } from "./Self";
-import { ObservableState } from "../core/ObservableState";
+import { ObservableEvent } from "../core/ObservableEvent";
 import { Contact } from "./Contact";
 import { ContactAction } from "./ContactAction";
 import { ContactEvent } from "./ContactEvent";
@@ -256,7 +256,7 @@ export class ContactService extends Module {
             if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
                 if (responsePacket.data.code == 0) {
                     cell.Logger.d('ContactService', 'Self comeback OK');
-                    this.notifyObservers(new ObservableState(ContactEvent.Comeback, this.self));
+                    this.notifyObservers(new ObservableEvent(ContactEvent.Comeback, this.self));
                 }
             }
         });
@@ -300,7 +300,7 @@ export class ContactService extends Module {
         // 更新状态
         this.selfReady = true;
 
-        this.notifyObservers(new ObservableState(ContactEvent.SignIn, this.self));
+        this.notifyObservers(new ObservableEvent(ContactEvent.SignIn, this.self));
     }
 
     /**
@@ -321,7 +321,7 @@ export class ContactService extends Module {
         this.self = null;
         this.selfReady = false;
 
-        this.notifyObservers(new ObservableState(ContactEvent.SignOut, current));
+        this.notifyObservers(new ObservableEvent(ContactEvent.SignOut, current));
     }
 
     /**
@@ -678,13 +678,13 @@ export class ContactService extends Module {
                     // 比较两个群的活跃时间
                     if (current.lastActiveTime != group.lastActiveTime) {
                         // 回调更新
-                        this.notifyObservers(new ObservableState(ContactEvent.GroupUpdated, buf.get(current.getId())));
+                        this.notifyObservers(new ObservableEvent(ContactEvent.GroupUpdated, buf.get(current.getId())));
                     }
                 }
                 else {
                     let g = buf.get(id);
                     if (g.getState() == GroupState.Normal || g.getState() == GroupState.Dismissed) {
-                        this.notifyObservers(new ObservableState(ContactEvent.GroupUpdated, g));
+                        this.notifyObservers(new ObservableEvent(ContactEvent.GroupUpdated, g));
                     }
                 }
 
@@ -830,7 +830,7 @@ export class ContactService extends Module {
             this.storage.writeGroup(group);
         }
 
-        this.notifyObservers(new ObservableState(ContactEvent.GroupCreated, group));
+        this.notifyObservers(new ObservableEvent(ContactEvent.GroupCreated, group));
     }
 
     /**
@@ -909,7 +909,7 @@ export class ContactService extends Module {
             this.storage.writeGroup(group);
         }
 
-        this.notifyObservers(new ObservableState(ContactEvent.GroupDissolved, group));
+        this.notifyObservers(new ObservableEvent(ContactEvent.GroupDissolved, group));
     }
 
     /**
@@ -1109,7 +1109,7 @@ export class ContactService extends Module {
         // 更新存储
         this.storage.writeGroup(group);
 
-        this.notifyObservers(new ObservableState(ContactEvent.GroupMemberRemoved, {
+        this.notifyObservers(new ObservableEvent(ContactEvent.GroupMemberRemoved, {
             group: group,
             modified: bundle.modified,
             operator: bundle.operator
@@ -1238,10 +1238,10 @@ export class ContactService extends Module {
         // [TIP] 新加入的人有自己则通知更新事件
         if (bundle.includeSelf) {
             // 回调群更新
-            this.notifyObservers(new ObservableState(ContactEvent.GroupUpdated, group));
+            this.notifyObservers(new ObservableEvent(ContactEvent.GroupUpdated, group));
         }
         else {
-            this.notifyObservers(new ObservableState(ContactEvent.GroupMemberAdded, {
+            this.notifyObservers(new ObservableEvent(ContactEvent.GroupMemberAdded, {
                 group: group,
                 modified: bundle.modified,
                 operator: bundle.operator
@@ -1338,7 +1338,7 @@ export class ContactService extends Module {
 
         this.storage.writeGroup(group);
 
-        this.notifyObservers(new ObservableState(ContactEvent.GroupUpdated, group));
+        this.notifyObservers(new ObservableEvent(ContactEvent.GroupUpdated, group));
     }
 
     /**

@@ -25,7 +25,7 @@
  */
 
 import { Observer } from "./Observer";
-import { ObservableState } from "./ObservableState";
+import { ObservableEvent } from "./ObservableEvent";
 import { FastMap } from "../util/FastMap";
 
 /**
@@ -169,7 +169,7 @@ export class Subject {
 
     /**
      * 通知观察者有新状态更新。
-     * @param {ObservableState} state 新的状态。
+     * @param {ObservableEvent} state 新的状态。
      */
     notifyObservers(state) {
         state.subject = this;

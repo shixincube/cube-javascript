@@ -31,7 +31,7 @@ import { AjaxFileChunkPacket } from "../pipeline/AjaxFileChunkPacket";
 import { AuthService } from "../auth/AuthService";
 import { ContactService } from "../contact/ContactService";
 import { ContactEvent } from "../contact/ContactEvent";
-import { ObservableState } from "../core/ObservableState";
+import { ObservableEvent } from "../core/ObservableEvent";
 import { OrderMap } from "../util/OrderMap";
 import { Packet } from "../core/Packet";
 import { FileAnchor } from "./FileAnchor";
@@ -219,7 +219,7 @@ export class FileStorage extends Module {
                     handleFailure(error);
                 }
 
-                let state = new ObservableState(FileStorageEvent.UploadFailed, error);
+                let state = new ObservableEvent(FileStorageEvent.UploadFailed, error);
                 this.notifyObservers(state);
             }
             else {
@@ -229,7 +229,7 @@ export class FileStorage extends Module {
                 fileAnchor.fileCode = anchor.fileCode;
                 fileAnchor.success = true;
 
-                let state = new ObservableState(FileStorageEvent.UploadCompleted, fileAnchor);
+                let state = new ObservableEvent(FileStorageEvent.UploadCompleted, fileAnchor);
                 this.notifyObservers(state);
 
                 if (handleSuccess) {
@@ -254,7 +254,7 @@ export class FileStorage extends Module {
         packet.responseType = 'blob';
 
         // 事件通知
-        this.notifyObservers(new ObservableState(FileStorageEvent.Downloading, fileLabel));
+        this.notifyObservers(new ObservableEvent(FileStorageEvent.Downloading, fileLabel));
 
         let url = this.secure ? fileLabel.getFileSecureURL() : fileLabel.getFileURL();
         this.filePipeline.send(url, packet, (pipeline, source, packet) => {
@@ -263,7 +263,7 @@ export class FileStorage extends Module {
             reader.readAsDataURL(blob);
             reader.onload = function(e) {
                 // 事件通知
-                this.notifyObservers(new ObservableState(FileStorageEvent.DownloadCompleted, fileLabel));
+                this.notifyObservers(new ObservableEvent(FileStorageEvent.DownloadCompleted, fileLabel));
 
                 let a = document.createElement('a');
                 a.style.display = 'inline';
@@ -361,7 +361,7 @@ export class FileStorage extends Module {
 
                     let anchor = FileAnchor.create(payload.data);
 
-                    let state = new ObservableState(FileStorageEvent.Uploading, anchor);
+                    let state = new ObservableEvent(FileStorageEvent.Uploading, anchor);
                     this.notifyObservers(state);
 
                     if (fileAnchor.position < fileSize) {
@@ -455,16 +455,16 @@ export class FileStorage extends Module {
         this.storage.writeFileLabel(fileLabel);
 
         // 通知事件
-        this.notifyObservers(new ObservableState(FileStorageEvent.FileUpdated, fileLabel));
+        this.notifyObservers(new ObservableEvent(FileStorageEvent.FileUpdated, fileLabel));
     }
 
     /**
      * @private
-     * @param {ObservableState} state 
+     * @param {ObservableEvent} event 
      */
-    _fireContactEvent(state) {
-        if (state.name == ContactEvent.SignIn) {
-            let self = state.data;
+    _fireContactEvent(event) {
+        if (event.name == ContactEvent.SignIn) {
+            let self = event.data;
             this.cid = self.getId();
         }
     }

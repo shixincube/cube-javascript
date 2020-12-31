@@ -25,7 +25,7 @@
  */
 
 import { Module } from "@core/Module";
-import { ObservableState } from "../core/ObservableState";
+import { ObservableEvent } from "../core/ObservableEvent";
 
 /**
  * 消息服务模块接口。
@@ -195,7 +195,7 @@ export class FaceMonitor extends Module {
         .catch(err => console.error(err));
 
         // 通知状态
-        let state = new ObservableState('load', {
+        let state = new ObservableEvent('load', {
             width: self.width,
             height: self.height,
             multiplier: multiplier,
@@ -291,7 +291,7 @@ export class FaceMonitor extends Module {
      * @param {object} data 
      */
     triggerEvent(data) {
-        let state = new ObservableState('touched', data);
+        let state = new ObservableEvent('touched', data);
         this.notifyObservers(state);
     }
 
@@ -380,7 +380,7 @@ async function _fm_predictLoop(self, net) {
 
     // 通知状态
     let elapsed = Date.now() - self.loadTimestamp;
-    let state = new ObservableState('loaded', {
+    let state = new ObservableEvent('loaded', {
         resetDelay: resetDelay,
         elapsed: elapsed
     });

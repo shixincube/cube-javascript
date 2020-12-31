@@ -33,24 +33,41 @@
 
     var working = false;
 
-    function onInProgress(target) {
+    var voiceCall = false;
 
+    function onInProgress(target) {
+        
     }
 
     function onRinging(event) {
-        g.app.voiceCallPanel.tipWaitForAnswer();
+        if (voiceCall) {
+            g.app.voiceCallPanel.tipWaitForAnswer();
+        }
     }
 
     function onConnected(event) {
-
+        if (voiceCall) {
+            g.app.voiceCallPanel.tipWaitForAnswer();
+        }
     }
 
     function onBye(event) {
         working = false;
+
+        if (voiceCall) {
+            g.app.voiceCallPanel.close();
+        }
+        
+        g.dialog.launchToast(Toast.Info, '通话结束');
     }
 
     function onNewCall(event) {
-
+        //event
+        // $(document).Toasts('create', {
+        // title: 'Toast Title',
+        // position: 'bottomLeft',
+        // body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+        // })
     }
 
     function onTimeout(event) {
@@ -90,17 +107,19 @@
 
         working = true;
 
+        voiceCall = true;
+
         g.app.voiceCallPanel.terminate = function(panel) {
             cube.mpComm.hangupCall();
             working = false;
         }
 
-        // 只使用音频通道
-        var mediaConstraint = new MediaConstraint(false, true);
-
+        // 设置媒体容器
         cube.mpComm.setRemoteVideoElement(g.app.voiceCallPanel.removeVideo);
         cube.mpComm.setLocalVideoElement(g.app.voiceCallPanel.localVideo);
 
+        // 只使用音频通道
+        var mediaConstraint = new MediaConstraint(false, true);
         cube.mpComm.makeCall(target, mediaConstraint);
 
         return true;

@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>Endpoint - Cube for Javascript</title>
+    <title>TextMessage - Cube for Javascript</title>
     
     <meta name="description" content="Cube Javascript" />
     
@@ -43,7 +43,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">Endpoint</h1>
+    <h1 class="page-title">TextMessage</h1>
     
 
     
@@ -56,10 +56,10 @@
 <header>
     
         <h2>
-        Endpoint
+        TextMessage
         </h2>
         
-            <div class="class-description usertext"><p>描述通信对端的类。</p></div>
+            <div class="class-description usertext"><p>文本消息。</p></div>
         
     
 </header>
@@ -74,7 +74,7 @@
     <h2>Constructor</h2>
     
 
-    <h4 class="name" id="Endpoint"><span class="type-signature"></span>new Endpoint<span class="signature">(name<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="TextMessage"><span class="type-signature"></span>new TextMessage<span class="signature">(param)</span><span class="type-signature"></span></h4>
 
     
 
@@ -143,8 +143,6 @@
         <th>Type</th>
 
         
-        <th>Attributes</th>
-        
 
         
 
@@ -157,33 +155,26 @@
 
         <tr>
             
-                <td class="name"><code>name</code></td>
+                <td class="name"><code>param</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">string</span>
+|
+
+<span class="param-type"><a href="Message.html">Message</a></span>
 
 
             
             </td>
 
             
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
 
             
 
-            <td class="description last"><p>终端名称。</p></td>
+            <td class="description last"><p>文本消息的文本参数。</p></td>
         </tr>
 
     
@@ -220,7 +211,7 @@
         <h3 class="subsection-title">Classes</h3>
 
         <dl>
-            <dt><a href="Endpoint.html">Endpoint</a></dt>
+            <dt><a href="TextMessage.html">TextMessage</a></dt>
             <dd></dd>
         </dl>
     
@@ -232,214 +223,6 @@
     
 
     
-        <h3 class="subsection-title">Members</h3>
-
-        
-            
-<h4 class="name" id="name"><span class="type-signature"></span>name<span class="type-signature"> :string</span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>名称。</p>
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">string</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="address"><span class="type-signature"></span>address<span class="type-signature"> :string</span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>可访问地址。</p>
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">string</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="port"><span class="type-signature"></span>port<span class="type-signature"> :number</span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>可访问端口。</p>
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">number</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-
-        
-    
 
     
         <h3 class="subsection-title">Methods</h3>
@@ -449,7 +232,7 @@
 
     
 
-    <h4 class="name" id="initializer"><span class="type-signature"></span>initializer<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setText"><span class="type-signature"></span>setText<span class="signature">(text)</span><span class="type-signature"></span></h4>
 
     
 
@@ -496,7 +279,7 @@
 
 
 <div class="description usertext">
-    <p>聚合时的初始化函数。</p>
+    <p>设置文本内容。</p>
 </div>
 
 
@@ -507,6 +290,55 @@
 
 
 
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>text</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>指定文本内容。</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -531,7 +363,7 @@
 
     
 
-    <h4 class="name" id="getName"><span class="type-signature"></span>getName<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
+    <h4 class="name" id="getText"><span class="type-signature"></span>getText<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
 
     
 
@@ -578,7 +410,7 @@
 
 
 <div class="description usertext">
-    <p>获取节点名称。</p>
+    <p>获取文本内容。</p>
 </div>
 
 
@@ -609,7 +441,7 @@
 
         
 <div class="param-desc">
-    <p>返回节点名称。</p>
+    <p>返回文本内容。</p>
 </div>
 
 

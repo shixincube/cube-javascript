@@ -27,7 +27,7 @@
 import cell from "@lib/cell-lib";
 import { Subject } from "./core/Subject";
 import { Observer } from "./core/Observer";
-import { ObservableState } from "./core/ObservableState";
+import { ObservableEvent } from "./core/ObservableEvent";
 import { JSONable } from "./util/JSONable";
 import { Entity } from "./core/Entity";
 import { CubeEngine } from "./engine/CubeEngine";
@@ -75,7 +75,7 @@ import { Announcer } from "./util/Announcer";
 
     global.Subject = Subject;
     global.Observer = Observer;
-    global.ObservableState = ObservableState;
+    global.ObservableEvent = ObservableEvent;
 
     global.JSONable = JSONable;
     global.Entity = Entity;

@@ -34,6 +34,9 @@
 
     var wfaTimer = 0;
 
+    var callingTimer = 0;
+    var callingElapsed = 0;
+
     var VoiceCallPanel = function(el) {
         that = this;
 
@@ -61,6 +64,13 @@
                 clearInterval(wfaTimer);
                 wfaTimer = 0;
             }
+
+            if (callingTimer > 0) {
+                clearTimeout(callingTimer);
+                callingTimer = 0;
+            }
+
+            callingElapsed = 0;
         });
     }
 
@@ -83,18 +93,32 @@
     }
 
     VoiceCallPanel.prototype.close = function() {
+        this.el.modal('hide');
+    }
+
+    VoiceCallPanel.prototype.tipWaitForAnswer = function() {
+        if (wfaTimer > 0) {
+            return;
+        }
+
+        var time = 0;
+        wfaTimer = setInterval(function() {
+            that.elInfo.text('等待应答，已等待 ' + (++time) + ' 秒...');
+        }, 1000);
+    }
+
+    VoiceCallPanel.prototype.tipConnected = function() {
         if (wfaTimer > 0) {
             clearInterval(wfaTimer);
             wfaTimer = 0;
         }
 
-        this.el.modal('hide');
-    }
+        if (callingTimer > 0) {
+            return;
+        }
 
-    VoiceCallPanel.prototype.tipWaitForAnswer = function() {
-        var time = 0;
-        wfaTimer = setInterval(function() {
-            that.elInfo.text('等待应答，已等待 ' + (++time) + ' 秒...');
+        callingTimer = setInterval(function() {
+            that.elInfo.text(g.formatClockTick(++callingElapsed));
         }, 1000);
     }
 

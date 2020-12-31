@@ -27,7 +27,7 @@
 import { Module } from "../core/Module";
 import { Packet } from "../core/Packet";
 import { StateCode } from "../core/StateCode";
-import { ObservableState } from "../core/ObservableState";
+import { ObservableEvent } from "../core/ObservableEvent";
 import { ContactService } from "../contact/ContactService";
 import { MultipointComm } from "../multipointcomm/MultipointComm";
 import { Conference } from "./Conference";
@@ -151,7 +151,7 @@ export class ConferenceService extends Module {
                 successCallback(conference);
             }
 
-            this.notifyObservers(new ObservableState(ConferenceEvent.Created, conference));
+            this.notifyObservers(new ObservableEvent(ConferenceEvent.Created, conference));
         });
     }
 

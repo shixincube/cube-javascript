@@ -26,6 +26,7 @@
 
 (function(g) {
 
+    var OneHourInSeconds = 60 * 60;
     var OneDay = 24 * 60 * 60 * 1000;
     var TwoDays = OneDay + OneDay;
     var AWeek = 7 * OneDay;
@@ -40,7 +41,7 @@
     var WeekDay = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
 
     function formatNumber(num, length) {
-        if (length == 2) {
+        if (length == 2 || undefined === length) {
             if (num < 10) {
                 return '0' + num;
             }
@@ -68,6 +69,32 @@
         return '' + num;
     }
 
+    /**
+     * 格式化时钟计数。
+     * @param {number} seconds 
+     */
+    g.formatClockTick = function(seconds) {
+        if (seconds < 60) {
+            return '00:00:' + formatNumber(seconds);
+        }
+        else if (seconds >= 60 && seconds < OneHourInSeconds) {
+            var minutes = parseInt(Math.floor(seconds / 60));
+            var seconds = parseInt(seconds % 60);
+            return [ '00:', formatNumber(minutes), ':', formatNumber(seconds) ].join('');
+        }
+        else {
+            var hours = parseInt(Math.floor(seconds / OneHourInSeconds));
+            var hmod = parseInt(seconds % OneHourInSeconds);
+            var minutes = parseInt(Math.floor(hmod / 60));
+            var seconds = parseInt(hmod % 60);
+            return [ formatNumber(hours), ':', formatNumber(minutes), ':', formatNumber(seconds) ].join('');
+        }
+    }
+
+    /**
+     * 将时间戳格式化为短字符串形式。
+     * @param {number} value 
+     */
     g.formatShortTime = function(value) {
         var result = [];
         var now = Date.now();
@@ -105,6 +132,10 @@
         return result.join('');
     }
 
+    /**
+     * 将时间戳格式化为完整字符串形式。
+     * @param {number} value 
+     */
     g.formatFullTime = function(value) {
         var result = [];
         var now = Date.now();
@@ -159,6 +190,10 @@
         return result.join('');
     }
 
+    /**
+     * 格式化字节空间大小。
+     * @param {number} size 
+     */
     g.formatSize = function(size) {
         if (size < KB) {
             return size + ' B';
@@ -177,6 +212,10 @@
         }
     }
 
+    /**
+     * 获取 URL 查询串参数。
+     * @param {string} variable 
+     */
     g.getQueryString = function(variable) {
         var query = window.location.search.substring(1);
         var vars = query.split("&");

@@ -84,6 +84,16 @@
                 }
             });
 
+            // 启动心跳
+            setInterval(function() {
+                $.post('/account/hb', { "token": token }, function(response, status, xhr) {
+                    var state = response.state;
+                    if (state == 'offline') {
+                        window.location.href = 'cube.html?ts=' + Date.now();
+                    }
+                }, 'json');
+            }, 3 * 60 * 1000);
+
             // tips
             $('[data-toggle="tooltip"]').tooltip();
         },

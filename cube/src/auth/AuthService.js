@@ -31,7 +31,7 @@ import { AuthToken } from "./AuthToken";
 import { AuthPipelineListener } from "./AuthPipelineListener";
 import { Packet } from "../core/Packet";
 import { StateCode } from "../core/StateCode";
-import { ObservableState } from "../core/ObservableState";
+import { ObservableEvent } from "../core/ObservableEvent";
 import { AuthEvent } from "./AuthEvent";
 import { TokenStorage } from "./TokenStorage";
 
@@ -324,7 +324,7 @@ export class AuthService extends Module {
             }
             else {
                 // 错误的 Code
-                let state = new ObservableState(AuthEvent.InvalidToken, this.token);
+                let state = new ObservableEvent(AuthEvent.InvalidToken, this.token);
                 this.notifyObservers(state);
 
                 if (window.localStorage) {

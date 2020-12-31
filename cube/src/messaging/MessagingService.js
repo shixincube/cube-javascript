@@ -44,7 +44,7 @@ import { MessagingServiceState } from "./MessagingServiceState";
 import { MessagingStorage } from "./MessagingStorage";
 import { FileStorage } from "../filestorage/FileStorage";
 import { FileStorageEvent } from "../filestorage/FileStorageEvent";
-import { ObservableState } from "../core/ObservableState";
+import { ObservableEvent } from "../core/ObservableEvent";
 import { StateCode } from "../core/StateCode";
 import { InstantiateHook } from "./hook/InstantiateHook";
 import { MessagePlugin } from "./MessagePlugin";
@@ -142,15 +142,15 @@ export class MessagingService extends Module {
 
         // 监听联系人模块
         this.contactService = this.kernel.getModule(ContactService.NAME);
-        let fun = (state) => {
-            this._fireContactEvent(state);
+        let fun = (event) => {
+            this._fireContactEvent(event);
         };
         this.contactService.attach(fun);
         this.contactEventFun = fun;
 
         // 监听文件存储模块
-        fun = (state) => {
-            this._fireFileStorageEvent(state);
+        fun = (event) => {
+            this._fireFileStorageEvent(event);
         };
         this.kernel.getModule(FileStorage.NAME).attach(fun);
         this.fileStorageEventFun = fun;
@@ -324,7 +324,7 @@ export class MessagingService extends Module {
             this.storage.writeMessage(msg);
 
             // 事件通知
-            this.notifyObservers(new ObservableState(MessagingEvent.Sending, msg));
+            this.notifyObservers(new ObservableEvent(MessagingEvent.Sending, msg));
             resolve(msg);
         });
         promise.then((msg) => {
@@ -383,7 +383,7 @@ export class MessagingService extends Module {
             this.storage.writeMessage(msg);
 
             // 事件通知
-            this.notifyObservers(new ObservableState(MessagingEvent.Sending, msg));
+            this.notifyObservers(new ObservableEvent(MessagingEvent.Sending, msg));
             resolve(msg);
         });
         promise.then((msg) => {
@@ -456,7 +456,7 @@ export class MessagingService extends Module {
                         }
 
                         // 事件通知
-                        this.notifyObservers(new ObservableState(MessagingEvent.Read, message));
+                        this.notifyObservers(new ObservableEvent(MessagingEvent.Read, message));
                     });
                 }
                 else {
@@ -529,7 +529,7 @@ export class MessagingService extends Module {
                         }
 
                         // 事件通知
-                        this.notifyObservers(new ObservableState(MessagingEvent.Delete, message));
+                        this.notifyObservers(new ObservableEvent(MessagingEvent.Delete, message));
                     });
                 }
                 else {
@@ -928,7 +928,7 @@ export class MessagingService extends Module {
                 message = hook.apply(message);
 
                 // 回调事件
-                this.notifyObservers(new ObservableState(MessagingEvent.Notify, message));
+                this.notifyObservers(new ObservableEvent(MessagingEvent.Notify, message));
             }
         });
     }
@@ -985,7 +985,7 @@ export class MessagingService extends Module {
                     message = hook.apply(message);
 
                     // 事件通知
-                    this.notifyObservers(new ObservableState(MessagingEvent.Read, message));
+                    this.notifyObservers(new ObservableEvent(MessagingEvent.Read, message));
                 }
             });
         }
@@ -1018,7 +1018,7 @@ export class MessagingService extends Module {
         let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
         message = hook.apply(message);
 
-        this.notifyObservers(new ObservableState(MessagingEvent.Recall, message));
+        this.notifyObservers(new ObservableEvent(MessagingEvent.Recall, message));
     }
 
     /**
@@ -1077,8 +1077,8 @@ export class MessagingService extends Module {
                             if (responsePacket.data.code == 0) {
                                 respMessage.state = MessageState.Sent;
 
-                                let state = new ObservableState(MessagingEvent.Sent, respMessage);
-                                this.notifyObservers(state);
+                                let event = new ObservableEvent(MessagingEvent.Sent, respMessage);
+                                this.notifyObservers(event);
                             }
                             else {
                                 cell.Logger.w('MessagingService', 'Sent failed: ' + responsePacket.data.code);
@@ -1087,7 +1087,7 @@ export class MessagingService extends Module {
 
                                 // 进行事件通知
                                 let error = new ModuleError(MessagingService.NAME, responsePacket.data.code, respMessage);
-                                this.notifyObservers(new ObservableState(MessagingEvent.Fault, error));
+                                this.notifyObservers(new ObservableEvent(MessagingEvent.Fault, error));
                             }
 
                             // 更新存储
@@ -1101,7 +1101,7 @@ export class MessagingService extends Module {
                             message.state = MessageState.Fault;
 
                             let error = new ModuleError(MessagingService.NAME, MessagingCode.NetFault, message);
-                            this.notifyObservers(new ObservableState(MessagingEvent.Fault, error));
+                            this.notifyObservers(new ObservableEvent(MessagingEvent.Fault, error));
                         }
                     });
                 }
@@ -1122,8 +1122,8 @@ export class MessagingService extends Module {
             // 正在发送文件
             message.attachment.anchor = fileAnchor;
 
-            let state = new ObservableState(MessagingEvent.Sending, message);
-            this.notifyObservers(state);
+            let event = new ObservableEvent(MessagingEvent.Sending, message);
+            this.notifyObservers(event);
         }, (fileAnchor) => {
             // 文件发送完成
 
@@ -1138,7 +1138,7 @@ export class MessagingService extends Module {
                     this.sendingMap.remove(message.getId());
                     message.state = MessageState.Fault;
                     let error = new ModuleError(MessagingService.NAME, MessageState.Fault, message);
-                    this.notifyObservers(new ObservableState(MessagingEvent.Fault, error));
+                    this.notifyObservers(new ObservableEvent(MessagingEvent.Fault, error));
                     return;
                 }
 
@@ -1147,7 +1147,7 @@ export class MessagingService extends Module {
                     this.sendingMap.remove(message.getId());
                     message.state = MessageState.Fault;
                     let error = new ModuleError(MessagingService.NAME, responsePacket.data.code, message);
-                    this.notifyObservers(new ObservableState(MessagingEvent.Fault, error));
+                    this.notifyObservers(new ObservableEvent(MessagingEvent.Fault, error));
                     return;
                 }
 
@@ -1171,8 +1171,8 @@ export class MessagingService extends Module {
                 // 更新存储
                 this.storage.updateMessage(message);
 
-                let state = new ObservableState(MessagingEvent.Sent, message);
-                this.notifyObservers(state);
+                let event = new ObservableEvent(MessagingEvent.Sent, message);
+                this.notifyObservers(event);
             });
         }, (fileAnchor) => {
             // TODO 错误处理
@@ -1182,15 +1182,15 @@ export class MessagingService extends Module {
     /**
      * 触发联系人事件。
      * @private
-     * @param {ObservableState} state 
+     * @param {ObservableEvent} event 
      */
-    _fireContactEvent(state) {
+    _fireContactEvent(event) {
         if (!this.started) {
             return;
         }
 
-        if (state.name == ContactEvent.SignIn || state.name == ContactEvent.Comeback) {
-            let self = state.data;
+        if (event.name == ContactEvent.SignIn || event.name == ContactEvent.Comeback) {
+            let self = event.data;
 
             // 启动存储
             this.storage.open(self.getId(), self.getDomain());
@@ -1219,7 +1219,7 @@ export class MessagingService extends Module {
                 }, 500);
             }
         }
-        else if (state.name == ContactEvent.SignOut) {
+        else if (event.name == ContactEvent.SignOut) {
             // 关闭存储
             this.storage.close();
         }
@@ -1228,14 +1228,14 @@ export class MessagingService extends Module {
     /**
      * 触发文件存储器事件。
      * @private
-     * @param {ObservableState} state 
+     * @param {ObservableEvent} event 
      */
-    _fireFileStorageEvent(state) {
+    _fireFileStorageEvent(event) {
         if (!this.started) {
             return;
         }
 
-        if (state.getName() == FileStorageEvent.FileUpdated) {
+        if (event.getName() == FileStorageEvent.FileUpdated) {
 
         }
     }
