@@ -43,6 +43,9 @@
         this.elPeerName = el.find('span[data-target="name"]');
         this.elInfo = el.find('span[data-target="info"]');
 
+        this.remoteVideo = el.find('video[data-target="remote"]')[0];
+        this.localVideo = el.find('video[data-target="local"]')[0];
+
         this.btnHangup = el.find('button[data-target="hangup"]');
         this.btnHangup.on('click', function() {
             that.terminate(that);
@@ -75,11 +78,16 @@
             });
         }
         else {
-            g.dialog.launchToast(Toast.Warning, '呼叫' + target.getName() + '是发生错误');
+            g.dialog.launchToast(Toast.Warning, '呼叫"' + target.getName() + '"时发生错误');
         }
     }
 
     VoiceCallPanel.prototype.close = function() {
+        if (wfaTimer > 0) {
+            clearInterval(wfaTimer);
+            wfaTimer = 0;
+        }
+
         this.el.modal('hide');
     }
 

@@ -33,32 +33,40 @@
 
     var working = false;
 
-    function onInProgress(peer) {
+    function onInProgress(target) {
 
     }
 
-    function onRinging(record) {
+    function onRinging(event) {
         g.app.voiceCallPanel.tipWaitForAnswer();
     }
 
-    function onConnected(record) {
+    function onConnected(event) {
 
     }
 
-    function onBye(record) {
+    function onBye(event) {
+        working = false;
+    }
+
+    function onNewCall(event) {
 
     }
 
-    function onNewCall(record) {
-
+    function onTimeout(event) {
+        g.app.voiceCallPanel.close();
+        g.dialog.launchToast(Toast.Info, '对方无应答');
     }
 
-    function onTimeout(record) {
+    function onCallFailed(event) {
+        var error = event.data;
+        working = false;
+        console.log('onCallFailed - ' + error);
 
-    }
-
-    function onCallFailed(record) {
-
+        if (error.code == CallState.MediaPermissionDenied) {
+            g.app.voiceCallPanel.close();
+            g.dialog.launchToast(Toast.Warning, '未能获得麦克风使用权限');
+        }
     }
 
     var CallController = function(cubeEngine) {
@@ -83,10 +91,17 @@
         working = true;
 
         g.app.voiceCallPanel.terminate = function(panel) {
-
+            cube.mpComm.hangupCall();
+            working = false;
         }
 
-        //cube.mpComm.makeCall(target);
+        // 只使用音频通道
+        var mediaConstraint = new MediaConstraint(false, true);
+
+        cube.mpComm.setRemoteVideoElement(g.app.voiceCallPanel.removeVideo);
+        cube.mpComm.setLocalVideoElement(g.app.voiceCallPanel.localVideo);
+
+        cube.mpComm.makeCall(target, mediaConstraint);
 
         return true;
     }

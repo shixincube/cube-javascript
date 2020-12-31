@@ -313,8 +313,8 @@ export class RTCDevice {
                 let constraints = mediaConstraint.getConstraints();
 
                 let stream = await this.getUserMedia(constraints);
-                if (null == stream) {
-                    handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.MediaPermissionDenied, this));
+                if (!(stream instanceof MediaStream)) {
+                    handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.MediaPermissionDenied, this, stream));
                     this.close();
                     return;
                 }
@@ -402,7 +402,7 @@ export class RTCDevice {
                 if (null != mediaConstraint) {
                     let constraints = mediaConstraint.getConstraints();
                     let stream = await this.getUserMedia(constraints);
-                    if (null == stream) {
+                    if (!(stream instanceof MediaStream)) {
                         handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.MediaPermissionDenied, this));
                         this.close();
                         return;
@@ -588,8 +588,14 @@ export class RTCDevice {
     /**
      * @private
      */
-    getUserMedia(constraints, handleSuccess, handleError) {
-        return navigator.mediaDevices.getUserMedia(constraints);
+    getUserMedia(constraints) {
+        return new Promise((resolve, reject) => {
+            navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+                resolve(stream);
+            }).catch((error) => {
+                resolve(error);
+            });
+        });
     }
 
 }

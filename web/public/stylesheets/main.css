@@ -413,6 +413,19 @@ body {
     height: 50px;
     border-radius: 10%;
 }
+.voice-call-panel .media-container {
+    position: absolute;
+    float: left;
+    visibility: hidden;
+    z-index: -1;
+    width: 10px;
+    height: 10px;
+    overflow: hidden;
+}
+.voice-call-panel .media-container video {
+    width: 1px;
+    height: 1px;
+}
 .voice-call-panel .modal-dialog {
     max-width: 360px;
 }
