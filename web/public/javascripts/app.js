@@ -72,12 +72,22 @@
             token = g.getQueryString('t');
             console.log('cube token: ' + token);
 
+            function heartbeat() {
+                $.post('/account/hb', { "token": token }, function(response, status, xhr) {
+                    var state = response.state;
+                    if (state == 'offline') {
+                        window.location.href = 'cube.html?ts=' + Date.now();
+                    }
+                }, 'json');
+            }
+
             $.ajax({
                 type: 'GET',
                 url: '/account/get',
                 data: { "t": token },
                 success: function(response, status, xhr) {
                     app.start(response);
+                    heartbeat();
                 },
                 error: function(xhr, error) {
                     app.stop();
@@ -86,12 +96,7 @@
 
             // 启动心跳
             setInterval(function() {
-                $.post('/account/hb', { "token": token }, function(response, status, xhr) {
-                    var state = response.state;
-                    if (state == 'offline') {
-                        window.location.href = 'cube.html?ts=' + Date.now();
-                    }
-                }, 'json');
+                heartbeat();
             }, 3 * 60 * 1000);
 
             // tips

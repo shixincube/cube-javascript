@@ -43,6 +43,16 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     font-weight: normal;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.toast-body {
+    padding: 0px;
+}
+.toasts-bottom-right {
+    bottom: 2px;
+    right: 2px;
 }
 
 .modal-dialog-modeless {
@@ -442,10 +452,41 @@ body {
 .voice-call-panel .modal-body {
     padding: 0;
 }
+.voice-call-panel .modal-body .info-box-desc {
+    color: #adb5bd;
+}
 .voice-call-panel .modal-footer {
     padding: 10px 16px 10px 16px;
     border-top: 1px solid #545a60;
 }
 .voice-call-panel .modal-footer button {
     font-size: 14px;
+}
+
+.toasts-info {
+    padding: 0;
+    margin: 0;
+}
+.toasts-info .info-box {
+    box-shadow: none;
+    background: none;
+    margin-bottom: 0;
+    border-radius: 0;
+    padding: 0;
+    min-width: 280px;
+}
+.toasts-info .info-box img {
+    width: 42x;
+    height: 42px;
+    border-radius: 10%;
+}
+.toasts-info .call-answer {
+    border-top: 1px solid rgba(0,0,0,.1);
+    padding: 8px;
+    text-align: right;
+    width: 100%;
+}
+.toasts-info .call-answer button {
+    display: inline-block;
+    font-size: 12px;
 }

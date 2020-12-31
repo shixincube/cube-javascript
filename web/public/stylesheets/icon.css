@@ -30,11 +30,7 @@
 
 .ci {
     display: inline-block;
-    padding: 0;
-    margin: 0;
-    font-size: 8px;
-    width: 20px;
-    height: 20px;
+    line-height: 1;
 }
 
 .ci-btn {
@@ -42,6 +38,8 @@
 }
 
 .ci-camera-closed {
+    width: 20px;
+    height: 20px;
     background-image: url(../images/icon/camera-closed@2x.png);
     background-repeat: no-repeat;
     background-position: center;
@@ -49,6 +47,8 @@
 }
 
 .ci-microphone-closed {
+    width: 20px;
+    height: 20px;
     background-image: url(../images/icon/microphone-closed@2x.png);
     background-repeat: no-repeat;
     background-position: center;
@@ -56,6 +56,8 @@
 }
 
 .ci-volume-muted {
+    width: 20px;
+    height: 20px;
     background-image: url(../images/icon/volume-muted@2x.png);
     background-repeat: no-repeat;
     background-position: center;
@@ -63,6 +65,8 @@
 }
 
 .ci-volume-unmuted {
+    width: 20px;
+    height: 20px;
     background-image: url(../images/icon/volume-unmuted@2x.png);
     background-repeat: no-repeat;
     background-position: center;
@@ -71,9 +75,20 @@
 
 .ci-hangup {
     width: 22px;
-    height: 8px;
+    height: 10px;
+    vertical-align: baseline;
     background-image: url(../images/icon/hangup@2x.png);
     background-repeat: no-repeat;
     background-position: center;
     background-size: 22px 8px;
+}
+
+.ci-answer {
+    vertical-align: bottom;
+    width: 22px;
+    height: 16px;
+    background-image: url(../images/icon/answer@2x.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 16px 16px;
 }

@@ -81,7 +81,7 @@
         this.elPeerName.text(target.getName());
         this.elInfo.text('正在呼叫...');
 
-        if (g.app.callCtrl.callContact(target)) {
+        if (g.app.callCtrl.makeCall(target)) {
             this.el.modal({
                 keyboard: false,
                 backdrop: false
@@ -120,6 +120,37 @@
         callingTimer = setInterval(function() {
             that.elInfo.text(g.formatClockTick(++callingElapsed));
         }, 1000);
+    }
+
+    VoiceCallPanel.prototype.openNewCallToast = function(contact) {
+        var body = [
+            '<div class="toasts-info">\
+                <div class="info-box">\
+                    <span class="info-box-icon"><img src="', contact.getContext().avatar, '" /></span>\
+                    <div class="info-box-content">\
+                        <span class="info-box-text">', contact.getName(), '</span>\
+                        <span class="info-box-desc">邀请您参与语音通话</span>\
+                    </div>\
+                </div>\
+                <div class="call-answer">\
+                    <button type="button" class="btn btn-danger" onclick="javascript:app.callCtrl.hangupCall();"><i class="ci ci-hangup"></i> 拒绝</button>\
+                    <button type="button" class="btn btn-success" onclick="javascript:app.callCtrl.answerCall();"><i class="ci ci-answer"></i> 接听</button>\
+                </div>\
+            </div>'
+        ];
+
+        $(document).Toasts('create', {
+            title: '语音通话邀请',
+            position: 'bottomRight',
+            icon: 'fas fa-phone',
+            close: false,
+            class: 'voice-new-call',
+            body: body.join('')
+        });
+    }
+
+    VoiceCallPanel.prototype.closeNewCallToast = function() {
+        $('#toastsContainerBottomRight').find('.voice-new-call').remove();
     }
 
     /**

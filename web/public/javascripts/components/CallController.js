@@ -62,12 +62,14 @@
     }
 
     function onNewCall(event) {
-        //event
-        // $(document).Toasts('create', {
-        // title: 'Toast Title',
-        // position: 'bottomLeft',
-        // body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
-        // })
+        var record = event.data;
+        var caller = record.getCaller();
+        if (null == caller) {
+            return;
+        }
+
+        // 显示有新通话邀请
+        g.app.voiceCallPanel.openNewCallToast(caller);
     }
 
     function onTimeout(event) {
@@ -100,7 +102,7 @@
         cube.mpComm.on(CallEvent.CallFailed, onCallFailed);
     }
 
-    CallController.prototype.callContact = function(target) {
+    CallController.prototype.makeCall = function(target) {
         if (working) {
             return false;
         }
@@ -123,6 +125,14 @@
         cube.mpComm.makeCall(target, mediaConstraint);
 
         return true;
+    }
+
+    CallController.prototype.answerCall = function() {
+        g.app.voiceCallPanel.closeNewCallToast();
+    }
+
+    CallController.prototype.hangupCall = function() {
+        g.app.voiceCallPanel.closeNewCallToast();
     }
 
     g.CallController = CallController;
