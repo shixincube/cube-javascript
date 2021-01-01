@@ -300,7 +300,8 @@ body {
 }
 
 .file-label {
-    background-color: #17a2b8;
+    background-color: #ffc107;
+    color: #fff;
     margin: 4px 0px 4px 0px;
     border-radius: 0.3rem;
 }

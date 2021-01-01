@@ -29,8 +29,14 @@
  */
 export const FileStorageAction = {
     /**
-     * 文件被放置到存储中。
+     * 文件放置到存储中。
      * @type {string}
      */
-    PutFile: 'putFile'
+    PutFile: 'putFile',
+
+    /**
+     * 获取文件的标签。
+     * @type {string}
+     */
+    GetFile: 'getFile'
 }

@@ -25,7 +25,9 @@
  */
 
 import cell from "@lib/cell-lib";
+import { StateCode } from "../core/StateCode";
 import { Module } from "../core/Module";
+import { ModuleError } from "../core/error/ModuleError";
 import { AjaxPipeline } from "../pipeline/AjaxPipeline";
 import { AjaxFileChunkPacket } from "../pipeline/AjaxFileChunkPacket";
 import { AuthService } from "../auth/AuthService";
@@ -40,7 +42,6 @@ import { FileStorageEvent } from "./FileStorageEvent";
 import { FileStoragePipeListener } from "./FileStoragePipeListener";
 import { FileStorageAction } from "./FileStorageAction";
 import { FileStructStorage } from "./FileStructStorage";
-import { ModuleError } from "../core/error/ModuleError";
 import { FileStorageState } from "./FileStorageState";
 
 /**
@@ -290,37 +291,79 @@ export class FileStorage extends Module {
             this.start();
         }
 
+        this.getFileLabel(fileCode, (fileLabel) => {
+            let url = [ fileLabel.getFileURL(),
+                '&token=', this.filePipeline.tokenCode,
+                '&type=', fileLabel.fileType
+            ];
+            let surl = [ fileLabel.getFileSecureURL(),
+                '&token=', this.filePipeline.tokenCode,
+                '&type=', fileLabel.fileType
+            ];
+            handler(fileCode, url.join(''), surl.join(''));
+        }, (fileCode) => {
+            handler(fileCode, null, null);
+        });
+    }
+
+    /**
+     * 获取文件标签。
+     * @param {string} fileCode 指定文件码。
+     * @param {function} handleSuccess 获取到数据回调该方法，参数：({@linkcode fileLabel}:{@link FileLabel})。
+     * @param {function} [handleFailure] 未能找到数据回调该方法，参数：({@linkcode fileCode}:{@linkcode string})。
+     */
+    getFileLabel(fileCode, handleSuccess, handleFailure) {
+        if (!this.started) {
+            this.start();
+        }
+
+        // 从缓存里获取
         let fileLabel = this.fileLabels.get(fileCode);
-        if (null == fileLabel) {
-            this.storage.readFileLabel(fileCode, (fileCode, fileLabel) => {
-                if (null == fileLabel) {
-                    handler(fileCode, null, null);
-                    return;
-                }
-
-                let url = [ fileLabel.getFileURL(),
-                    '&token=', this.filePipeline.tokenCode,
-                    '&type=', fileLabel.fileType
-                ];
-                let surl = [ fileLabel.getFileSecureURL(),
-                    '&token=', this.filePipeline.tokenCode,
-                    '&type=', fileLabel.fileType
-                ];
-                handler(fileCode, url.join(''), surl.join(''));
-            });
-
+        if (null != fileLabel) {
+            handleSuccess(fileLabel);
             return;
         }
 
-        let url = [ fileLabel.getFileURL(),
-            '&token=', this.filePipeline.tokenCode,
-            '&type=', fileLabel.fileType
-        ];
-        let surl = [ fileLabel.getFileSecureURL(),
-            '&token=', this.filePipeline.tokenCode,
-            '&type=', fileLabel.fileType
-        ];
-        handler(fileCode, url.join(''), surl.join(''));
+        let request = () => {
+            let packet = new Packet(FileStorageAction.GetFile, { "fileCode" : fileCode });
+            this.pipeline.send(FileStorage.NAME, packet, (pipeline, source, responsePacket) => {
+                if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+                    if (handleFailure) {
+                        handleFailure(fileCode);
+                    }
+                    return;
+                }
+
+                if (responsePacket.getPayload().code != 0) {
+                    if (handleFailure) {
+                        handleFailure(fileCode);
+                    }
+                    return;
+                }
+
+                // 创建文件标签
+                let fileLabel = FileLabel.create(responsePacket.getPayload().data);
+
+                // 将文件标签写入缓存
+                this.storage.writeFileLabel(fileLabel);
+
+                // 暂存在内存里
+                this.fileLabels.put(fileCode, fileLabel);
+
+                handleSuccess(fileLabel);
+            });
+        };
+
+        // 从存储里获取
+        this.storage.readFileLabel(fileCode, (fileCode, fileLabel) => {
+            if (null != fileLabel) {
+                this.fileLabels.put(fileCode, fileLabel);
+                handleSuccess(fileLabel);
+            }
+            else {
+                request();
+            }
+        });
     }
 
     /**
