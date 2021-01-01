@@ -42,7 +42,9 @@ export class ImageMessage extends TypeableMessage {
             this.getAttachment().enableThumb();
         }
 
-        this.payload = { "type" : "image" };
+        if (undefined === this.payload.type) {
+            this.payload.type = "image";
+        }
     }
 
     /**

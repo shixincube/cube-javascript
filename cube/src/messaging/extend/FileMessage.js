@@ -34,7 +34,9 @@ export class FileMessage extends TypeableMessage {
     constructor(param) {
         super(param);
 
-        this.payload = { "type" : "file" };
+        if (undefined === this.payload.type) {
+            this.payload.type = "file";
+        }
     }
 
     /**

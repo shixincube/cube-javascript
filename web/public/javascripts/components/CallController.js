@@ -80,8 +80,8 @@
             g.app.voiceCallPanel.close();
 
             if (record.isCaller()) {
-                // var recordMessage = new CallRecordMessage(record);
-                // cube.messaging.sendTo(record.getCallee(), recordMessage);
+                var recordMessage = new CallRecordMessage(record);
+                cube.messaging.sendTo(record.getCallee(), recordMessage);
             }
         }
 
@@ -96,8 +96,15 @@
         var record = event.data;
         working = false;
 
-        var log = '被叫忙，拒绝通话';
+        var log = null;
+        if (record.isCaller()) {
+            log = '被叫忙，拒绝通话';
+        }
+        else {
+            log = '已拒绝通话邀请';
+        }
         console.log(log);
+        g.dialog.launchToast(Toast.Info, log);
 
         if (voiceCall) {
             g.app.voiceCallPanel.close();

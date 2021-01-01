@@ -60,6 +60,11 @@ export class PluginSystem {
          * @type {OrderMap<string,Array<Plugin>>}
          */
         this.plugins = new OrderMap();
+
+        /**
+         * @type {DummyHook}
+         */
+        this.dummyHook = new DummyHook();
     }
 
     /**
@@ -87,7 +92,7 @@ export class PluginSystem {
     getHook(name) {
         let hook = this.hooks.get(name);
         if (null == hook) {
-            return new DummyHook();
+            return this.dummyHook;
         }
 
         return hook;

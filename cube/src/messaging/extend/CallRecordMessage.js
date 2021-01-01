@@ -33,10 +33,15 @@ import { TypeableMessage } from "./TypeableMessage";
  */
 export class CallRecordMessage extends TypeableMessage {
 
+    /**
+     * @param {*} param 
+     */
     constructor(param) {
         super(param);
 
-        this.payload = { "type" : "call-record" };
+        if (undefined === this.payload.type) {
+            this.payload.type = "call-record";
+        }
 
         if (param instanceof CallRecord) {
             this.setConstraint(param.callerMediaConstraint.videoEnabled,
@@ -44,6 +49,7 @@ export class CallRecordMessage extends TypeableMessage {
             this.setCaller(param.getCaller());
             this.setCallee(param.getCallee());
             this.setDuration(param.getDuration());
+            this.setAnswerTime(param.answerTime);
         }
     }
 
@@ -54,8 +60,8 @@ export class CallRecordMessage extends TypeableMessage {
      */
     setConstraint(videoEnabled, audioEnabled) {
         this.payload.constraint = {
-            vidoe: videoEnabled,
-            audio: audioEnabled
+            "video": videoEnabled,
+            "audio": audioEnabled
         };
     }
 
@@ -65,6 +71,20 @@ export class CallRecordMessage extends TypeableMessage {
      */
     getConstraint() {
         return this.payload.constraint;
+    }
+
+    /**
+     * 指定的联系人是否是主叫。
+     * @param {number|Contact} idOrContact 联系人 ID 或联系人实例。
+     * @returns {boolean} 如果是主叫返回 {@linkcode true} 。
+     */
+    isCaller(idOrContact) {
+        if (typeof idOrContact === 'number') {
+            return this.payload.caller.id == idOrContact;
+        }
+        else {
+            return this.payload.caller.id == idOrContact.id;
+        }
     }
 
     /**
@@ -111,5 +131,20 @@ export class CallRecordMessage extends TypeableMessage {
      */
     getDuration() {
         return this.payload.duration;
+    }
+
+    /**
+     * 设置应答时间戳。
+     * @param {number} time 
+     */
+    setAnswerTime(time) {
+        this.payload.answerTime = time;
+    }
+
+    /**
+     * @returns {number} 返回应答时间戳。
+     */
+    getAnswerTime() {
+        return this.payload.answerTime;
     }
 }

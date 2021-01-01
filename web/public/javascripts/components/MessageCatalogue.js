@@ -161,6 +161,14 @@
                     el.find('.product-description').text('[文件]');
                 }
             }
+            else if (desc instanceof CallRecordMessage) {
+                if (desc.getConstraint().video) {
+                    el.find('.product-description').text('[视频通话]');
+                }
+                else {
+                    el.find('.product-description').text('[语音通话]');
+                }
+            }
             else if (desc instanceof File) {
                 el.find('.product-description').text('[文件] ' + desc.name);
             }

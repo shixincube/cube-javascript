@@ -219,6 +219,27 @@
         else if (message instanceof FileMessage) {
             attachment = message.getAttachment();
         }
+        else if (message instanceof CallRecordMessage) {
+            var icon = message.getConstraint().video ? '<i class="fas fa-video"></i>' : '<i class="fas fa-phone"></i>';
+            var answerTime = message.getAnswerTime();
+            var desc = null;
+            if (answerTime > 0) {
+                desc = '通话时长 ' + g.formatClockTick(parseInt(message.getDuration() / 1000));
+            }
+            else {
+                if (message.isCaller(g.app.getSelf().getId())) {
+                    desc = '对方未接听';
+                }
+                else {
+                    desc = '未接听';
+                }
+            }
+
+            text = [
+                '<div>', icon, '&nbsp;&nbsp;<span style="font-size:14px;">', desc, '</span></div>'
+            ];
+            text = text.join('');
+        }
         else {
             return;
         }
