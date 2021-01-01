@@ -35,8 +35,8 @@
 
     var voiceCall = false;
 
+
     function onInProgress(target) {
-        
     }
 
     function onRinging(event) {
@@ -47,7 +47,7 @@
 
     function onConnected(event) {
         if (voiceCall) {
-            g.app.voiceCallPanel.tipWaitForAnswer();
+            g.app.voiceCallPanel.tipConnected();
         }
     }
 
@@ -69,11 +69,22 @@
         }
 
         // 显示有新通话邀请
-        g.app.voiceCallPanel.openNewCallToast(caller);
+        if (record.callerMediaConstraint.videoEnabled) {
+            // 主叫使用视频呼叫
+            voiceCall = false;
+        }
+        else {
+            // 主叫使用语音呼叫
+            voiceCall = true;
+            g.app.voiceCallPanel.openNewCallToast(caller);
+        }
     }
 
     function onTimeout(event) {
-        g.app.voiceCallPanel.close();
+        if (voiceCall) {
+            g.app.voiceCallPanel.close();
+        }
+
         g.dialog.launchToast(Toast.Info, '对方无应答');
     }
 
@@ -83,8 +94,13 @@
         console.log('onCallFailed - ' + error);
 
         if (error.code == CallState.MediaPermissionDenied) {
-            g.app.voiceCallPanel.close();
-            g.dialog.launchToast(Toast.Warning, '未能获得麦克风使用权限');
+            if (voiceCall) {
+                g.app.voiceCallPanel.close();
+                g.dialog.launchToast(Toast.Warning, '未能获得麦克风使用权限');
+            }
+            else {
+
+            }
         }
     }
 
@@ -111,11 +127,6 @@
 
         voiceCall = true;
 
-        g.app.voiceCallPanel.terminate = function(panel) {
-            cube.mpComm.hangupCall();
-            working = false;
-        }
-
         // 设置媒体容器
         cube.mpComm.setRemoteVideoElement(g.app.voiceCallPanel.removeVideo);
         cube.mpComm.setLocalVideoElement(g.app.voiceCallPanel.localVideo);
@@ -128,12 +139,38 @@
     }
 
     CallController.prototype.answerCall = function() {
+        if (working) {
+            return false;
+        }
+
+        working = true;
+
         g.app.voiceCallPanel.closeNewCallToast();
-        
+
+        // 设置媒体容器
+        cube.mpComm.setRemoteVideoElement(g.app.voiceCallPanel.removeVideo);
+        cube.mpComm.setLocalVideoElement(g.app.voiceCallPanel.localVideo);
+
+        // 只使用音频通道
+        var mediaConstraint = new MediaConstraint(false, true);
+        return cube.mpComm.answerCall(mediaConstraint);
     }
 
     CallController.prototype.hangupCall = function() {
-        g.app.voiceCallPanel.closeNewCallToast();
+        if (!working) {
+            return false;
+        }
+
+        working = false;
+
+        cube.mpComm.hangupCall();
+
+        if (voiceCall) {
+            g.app.voiceCallPanel.close();
+            g.app.voiceCallPanel.closeNewCallToast();
+        }
+
+        return true;
     }
 
     g.CallController = CallController;

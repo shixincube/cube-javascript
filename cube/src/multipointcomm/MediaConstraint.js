@@ -38,8 +38,20 @@ export class MediaConstraint extends JSONable {
      */
     constructor(videoEnabled, audioEnabled) {
         super();
+
+        /**
+         * 是否使用视频流通道。
+         * @type {boolean}
+         */
         this.videoEnabled = videoEnabled;
+
+        /**
+         * 是否使用音频流通道。
+         * @type {boolean}
+         */
         this.audioEnabled = audioEnabled;
+
+
         this.dimension = VideoDimension.VGA;
     }
 

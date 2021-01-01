@@ -51,8 +51,7 @@
 
         this.btnHangup = el.find('button[data-target="hangup"]');
         this.btnHangup.on('click', function() {
-            that.terminate(that);
-            that.close();
+            that.terminate();
         });
 
         el.draggable({
@@ -75,7 +74,7 @@
     }
 
     VoiceCallPanel.prototype.showMakeCall = function(target) {
-        console.log('语音通话 ' + target.getId());
+        console.log('发起语音通话 ' + target.getId());
 
         this.elPeerAvatar.attr('src', target.getContext().avatar);
         this.elPeerName.text(target.getName());
@@ -92,7 +91,22 @@
         }
     }
 
-    VoiceCallPanel.prototype.showAnswerCall = function(target) {
+    VoiceCallPanel.prototype.showAnswerCall = function(caller) {
+        console.log('应答语音通话 ' + caller.getId());
+
+        this.elPeerAvatar.attr('src', caller.getContext().avatar);
+        this.elPeerName.text(caller.getName());
+        this.elInfo.text('正在应答...');
+
+        if (g.app.callCtrl.answerCall()) {
+            this.el.modal({
+                keyboard: false,
+                backdrop: false
+            });
+        }
+        else {
+            g.dialog.launchToast(Toast.Warning, '应答"' + caller.getName() + '"时发生错误');
+        }
     }
 
     VoiceCallPanel.prototype.close = function() {
@@ -157,10 +171,9 @@
     }
 
     /**
-     * 由控制器覆盖该方法。
      */
     VoiceCallPanel.prototype.terminate = function() {
-        // Nothing
+        g.app.callCtrl.hangupCall();
     }
 
     g.VoiceCallPanel = VoiceCallPanel;
