@@ -28,6 +28,7 @@ import { MessageTypePlugin } from "./messaging/extend/MessageTypePlugin";
 import { TextMessage } from "./messaging/extend/TextMessage";
 import { ImageMessage } from "./messaging/extend/ImageMessage";
 import { FileMessage } from "./messaging/extend/FileMessage";
+import { CallRecordMessage } from "./messaging/extend/CallRecordMessage";
 
 /**
  * 导入扩展程序。
@@ -39,5 +40,6 @@ import { FileMessage } from "./messaging/extend/FileMessage";
     global.TextMessage = TextMessage;
     global.ImageMessage = ImageMessage;
     global.FileMessage = FileMessage;
+    global.CallRecordMessage = CallRecordMessage;
 
 })(undefined === window.CubeNamespace ? window : window.CubeNamespace);

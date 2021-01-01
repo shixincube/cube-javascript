@@ -219,6 +219,9 @@
         else if (message instanceof FileMessage) {
             attachment = message.getAttachment();
         }
+        else {
+            return;
+        }
 
         if (null != attachment) {
             var action = null;

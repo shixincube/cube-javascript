@@ -28,6 +28,7 @@ import { MessagePlugin } from "../MessagePlugin";
 import { TextMessage } from "./TextMessage";
 import { ImageMessage } from "./ImageMessage";
 import { FileMessage } from "./FileMessage";
+import { CallRecordMessage } from "./CallRecordMessage";
 
 /**
  * 消息类型插件。
@@ -55,6 +56,9 @@ export class MessageTypePlugin extends MessagePlugin {
             }
             else if (payload.type == 'image') {
                 return new ImageMessage(message);
+            }
+            else if (payload.type == 'call-record') {
+                return new CallRecordMessage(message);
             }
         }
 

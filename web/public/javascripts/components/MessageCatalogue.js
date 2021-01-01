@@ -135,16 +135,13 @@
         }
         else {
             console.log('[App] MessageCatalogue#updateItem() 输入参数错误');
-            return;
+            return false;
         }
 
         var item = this.getItem(id);
         if (null == item) {
-            return;
+            return false;
         }
-
-        // 更新时间
-        item.time = time;
 
         var el = item.el;
 
@@ -155,19 +152,25 @@
             else if (desc instanceof TextMessage) {
                 el.find('.product-description').text(desc.getText());
             }
-            else if (desc instanceof Message) {
+            else if (desc instanceof FileMessage) {
                 var msg = desc;
                 if (msg.hasAttachment()) {
-                    el.find('.product-description').text('[文件] ' + msg.getAttachment().getFileName());
+                    el.find('.product-description').text('[文件] ' + msg.getFileName());
                 }
                 else {
-                    el.find('.product-description').text(msg.getPayload().content);
+                    el.find('.product-description').text('[文件]');
                 }
             }
             else if (desc instanceof File) {
                 el.find('.product-description').text('[文件] ' + desc.name);
             }
+            else {
+                return false;
+            }
         }
+
+        // 更新时间
+        item.time = time;
 
         el.find('.badge').text(formatShortTime(time));
 
@@ -180,6 +183,8 @@
 
         // 绑定事件
         this.bindEvent(el);
+
+        return true;
     }
 
     MessageCatalogue.prototype.refreshOrder = function() {

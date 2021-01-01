@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -62,6 +62,12 @@ export class MultipointComm extends Module {
          * @type {CommPipelineListener}
          */
         this.pipelineListener = new CommPipelineListener(this);
+
+        /**
+         * 联系人模块。
+         * @type {ContactService}
+         */
+        this.cs = null;
 
         /**
          * ICE Servers 。
@@ -151,6 +157,8 @@ export class MultipointComm extends Module {
             this.privateField = new CommField(self.getId(), self, this.pipeline);
             this.privateField.device = self.getDevice();
         }
+        // 赋值
+        this.cs = contactService;
 
         return true;
     }
@@ -233,8 +241,7 @@ export class MultipointComm extends Module {
      * @returns {RTCDevice} 返回 {@ink RTCDevice} 实例。
      */
     createRTCDevice(localVideoElem, remoteVideoElem) {
-        let cs = this.kernel.getModule(ContactService.NAME);
-        let self = cs.getSelf();
+        let self = this.cs.getSelf();
         if (null == self) {
             return null;
         }
@@ -600,7 +607,7 @@ export class MultipointComm extends Module {
                 return false;
             }
 
-            // 记录
+            // 记录时间
             this.activeCall.answerTime = Date.now();
 
             // 创建 RTC 设备
@@ -646,10 +653,11 @@ export class MultipointComm extends Module {
      * @returns {boolean} 返回是否允许执行该操作。
      */
     hangupCall(target, successCallback, failureCallback) {
-        if (null == this.activeCall || !this.activeCall.isActive()) {
+        if (null == this.activeCall) {
             return false;
         }
 
+        let busy = !this.activeCall.isActive();
          // 当前通话的场域
         let field = this.activeCall.field;
         let endpoint = null;
@@ -669,14 +677,13 @@ export class MultipointComm extends Module {
             }
         }
 
-        let byeHandler = (pipeline, source, packet) => {
+        let handler = (pipeline, source, packet) => {
             let activeCall = this.activeCall;
 
             if (field.isPrivate()) {
                 field.closeRTCDevices();
                 this.offerSignaling = null;
                 this.answerSignaling = null;
-                this.activeCall = null;
             }
 
             if (null != packet && packet.getStateCode() == StateCode.OK) {
@@ -701,7 +708,13 @@ export class MultipointComm extends Module {
                     if (successCallback) {
                         successCallback(activeCall);
                     }
-                    this.notifyObservers(new ObservableEvent(MultipointCommEvent.Bye, activeCall));
+
+                    if (busy) {
+                        this.notifyObservers(new ObservableEvent(MultipointCommEvent.Busy, activeCall));
+                    }
+                    else {
+                        this.notifyObservers(new ObservableEvent(MultipointCommEvent.Bye, activeCall));
+                    }
 
                     if (activeCall.field.numRTCDevices() == 0) {
                         this.activeCall = null;
@@ -710,6 +723,7 @@ export class MultipointComm extends Module {
                 else {
                     let error = new ModuleError(MultipointComm.NAME, packet.data.code, activeCall);
 
+                    activeCall.endTime = Date.now();
                     activeCall.lastError = error;
 
                     if (failureCallback) {
@@ -721,6 +735,7 @@ export class MultipointComm extends Module {
             else {
                 let error = new ModuleError(MultipointComm.NAME, packet.getStateCode(), activeCall);
 
+                activeCall.endTime = Date.now();
                 activeCall.lastError = error;
 
                 if (failureCallback) {
@@ -730,12 +745,26 @@ export class MultipointComm extends Module {
             }
         };
 
+        if (this.callTimer > 0) {
+            clearTimeout(this.callTimer);
+            this.callTimer = 0;
+        }
+
         if (field.isPrivate()) {
-            let signaling = new Signaling(MultipointCommAction.Bye, field, 
-                this.privateField.founder, this.privateField.founder.getDevice(),
-                null != field.getRTCDevice() ? field.getRTCDevice().sn : 0);
-            let packet = new Packet(MultipointCommAction.Bye, signaling.toJSON());
-            this.pipeline.send(MultipointComm.NAME, packet, byeHandler);
+            if (this.activeCall.isActive()) {
+                let signaling = new Signaling(MultipointCommAction.Bye, field, 
+                    this.privateField.founder, this.privateField.founder.getDevice(),
+                    null != field.getRTCDevice() ? field.getRTCDevice().sn : 0);
+                let packet = new Packet(MultipointCommAction.Bye, signaling.toJSON());
+                this.pipeline.send(MultipointComm.NAME, packet, handler);
+            }
+            else {
+                let signaling = new Signaling(MultipointCommAction.Busy, field, 
+                    this.privateField.founder, this.privateField.founder.getDevice(),
+                    null != field.getRTCDevice() ? field.getRTCDevice().sn : 0);
+                let packet = new Packet(MultipointCommAction.Busy, signaling.toJSON());
+                this.pipeline.send(MultipointComm.NAME, packet, handler);
+            }
         }
         else {
             if (null == field.outboundRTC) {
@@ -921,24 +950,37 @@ export class MultipointComm extends Module {
 
         this.callTimer = setTimeout(() => {
             this.fireCallTimeout();
-        }, this.callTimeout - 5000);
+        }, this.callTimeout - 5500);
 
         // 创建记录
         this.activeCall = new CallRecord(this.privateField.getFounder());
 
         if (this.offerSignaling.field.isPrivate()) {
+            // 设置私域
             this.activeCall.field = this.privateField;
-            this.activeCall.field.caller = this.offerSignaling.caller;
-            this.activeCall.field.callee = this.offerSignaling.callee;
             // 记录媒体约束
             this.activeCall.callerMediaConstraint = this.offerSignaling.mediaConstraint;
+
+            let callback = () => {
+                // 新的通话申请
+                this.notifyObservers(new ObservableEvent(MultipointCommEvent.NewCall, this.activeCall));
+            };
+
+            this.cs.getContact(this.offerSignaling.caller.id, (contact) => {
+                this.activeCall.field.caller = this.offerSignaling.caller = contact;
+                this.activeCall.field.callee = this.offerSignaling.callee = this.cs.getSelf();
+                callback();
+            }, (error) => {
+                this.activeCall.field.caller = this.offerSignaling.caller;
+                this.activeCall.field.callee = this.offerSignaling.callee;
+                callback();
+            });
         }
         else {
             this.activeCall.field = this.offerSignaling.field;
+            // 新的通话申请
+            this.notifyObservers(new ObservableEvent(MultipointCommEvent.NewCall, this.activeCall));
         }
-
-        // 新的通话申请
-        this.notifyObservers(new ObservableEvent(MultipointCommEvent.NewCall, this.activeCall));
     }
 
     /**
@@ -1035,6 +1077,11 @@ export class MultipointComm extends Module {
             let error = new ModuleError(MultipointComm.NAME, payload.code, this);
             this.notifyObservers(new ObservableEvent(MultipointCommAction.CallFailed, error));
             return;
+        }
+
+        if (this.callTimer > 0) {
+            clearTimeout(this.callTimer);
+            this.callTimer = 0;
         }
 
         let signaling = Signaling.create(payload.data, this.pipeline);

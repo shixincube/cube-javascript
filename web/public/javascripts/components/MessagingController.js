@@ -91,10 +91,12 @@
                 g.app.messagePanel.appendMessage(target, getContact(message.getFrom()), message);
             }
 
-            if (list.length > 0) {
-                var last = list[list.length - 1];
+            for (var i = list.length - 1; i >= 0; --i) {
+                var last = list[i];
                 // 更新目录项
-                g.app.messageCatalog.updateItem(id, last, last.getRemoteTimestamp());
+                if (g.app.messageCatalog.updateItem(id, last, last.getRemoteTimestamp())) {
+                    break;
+                }
             }
 
             announcer.announce(id.toString(), list);

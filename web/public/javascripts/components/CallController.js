@@ -51,16 +51,6 @@
         }
     }
 
-    function onBye(event) {
-        working = false;
-
-        if (voiceCall) {
-            g.app.voiceCallPanel.close();
-        }
-        
-        g.dialog.launchToast(Toast.Info, '通话结束');
-    }
-
     function onNewCall(event) {
         var record = event.data;
         var caller = record.getCaller();
@@ -72,20 +62,58 @@
         if (record.callerMediaConstraint.videoEnabled) {
             // 主叫使用视频呼叫
             voiceCall = false;
+            working = true;
         }
         else {
             // 主叫使用语音呼叫
             voiceCall = true;
+            working = true;
             g.app.voiceCallPanel.openNewCallToast(caller);
+        }
+    }
+
+    function onBye(event) {
+        var record = event.data;
+        working = false;
+
+        if (voiceCall) {
+            g.app.voiceCallPanel.close();
+
+            if (record.isCaller()) {
+                // var recordMessage = new CallRecordMessage(record);
+                // cube.messaging.sendTo(record.getCallee(), recordMessage);
+            }
+        }
+
+        var duration = record.getDuration();
+        var log = '通话结束 - ' + g.formatClockTick(parseInt(duration / 1000));
+        console.log(log);
+
+        g.dialog.launchToast(Toast.Info, log);
+    }
+
+    function onBusy(event) {
+        var record = event.data;
+        working = false;
+
+        var log = '被叫忙，拒绝通话';
+        console.log(log);
+
+        if (voiceCall) {
+            g.app.voiceCallPanel.close();
+            g.app.voiceCallPanel.closeNewCallToast();
         }
     }
 
     function onTimeout(event) {
         if (voiceCall) {
             g.app.voiceCallPanel.close();
+            g.app.voiceCallPanel.closeNewCallToast();
         }
 
-        g.dialog.launchToast(Toast.Info, '对方无应答');
+        if (event.data.isCaller()) {
+            g.dialog.launchToast(Toast.Info, '对方无应答');
+        }
     }
 
     function onCallFailed(event) {
@@ -95,12 +123,16 @@
 
         if (error.code == CallState.MediaPermissionDenied) {
             if (voiceCall) {
-                g.app.voiceCallPanel.close();
                 g.dialog.launchToast(Toast.Warning, '未能获得麦克风使用权限');
             }
             else {
 
             }
+        }
+
+        if (voiceCall) {
+            g.app.voiceCallPanel.close();
+            g.app.voiceCallPanel.closeNewCallToast();
         }
     }
 
@@ -114,6 +146,7 @@
         cube.mpComm.on(CallEvent.NewCall, onNewCall);
         cube.mpComm.on(CallEvent.Connected, onConnected);
         cube.mpComm.on(CallEvent.Bye, onBye);
+        cube.mpComm.on(CallEvent.Busy, onBusy);
         cube.mpComm.on(CallEvent.Timeout, onTimeout);
         cube.mpComm.on(CallEvent.CallFailed, onCallFailed);
     }
@@ -139,11 +172,9 @@
     }
 
     CallController.prototype.answerCall = function() {
-        if (working) {
+        if (!working) {
             return false;
         }
-
-        working = true;
 
         g.app.voiceCallPanel.closeNewCallToast();
 
@@ -163,11 +194,14 @@
 
         working = false;
 
-        cube.mpComm.hangupCall();
-
-        if (voiceCall) {
-            g.app.voiceCallPanel.close();
-            g.app.voiceCallPanel.closeNewCallToast();
+        if (cube.mpComm.hangupCall()) {
+            if (voiceCall) {
+                g.app.voiceCallPanel.close();
+                g.app.voiceCallPanel.closeNewCallToast();
+            }
+        }
+        else {
+            alert('拒绝通话发生错误。');
         }
 
         return true;

@@ -42,6 +42,7 @@ export class Message extends Entity {
     constructor(payload, file) {
         super();
 
+        // 是否从源克隆
         let cloning = (undefined !== payload && payload instanceof Message);
 
         /**

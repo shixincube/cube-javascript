@@ -94,9 +94,10 @@ function start() {
     // 监听通话相关事件
     cube.mpComm.on(CallEvent.InProgress, onInProgress);
     cube.mpComm.on(CallEvent.Ringing, onRinging);
-    cube.mpComm.on(CallEvent.NewCall, onNewCall);
     cube.mpComm.on(CallEvent.Connected, onConnected);
     cube.mpComm.on(CallEvent.Bye, onBye);
+    cube.mpComm.on(CallEvent.NewCall, onNewCall);
+    cube.mpComm.on(CallEvent.Busy, onBusy);
     cube.mpComm.on(CallEvent.Timeout, onTimeout);
     cube.mpComm.on(CallEvent.CallFailed, onCallFailed);
 }
@@ -207,6 +208,16 @@ function onBye() {
     newNode = document.createElement('video');
     parentNode.replaceChild(newNode, peerVideo);
     peerVideo = newNode;
+}
+
+function onBusy() {
+    clearInterval(timer);
+
+    stateLabel.innerHTML = '被叫忙';
+    hangupCallButton.setAttribute('disabled', 'disabled');
+    answerCallButton.setAttribute('disabled', 'disabled');
+
+    enableCtrlButtons(false);
 }
 
 function onTimeout() {

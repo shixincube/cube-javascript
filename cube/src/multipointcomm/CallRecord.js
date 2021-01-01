@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,7 @@
  * SOFTWARE.
  */
 
+import { Contact } from "../contact/Contact";
 import { Self } from "../contact/Self";
 import { ModuleError } from "../core/error/ModuleError";
 import { CommField } from "./CommField";
@@ -89,18 +90,42 @@ export class CallRecord {
         this.lastError = null;
     }
 
+    /**
+     * 当前记录的通话是否正在进行中。
+     * @returns {boolean}
+     */
     isActive() {
         return (null != this.field && this.field.numRTCDevices() > 0);
     }
 
+    /**
+     * 获取当前通话的主叫。
+     * @returns {Contact} 返回当前通话的主叫。
+     */
     getCaller() {
         return this.field.caller;
     }
 
+    /**
+     * 获取当前通话的被叫。
+     * @returns {Contact} 返回当前通话的被叫。
+     */
     getCallee() {
         return this.field.callee;
     }
 
+    /**
+     * 当前账号是否是主叫。
+     * @returns {boolean}
+     */
+    isCaller() {
+        return (this.self.getId() == this.field.caller.getId());
+    }
+
+    /**
+     * 获取对端联系人。
+     * @returns {Contact}
+     */
     getPeer() {
         if (this.self.getId() == this.field.caller.getId()) {
             return this.field.callee;
@@ -108,5 +133,17 @@ export class CallRecord {
         else {
             return this.field.caller;
         }
+    }
+
+    /**
+     * 返回通话时长。
+     * @returns {number}
+     */
+    getDuration() {
+        if (this.answerTime == 0 || this.endTime == 0) {
+            return 0;
+        }
+
+        return this.endTime - this.answerTime;
     }
 }
