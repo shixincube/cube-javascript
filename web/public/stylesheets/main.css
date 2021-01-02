@@ -47,6 +47,9 @@ body {
     font-size: 14px;
 }
 
+.toast {
+    background-color: #fff;
+}
 .toast-body {
     padding: 0px;
 }
@@ -243,6 +246,12 @@ body {
     padding-left: 20px;
     padding-right: 20px;
 }
+.direct-chat-timestamp {
+    font-size: 12px;
+}
+.direct-chat-text {
+    font-size: 14px;
+}
 
 .main-content {
     margin-top: 0.8rem;
@@ -256,6 +265,11 @@ body {
 
 .main-content .week-day {
     font-size: 12px;
+}
+
+.main-footer {
+    font-size: 12px;
+    padding: .75rem;
 }
 
 .card-background::before {
@@ -307,8 +321,8 @@ body {
 }
 
 .file-label .file-icon {
-    font-size: 48px;
-    padding: 8px 12px 8px 10px;
+    font-size: 40px;
+    padding: 4px 8px 4px 6px;
 }
 .file-label .file-name {
     padding-right: 10px;
