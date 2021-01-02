@@ -39,11 +39,13 @@ export class CallRecordMessage extends TypeableMessage {
     constructor(param) {
         super(param);
 
-        if (undefined === this.payload.type) {
-            this.payload.type = "call-record";
-        }
+        this.caller = null;
+        this.callee = null;
 
         if (param instanceof CallRecord) {
+            this.payload = {};
+            this.payload.type = "call-record";
+
             this.setConstraint(param.callerMediaConstraint.videoEnabled,
                 param.callerMediaConstraint.audioEnabled);
             this.setCaller(param.getCaller());
@@ -51,9 +53,11 @@ export class CallRecordMessage extends TypeableMessage {
             this.setDuration(param.getDuration());
             this.setAnswerTime(param.answerTime);
         }
-
-        this.caller = null;
-        this.callee = null;
+        else {
+            if (undefined === this.payload.type) {
+                this.payload.type = "call-record";
+            }
+        }
     }
 
     /**
@@ -100,7 +104,7 @@ export class CallRecordMessage extends TypeableMessage {
         }
 
         this.caller = caller;
-        this.payload.caller = caller.toJSON();
+        this.payload.caller = caller.toCompactJSON();
     }
 
     /**
@@ -127,7 +131,7 @@ export class CallRecordMessage extends TypeableMessage {
         }
 
         this.callee = callee;
-        this.payload.callee = callee.toJSON();
+        this.payload.callee = callee.toCompactJSON();
     }
 
     /**
