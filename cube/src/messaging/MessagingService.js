@@ -483,7 +483,7 @@ export class MessagingService extends Module {
 
     /**
      * 删除消息。
-     * @param {Message|c} message 指定消息实例或者消息 ID 。
+     * @param {Message|number} message 指定消息实例或者消息 ID 。
      * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode message}:{@link Message}) 。
      * @param {function} [handleFailure] 操作错误回调该方法，参数：({@linkcode message}:{@link Message}) 。
      * @returns {boolean} 返回是否能执行该操作。
@@ -602,10 +602,6 @@ export class MessagingService extends Module {
         });
 
         return true;
-    }
-
-    updateAttachment() {
-        
     }
 
     /**

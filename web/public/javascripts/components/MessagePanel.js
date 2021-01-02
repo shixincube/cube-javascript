@@ -100,22 +100,34 @@
     }
 
     MessagePanel.prototype.initContextMenu = function() {
+        var that = this;
         this.elContent.contextMenu({
-            selector: '.direct-chat-msg',
+            selector: '.direct-chat-text',
             callback: function(key, options) {
                 // var m = "clicked: " + key + " on " + $(this).attr('id');
                 // console.log(m);
+                var entity = that.current.entity;
                 if (key == 'delete') {
-                    //g.app.fireDeleteMessage(parseInt($(this).attr('id')));
+                    g.app.messagingCtrl.deleteMessage(entity, parseInt($(this).attr('data-id')));
                 }
                 else if (key == 'recall') {
-                    //g.app.fireRecallMessage(parseInt($(this).attr('id')));
+                    g.app.messagingCtrl.recallMessage(entity, parseInt($(this).attr('data-id')));
                 }
             },
             items: {
                 // "forward": { name: "转发" },
-                "recall": { name: "撤回" },
-                "delete": { name: "删除" }
+                "recall": {
+                    name: "撤回",
+                    disabled: function(key, opt) {
+                        return ($(this).attr('data-owner') == 'false');
+                    }
+                },
+                "delete": {
+                    name: "删除",
+                    disabled: function(key, opt) {
+                        return false;
+                    }
+                }
             }
         });
     }
@@ -166,6 +178,29 @@
         }
 
         this.elTitle.text(entity.getName());
+    }
+
+    /**
+     * 删除消息。
+     * @param {Contact|Group} target 
+     * @param {Message} message 
+     */
+    MessagePanel.prototype.removeMessage = function(target, message) {
+        var panelId = target.getId();
+        var panel = this.panels[panelId.toString()];
+        if (undefined === panel) {
+            return;
+        }
+
+        var id = message.getId();
+        var index = panel.messageIds.indexOf(id);
+        if (index >= 0) {
+            panel.messageIds.splice(index, 1);
+        }
+
+        var panelEl = panel.el;
+        var el = panelEl.find('#' + id);
+        el.remove();
     }
 
     /**
@@ -281,7 +316,40 @@
                 formatFullTime(time),
             '</span></div>',
             '<img src="', sender.getContext().avatar, '" class="direct-chat-img">',
-            '<div class="direct-chat-text">', text, '</div></div>'
+            '<div data-id="', id, '" data-owner="', right.length > 0, '" class="direct-chat-text">', text, '</div></div>'
+        ];
+
+        var parentEl = panel.el;
+        parentEl.append($(html.join('')));
+
+        // 滚动条控制
+        var offset = parseInt(this.elContent.prop('scrollHeight'));
+        this.elContent.scrollTop(offset);
+    }
+
+    /**
+     * 插入注解内容到消息面板。
+     * @param {Contact|Group} target
+     * @param {string} note 
+     */
+    MessagePanel.prototype.appendNote = function(target, note) {
+        var panelId = target.getId();
+
+        var panel = this.panels[panelId.toString()];
+        if (undefined === panel) {
+            var el = $('<div class="direct-chat-messages"></div>');
+            panel = {
+                id: panelId,
+                el: el,
+                entity: target,
+                messageIds: [],
+                groupable: (target instanceof Group)
+            };
+            this.panels[panelId.toString()] = panel;
+        }
+
+        var html = [
+            '<div>', note, '</div>'
         ];
 
         var parentEl = panel.el;

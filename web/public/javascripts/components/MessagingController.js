@@ -175,6 +175,23 @@
         });
     }
 
+    MessagingController.prototype.recallMessage = function(entity, id) {
+        cube.messaging.recallMessage(id, function() {
+
+        }, function() {
+
+        })
+    }
+
+    MessagingController.prototype.deleteMessage = function(entity, id) {
+        cube.messaging.deleteMessage(id, function(message) {
+            g.dialog.launchToast(Toast.Success, '消息已删除');
+            g.app.messagePanel.removeMessage(entity, message);
+        }, function() {
+            g.dialog.launchToast(Toast.Error, '删除消息失败');
+        });
+    }
+
     MessagingController.prototype.openVoiceCall = function(target) {
         g.app.voiceCallPanel.showMakeCall(target);
     }

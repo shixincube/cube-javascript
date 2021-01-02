@@ -135,8 +135,8 @@ export class FileStorage extends Module {
 
         // 监听联系人事件
         this.contactService = this.kernel.getModule(ContactService.NAME);
-        this.contactService.attach((state) => {
-            this._fireContactEvent(state);
+        this.contactService.attach((event) => {
+            this._fireContactEvent(event);
         });
 
         // 开启存储库

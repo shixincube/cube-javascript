@@ -162,9 +162,9 @@ body {
 }
 
 .main-catalog {
-    margin-top: 0.8rem;
-    margin-bottom: 0.8rem;
-    height: calc(100vh - 140px);
+    margin-top: 0.6rem;
+    margin-bottom: 0;
+    height: calc(100vh - 124px);
 }
 
 .main-catalog .catalog {
@@ -254,9 +254,9 @@ body {
 }
 
 .main-content {
-    margin-top: 0.8rem;
-    margin-bottom: 0.8rem;
-    height: calc(100vh - 140px);
+    margin-top: 0.6rem;
+    margin-bottom: 0rem;
+    height: calc(100vh - 124px);
 }
 
 .main-content textarea {
@@ -314,8 +314,8 @@ body {
 }
 
 .file-label {
-    background-color: #ffc107;
-    color: #fff;
+    background-color: #343a40;
+    color: #f1f1f1;
     margin: 4px 0px 4px 0px;
     border-radius: 0.3rem;
 }

@@ -51,6 +51,9 @@ export class CallRecordMessage extends TypeableMessage {
             this.setDuration(param.getDuration());
             this.setAnswerTime(param.answerTime);
         }
+
+        this.caller = null;
+        this.callee = null;
     }
 
     /**
@@ -92,6 +95,11 @@ export class CallRecordMessage extends TypeableMessage {
      * @param {Contact} caller 
      */
     setCaller(caller) {
+        if (null == caller) {
+            return;
+        }
+
+        this.caller = caller;
         this.payload.caller = caller.toJSON();
     }
 
@@ -99,7 +107,14 @@ export class CallRecordMessage extends TypeableMessage {
      * 返回主叫联系人。
      */
     getCaller() {
-        return Contact.create(this.payload.caller);
+        if (undefined === this.payload.caller) {
+            return null;
+        }
+
+        if (null == this.caller) {
+            this.caller = Contact.create(this.payload.caller);
+        }
+        return this.caller;
     }
 
     /**
@@ -107,6 +122,11 @@ export class CallRecordMessage extends TypeableMessage {
      * @param {Contact} callee
      */
     setCallee(callee) {
+        if (null == callee) {
+            return;
+        }
+
+        this.callee = callee;
         this.payload.callee = callee.toJSON();
     }
 
@@ -114,7 +134,14 @@ export class CallRecordMessage extends TypeableMessage {
      * 返回被叫联系人。
      */
     getCallee() {
-        return this.payload.callee;
+        if (undefined === this.payload.callee) {
+            return null;
+        }
+
+        if (null == this.callee) {
+            this.callee = Contact.create(this.payload.callee);
+        }
+        return this.callee;
     }
 
     /**
