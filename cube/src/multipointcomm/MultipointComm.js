@@ -142,6 +142,7 @@ export class MultipointComm extends Module {
             if (null == this.privateField) {
                 let self = state.data;
                 this.privateField = new CommField(self.getId(), self, this.pipeline);
+                this.privateField.listener = this;
                 this.privateField.device = self.getDevice();
             }
         });
@@ -155,6 +156,7 @@ export class MultipointComm extends Module {
         if (null != self) {
             // 创建个人通信场
             this.privateField = new CommField(self.getId(), self, this.pipeline);
+            this.privateField.listener = this;
             this.privateField.device = self.getDevice();
         }
         // 赋值
@@ -929,6 +931,26 @@ export class MultipointComm extends Module {
         this.notifyObservers(new ObservableEvent(MultipointCommEvent.Timeout, this.activeCall));
 
         this.hangupCall();
+    }
+
+    /**
+     * 当媒体流连通时回调。
+     * @private
+     * @param {CommField} commField 
+     * @param {RTCDevice} rtcDevice 
+     */
+    onMediaConnected(commField, rtcDevice) {
+        this.notifyObservers(new ObservableEvent(MultipointCommEvent.MediaConnected, this.activeCall));
+    }
+
+    /**
+     * 当媒体流断开时回调。
+     * @private
+     * @param {CommField} commField 
+     * @param {RTCDevice} rtcDevice 
+     */
+    onMediaDisconnected(commField, rtcDevice) {
+        this.notifyObservers(new ObservableEvent(MultipointCommEvent.MediaDisconnected, this.activeCall));
     }
 
     /**

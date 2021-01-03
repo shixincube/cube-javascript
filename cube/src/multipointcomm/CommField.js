@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -69,6 +69,12 @@ export class CommField extends Entity {
          * @type {Pipeline}
          */
         this.pipeline = pipeline;
+
+        /**
+         * 监听器。
+         * @type {object}
+         */
+        this.listener = null;
 
         /**
          * RTC 终端列表。
@@ -150,6 +156,12 @@ export class CommField extends Entity {
         device.onIceCandidate = (candidate) => {
             this.onIceCandidate(candidate, device);
         };
+        device.onMediaConnected = (device) => {
+            this.onMediaConnected(device);
+        };
+        device.onMediaDisconnected = (device) => {
+            this.onMediaDisconnected(device);
+        };
 
         device.openOffer(mediaConstraint, (description) => {
             let signaling = new Signaling(MultipointCommAction.Offer, this,
@@ -178,6 +190,12 @@ export class CommField extends Entity {
 
         device.onIceCandidate = (candidate) => {
             this.onIceCandidate(candidate, device);
+        };
+        device.onMediaConnected = (device) => {
+            this.onMediaConnected(device);
+        };
+        device.onMediaDisconnected = (device) => {
+            this.onMediaDisconnected(device);
         };
 
         device.openAnswer(offerDescription, mediaConstraint, (description) => {
@@ -209,6 +227,12 @@ export class CommField extends Entity {
         device.onIceCandidate = (candidate) => {
             this.onIceCandidate(candidate, device);
         };
+        device.onMediaConnected = (device) => {
+            this.onMediaConnected(device);
+        };
+        device.onMediaDisconnected = (device) => {
+            this.onMediaDisconnected(device);
+        };
 
         device.openOffer(null, (description) => {
             let signaling = new Signaling(MultipointCommAction.Follow, this,
@@ -225,7 +249,7 @@ export class CommField extends Entity {
     }
 
     /**
-     * 
+     * 申请通话场域。
      * @param {Contact} proposer 
      * @param {Contact} target 
      * @param {function} successCallback 
@@ -265,7 +289,7 @@ export class CommField extends Entity {
     }
 
     /**
-     * 
+     * 申请直接加入场域。
      * @param {Contact} contact 
      * @param {Device} device
      * @param {function} successCallback 
@@ -455,14 +479,34 @@ export class CommField extends Entity {
 
     /**
      * @private
-     * @param {*} candidate 
-     * @param {*} rtcDevice
+     * @param {object} candidate 
+     * @param {RTCDevice} rtcDevice
      */
     onIceCandidate(candidate, rtcDevice) {
         let signaling = new Signaling(MultipointCommAction.Candidate,
             this, rtcDevice.getContact(), rtcDevice.getDevice(), rtcDevice.sn);
         signaling.candidate = candidate;
         this.sendSignaling(signaling);
+    }
+
+    /**
+     * @private
+     * @param {RTCDevice} device 
+     */
+    onMediaConnected(device) {
+        if (null != this.listener) {
+            this.listener.onMediaConnected(this, device);
+        }
+    }
+
+    /**
+     * @private
+     * @param {RTCDevice} device 
+     */
+    onMediaDisconnected(device) {
+        if (null != this.listener) {
+            this.listener.onMediaDisconnected(this, device);
+        }
     }
 
     /**
