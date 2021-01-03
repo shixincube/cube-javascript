@@ -78,6 +78,18 @@ export const MessagingServiceState = {
     Forbidden: 101,
 
     /**
+     * 不能被执行的操作。
+     * @type {number}
+     */
+    IllegalOperation: 103,
+
+    /**
+     * 数据超时。
+     * @type {number}
+     */
+    DataTimeout: 104,
+
+    /**
      * 未知的状态。
      * @type {number}
      */

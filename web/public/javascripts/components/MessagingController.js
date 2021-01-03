@@ -176,10 +176,12 @@
     }
 
     MessagingController.prototype.recallMessage = function(entity, id) {
-        cube.messaging.recallMessage(id, function() {
-
-        }, function() {
-
+        cube.messaging.recallMessage(id, function(message) {
+            g.app.messagePanel.appendNote(entity, '消息已撤回 ' + g.formatFullTime(Date.now()));
+            g.app.messagePanel.removeMessage(entity, message);
+        }, function(error) {
+            g.dialog.launchToast(Toast.Error, '撤回消息失败');
+            console.log('撤回消息失败 - ' + error);
         })
     }
 
@@ -187,8 +189,9 @@
         cube.messaging.deleteMessage(id, function(message) {
             g.dialog.launchToast(Toast.Success, '消息已删除');
             g.app.messagePanel.removeMessage(entity, message);
-        }, function() {
+        }, function(error) {
             g.dialog.launchToast(Toast.Error, '删除消息失败');
+            console.log('删除消息失败 - ' + error);
         });
     }
 

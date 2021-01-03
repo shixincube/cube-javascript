@@ -556,7 +556,7 @@ export class MessagingService extends Module {
      * 撤回消息。
      * @param {Message|number} message 指定消息 ID 或者消息实例。
      * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode message}:{@link Message}) 。
-     * @param {function} [handleFailure] 操作错误回调该方法，参数：({@linkcode message}:{@link Message}) 。
+     * @param {function} [handleFailure] 操作错误回调该方法，参数：({@linkcode error}:{@link ModuleError}) 。
      * @returns {boolean} 返回是否能执行该操作。
      */
     recallMessage(message, handleSuccess, handleFailure) {
@@ -575,7 +575,8 @@ export class MessagingService extends Module {
             if (message.getFrom() != self.getId()) {
                 // 不是本人发送的消息不能撤回
                 if (handleFailure) {
-                    handleFailure(message);
+                    let error = new ModuleError(MessagingService.NAME, MessagingServiceState.IllegalOperation, message);
+                    handleFailure(error);
                 }
                 return;
             }
