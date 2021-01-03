@@ -180,7 +180,8 @@
             g.app.messagePanel.appendNote(entity, '消息已撤回 ' + g.formatFullTime(Date.now()));
             g.app.messagePanel.removeMessage(entity, message);
         }, function(error) {
-            g.dialog.launchToast(Toast.Error, '撤回消息失败');
+            g.dialog.launchToast(Toast.Error,
+                (error.code == MessagingServiceState.DataTimeout) ? '消息发送超过2分钟，不能撤回' : '撤回消息失败');
             console.log('撤回消息失败 - ' + error);
         })
     }

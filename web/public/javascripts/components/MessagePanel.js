@@ -349,7 +349,7 @@
         }
 
         var html = [
-            '<div>', note, '</div>'
+            '<div class="note">', note, '</div>'
         ];
 
         var parentEl = panel.el;

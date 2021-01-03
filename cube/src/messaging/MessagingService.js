@@ -585,7 +585,8 @@ export class MessagingService extends Module {
             if (now - message.getRemoteTimestamp() > 2 * 60 * 1000) {
                 // 超过时限不能撤回
                 if (handleFailure) {
-                    handleFailure(message);
+                    let error = new ModuleError(MessagingService.NAME, MessagingServiceState.DataTimeout, message);
+                    handleFailure(error);
                 }
                 return;
             }
