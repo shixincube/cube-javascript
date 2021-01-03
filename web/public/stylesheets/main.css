@@ -351,10 +351,16 @@ body {
     padding: 0;
 }
 
-.media-btn {
-    padding-top: 4px;
-    padding-bottom: 2px;
+.media-btn-group {
+    margin: 0;
 }
+.media-btn-microphone {
+    padding: 4px 8px 3px 8px;
+}
+.media-btn-volume {
+    padding: 1px 5px 2px 7px;
+}
+
 .hangup-btn {
     padding-top: 4px;
     padding-bottom: 4px;

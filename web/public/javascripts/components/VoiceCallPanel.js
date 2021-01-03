@@ -49,6 +49,36 @@
         this.remoteVideo = el.find('video[data-target="remote"]')[0];
         this.localVideo = el.find('video[data-target="local"]')[0];
 
+        this.btnMic = el.find('button[data-target="microphone"]');
+        this.btnMic.attr('disabled', 'disabled');
+        this.btnMic.on('click', function() {
+            if (g.app.callCtrl.switchMicrophone()) {
+                // 麦克风未静音
+                that.btnMic.empty();
+                that.btnMic.append($('<i class="ci ci-btn ci-microphone-closed"></i>'));
+            }
+            else {
+                // 麦克风已静音
+                that.btnMic.empty();
+                that.btnMic.append($('<i class="ci ci-btn ci-microphone-opened"></i>'));
+            }
+        });
+
+        this.btnVol = el.find('button[data-target="volume"]');
+        this.btnVol.attr('disabled', 'disabled');
+        this.btnVol.on('click', function() {
+            if (g.app.callCtrl.switchLoudspeaker()) {
+                // 扬声器未静音
+                that.btnVol.empty();
+                that.btnVol.append($('<i class="ci ci-btn ci-volume-muted"></i>'));
+            }
+            else {
+                // 扬声器已静音
+                that.btnVol.empty();
+                that.btnVol.append($('<i class="ci ci-btn ci-volume-unmuted"></i>'));
+            }
+        });
+
         this.btnHangup = el.find('button[data-target="hangup"]');
         this.btnHangup.on('click', function() {
             that.terminate();
@@ -70,6 +100,9 @@
             }
 
             callingElapsed = 0;
+
+            that.btnMic.attr('disabled', 'disabled');
+            that.btnVol.attr('disabled', 'disabled');
         });
     }
 
@@ -98,15 +131,10 @@
         this.elPeerName.text(caller.getName());
         this.elInfo.text('正在应答...');
 
-        if (g.app.callCtrl.answerCall()) {
-            this.el.modal({
-                keyboard: false,
-                backdrop: false
-            });
-        }
-        else {
-            g.dialog.launchToast(Toast.Warning, '应答"' + caller.getName() + '"时发生错误');
-        }
+        this.el.modal({
+            keyboard: false,
+            backdrop: false
+        });
     }
 
     VoiceCallPanel.prototype.close = function() {
@@ -133,6 +161,9 @@
         if (callingTimer > 0) {
             return;
         }
+
+        this.btnMic.removeAttr('disabled');
+        this.btnVol.removeAttr('disabled');
 
         callingTimer = setInterval(function() {
             that.elInfo.text(g.formatClockTick(++callingElapsed));

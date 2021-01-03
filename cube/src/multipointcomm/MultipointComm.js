@@ -249,13 +249,14 @@ export class MultipointComm extends Module {
         let rtcDevice = new RTCDevice(self, self.getDevice());
 
         if (localVideoElem) {
-            localVideoElem.volume = 0;
-            localVideoElem.setAttribute('muted', 'muted');
+            // localVideoElem.volume = 1.0;
+            // localVideoElem.setAttribute('muted', 'muted');
 
             rtcDevice.localVideoElem = localVideoElem;
         }
 
         if (remoteVideoElem) {
+            // remoteVideoElem.volume = 1.0;
             rtcDevice.remoteVideoElem = remoteVideoElem;
         }
 
@@ -538,7 +539,7 @@ export class MultipointComm extends Module {
             failureCallback = successCallback;
             successCallback = target;
             if (this.offerSignaling.field.isPrivate()) {
-                target = this.offerSignaling.contact;
+                target = this.offerSignaling.caller;
             }
             else {
                 target = this.offerSignaling.field;
@@ -546,7 +547,7 @@ export class MultipointComm extends Module {
         }
         else if (undefined === target) {
             if (this.offerSignaling.field.isPrivate()) {
-                target = this.offerSignaling.contact;
+                target = this.offerSignaling.caller;
             }
             else {
                 target = this.offerSignaling.field;
@@ -615,11 +616,7 @@ export class MultipointComm extends Module {
 
             // 1. 先申请进入
             this.privateField.applyEnter(rtcDevice.getContact(), rtcDevice.getDevice(), (contact, device) => {
-                this.privateField.caller = target;
-                this.privateField.callee = this.privateField.getFounder();
-
                 // 记录
-                this.activeCall.field = this.privateField;
                 this.activeCall.calleeMediaConstraint = mediaConstraint;
 
                 // 2. 启动 RTC 节点，发起 Answer
@@ -912,6 +909,14 @@ export class MultipointComm extends Module {
     }
 
     /**
+     * 获取当前活跃的通话记录。
+     * @returns {CallRecord} 返回当前活跃的通话记录。
+     */
+    getActiveRecord() {
+        return this.activeCall;
+    }
+
+    /**
      * 触发呼叫超时。
      * @private
      */
@@ -934,19 +939,20 @@ export class MultipointComm extends Module {
      */
     triggerOffer(payload, context) {
         let data = payload.data;
-        this.offerSignaling = Signaling.create(data, this.pipeline);
+        let offerSignaling = Signaling.create(data, this.pipeline);
 
         // 检查当期是否有通话正在进行
         if (null != this.activeCall && this.activeCall.isActive()) {
             // 应答忙音 Busy
-            let busy = new Signaling(MultipointCommAction.Busy, this.offerSignaling.field,
+            let busy = new Signaling(MultipointCommAction.Busy, offerSignaling.field,
                 this.privateField.getFounder(), this.privateField.getDevice(), 0);
             let packet = new Packet(MultipointCommAction.Busy, busy.toJSON());
             this.pipeline.send(MultipointComm.NAME, packet);
-
-            this.offerSignaling = null;
             return;
         }
+
+        // 赋值
+        this.offerSignaling = offerSignaling;
 
         this.callTimer = setTimeout(() => {
             this.fireCallTimeout();
@@ -972,7 +978,7 @@ export class MultipointComm extends Module {
                 callback();
             }, (error) => {
                 this.activeCall.field.caller = this.offerSignaling.caller;
-                this.activeCall.field.callee = this.offerSignaling.callee;
+                this.activeCall.field.callee = this.offerSignaling.callee = this.cs.getSelf();
                 callback();
             });
         }

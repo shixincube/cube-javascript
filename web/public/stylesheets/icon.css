@@ -37,6 +37,24 @@
     margin-top: 4px;
 }
 
+.ci-speaker-opened {
+    width: 22px;
+    height: 22px;
+    background-image: url(../images/icon/speaker-opened@2x.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 22px 22px;
+}
+
+.ci-speaker-closed {
+    width: 22px;
+    height: 22px;
+    background-image: url(../images/icon/speaker-closed@2x.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 22px 22px;
+}
+
 .ci-camera-closed {
     width: 20px;
     height: 20px;
@@ -55,22 +73,31 @@
     background-size: 20px auto;
 }
 
-.ci-volume-muted {
+.ci-microphone-opened {
     width: 20px;
     height: 20px;
+    background-image: url(../images/icon/microphone-opened@2x.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 18px auto;
+}
+
+.ci-volume-muted {
+    width: 24px;
+    height: 24px;
     background-image: url(../images/icon/volume-muted@2x.png);
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 20px auto;
+    background-size: 24px auto;
 }
 
 .ci-volume-unmuted {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     background-image: url(../images/icon/volume-unmuted@2x.png);
     background-repeat: no-repeat;
-    background-position: center;
-    background-size: 20px auto;
+    background-position: 0 center;
+    background-size: 18px auto;
 }
 
 .ci-hangup {

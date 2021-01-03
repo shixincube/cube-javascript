@@ -35,6 +35,7 @@
 
     var voiceCall = false;
 
+    var volume = 0.7;
 
     function onInProgress(target) {
     }
@@ -75,6 +76,8 @@
     function onBye(event) {
         var record = event.data;
         working = false;
+
+        // console.log('DEBUG - ' + record.getCaller().getId() + ' -> ' + record.getCallee().getId());
 
         if (voiceCall) {
             g.app.voiceCallPanel.close();
@@ -171,7 +174,7 @@
         voiceCall = true;
 
         // 设置媒体容器
-        cube.mpComm.setRemoteVideoElement(g.app.voiceCallPanel.removeVideo);
+        cube.mpComm.setRemoteVideoElement(g.app.voiceCallPanel.remoteVideo);
         cube.mpComm.setLocalVideoElement(g.app.voiceCallPanel.localVideo);
 
         // 只使用音频通道
@@ -189,12 +192,17 @@
         g.app.voiceCallPanel.closeNewCallToast();
 
         // 设置媒体容器
-        cube.mpComm.setRemoteVideoElement(g.app.voiceCallPanel.removeVideo);
+        cube.mpComm.setRemoteVideoElement(g.app.voiceCallPanel.remoteVideo);
         cube.mpComm.setLocalVideoElement(g.app.voiceCallPanel.localVideo);
 
         // 只使用音频通道
         var mediaConstraint = new MediaConstraint(false, true);
-        return cube.mpComm.answerCall(mediaConstraint);
+        if (cube.mpComm.answerCall(mediaConstraint)) {
+            g.app.voiceCallPanel.showAnswerCall(cube.mpComm.getActiveRecord().getCaller());
+            return true;
+        }
+
+        return false;
     }
 
     CallController.prototype.hangupCall = function() {
@@ -215,6 +223,54 @@
         }
 
         return true;
+    }
+
+    CallController.prototype.switchMicrophone = function() {
+        var field = cube.mpComm.getActiveField();
+        if (null == field) {
+            console.debug('CallController - #switchMicrophone() field is null');
+            return true;
+        }
+
+        var rtcDevice = field.getRTCDevice();
+        if (null == rtcDevice) {
+            console.debug('CallController - #switchMicrophone() rtcDevice is null');
+            return true;
+        }
+
+        if (rtcDevice.outboundAudioEnabled()) {
+            rtcDevice.enableOutboundAudio(false);
+        }
+        else {
+            rtcDevice.enableOutboundAudio(true);
+        }
+        return rtcDevice.outboundAudioEnabled();
+    }
+
+    CallController.prototype.switchLoudspeaker = function() {
+        var field = cube.mpComm.getActiveField();
+        if (null == field) {
+            console.debug('CallController - #switchLoudspeaker() field is null');
+            return true;
+        }
+
+        var rtcDevice = field.getRTCDevice();
+        if (null == rtcDevice) {
+            console.debug('CallController - #switchLoudspeaker() rtcDevice is null');
+            return true;
+        }
+
+        var vol = rtcDevice.getVolume();
+        console.debug('CallController - #switchLoudspeaker() volume is ' + vol);
+        if (vol > 0) {
+            volume = vol;
+            rtcDevice.setVolume(0);
+            return false;
+        }
+        else {
+            rtcDevice.setVolume(volume);
+            return true;
+        }
     }
 
     g.CallController = CallController;

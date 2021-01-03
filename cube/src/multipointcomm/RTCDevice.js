@@ -177,7 +177,7 @@ export class RTCDevice {
         }
 
         let ret = false;
-        stream.getTracks.some((track) => {
+        stream.getTracks().some((track) => {
             if (track.kind == kind) {
                 ret = track.enabled;
                 return true;
@@ -236,7 +236,7 @@ export class RTCDevice {
         }
 
         let ret = false;
-        stream.getTracks.some((track) => {
+        stream.getTracks().some((track) => {
             if (track.kind == kind) {
                 track.enabled = enabled;
                 ret = true;
@@ -244,6 +244,27 @@ export class RTCDevice {
             }
         });
         return ret;
+    }
+
+    /**
+     * 设置扬声器音量。
+     * @param {number} value 音量值，从 0.0 (静音) 到 1.0 (最大声)。
+     */
+    setVolume(value) {
+        if (null != this.remoteVideoElem) {
+            this.remoteVideoElem.volume = value;
+        }
+    }
+
+    /**
+     * 返回音量。
+     * @returns {number} 返回音量值，从 0.0 (静音) 到 1.0 (最大声)。
+     */
+    getVolume() {
+        if (null != this.remoteVideoElem) {
+            return this.remoteVideoElem.volume;
+        }
+        return 0;
     }
 
     /**
@@ -304,8 +325,9 @@ export class RTCDevice {
         this.pc.onicecandidate = (event) => {
             this.fireOnIceCandidate(event);
         };
-
-        // this.pc.oniceconnectionstatechange
+        this.pc.oniceconnectionstatechange = (event) => {
+            this.fireOnIceConnectionStateChange(event);
+        };
 
         (async () => {
             // 判断是否忽略获取媒体
@@ -395,6 +417,9 @@ export class RTCDevice {
         };
         this.pc.onicecandidate = (event) => {
             this.fireOnIceCandidate(event);
+        };
+        this.pc.oniceconnectionstatechange = (event) => {
+            this.fireOnIceConnectionStateChange(event);
         };
 
         this.pc.setRemoteDescription(new RTCSessionDescription(description)).then(() => {
@@ -582,6 +607,24 @@ export class RTCDevice {
     fireOnIceCandidate(event) {
         if (event.candidate) {
             this.onIceCandidate(event.candidate);
+        }
+    }
+
+    /**
+     * @private
+     */
+    fireOnIceConnectionStateChange(event) {
+        let state = this.pc.iceConnectionState;
+        if (state === "failed" ||
+            state === "disconnected" ||
+            state === "closed") {
+            cell.Logger.d('RTCDevice', 'ICE state : ' + state);
+        }
+        else if (state === "connected") {
+            cell.Logger.d('RTCDevice', 'ICE state : ' + state);
+        }
+        else {
+            cell.Logger.d('RTCDevice', 'ICE state : ' + state);
         }
     }
 
