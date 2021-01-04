@@ -249,25 +249,33 @@
                     </div>
                     <div class="modal-footer justify-content-between">
                         <div class="media-btn-group">
-                            <button class="btn btn-primary media-btn-microphone" type="button" title="操作麦克风" data-target="microphone"><i class="ci ci-btn ci-microphone-closed"></i></button>
-                            <button class="btn btn-primary media-btn-volume" type="button" title="操作扬声器" data-target="volume"><i class="ci ci-btn ci-volume-muted"></i></button>
+                            <button class="btn btn-primary media-btn-microphone" type="button" title="操作麦克风" data-target="microphone"><i class="ci ci-btn ci-microphone-opened"></i></button>
+                            <button class="btn btn-primary media-btn-volume" type="button" title="操作扬声器" data-target="volume"><i class="ci ci-btn ci-volume-unmuted"></i></button>
                         </div>
-                        <button class="btn btn-danger hangup-btn" type="button" title="挂断通话" data-target="hangup"><i class="ci ci-hangup"></i> 取消</button>
+                        <button class="btn btn-danger hangup-btn" type="button" title="挂断通话" data-target="hangup"><i class="ci ci-hangup"></i> 挂断</button>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- Voice Call - end  -->
+        <!-- Voice Call - end -->
 
         <!-- Video Chat - begin -->
         <div id="video_chat" class="modal fade modeless video-chat-panel">
             <div class="modal-dialog modal-dialog-modeless">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h6 class="modal-title">视频聊天</h6>
-                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                            <i class="fas fa-minus"></i>
-                        </button>
+                        <h6 class="modal-title">视频通话</h6>
+                        <div class="title-button-group">
+                            <button class="close title-button" type="button" data-target="minimize">
+                                <i class="fas fa-window-minimize"></i>
+                            </button>
+                            <button class="close title-button" type="button" data-target="maximize">
+                                <i class="fas fa-window-maximize"></i>
+                            </button>
+                            <button class="close title-button" type="button" data-target="restore">
+                                <i class="fas fa-window-restore"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="modal-body">
                         <div class="video-main" data-target="video-remote">
@@ -278,18 +286,19 @@
                         </div>
                     </div>
                     <div class="modal-footer justify-content-between">
-                        <div class="btn-group">
-                            <button class="btn btn-primary" type="button" title="操作摄像头"><i class="ci ci-camera-closed"></i></button>
-                            <button class="btn btn-primary" type="button" title="操作麦克风"><i class="ci ci-microphone-closed"></i></button>
+                        <div class="media-btn-group">
+                            <button class="btn btn-primary media-btn-camera" type="button" title="操作摄像头" data-target="camera"><i class="ci ci-btn ci-camera-opened"></i></button>
+                            <button class="btn btn-primary media-btn-microphone" type="button" title="操作麦克风" data-target="microphone"><i class="ci ci-btn ci-microphone-opened"></i></button>
+                            <button class="btn btn-primary media-btn-volume" type="button" title="操作扬声器" data-target="volume"><i class="ci ci-btn ci-volume-unmuted"></i></button>
                         </div>
-                        <button class="btn btn-danger" type="button" title="挂断通话"><i class="ci ci-hangup"></i></button>
+                        <button class="btn btn-danger hangup-btn" type="button" title="挂断通话" data-target="hangup"><i class="ci ci-hangup"></i> 挂断</button>
                     </div>
                 </div>
             </div>
         </div>
         <!-- Video Chat - end -->
     </div>
-    <!-- Messaging Page - end  -->
+    <!-- Messaging Page - end -->
 
     <!-- Files Page - begin -->
     <div id="files" class="content-wrapper content-wrapper-hidden">

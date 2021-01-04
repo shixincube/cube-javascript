@@ -164,21 +164,26 @@
         cube.mpComm.on(CallEvent.CallFailed, onCallFailed);
     }
 
-    CallController.prototype.makeCall = function(target) {
+    CallController.prototype.makeCall = function(target, videoEnabled) {
         if (working) {
             return false;
         }
 
         working = true;
 
-        voiceCall = true;
+        if (videoEnabled) {
+            voiceCall = false;
+        }
+        else {
+            voiceCall = true;
 
-        // 设置媒体容器
-        cube.mpComm.setRemoteVideoElement(g.app.voiceCallPanel.remoteVideo);
-        cube.mpComm.setLocalVideoElement(g.app.voiceCallPanel.localVideo);
+            // 设置媒体容器
+            cube.mpComm.setRemoteVideoElement(g.app.voiceCallPanel.remoteVideo);
+            cube.mpComm.setLocalVideoElement(g.app.voiceCallPanel.localVideo);
+        }
 
-        // 只使用音频通道
-        var mediaConstraint = new MediaConstraint(false, true);
+        // 媒体约束
+        var mediaConstraint = new MediaConstraint(videoEnabled, true);
         cube.mpComm.makeCall(target, mediaConstraint);
 
         return true;
@@ -217,9 +222,20 @@
                 g.app.voiceCallPanel.close();
                 g.app.voiceCallPanel.closeNewCallToast();
             }
+            else {
+
+            }
         }
         else {
-            alert('拒绝通话发生错误。');
+            console.error('拒绝通话发生错误。');
+
+            if (voiceCall) {
+                g.app.voiceCallPanel.close();
+                g.app.voiceCallPanel.closeNewCallToast();
+            }
+            else {
+                g.app.videoChatPanel.close();
+            }
         }
 
         return true;

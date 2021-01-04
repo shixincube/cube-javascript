@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -59,6 +59,15 @@
     width: 20px;
     height: 20px;
     background-image: url(../images/icon/camera-closed@2x.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 20px auto;
+}
+
+.ci-camera-opened {
+    width: 20px;
+    height: 20px;
+    background-image: url(../images/icon/camera-opened@2x.png);
     background-repeat: no-repeat;
     background-position: center;
     background-size: 20px auto;

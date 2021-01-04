@@ -56,6 +56,16 @@
     var loading = false;
 
     var dialog = {
+
+        getFullHeight: function() {
+            return parseInt(document.body.clientHeight) + 57 + 8;
+        },
+
+        /**
+         * 显示吐司提示。
+         * @param {string} type 
+         * @param {string} text 
+         */
         launchToast: function(type, text) {
             toast.fire({
                 icon: type,

@@ -60,6 +60,7 @@ body {
 
 .modal-dialog-modeless {
     margin: 0 0;
+    max-width: unset;
 }
 
 .content-wrapper-hidden {
@@ -354,6 +355,9 @@ body {
 .media-btn-group {
     margin: 0;
 }
+.media-btn-camera {
+    padding: 4px 8px 3px 8px;
+}
 .media-btn-microphone {
     padding: 4px 8px 3px 8px;
 }
@@ -367,32 +371,54 @@ body {
 }
 
 .video-chat-panel {
-    width: 640px;
-    margin-left: -320px;
+    width: 642px;
+    margin-left: -321px;
+    color: #f8f9fa;
+    overflow: hidden;
+}
+.video-chat-panel-mini {
+    width: 242px;
+    height: 227px;
+    margin-left: -121px;
 }
 .video-chat-panel h6 {
-    font-size: 14px;
-    font-weight: normal;
+    font-size: 16px;
+    font-weight: bold;
 }
-.video-chat-panel .close {
-    font-size: 18px;
+.video-chat-panel .title-button-group {
+    display: flex;
+    padding-top: 6px;
+}
+.video-chat-panel .title-button {
+    font-size: 12px;
+    color: #fefefe;
 }
 .video-chat-panel .modal-dialog {
-    max-width: 640px;
+    width: 642px;
 }
 .video-chat-panel .modal-content {
-    width: 640px;
+    width: 642px;
+    background-color: #343a40;
+    box-shadow: none;
+}
+.video-chat-panel .modal-content-mini {
+    width: 242px;
+    height: 227px;
+    overflow: hidden;
 }
 .video-chat-panel .modal-header {
-    padding: 10px 20px 10px 20px;
+    padding: 10px 16px 10px 16px;
+    border-bottom: 1px solid #545a60;
+    cursor: move;
 }
 .video-chat-panel .modal-body {
     padding: 0;
 }
 .video-chat-panel .modal-footer {
-    padding: 10px 20px 10px 20px;
+    padding: 10px 16px 10px 16px;
+    border-top: 1px solid #545a60;
 }
-.video-chat-panel .modal-footer .btn {
+.video-chat-panel .modal-footer button {
     font-size: 14px;
 }
 
@@ -411,8 +437,8 @@ body {
 
 .video-pip {
     background-color: #000;
-    width: 160px;
-    height: 120px;
+    width: 162px;
+    height: 122px;
     position: absolute;
     float: left;
     z-index: 9;
@@ -427,6 +453,13 @@ body {
     width: 100%;
     height: 100%;
 }
+
+.video-mini {
+    width: 240px !important;
+    height: 180px !important;
+    border: 0;
+}
+
 
 .voice-call-panel {
     width: 362px;
@@ -466,7 +499,7 @@ body {
     height: 1px;
 }
 .voice-call-panel .modal-dialog {
-    max-width: 360px;
+    width: 360px;
 }
 .voice-call-panel .modal-content {
     width: 360px;

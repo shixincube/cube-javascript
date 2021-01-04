@@ -200,16 +200,8 @@
         g.app.voiceCallPanel.showMakeCall(target);
     }
 
-    MessagingController.prototype.closeVoiceCall = function() {
-
-    }
-
     MessagingController.prototype.openVideoChat = function(target) {
-        g.app.videoChatPanel.show(target);
-    }
-
-    MessagingController.prototype.closeVideoChat = function() {
-        
+        g.app.videoChatPanel.showMakeCall(target);
     }
 
     MessagingController.prototype.onNewMessage = function(message) {

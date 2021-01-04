@@ -55,12 +55,12 @@
             if (g.app.callCtrl.switchMicrophone()) {
                 // 麦克风未静音
                 that.btnMic.empty();
-                that.btnMic.append($('<i class="ci ci-btn ci-microphone-closed"></i>'));
+                that.btnMic.append($('<i class="ci ci-btn ci-microphone-opened"></i>'));
             }
             else {
                 // 麦克风已静音
                 that.btnMic.empty();
-                that.btnMic.append($('<i class="ci ci-btn ci-microphone-opened"></i>'));
+                that.btnMic.append($('<i class="ci ci-btn ci-microphone-closed"></i>'));
             }
         });
 
@@ -70,12 +70,12 @@
             if (g.app.callCtrl.switchLoudspeaker()) {
                 // 扬声器未静音
                 that.btnVol.empty();
-                that.btnVol.append($('<i class="ci ci-btn ci-volume-muted"></i>'));
+                that.btnVol.append($('<i class="ci ci-btn ci-volume-unmuted"></i>'));
             }
             else {
                 // 扬声器已静音
                 that.btnVol.empty();
-                that.btnVol.append($('<i class="ci ci-btn ci-volume-unmuted"></i>'));
+                that.btnVol.append($('<i class="ci ci-btn ci-volume-muted"></i>'));
             }
         });
 
@@ -113,7 +113,7 @@
         this.elPeerName.text(target.getName());
         this.elInfo.text('正在呼叫...');
 
-        if (g.app.callCtrl.makeCall(target)) {
+        if (g.app.callCtrl.makeCall(target, false)) {
             this.el.modal({
                 keyboard: false,
                 backdrop: false
@@ -202,6 +202,7 @@
     }
 
     /**
+     * 挂断通话。
      */
     VoiceCallPanel.prototype.terminate = function() {
         g.app.callCtrl.hangupCall();
