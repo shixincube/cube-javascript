@@ -60,7 +60,8 @@
         that = this;
 
         el.draggable({
-            handle: ".modal-header"
+            handle: '.modal-header',
+            containment: 'document'
         });
 
         el.on('hide.bs.modal', function() {
@@ -152,7 +153,8 @@
 
             // 恢复拖放
             this.el.draggable({
-                handle: ".modal-header",
+                handle: '.modal-header',
+                containment: 'document',
                 disabled: false
             });
         }
@@ -198,7 +200,7 @@
     }
 
     VideoChatPanel.prototype.showMakeCall = function(target) {
-        console.log('尝试视频连线 ' + target.getId());
+        console.log('发起视频连线 ' + target.getId());
 
         this.el.modal({
             keyboard: false,

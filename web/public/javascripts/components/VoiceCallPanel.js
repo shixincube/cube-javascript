@@ -109,18 +109,18 @@
     VoiceCallPanel.prototype.showMakeCall = function(target) {
         console.log('发起语音通话 ' + target.getId());
 
-        this.elPeerAvatar.attr('src', target.getContext().avatar);
-        this.elPeerName.text(target.getName());
-        this.elInfo.text('正在呼叫...');
-
         if (g.app.callCtrl.makeCall(target, false)) {
+            this.elPeerAvatar.attr('src', target.getContext().avatar);
+            this.elPeerName.text(target.getName());
+            this.elInfo.text('正在呼叫...');
+
             this.el.modal({
                 keyboard: false,
                 backdrop: false
             });
         }
         else {
-            g.dialog.launchToast(Toast.Warning, '呼叫"' + target.getName() + '"时发生错误');
+            g.dialog.launchToast(Toast.Warning, '您当前正在通话中');
         }
     }
 

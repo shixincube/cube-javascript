@@ -454,6 +454,16 @@ body {
     height: 100%;
 }
 
+.video-label {
+    position: absolute;
+    float: left;
+    color: #fff;
+    width: 100%;
+    font-size: 12px;
+    top: 2px;
+    left: 4px;
+}
+
 .video-mini {
     width: 240px !important;
     height: 180px !important;
