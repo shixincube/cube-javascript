@@ -49,10 +49,11 @@
 
     var remoteContainer = null;
     var localContainer = null;
+    var primaryCon = null;
+    var secondaryCon = null;
 
     var remoteVideo = null;
     var localVideo = null;
-
     var mainVideo = null;
 
     var VideoChatPanel = function(el) {
@@ -98,6 +99,10 @@
                 that.switchVideo();
             }
         });
+
+        // 主副容器
+        primaryCon = remoteContainer;
+        secondaryCon = localContainer;
 
         remoteVideo = remoteContainer[0].querySelector('video');
         localVideo = localContainer[0].querySelector('video');
@@ -218,22 +223,26 @@
 
     VideoChatPanel.prototype.switchVideo = function() {
         if (mainVideo == remoteVideo) {
-            remoteContainer.removeClass('video-main');
-            localContainer.removeClass('video-pip');
-
-            remoteContainer.addClass('video-pip');
-            localContainer.addClass('video-main');
-
             mainVideo = localVideo;
+
+            primaryCon = localContainer;
+            secondaryCon = remoteContainer;
         }
         else {
-            localContainer.removeClass('video-main');
-            remoteContainer.removeClass('video-pip');
-
-            localContainer.addClass('video-pip');
-            remoteContainer.addClass('video-main');
-
             mainVideo = remoteVideo;
+
+            primaryCon = remoteContainer;
+            secondaryCon = localContainer;
+        }
+
+        primaryCon.removeClass('video-pip');
+        secondaryCon.removeClass('video-main');
+        primaryCon.addClass('video-main');
+        secondaryCon.addClass('video-pip');
+
+        if (sizeState == 2) {
+            // 当最大化时需要调整主画面大小
+            
         }
     }
 
@@ -290,8 +299,8 @@
         content.css('width', w + 'px');
         content.css('height', h + 'px');
 
-        remoteContainer.css('width', (w - 2) + 'px');
-        remoteContainer.css('height', (h - 105 - 2) + 'px');
+        primaryCon.css('width', (w - 2) + 'px');
+        primaryCon.css('height', (h - 105 - 2) + 'px');
 
         footer.css('width', w + 'px');
     }
