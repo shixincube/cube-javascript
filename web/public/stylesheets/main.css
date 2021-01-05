@@ -291,7 +291,7 @@ body {
     right: 0;
     bottom: 0;
     left: 0;
-    background-image: url("https://static.shixincube.com/cube/assets/images/logo/cube_256.png");
+    background-image: url("../images/cube_256.png");
     background-repeat: no-repeat;
     background-position: center;
     opacity: 0.1;
@@ -443,6 +443,9 @@ body {
 
 .video-main {
     background-color: #000;
+    background-image: url("../images/cube_mono_256_opacity10.png");
+    background-repeat: no-repeat;
+    background-position: center center;
     width: 640px;
     height: 480px;
     position: relative;

@@ -58,6 +58,14 @@
         }
     }
 
+    function onMediaConnected(event) {
+
+    }
+
+    function onMediaDisconnected(event) {
+        
+    }
+
     function onNewCall(event) {
         var record = event.data;
         var caller = record.getCaller();

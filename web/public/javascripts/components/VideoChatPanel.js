@@ -265,6 +265,8 @@
         console.log('发起视频连线 ' + target.getId());
 
         if (g.app.callCtrl.makeCall(target, true)) {
+            remoteVideo.style.visibility = 'hidden';
+
             this.elRemoteLabel.text(target.getName());
             this.elLocalLabel.text('我');
 
@@ -304,7 +306,7 @@
 
         var time = 0;
         wfaTimer = setInterval(function() {
-            that.callTip.text('正在呼叫"' + callee.getName() + '"：' + (++time) + ' 秒...');
+            that.callTip.text('正在呼叫“' + callee.getName() + '”：' + (++time) + ' 秒...');
         }, 1000);
     }
 
@@ -317,6 +319,8 @@
         if (callingTimer > 0) {
             return;
         }
+
+        remoteVideo.style.visibility = 'visible';
 
         this.btnCam.removeAttr('disabled');
         this.btnMic.removeAttr('disabled');
