@@ -141,7 +141,7 @@
         this.el.modal('hide');
     }
 
-    VoiceCallPanel.prototype.tipWaitForAnswer = function() {
+    VoiceCallPanel.prototype.tipWaitForAnswer = function(callee) {
         if (wfaTimer > 0) {
             return;
         }

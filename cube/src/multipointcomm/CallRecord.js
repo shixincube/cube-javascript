@@ -123,6 +123,14 @@ export class CallRecord {
     }
 
     /**
+     * 是否是视频主叫。
+     * @returns {boolean}
+     */
+    isVideoCaller() {
+        return this.callerMediaConstraint.videoEnabled;
+    }
+
+    /**
      * 获取对端联系人。
      * @returns {Contact}
      */

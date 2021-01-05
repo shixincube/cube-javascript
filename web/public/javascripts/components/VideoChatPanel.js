@@ -56,6 +56,10 @@
     var localVideo = null;
     var mainVideo = null;
 
+    var wfaTimer = 0;
+    var callingTimer = 0;
+    var callingElapsed = 0;
+
     var VideoChatPanel = function(el) {
         this.el = el;
         that = this;
@@ -66,6 +70,15 @@
         });
 
         el.on('hide.bs.modal', function() {
+            if (wfaTimer > 0) {
+                clearInterval(wfaTimer);
+                wfaTimer = 0;
+            }
+            if (callingTimer > 0) {
+                clearInterval(callingTimer);
+                callingTimer = 0;
+            }
+            callingElapsed = 0;
         });
 
         // 监听窗口大小变化
@@ -108,12 +121,42 @@
         localVideo = localContainer[0].querySelector('video');
         mainVideo = remoteVideo;
 
+        this.remoteVideo = remoteVideo;
+        this.localVideo = localVideo;
+
+        this.headerTip = el.find('.header-tip');
+        this.callTip = el.find('.call-tip');
+
+        this.elRemoteLabel = remoteContainer.find('.video-label');
+        this.elLocalLabel = localContainer.find('.video-label');
+
+        this.btnCam = el.find('button[data-target="camera"]');
+        this.btnMic = el.find('button[data-target="microphone"]');
+        this.btnVol = el.find('button[data-target="volume"]');
+
+        this.btnCam.attr('disabled', 'disabled');
+        this.btnMic.attr('disabled', 'disabled');
+        this.btnVol.attr('disabled', 'disabled');
+
+        this.btnCam.on('click', function() {
+            
+        });
+        this.btnMic.on('click', function() {
+            
+        });
+        this.btnVol.on('click', function() {
+            
+        });
+
         this.btnHangup = el.find('button[data-target="hangup"]');
         this.btnHangup.on('click', function() {
             that.terminate();
         });
     }
 
+    /**
+     * 窗口恢复。
+     */
     VideoChatPanel.prototype.restore = function() {
         var content = this.el.find('.modal-content');
         var footer = this.el.find('.modal-footer');
@@ -164,9 +207,14 @@
             });
         }
 
+        this.refresh();
+
         sizeState = 1;
     }
 
+    /**
+     * 窗口最小化。
+     */
     VideoChatPanel.prototype.minimize = function() {
         if (sizeState != 1) {
             return;
@@ -186,8 +234,13 @@
         btnMin.css('display', 'none');
         btnMax.css('display', 'none');
         btnRes.css('display', 'block');
+
+        this.refresh();
     }
 
+    /**
+     * 窗口最大化。
+     */
     VideoChatPanel.prototype.maximize = function() {
         if (sizeState != 1) {
             return;
@@ -204,21 +257,105 @@
         this.el.draggable({ disabled: true });
     }
 
+    /**
+     * 发起通话。
+     * @param {*} target 
+     */
     VideoChatPanel.prototype.showMakeCall = function(target) {
         console.log('发起视频连线 ' + target.getId());
 
-        this.el.modal({
-            keyboard: false,
-            backdrop: false
-        });
+        if (g.app.callCtrl.makeCall(target, true)) {
+            this.elRemoteLabel.text(target.getName());
+            this.elLocalLabel.text('我');
+
+            this.el.modal({
+                keyboard: false,
+                backdrop: false
+            });
+        }
+        else {
+            g.dialog.launchToast(Toast.Warning, '您当前正在通话中');
+        }
     }
 
+    /**
+     * 发起应答。
+     * @param {*} target 
+     */
+    VideoChatPanel.prototype.showAnswerCall = function(target) {
+
+    }
+
+    /**
+     * 关闭窗口。
+     */
     VideoChatPanel.prototype.close = function() {
         this.el.modal('hide');
     }
 
-    VideoChatPanel.prototype.tipWaitForAnswer = function() {
+    VideoChatPanel.prototype.tipWaitForAnswer = function(callee) {
+        if (wfaTimer > 0) {
+            return;
+        }
 
+        var h = that.callTip.parent().height();
+        var y = (h - 21) * 0.5;
+        that.callTip.css('top', y + 'px');
+
+        var time = 0;
+        wfaTimer = setInterval(function() {
+            that.callTip.text('正在呼叫"' + callee.getName() + '"：' + (++time) + ' 秒...');
+        }, 1000);
+    }
+
+    VideoChatPanel.prototype.tipConnected = function() {
+        if (wfaTimer > 0) {
+            clearInterval(wfaTimer);
+            wfaTimer = 0;
+        }
+
+        if (callingTimer > 0) {
+            return;
+        }
+
+        this.btnCam.removeAttr('disabled');
+        this.btnMic.removeAttr('disabled');
+        this.btnVol.removeAttr('disabled');
+
+        callingTimer = setInterval(function() {
+            that.headerTip.text(g.formatClockTick(++callingElapsed));
+        }, 1000);
+    }
+
+    VideoChatPanel.prototype.openNewCallToast = function(contact) {
+        var body = [
+            '<div class="toasts-info">\
+                <div class="info-box">\
+                    <span class="info-box-icon"><img src="', contact.getContext().avatar, '" /></span>\
+                    <div class="info-box-content">\
+                        <span class="info-box-text">', contact.getName(), '</span>\
+                        <span class="info-box-desc">邀请您参与视频通话</span>\
+                    </div>\
+                </div>\
+                <div class="call-answer">\
+                    <button type="button" class="btn btn-danger" onclick="javascript:app.callCtrl.hangupCall();"><i class="ci ci-hangup"></i> 拒绝</button>\
+                    <button type="button" class="btn btn-success" onclick="javascript:app.callCtrl.answerCall();"><i class="ci ci-answer"></i> 接听</button>\
+                </div>\
+            </div>'
+        ];
+
+        $(document).Toasts('create', {
+            title: '视频通话邀请',
+            position: 'bottomRight',
+            icon: 'fas fa-video',
+            close: false,
+            class: 'video-new-call',
+            body: body.join('')
+        });
+    }
+
+    VideoChatPanel.prototype.closeNewCallToast = function() {
+        $('#toastsContainerBottomRight').find('.video-new-call').remove();
     }
 
     VideoChatPanel.prototype.switchVideo = function() {
@@ -308,6 +445,14 @@
         primaryCon.css('height', (h - 105 - 2) + 'px');
 
         footer.css('width', w + 'px');
+
+        this.refresh();
+    }
+
+    VideoChatPanel.prototype.refresh = function() {
+        var h = that.callTip.parent().height();
+        var y = (h - 21) * 0.5;
+        that.callTip.css('top', y + 'px');
     }
 
     g.VideoChatPanel = VideoChatPanel;

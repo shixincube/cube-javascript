@@ -42,13 +42,19 @@
 
     function onRinging(event) {
         if (voiceCall) {
-            g.app.voiceCallPanel.tipWaitForAnswer();
+            g.app.voiceCallPanel.tipWaitForAnswer(event.data.getCallee());
+        }
+        else {
+            g.app.videoChatPanel.tipWaitForAnswer(event.data.getCallee());
         }
     }
 
     function onConnected(event) {
         if (voiceCall) {
             g.app.voiceCallPanel.tipConnected();
+        }
+        else {
+            g.app.videoChatPanel.tipConnected();
         }
     }
 
@@ -64,6 +70,7 @@
             // 主叫使用视频呼叫
             voiceCall = false;
             working = true;
+            g.app.videoChatPanel.openNewCallToast(caller);
         }
         else {
             // 主叫使用语音呼叫
@@ -87,9 +94,17 @@
                 cube.messaging.sendTo(record.getCallee(), recordMessage);
             }
         }
+        else {
+            g.app.videoChatPanel.close();
+
+            if (record.isCaller()) {
+                var recordMessage = new CallRecordMessage(record);
+                cube.messaging.sendTo(record.getCallee(), recordMessage);
+            }
+        }
 
         var duration = record.getDuration();
-        var log = '通话结束 - ' + g.formatClockTick(parseInt(duration / 1000));
+        var log = duration > 1000 ? '通话结束 - ' + g.formatClockTick(parseInt(duration / 1000)) : '通话结束';
         console.log(log);
 
         g.dialog.launchToast(Toast.Info, log);
@@ -113,12 +128,20 @@
             g.app.voiceCallPanel.close();
             g.app.voiceCallPanel.closeNewCallToast();
         }
+        else {
+            g.app.videoChatPanel.close();
+            g.app.videoChatPanel.closeNewCallToast();
+        }
     }
 
     function onTimeout(event) {
         if (voiceCall) {
             g.app.voiceCallPanel.close();
             g.app.voiceCallPanel.closeNewCallToast();
+        }
+        else {
+            g.app.videoChatPanel.close();
+            g.app.videoChatPanel.closeNewCallToast();
         }
 
         if (event.data.isCaller()) {
@@ -136,7 +159,7 @@
                 g.dialog.launchToast(Toast.Warning, '未能获得麦克风使用权限');
             }
             else {
-
+                g.dialog.launchToast(Toast.Warning, '未能获得摄像头/麦克风使用权限');
             }
         }
         else {
@@ -146,6 +169,10 @@
         if (voiceCall) {
             g.app.voiceCallPanel.close();
             g.app.voiceCallPanel.closeNewCallToast();
+        }
+        else {
+            g.app.videoChatPanel.close();
+            g.app.videoChatPanel.closeNewCallToast();
         }
     }
 
@@ -173,6 +200,10 @@
 
         if (videoEnabled) {
             voiceCall = false;
+
+            // 设置媒体容器
+            cube.mpComm.setRemoteVideoElement(g.app.videoChatPanel.remoteVideo);
+            cube.mpComm.setLocalVideoElement(g.app.videoChatPanel.localVideo);
         }
         else {
             voiceCall = true;
@@ -194,17 +225,33 @@
             return false;
         }
 
-        g.app.voiceCallPanel.closeNewCallToast();
+        if (voiceCall) {
+            g.app.voiceCallPanel.closeNewCallToast();
 
-        // 设置媒体容器
-        cube.mpComm.setRemoteVideoElement(g.app.voiceCallPanel.remoteVideo);
-        cube.mpComm.setLocalVideoElement(g.app.voiceCallPanel.localVideo);
+            // 设置媒体容器
+            cube.mpComm.setRemoteVideoElement(g.app.voiceCallPanel.remoteVideo);
+            cube.mpComm.setLocalVideoElement(g.app.voiceCallPanel.localVideo);
 
-        // 只使用音频通道
-        var mediaConstraint = new MediaConstraint(false, true);
-        if (cube.mpComm.answerCall(mediaConstraint)) {
-            g.app.voiceCallPanel.showAnswerCall(cube.mpComm.getActiveRecord().getCaller());
-            return true;
+            // 只使用音频通道
+            var mediaConstraint = new MediaConstraint(false, true);
+            if (cube.mpComm.answerCall(mediaConstraint)) {
+                g.app.voiceCallPanel.showAnswerCall(cube.mpComm.getActiveRecord().getCaller());
+                return true;
+            }
+        }
+        else {
+            g.app.videoChatPanel.closeNewCallToast();
+
+            // 设置媒体容器
+            cube.mpComm.setRemoteVideoElement(g.app.videoChatPanel.remoteVideo);
+            cube.mpComm.setLocalVideoElement(g.app.videoChatPanel.localVideo);
+
+            // 只使用音频通道
+            var mediaConstraint = new MediaConstraint(true, true);
+            if (cube.mpComm.answerCall(mediaConstraint)) {
+                g.app.videoChatPanel.showAnswerCall(cube.mpComm.getActiveRecord().getCaller());
+                return true;
+            }
         }
 
         return false;
@@ -223,11 +270,12 @@
                 g.app.voiceCallPanel.closeNewCallToast();
             }
             else {
-
+                g.app.videoChatPanel.close();
+                g.app.videoChatPanel.closeNewCallToast();
             }
         }
         else {
-            console.error('拒绝通话发生错误。');
+            console.error('终止通话时发生错误。');
 
             if (voiceCall) {
                 g.app.voiceCallPanel.close();
@@ -235,6 +283,7 @@
             }
             else {
                 g.app.videoChatPanel.close();
+                g.app.videoChatPanel.closeNewCallToast();
             }
         }
 

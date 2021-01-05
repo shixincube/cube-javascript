@@ -422,6 +422,25 @@ body {
     font-size: 14px;
 }
 
+.video-chat-panel .header-tip {
+    color: #fff;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    text-align: left;
+    margin-top: 5px;
+}
+.video-chat-panel .call-tip {
+    position: absolute;
+    float: left;
+    color: #fff;
+    width: 100%;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    text-align: center;
+    top: 2px;
+    text-shadow: #000 1px 0 0, #000 0 1px 0, #000 -1px 0 0, #000 0 -1px 0;
+}
+
 .video-main {
     background-color: #000;
     width: 640px;
@@ -527,6 +546,7 @@ body {
 }
 .voice-call-panel .modal-body .info-box-desc {
     color: #adb5bd;
+    font-family: 'Courier New', Courier, monospace;
 }
 .voice-call-panel .modal-footer {
     padding: 10px 16px 10px 16px;
