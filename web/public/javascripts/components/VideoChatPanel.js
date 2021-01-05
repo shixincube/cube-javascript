@@ -242,7 +242,12 @@
 
         if (sizeState == 2) {
             // 当最大化时需要调整主画面大小
-            
+            var w = parseInt(document.body.clientWidth);
+            var h = g.dialog.getFullHeight();
+            primaryCon.css('width', (w - 4) + 'px');
+            primaryCon.css('height', (h - 105 - 4) + 'px');
+            secondaryCon.css('width', '');
+            secondaryCon.css('height', '');
         }
     }
 
