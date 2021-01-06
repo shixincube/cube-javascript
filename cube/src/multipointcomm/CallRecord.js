@@ -119,6 +119,10 @@ export class CallRecord {
      * @returns {boolean}
      */
     isCaller() {
+        if (null == this.field.caller) {
+            return false;
+        }
+
         return (this.self.getId() == this.field.caller.getId());
     }
 

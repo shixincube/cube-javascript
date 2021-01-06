@@ -79,6 +79,8 @@
                 callingTimer = 0;
             }
             callingElapsed = 0;
+
+            remoteVideo.style.visibility = 'hidden';
         });
 
         // 监听窗口大小变化
@@ -120,6 +122,7 @@
         remoteVideo = remoteContainer[0].querySelector('video');
         localVideo = localContainer[0].querySelector('video');
         mainVideo = remoteVideo;
+        remoteVideo.style.visibility = 'hidden';
 
         this.remoteVideo = remoteVideo;
         this.localVideo = localVideo;
@@ -139,13 +142,40 @@
         this.btnVol.attr('disabled', 'disabled');
 
         this.btnCam.on('click', function() {
-            
+            if (g.app.callCtrl.switchCamera()) {
+                // 摄像头已启用
+                that.btnCam.empty();
+                that.btnCam.append($('<i class="ci ci-btn ci-camera-opened"></i>'));
+            }
+            else {
+                // 摄像头已停用
+                that.btnCam.empty();
+                that.btnCam.append($('<i class="ci ci-btn ci-camera-closed"></i>'));
+            }
         });
         this.btnMic.on('click', function() {
-            
+            if (g.app.callCtrl.switchMicrophone()) {
+                // 麦克风未静音
+                that.btnMic.empty();
+                that.btnMic.append($('<i class="ci ci-btn ci-microphone-opened"></i>'));
+            }
+            else {
+                // 麦克风已静音
+                that.btnMic.empty();
+                that.btnMic.append($('<i class="ci ci-btn ci-microphone-closed"></i>'));
+            }
         });
         this.btnVol.on('click', function() {
-            
+            if (g.app.callCtrl.switchLoudspeaker()) {
+                // 扬声器未静音
+                that.btnVol.empty();
+                that.btnVol.append($('<i class="ci ci-btn ci-volume-unmuted"></i>'));
+            }
+            else {
+                // 扬声器已静音
+                that.btnVol.empty();
+                that.btnVol.append($('<i class="ci ci-btn ci-volume-muted"></i>'));
+            }
         });
 
         this.btnHangup = el.find('button[data-target="hangup"]');
@@ -265,8 +295,6 @@
         console.log('发起视频连线 ' + target.getId());
 
         if (g.app.callCtrl.makeCall(target, true)) {
-            remoteVideo.style.visibility = 'hidden';
-
             this.elRemoteLabel.text(target.getName());
             this.elLocalLabel.text('我');
 
@@ -282,10 +310,18 @@
 
     /**
      * 发起应答。
-     * @param {*} target 
+     * @param {*} caller 
      */
-    VideoChatPanel.prototype.showAnswerCall = function(target) {
+    VideoChatPanel.prototype.showAnswerCall = function(caller) {
+        console.log('应答视频通话 ' + caller.getId());
 
+        this.elRemoteLabel.text(caller.getName());
+        this.elLocalLabel.text('我');
+
+        this.el.modal({
+            keyboard: false,
+            backdrop: false
+        });
     }
 
     /**
@@ -397,7 +433,6 @@
      */
     VideoChatPanel.prototype.terminate = function() {
         g.app.callCtrl.hangupCall();
-        this.close();
     }
 
     VideoChatPanel.prototype.onResize = function(event) {

@@ -289,6 +289,16 @@ export class CommField extends Entity {
     }
 
     /**
+     * 申请终止场域。
+     * @param {Contact} proposer 
+     * @param {function} successCallback 
+     * @param {function} failureCallback 
+     */
+    applyTerminate(proposer, successCallback, failureCallback) {
+        
+    }
+
+    /**
      * 申请直接加入场域。
      * @param {Contact} contact 
      * @param {Device} device

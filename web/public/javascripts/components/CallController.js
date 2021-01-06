@@ -223,9 +223,8 @@
 
         // 媒体约束
         var mediaConstraint = new MediaConstraint(videoEnabled, true);
-        cube.mpComm.makeCall(target, mediaConstraint);
-
-        return true;
+        // 发起通话
+        return cube.mpComm.makeCall(target, mediaConstraint);
     }
 
     CallController.prototype.answerCall = function() {
@@ -296,6 +295,28 @@
         }
 
         return true;
+    }
+
+    CallController.prototype.switchCamera = function() {
+        var field = cube.mpComm.getActiveField();
+        if (null == field) {
+            console.debug('CallController - #switchCamera() field is null');
+            return true;
+        }
+
+        var rtcDevice = field.getRTCDevice();
+        if (null == rtcDevice) {
+            console.debug('CallController - #switchCamera() rtcDevice is null');
+            return true;
+        }
+
+        if (rtcDevice.outboundVideoEnabled()) {
+            rtcDevice.enableOutboundVideo(false);
+        }
+        else {
+            rtcDevice.enableOutboundVideo(true);
+        }
+        return rtcDevice.outboundVideoEnabled();
     }
 
     CallController.prototype.switchMicrophone = function() {

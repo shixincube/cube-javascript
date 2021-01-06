@@ -306,14 +306,36 @@ export class MultipointComm extends Module {
             // 记录错误
             this.activeCall.lastError = error;
 
-            if (failureCallback) {
-                failureCallback(error);
+            // 如果是 MediaPermissionDenied
+            if (error.code == MultipointCommState.MediaPermissionDenied) {
+                // 需要额外进行处理，因为浏览器可能无法连接到摄像头，但是可以连接麦克风
+                // 当连接不到摄像头时，需要直接从私域退出，而不发送信令
+                if (this.activeCall.field.isPrivate()) {
+                    this.privateField.applyTerminate(this.privateField.getFounder());
+                }
+                else {
+                    // TODO
+                }
+
+                if (failureCallback) {
+                    failureCallback(error);
+                }
+
+                this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
             }
+            else {
+                if (failureCallback) {
+                    failureCallback(error);
+                }
+    
+                this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
 
-            this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
-
-            if (this.activeCall.field.isPrivate()) {
-                this.hangupCall();
+                if (this.activeCall.field.isPrivate()) {
+                    this.hangupCall();
+                }
+                else {
+                    // TODO
+                }
             }
         };
 
@@ -354,7 +376,7 @@ export class MultipointComm extends Module {
                 this.privateField.caller = this.privateField.getFounder();
                 this.privateField.callee = target;
 
-                // 记录
+                // 记录主叫媒体约束
                 this.activeCall.callerMediaConstraint = mediaConstraint;
 
                 // 2. 启动 RTC 节点，发起 Offer
@@ -653,6 +675,7 @@ export class MultipointComm extends Module {
      */
     hangupCall(target, successCallback, failureCallback) {
         if (null == this.activeCall) {
+            cell.Logger.w('MultipointComm', '#hangupCall - activeCall is null');
             return false;
         }
 
