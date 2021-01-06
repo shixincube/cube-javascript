@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -88,19 +88,19 @@ export const BroswerUtil = {
         // Chrome
         else if (agent.indexOf("chrome") > 0) {
             var regStr_chrome = /chrome\/[\d.]+/gi;
-            name = "chrome";
+            name = "Chrome";
             version = "" + agent.match(regStr_chrome);
         }
         // Safari
         else if (agent.indexOf("safari") > 0 && agent.indexOf("chrome") < 0) {
             var regStr_saf = /version\/[\d.]+/gi;
-            name = "safari";
+            name = "Safari";
             version = "" + agent.match(regStr_saf);
         }
         // Opera
         else if (agent.indexOf("opera") >= 0) {
             var regStr_opera = /version\/[\d.]+/gi;
-            name = "opera";
+            name = "Opera";
             version = "" + agent.match(regStr_opera);
         }
         else {
@@ -182,7 +182,11 @@ export const BroswerUtil = {
             }
         }
         else if (system.mac) {
-            if (/Mac OS X (\d+\.\d+)?/.test(ua)) {
+            if (ua.indexOf('Chrome') > 0 && /Mac OS X (\d+\_\d+)?/.test(ua)) {
+                system.mac = RegExp['$1'].trim();
+                system.mac = system.mac.replace('_', '.');
+            }
+            else if (ua.indexOf('Firefox') > 0 && /Mac OS X (\d+\.\d+)?/.test(ua)) {
                 system.mac = RegExp['$1'].trim();
             }
         }
