@@ -64,25 +64,6 @@
         this.el = el;
         that = this;
 
-        el.draggable({
-            handle: '.modal-header',
-            containment: 'document'
-        });
-
-        el.on('hide.bs.modal', function() {
-            if (wfaTimer > 0) {
-                clearInterval(wfaTimer);
-                wfaTimer = 0;
-            }
-            if (callingTimer > 0) {
-                clearInterval(callingTimer);
-                callingTimer = 0;
-            }
-            callingElapsed = 0;
-
-            remoteVideo.style.visibility = 'hidden';
-        });
-
         // 监听窗口大小变化
         window.addEventListener('resize', this.onResize, false);
 
@@ -181,6 +162,29 @@
         this.btnHangup = el.find('button[data-target="hangup"]');
         this.btnHangup.on('click', function() {
             that.terminate();
+        });
+
+        // 允许拖拽
+        el.draggable({
+            handle: '.modal-header',
+            containment: 'document'
+        });
+
+        el.on('hide.bs.modal', function() {
+            if (wfaTimer > 0) {
+                clearInterval(wfaTimer);
+                wfaTimer = 0;
+            }
+            if (callingTimer > 0) {
+                clearInterval(callingTimer);
+                callingTimer = 0;
+            }
+            callingElapsed = 0;
+
+            remoteVideo.style.visibility = 'hidden';
+
+            that.callTip.text('');
+            that.headerTip.text('');
         });
     }
 
@@ -355,6 +359,8 @@
         if (callingTimer > 0) {
             return;
         }
+
+        that.callTip.text('');
 
         remoteVideo.style.visibility = 'visible';
 

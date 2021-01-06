@@ -311,7 +311,7 @@ export class MultipointComm extends Module {
                 // 需要额外进行处理，因为浏览器可能无法连接到摄像头，但是可以连接麦克风
                 // 当连接不到摄像头时，需要直接从私域退出，而不发送信令
                 if (this.activeCall.field.isPrivate()) {
-                    this.privateField.applyTerminate(this.privateField.getFounder());
+                    this.privateField.applyTerminate(this.privateField.getFounder(), this.privateField.callee);
                 }
                 else {
                     // TODO
@@ -322,6 +322,8 @@ export class MultipointComm extends Module {
                 }
 
                 this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
+
+                this.activeCall = null;
             }
             else {
                 if (failureCallback) {
@@ -368,14 +370,14 @@ export class MultipointComm extends Module {
             this.activeCall = new CallRecord(this.privateField.getFounder());
             this.activeCall.field = this.privateField;
 
+            this.privateField.caller = this.privateField.getFounder();
+            this.privateField.callee = target;
+
             // 创建 RTC 设备
             let rtcDevice = this.createRTCDevice(this.videoElem.local, this.videoElem.remote);
 
             // 1. 先申请主叫，从而设置目标
             this.privateField.applyCall(this.privateField.getFounder(), target, (commField, proposer, target) => {
-                this.privateField.caller = this.privateField.getFounder();
-                this.privateField.callee = target;
-
                 // 记录主叫媒体约束
                 this.activeCall.callerMediaConstraint = mediaConstraint;
 
@@ -752,6 +754,8 @@ export class MultipointComm extends Module {
                         failureCallback(error);
                     }
                     this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
+
+                    this.activeCall = null;
                 }
             }
             else {
@@ -764,6 +768,8 @@ export class MultipointComm extends Module {
                     failureCallback(error);
                 }
                 this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
+
+                this.activeCall = null;
             }
         };
 

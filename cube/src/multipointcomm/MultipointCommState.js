@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -73,6 +73,12 @@ export const MultipointCommState = {
      * @type {number}
      */
     NoCommFieldEndpoint: 18,
+
+    /**
+     * 没有找到对端。
+     * @type {number}
+     */
+    NoPeerEndpoint: 19,
 
     /**
      * 数据结构错误。

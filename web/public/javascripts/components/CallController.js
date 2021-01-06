@@ -174,14 +174,16 @@
             g.dialog.launchToast(Toast.Warning, '通话失败，故障码：' + error.code);
         }
 
-        if (voiceCall) {
-            g.app.voiceCallPanel.close();
-            g.app.voiceCallPanel.closeNewCallToast();
-        }
-        else {
-            g.app.videoChatPanel.close();
-            g.app.videoChatPanel.closeNewCallToast();
-        }
+        setTimeout(function() {
+            if (voiceCall) {
+                g.app.voiceCallPanel.close();
+                g.app.voiceCallPanel.closeNewCallToast();
+            }
+            else {
+                g.app.videoChatPanel.close();
+                g.app.videoChatPanel.closeNewCallToast();
+            }
+        }, 500);
     }
 
     var CallController = function(cubeEngine) {

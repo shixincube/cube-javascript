@@ -291,11 +291,47 @@ export class CommField extends Entity {
     /**
      * 申请终止场域。
      * @param {Contact} proposer 
-     * @param {function} successCallback 
-     * @param {function} failureCallback 
+     * @param {Contact} target
+     * @param {function} [successCallback] 
+     * @param {function} [failureCallback] 
      */
-    applyTerminate(proposer, successCallback, failureCallback) {
-        
+    applyTerminate(proposer, target, successCallback, failureCallback) {
+        let packet = new Packet(MultipointCommAction.ApplyTerminate, {
+            field: this.toCompactJSON(),
+            proposer: proposer.toCompactJSON(),
+            target: target.toCompactJSON()
+        });
+        this.pipeline.send(MultipointComm.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+                if (responsePacket.data.code == MultipointCommState.Ok) {
+                    let responseData = responsePacket.data.data;
+                    if (successCallback) {
+                        successCallback(this, proposer, target);
+                    }
+                }
+                else {
+                    let error = new ModuleError(MultipointComm.NAME, responsePacket.data.code, {
+                        field: this,
+                        proposer: proposer,
+                        target: target
+                    });
+                    if (failureCallback) {
+                        failureCallback(error);
+                    }
+                }
+            }
+            else {
+                let error = new ModuleError(MultipointComm.NAME,
+                    (null != responsePacket) ? responsePacket.getStateCode() : MultipointCommState.ServerFault, {
+                    field: this,
+                    proposer: proposer,
+                    target: target
+                });
+                if (failureCallback) {
+                    failureCallback(error);
+                }
+            }
+        });
     }
 
     /**
