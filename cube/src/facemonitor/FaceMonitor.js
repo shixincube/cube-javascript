@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,18 +24,18 @@
  * SOFTWARE.
  */
 
-import { Module } from "@core/Module";
+import { Module } from "../core/Module";
 import { ObservableEvent } from "../core/ObservableEvent";
 
 /**
- * 消息服务模块接口。
+ * 人脸监视模块。
  */
 export class FaceMonitor extends Module {
 
     static NAME = 'FaceMonitor';
 
     constructor() {
-        super('FaceMonitor');
+        super(FaceMonitor.NAME);
 
         // 设置依赖的库文件
         super.requireFile('tfjs.js');
@@ -63,7 +63,10 @@ export class FaceMonitor extends Module {
         this.loadTimestamp = 0;
     }
 
-    start(view, width, height) {
+    /**
+     * @inheritdoc
+     */
+    start() {
         if (!super.start()) {
             return false;
         }
@@ -126,19 +129,26 @@ export class FaceMonitor extends Module {
             this.updateFaceTimer = 0;
         }
 
-        if (this.stream) {
-            this.stream.getTracks()[0].stop();
-        }
+        // if (this.stream) {
+        //     this.stream.getTracks()[0].stop();
+        // }
     }
 
+    setVideoElement(video) {
+        this.videoEl = video;
+
+    }
+
+    /**
+     * @private
+     * @param {*} constraints 
+     * @param {*} handleSuccess 
+     * @param {*} handleError 
+     */
     getUserMedia(constraints, handleSuccess, handleError) {
         navigator.mediaDevices.getUserMedia(constraints)
             .then(handleSuccess)
             .catch(handleError);
-    }
-
-    activeSource(source) {
-        // TODO
     }
 
     activeCameraSource() {
@@ -168,6 +178,11 @@ export class FaceMonitor extends Module {
         //this.stopPrediction = true;
     }
 
+    /**
+     * @private
+     * @param {*} multiplier 
+     * @param {*} stride 
+     */
     load(multiplier = 0.75, stride = 16) {
         this.canvasEl.style.display = 'block';
         this.drawCtx = this.canvasEl.getContext('2d');
@@ -181,7 +196,7 @@ export class FaceMonitor extends Module {
 
         console.log(`Loading BodyPix with multiplier ${multiplier} and stride ${stride}`);
 
-        let self = this;
+        let that = this;
         let modelUrl = 'models/model-stride16.json';
 
         this.loadTimestamp = Date.now();
@@ -191,13 +206,13 @@ export class FaceMonitor extends Module {
             stride: stride,
             quantBytes: 4,
             modelUrl: modelUrl
-        }).then(net => _fm_predictLoop(self, net))
+        }).then(net => _fm_predictLoop(that, net))
         .catch(err => console.error(err));
 
         // 通知状态
         let state = new ObservableEvent('load', {
-            width: self.width,
-            height: self.height,
+            width: that.width,
+            height: that.height,
             multiplier: multiplier,
             stride: stride,
             quantBytes: 4
@@ -206,7 +221,7 @@ export class FaceMonitor extends Module {
     }
 
     /**
-     * @protected
+     * @private
      * @param {*} personSegmentation 
      */
     draw(personSegmentation) {
@@ -359,14 +374,14 @@ export class FaceMonitor extends Module {
  * 预测循环。
  * 
  * @private
- * @param {FaceMonitor} self 
+ * @param {FaceMonitor} fm 
  * @param {*} net 
  */
-async function _fm_predictLoop(self, net) {
-    let sourceVideo = self.videoEl;
+async function _fm_predictLoop(fm, net) {
+    let sourceVideo = fm.videoEl;
 
     let resetDelay = 2;
-    self.stopPrediction = false;
+    fm.stopPrediction = false;
 
     let lastFaceArray = new Int32Array(sourceVideo.width * sourceVideo.height);
     let touched = false;
@@ -374,23 +389,23 @@ async function _fm_predictLoop(self, net) {
 
     // 定时器用于切换更新脸部遮罩的状态
     let updateFace = true;
-    self.updateFaceTimer = setInterval(() => {
+    fm.updateFaceTimer = setInterval(() => {
         updateFace = !updateFace;
     }, 1000);
 
     // 通知状态
-    let elapsed = Date.now() - self.loadTimestamp;
+    let elapsed = Date.now() - fm.loadTimestamp;
     let state = new ObservableEvent('loaded', {
         resetDelay: resetDelay,
         elapsed: elapsed
     });
-    self.notifyObservers(state);
+    fm.notifyObservers(state);
 
-    while (self.isPlaying && !self.stopPrediction) {
+    while (fm.isPlaying && !fm.stopPrediction) {
 
         // BodyPix setup
         const segmentPersonConfig = {
-            flipHorizontal: self.flipHorizontal,    // 如果是摄像头则翻转画面
+            flipHorizontal: fm.flipHorizontal,    // 如果是摄像头则翻转画面
             maxDetections: 1,                       // 只检测一个人的人脸
             scoreThreshold: 0.5,
             segmentationThreshold: 0.6,             // default is 0.7
@@ -403,14 +418,14 @@ async function _fm_predictLoop(self, net) {
 
         const numPixels = segmentation.width * segmentation.height;
 
-        // 为检测到数据，跳过
+        // 未检测到数据，跳过
         if (segmentation.allPoses[0] === undefined) {
             // console.info("No segmentation data");
             continue;
         }
 
         // 将数据绘制到画布上
-        self.draw(segmentation);
+        fm.draw(segmentation);
 
         // 验证有一个质量较好的脸部画面重贴动作
         // 假设是一个一致性数组顺序
@@ -455,9 +470,9 @@ async function _fm_predictLoop(self, net) {
                 }
             }
 
-            let multiFaceArray = self._arrayToMatrix(faceArray, segmentation.width);
-            let multiHandArray = self._arrayToMatrix(handArray, segmentation.width);
-            let touchScore = self._touchingCheck(multiFaceArray, multiHandArray, 10);
+            let multiFaceArray = fm._arrayToMatrix(faceArray, segmentation.width);
+            let multiHandArray = fm._arrayToMatrix(handArray, segmentation.width);
+            let touchScore = fm._touchingCheck(multiFaceArray, multiHandArray, 10);
             score += touchScore;
 
             // 刷新脸部数据
@@ -465,7 +480,7 @@ async function _fm_predictLoop(self, net) {
                 lastFaceArray = faceArray;
             }
 
-            self._updateStats(touched);
+            fm._updateStats(touched);
 
             // 判断是否可以触发 touch
             if (score > facePixels * touchThreshold) {
@@ -476,7 +491,7 @@ async function _fm_predictLoop(self, net) {
                     // 更新状态
                     touched = true;
 
-                    self.triggerEvent({
+                    fm.triggerEvent({
                         touched: touched,
                         numPixels: numPixels,
                         facePixels: facePixels,
@@ -487,7 +502,7 @@ async function _fm_predictLoop(self, net) {
 
                     resetTouchedTimer = setTimeout(() => {
                         touched = false;
-                        self.triggerEvent({
+                        fm.triggerEvent({
                             touched: touched
                         });
                     }, resetDelay * 1000);
@@ -498,7 +513,7 @@ async function _fm_predictLoop(self, net) {
                     }
                     resetTouchedTimer = setTimeout(() => {
                         touched = false;
-                        self.triggerEvent({
+                        fm.triggerEvent({
                             touched: touched
                         });
                     }, resetDelay * 1000);

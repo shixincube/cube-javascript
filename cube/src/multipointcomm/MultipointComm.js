@@ -702,6 +702,11 @@ export class MultipointComm extends Module {
         }
 
         let handler = (pipeline, source, packet) => {
+            if (null == this.activeCall) {
+                // 当返回数据时，之前的操作已经关闭通话
+                return;
+            }
+
             let activeCall = this.activeCall;
 
             if (field.isPrivate()) {
@@ -980,6 +985,11 @@ export class MultipointComm extends Module {
      */
     onMediaDisconnected(commField, rtcDevice) {
         this.notifyObservers(new ObservableEvent(MultipointCommEvent.MediaDisconnected, this.activeCall));
+
+        if (this.activeCall.field.isPrivate()) {
+            // 私域通信，触发 Hangup
+            this.hangupCall();
+        }
     }
 
     /**

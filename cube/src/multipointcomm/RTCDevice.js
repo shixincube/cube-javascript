@@ -114,6 +114,12 @@ export class RTCDevice {
          * @type {boolean}
          */
         this.ready = false;
+
+        /**
+         * 媒体数据是否已经连接。
+         * @type {boolean}
+         */
+        this.mediaReady = false;
     }
 
     /**
@@ -587,6 +593,7 @@ export class RTCDevice {
         }
 
         this.ready = false;
+        this.mediaReady = false;
     }
 
     /**
@@ -634,9 +641,11 @@ export class RTCDevice {
         if (state === "failed" ||
             state === "disconnected" ||
             state === "closed") {
+            this.mediaReady = false;
             this.onMediaDisconnected(this);
         }
         else if (state === "connected") {
+            this.mediaReady = true;
             this.onMediaConnected(this);
         }
     }

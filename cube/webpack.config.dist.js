@@ -28,7 +28,7 @@ var CubeAllConfig = {
                 test: /\.js$/,
                 exclude: [
                     /(node_modules|bower_components)/,
-                    path.resolve(__dirname, './src/facemonitor')
+                    path.resolve(__dirname, './src/zoe')
                 ],
                 use: {
                     loader: 'babel-loader',
@@ -101,7 +101,7 @@ var CubeConfig = {
                 test: /\.js$/,
                 exclude: [
                     /(node_modules|bower_components)/,
-                    path.resolve(__dirname, './src/facemonitor')
+                    path.resolve(__dirname, './src/zoe')
                 ],
                 use: {
                     loader: 'babel-loader',

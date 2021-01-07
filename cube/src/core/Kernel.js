@@ -99,9 +99,9 @@ export class Kernel {
      * 启动内核。
      * @param {KernelConfig} config 配置信息。
      * @param {function} handleSuccess 启动成功回调函数。
-     * @param {function} handleError 启动失败回调函数。
+     * @param {function} handleFailure 启动失败回调函数。
      */
-    async startup(config, handleSuccess, handleError) {
+    async startup(config, handleSuccess, handleFailure) {
         if (config["log"] === undefined) {
             cell.Logger.level = cell.LogLevel.DEBUG;
         }
@@ -126,7 +126,7 @@ export class Kernel {
 
         if (null == token || !token.isValid()) {
             // 授权令牌无效
-            handleError(new KernelError('Invalid token config data'));
+            handleFailure(new KernelError('Invalid token config data'));
             return;
         }
 
@@ -150,7 +150,7 @@ export class Kernel {
                 handleSuccess();
             }
             else {
-                handleError(new KernelError('Load module deps failed'));
+                handleFailure(new KernelError('Load module deps failed'));
             }
         };
 
@@ -415,9 +415,9 @@ export class Kernel {
      * 加载模块依赖。
      * @private
      * @param {function} handleSuccess 
-     * @param {function} handleError 
+     * @param {function} handleFailure
      */
-    loadModuleDeps(handleSuccess, handleError) {
+    loadModuleDeps(handleSuccess, handleFailure) {
         // 加载模块的依赖
         let libs = [];
         let mods = this.modules.values();
@@ -446,12 +446,12 @@ export class Kernel {
                 return;
             }
 
-            this.loadDepsJS(lib).then((filename)=> {
-                successList.push(filename);
+            this.loadDepsJS(lib).then((fileOrUrl)=> {
+                successList.push(fileOrUrl);
                 load();
-            }).catch((filename) => {
-                failureList.push(filename);
-                cell.Logger.i('Kernel', 'Startup error: can not load file: ' + filename);
+            }).catch((fileOrUrl) => {
+                failureList.push(fileOrUrl);
+                cell.Logger.i('Kernel', 'Startup error: can not load file: ' + fileOrUrl);
                 load();
             });
         }
@@ -484,16 +484,16 @@ export class Kernel {
             cell.Logger.d('Kernel', 'Module deps files loaded: ' + successList.length);
             handleSuccess.call(null, successList, failureList);
         }).catch((error) => {
-            handleError.call(null, successList, failureList);
+            handleFailure.call(null, successList, failureList);
         });
     }
 
     /**
      * 加载依赖的 JS 文件。
      * @private
-     * @param {string} filename 文件名。
+     * @param {string} fileOrUrl 文件名或者 URL 。
      */
-    loadDepsJS(filename/*, success, error*/) {
+    loadDepsJS(fileOrUrl) {
         const depsPath = this.depsPath;
         let promise = new Promise((resolve, reject) => {
             let script = document.createElement('script');
@@ -503,20 +503,25 @@ export class Kernel {
                 script.onreadystatechange = function() {
                     if (script.readyState == 'loaded' || script.readyState == 'complete') {
                         script.onreadystatechange = null;
-                        resolve(filename);
+                        resolve(fileOrUrl);
                     }
                 }
             }
             else {
                 script.onload = function(e) {
-                    resolve(filename);
+                    resolve(fileOrUrl);
                 }
                 script.onerror = function(e) {
-                    reject(filename);
+                    reject(fileOrUrl);
                 }
             }
 
-            script.src = depsPath + filename;
+            if (fileOrUrl.startsWith('http://') || fileOrUrl.startsWith('https://')) {
+                script.src = fileOrUrl;
+            }
+            else {
+                script.src = depsPath + fileOrUrl;
+            }
             document.getElementsByTagName('body')[0].appendChild(script);
         });
         return promise;
