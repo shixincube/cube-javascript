@@ -424,7 +424,11 @@ export class Kernel {
         for (let i = 0; i < mods.length; ++i) {
             let mod = mods[i];
             for (let n = 0; n < mod.deps.length; ++n) {
-                libs.push(mod.deps[n]);
+                let file = mod.deps[n];
+                if (libs.indexOf(file) >= 0) {
+                    continue;
+                }
+                libs.push(file);
             }
         }
 
