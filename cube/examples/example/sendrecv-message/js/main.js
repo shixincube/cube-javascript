@@ -52,7 +52,7 @@ cube.messaging.on(MessagingEvent.Notify, onNotify);
 
 function startCube() {
     if (contactIdInput.value.length < 3) {
-        stateLabel.innerHTML = '<span class="warning">请输入当前账号的 ID</span>';
+        stateLabel.innerHTML = '<span class="warning">请输入账号 ID</span>';
         return;
     }
 

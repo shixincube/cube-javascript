@@ -37,10 +37,6 @@ export class FaceMonitor extends Module {
     constructor() {
         super(FaceMonitor.NAME);
 
-        // 设置依赖的库文件
-        super.requireFile('tfjs.js');
-        super.requireFile('body-pix.js');
-
         this.width = 640;
         this.height = 480;
         this.videoEl = null;
@@ -71,13 +67,17 @@ export class FaceMonitor extends Module {
             return false;
         }
 
-        this.width = width;
-        this.height = height;
+        // 设置依赖的库文件
+        super.requireFile('https://static.shixincube.com/cube/javascript/libs/tfjs.js');
+        super.requireFile('https://static.shixincube.com/cube/javascript/libs/body-pix.js');
 
         let viewContainer = (typeof view === 'string') ? 
             document.getElementById(view) : view;
 
         if (null == this.videoEl) {
+            // this.width = width;
+            // this.height = height;
+
             this.videoEl = document.createElement('video');
             this.videoEl.setAttribute('autoplay', 'autoplay');
             this.videoEl.setAttribute('playsinline', 'playsinline');
