@@ -24,6 +24,7 @@
  * SOFTWARE.
  */
 
+import cell from "@lib/cell-lib";
 import { Subject } from "./Subject";
 import { Kernel } from "./Kernel";
 import { Pipeline } from "./Pipeline";
@@ -137,15 +138,31 @@ export class Module extends Subject {
 
     /**
      * 请求外部依赖库文件。
-     * @param {string} lib 库文件名。
+     * @param {string} fileOrURL 文件或者文件的 URL 。
+     * @param {function} [successCallback]
+     * @param {function} [failureCallback]
      */
-    requireFile(lib) {
-        let index = this.deps.indexOf(lib);
+    requireFile(fileOrURL, successCallback, failureCallback) {
+        let index = this.deps.indexOf(fileOrURL);
         if (index >= 0) {
             return;
         }
 
-        this.deps.push(lib);
+        this.deps.push(fileOrURL);
+
+        if (this.started) {
+            this.kernel.loadDepsJS(fileOrURL).then(() => {
+                cell.Logger.i(this.getName(), 'Load deps file: ' + fileOrURL);
+                if (undefined !== successCallback) {
+                    successCallback(fileOrURL);
+                }
+            }).catch(() => {
+                cell.Logger.w(this.getName(), 'Can NOT load deps file: ' + fileOrURL);
+                if (undefined !== failureCallback) {
+                    failureCallback(fileOrURL);
+                }
+            });
+        }
     }
 
     /**
