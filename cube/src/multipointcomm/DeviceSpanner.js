@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,34 +24,12 @@
  * SOFTWARE.
  */
 
-import { MediaDeviceDescription } from "./MediaDeviceDescription";
-
 /**
- * 媒体设备工具。
+ * 设备操作管理器。
  */
-export class MediaDeviceTool {
+export class DeviceSpanner {
 
     constructor() {
 
-    }
-
-    static enumDevices() {
-        navigator.mediaDevices.enumerateDevices().then((devices) => {
-            devices.forEach((device) => {
-
-            });
-        }).catch((error) => {
-
-        });
-    }
-
-    static getUserMedia(constraints) {
-        return new Promise((resolve, reject) => {
-            navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
-                resolve(stream);
-            }).catch((error) => {
-                resolve(error);
-            });
-        });
     }
 }

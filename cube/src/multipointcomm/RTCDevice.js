@@ -29,6 +29,7 @@ import { Contact } from "../contact/Contact";
 import { Device } from "../contact/Device";
 import { ModuleError } from "../core/error/ModuleError";
 import { CommFieldEndpoint } from "./CommFieldEndpoint";
+import { DeviceSpanner } from "./DeviceSpanner";
 import { MediaConstraint } from "./MediaConstraint";
 import { MultipointComm } from "./MultipointComm";
 import { MultipointCommState } from "./MultipointCommState";
@@ -120,6 +121,11 @@ export class RTCDevice {
          * @type {boolean}
          */
         this.mediaReady = false;
+
+        /**
+         * @type {Array<DeviceSpanner>}
+         */
+        this.spanners = [];
     }
 
     /**
@@ -354,24 +360,34 @@ export class RTCDevice {
             if (null != mediaConstraint) {
                 let constraints = mediaConstraint.getConstraints();
 
-                let stream = await this.getUserMedia(constraints);
-                if (!(stream instanceof MediaStream)) {
-                    handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.MediaPermissionDenied, this, stream));
-                    this.close();
-                    return;
-                }
+                // 如果出站流为空，则从媒体设备上获取
+                if (null == this.outboundStream) {
+                    let stream = await this.getUserMedia(constraints);
+                    if (!(stream instanceof MediaStream)) {
+                        handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.MediaPermissionDenied, this, stream));
+                        this.close();
+                        return;
+                    }
 
-                if (null != this.localVideoElem) {
-                    // 设置本地视频流
-                    this.localVideoElem.autoplay = true;
-                    this.localVideoElem.srcObject = stream;
-                }
+                    if (null != this.localVideoElem) {
+                        // 设置本地视频流
+                        this.localVideoElem.autoplay = true;
+                        this.localVideoElem.srcObject = stream;
+                    }
 
-                // 设置出站流
-                this.outboundStream = stream;
+                    // 设置出站流
+                    this.outboundStream = stream;
+                }
+                else {
+                    if (null != this.localVideoElem) {
+                        // 设置本地视频流
+                        this.localVideoElem.autoplay = true;
+                        this.localVideoElem.srcObject = this.outboundStream;
+                    }
+                }
 
                 // 添加 track
-                for (const track of stream.getTracks()) {
+                for (const track of this.outboundStream.getTracks()) {
                     this.pc.addTrack(track);
                 }
             }
@@ -444,8 +460,10 @@ export class RTCDevice {
 
         this.pc.setRemoteDescription(new RTCSessionDescription(description)).then(() => {
             (async () => {
-                if (null != mediaConstraint) {
-                    let constraints = mediaConstraint.getConstraints();
+                let constraints = mediaConstraint.getConstraints();
+
+                // 判断是否已经设置了出站流
+                if (null == this.outboundStream) {
                     let stream = await this.getUserMedia(constraints);
                     if (!(stream instanceof MediaStream)) {
                         handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.MediaPermissionDenied, this));
@@ -461,11 +479,18 @@ export class RTCDevice {
 
                     // 设置出站流
                     this.outboundStream = stream;
-
-                    // 添加 track
-                    for (const track of stream.getTracks()) {
-                        this.pc.addTrack(track);
+                }
+                else {
+                    if (null != this.localVideoElem) {
+                        // 设置本地视频流
+                        this.localVideoElem.autoplay = true;
+                        this.localVideoElem.srcObject = this.outboundStream;
                     }
+                }
+
+                // 添加 track
+                for (const track of this.outboundStream.getTracks()) {
+                    this.pc.addTrack(track);
                 }
 
                 this.pc.createAnswer().then((answer) => {

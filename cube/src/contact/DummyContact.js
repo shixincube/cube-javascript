@@ -32,6 +32,6 @@ import { Contact } from "./Contact";
 export class DummyContact extends Contact {
 
     constructor() {
-        super(0, 'Cube');
+        super(0, 'CubeDummyContact');
     }
 }
