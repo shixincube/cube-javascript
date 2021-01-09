@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,24 +24,14 @@
  * SOFTWARE.
  */
 
-import { MediaDeviceDescription } from "./MediaDeviceDescription";
+import { Contact } from "./Contact";
 
 /**
- * 媒体设备工具。
+ * 哑元联系人。
  */
-export class MediaDeviceTool {
+export class DummyContact extends Contact {
 
     constructor() {
-
-    }
-
-    static enumDevices() {
-        navigator.mediaDevices.enumerateDevices().then((devices) => {
-            devices.forEach((device) => {
-
-            });
-        }).catch((error) => {
-
-        });
+        super(0, 'Cube');
     }
 }
