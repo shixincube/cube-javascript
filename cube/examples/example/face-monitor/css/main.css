@@ -24,7 +24,34 @@
  * SOFTWARE.
  */
 
- section#contactSetting div {
+section#toolbar {
+    text-align: center;
+}
+
+section#toolbar div {
     display: inline-block;
     margin-right: 2em;
+    text-align: center;
+}
+
+section#displayView {
+    text-align: center;
+}
+
+section#displayView div {
+    text-align: center;
+    margin: auto;
+}
+
+#stateLabel {
+    font-size: 14px;
+}
+
+.video-container {
+    width: 640px;
+}
+
+.video-container video {
+    width: 100%;
+    height: 100%;
 }

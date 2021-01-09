@@ -26,20 +26,22 @@
 
 'use strict';
 
+const startCubeButton = document.querySelector('button#start');
+const stopCubeButton = document.querySelector('button#stop');
+const stateLabel = document.querySelector('div#stateLabel');
+
+startCubeButton.onclick = startCube;
+stopCubeButton.onclick = stopCube;
 
 // 获取 Cube 实例
 const cube = window.cube();
 
 function startCube() {
-    if (contactIdInput.value.length < 3) {
-        stateLabel.innerHTML = '<span class="warning">请输入账号 ID</span>';
-        return;
-    }
-
     let config = {
         "address": "127.0.0.1",
         "domain": "shixincube.com",
-        "appKey": "shixin-cubeteam-opensource-appkey"
+        "appKey": "shixin-cubeteam-opensource-appkey",
+        "unconnected": true
     };
     // 获取 Cube 实例，并启动
     cube.start(config, function() {
@@ -47,15 +49,6 @@ function startCube() {
 
         startCubeButton.setAttribute('disabled', 'disabled');
         stopCubeButton.removeAttribute('disabled');
-        contactIdInput.setAttribute('readonly', 'readonly');
-        contactNameInput.setAttribute('readonly', 'readonly');
-
-        if (contactNameInput.value.length == 0) {
-            contactNameInput.value = '时信魔方-' + contactIdInput.value;
-        }
-
-        // 签入账号
-        cube.signIn(contactIdInput.value, contactNameInput.value);
     }, function() {
         stateLabel.innerHTML = '启动 Cube 失败';
     });
@@ -66,7 +59,5 @@ function stopCube() {
 
     startCubeButton.removeAttribute('disabled');
     stopCubeButton.setAttribute('disabled', 'disabled');
-    contactIdInput.removeAttribute('readonly');
-    contactNameInput.removeAttribute('readonly');
 }
 

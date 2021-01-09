@@ -38,6 +38,7 @@ import { AuthService } from "../auth/AuthService";
  * @property {string} address 管道服务器地址。
  * @property {string} domain 授权的指定域。
  * @property {string} appKey 当前应用申请到的 App Key 串。
+ * @property {boolean} unconnected 启动时不进行连接。
  * @property {boolean} pipelineReady 内核是否等待通道就绪再回调。
  */
 
@@ -135,22 +136,32 @@ export class Kernel {
 
         // 加载依赖文件成功后
         let loadCompleted = async (successful) => {
-            let list = this.pipelines.values();
-            for (let i = 0; i < list.length; ++i) {
-                let pl = list[i];
-                // 启动管道
-                pl.open();
-            }
-
-            if (config.pipelineReady !== undefined && config.pipelineReady) {
-                await this.waitPipelineReady(10000);
-            }
-
-            if (successful) {
-                handleSuccess();
+            if (undefined !== config.unconnected && config.unconnected) {
+                if (successful) {
+                    handleSuccess();
+                }
+                else {
+                    handleFailure(new KernelError('Load module deps failed'));
+                }
             }
             else {
-                handleFailure(new KernelError('Load module deps failed'));
+                let list = this.pipelines.values();
+                for (let i = 0; i < list.length; ++i) {
+                    let pl = list[i];
+                    // 启动管道
+                    pl.open();
+                }
+    
+                if (config.pipelineReady !== undefined && config.pipelineReady) {
+                    await this.waitPipelineReady(10000);
+                }
+    
+                if (successful) {
+                    handleSuccess();
+                }
+                else {
+                    handleFailure(new KernelError('Load module deps failed'));
+                }
             }
         };
 

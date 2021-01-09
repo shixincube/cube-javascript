@@ -50,33 +50,19 @@
         <p>该示例演示如何在视频画面里使用人脸检测并判断人脸是否被手遮挡了。</p>
     </section>
 
-    <section id="contactSetting">
-        <h2>账号设置</h2>
-        <div>
-            <label for="contactId">账号ID：</label>
-            <input id="contactId">
-        </div>
-        <div>
-            <label for="contactName">账号显示名：</label>
-            <input id="contactName">
-        </div>
-
+    <section id="toolbar">
         <div>
             <button id="start">启动</button>
             <button id="stop" disabled>停止</button>
+            <button id="mask" disabled>显示遮罩</button>
         </div>
     </section>
 
     <section id="displayView">
-        <div class="video-container"></div>
-    </section>
-
-    <section id="infoView">
-
-    </section>
-
-    <section id="toolGroup">
-
+        <div class="video-container">
+            <video id="cameraVideo"></video>
+        </div>
+        <div id="stateLabel"></div>
     </section>
 
 </div>
