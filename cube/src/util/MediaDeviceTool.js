@@ -66,10 +66,35 @@ export class MediaDeviceTool {
         });
     }
 
-    static bindVideoStream(videoEl, stream) {
+    /**
+     * 
+     * @param {*} videoEl 
+     * @param {*} stream 
+     * @param {*} playCallback 
+     */
+    static bindVideoStream(videoEl, stream, playCallback) {
+        videoEl.addEventListener('play', playCallback);
         videoEl.setAttribute('autoplay', 'autoplay');
         videoEl.srcObject = stream;
     }
 
-    
+    /**
+     * 
+     * @param {*} stream 
+     * @param {*} videoEl 
+     */
+    static stopStream(stream, videoEl) {
+        if (videoEl) {
+            videoEl.pause();
+        }
+
+        let tracks = [];
+        stream.getTracks().forEach((track) => {
+            track.stop();
+            tracks.push(track);
+        });
+        for (let i = 0; i < tracks.length; ++i) {
+            stream.removeTrack(tracks[i]);
+        }
+    }
 }

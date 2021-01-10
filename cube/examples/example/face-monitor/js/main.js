@@ -36,6 +36,8 @@ deviceSelect.onchange = selectDevice;
 startCubeButton.onclick = start;
 stopCubeButton.onclick = stop;
 
+var videoStream = null;
+
 const videoDevices = {};
 
 // 获取 Cube 实例
@@ -94,6 +96,7 @@ function start() {
             groupId: videoDevice.getGroupId()
         }
     }, function(stream) {
+        videoStream = stream;
         MediaDeviceTool.bindVideoStream(cameraVideo, stream);
     }, function(error) {
 
@@ -105,6 +108,8 @@ function stop() {
 
     startCubeButton.removeAttribute('disabled');
     stopCubeButton.setAttribute('disabled', 'disabled');
+
+    MediaDeviceTool.stopStream(videoStream, cameraVideo);
 }
 
 window.onload = checkDevice;
