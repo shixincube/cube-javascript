@@ -192,9 +192,13 @@ section:last-of-type {
 }
 
 select {
-    margin: 0 1em 1em 0;
     position: relative;
+    font-size: 0.8em;
+    padding: 0.2em 0.1em 0.4em 0;
+    /*
     top: -1px;
+    margin: 0 1em 1em 0;
+    */
 }
 
 h1 span {

@@ -26,6 +26,7 @@
 
 'use strict';
 
+const deviceSelect = document.querySelector('select#deviceList');
 const startCubeButton = document.querySelector('button#start');
 const stopCubeButton = document.querySelector('button#stop');
 const stateLabel = document.querySelector('div#stateLabel');
@@ -35,6 +36,11 @@ stopCubeButton.onclick = stopCube;
 
 // 获取 Cube 实例
 const cube = window.cube();
+
+
+function checkDevice() {
+    //deviceSelect
+}
 
 function startCube() {
     let config = {
@@ -61,3 +67,4 @@ function stopCube() {
     stopCubeButton.setAttribute('disabled', 'disabled');
 }
 
+window.onload = checkDevice;

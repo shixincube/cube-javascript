@@ -29,6 +29,8 @@ import { Subject } from "./core/Subject";
 import { Observer } from "./core/Observer";
 import { ObservableEvent } from "./core/ObservableEvent";
 import { JSONable } from "./util/JSONable";
+import { MediaDeviceTool } from "./util/MediaDeviceTool";
+import { MediaDeviceDescription } from "./util/MediaDeviceDescription";
 import { Entity } from "./core/Entity";
 import { CubeEngine } from "./engine/CubeEngine";
 import { CubeShortcut } from "./engine/CubeShortcut";
@@ -83,6 +85,8 @@ import { Announcer } from "./util/Announcer";
 
     global.JSONable = JSONable;
     global.Entity = Entity;
+    global.MediaDeviceTool = MediaDeviceTool;
+    global.MediaDeviceDescription = MediaDeviceDescription;
 
     global.CubeEngine = CubeEngine;
     global.Kernel = Kernel;

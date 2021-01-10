@@ -52,6 +52,11 @@
 
     <section id="toolbar">
         <div>
+            <select id="deviceList">
+                <option>正在检测可用设备</option>
+            </select>
+        </div>
+        <div>
             <button id="start">启动</button>
             <button id="stop" disabled>停止</button>
             <button id="mask" disabled>显示遮罩</button>
@@ -62,7 +67,7 @@
         <div class="video-container">
             <video id="cameraVideo"></video>
         </div>
-        <div id="stateLabel"></div>
+        <div id="stateLabel">#</div>
     </section>
 
 </div>
