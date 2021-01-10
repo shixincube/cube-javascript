@@ -29,7 +29,56 @@
  */
 export class MediaDeviceDescription {
 
-    constructor() {
+    /**
+     * @param {string} deviceId 设备 ID 描述。
+     * @param {string} groupId 设备所在群组 ID 。
+     * @param {string} kind 设备类型。
+     * @param {string} label 设备的标签。
+     */
+    constructor(deviceId, groupId, kind, label) {
+        this.deviceId = deviceId;
+        this.groupId = groupId;
+        this.kind = kind;
+        this.label = label;
+    }
 
+    /**
+     * 返回设备 ID 描述。
+     * @returns {string} 返回设备 ID 描述。
+     */
+    getDeviceId() {
+        return this.deviceId;
+    }
+
+    /**
+     * 返回设备所在群组 ID 描述。
+     * @returns {string} 返回设备所在群组 ID 描述。
+     */
+    getGroupId() {
+        return this.groupId;
+    }
+
+    /**
+     * 返回设备标签名。
+     * @returns {string} 返回设备标签名。
+     */
+    getLabel() {
+        return this.label;
+    }
+
+    /**
+     * 返回是否是视频设备。
+     * @returns {boolean} 返回是否是视频设备。
+     */
+    isVideo() {
+        return this.kind.toLowerCase().startsWith('video');
+    }
+
+    /**
+     * 返回是否是音频设备。
+     * @returns {boolean} 返回是否是音频设备。
+     */
+    isAudio() {
+        return this.kind.toLowerCase().startsWith('audio');
     }
 }

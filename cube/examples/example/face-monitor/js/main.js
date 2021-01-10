@@ -29,20 +29,44 @@
 const deviceSelect = document.querySelector('select#deviceList');
 const startCubeButton = document.querySelector('button#start');
 const stopCubeButton = document.querySelector('button#stop');
+const cameraVideo = document.querySelector('video#cameraVideo');
 const stateLabel = document.querySelector('div#stateLabel');
 
-startCubeButton.onclick = startCube;
-stopCubeButton.onclick = stopCube;
+deviceSelect.onchange = selectDevice;
+startCubeButton.onclick = start;
+stopCubeButton.onclick = stop;
+
+const videoDevices = {};
 
 // 获取 Cube 实例
 const cube = window.cube();
 
 
 function checkDevice() {
-    //deviceSelect
+    MediaDeviceTool.enumDevices(function(devices) {
+        var html = [];
+        devices.forEach(function(desc) {
+            if (desc.isVideo()) {
+                videoDevices[desc.getDeviceId()] = desc;
+
+                var c = ['<option id="', desc.getDeviceId(), '">', desc.getLabel(), '</option>'];
+                html.push(c.join(''));
+            }
+        });
+        if (html.length > 0) {
+            deviceSelect.innerHTML = html.join('');
+        }
+        else {
+            deviceSelect.innerHTML = '<option>未检测到可用设备</option>';
+        }
+    });
 }
 
-function startCube() {
+function selectDevice(event) {
+    this.options[this.selectedIndex].innerHTML;
+}
+
+function start() {
     let config = {
         "address": "127.0.0.1",
         "domain": "shixincube.com",
@@ -58,9 +82,25 @@ function startCube() {
     }, function() {
         stateLabel.innerHTML = '启动 Cube 失败';
     });
+
+    var option = deviceSelect.options[deviceSelect.selectedIndex];
+    var videoDevice = videoDevices[option.getAttribute('id')];
+
+    MediaDeviceTool.getUserMedia({
+        video: {
+            width: { exact: 640 },
+            height: { exact: 480 },
+            deviceId: videoDevice.getDeviceId(),
+            groupId: videoDevice.getGroupId()
+        }
+    }, function(stream) {
+        MediaDeviceTool.bindVideoStream(cameraVideo, stream);
+    }, function(error) {
+
+    });
 }
 
-function stopCube() {
+function stop() {
     cube.stop();
 
     startCubeButton.removeAttribute('disabled');

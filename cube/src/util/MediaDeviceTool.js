@@ -35,23 +35,41 @@ export class MediaDeviceTool {
 
     }
 
-    static enumDevices() {
+    /**
+     * 枚举所有设备。
+     * @param {Array<MediaDeviceDescription>} callback 
+     */
+    static enumDevices(callback) {
+        let list = [];
         navigator.mediaDevices.enumerateDevices().then((devices) => {
             devices.forEach((device) => {
-
+                list.push(new MediaDeviceDescription(device.deviceId,
+                    device.groupId, device.kind, device.label));
             });
+            callback(list);
         }).catch((error) => {
-
+            callback(list);
         });
     }
 
-    static getUserMedia(constraints) {
-        return new Promise((resolve, reject) => {
-            navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
-                resolve(stream);
-            }).catch((error) => {
-                resolve(error);
-            });
+    /**
+     * 获取用户媒体设备流。
+     * @param {JSON} constraints 
+     * @param {function} successCallback 
+     * @param {function} failureCallback 
+     */
+    static getUserMedia(constraints, successCallback, failureCallback) {
+        navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+            successCallback(stream);
+        }).catch((error) => {
+            failureCallback(error);
         });
     }
+
+    static bindVideoStream(videoEl, stream) {
+        videoEl.setAttribute('autoplay', 'autoplay');
+        videoEl.srcObject = stream;
+    }
+
+    
 }
