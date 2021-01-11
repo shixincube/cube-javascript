@@ -32,7 +32,6 @@ const stopCubeButton = document.querySelector('button#stop');
 const cameraVideo = document.querySelector('video#cameraVideo');
 const stateLabel = document.querySelector('div#stateLabel');
 
-deviceSelect.onchange = selectDevice;
 startCubeButton.onclick = start;
 stopCubeButton.onclick = stop;
 
@@ -62,10 +61,6 @@ function checkDevice() {
             deviceSelect.innerHTML = '<option>未检测到可用设备</option>';
         }
     });
-}
-
-function selectDevice(event) {
-    this.options[this.selectedIndex].innerHTML;
 }
 
 function start() {
@@ -99,7 +94,7 @@ function start() {
         videoStream = stream;
         MediaDeviceTool.bindVideoStream(cameraVideo, stream);
     }, function(error) {
-
+        stateLabel.innerHTML = '获取视频数据失败 ' + error;
     });
 }
 
