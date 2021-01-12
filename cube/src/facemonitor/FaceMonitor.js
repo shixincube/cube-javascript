@@ -134,22 +134,12 @@ export class FaceMonitor extends Module {
         // }
     }
 
-    setVideoElement(video) {
+    setElements(container, video) {
+        this.containerEl = container;
         this.videoEl = video;
-
     }
 
-    /**
-     * @private
-     * @param {*} constraints 
-     * @param {*} handleSuccess 
-     * @param {*} handleError 
-     */
-    getUserMedia(constraints, handleSuccess, handleError) {
-        navigator.mediaDevices.getUserMedia(constraints)
-            .then(handleSuccess)
-            .catch(handleError);
-    }
+    
 
     activeCameraSource() {
         this.flipHorizontal = true;
