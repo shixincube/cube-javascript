@@ -24,6 +24,9 @@
  * SOFTWARE.
  */
 
+import cell from "@lib/cell-lib";
+import { MediaDeviceTool } from "../util/MediaDeviceTool";
+import { Announcer } from "../util/Announcer";
 import { Module } from "../core/Module";
 import { ObservableEvent } from "../core/ObservableEvent";
 
@@ -37,9 +40,12 @@ export class FaceMonitor extends Module {
     constructor() {
         super(FaceMonitor.NAME);
 
+        this.containerEl = null;
+        this.videoEl = null;
+
         this.width = 640;
         this.height = 480;
-        this.videoEl = null;
+
         this.canvasEl = null;
         this.drawCtx = null;
         this.stream = null;
@@ -67,25 +73,40 @@ export class FaceMonitor extends Module {
             return false;
         }
 
-        // 设置依赖的库文件
-        super.requireFile('https://static.shixincube.com/cube/javascript/libs/tfjs.js');
-        super.requireFile('https://static.shixincube.com/cube/javascript/libs/body-pix.js');
+        if (null == this.containerEl) {
+            return false;
+        }
 
-        let viewContainer = (typeof view === 'string') ? 
-            document.getElementById(view) : view;
+        let announcer = new Announcer(2, 10000);
+        announcer.addAudience((count, dataMap) => {
+
+        });
+
+        // 设置依赖的库文件
+        super.requireFile('https://static.shixincube.com/cube/javascript/libs/tfjs.js', () => {
+            announcer.announce('tfjs');
+        }, () => {
+
+        });
+
+        super.requireFile('https://static.shixincube.com/cube/javascript/libs/body-pix.js', () => {
+            announcer.announce('body-pix');
+        }, () => {
+
+        });
 
         if (null == this.videoEl) {
-            // this.width = width;
-            // this.height = height;
-
             this.videoEl = document.createElement('video');
             this.videoEl.setAttribute('autoplay', 'autoplay');
             this.videoEl.setAttribute('playsinline', 'playsinline');
             this.videoEl.style.position = 'absolute';
             this.videoEl.style.zIndex = -1;
             // Mirror the local sourceVideo
-            this.videoEl.style.transform = 'scale(-1, 1)';
-            this.videoEl.style.webkitTransform = 'scale(-1, 1)';
+            if (this.flipHorizontal) {
+                this.videoEl.style.transform = 'scale(-1, 1)';
+                this.videoEl.style.webkitTransform = 'scale(-1, 1)';
+            }
+
             this.videoEl.style.width = width + 'px';
             this.videoEl.style.height = height + 'px';
 
@@ -134,21 +155,22 @@ export class FaceMonitor extends Module {
         // }
     }
 
+    /**
+     * 设置界面元素。
+     * @param {HTMLElement} container 
+     * @param {HTMLElement} video 
+     */
     setElements(container, video) {
         this.containerEl = container;
         this.videoEl = video;
     }
 
-    
-
-    activeCameraSource() {
+    activeCameraSource(videoWidth, videoHeight) {
         this.flipHorizontal = true;
 
-        let videoWidth = this.width;
-        let videoHeight = this.height;
-
-        this.getUserMedia({video: {width: videoWidth, height: videoHeight}},
-            (stream) => {
+        MediaDeviceTool.getUserMedia({
+                video: { width: videoWidth, height: videoHeight }
+            }, (stream) => {
                 this.stream = stream;
                 this.videoEl.srcObject = stream;
             }, (error) => {
