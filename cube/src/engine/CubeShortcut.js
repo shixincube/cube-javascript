@@ -114,6 +114,14 @@ export class CubeShortcut {
     }
 
     /**
+     * 获取指定名称的模块。
+     * @param {string} moduleName 模块名。
+     */
+    getModule(moduleName) {
+        return this.engine.getModule(moduleName);
+    }
+
+    /**
      * 设置事件监听器。
      * @param {string} event 事件名。
      * 支持的事件：

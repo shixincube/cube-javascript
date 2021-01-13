@@ -29,6 +29,7 @@
 const deviceSelect = document.querySelector('select#deviceList');
 const startCubeButton = document.querySelector('button#start');
 const stopCubeButton = document.querySelector('button#stop');
+const videoContainer = document.querySelector('.video-container');
 const cameraVideo = document.querySelector('video#cameraVideo');
 const stateLabel = document.querySelector('div#stateLabel');
 
@@ -42,6 +43,10 @@ const videoDevices = {};
 // 获取 Cube 实例
 const cube = window.cube();
 
+// 获取 Face Monitor 模块
+const monitor = cube.getModule('FaceMonitor');
+
+monitor.on(FaceMonitorEvent.Ready, onReady);
 
 function checkDevice() {
     MediaDeviceTool.enumDevices(function(devices) {
@@ -64,6 +69,9 @@ function checkDevice() {
 }
 
 function start() {
+    // 设置界面元素
+    monitor.setup(videoContainer, cameraVideo);
+
     let config = {
         "address": "127.0.0.1",
         "domain": "shixincube.com",
@@ -73,6 +81,9 @@ function start() {
     // 获取 Cube 实例，并启动
     cube.start(config, function() {
         stateLabel.innerHTML = '启动 Cube 成功';
+
+        // 启动监视器模块
+        monitor.start();
 
         startCubeButton.setAttribute('disabled', 'disabled');
         stopCubeButton.removeAttribute('disabled');
@@ -86,7 +97,6 @@ function start() {
     MediaDeviceTool.getUserMedia({
         video: {
             width: { exact: 640 },
-            height: { exact: 480 },
             deviceId: videoDevice.getDeviceId(),
             groupId: videoDevice.getGroupId()
         }
@@ -105,6 +115,10 @@ function stop() {
     stopCubeButton.setAttribute('disabled', 'disabled');
 
     MediaDeviceTool.stopStream(videoStream, cameraVideo);
+}
+
+function onReady(event) {
+    
 }
 
 window.onload = checkDevice;

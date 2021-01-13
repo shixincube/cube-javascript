@@ -25,37 +25,13 @@
  */
 
 /**
- * 脸部监视器事件。
+ * 脸部监视器模块的状态定义。
  */
-export const FaceMonitorEvent = {
-    
-    /**
-     * 模块就绪，可以开始进行工作。
-     * @type {string}
-     */
-    Ready: 'Ready',
+export const FaceMonitorState = {
 
     /**
-     * 加载模型。
-     * @type {string}
+     * 加载库文件失败。
+     * @type {number}
      */
-    Load: 'Load',
-
-    /**
-     * 已加载模型。
-     * @type {string}
-     */
-    Loaded: 'Loaded',
-
-    /**
-     * 手部触碰/遮挡脸部。
-     * @type {string}
-     */
-    Touched: 'Touched',
-
-    /**
-     * 出现错误。
-     * @type {string}
-     */
-    Error: 'Error'
+    LoadLibFailed: 11
 }

@@ -28,7 +28,10 @@ import cell from "@lib/cell-lib";
 import { MediaDeviceTool } from "../util/MediaDeviceTool";
 import { Announcer } from "../util/Announcer";
 import { Module } from "../core/Module";
+import { ModuleError } from "../core/error/ModuleError";
 import { ObservableEvent } from "../core/ObservableEvent";
+import { FaceMonitorState } from "./FaceMonitorState";
+import { FaceMonitorEvent } from "./FaceMonitorEvent";
 
 /**
  * 人脸监视模块。
@@ -48,11 +51,13 @@ export class FaceMonitor extends Module {
 
         this.canvasEl = null;
         this.drawCtx = null;
+
         this.stream = null;
 
         // 对视频进行镜像
-        this.flipHorizontal = false;
+        this.flipHorizontal = true;
 
+        this.ready = false;
         this.isPlaying = false;
         this.gotMetadata = false;
 
@@ -79,65 +84,72 @@ export class FaceMonitor extends Module {
 
         let announcer = new Announcer(2, 10000);
         announcer.addAudience((count, dataMap) => {
+            if (count != 2) {
+                let error = new ModuleError(FaceMonitor.NAME, FaceMonitorState.LoadLibFailed, this);
+                this.notifyObservers(new ObservableEvent(FaceMonitorEvent.Error, error));
+                return;
+            }
 
-        });
+            /*if (null == this.videoEl) {
+                this.videoEl = document.createElement('video');
+                this.videoEl.setAttribute('autoplay', 'autoplay');
+                this.videoEl.setAttribute('playsinline', 'playsinline');
+                // this.videoEl.style.position = 'absolute';
+                // this.videoEl.style.zIndex = -1;
 
-        // 设置依赖的库文件
-        super.requireFile('https://static.shixincube.com/cube/javascript/libs/tfjs.js', () => {
-            announcer.announce('tfjs');
-        }, () => {
+                this.videoEl.style.width = '100%';
+                this.videoEl.style.height = '100%';
+                this.containerEl.appendChild(this.videoEl);
+            }*/
 
-        });
-
-        super.requireFile('https://static.shixincube.com/cube/javascript/libs/body-pix.js', () => {
-            announcer.announce('body-pix');
-        }, () => {
-
-        });
-
-        if (null == this.videoEl) {
-            this.videoEl = document.createElement('video');
-            this.videoEl.setAttribute('autoplay', 'autoplay');
-            this.videoEl.setAttribute('playsinline', 'playsinline');
-            this.videoEl.style.position = 'absolute';
-            this.videoEl.style.zIndex = -1;
             // Mirror the local sourceVideo
             if (this.flipHorizontal) {
                 this.videoEl.style.transform = 'scale(-1, 1)';
                 this.videoEl.style.webkitTransform = 'scale(-1, 1)';
             }
 
-            this.videoEl.style.width = width + 'px';
-            this.videoEl.style.height = height + 'px';
-
-            this.videoEl.onloadedmetadata = () => {
-                //console.log("video metadata ready");
-                this.gotMetadata = true;
-                if (this.isPlaying) {
-                    this.load();
-                }
-            };
-
-            this.videoEl.onplaying = () => {
-                //console.log("video playing");
-                this.isPlaying = true;
-                if (this.gotMetadata) {
-                    this.load();
-                }
-            };
-    
             this.canvasEl = document.createElement('canvas');
+            this.canvasEl.setAttribute('class', 'cube-facemonitor-canvas');
             this.canvasEl.style.position = 'absolute';
-            this.canvasEl.style.zIndex = 0;
+            this.canvasEl.style.float = 'left';
+            this.canvasEl.style.zIndex = 1;
             this.canvasEl.style.display = 'none';
-    
-            viewContainer.appendChild(this.videoEl);
-            viewContainer.appendChild(this.canvasEl);
-        }
+            this.canvasEl.style.width = 'auto';
+            this.canvasEl.style.height = 'auto';
+            this.canvasEl.style.background = 'unset';
+            this.canvasEl.style.maxWidth = 'unset';
+
+            this.containerEl.appendChild(this.canvasEl);
+
+            this.ready = true;
+
+            this.notifyObservers(new ObservableEvent(FaceMonitorEvent.Ready, this));
+
+            if (this.gotMetadata && this.isPlaying) {
+                this.launch();
+            }
+        });
+
+        // 请求依赖的库文件
+        super.requireFile('https://static.shixincube.com/cube/javascript/libs/tfjs.js', (url) => {
+            announcer.announce('tfjs');
+        }, (url) => {
+            cell.Logger.w('FaceMonitor', 'Load "tfjs" failed');
+        });
+
+        // 请求依赖的库文件
+        super.requireFile('https://static.shixincube.com/cube/javascript/libs/body-pix.js', (url) => {
+            announcer.announce('body-pix');
+        }, (url) => {
+            cell.Logger.w('FaceMonitor', 'Load "body-pix" failed');
+        });
 
         return true;
     }
 
+    /**
+     * @inheritdoc
+     */
     stop() {
         super.stop();
 
@@ -160,24 +172,62 @@ export class FaceMonitor extends Module {
      * @param {HTMLElement} container 
      * @param {HTMLElement} video 
      */
-    setElements(container, video) {
+    setup(container, video) {
         this.containerEl = container;
         this.videoEl = video;
+
+        this.videoEl.addEventListener('loadedmetadata', () => {
+            cell.Logger.d('FaceMonitor', 'video metadata ready');
+
+            this.width = parseInt(this.videoEl.videoWidth);
+            this.height = parseInt(this.videoEl.videoHeight);
+
+            this.gotMetadata = true;
+            if (this.ready && this.isPlaying) {
+                this.launch();
+            }
+        });
+
+        this.videoEl.addEventListener('playing', () => {
+            cell.Logger.d('FaceMonitor', 'video playing');
+
+            this.isPlaying = true;
+            if (this.ready && this.gotMetadata) {
+                this.launch();
+            }
+        });
     }
 
+    /**
+     * @private
+     * @param {*} videoWidth 
+     * @param {*} videoHeight 
+     */
     activeCameraSource(videoWidth, videoHeight) {
+        if (null == this.canvasEl) {
+            return false;
+        }
+
         this.flipHorizontal = true;
 
+        let video = (undefined === videoHeight) ? { width: parseInt(videoWidth) } :
+                    { width: parseInt(videoWidth), height: parseInt(videoHeight) };
+
         MediaDeviceTool.getUserMedia({
-                video: { width: videoWidth, height: videoHeight }
+                video: video
             }, (stream) => {
                 this.stream = stream;
                 this.videoEl.srcObject = stream;
             }, (error) => {
 
             });
+
+        return true;
     }
 
+    /**
+     * @private
+     */
     deactiveCameraSource() {
         this.videoEl.pause();
 
@@ -195,8 +245,8 @@ export class FaceMonitor extends Module {
      * @param {*} multiplier 
      * @param {*} stride 
      */
-    load(multiplier = 0.75, stride = 16) {
-        this.canvasEl.style.display = 'block';
+    launch(multiplier = 0.75, stride = 16) {
+        this.canvasEl.style.display = 'inline-block';
         this.drawCtx = this.canvasEl.getContext('2d');
 
         this.videoEl.width = this.videoEl.videoWidth;
@@ -205,11 +255,12 @@ export class FaceMonitor extends Module {
         // 画布覆盖于视频内容之上，用于绘制显示内容
         this.canvasEl.width = this.videoEl.videoWidth;
         this.canvasEl.height = this.videoEl.videoHeight;
+        this.canvasEl.style.left = this.videoEl.offsetLeft + 'px';
 
-        console.log(`Loading BodyPix with multiplier ${multiplier} and stride ${stride}`);
+        cell.Logger.i('FaceMonitor', `Loading BodyPix with multiplier ${multiplier} and stride ${stride}`);
 
         let that = this;
-        let modelUrl = 'models/model-stride16.json';
+        let modelUrl = 'https://static.shixincube.com/cube/javascript/models/model-stride16.json';
 
         this.loadTimestamp = Date.now();
 
@@ -222,14 +273,14 @@ export class FaceMonitor extends Module {
         .catch(err => console.error(err));
 
         // 通知状态
-        let state = new ObservableEvent('load', {
+        let event = new ObservableEvent(FaceMonitorEvent.Load, {
             width: that.width,
             height: that.height,
             multiplier: multiplier,
             stride: stride,
             quantBytes: 4
         });
-        this.notifyObservers(state);
+        this.notifyObservers(event);
     }
 
     /**
@@ -317,17 +368,9 @@ export class FaceMonitor extends Module {
      * @protected
      * @param {object} data 
      */
-    triggerEvent(data) {
-        let state = new ObservableEvent('touched', data);
-        this.notifyObservers(state);
-    }
-
-    /**
-     * @private
-     * @param {*} touched 
-     */
-    _updateStats(touched) {
-
+    triggerTouchedEvent(data) {
+        let event = new ObservableEvent(FaceMonitorEvent.Touched, data);
+        this.notifyObservers(event);
     }
 
     /**
@@ -407,11 +450,11 @@ async function _fm_predictLoop(fm, net) {
 
     // 通知状态
     let elapsed = Date.now() - fm.loadTimestamp;
-    let state = new ObservableEvent('loaded', {
+    let event = new ObservableEvent(FaceMonitorEvent.Loaded, {
         resetDelay: resetDelay,
         elapsed: elapsed
     });
-    fm.notifyObservers(state);
+    fm.notifyObservers(event);
 
     while (fm.isPlaying && !fm.stopPrediction) {
 
@@ -492,7 +535,7 @@ async function _fm_predictLoop(fm, net) {
                 lastFaceArray = faceArray;
             }
 
-            fm._updateStats(touched);
+            // fm._updateStats(touched);
 
             // 判断是否可以触发 touch
             if (score > facePixels * touchThreshold) {
@@ -503,7 +546,7 @@ async function _fm_predictLoop(fm, net) {
                     // 更新状态
                     touched = true;
 
-                    fm.triggerEvent({
+                    fm.triggerTouchedEvent({
                         touched: touched,
                         numPixels: numPixels,
                         facePixels: facePixels,
@@ -512,9 +555,13 @@ async function _fm_predictLoop(fm, net) {
                         touch: (score / facePixels)
                     });
 
+                    if (resetTouchedTimer > 0) {
+                        clearTimeout(resetTouchedTimer);
+                    }
+
                     resetTouchedTimer = setTimeout(() => {
                         touched = false;
-                        fm.triggerEvent({
+                        fm.triggerTouchedEvent({
                             touched: touched
                         });
                     }, resetDelay * 1000);
@@ -525,7 +572,7 @@ async function _fm_predictLoop(fm, net) {
                     }
                     resetTouchedTimer = setTimeout(() => {
                         touched = false;
-                        fm.triggerEvent({
+                        fm.triggerTouchedEvent({
                             touched: touched
                         });
                     }, resetDelay * 1000);

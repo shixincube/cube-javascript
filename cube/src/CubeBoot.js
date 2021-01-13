@@ -71,6 +71,8 @@ import { CallEvent } from "./multipointcomm/CallEvent";
 import { CallState } from "./multipointcomm/CallState";
 import { ConferenceService } from "./conference/ConferenceService";
 import { FaceMonitor } from "./facemonitor/FaceMonitor";
+import { FaceMonitorEvent } from "./facemonitor/FaceMonitorEvent";
+import { FaceMonitorState } from "./facemonitor/FaceMonitorState";
 import { Announcer } from "./util/Announcer";
 
 /**
@@ -135,6 +137,8 @@ import { Announcer } from "./util/Announcer";
     //global.ConferenceService = ConferenceService;
 
     global.FaceMonitor = FaceMonitor;
+    global.FaceMonitorEvent = FaceMonitorEvent;
+    global.FaceMonitorState = FaceMonitorState;
 
     global.Announcer = Announcer;
 
