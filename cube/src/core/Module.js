@@ -30,6 +30,7 @@ import { Kernel } from "./Kernel";
 import { Pipeline } from "./Pipeline";
 import { PluginSystem } from "./PluginSystem";
 import { AuthToken } from "../auth/AuthToken";
+import { OrderMap } from "../util/OrderMap";
 
 /**
  * 模块事件。
@@ -93,6 +94,20 @@ export class Module extends Subject {
         this.deps = [];
 
         /**
+         * 依赖库加载队列。
+         * @private
+         * @type {OrderMap}
+         */
+        this.depsLoadMap = new OrderMap();
+
+        /**
+         * 是否正在加载依赖文件。
+         * @private
+         * @type {boolean}
+         */
+        this.depsLoading = false;
+
+        /**
          * 消息插件系统。
          * @protected
          * @type {PluginSystem}
@@ -150,19 +165,59 @@ export class Module extends Subject {
 
         this.deps.push(fileOrURL);
 
+        this.depsLoadMap.put(fileOrURL, {
+            key: fileOrURL,
+            success: successCallback,
+            failure: failureCallback
+        });
+
         if (this.started) {
-            this.kernel.loadDepsJS(fileOrURL).then(() => {
-                cell.Logger.i(this.getName(), 'Load deps file: ' + fileOrURL);
-                if (undefined !== successCallback) {
-                    successCallback(fileOrURL);
-                }
-            }).catch(() => {
-                cell.Logger.w(this.getName(), 'Can NOT load deps file: ' + fileOrURL);
-                if (undefined !== failureCallback) {
-                    failureCallback(fileOrURL);
-                }
-            });
+            if (this.depsLoading) {
+                return;
+            }
+
+            this.depsLoading = true;
+
+            this._loadDepsByOrder();
         }
+    }
+
+    /**
+     * @private
+     * 按照顺序依次加载依赖文件。
+     */
+    _loadDepsByOrder() {
+        if (this.depsLoadMap.isEmpty()) {
+            this.depsLoading = false;
+            return;
+        }
+
+        let fileOrURL = this.depsLoadMap.keys()[0];
+        let value = this.depsLoadMap.remove(fileOrURL);
+        let successCallback = value.success;
+        let failureCallback = value.failure;
+
+        let next = () => {
+            this._loadDepsByOrder();
+        };
+
+        this.kernel.loadDepsJS(fileOrURL).then(() => {
+            cell.Logger.i(this.getName(), 'Load deps file: ' + fileOrURL);
+
+            if (undefined !== successCallback) {
+                successCallback(fileOrURL);
+            }
+
+            next();
+        }).catch(() => {
+            cell.Logger.w(this.getName(), 'Can NOT load deps file: ' + fileOrURL);
+
+            if (undefined !== failureCallback) {
+                failureCallback(fileOrURL);
+            }
+
+            next();
+        });
     }
 
     /**
@@ -205,6 +260,8 @@ export class Module extends Subject {
      */
     stop() {
         this.started = false;
+        this.depsLoading = false;
+        this.depsLoadMap.clear();
     }
 
     /**
