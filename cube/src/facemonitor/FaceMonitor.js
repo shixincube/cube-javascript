@@ -108,18 +108,19 @@ export class FaceMonitor extends Module {
                 this.videoEl.style.webkitTransform = 'scale(-1, 1)';
             }
 
-            this.canvasEl = document.createElement('canvas');
-            this.canvasEl.setAttribute('class', 'cube-facemonitor-canvas');
-            this.canvasEl.style.position = 'absolute';
-            this.canvasEl.style.float = 'left';
-            this.canvasEl.style.zIndex = 1;
-            this.canvasEl.style.display = 'none';
-            this.canvasEl.style.width = 'auto';
-            this.canvasEl.style.height = 'auto';
-            this.canvasEl.style.background = 'unset';
-            this.canvasEl.style.maxWidth = 'unset';
-
-            this.containerEl.appendChild(this.canvasEl);
+            if (null == this.canvasEl) {
+                this.canvasEl = document.createElement('canvas');
+                this.canvasEl.setAttribute('class', 'cube-facemonitor-canvas');
+                this.canvasEl.style.position = 'absolute';
+                this.canvasEl.style.float = 'left';
+                this.canvasEl.style.zIndex = 1;
+                this.canvasEl.style.display = 'none';
+                this.canvasEl.style.width = 'auto';
+                this.canvasEl.style.height = 'auto';
+                this.canvasEl.style.background = 'unset';
+                this.canvasEl.style.maxWidth = 'unset';
+                this.containerEl.appendChild(this.canvasEl);
+            }
 
             this.ready = true;
 
@@ -285,7 +286,7 @@ export class FaceMonitor extends Module {
 
     /**
      * @private
-     * @param {*} personSegmentation 
+     * @param {object} personSegmentation 
      */
     draw(personSegmentation) {
         // 使用 bodyPix 的绘制 API
@@ -407,13 +408,13 @@ export class FaceMonitor extends Module {
      * @param {*} rowLength 
      */
     _arrayToMatrix(arr, rowLength) {
-        let newArray = [];
-
         // Check
         if (arr.length % rowLength > 0 || rowLength < 1) {
             console.log("array not divisible by rowLength ", arr, rowLength);
             return null;
         }
+
+        let newArray = [];
 
         let rows = arr.length / rowLength;
         for (let x = 0; x < rows; x++) {

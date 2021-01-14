@@ -35,6 +35,7 @@ const stateLabel = document.querySelector('div#stateLabel');
 
 startCubeButton.onclick = start;
 stopCubeButton.onclick = stop;
+stopCubeButton.setAttribute('disabled', 'disabled');
 
 var videoStream = null;
 
@@ -47,6 +48,8 @@ const cube = window.cube();
 const monitor = cube.getModule('FaceMonitor');
 
 monitor.on(FaceMonitorEvent.Ready, onReady);
+monitor.on(FaceMonitorEvent.Load, onLoad);
+monitor.on(FaceMonitorEvent.Loaded, onLoaded);
 
 function checkDevice() {
     MediaDeviceTool.enumDevices(function(devices) {
@@ -118,7 +121,15 @@ function stop() {
 }
 
 function onReady(event) {
-    
+    console.log('Monitor ready');
+}
+
+function onLoad(event) {
+    console.log('Monitor load');
+}
+
+function onLoaded(event) {
+    console.log('Monitor loaded');
 }
 
 window.onload = checkDevice;
