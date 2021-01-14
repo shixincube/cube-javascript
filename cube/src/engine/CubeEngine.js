@@ -69,13 +69,13 @@ export class CubeEngine {
      */
     start(config, handleSuccess, handleFailure) {
         let success = handleSuccess || function() {};
-        let error = handleFailure || function() {};
+        let failure = handleFailure || function() {};
 
         // 启动内核
         this.kernel.startup(config, () => {
             success(this);
         }, (e) => {
-            error(e);
+            failure(e);
         });
     }
 

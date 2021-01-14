@@ -75,6 +75,14 @@ function start() {
     // 设置界面元素
     monitor.setup(videoContainer, cameraVideo);
 
+    var option = deviceSelect.options[deviceSelect.selectedIndex];
+    var videoDevice = videoDevices[option.getAttribute('id')];
+
+    if (undefined === videoDevice) {
+        alert('没有检测到摄像头设备');
+        return;
+    }
+
     let config = {
         "address": "127.0.0.1",
         "domain": "shixincube.com",
@@ -93,9 +101,6 @@ function start() {
     }, function() {
         stateLabel.innerHTML = '启动 Cube 失败';
     });
-
-    var option = deviceSelect.options[deviceSelect.selectedIndex];
-    var videoDevice = videoDevices[option.getAttribute('id')];
 
     MediaDeviceTool.getUserMedia({
         video: {
