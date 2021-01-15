@@ -51,11 +51,16 @@ div#stateLight {
 }
 
 .lightTip {
-    display: inline;
-    font-size: 12px;
+    display: inline-block;
+    font-size: 11px;
     font-style: italic;
-    vertical-align: middle;
+    text-align: left;
+    vertical-align: top !important;
     margin-left: 8px;
+}
+.lightTip p {
+    padding: 0;
+    margin: 1px 0px 1px 0px;
 }
 
 section#displayView {
