@@ -24,44 +24,48 @@
  * SOFTWARE.
  */
 
-section#toolbar {
-    text-align: center;
-}
+/**
+ * 接触记录。
+ */
+export class TouchedRecord {
 
-section#toolbar div {
-    display: inline-block;
-    margin-right: 2em;
-    text-align: center;
-}
+    /**
+     * @param {boolean} touched 
+     * @param {number} numPixels 
+     * @param {number} facePixels 
+     * @param {number} score 
+     * @param {number} touchScore 
+     * @param {number} touch 
+     */
+    constructor(touched, numPixels, facePixels, score, touchScore, touch) {
+        /**
+         * @type {boolean}
+         */
+        this.touched = touched;
 
-section#displayView {
-    text-align: center;
-}
+        /**
+         * @type {number}
+         */
+        this.numPixels = numPixels;
 
-section#displayView div {
-    text-align: center;
-    margin: auto;
-}
+        /**
+         * @type {number}
+         */
+        this.facePixels = facePixels;
 
-#logLabel {
-    width: 640px;
-    height: 132px;
-    font-size: 14px;
-    text-align: left !important;
-    font-family: 'Courier New', Courier, monospace;
-    overflow: auto;
-    border-top: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-}
-#logLabel p {
-    margin: 0px 0px 2px 0px;
-}
+        /**
+         * @type {number}
+         */
+        this.score = score;
 
-.video-container {
-    width: 640px;
-}
+        /**
+         * @type {number}
+         */
+        this.touchScore = touchScore;
 
-.video-container video {
-    width: 100%;
-    height: 100%;
+        /**
+         * @type {number}
+         */
+        this.touch = touch;
+    }
 }

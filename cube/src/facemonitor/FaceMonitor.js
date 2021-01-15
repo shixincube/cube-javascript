@@ -32,6 +32,7 @@ import { ModuleError } from "../core/error/ModuleError";
 import { ObservableEvent } from "../core/ObservableEvent";
 import { FaceMonitorState } from "./FaceMonitorState";
 import { FaceMonitorEvent } from "./FaceMonitorEvent";
+import { TouchedRecord } from "./TouchedRecord";
 
 /**
  * 人脸监视模块。
@@ -367,10 +368,10 @@ export class FaceMonitor extends Module {
 
     /**
      * @protected
-     * @param {object} data 
+     * @param {TouchedRecord} record 
      */
-    triggerTouchedEvent(data) {
-        let event = new ObservableEvent(FaceMonitorEvent.Touched, data);
+    triggerTouchedEvent(record) {
+        let event = new ObservableEvent(FaceMonitorEvent.Touched, record);
         this.notifyObservers(event);
     }
 
@@ -378,9 +379,9 @@ export class FaceMonitor extends Module {
      * 检查此像素的上方，下方，左侧或右侧是否有脸部像素。
      * 
      * @private
-     * @param {*} matrix1 
-     * @param {*} matrix2 
-     * @param {*} padding 
+     * @param {object} matrix1 
+     * @param {object} matrix2 
+     * @param {number} padding 
      */
     _touchingCheck(matrix1, matrix2, padding) {
         let count = 0;
@@ -541,20 +542,14 @@ async function _fm_predictLoop(fm, net) {
             // 判断是否可以触发 touch
             if (score > facePixels * touchThreshold) {
                 if (!touched) {
-                    console.info(` numPixels: ${numPixels} \n facePixels: ${facePixels}\n score: ${score}, touchScore: ${touchScore}\n` +
-                    ` facePixels%: ${facePixels / numPixels}\n touch%: ${score / facePixels}`);
+                    // console.info(` numPixels: ${numPixels} \n facePixels: ${facePixels}\n score: ${score}, touchScore: ${touchScore}\n` +
+                    //     ` facePixels%: ${facePixels / numPixels}\n touch%: ${score / facePixels}`);
 
                     // 更新状态
                     touched = true;
 
-                    fm.triggerTouchedEvent({
-                        touched: touched,
-                        numPixels: numPixels,
-                        facePixels: facePixels,
-                        score: score,
-                        touchScore: touchScore,
-                        touch: (score / facePixels)
-                    });
+                    fm.triggerTouchedEvent(new TouchedRecord(
+                        touched, numPixels, facePixels, score, touchScore, (score / facePixels)));
 
                     if (resetTouchedTimer > 0) {
                         clearTimeout(resetTouchedTimer);
@@ -562,9 +557,8 @@ async function _fm_predictLoop(fm, net) {
 
                     resetTouchedTimer = setTimeout(() => {
                         touched = false;
-                        fm.triggerTouchedEvent({
-                            touched: touched
-                        });
+                        fm.triggerTouchedEvent(new TouchedRecord(
+                            touched, numPixels, facePixels, score, touchScore, (score / facePixels)));
                     }, resetDelay * 1000);
                 }
                 else {
@@ -573,9 +567,8 @@ async function _fm_predictLoop(fm, net) {
                     }
                     resetTouchedTimer = setTimeout(() => {
                         touched = false;
-                        fm.triggerTouchedEvent({
-                            touched: touched
-                        });
+                        fm.triggerTouchedEvent(new TouchedRecord(
+                            touched, numPixels, facePixels, score, touchScore, (score / facePixels)));
                     }, resetDelay * 1000);
                 }
             }

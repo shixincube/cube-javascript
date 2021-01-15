@@ -31,7 +31,8 @@ const startCubeButton = document.querySelector('button#start');
 const stopCubeButton = document.querySelector('button#stop');
 const videoContainer = document.querySelector('.video-container');
 const cameraVideo = document.querySelector('video#cameraVideo');
-const stateLabel = document.querySelector('div#stateLabel');
+const logLabel = document.querySelector('div#logLabel');
+var logLines= 0;
 
 startCubeButton.onclick = start;
 stopCubeButton.onclick = stop;
@@ -91,7 +92,7 @@ function start() {
     };
     // 获取 Cube 实例，并启动
     cube.start(config, function() {
-        stateLabel.innerHTML = '启动 Cube 成功';
+        appendLog('启动 Cube 成功');
 
         // 启动监视器模块
         monitor.start();
@@ -99,7 +100,7 @@ function start() {
         startCubeButton.setAttribute('disabled', 'disabled');
         stopCubeButton.removeAttribute('disabled');
     }, function() {
-        stateLabel.innerHTML = '启动 Cube 失败';
+        appendLog('启动 Cube 失败');
     });
 
     MediaDeviceTool.getUserMedia({
@@ -112,7 +113,7 @@ function start() {
         videoStream = stream;
         MediaDeviceTool.bindVideoStream(cameraVideo, stream);
     }, function(error) {
-        stateLabel.innerHTML = '获取视频数据失败 ' + error;
+        appendLog('获取视频数据失败 ' + error);
     });
 }
 
@@ -125,6 +126,23 @@ function stop() {
     MediaDeviceTool.stopStream(videoStream, cameraVideo);
 }
 
+function appendLog(text) {
+    var p = document.createElement('p');
+    p.innerHTML = text;
+    logLabel.appendChild(p);
+    ++logLines;
+
+    // 控制日志行数
+    if (logLines > 100) {
+        var first = logLabel.children[0];
+        logLabel.removeChild(first);
+        --logLines;
+    }
+
+    var offset = parseInt(logLabel.scrollHeight);
+    logLabel.scrollTop = offset;
+}
+
 function onReady(event) {
     console.log('Monitor ready');
 }
@@ -134,7 +152,7 @@ function onLoad(event) {
 }
 
 function onLoaded(event) {
-    console.log('Monitor loaded');
+    console.log('Monitor data loaded');
 }
 
 window.onload = checkDevice;
