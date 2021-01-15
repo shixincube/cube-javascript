@@ -35,9 +35,8 @@ export class TouchedRecord {
      * @param {number} facePixels 
      * @param {number} score 
      * @param {number} touchScore 
-     * @param {number} touch 
      */
-    constructor(touched, numPixels, facePixels, score, touchScore, touch) {
+    constructor(touched, numPixels, facePixels, score, touchScore) {
         /**
          * @type {boolean}
          */
@@ -66,6 +65,11 @@ export class TouchedRecord {
         /**
          * @type {number}
          */
-        this.touch = touch;
+        this.touch = score / facePixels;
+    }
+
+    toString() {
+        return `Face Pixels %: ${this.facePixels / this.numPixels}, Score: ${this.score}, TouchScore: ${this.touchScore}, ` +
+                `Touch %: ${this.touch}`;
     }
 }

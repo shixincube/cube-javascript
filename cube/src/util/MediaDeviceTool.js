@@ -67,21 +67,23 @@ export class MediaDeviceTool {
     }
 
     /**
-     * 
-     * @param {*} videoEl 
-     * @param {*} stream 
-     * @param {*} playCallback 
+     * 将视频标签和流进行绑定。
+     * @param {HTMLElement} videoEl 
+     * @param {MediaStream} stream 
+     * @param {function} playCallback 
      */
     static bindVideoStream(videoEl, stream, playCallback) {
-        videoEl.addEventListener('play', playCallback);
+        if (playCallback) {
+            videoEl.addEventListener('play', playCallback);
+        }
         videoEl.setAttribute('autoplay', 'autoplay');
         videoEl.srcObject = stream;
     }
 
     /**
-     * 
-     * @param {*} stream 
-     * @param {*} videoEl 
+     * 停止视频流。
+     * @param {MediaStream} stream 
+     * @param {HTMLElement} videoEl 
      */
     static stopStream(stream, videoEl) {
         if (videoEl) {

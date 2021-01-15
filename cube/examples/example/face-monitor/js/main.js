@@ -27,16 +27,24 @@
 'use strict';
 
 const deviceSelect = document.querySelector('select#deviceList');
-const startCubeButton = document.querySelector('button#start');
-const stopCubeButton = document.querySelector('button#stop');
+const startButton = document.querySelector('button#start');
+const stopButton = document.querySelector('button#stop');
+const maskButton = document.querySelector('button#mask');
+const stateLight = document.querySelector('div#stateLight');
 const videoContainer = document.querySelector('.video-container');
 const cameraVideo = document.querySelector('video#cameraVideo');
 const logLabel = document.querySelector('div#logLabel');
+
+// 当前界面里显示的日志行数
 var logLines= 0;
 
-startCubeButton.onclick = start;
-stopCubeButton.onclick = stop;
-stopCubeButton.setAttribute('disabled', 'disabled');
+startButton.onclick = start;
+stopButton.onclick = stop;
+maskButton.onclick = switchMask;
+
+stopButton.setAttribute('disabled', 'disabled');
+maskButton.setAttribute('disabled', 'disabled');
+stateLight.style.backgroundColor = '#058B00';
 
 var videoStream = null;
 
@@ -51,6 +59,7 @@ const monitor = cube.getModule('FaceMonitor');
 monitor.on(FaceMonitorEvent.Ready, onReady);
 monitor.on(FaceMonitorEvent.Load, onLoad);
 monitor.on(FaceMonitorEvent.Loaded, onLoaded);
+monitor.on(FaceMonitorEvent.Touched, onTouched);
 
 function checkDevice() {
     MediaDeviceTool.enumDevices(function(devices) {
@@ -97,8 +106,9 @@ function start() {
         // 启动监视器模块
         monitor.start();
 
-        startCubeButton.setAttribute('disabled', 'disabled');
-        stopCubeButton.removeAttribute('disabled');
+        startButton.setAttribute('disabled', 'disabled');
+        stopButton.removeAttribute('disabled');
+        maskButton.removeAttribute('disabled');
     }, function() {
         appendLog('启动 Cube 失败');
     });
@@ -120,15 +130,28 @@ function start() {
 function stop() {
     cube.stop();
 
-    startCubeButton.removeAttribute('disabled');
-    stopCubeButton.setAttribute('disabled', 'disabled');
+    startButton.removeAttribute('disabled');
+    stopButton.setAttribute('disabled', 'disabled');
+    maskButton.setAttribute('disabled', 'disabled');
+    stateLight.style.backgroundColor = '#058B00';
 
     MediaDeviceTool.stopStream(videoStream, cameraVideo);
 }
 
+function switchMask() {
+    if (monitor.isMaskDisplayed()) {
+        maskButton.innerHTML = '显示遮罩';
+        monitor.hideMask();
+    }
+    else {
+        maskButton.innerHTML = '隐藏遮罩';
+        monitor.showMask();
+    }
+}
+
 function appendLog(text) {
     var p = document.createElement('p');
-    p.innerHTML = text;
+    p.innerHTML = '&gt; ' + text;
     logLabel.appendChild(p);
     ++logLines;
 
@@ -144,15 +167,27 @@ function appendLog(text) {
 }
 
 function onReady(event) {
-    console.log('Monitor ready');
+    appendLog('Face monitor is ready');
 }
 
 function onLoad(event) {
-    console.log('Monitor load');
+    appendLog('Face monitor load module');
 }
 
 function onLoaded(event) {
-    console.log('Monitor data loaded');
+    appendLog('Face monitor data loaded');
+}
+
+function onTouched(event) {
+    appendLog(event.data.toString());
+
+    // 如果手遮挡脸部则切换指示灯颜色
+    if (event.data.touched) {
+        stateLight.style.backgroundColor = '#D70022';
+    }
+    else {
+        stateLight.style.backgroundColor = '#058B00';
+    }
 }
 
 window.onload = checkDevice;

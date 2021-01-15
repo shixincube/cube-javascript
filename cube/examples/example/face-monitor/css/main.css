@@ -28,10 +28,34 @@ section#toolbar {
     text-align: center;
 }
 
-section#toolbar div {
+section#toolbar > div {
     display: inline-block;
     margin-right: 2em;
     text-align: center;
+    height: 33px;
+    vertical-align: bottom;
+}
+
+#deviceList {
+    top: 4px;
+}
+
+div#stateLight {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-top: 5px;
+    border-radius: 50%;
+    background-color: #058B00;
+    /* #D70022 */
+}
+
+.lightTip {
+    display: inline;
+    font-size: 12px;
+    font-style: italic;
+    vertical-align: middle;
+    margin-left: 8px;
 }
 
 section#displayView {
@@ -45,8 +69,8 @@ section#displayView div {
 
 #logLabel {
     width: 640px;
-    height: 132px;
-    font-size: 14px;
+    height: 138px;
+    font-size: 12px;
     text-align: left !important;
     font-family: 'Courier New', Courier, monospace;
     overflow: auto;

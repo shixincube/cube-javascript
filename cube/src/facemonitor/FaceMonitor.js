@@ -65,7 +65,7 @@ export class FaceMonitor extends Module {
         this.stopPrediction = true;
 
         // 是否显示 Mask
-        this.showMask = true;
+        this.maskDisplayed = true;
 
         this.updateFaceTimer = 0;
         this.loadTimestamp = 0;
@@ -238,14 +238,38 @@ export class FaceMonitor extends Module {
         }
     }
 
+    /**
+     * 显示遮罩。
+     */
+    showMask() {
+        this.maskDisplayed = true;
+    }
+
+    /**
+     * 隐藏遮罩。
+     */
+    hideMask() {
+        this.maskDisplayed = false;
+    }
+
+    /**
+     * 是否显示遮罩。
+     */
+    isMaskDisplayed() {
+        return this.maskDisplayed;
+    }
+
+    /**
+     * 
+     */
     pausePrediction() {
         //this.stopPrediction = true;
     }
 
     /**
      * @private
-     * @param {*} multiplier 
-     * @param {*} stride 
+     * @param {number} multiplier 
+     * @param {number} stride 
      */
     launch(multiplier = 0.75, stride = 16) {
         this.canvasEl.style.display = 'inline-block';
@@ -296,7 +320,7 @@ export class FaceMonitor extends Module {
         const drawCanvas = this.canvasEl;
         const drawCtx = this.drawCtx;
 
-        if (this.showMask) {
+        if (this.maskDisplayed) {
             let targetSegmentation = personSegmentation;
 
             // 绘制面部的遮罩，可用于调试
@@ -327,13 +351,13 @@ export class FaceMonitor extends Module {
         }
 
         // 清空绘制的遮罩
-        if (false == this.showMask) {
+        if (false == this.maskDisplayed) {
             // bodyPix.drawMask redraws the canvas.
             drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
         }
 
         // 从姿态检测数据中显示姿态标记的点
-        if (this.showMask) {
+        if (this.maskDisplayed) {
             personSegmentation.allPoses.forEach(pose => {
                 if (this.flipHorizontal) {
                     pose = bodyPix.flipPoseHorizontal(pose, personSegmentation.width);
@@ -405,8 +429,8 @@ export class FaceMonitor extends Module {
      * 辅助函数，将数组转为矩阵（二维数组），便于进行像素的检索
      * 
      * @private
-     * @param {*} arr 
-     * @param {*} rowLength 
+     * @param {Array} arr 
+     * @param {number} rowLength 
      */
     _arrayToMatrix(arr, rowLength) {
         // Check
@@ -549,7 +573,7 @@ async function _fm_predictLoop(fm, net) {
                     touched = true;
 
                     fm.triggerTouchedEvent(new TouchedRecord(
-                        touched, numPixels, facePixels, score, touchScore, (score / facePixels)));
+                        touched, numPixels, facePixels, score, touchScore));
 
                     if (resetTouchedTimer > 0) {
                         clearTimeout(resetTouchedTimer);
@@ -558,7 +582,7 @@ async function _fm_predictLoop(fm, net) {
                     resetTouchedTimer = setTimeout(() => {
                         touched = false;
                         fm.triggerTouchedEvent(new TouchedRecord(
-                            touched, numPixels, facePixels, score, touchScore, (score / facePixels)));
+                            touched, numPixels, facePixels, score, touchScore));
                     }, resetDelay * 1000);
                 }
                 else {
@@ -568,7 +592,7 @@ async function _fm_predictLoop(fm, net) {
                     resetTouchedTimer = setTimeout(() => {
                         touched = false;
                         fm.triggerTouchedEvent(new TouchedRecord(
-                            touched, numPixels, facePixels, score, touchScore, (score / facePixels)));
+                            touched, numPixels, facePixels, score, touchScore));
                     }, resetDelay * 1000);
                 }
             }

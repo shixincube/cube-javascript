@@ -59,15 +59,16 @@
         <div>
             <button id="start">启动</button>
             <button id="stop" disabled>停止</button>
-            <button id="mask" disabled>显示遮罩</button>
+            <button id="mask" disabled>隐藏遮罩</button>
         </div>
+        <div><div id="stateLight"></div><span class="lightTip">红色表示检测到脸部被手遮挡</span></div>
     </section>
 
     <section id="displayView">
         <div class="video-container">
             <video id="cameraVideo"></video>
         </div>
-        <div id="logLabel"><p>点击“启动”开始程序。</p></div>
+        <div id="logLabel"><p>&gt; 点击“启动”开始程序。</p></div>
     </section>
 
 </div>
