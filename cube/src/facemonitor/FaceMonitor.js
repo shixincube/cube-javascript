@@ -202,8 +202,8 @@ export class FaceMonitor extends Module {
 
     /**
      * @private
-     * @param {*} videoWidth 
-     * @param {*} videoHeight 
+     * @param {number} videoWidth 
+     * @param {number} videoHeight 
      */
     activeCameraSource(videoWidth, videoHeight) {
         if (null == this.canvasEl) {
@@ -560,8 +560,6 @@ async function _fm_predictLoop(fm, net) {
             if (updateFace) {
                 lastFaceArray = faceArray;
             }
-
-            // fm._updateStats(touched);
 
             // 判断是否可以触发 touch
             if (score > facePixels * touchThreshold) {
