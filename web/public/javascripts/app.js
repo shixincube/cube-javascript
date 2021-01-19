@@ -76,7 +76,7 @@
                 $.post('/account/hb', { "token": token }, function(response, status, xhr) {
                     var state = response.state;
                     if (state == 'offline') {
-                        window.location.href = 'cube.html?ts=' + Date.now();
+                        window.location.href = 'index.html?ts=' + Date.now();
                     }
                 }, 'json');
             }
@@ -145,7 +145,7 @@
          * 停止。
          */
         stop: function() {
-            window.location.href = 'cube.html?ts=' + Date.now();
+            window.location.href = 'index.html?ts=' + Date.now();
         },
 
         /**
@@ -165,7 +165,7 @@
                             // 回到登录界面，停止引擎
                             cube.stop();
 
-                            window.location.href = 'cube.html?ts=' + Date.now();
+                            window.location.href = 'index.html?ts=' + Date.now();
                         }, 'json');
                     };
 

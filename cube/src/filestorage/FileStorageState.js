@@ -54,6 +54,12 @@ export const FileStorageState = {
     UploadFailed: 102,
 
     /**
+     * 获取文件标签失败。
+     * @type {number}
+     */
+    GetFileLabelFailed: 105,
+
+    /**
      * 未知的状态。
      * @type {number}
      */

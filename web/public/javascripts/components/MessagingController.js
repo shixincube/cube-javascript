@@ -141,6 +141,7 @@
             message = new TextMessage(content);
         }
         else if (content instanceof File) {
+            
             message = new FileMessage(content);
         }
         else {

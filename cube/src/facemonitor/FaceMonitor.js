@@ -155,7 +155,9 @@ export class FaceMonitor extends Module {
     stop() {
         super.stop();
 
-        this.videoEl.pause();
+        if (null != this.videoEl) {
+            this.videoEl.pause();
+        }
 
         this.stopPrediction = true;
 

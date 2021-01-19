@@ -250,35 +250,49 @@ export class FileStorage extends Module {
      * @param {FileLabel|string} fileOrFileCode 文件标签或文件码。
      */
     downloadFile(fileOrFileCode) {
-        let fileLabel = (fileOrFileCode instanceof FileLabel) ? fileOrFileCode : this.fileLabels.get(fileOrFileCode);
-        let packet = new Packet('GET', null);
-        packet.responseType = 'blob';
+        let handle = (fileLabel) => {
+            let packet = new Packet('GET', null);
+            packet.responseType = 'blob';
 
-        // 事件通知
-        this.notifyObservers(new ObservableEvent(FileStorageEvent.Downloading, fileLabel));
+            // 事件通知
+            this.notifyObservers(new ObservableEvent(FileStorageEvent.Downloading, fileLabel));
 
-        let url = this.secure ? fileLabel.getFileSecureURL() : fileLabel.getFileURL();
-        this.filePipeline.send(url, packet, (pipeline, source, packet) => {
-            let blob = packet.data;
-            let reader = new FileReader();
-            reader.readAsDataURL(blob);
-            reader.onload = function(e) {
-                // 事件通知
-                this.notifyObservers(new ObservableEvent(FileStorageEvent.DownloadCompleted, fileLabel));
+            let url = this.secure ? fileLabel.getFileSecureURL() : fileLabel.getFileURL();
+            url += '&type=no';
+            this.filePipeline.send(url, packet, (pipeline, source, packet) => {
+                let blob = packet.data;
+                let reader = new FileReader();
+                reader.readAsDataURL(blob);
+                reader.onload = function(e) {
+                    // 事件通知
+                    this.notifyObservers(new ObservableEvent(FileStorageEvent.DownloadCompleted, fileLabel));
 
-                let a = document.createElement('a');
-                a.style.display = 'inline';
-                a.style.position = 'absolute';
-                a.style.cssFloat = 'left';
-                a.style.visibility = 'hidden';
-                a.download = fileLabel.getFileName();
-                a.href = e.target.result;
+                    let a = document.createElement('a');
+                    a.style.display = 'inline';
+                    a.style.position = 'absolute';
+                    a.style.cssFloat = 'left';
+                    a.style.visibility = 'hidden';
+                    a.download = fileLabel.getFileName();
+                    a.href = e.target.result;
 
-                document.body.appendChild(a);
-                a.click();
-                a.parentElement.removeChild(a);
-            }
-        });
+                    document.body.appendChild(a);
+                    a.click();
+                    a.parentElement.removeChild(a);
+                }
+            });
+        };
+
+        if (fileOrFileCode instanceof FileLabel) {
+            handle(fileOrFileCode);
+        }
+        else {
+            this.getFileLabel(fileOrFileCode, (fileLabel) => {
+                handle(fileLabel);
+            }, (fileCode) => {
+                let error = new ModuleError(FileStorage.NAME, FileStorageState.GetFileLabelFailed, fileCode);
+                this.notifyObservers(new ObservableEvent(FileStorageEvent.DownloadFailed, error));
+            });
+        }
     }
 
     /**

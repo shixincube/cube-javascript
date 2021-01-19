@@ -59,15 +59,16 @@ export class FileProcessor extends Module {
     }
 
     /**
-     * 
-     * @param {*} fileCode 
-     * @param {*} successCallback 
-     * @param {*} failureCallback 
+     * 检测图片内的物体。
+     * @param {string} fileCodeOOr 
+     * @param {function} successCallback 
+     * @param {function} failureCallback 
      */
     detectObject(fileCode, successCallback, failureCallback) {
         let packet = new Packet(FileProcessorAction.DetectObject, {
             domain: AuthService.DOMAIN,
-            fileCode: fileCode
+            fileCode: fileCode,
+            drawBoundingBox: false
         });
 
         

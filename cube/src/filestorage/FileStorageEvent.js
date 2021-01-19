@@ -60,6 +60,12 @@ export const FileStorageEvent = {
     DownloadCompleted: 'DownloadCompleted',
 
     /**
+     * 文件下载失败。
+     * @type {string}
+     */
+    DownloadFailed: 'DownloadFailed',
+
+    /**
      * 文件已更新。
      */
     FileUpdated: 'FileUpdated'
