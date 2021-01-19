@@ -25,15 +25,18 @@
  */
 
 import { AuthService } from "../auth/AuthService";
+import { ModuleError } from "../core/error/ModuleError";
 import { Module } from "../core/Module";
 import { Packet } from "../core/Packet";
 import { FileProcessorAction } from "./FileProcessorAction";
+import { FileProcessorState } from "./FileProcessorState";
+import { CVResult } from "./CVResult";
 
 /**
  * 文件处理器。
  */
 export class FileProcessor extends Module {
-    
+
     static NAME = 'FileProcessor';
 
     constructor() {
@@ -60,7 +63,7 @@ export class FileProcessor extends Module {
 
     /**
      * 检测图片内的物体。
-     * @param {string} fileCodeOOr 
+     * @param {string} fileCodeOrLabel
      * @param {function} successCallback 
      * @param {function} failureCallback 
      */
@@ -72,7 +75,15 @@ export class FileProcessor extends Module {
         });
 
         this.pipeline.send(FileProcessor.NAME, packet, (pipeline, source, response) => {
-            
+            if (null == response || response.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(FileProcessor.NAME, FileProcessorState.Failure, fileCode);
+                failureCallback(error);
+                return;
+            }
+
+            let res = packet.getPayload().data;
+            let cvResult = CVResult.create(res);
+            successCallback(cvResult);
         });
     }
 }
