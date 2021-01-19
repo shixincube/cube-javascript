@@ -42,6 +42,9 @@
 
     var cubeContacts = [];
 
+    var tabId = 'messaging';
+    var tabBtnId = 'tab_messaging';
+
     var sidebarAccountPanel = null;
 
     var messageCatalog = null;
@@ -72,6 +75,11 @@
             token = g.getQueryString('t');
             console.log('cube token: ' + token);
 
+            var tab = g.getQueryString('tab');
+            setTimeout(function() {
+                g.app.toggle(tab, 'tab_' + tab);
+            }, 100);
+
             function heartbeat() {
                 $.post('/account/hb', { "token": token }, function(response, status, xhr) {
                     var state = response.state;
@@ -101,6 +109,25 @@
 
             // tips
             $('[data-toggle="tooltip"]').tooltip();
+        },
+
+        /**
+         * 切换主界面。
+         * @param {string} id 
+         * @param {string} btnId
+         */
+        toggle: function(id, btnId) {
+            if (tabId == id) {
+                return;
+            }
+
+            $('#' + tabId).addClass('content-wrapper-hidden');
+            $('#' + id).removeClass('content-wrapper-hidden');
+            tabId = id;
+
+            $('#' + tabBtnId).removeClass('active');
+            $('#' + btnId).addClass('active');
+            tabBtnId = btnId;
         },
 
         /**

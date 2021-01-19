@@ -69,9 +69,15 @@
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                     <li class="nav-item">
-                        <a class="nav-link active" href="javascript:;">
+                        <a id="tab_messaging" class="nav-link active" href="javascript:app.toggle('messaging', 'tab_messaging');">
                             <i class="nav-icon fas fa-comments"></i>
                             <p>消息 <span class="right badge badge-danger"></span></p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="tab_files" class="nav-link" href="javascript:app.toggle('files', 'tab_files');">
+                            <i class="nav-icon fas fa-folder"></i>
+                            <p>文件 <span class="right badge badge-danger"></span></p>
                         </a>
                     </li>
                 </ul>
@@ -231,7 +237,85 @@
 
     <!-- Files Page - begin -->
     <div id="files" class="content-wrapper content-wrapper-hidden">
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <!-- Toolbox -->
+                    <div class="col-md-3">
+                        <div class="card card-primary card-outline file-catalog">
+                            <div class="card-header">
+                                <h5 class="card-title">归档目录</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <ul class="nav nav-pills flex-column">
+                                    <li class="nav-item">
+                                        <a href="#" class="nav-link">
+                                            <i class="fas fa-file"></i>&nbsp;&nbsp;全部文件
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="#" class="nav-link">
+                                            <i class="fas fa-file-alt"></i>&nbsp;&nbsp;消息文件
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="#" class="nav-link">
+                                            <i class="far fa-trash-alt"></i>&nbsp;&nbsp;回收站
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card card-warning card-outline file-trans-list">
+                            <div class="card-header">
+                                <h5 class="card-title">传输列表</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <ul class="nav nav-pills flex-column">
+                                    <li class="nav-item">
+                                        <a href="#" class="nav-link">
+                                            <i class="fas fa-upload"></i>&nbsp;&nbsp;正在上传
+                                            <span class="badge bg-primary float-right"></span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="#" class="nav-link">
+                                            <i class="fas fa-download"></i>&nbsp;&nbsp;正在下载
+                                            <span class="badge bg-primary float-right"></span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="#" class="nav-link">
+                                            <i class="far fa-check-circle"></i>&nbsp;&nbsp;传输完成
+                                            <span class="badge bg-primary float-right"></span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
 
+                    <!-- Folder -->
+                    <div class="col-md-9">
+                        <div class="card file-content">
+                            <div class="card-header">
+                                <h5 class="card-title">全部文件</h5>
+                                <div class="card-tools">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" class="form-control" placeholder="搜索">
+                                        <div class="input-group-append">
+                                            <div class="btn btn-primary">
+                                                <i class="fas fa-search"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
     <!-- Files Page - end -->
 

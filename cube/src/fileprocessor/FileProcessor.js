@@ -28,6 +28,8 @@ import { AuthService } from "../auth/AuthService";
 import { ModuleError } from "../core/error/ModuleError";
 import { Module } from "../core/Module";
 import { Packet } from "../core/Packet";
+import { StateCode } from "../core/StateCode";
+import { FileLabel } from "../filestorage/FileLabel";
 import { FileProcessorAction } from "./FileProcessorAction";
 import { FileProcessorState } from "./FileProcessorState";
 import { CVResult } from "./CVResult";
@@ -63,11 +65,16 @@ export class FileProcessor extends Module {
 
     /**
      * 检测图片内的物体。
-     * @param {string} fileCodeOrLabel
+     * @param {string|FileLabel} fileCodeOrLabel
      * @param {function} successCallback 
      * @param {function} failureCallback 
      */
-    detectObject(fileCode, successCallback, failureCallback) {
+    detectObject(fileCodeOrLabel, successCallback, failureCallback) {
+        let fileCode = fileCodeOrLabel;
+        if (fileCodeOrLabel instanceof FileLabel) {
+            fileCode = fileCodeOrLabel.getFileCode();
+        }
+
         let packet = new Packet(FileProcessorAction.DetectObject, {
             domain: AuthService.DOMAIN,
             fileCode: fileCode,

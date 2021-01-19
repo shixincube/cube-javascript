@@ -352,6 +352,39 @@ body {
     padding: 0;
 }
 
+/* 文件界面 - 开始 */
+
+.file-catalog {
+    margin-top: 0.6rem;
+    margin-bottom: 0;
+    height: 160px;
+    font-size: 14px;
+}
+.file-catalog .card-title {
+    font-size: 16px;
+}
+.file-trans-list {
+    margin-top: 1.0rem;
+    margin-bottom: 0;
+    height: 160px;
+    font-size: 14px;
+}
+.file-trans-list .card-title {
+    font-size: 16px;
+}
+
+.file-content {
+    margin-top: 0.6rem;
+    margin-bottom: 0rem;
+    height: calc(100vh - 124px);
+    font-size: 14px;
+}
+.file-content .card-title {
+    font-size: 16px;
+}
+
+/* 文件界面 - 结束 */
+
 .media-btn-group {
     margin: 0;
 }
