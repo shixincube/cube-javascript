@@ -71,6 +71,8 @@ export class FileProcessor extends Module {
             drawBoundingBox: false
         });
 
-        
+        this.pipeline.send(FileProcessor.NAME, packet, (pipeline, source, response) => {
+            
+        });
     }
 }

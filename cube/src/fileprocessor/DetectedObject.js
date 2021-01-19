@@ -24,48 +24,60 @@
  * SOFTWARE.
  */
 
-import { DetectedObject } from "./DetectedObject";
+import { Entity } from "../core/Entity";
+import { BoundingBox } from "../util/BoundingBox";
 
 /**
- * CV 处理结果。
+ * 检测到的物体描述。
  */
-export class CVResult {
+export class DetectedObject extends Entity {
 
-    constructor() {
+    /**
+     * @param {string} className 
+     * @param {number} probability 
+     * @param {BoundingBox} bbox 
+     */
+    constructor(className, probability, bbox) {
+        super();
+
         /**
+         * 类型名。
          * @type {string}
          */
-        this.fileCode = null;
-        
+        this.className = className;
+
         /**
-         * @type {Array<DetectedObject>}
+         * 检测的匹配概率。取值范围：0 到 1.0 。
+         * @type {number}
          */
-        this.detectedObjects = [];
+        this.probability = probability;
+
+        /**
+         * 所在图像的空间信息。
+         * @type {BoundingBox}
+         */
+        this.bbox = bbox;
     }
 
-    getFileCode() {
-        return this.fileCode;
+    getClassName() {
+        return this.className;
     }
 
-    getDetectedObjects() {
-        return this.detectedObjects;
+    getProbability() {
+        return this.probability;
+    }
+
+    getBoundingBox() {
+        return this.bbox;
     }
 
     /**
-     * 创建符合 JSON 格式的 {@link CVResult} 对象实例。
+     * 创建 JSON 格式描述的 {@link DetectedObject} 对象实例。
      * @param {JSON} json 
-     * @returns {CVResult}
      */
     static create(json) {
-        let result = new CVResult();
-        result.fileCode = json.fileCode;
-
-        for (let i = 0; i < json.detectedObjects.length; ++i) {
-            let obj = json.detectedObjects[i];
-            let detecObj = DetectedObject.create(obj);
-            result.detectedObjects.push(detecObj);
-        }
-
-        return result;
+        let obj = new DetectedObject(json.class, json.probability,
+            new BoundingBox(json.bound));
+        return obj;
     }
 }

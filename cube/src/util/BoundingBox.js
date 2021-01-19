@@ -24,48 +24,37 @@
  * SOFTWARE.
  */
 
-import { DetectedObject } from "./DetectedObject";
-
 /**
- * CV 处理结果。
+ * 边界盒。
  */
-export class CVResult {
-
-    constructor() {
-        /**
-         * @type {string}
-         */
-        this.fileCode = null;
-        
-        /**
-         * @type {Array<DetectedObject>}
-         */
-        this.detectedObjects = [];
-    }
-
-    getFileCode() {
-        return this.fileCode;
-    }
-
-    getDetectedObjects() {
-        return this.detectedObjects;
-    }
+export class BoundingBox {
 
     /**
-     * 创建符合 JSON 格式的 {@link CVResult} 对象实例。
      * @param {JSON} json 
-     * @returns {CVResult}
      */
-    static create(json) {
-        let result = new CVResult();
-        result.fileCode = json.fileCode;
+    constructor(json) {
+        /**
+         * X 轴坐标。
+         * @type {number}
+         */
+        this.x = json.x;
 
-        for (let i = 0; i < json.detectedObjects.length; ++i) {
-            let obj = json.detectedObjects[i];
-            let detecObj = DetectedObject.create(obj);
-            result.detectedObjects.push(detecObj);
-        }
+        /**
+         * Y 轴坐标。
+         * @type {number}
+         */
+        this.y = json.y;
 
-        return result;
+        /**
+         * 宽度。
+         * @type {number}
+         */
+        this.width = json.width;
+
+        /**
+         * 高度。
+         * @type {number}
+         */
+        this.height = json.height;
     }
 }
