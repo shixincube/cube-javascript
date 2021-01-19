@@ -24,52 +24,20 @@
  * SOFTWARE.
  */
 
-import { AuthService } from "../auth/AuthService";
-import { Module } from "../core/Module";
-import { Packet } from "../core/Packet";
-import { FileProcessorAction } from "./FileProcessorAction";
-
 /**
- * 文件处理器。
+ * 文件处理模块的动作定义。
  */
-export class FileProcessor extends Module {
-    
-    static NAME = 'FileProcessor';
-
-    constructor() {
-        super('FileProcessor');
-    }
+export const FileProcessorAction = {
 
     /**
-     * @inheritdoc
+     * 检测图片里的物体。
+     * @type {string}
      */
-    start() {
-        if (!super.start()) {
-            return false;
-        }
-
-        return true;
-    }
+    DetectObject: 'detectObject',
 
     /**
-     * @inheritdoc
+     * 检测图片里的物体应答。
+     * @type {string}
      */
-    stop() {
-
-    }
-
-    /**
-     * 
-     * @param {*} fileCode 
-     * @param {*} successCallback 
-     * @param {*} failureCallback 
-     */
-    detectObject(fileCode, successCallback, failureCallback) {
-        let packet = new Packet(FileProcessorAction.DetectObject, {
-            domain: AuthService.DOMAIN,
-            fileCode: fileCode
-        });
-
-        
-    }
+    DetectObjectAck: 'detectObjectAck'
 }

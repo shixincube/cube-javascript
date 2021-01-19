@@ -226,81 +226,6 @@
             </div>
         </div>
         <!-- New Group Dialog - end -->
-
-        <!-- Voice Call - begin -->
-        <div id="voice_call" class="modal fade modeless voice-call-panel">
-            <div class="modal-dialog modal-dialog-modeless">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h6 class="modal-title">语音通话</h6>
-                    </div>
-                    <div class="modal-body">
-                        <div class="info-box">
-                            <span class="info-box-icon"><img src="" data-target="avatar" /></span>
-                            <div class="info-box-content">
-                                <span class="info-box-text" data-target="name">&nbsp;</span>
-                                <span class="info-box-desc" data-target="info">&nbsp;</span>
-                            </div>
-                        </div>
-                        <div class="media-container">
-                            <video data-target="remote" autoplay="autoplay"></video>
-                            <video data-target="local" autoplay="autoplay"></video>
-                        </div>
-                    </div>
-                    <div class="modal-footer justify-content-between">
-                        <div class="media-btn-group">
-                            <button class="btn btn-primary media-btn-microphone" type="button" title="操作麦克风" data-target="microphone"><i class="ci ci-btn ci-microphone-opened"></i></button>
-                            <button class="btn btn-primary media-btn-volume" type="button" title="操作扬声器" data-target="volume"><i class="ci ci-btn ci-volume-unmuted"></i></button>
-                        </div>
-                        <button class="btn btn-danger hangup-btn" type="button" title="挂断通话" data-target="hangup"><i class="ci ci-hangup"></i> 挂断</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Voice Call - end -->
-
-        <!-- Video Chat - begin -->
-        <div id="video_chat" class="modal fade modeless video-chat-panel">
-            <div class="modal-dialog modal-dialog-modeless">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h6 class="modal-title">视频通话</h6>
-                        <div class="header-tip"></div>
-                        <div class="title-button-group">
-                            <button class="close title-button" type="button" data-target="minimize">
-                                <i class="fas fa-window-minimize"></i>
-                            </button>
-                            <button class="close title-button" type="button" data-target="maximize">
-                                <i class="fas fa-window-maximize"></i>
-                            </button>
-                            <button class="close title-button" type="button" data-target="restore">
-                                <i class="fas fa-window-restore"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="modal-body">
-                        <div class="video-main" data-target="video-remote">
-                            <video autoplay="autoplay"></video>
-                            <div class="video-label">Remote</div>
-                        </div>
-                        <div class="video-pip" data-target="video-local">
-                            <video autoplay="autoplay"></video>
-                            <div class="video-label">Local</div>
-                        </div>
-                        <div class="call-tip">&nbsp;</div>
-                    </div>
-                    <div class="modal-footer justify-content-between">
-                        <div class="media-btn-group">
-                            <button class="btn btn-primary media-btn-camera" type="button" title="操作摄像头" data-target="camera"><i class="ci ci-btn ci-camera-opened"></i></button>
-                            <button class="btn btn-primary media-btn-microphone" type="button" title="操作麦克风" data-target="microphone"><i class="ci ci-btn ci-microphone-opened"></i></button>
-                            <button class="btn btn-primary media-btn-volume" type="button" title="操作扬声器" data-target="volume"><i class="ci ci-btn ci-volume-unmuted"></i></button>
-                        </div>
-                        <button class="btn btn-danger hangup-btn" type="button" title="挂断通话" data-target="hangup"><i class="ci ci-hangup"></i> 挂断</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Video Chat - end -->
     </div>
     <!-- Messaging Page - end -->
 
@@ -309,6 +234,81 @@
 
     </div>
     <!-- Files Page - end -->
+
+    <!-- Voice Call - begin -->
+    <div id="voice_call" class="modal fade modeless voice-call-panel">
+        <div class="modal-dialog modal-dialog-modeless">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">语音通话</h6>
+                </div>
+                <div class="modal-body">
+                    <div class="info-box">
+                        <span class="info-box-icon"><img src="" data-target="avatar" /></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text" data-target="name">&nbsp;</span>
+                            <span class="info-box-desc" data-target="info">&nbsp;</span>
+                        </div>
+                    </div>
+                    <div class="media-container">
+                        <video data-target="remote" autoplay="autoplay"></video>
+                        <video data-target="local" autoplay="autoplay"></video>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <div class="media-btn-group">
+                        <button class="btn btn-primary media-btn-microphone" type="button" title="操作麦克风" data-target="microphone"><i class="ci ci-btn ci-microphone-opened"></i></button>
+                        <button class="btn btn-primary media-btn-volume" type="button" title="操作扬声器" data-target="volume"><i class="ci ci-btn ci-volume-unmuted"></i></button>
+                    </div>
+                    <button class="btn btn-danger hangup-btn" type="button" title="挂断通话" data-target="hangup"><i class="ci ci-hangup"></i> 挂断</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Voice Call - end -->
+
+    <!-- Video Chat - begin -->
+    <div id="video_chat" class="modal fade modeless video-chat-panel">
+        <div class="modal-dialog modal-dialog-modeless">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">视频通话</h6>
+                    <div class="header-tip"></div>
+                    <div class="title-button-group">
+                        <button class="close title-button" type="button" data-target="minimize">
+                            <i class="fas fa-window-minimize"></i>
+                        </button>
+                        <button class="close title-button" type="button" data-target="maximize">
+                            <i class="fas fa-window-maximize"></i>
+                        </button>
+                        <button class="close title-button" type="button" data-target="restore">
+                            <i class="fas fa-window-restore"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="video-main" data-target="video-remote">
+                        <video autoplay="autoplay"></video>
+                        <div class="video-label">Remote</div>
+                    </div>
+                    <div class="video-pip" data-target="video-local">
+                        <video autoplay="autoplay"></video>
+                        <div class="video-label">Local</div>
+                    </div>
+                    <div class="call-tip">&nbsp;</div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <div class="media-btn-group">
+                        <button class="btn btn-primary media-btn-camera" type="button" title="操作摄像头" data-target="camera"><i class="ci ci-btn ci-camera-opened"></i></button>
+                        <button class="btn btn-primary media-btn-microphone" type="button" title="操作麦克风" data-target="microphone"><i class="ci ci-btn ci-microphone-opened"></i></button>
+                        <button class="btn btn-primary media-btn-volume" type="button" title="操作扬声器" data-target="volume"><i class="ci ci-btn ci-volume-unmuted"></i></button>
+                    </div>
+                    <button class="btn btn-danger hangup-btn" type="button" title="挂断通话" data-target="hangup"><i class="ci ci-hangup"></i> 挂断</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Video Chat - end -->
 
     <!-- Content Wrapper - end -->
 

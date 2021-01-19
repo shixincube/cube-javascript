@@ -24,52 +24,12 @@
  * SOFTWARE.
  */
 
-import { AuthService } from "../auth/AuthService";
-import { Module } from "../core/Module";
-import { Packet } from "../core/Packet";
-import { FileProcessorAction } from "./FileProcessorAction";
-
 /**
- * 文件处理器。
+ * CV 处理结果。
  */
-export class FileProcessor extends Module {
-    
-    static NAME = 'FileProcessor';
+export class CVResult {
 
     constructor() {
-        super('FileProcessor');
-    }
 
-    /**
-     * @inheritdoc
-     */
-    start() {
-        if (!super.start()) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    stop() {
-
-    }
-
-    /**
-     * 
-     * @param {*} fileCode 
-     * @param {*} successCallback 
-     * @param {*} failureCallback 
-     */
-    detectObject(fileCode, successCallback, failureCallback) {
-        let packet = new Packet(FileProcessorAction.DetectObject, {
-            domain: AuthService.DOMAIN,
-            fileCode: fileCode
-        });
-
-        
     }
 }
