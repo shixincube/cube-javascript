@@ -258,12 +258,12 @@ export class FileStorage extends Module {
             this.notifyObservers(new ObservableEvent(FileStorageEvent.Downloading, fileLabel));
 
             let url = this.secure ? fileLabel.getFileSecureURL() : fileLabel.getFileURL();
-            url += '&type=no';
+            url += '&type=ignore';
             this.filePipeline.send(url, packet, (pipeline, source, packet) => {
                 let blob = packet.data;
                 let reader = new FileReader();
                 reader.readAsDataURL(blob);
-                reader.onload = function(e) {
+                reader.onload = (e) => {
                     // 事件通知
                     this.notifyObservers(new ObservableEvent(FileStorageEvent.DownloadCompleted, fileLabel));
 
