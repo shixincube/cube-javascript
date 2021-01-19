@@ -151,6 +151,20 @@ export class FileAttachment extends JSONable {
     }
 
     /**
+     * 是否是图像文件。
+     * @returns {boolean} 如果是常用图像文件返回 {@linkcode true} 。
+     */
+    isImageType() {
+        let type = this.getFileType();
+        if (type == 'png' || type == 'jpeg' || type == 'gif' || type == 'jpg') {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
      * 返回文件 URL 地址。
      * @returns {string} 返回 URL 地址。
      */

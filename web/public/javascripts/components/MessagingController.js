@@ -141,8 +141,13 @@
             message = new TextMessage(content);
         }
         else if (content instanceof File) {
-            
-            message = new FileMessage(content);
+            var type = content.type;
+            if (type.indexOf('image') >= 0) {
+                message = new ImageMessage(content);
+            }
+            else {
+                message = new FileMessage(content);
+            }
         }
         else {
             g.dialog.launchToast(Toast.Warning, '程序内部错误');

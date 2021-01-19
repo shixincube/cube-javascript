@@ -255,7 +255,7 @@
         if (message instanceof TextMessage) {
             text = message.getText();
         }
-        else if (message instanceof FileMessage) {
+        else if (message instanceof ImageMessage || message instanceof FileMessage) {
             attachment = message.getAttachment();
         }
         else if (message instanceof CallRecordMessage) {
@@ -286,8 +286,7 @@
         if (null != attachment) {
             var action = null;
 
-            var type = attachment.getFileType();
-            if (type == 'png' || type == 'jpg' || type == 'gif') {
+            if (attachment.isImageType()) {
                 action = ['<a class="btn btn-xs btn-default" title="查看图片" href="javascript:dialog.showImage(\'',
                                 attachment.getFileCode(), '\');">',
                     '<i class="fas fa-file-image"></i>',
@@ -302,7 +301,7 @@
 
             var fileDesc = ['<table class="file-label" border="0" cellspacing="4" cellpodding="0">',
                     '<tr>',
-                        '<td rowspan="2">', '<i class="fa fa-file file-icon"></i>', '</td>',
+                        '<td rowspan="2">', attachment.isImageType() ? '<i class="fa fa-file-image file-icon"></i>' : '<i class="fa fa-file file-icon"></i>', '</td>',
                         '<td colspan="2" class="file-name">', attachment.getFileName(), '</td>',
                     '</tr>',
                     '<tr>',
