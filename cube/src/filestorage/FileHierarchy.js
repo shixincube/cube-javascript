@@ -41,5 +41,7 @@ export class FileHierarchy {
         this.root = root;
     }
 
-    
+    getRoot() {
+        return this.root;
+    }
 }

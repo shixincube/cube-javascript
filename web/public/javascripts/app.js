@@ -54,6 +54,8 @@
     var contactDetails = null;
     var newGroupDialog = null;
 
+    var fileTable = null;
+
     var messagingCtrl = null;
     var callCtrl = null;
 
@@ -148,14 +150,21 @@
 
             sidebarAccountPanel = new SidebarAccountPanel($('.account-panel'));
 
+            // 消息主面板
             var messagingEl = $('#messaging');
+            // 消息目录
             messageCatalog = new MessageCatalogue(messagingEl.find('ul[data-target="catalogue"]'));
-
+            // 消息面板
             messagePanel = new MessagePanel(messagingEl.find('#messages'));
+
             voiceCallPanel = new VoiceCallPanel($('#voice_call'));
             videoChatPanel = new VideoChatPanel($('#video_chat'));
             contactDetails = new ContactDetails();
             newGroupDialog = new NewGroupDialog($('#new_group_dialog'));
+
+            // 文件表格
+            var filesEl = $('#files');
+            fileTable = new FileTable(filesEl.find('.table-files'));
 
             messagingCtrl = new MessagingController(cube);
             callCtrl = new CallController(cube);
@@ -169,6 +178,9 @@
             that.videoChatPanel = videoChatPanel;
             that.contactDetails = contactDetails;
             that.newGroupDialog = newGroupDialog;
+
+            that.fileTable = fileTable;
+
             that.messagingCtrl = messagingCtrl;
             that.callCtrl = callCtrl;
         },

@@ -27,20 +27,14 @@
 (function(g) {
     'use strict'
 
-    var cube = null;
-
-    var FilesController = function(cubeEngine) {
-        cube = cubeEngine;
+    var FileTable = function(el) {
+        this.el = el;
     }
 
-    FilesController.prototype.resetFiles = function() {
-        cube.fs.getSelfRoot(function(dir) {
+    FileTable.prototype.update = function() {
 
-        }, function(error) {
-            
-        });
     }
 
-    g.FilesController = FilesController;
-
+    g.FileTable = FileTable;
+    
 })(window);

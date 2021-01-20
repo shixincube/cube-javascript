@@ -36,8 +36,13 @@ export class Directory {
      */
     constructor(parent = null) {
 
+        this.id = 0;
+
+        this.domain = null;
+
         this.ownerId = 0;
 
+        this.parentId = 0;
         this.parent = parent;
 
         this.name = null;
@@ -52,43 +57,78 @@ export class Directory {
 
         this.children = new OrderMap();
 
+        this.numFiles = 0;
         this.files = new OrderMap();
     }
 
+    /**
+     * @returns {Directory}
+     */
     getParent() {
         return this.parent;
     }
 
+    /**
+     * @returns {string}
+     */
     getName() {
         return this.name;
     }
 
+    /**
+     * @returns {number}
+     */
     getCreation() {
         return this.creation;
     }
 
+    /**
+     * @returns {number}
+     */
     getLastModified() {
         return this.lastModified;
     }
 
+    /**
+     * @returns {number}
+     */
     getSize() {
         return this.size;
     }
 
+    /**
+     * @private
+     * @param {*} child 
+     */
     addChild(child) {
-        if (this.children.containsKey(child.name)) {
+        if (this.children.containsKey(child.id)) {
             return;
         }
+
+        child.parent = this;
+        this.children.put(child.id, child);
     }
 
-    removeChild() {
+    /**
+     * @private
+     * @param {*} child 
+     */
+    removeChild(child) {
         
     }
 
+    /**
+     * @private
+     * @param {*} fileLabel 
+     */
     addFile(fileLabel) {
 
     }
 
+    /**
+     * @private
+     * @param {*} fileLabel 
+     */
     removeFile(fileLabel) {
         
     }
@@ -100,6 +140,26 @@ export class Directory {
     static create(json) {
         let dir = new Directory();
         dir.ownerId = json.owner;
+        dir.id = json.id;
+        dir.domain = json.domain;
+        dir.name = json.name;
+        dir.creation = json.creation;
+        dir.lastModified = json.lastModified;
+        dir.size = json.size;
+        dir.hidden = json.hidden;
+        dir.numFiles = json.numFiles;
+
+        if (undefined !== json.parent) {
+            dir.parentId = json.parent;
+        }
+
+        if (undefined !== json.dirs) {
+            for (let i = 0; i < json.dirs.length; ++i) {
+                let subdir = Directory.create(json.dirs[i]);
+                dir.addChild(subdir);
+            }
+        }
+
         return dir;
     }
 }

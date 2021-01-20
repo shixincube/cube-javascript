@@ -46,6 +46,7 @@ import { FileStorageAction } from "./FileStorageAction";
 import { FileStructStorage } from "./FileStructStorage";
 import { FileStorageState } from "./FileStorageState";
 import { Directory } from "./Directory";
+import { FileHierarchy } from "./FileHierarchy";
 
 /**
  * 上传文件回调函数。
@@ -442,8 +443,11 @@ export class FileStorage extends Module {
                 return;
             }
 
-            let dir = Directory.create(packet.getPayload().data);
-            //this.fileHierarchyMap.get();
+            let root = Directory.create(packet.getPayload().data);
+            let hierarchy = new FileHierarchy(root);
+            this.fileHierarchyMap.put(root.ownerId, hierarchy);
+
+            handleSuccess(root);
         });
     }
 
