@@ -55,10 +55,20 @@ export class Directory {
 
         this.size = 0;
 
+        /**
+         * @type {OrderMap<number,Directory>}
+         */
         this.children = new OrderMap();
 
         this.numFiles = 0;
         this.files = new OrderMap();
+    }
+
+    /**
+     * @returns {number}
+     */
+    getId() {
+        return this.id;
     }
 
     /**
@@ -97,8 +107,22 @@ export class Directory {
     }
 
     /**
+     * @returns {boolean}
+     */
+    isHidden() {
+        return this.hidden;
+    }
+
+    /**
+     * @returns {Array<Directory>}
+     */
+    getSubdirectories() {
+        return this.children.values();
+    }
+
+    /**
      * @private
-     * @param {*} child 
+     * @param {Directory} child 
      */
     addChild(child) {
         if (this.children.containsKey(child.id)) {

@@ -29,16 +29,35 @@
 
     var cube = null;
 
+    var selfRoot = null;
+
     var FilesController = function(cubeEngine) {
         cube = cubeEngine;
     }
 
     FilesController.prototype.resetFiles = function() {
-        cube.fs.getSelfRoot(function(dir) {
+        var handle = function(dir) {
+            g.app.fileTable.updatePage(dir.getSubdirectories());
+        }
 
+        cube.fs.getSelfRoot(function(dir) {
+            selfRoot = dir;
+            handle(selfRoot);
         }, function(error) {
-            
+            console.log(error);
         });
+
+        // test ui
+        // var list = [];
+        // for (var i = 0; i < 20; ++i) {
+        //     var label = new FileLabel(i, 'shixincube.com');
+        //     list.push(label);
+        // }
+        // g.app.fileTable.updatePage(list);
+    }
+
+    FilesController.prototype.getFiles = function(pageNum, size) {
+
     }
 
     g.FilesController = FilesController;

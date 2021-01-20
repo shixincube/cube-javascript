@@ -92,6 +92,27 @@
     }
 
     /**
+     * 将时间戳格式化为 YYYY-MM-DD HH:MM:SS 形式。
+     * @param {number} value 
+     */
+    g.formatYMDHMS = function(value) {
+        var result = [];
+        var date = new Date(value);
+        result.push(date.getFullYear());
+        result.push('-');
+        result.push(formatNumber(date.getMonth() + 1, 2));
+        result.push('-');
+        result.push(formatNumber(date.getDate(), 2));
+        result.push(' ');
+        result.push(formatNumber(date.getHours(), 2));
+        result.push(':');
+        result.push(formatNumber(date.getMinutes(), 2));
+        result.push(':');
+        result.push(formatNumber(date.getSeconds(), 2));
+        return result.join('');
+    }
+
+    /**
      * 将时间戳格式化为短字符串形式。
      * @param {number} value 
      */

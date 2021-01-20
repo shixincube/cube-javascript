@@ -29,12 +29,61 @@
 
     var FileTable = function(el) {
         this.el = el;
+        this.noFileBg = $('#table_files_nofile');
+        this.eachPageNum
+        this.surfaceA = el.find('tbody[data-target="surface-a"]');
+        this.surfaceB = el.find('tbody[data-target="surface-b"]');
     }
 
-    FileTable.prototype.update = function() {
+    FileTable.prototype.updatePage = function(list) {
+        if (list.length == 0) {
+            this.noFileBg.css('display', 'block');
+            return;
+        }
 
+        var html = [];
+
+        list.forEach(function(element) {
+            var rowHtml = null;
+            if (element instanceof FileLabel) {
+                rowHtml = [
+                    '<tr><td><div class="icheck-primary">',
+                        '<input type="checkbox" value="" id="check_1">',
+                            '<label for="check_s1"></label></div></td>',
+                        '<td class="file-icon"></td>',
+                        '<td class="file-name">我是界面结构测试文件-请忽略我.docx</td>',
+                        '<td class="file-size">987.71 MB</td>',
+                        '<td class="file-lastmodifed">2021-1-19 18:25:00</td>',
+                    '</tr>'
+                ];
+            }
+            else {
+                if (element.isHidden()) {
+                    return;
+                }
+
+                rowHtml = [
+                    '<tr><td><div class="icheck-primary">',
+                        '<input type="checkbox" value="" id="', element.getId(), '">',
+                            '<label for="', element.getId(), '"></label></div></td>',
+                        '<td class="file-icon"><i class="ci ci-file-directory"></i></td>',
+                        '<td class="file-name">', element.getName(), '</td>',
+                        '<td class="file-size">--</td>',
+                        '<td class="file-lastmodifed">', g.formatYMDHMS(element.getLastModified()), '</td>',
+                    '</tr>'
+                ];
+            }
+            
+            html = html.concat(rowHtml);
+        });
+
+        if (html.length > 0) {
+            this.noFileBg.css('display', 'none');
+        }
+
+        this.surfaceA[0].innerHTML = html.join('');
     }
 
     g.FileTable = FileTable;
-    
+
 })(window);

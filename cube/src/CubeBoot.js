@@ -57,6 +57,7 @@ import { FileStorage } from "./filestorage/FileStorage";
 import { FileAnchor } from "./filestorage/FileAnchor";
 import { FileLabel } from "./filestorage/FileLabel";
 import { FileAttachment } from "./filestorage/FileAttachment";
+import { Directory } from "./filestorage/Directory";
 import { FileStorageEvent } from "./filestorage/FileStorageEvent";
 import { FileProcessor } from "./fileprocessor/FileProcessor";
 import { FileThumbnail } from "./fileprocessor/FileThumbnail";
@@ -120,6 +121,7 @@ import { Announcer } from "./util/Announcer";
     global.FileLabel = FileLabel;
     global.FileAttachment = FileAttachment;
     global.FileStorageEvent = FileStorageEvent;
+    global.Directory = Directory;
 
     global.FileProcessor = FileProcessor;
     global.FileThumbnail = FileThumbnail;

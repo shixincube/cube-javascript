@@ -244,7 +244,7 @@
                     <div class="col-md-3">
                         <div class="card card-primary card-outline file-catalog">
                             <div class="card-header">
-                                <h5 class="card-title">归档目录</h5>
+                                <h5 class="card-title">分类目录</h5>
                             </div>
                             <div class="card-body p-0">
                                 <ul class="nav nav-pills flex-column">
@@ -255,7 +255,7 @@
                                     </li>
                                     <li class="nav-item">
                                         <a href="#" class="nav-link">
-                                            <i class="fas fa-file-alt"></i>&nbsp;&nbsp;消息文件
+                                            <i class="fas fa-file-alt"></i>&nbsp;&nbsp;图片文件
                                         </a>
                                     </li>
                                     <li class="nav-item">
@@ -329,32 +329,38 @@
                                 </div><!-- /.float-right -->
                             </div>
                             <!-- Toolbar - end -->
-                            <div class="table-responsive table-files">
+                            <div class="table-responsive table-header">
                                 <table class="table table-hover table-striped">
                                     <thead>
                                         <tr>
                                             <td width="46"></td>
-                                            <td width="60"></td>
+                                            <td width="50"></td>
                                             <td>文件名</td>
                                             <td width="100">大小</td>
                                             <td width="160">修改时间</td>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                </table>
+                            </div>
+                            <div class="table-responsive table-files">
+                                <table class="table table-hover table-striped">
+                                    <thead>
                                         <tr>
-                                            <td>
-                                                <div class="icheck-primary">
-                                                    <input type="checkbox" value="" id="check_1">
-                                                    <label for="check_s1"></label>
-                                                </div>
-                                            </td>
-                                            <td class="file-icon"></td>
-                                            <td class="file-name">我是界面结构测试文件-请忽略我.docx</td>
-                                            <td class="file-size">987.71 MB</td>
-                                            <td class="file-lastmodifed">2021-1-19 18:25:00</td>
+                                            <td width="46"></td>
+                                            <td width="50"></td>
+                                            <td></td>
+                                            <td width="100"></td>
+                                            <td width="160"></td>
                                         </tr>
+                                    </thead>
+                                    <tbody data-target="surface-a">
+                                    </tbody>
+                                    <tbody class="table-hidden" data-target="surface-b">
                                     </tbody>
                                 </table>
+                            </div>
+                            <div id="table_files_nofile" class="no-file bg-nofile">
+                                <div>文件夹为空</div>
                             </div>
                         </div>
                     </div>
