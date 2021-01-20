@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,6 +32,8 @@ import { AjaxPipeline } from "../pipeline/AjaxPipeline";
 import { AjaxFileChunkPacket } from "../pipeline/AjaxFileChunkPacket";
 import { AuthService } from "../auth/AuthService";
 import { ContactService } from "../contact/ContactService";
+import { Contact } from "../contact/Contact";
+import { Group } from "../contact/Group";
 import { ContactEvent } from "../contact/ContactEvent";
 import { ObservableEvent } from "../core/ObservableEvent";
 import { OrderMap } from "../util/OrderMap";
@@ -43,6 +45,7 @@ import { FileStoragePipeListener } from "./FileStoragePipeListener";
 import { FileStorageAction } from "./FileStorageAction";
 import { FileStructStorage } from "./FileStructStorage";
 import { FileStorageState } from "./FileStorageState";
+import { Directory } from "./Directory";
 
 /**
  * 上传文件回调函数。
@@ -81,6 +84,12 @@ export class FileStorage extends Module {
          * @type {OrderMap<string,FileLabel>}
          */
         this.fileLabels = new OrderMap();
+
+        /**
+         * 文件层级表。键为层级对应的联系人ID或群组ID。
+         * @type {OrderMap<number,FileHierarchy>}
+         */
+        this.fileHierarchyMap = new OrderMap();
 
         /**
          * 是否是安全连接。
@@ -377,6 +386,64 @@ export class FileStorage extends Module {
             else {
                 request();
             }
+        });
+    }
+
+    /**
+     * 
+     * @param {*} handleSuccess 
+     * @param {*} handleFailure 
+     */
+    getSelfRoot(handleSuccess, handleFailure) {
+        this.getRoot(this.contactService.getSelf().getId(), handleSuccess, handleFailure);
+    }
+
+    /**
+     * 
+     * @param {number|Contact|Group} idOrObject 
+     * @param {*} handleSuccess 
+     * @param {*} handleFailure 
+     */
+    getRoot(idOrObject, handleSuccess, handleFailure) {
+        if (!this.start) {
+            return;
+        }
+
+        let id = 0;
+        if (typeof id === 'number') {
+            id = idOrObject;
+        }
+        else if (idOrObject instanceof Group) {
+            id = idOrObject.getId();
+        }
+        else if (idOrObject instanceof Contact) {
+            id = idOrObject.getId();
+        }
+        else {
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.Forbidden, idOrObject);
+            handleFailure(error);
+            return;
+        }
+
+        let requestPacket = new Packet(FileStorageAction.GetRoot, {
+            id: id
+        });
+
+        this.pipeline.send(FileStorage.NAME, requestPacket, (pipeline, source, packet) => {
+            if (null == packet || packet.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, id);
+                handleFailure(error);
+                return;
+            }
+
+            if (packet.getPayload().code != FileStorageState.Ok) {
+                let error = new ModuleError(FileStorage.NAME, packet.getPayload().code, id);
+                handleFailure(error);
+                return;
+            }
+
+            let dir = Directory.create(packet.getPayload().data);
+            //this.fileHierarchyMap.get();
         });
     }
 

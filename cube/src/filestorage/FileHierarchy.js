@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,25 +24,22 @@
  * SOFTWARE.
  */
 
+import { Directory } from "./Directory";
+
 /**
- * 文件存储动作。
+ * 文件层级结构描述。
  */
-export const FileStorageAction = {
-    /**
-     * 文件放置到存储中。
-     * @type {string}
-     */
-    PutFile: 'putFile',
+export class FileHierarchy {
 
     /**
-     * 获取文件的标签。
-     * @type {string}
+     * @param {Directory} root 
      */
-    GetFile: 'getFile',
+    constructor(root) {
+        /**
+         * @type {Directory}
+         */
+        this.root = root;
+    }
 
-    /**
-     * 获取根文件夹。
-     * @type {string}
-     */
-    GetRoot: 'getRoot'
+    
 }

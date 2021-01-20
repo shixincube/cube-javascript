@@ -88,7 +88,7 @@ export class FileProcessor extends Module {
                 return;
             }
 
-            let res = packet.getPayload().data;
+            let res = response.getPayload().data;
             let cvResult = CVResult.create(res);
             successCallback(cvResult);
         });

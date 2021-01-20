@@ -48,6 +48,18 @@ export const FileStorageState = {
     InvalidDomain: 11,
 
     /**
+     * 无效的参数，禁止访问。
+     * @type {number}
+     */
+    Forbidden: 12,
+
+    /**
+     * 未找到指定数据。
+     * @type {number}
+     */
+    NotFound: 13,
+
+    /**
      * 上传失败。
      * @type {number}
      */

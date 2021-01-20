@@ -249,7 +249,7 @@
                             <div class="card-body p-0">
                                 <ul class="nav nav-pills flex-column">
                                     <li class="nav-item">
-                                        <a href="#" class="nav-link">
+                                        <a href="#" class="nav-link active">
                                             <i class="fas fa-file"></i>&nbsp;&nbsp;全部文件
                                         </a>
                                     </li>
@@ -310,6 +310,53 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                            <!-- Toolbar - begin -->
+                            <div class="file-controls">
+                                <button type="button" class="btn btn-default btn-sm checkbox-toggle"><i class="far fa-square"></i></button>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-default btn-sm"><i class="far fa-trash-alt"></i></button>
+                                    <button type="button" class="btn btn-default btn-sm"><i class="fas fa-reply"></i></button>
+                                    <button type="button" class="btn btn-default btn-sm"><i class="fas fa-share"></i></button>
+                                </div>
+                                <!-- /.btn-group -->
+                                <button type="button" class="btn btn-default btn-sm"><i class="fas fa-sync-alt"></i></button>
+                                <div class="float-right">
+                                    <span class="load-info">已加载 10 个</span>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-default btn-sm"><i class="fas fa-chevron-left"></i></button>
+                                        <button type="button" class="btn btn-default btn-sm"><i class="fas fa-chevron-right"></i></button>
+                                    </div>
+                                </div>
+                                <!-- /.float-right -->
+                            </div>
+                            <!-- Toolbar - end -->  
+                            <div class="table-responsive table-files">
+                                <table class="table table-hover table-striped">
+                                    <thead>
+                                        <tr>
+                                            <td width="46"></td>
+                                            <td width="60"></td>
+                                            <td>文件名</td>
+                                            <td width="100">大小</td>
+                                            <td width="160">修改时间</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <div class="icheck-primary">
+                                                    <input type="checkbox" value="" id="check_1">
+                                                    <label for="check_s1"></label>
+                                                </div>
+                                            </td>
+                                            <td class="file-icon"></td>
+                                            <td class="file-name">我是文件.docx</td>
+                                            <td class="file-size">987.71 MB</td>
+                                            <td class="file-lastmodifed">2021-1-19 18:25:00</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -541,6 +588,7 @@
 <script type="text/javascript" src="javascripts/components/NewGroupDialog.js"></script>
 <script type="text/javascript" src="javascripts/components/MessagingController.js"></script>
 <script type="text/javascript" src="javascripts/components/CallController.js"></script>
+<script type="text/javascript" src="javascripts/components/FilesController.js"></script>
 <script type="text/javascript" src="javascripts/app.js"></script>
 <script type="text/javascript">
 (function ($) {

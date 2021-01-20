@@ -29,11 +29,33 @@
  */
 export class ModuleError extends Error {
 
+    /**
+     * @param {string} module 
+     * @param {number} code 
+     * @param {object} data 
+     * @param {object} [desc]
+     */
     constructor(module, code, data, desc) {
         super();
+
+        /**
+         * @type {string}
+         */
         this.module = module;
+
+        /**
+         * @type {number}
+         */
         this.code = code;
+
+        /**
+         * @type {object}
+         */
         this.data = data;
+
+        /**
+         * @type {object}
+         */
         this.desc = desc;
     }
 

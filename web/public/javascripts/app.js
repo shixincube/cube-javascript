@@ -57,6 +57,8 @@
     var messagingCtrl = null;
     var callCtrl = null;
 
+    var filesCtrl = null;
+
     var queryContact = function(id) {
         for (var i = 0; i < cubeContacts.length; ++i) {
             var c = cubeContacts[i];
@@ -76,9 +78,11 @@
             console.log('cube token: ' + token);
 
             var tab = g.getQueryString('tab');
-            setTimeout(function() {
-                g.app.toggle(tab, 'tab_' + tab);
-            }, 100);
+            if (null != tab) {
+                setTimeout(function() {
+                    g.app.toggle(tab, 'tab_' + tab);
+                }, 100);
+            }
 
             function heartbeat() {
                 $.post('/account/hb', { "token": token }, function(response, status, xhr) {
@@ -155,6 +159,7 @@
 
             messagingCtrl = new MessagingController(cube);
             callCtrl = new CallController(cube);
+            filesCtrl = new FilesController(cube);
 
             this.prepare();
 
@@ -300,6 +305,8 @@
                 cube.fs.start();
                 // 启用音视频模块
                 cube.mpComm.start();
+
+                that.onReady();
             }, function(error) {
                 console.log('Start Cube FAILED: ' + error);
             });
@@ -307,6 +314,10 @@
             // 将当前账号签入，将 App 的账号信息设置为 Cube Contact 的上下文
             // 在执行 cube#start() 之后可直接签入，不需要等待 Cube 就绪
             cube.signIn(account.id, account.name, account);
+        },
+
+        onReady: function() {
+            filesCtrl.resetFiles();
         },
 
         /**

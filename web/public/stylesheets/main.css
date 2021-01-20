@@ -373,6 +373,13 @@ body {
     font-size: 16px;
 }
 
+.file-catalog .nav-link {
+    border-radius: 0;
+}
+.file-trans-list .nav-link {
+    border-radius: 0;
+}
+
 .file-content {
     margin-top: 0.6rem;
     margin-bottom: 0rem;
@@ -381,6 +388,30 @@ body {
 }
 .file-content .card-title {
     font-size: 16px;
+}
+
+.file-content .load-info {
+    margin-right: 0.6em;
+    font-size: 12px;
+    color: #6c757d;
+}
+.file-controls {
+    padding: 5px
+}
+
+.file-content .table-files {
+    font-size: 12px;
+}
+
+.file-content .table td {
+    vertical-align: middle;
+    padding: 0.5em;
+}
+
+.file-content .icheck-primary label::before {
+    margin-left: -18px !important;
+    width: 18px !important;
+    height: 18px !important;
 }
 
 /* 文件界面 - 结束 */

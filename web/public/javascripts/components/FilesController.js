@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,25 +24,22 @@
  * SOFTWARE.
  */
 
-/**
- * 文件存储动作。
- */
-export const FileStorageAction = {
-    /**
-     * 文件放置到存储中。
-     * @type {string}
-     */
-    PutFile: 'putFile',
+(function(g) {
+    'use strict'
 
-    /**
-     * 获取文件的标签。
-     * @type {string}
-     */
-    GetFile: 'getFile',
+    var cube = null;
 
-    /**
-     * 获取根文件夹。
-     * @type {string}
-     */
-    GetRoot: 'getRoot'
-}
+    var FilesController = function(cubeEngine) {
+        cube = cubeEngine;
+    }
+
+    FilesController.prototype.resetFiles = function() {
+        cube.fs.getSelfRoot(function(dir) {
+            
+        }, function(error) {
+        });
+    }
+
+    g.FilesController = FilesController;
+
+})(window);
