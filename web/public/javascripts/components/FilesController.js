@@ -71,6 +71,7 @@
     }
 
     FilesController.prototype.getAllFiles = function(pageNum, size, handler) {
+        
     }
 
     g.FilesController = FilesController;

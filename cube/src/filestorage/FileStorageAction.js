@@ -44,5 +44,17 @@ export const FileStorageAction = {
      * 获取根文件夹。
      * @type {string}
      */
-    GetRoot: 'getRoot'
+    GetRoot: 'getRoot',
+
+    /**
+     * 罗列目录清单。
+     * @type {string}
+     */
+    ListDirs: 'listDirs',
+
+    /**
+     * 罗列文件清单。
+     * @type {string}
+     */
+    ListFiles: 'listFiles'
 }

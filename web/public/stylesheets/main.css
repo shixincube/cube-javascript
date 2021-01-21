@@ -363,7 +363,6 @@ body {
 }
 .file-catalog .card-title {
     font-size: 16px;
-    padding-top: 2px;
 }
 .file-trans-list {
     margin-top: 1.0rem;
@@ -390,6 +389,12 @@ body {
 }
 .file-content .card-title {
     font-size: 16px;
+    padding-top: 2px;
+}
+
+.fp-path {
+    color: #6c757d;
+    font-size: 14px;
 }
 
 .file-content .load-info {

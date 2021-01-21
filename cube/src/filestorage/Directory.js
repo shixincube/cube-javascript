@@ -25,6 +25,8 @@
  */
 
 import { OrderMap } from "../util/OrderMap";
+import { FileHierarchy } from "./FileHierarchy";
+import { FileLabel } from "./FileLabel";
 
 /**
  * 文件目录。
@@ -32,35 +34,82 @@ import { OrderMap } from "../util/OrderMap";
 export class Directory {
 
     /**
-     * @param {Directory} parent 父目录。
+     * @param {FileHierarchy} hierarchy 层级描述对象。
      */
-    constructor(parent = null) {
+    constructor(hierarchy) {
+        /**
+         * @type {FileHierarchy}
+         */
+        this.hierarchy = hierarchy;
 
+        /**
+         * @type {number}
+         */
         this.id = 0;
 
+        /**
+         * @type {string}
+         */
         this.domain = null;
 
+        /**
+         * @type {number}
+         */
         this.ownerId = 0;
 
+        /**
+         * @type {number}
+         */
         this.parentId = 0;
-        this.parent = parent;
 
+        /**
+         * @type {Directory}
+         */
+        this.parent = null;
+
+        /**
+         * @type {string}
+         */
         this.name = null;
 
+        /**
+         * @type {number}
+         */
         this.creation = 0;
 
+        /**
+         * @type {number}
+         */
         this.lastModified = 0;
 
+        /**
+         * @type {boolean}
+         */
         this.hidden = false;
 
+        /**
+         * @type {number}
+         */
         this.size = 0;
+
+        /**
+         * @type {number}
+         */
+        this.numDirs = 0;
 
         /**
          * @type {OrderMap<number,Directory>}
          */
         this.children = new OrderMap();
 
+        /**
+         * @type {number}
+         */
         this.numFiles = 0;
+
+        /**
+         * @type {OrderMap<number,FileLabel>}
+         */
         this.files = new OrderMap();
     }
 
@@ -114,10 +163,58 @@ export class Directory {
     }
 
     /**
-     * @returns {Array<Directory>}
+     * 罗列当前目录的所有子目录。
+     * @param {function} handleSuccess 
+     * @param {function} [handleFailure] 
      */
-    getSubdirectories() {
-        return this.children.values();
+    listDirectories(handleSuccess, handleFailure) {
+        if (this.numDirs == this.children.size()) {
+            handleSuccess(this, this.children.values());
+            return;
+        }
+
+        this.hierarchy.listDirs(this, (dir) => {
+            handleSuccess(this, this.children.values());
+        }, (error) => {
+            if (handleFailure) {
+                handleFailure(error);
+            }
+        });
+    }
+
+    /**
+     * 罗列指定索引范围内的所有文件。
+     * @param {number} beginIndex 
+     * @param {number} endIndex 
+     * @param {function} handleSuccess 
+     * @param {function} [handleFailure] 
+     */
+    listFiles(beginIndex, endIndex, handleSuccess, handleFailure) {
+        if (this.numFiles == this.files.size()) {
+            let begin = beginIndex;
+            let end = endIndex;
+
+            if (end + 1 > this.numFiles) {
+                end = this.numFiles;
+            }
+
+            if (begin >= end) {
+                handleSuccess(this, []);
+                return;
+            }
+
+            let list = this.files.values().slice(begin, end);
+            handleSuccess(this, list, beginIndex, endIndex);
+            return;
+        }
+
+        this.hierarchy.listFiles(this, beginIndex, endIndex, (dir, files, begin, end) => {
+            handleSuccess(dir, files, begin, end);
+        }, (error) => {
+            if (handleFailure) {
+                handleFailure(error);
+            }
+        });
     }
 
     /**
@@ -126,7 +223,7 @@ export class Directory {
      */
     addChild(child) {
         if (this.children.containsKey(child.id)) {
-            return;
+            this.removeChild(child);
         }
 
         child.parent = this;
@@ -145,26 +242,32 @@ export class Directory {
 
     /**
      * @private
-     * @param {*} fileLabel 
+     * @param {FileLabel} fileLabel 
      */
     addFile(fileLabel) {
+        if (this.files.containsKey(fileLabel.getId())) {
+            return;
+        }
 
+        this.files.put(fileLabel.getId(), fileLabel);
     }
 
     /**
      * @private
-     * @param {*} fileLabel 
+     * @param {FileLabel} fileLabel 
      */
     removeFile(fileLabel) {
-        
+        this.files.remove(fileLabel.getId());
     }
 
     /**
      * 创建 JSON 格式指定的 {@link Directory} 对象实例。
-     * @param {Directory} json 
+     * @param {JSON} json 
+     * @param {FileHierarchy} hierarchy
+     * @returns {Directory} 
      */
-    static create(json) {
-        let dir = new Directory();
+    static create(json, hierarchy) {
+        let dir = new Directory(hierarchy);
         dir.ownerId = json.owner;
         dir.id = json.id;
         dir.domain = json.domain;
@@ -173,6 +276,7 @@ export class Directory {
         dir.lastModified = json.lastModified;
         dir.size = json.size;
         dir.hidden = json.hidden;
+        dir.numDirs = json.numDirs;
         dir.numFiles = json.numFiles;
 
         if (undefined !== json.parent) {
@@ -181,7 +285,7 @@ export class Directory {
 
         if (undefined !== json.dirs) {
             for (let i = 0; i < json.dirs.length; ++i) {
-                let subdir = Directory.create(json.dirs[i]);
+                let subdir = Directory.create(json.dirs[i], hierarchy);
                 dir.addChild(subdir);
             }
         }

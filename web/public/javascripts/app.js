@@ -338,6 +338,8 @@
 
         onReady: function() {
             console.log('Cube WebApp Ready');
+
+            filesCatalog.prepare();
         },
 
         /**

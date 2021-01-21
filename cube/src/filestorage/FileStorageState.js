@@ -60,6 +60,12 @@ export const FileStorageState = {
     NotFound: 13,
 
     /**
+     * 未授权访问。
+     * @type {number}
+     */
+    Unauthorized: 14,
+
+    /**
      * 上传失败。
      * @type {number}
      */

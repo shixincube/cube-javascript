@@ -49,38 +49,41 @@
         activeBtn = btnAllFiles;
     }
 
+    FilesCatalogue.prototype.prepare = function() {
+        g.app.filesPanel.loadAllFiles();
+    }
+
     FilesCatalogue.prototype.select = function(id) {
         if (activeBtn.attr('id') == id) {
             return;
         }
 
         activeBtn.removeClass('active');
-        var filter = null;
+        // var filter = null;
 
         if (btnAllFiles.attr('id') == id) {
             activeBtn = btnAllFiles;
-            filter = null;
+            g.app.filesPanel.loadAllFiles();
         }
         else if (btnImageFiles.attr('id') == id) {
             activeBtn = btnImageFiles;
-            filter = ['jpg', 'jpeg', 'png', 'gif'];
+            // filter = ['jpg', 'jpeg', 'png', 'gif'];
         }
         else if (btnDocFiles.attr('id') == id) {
             activeBtn = btnDocFiles;
-            filter = ['pdf', 'doc', 'docm', 'docx', 'dotm', 'dotx', 'ett',
-                'xls', 'xlsm', 'xlsx', 'xlt', 'dpt', 'ppsm', 'ppsx', 'pot',
-                'potm', 'potx', 'pps', 'ppt', 'pptm', 'pptx'];
+            // filter = ['pdf', 'doc', 'docm', 'docx', 'dotm', 'dotx', 'ett',
+            //     'xls', 'xlsm', 'xlsx', 'xlt', 'dpt', 'ppsm', 'ppsx', 'pot',
+            //     'potm', 'potx', 'pps', 'ppt', 'pptm', 'pptx'];
         }
         else if (btnRecyclebin.attr('id') == id) {
             activeBtn = btnRecyclebin;
-            filter = ['recycle'];
+            // filter = ['recycle'];
         }
 
         activeBtn.addClass('active');
 
         // 更新面板
         g.app.filesPanel.setTitle(activeBtn.attr('title'));
-        g.app.filesPanel.loadPage(filter, 1, 20);
     }
 
     g.FilesCatalogue = FilesCatalogue;

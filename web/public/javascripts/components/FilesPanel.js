@@ -28,8 +28,11 @@
     'use strict'
 
     var panelEl = null;
-    var toolbar = null;
+    var toolbarEl = null;
+
     var table = null;
+
+    var currentDir = null;
 
     var FilesPanel = function(el) {
         panelEl = el;
@@ -37,13 +40,27 @@
     }
 
     FilesPanel.prototype.setTitle = function(title) {
-        panelEl.find('.card-title').text(title);
+        panelEl.find('.fp-title').text(title);
     }
 
-    FilesPanel.prototype.loadPage = function(filter, page, size) {
-        g.app.filesCtrl.getRoot(function(root) {
-            
-        });
+    FilesPanel.prototype.updateTitlePath = function() {
+        if (null == currentDir) {
+            return;
+        }
+
+        
+    }
+
+    FilesPanel.prototype.loadAllFiles = function() {
+        if (null == currentDir) {
+            g.app.filesCtrl.getRoot(function(root) {
+                currentDir = root;
+                that.loadAllFiles();
+            });
+            return;
+        }
+
+        currentDir;
     }
 
     g.FilesPanel = FilesPanel;

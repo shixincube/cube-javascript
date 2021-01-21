@@ -26,6 +26,11 @@
 
 import { FileStorage } from "./FileStorage";
 import { Directory } from "./Directory";
+import { Packet } from "../core/Packet";
+import { StateCode } from "../core/StateCode";
+import { FileStorageAction } from "./FileStorageAction";
+import { FileStorageState } from "./FileStorageState";
+import { FileLabel } from "./FileLabel";
 
 /**
  * 文件层级结构描述。
@@ -34,9 +39,8 @@ export class FileHierarchy {
 
     /**
      * @param {FileStorage} storage
-     * @param {Directory} root 
      */
-    constructor(storage, root) {
+    constructor(storage) {
         /**
          * @type {FileStorage}
          */
@@ -45,10 +49,89 @@ export class FileHierarchy {
         /**
          * @type {Directory}
          */
-        this.root = root;
+        this.root = null;
     }
 
+    /**
+     * @returns {Directory}
+     */
     getRoot() {
         return this.root;
+    }
+
+    /**
+     * 罗列指定目录下的子目录。
+     * @param {Directory} directory 
+     * @param {function} handleSuccess 
+     * @param {function} handleFailure 
+     */
+    listDirs(directory, handleSuccess, handleFailure) {
+        let request = new Packet(FileStorageAction.ListDirs, {
+            root: this.root.id,
+            id: directory.id
+        });
+        this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
+            if (null == packet || packet.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, directory);
+                handleFailure(error);
+                return;
+            }
+
+            if (packet.getPayload().code != FileStorageState.Ok) {
+                let error = new ModuleError(FileStorage.NAME, packet.getPayload().code, directory);
+                handleFailure(error);
+                return;
+            }
+
+            let list = packet.getPayload().data.list;
+            list.forEach((jdir) => {
+                let dir = Directory.create(jdir, this);
+                directory.addChild(dir);
+            });
+            directory.numDirs = list.length;
+
+            handleSuccess(directory);
+        });
+    }
+
+    /**
+     * @private
+     * @param {Directory} directory 
+     * @param {number} beginIndex 
+     * @param {number} endIndex 
+     * @param {function} handleSuccess 
+     * @param {function} handleFailure 
+     */
+    listFiles(directory, beginIndex, endIndex, handleSuccess, handleFailure) {
+        let request = new Packet(FileStorageAction.ListFiles, {
+            root: this.root.id,
+            id: directory.id,
+            begin: beginIndex,
+            end: endIndex
+        });
+        
+        this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
+            if (null == packet || packet.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, directory);
+                handleFailure(error);
+                return;
+            }
+
+            if (packet.getPayload().code != FileStorageState.Ok) {
+                let error = new ModuleError(FileStorage.NAME, packet.getPayload().code, directory);
+                handleFailure(error);
+                return;
+            }
+
+            let current = [];
+            let data = packet.getPayload().data;
+            let list = data.list;
+            list.forEach((jfile) => {
+                let file = FileLabel.create(jfile);
+                directory.addFile(file);
+                current.push(file);
+            });
+            handleSuccess(directory, current, data.begin, data.end);
+        });
     }
 }

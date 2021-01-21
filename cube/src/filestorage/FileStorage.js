@@ -426,6 +426,12 @@ export class FileStorage extends Module {
             return;
         }
 
+        let hierarchy = this.fileHierarchyMap.get(id);
+        if (null != hierarchy) {
+            handleSuccess(hierarchy.getRoot());
+            return;
+        }
+
         let requestPacket = new Packet(FileStorageAction.GetRoot, {
             id: id
         });
@@ -443,16 +449,13 @@ export class FileStorage extends Module {
                 return;
             }
 
-            let root = Directory.create(packet.getPayload().data);
-            let hierarchy = new FileHierarchy(this, root);
+            let hierarchy = new FileHierarchy(this);
+            let root = Directory.create(packet.getPayload().data, hierarchy);
+            hierarchy.root = root;
             this.fileHierarchyMap.put(root.ownerId, hierarchy);
 
             handleSuccess(root);
         });
-    }
-
-    listFiles(directory, beginIndex, endIndex) {
-        this.fileHierarchyMap.get(directory.ownerId);
     }
 
     /**
