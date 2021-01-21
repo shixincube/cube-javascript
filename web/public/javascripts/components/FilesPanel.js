@@ -90,11 +90,23 @@
             return;
         }
 
-        // currentDir.listDirectories(function(dir, list) {
+        var tlist = [];
 
-        // });
+        currentDir.listDirectories(function(dir, list) {
+            tlist = tlist.concat(list);
+
+            currentDir.listFiles(0, 20, function(dir, files) {
+                tlist = tlist.concat(files);
+
+                
+            });
+        });
 
         this.updateTitlePath();
+    }
+
+    FilesPanel.prototype.updateTable = function(list) {
+
     }
 
     g.FilesPanel = FilesPanel;

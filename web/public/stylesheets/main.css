@@ -395,6 +395,7 @@ body {
 .fp-path {
     color: #6c757d;
     font-size: 14px;
+    margin-left: 40px;
 }
 .fp-path .breadcrumb {
     padding: 4px 0px 0px 0px;
