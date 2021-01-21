@@ -444,11 +444,15 @@ export class FileStorage extends Module {
             }
 
             let root = Directory.create(packet.getPayload().data);
-            let hierarchy = new FileHierarchy(root);
+            let hierarchy = new FileHierarchy(this, root);
             this.fileHierarchyMap.put(root.ownerId, hierarchy);
 
             handleSuccess(root);
         });
+    }
+
+    listFiles(directory, beginIndex, endIndex) {
+        this.fileHierarchyMap.get(directory.ownerId);
     }
 
     /**

@@ -37,7 +37,7 @@
 
     FilesController.prototype.resetFiles = function() {
         var handle = function(dir) {
-            g.app.filesTable.updatePage(dir.getSubdirectories());
+            g.app.filesPanel.updatePage(dir.getSubdirectories());
         }
 
         cube.fs.getSelfRoot(function(dir) {
@@ -53,11 +53,24 @@
         //     var label = new FileLabel(i, 'shixincube.com');
         //     list.push(label);
         // }
-        // g.app.filesTable.updatePage(list);
+        // g.app.filesPanel.updatePage(list);
     }
 
-    FilesController.prototype.getFiles = function(pageNum, size) {
+    FilesController.prototype.getRoot = function(handler) {
+        if (null != selfRoot) {
+            handler(selfRoot);
+            return;
+        }
 
+        cube.fs.getSelfRoot(function(dir) {
+            selfRoot = dir;
+            handler(selfRoot);
+        }, function(error) {
+            console.log(error);
+        });
+    }
+
+    FilesController.prototype.getAllFiles = function(pageNum, size, handler) {
     }
 
     g.FilesController = FilesController;

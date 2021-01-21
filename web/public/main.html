@@ -80,6 +80,18 @@
                             <p>文件 <span class="right badge badge-danger"></span></p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a id="tab_conference" class="nav-link" href="javascript:app.toggle('conference', 'tab_conference');">
+                            <i class="nav-icon fas fa-users"></i>
+                            <p>会议 <span class="right badge badge-danger"></span></p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="tab_contacts" class="nav-link" href="javascript:app.toggle('contacts', 'tab_contacts');">
+                            <i class="nav-icon fas fa-address-book"></i>
+                            <p>联系人 <span class="right badge badge-danger"></span></p>
+                        </a>
+                    </li>
                 </ul>
             </nav>
         </div>
@@ -240,7 +252,7 @@
         <section class="content">
             <div class="container-fluid">
                 <div class="row">
-                    <!-- Toolbox -->
+                    <!-- Catalogue -->
                     <div class="col-md-3">
                         <div class="card card-primary card-outline file-catalog">
                             <div class="card-header">
@@ -249,17 +261,22 @@
                             <div class="card-body p-0">
                                 <ul class="nav nav-pills flex-column">
                                     <li class="nav-item">
-                                        <a href="#" class="nav-link active">
+                                        <a id="btn_all_files" href="javascript:app.filesCatalog.select('btn_all_files');" class="nav-link active" title="全部文件">
                                             <i class="fas fa-file"></i>&nbsp;&nbsp;全部文件
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a href="#" class="nav-link">
-                                            <i class="fas fa-file-alt"></i>&nbsp;&nbsp;图片文件
+                                        <a id="btn_image_files" href="javascript:app.filesCatalog.select('btn_image_files');" class="nav-link" title="图片文件">
+                                            <i class="fas fa-file-image"></i>&nbsp;&nbsp;图片文件
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a href="#" class="nav-link">
+                                        <a id="btn_doc_files" href="javascript:app.filesCatalog.select('btn_doc_files');" class="nav-link" title="文档文件">
+                                            <i class="fas fa-file-alt"></i>&nbsp;&nbsp;文档文件
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a id="btn_recyclebin" href="javascript:app.filesCatalog.select('btn_recyclebin');" class="nav-link" title="回收站">
                                             <i class="far fa-trash-alt"></i>&nbsp;&nbsp;回收站
                                         </a>
                                     </li>
@@ -294,9 +311,8 @@
                             </div>
                         </div>
                     </div>
-
                     <!-- Folder -->
-                    <div class="col-md-9">
+                    <div class="col-md-9 files-panel">
                         <div class="card file-content">
                             <div class="card-header">
                                 <h5 class="card-title">全部文件</h5>
@@ -313,15 +329,15 @@
                             </div>
                             <!-- Toolbar - begin -->
                             <div class="file-controls">
-                                <button type="button" class="btn btn-default btn-sm checkbox-toggle"><i class="far fa-square"></i></button>
+                                <button type="button" class="btn btn-primary btn-sm" title="上传文件"><i class="fas fa-upload"></i> 上传</button>
+                                <button type="button" class="btn btn-default btn-sm" title="新建文件夹"><i class="fas fa-plus"></i> 新建文件夹</button>
                                 <div class="btn-group">
-                                    <button type="button" class="btn btn-default btn-sm"><i class="far fa-trash-alt"></i></button>
-                                    <button type="button" class="btn btn-default btn-sm"><i class="fas fa-reply"></i></button>
+                                    <button type="button" class="btn btn-default btn-sm"><i class="fas fa-sync-alt"></i></button>
                                     <button type="button" class="btn btn-default btn-sm"><i class="fas fa-share"></i></button>
+                                    <button type="button" class="btn btn-default btn-sm"><i class="far fa-trash-alt"></i></button>
                                 </div><!-- /.btn-group -->
-                                <button type="button" class="btn btn-default btn-sm"><i class="fas fa-sync-alt"></i></button>
                                 <div class="float-right">
-                                    <span class="load-info">已加载 1 个/共 10 个</span>
+                                    <span class="load-info">已加载 <span>0</span> 个，共 <span>0</span> 个</span>
                                     <div class="btn-group">
                                         <button type="button" class="btn btn-default btn-sm"><i class="fas fa-chevron-left"></i></button>
                                         <button type="button" class="btn btn-default btn-sm"><i class="fas fa-chevron-right"></i></button>
@@ -333,7 +349,7 @@
                                 <table class="table table-hover table-striped">
                                     <thead>
                                         <tr>
-                                            <td width="46"></td>
+                                            <td width="46"><button type="button" class="btn btn-default btn-sm checkbox-toggle"><i class="far fa-square"></i></button></td>
                                             <td width="50"></td>
                                             <td>文件名</td>
                                             <td width="100">大小</td>
@@ -369,6 +385,28 @@
         </section>
     </div>
     <!-- Files Page - end -->
+
+    <!-- Conference Page - begin -->
+    <div id="conference" class="content-wrapper content-wrapper-hidden">
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                </div>
+            </div>
+        </section>
+    </div>
+    <!-- Conference Page - end -->
+
+    <!-- Contacts Page - begin -->
+    <div id="contacts" class="content-wrapper content-wrapper-hidden">
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                </div>
+            </div>
+        </section>
+    </div>
+    <!-- Contacts Page - end -->
 
     <!-- Voice Call - begin -->
     <div id="voice_call" class="modal fade modeless voice-call-panel">
@@ -594,6 +632,7 @@
 <script type="text/javascript" src="javascripts/components/CallController.js"></script>
 <script type="text/javascript" src="javascripts/components/FilesCatalogue.js"></script>
 <script type="text/javascript" src="javascripts/components/FilesTable.js"></script>
+<script type="text/javascript" src="javascripts/components/FilesPanel.js"></script>
 <script type="text/javascript" src="javascripts/components/FilesController.js"></script>
 <script type="text/javascript" src="javascripts/app.js"></script>
 <script type="text/javascript">

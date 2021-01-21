@@ -24,31 +24,28 @@
  * SOFTWARE.
  */
 
-import { FileStorage } from "./FileStorage";
-import { Directory } from "./Directory";
+(function(g) {
+    'use strict'
 
-/**
- * 文件层级结构描述。
- */
-export class FileHierarchy {
+    var panelEl = null;
+    var toolbar = null;
+    var table = null;
 
-    /**
-     * @param {FileStorage} storage
-     * @param {Directory} root 
-     */
-    constructor(storage, root) {
-        /**
-         * @type {FileStorage}
-         */
-        this.storage = storage;
-
-        /**
-         * @type {Directory}
-         */
-        this.root = root;
+    var FilesPanel = function(el) {
+        panelEl = el;
+        table = new FilesTable(el.find('.table-files'));
     }
 
-    getRoot() {
-        return this.root;
+    FilesPanel.prototype.setTitle = function(title) {
+        panelEl.find('.card-title').text(title);
     }
-}
+
+    FilesPanel.prototype.loadPage = function(filter, page, size) {
+        g.app.filesCtrl.getRoot(function(root) {
+            
+        });
+    }
+
+    g.FilesPanel = FilesPanel;
+
+})(window);

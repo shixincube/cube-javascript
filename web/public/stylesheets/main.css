@@ -358,16 +358,17 @@ body {
 .file-catalog {
     margin-top: 0.6rem;
     margin-bottom: 0;
-    height: 160px;
+    height: 199px;
     font-size: 14px;
 }
 .file-catalog .card-title {
     font-size: 16px;
+    padding-top: 2px;
 }
 .file-trans-list {
     margin-top: 1.0rem;
     margin-bottom: 0;
-    height: 160px;
+    height: 161px;
     font-size: 14px;
 }
 .file-trans-list .card-title {
@@ -397,7 +398,10 @@ body {
     color: #6c757d;
 }
 .file-controls {
-    padding: 5px
+    padding: 5px;
+}
+.file-controls .btn-sm {
+    font-size: 12px;
 }
 
 .file-content .table-header {
@@ -459,6 +463,8 @@ body {
 }
 
 /* 文件界面 - 结束 */
+
+/* 音/视频通话界面 - 开始 */
 
 .media-btn-group {
     margin: 0;
@@ -694,3 +700,5 @@ body {
     display: inline-block;
     font-size: 12px;
 }
+
+/* 音/视频通话界面 - 结束 */

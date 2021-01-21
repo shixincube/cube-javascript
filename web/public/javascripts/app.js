@@ -49,16 +49,18 @@
 
     var messageCatalog = null;
     var messagePanel = null;
+
     var voiceCallPanel = null;
     var videoChatPanel = null;
     var contactDetails = null;
+
     var newGroupDialog = null;
 
-    var filesTable = null;
+    var filesCatalog = null;
+    var filesPanel = null;
 
     var messagingCtrl = null;
     var callCtrl = null;
-
     var filesCtrl = null;
 
     var queryContact = function(id) {
@@ -162,9 +164,12 @@
             contactDetails = new ContactDetails();
             newGroupDialog = new NewGroupDialog($('#new_group_dialog'));
 
-            // 文件表格
+            // 文件
             var filesEl = $('#files');
-            filesTable = new FilesTable(filesEl.find('.table-files'));
+            // 文件目录
+            filesCatalog = new FilesCatalogue(filesEl.find('.file-catalog'), filesEl.find('.file-trans-list'));
+            // 文件面板
+            filesPanel = new FilesPanel(filesEl.find('.files-panel'));
 
             messagingCtrl = new MessagingController(cube);
             callCtrl = new CallController(cube);
@@ -174,15 +179,18 @@
 
             that.messageCatalog = messageCatalog;
             that.messagePanel = messagePanel;
+
             that.voiceCallPanel = voiceCallPanel;
             that.videoChatPanel = videoChatPanel;
             that.contactDetails = contactDetails;
             that.newGroupDialog = newGroupDialog;
 
-            that.filesTable = filesTable;
+            that.filesCatalog = filesCatalog;
+            that.filesPanel = filesPanel;
 
             that.messagingCtrl = messagingCtrl;
             that.callCtrl = callCtrl;
+            that.filesCtrl = filesCtrl;
         },
 
         /**
@@ -329,7 +337,7 @@
         },
 
         onReady: function() {
-            filesCtrl.resetFiles();
+            console.log('Cube WebApp Ready');
         },
 
         /**

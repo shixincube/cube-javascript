@@ -104,6 +104,7 @@ export class OrderMap {
      * 根据给定的键删除对应的值。
      * 
      * @param {*} 指定键。
+     * @returns {*} 返回已删除的值，如果没有指定的键返回 {@linkcode null} 。
      */
     remove(key) {
         let index = this._keys.indexOf(key);

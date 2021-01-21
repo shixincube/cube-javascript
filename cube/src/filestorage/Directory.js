@@ -138,7 +138,9 @@ export class Directory {
      * @param {*} child 
      */
     removeChild(child) {
-        
+        if (null != this.children.remove(child.id)) {
+            child.parent = null;
+        }
     }
 
     /**
