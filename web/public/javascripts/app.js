@@ -54,7 +54,7 @@
     var contactDetails = null;
     var newGroupDialog = null;
 
-    var fileTable = null;
+    var filesTable = null;
 
     var messagingCtrl = null;
     var callCtrl = null;
@@ -164,7 +164,7 @@
 
             // 文件表格
             var filesEl = $('#files');
-            fileTable = new FileTable(filesEl.find('.table-files'));
+            filesTable = new FilesTable(filesEl.find('.table-files'));
 
             messagingCtrl = new MessagingController(cube);
             callCtrl = new CallController(cube);
@@ -179,7 +179,7 @@
             that.contactDetails = contactDetails;
             that.newGroupDialog = newGroupDialog;
 
-            that.fileTable = fileTable;
+            that.filesTable = filesTable;
 
             that.messagingCtrl = messagingCtrl;
             that.callCtrl = callCtrl;

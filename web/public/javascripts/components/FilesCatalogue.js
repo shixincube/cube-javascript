@@ -27,39 +27,14 @@
 (function(g) {
     'use strict'
 
-    var cube = null;
-
-    var selfRoot = null;
-
-    var FilesController = function(cubeEngine) {
-        cube = cubeEngine;
-    }
-
-    FilesController.prototype.resetFiles = function() {
-        var handle = function(dir) {
-            g.app.filesTable.updatePage(dir.getSubdirectories());
-        }
-
-        cube.fs.getSelfRoot(function(dir) {
-            selfRoot = dir;
-            handle(selfRoot);
-        }, function(error) {
-            console.log(error);
-        });
-
-        // test ui
-        // var list = [];
-        // for (var i = 0; i < 20; ++i) {
-        //     var label = new FileLabel(i, 'shixincube.com');
-        //     list.push(label);
-        // }
-        // g.app.filesTable.updatePage(list);
-    }
-
-    FilesController.prototype.getFiles = function(pageNum, size) {
+    var FilesCatalogue = function() {
 
     }
 
-    g.FilesController = FilesController;
+    FilesCatalogue.prototype.selectAllFiles = function() {
 
+    }
+
+    g.FilesCatalogue = FilesCatalogue;
+    
 })(window);

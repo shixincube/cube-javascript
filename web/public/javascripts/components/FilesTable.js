@@ -27,7 +27,7 @@
 (function(g) {
     'use strict'
 
-    var FileTable = function(el) {
+    var FilesTable = function(el) {
         this.el = el;
         this.noFileBg = $('#table_files_nofile');
         this.eachPageNum
@@ -35,7 +35,7 @@
         this.surfaceB = el.find('tbody[data-target="surface-b"]');
     }
 
-    FileTable.prototype.updatePage = function(list) {
+    FilesTable.prototype.updatePage = function(list) {
         if (list.length == 0) {
             this.noFileBg.css('display', 'block');
             return;
@@ -84,6 +84,6 @@
         this.surfaceA[0].innerHTML = html.join('');
     }
 
-    g.FileTable = FileTable;
+    g.FilesTable = FilesTable;
 
 })(window);
