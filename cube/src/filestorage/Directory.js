@@ -128,6 +128,13 @@ export class Directory {
     }
 
     /**
+     * @returns {boolean}
+     */
+    isRoot() {
+        return (null == this.parent);
+    }
+
+    /**
      * @returns {string}
      */
     getName() {

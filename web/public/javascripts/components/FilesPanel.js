@@ -27,6 +27,8 @@
 (function(g) {
     'use strict'
 
+    var that = null;
+
     var panelEl = null;
     var toolbarEl = null;
 
@@ -37,6 +39,8 @@
     var FilesPanel = function(el) {
         panelEl = el;
         table = new FilesTable(el.find('.table-files'));
+
+        that = this;
     }
 
     FilesPanel.prototype.setTitle = function(title) {
@@ -48,7 +52,33 @@
             return;
         }
 
-        
+        var parentList = [];
+        this.recurseParent(parentList, currentDir);
+
+        var html = ['<ol class="breadcrumb float-sm-right">',
+            '<li class="breadcrumb-item active"><a href="javascript:;">',
+                '我的文件',
+            '</li>'];
+
+        parentList.forEach(function(item) {
+            html.push('<li class="breadcrumb-item"><a href="javascript:;">');
+            html.push(item.getName());
+            html.push('</a></li>');
+        });
+
+        html.push('</ol>');
+
+        panelEl.find('.fp-path').html(html.join(''));
+    }
+
+    FilesPanel.prototype.recurseParent = function(list, child) {
+        var parent = child.getParent();
+        if (null == parent) {
+            return;
+        }
+
+        list.push(parent);
+        this.recurseParent(list, parent);
     }
 
     FilesPanel.prototype.loadAllFiles = function() {
@@ -60,7 +90,11 @@
             return;
         }
 
-        currentDir;
+        // currentDir.listDirectories(function(dir, list) {
+
+        // });
+
+        this.updateTitlePath();
     }
 
     g.FilesPanel = FilesPanel;

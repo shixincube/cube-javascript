@@ -396,6 +396,17 @@ body {
     color: #6c757d;
     font-size: 14px;
 }
+.fp-path .breadcrumb {
+    padding: 4px 0px 0px 0px;
+    margin: 0;
+    font-size: 12px;
+    background-color: unset;
+    border-radius: unset;
+}
+.fp-path .breadcrumb > li + li:before {
+    content: "> ";
+    padding: 0;
+}
 
 .file-content .load-info {
     margin-right: 0.6em;
