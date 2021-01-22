@@ -32,6 +32,11 @@
     var panelEl = null;
     var toolbarEl = null;
 
+    var btnSelectAll = null;
+
+    var infoLoaded = 0;
+    var infoTotal = 0;
+
     var table = null;
 
     var currentDir = null;
@@ -40,7 +45,31 @@
         panelEl = el;
         table = new FilesTable(el.find('.table-files'));
 
+        btnSelectAll = el.find('.checkbox-toggle');
+
+        infoLoaded = el.find('.info-loaded');
+        infoTotal = el.find('.info-total');
+
         that = this;
+
+        this.initUI();
+    }
+
+    FilesPanel.prototype.initUI = function() {
+        btnSelectAll.click(function () {
+            var clicks = $(this).data('clicks');
+            if (clicks) {
+                // Uncheck all checkboxes
+                $('.table-files input[type=\'checkbox\']').prop('checked', false);
+                $('.checkbox-toggle .far.fa-check-square').removeClass('fa-check-square').addClass('fa-square');
+            }
+            else {
+                // Check all checkboxes
+                $('.table-files input[type=\'checkbox\']').prop('checked', true);
+                $('.checkbox-toggle .far.fa-square').removeClass('fa-square').addClass('fa-check-square');
+            }
+            $(this).data('clicks', !clicks);
+        });
     }
 
     FilesPanel.prototype.setTitle = function(title) {
@@ -92,21 +121,45 @@
 
         var tlist = [];
 
+        // test data
+        // var now = Date.now();
+        // for (var i = 0; i < 20; ++i) {
+        //     var dir = new Directory(null);
+        //     dir.id = i;
+        //     dir.name = '我是文件夹 ' + i;
+        //     dir.lastModified = now + i;
+        //     dir.numDirs = 20;
+        //     currentDir.addChild(dir);
+        // }
+        // test data - end
+
         currentDir.listDirectories(function(dir, list) {
             tlist = tlist.concat(list);
 
             currentDir.listFiles(0, 20, function(dir, files) {
                 tlist = tlist.concat(files);
+                // 更新表格
+                table.updatePage(currentDir, 0, 20, tlist);
 
-                
+                infoLoaded.text(tlist.length);
+                infoTotal.text(currentDir.totalDirs() + currentDir.totalFiles());
             });
         });
 
         this.updateTitlePath();
     }
 
-    FilesPanel.prototype.updateTable = function(list) {
+    FilesPanel.prototype.select = function(id) {
+        table.select(parseInt(id));
+    }
 
+    FilesPanel.prototype.changeDir = function(id) {
+        table.changeDir(parseInt(id));
+    }
+
+    FilesPanel.prototype.resetSelectAllButton = function() {
+        btnSelectAll.data('clicks', false);
+        $('.checkbox-toggle .far.fa-check-square').removeClass('fa-check-square').addClass('fa-square');
     }
 
     g.FilesPanel = FilesPanel;

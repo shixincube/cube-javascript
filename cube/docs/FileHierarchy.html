@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>ObservableEvent - Cube for Javascript</title>
+    <title>FileHierarchy - Cube for Javascript</title>
     
     <meta name="description" content="Cube Javascript" />
     
@@ -43,7 +43,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">ObservableEvent</h1>
+    <h1 class="page-title">FileHierarchy</h1>
     
 
     
@@ -56,10 +56,10 @@
 <header>
     
         <h2>
-        ObservableEvent
+        FileHierarchy
         </h2>
         
-            <div class="class-description usertext"><p>观察者观察到的事件。</p></div>
+            <div class="class-description usertext"><p>文件层级结构描述。</p></div>
         
     
 </header>
@@ -74,7 +74,7 @@
     <h2>Constructor</h2>
     
 
-    <h4 class="name" id="ObservableEvent"><span class="type-signature"></span>new ObservableEvent<span class="signature">(name, data<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="FileHierarchy"><span class="type-signature"></span>new FileHierarchy<span class="signature">(storage)</span><span class="type-signature"></span></h4>
 
     
 
@@ -143,8 +143,6 @@
         <th>Type</th>
 
         
-        <th>Attributes</th>
-        
 
         
 
@@ -157,64 +155,23 @@
 
         <tr>
             
-                <td class="name"><code>name</code></td>
+                <td class="name"><code>storage</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type"><a href="FileStorage.html">FileStorage</a></span>
 
 
             
             </td>
 
             
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
 
             
 
-            <td class="description last"><p>事件名称。</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>data</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>事件数据。</p></td>
+            <td class="description last"></td>
         </tr>
 
     
@@ -251,7 +208,7 @@
         <h3 class="subsection-title">Classes</h3>
 
         <dl>
-            <dt><a href="ObservableEvent.html">ObservableEvent</a></dt>
+            <dt><a href="FileHierarchy.html">FileHierarchy</a></dt>
             <dd></dd>
         </dl>
     
@@ -263,6 +220,138 @@
     
 
     
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id="storage"><span class="type-signature"></span>storage<span class="type-signature"> :<a href="FileStorage.html">FileStorage</a></span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="FileStorage.html">FileStorage</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="root"><span class="type-signature"></span>root<span class="type-signature"> :<a href="Directory.html">Directory</a></span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="Directory.html">Directory</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+    
 
     
         <h3 class="subsection-title">Methods</h3>
@@ -272,7 +361,7 @@
 
     
 
-    <h4 class="name" id="getName"><span class="type-signature"></span>getName<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
+    <h4 class="name" id="getRoot"><span class="type-signature"></span>getRoot<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="Directory.html">Directory</a>}</span></h4>
 
     
 
@@ -318,10 +407,6 @@
 
 
 
-<div class="description usertext">
-    <p>获取事件名称。</p>
-</div>
-
 
 
 
@@ -349,10 +434,6 @@
 <h5>Returns:</h5>
 
         
-<div class="param-desc">
-    <p>返回事件名称。</p>
-</div>
-
 
 
 <dl class="param-type">
@@ -361,7 +442,7 @@
     </dt>
     <dd>
         
-<span class="param-type">string</span>
+<span class="param-type"><a href="Directory.html">Directory</a></span>
 
 
     </dd>
@@ -376,7 +457,7 @@
 
     
 
-    <h4 class="name" id="getData"><span class="type-signature"></span>getData<span class="signature">()</span><span class="type-signature"> &rarr; {object}</span></h4>
+    <h4 class="name" id="listDirs"><span class="type-signature"></span>listDirs<span class="signature">(directory, handleSuccess, handleFailure)</span><span class="type-signature"></span></h4>
 
     
 
@@ -423,7 +504,7 @@
 
 
 <div class="description usertext">
-    <p>获取事件数据。</p>
+    <p>罗列指定目录下的子目录。</p>
 </div>
 
 
@@ -436,42 +517,115 @@
 
 
 
+    <h5>Parameters:</h5>
+    
 
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
 
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
+        <th>Type</th>
 
         
-<div class="param-desc">
-    <p>返回事件数据。</p>
-</div>
 
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
         
-<span class="param-type">object</span>
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>directory</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Directory.html">Directory</a></span>
 
 
-    </dd>
-</dl>
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>handleSuccess</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>handleFailure</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

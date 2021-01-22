@@ -27,17 +27,29 @@
 (function(g) {
     'use strict'
 
+    var tableEl = null;
+    var noFileBg = null;
+    var surfaceA = null;
+    var surfaceB = null;
+
+    var curDir = null;
+    var curBeginIndex = 0;
+    var curEndIndex = 0;
+
     var FilesTable = function(el) {
-        this.el = el;
-        this.noFileBg = $('#table_files_nofile');
-        this.eachPageNum
-        this.surfaceA = el.find('tbody[data-target="surface-a"]');
-        this.surfaceB = el.find('tbody[data-target="surface-b"]');
+        tableEl = el;
+        noFileBg = $('#table_files_nofile');
+        surfaceA = el.find('tbody[data-target="surface-a"]');
+        surfaceB = el.find('tbody[data-target="surface-b"]');
     }
 
-    FilesTable.prototype.updatePage = function(list) {
+    FilesTable.prototype.updatePage = function(dir, begin, end, list) {
+        curDir = dir;
+        curBeginIndex = begin;
+        curEndIndex = end;
+
         if (list.length == 0) {
-            this.noFileBg.css('display', 'block');
+            noFileBg.css('display', 'block');
             return;
         }
 
@@ -47,25 +59,24 @@
             var rowHtml = null;
             if (element instanceof FileLabel) {
                 rowHtml = [
-                    '<tr><td><div class="icheck-primary">',
-                        '<input type="checkbox" value="" id="check_1">',
-                            '<label for="check_s1"></label></div></td>',
+                    '<tr onclick="app.filesPanel.select(\'', element.getId(), '\')" id="ftr_', element.getId(), '">',
+                        '<td><div class="icheck-primary">',
+                            '<input type="checkbox" value="" id="', element.getId(), '">',
+                                '<label for="', element.getId(), '"></label></div></td>',
                         '<td class="file-icon"></td>',
-                        '<td class="file-name">我是界面结构测试文件-请忽略我.docx</td>',
-                        '<td class="file-size">987.71 MB</td>',
-                        '<td class="file-lastmodifed">2021-1-19 18:25:00</td>',
+                        '<td class="file-name">', element.getFileName(), '</td>',
+                        '<td class="file-size">', g.formatSize(element.getFileSize()), '</td>',
+                        '<td class="file-lastmodifed">', g.formatYMDHMS(element.getCompletedTime()), '</td>',
                     '</tr>'
                 ];
             }
             else {
-                if (element.isHidden()) {
-                    return;
-                }
-
                 rowHtml = [
-                    '<tr><td><div class="icheck-primary">',
-                        '<input type="checkbox" value="" id="', element.getId(), '">',
-                            '<label for="', element.getId(), '"></label></div></td>',
+                    '<tr onclick="app.filesPanel.select(\'', element.getId(), '\')"',
+                            ' ondblclick="app.filesPanel.changeDir(\'', element.getId(), '\')" id="ftr_', element.getId(), '">',
+                        '<td><div class="icheck-primary">',
+                            '<input type="checkbox" value="" id="', element.getId(), '">',
+                                '<label for="', element.getId(), '"></label></div></td>',
                         '<td class="file-icon"><i class="ci ci-file-directory"></i></td>',
                         '<td class="file-name">', element.getName(), '</td>',
                         '<td class="file-size">--</td>',
@@ -73,15 +84,34 @@
                     '</tr>'
                 ];
             }
-            
+
             html = html.concat(rowHtml);
         });
 
         if (html.length > 0) {
-            this.noFileBg.css('display', 'none');
+            noFileBg.css('display', 'none');
         }
 
-        this.surfaceA[0].innerHTML = html.join('');
+        surfaceA[0].innerHTML = html.join('');
+    }
+
+    FilesTable.prototype.select = function(id) {
+        g.app.filesPanel.resetSelectAllButton();
+
+        var el = tableEl.find('#' + id);
+        if (el.prop('checked')) {
+            el.prop('checked', false);
+            tableEl.find('#ftr_' + id).removeClass('table-primary');
+        }
+        else {
+            el.prop('checked', true);
+            tableEl.find('#ftr_' + id).addClass('table-primary');
+        }
+    }
+
+    FilesTable.prototype.changeDir = function(id) {
+        var dir = curDir.getDirectory(id);
+        
     }
 
     g.FilesTable = FilesTable;

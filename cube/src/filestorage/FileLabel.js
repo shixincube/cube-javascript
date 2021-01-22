@@ -119,6 +119,13 @@ export class FileLabel extends Entity {
     }
 
     /**
+     * @returns {number} 返回文件 ID 。
+     */
+    getId() {
+        return this.id;
+    }
+
+    /**
      * @returns {string} 返回文件域。
      */
     getDomain() {

@@ -425,6 +425,7 @@ body {
     font-size: 12px;
     border-bottom: 1px solid #dee2e6;
     user-select: none;
+    overflow-x: unset;
 }
 .table-header .table {
     margin-bottom: 0px;
@@ -439,6 +440,9 @@ body {
 .table-files .table thead td {
     padding: 0;
     border-top: 0px;
+}
+.table-files tbody td {
+    cursor: default;
 }
 .table-files .table-hidden {
     display: none;

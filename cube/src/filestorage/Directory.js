@@ -170,6 +170,22 @@ export class Directory {
     }
 
     /**
+     * 合计文件夹数量。
+     * @returns {number}
+     */
+    totalDirs() {
+        return this.numDirs;
+    }
+
+    /**
+     * 合计文件数量。
+     * @returns {number}
+     */
+    totalFiles() {
+        return this.numFiles;
+    }
+
+    /**
      * 罗列当前目录的所有子目录。
      * @param {function} handleSuccess 
      * @param {function} [handleFailure] 
@@ -180,13 +196,42 @@ export class Directory {
             return;
         }
 
+        if (null == this.hierarchy || undefined === this.hierarchy) {
+            handleSuccess(this, []);
+            return;
+        }
+
         this.hierarchy.listDirs(this, (dir) => {
             handleSuccess(this, this.children.values());
         }, (error) => {
+            console.debug(error.toString());
+
             if (handleFailure) {
                 handleFailure(error);
             }
         });
+    }
+
+    /**
+     * 获取指定ID或者名称的子目录。
+     * @param {number|string} idOrName 
+     * @returns {Directory} 返回指定ID或者名称的子目录。
+     */
+    getDirectory(idOrName) {
+        if (typeof idOrName === 'number') {
+            return this.children.get(idOrName);
+        }
+        else if (typeof idOrName === 'string') {
+            let list = this.children.values();
+            for (let i = 0; i < list.length; ++i) {
+                let dir = list[i];
+                if (dir.name == idOrName) {
+                    return dir;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -215,6 +260,11 @@ export class Directory {
             return;
         }
 
+        if (null == this.hierarchy || undefined === this.hierarchy) {
+            handleSuccess(this, [], beginIndex, endIndex);
+            return;
+        }
+
         this.hierarchy.listFiles(this, beginIndex, endIndex, (dir, files, begin, end) => {
             handleSuccess(dir, files, begin, end);
         }, (error) => {
@@ -222,6 +272,28 @@ export class Directory {
                 handleFailure(error);
             }
         });
+    }
+
+    /**
+     * 获取指定 ID 或者文件名的文件。
+     * @param {number|string} idOrName 
+     * @returns {FileLabel} 返回指定 ID 或者文件名的文件。
+     */
+    getFile(idOrName) {
+        if (typeof idOrName === 'number') {
+            return this.files.get(idOrName);
+        }
+        else if (typeof idOrName === 'string') {
+            let list = this.files.values();
+            for (let i = 0; i < list.length; ++i) {
+                let file = list[i];
+                if (file.fileName == idOrName) {
+                    return file;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
