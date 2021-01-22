@@ -33,6 +33,7 @@
     var toolbarEl = null;
 
     var btnSelectAll = null;
+    var btnNewDir = null;
 
     var infoLoaded = 0;
     var infoTotal = 0;
@@ -46,6 +47,7 @@
         table = new FilesTable(el.find('.table-files'));
 
         btnSelectAll = el.find('.checkbox-toggle');
+        btnNewDir = el.find('button[data-target="new-dir"]');
 
         infoLoaded = el.find('.info-loaded');
         infoTotal = el.find('.info-total');
@@ -56,6 +58,7 @@
     }
 
     FilesPanel.prototype.initUI = function() {
+        // 全选按钮
         btnSelectAll.click(function () {
             var clicks = $(this).data('clicks');
             if (clicks) {
@@ -69,6 +72,15 @@
                 $('.checkbox-toggle .far.fa-square').removeClass('fa-square').addClass('fa-check-square');
             }
             $(this).data('clicks', !clicks);
+        });
+
+        // 新建文件夹
+        btnNewDir.click(function() {
+            g.dialog.showPrompt('新建文件夹', '请输入新建文件夹的名称', function(state, value) {
+                if (state) {
+
+                }
+            });
         });
     }
 

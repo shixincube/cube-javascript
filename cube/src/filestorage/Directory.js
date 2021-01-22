@@ -187,8 +187,8 @@ export class Directory {
 
     /**
      * 罗列当前目录的所有子目录。
-     * @param {function} handleSuccess 
-     * @param {function} [handleFailure] 
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode dir}:{@link Directory}, {@linkcode list}:{@link Array})
+     * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError})
      */
     listDirectories(handleSuccess, handleFailure) {
         if (this.numDirs == this.children.size()) {
@@ -238,8 +238,8 @@ export class Directory {
      * 罗列指定索引范围内的所有文件。
      * @param {number} beginIndex 
      * @param {number} endIndex 
-     * @param {function} handleSuccess 
-     * @param {function} [handleFailure] 
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode dir}:{@link Directory}, {@linkcode list}:{@linkcode Array}, {@linkcode begin}:{@linkcode number}, {@linkcode end}:{@linkcode number})
+     * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError})
      */
     listFiles(beginIndex, endIndex, handleSuccess, handleFailure) {
         if (this.numFiles == this.files.size()) {
@@ -297,6 +297,27 @@ export class Directory {
     }
 
     /**
+     * 新建目录。
+     * @param {string} dirName 新目录名称。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode newDir}:{@link Directory}) 。
+     * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    newDirectory(dirName, handleSuccess, handleFailure) {
+        this.hierarchy.newDirectory(this, dirName, handleSuccess, handleFailure);
+    }
+
+    /**
+     * 删除子目录。
+     * @param {Directory|number} dir 待删除目录或者目录 ID 。
+     * @param {boolean} recursive 是否递归删除所有子文件和子目录。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode deletedDir}:{@link Directory}) 。
+     * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    deleteDirectory(dir, recursive, handleSuccess, handleFailure) {
+        this.hierarchy.deleteDirectory(this, dir, recursive, handleSuccess, handleFailure);
+    }
+
+    /**
      * @private
      * @param {Directory} child 
      */
@@ -311,7 +332,7 @@ export class Directory {
 
     /**
      * @private
-     * @param {*} child 
+     * @param {Directory} child 
      */
     removeChild(child) {
         if (null != this.children.remove(child.id)) {

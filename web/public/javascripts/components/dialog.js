@@ -75,9 +75,9 @@
 
         /**
          * 显示提示输入框。
-         * @param {*} title 
-         * @param {*} label 
-         * @param {*} callback 
+         * @param {string} title 
+         * @param {string} label 
+         * @param {function} callback 
          */
         showPrompt: function(title, label, callback) {
             var el = $('#modal_prompt');
@@ -97,9 +97,9 @@
 
         /**
          * 显示确认框。
-         * @param {*} title 
-         * @param {*} content 
-         * @param {*} callback 
+         * @param {string} title 
+         * @param {string} content 
+         * @param {function} callback 
          */
         showConfirm: function(title, content, callback) {
             var el = $('#modal_confirm');

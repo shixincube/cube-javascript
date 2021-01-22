@@ -24,6 +24,7 @@
  * SOFTWARE.
  */
 
+import cell from "@lib/cell-lib";
 import { ModuleError } from "../core/error/ModuleError";
 import { Packet } from "../core/Packet";
 import { StateCode } from "../core/StateCode";
@@ -134,5 +135,138 @@ export class FileHierarchy {
             });
             handleSuccess(directory, current, data.begin, data.end);
         });
+    }
+
+    /**
+     * 新建目录。
+     * @param {Directory} workingDir 当前工作目录。
+     * @param {string} newDirName 新目录名。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode newDirectory}:{@link Directory}) 。
+     * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    newDirectory(workingDir, newDirName, handleSuccess, handleFailure) {
+        // 校验根
+        let root = this._recurseRoot(workingDir);
+        if (root.getId() != this.root.getId()) {
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.NotFound, workingDir);
+            cell.Logger.w('FileHierarchy', '#newDirectory() - ' + error);
+            if (handleFailure) {
+                handleFailure(error);
+            }
+            return;
+        }
+
+        let request = new Packet(FileStorageAction.NewDir, {
+            root: root.getId(),
+            workingId: workingDir.getId(),
+            dirName: newDirName
+        });
+        this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
+            if (null == packet || packet.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, workingDir);
+                cell.Logger.w('FileHierarchy', '#newDirectory() - ' + error);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            if (packet.getPayload().code != FileStorageState.Ok) {
+                let error = new ModuleError(FileStorage.NAME, packet.getPayload().code, workingDir);
+                cell.Logger.w('FileHierarchy', '#newDirectory() - ' + error);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            // 解析数据
+            let data = packet.getPayload().data;
+            let dir = Directory.create(data, this);
+            workingDir.addChild(dir);
+            // 更新目录数量
+            workingDir.numDirs += 1;
+            handleSuccess(dir);
+        });
+    }
+
+    /**
+     * 删除目录。
+     * @param {Directory} workingDir 当前工作目录。
+     * @param {Directory|number} pendingDir 待删除目录或者目录 ID 。
+     * @param {boolean} recursive 是否递归删除所有子文件和子目录。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode deletedDir}:{@link Directory}) 。
+     * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    deleteDirectory(workingDir, pendingDir, recursive, handleSuccess, handleFailure) {
+        // 校验根
+        let root = this._recurseRoot(workingDir);
+        if (root.getId() != this.root.getId()) {
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.NotFound, pendingDir);
+            cell.Logger.w('FileHierarchy', '#deleteDirectory() - ' + error);
+            if (handleFailure) {
+                handleFailure(error);
+            }
+            return;
+        }
+
+        let deletedDir = workingDir.getDirectory((typeof pendingDir === 'number') ? pendingDir : pendingDir.getId());
+        if (null == deletedDir) {
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.NotFound, pendingDir);
+            cell.Logger.w('FileHierarchy', '#deleteDirectory() - ' + error);
+            if (handleFailure) {
+                handleFailure(error);
+            }
+            return;
+        }
+
+        let request = new Packet(FileStorageAction.DeleteDir, {
+            root: root.getId(),
+            workingId: workingDir.getId(),
+            dirId: deletedDir.getId(),
+            recursive: recursive
+        });
+        this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
+            if (null == packet || packet.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, pendingDir);
+                cell.Logger.w('FileHierarchy', '#deleteDirectory() - ' + error);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            if (packet.getPayload().code != FileStorageState.Ok) {
+                let error = new ModuleError(FileStorage.NAME, packet.getPayload().code, pendingDir);
+                cell.Logger.w('FileHierarchy', '#deleteDirectory() - ' + error);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            // 解析数据
+            // let data = packet.getPayload().data;
+
+            handleSuccess(deletedDir);
+
+            // 更新目录数量
+            workingDir.numDirs -= 1;
+            workingDir.removeChild(deletedDir);
+        });
+    }
+
+    /**
+     * 递归到根目录。
+     * @private
+     * @param {Directory} dir 
+     * @returns {Directory}
+     */
+    _recurseRoot(dir) {
+        if (null == dir.parent) {
+            return dir;
+        }
+
+        return this._recurseRoot(dir.parent);
     }
 }

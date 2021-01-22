@@ -56,5 +56,17 @@ export const FileStorageAction = {
      * 罗列文件清单。
      * @type {string}
      */
-    ListFiles: 'listFiles'
+    ListFiles: 'listFiles',
+
+    /**
+     * 创建新目录。
+     * @type {string}
+     */
+    NewDir: 'newDir',
+
+    /**
+     * 删除目录。
+     * @type {string}
+     */
+    DeleteDir: 'deleteDir',
 }

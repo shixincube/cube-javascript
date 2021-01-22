@@ -66,6 +66,18 @@ export const FileStorageState = {
     Unauthorized: 14,
 
     /**
+     * 拒绝操作。
+     * @type {number}
+     */
+    Reject: 15,
+
+    /**
+     * 重名。
+     * @type {number}
+     */
+    DuplicationOfName: 20,
+
+    /**
      * 上传失败。
      * @type {number}
      */

@@ -111,7 +111,7 @@
 
     FilesTable.prototype.changeDir = function(id) {
         var dir = curDir.getDirectory(id);
-        
+
     }
 
     g.FilesTable = FilesTable;

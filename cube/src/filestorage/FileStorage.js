@@ -391,19 +391,19 @@ export class FileStorage extends Module {
     }
 
     /**
-     * 
-     * @param {*} handleSuccess 
-     * @param {*} handleFailure 
+     * 获取当前登录联系人的个人文件根目录。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode root}:{@link Directory})。
+     * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError})。
      */
     getSelfRoot(handleSuccess, handleFailure) {
         this.getRoot(this.contactService.getSelf().getId(), handleSuccess, handleFailure);
     }
 
     /**
-     * 
+     * @private
      * @param {number|Contact|Group} idOrObject 
-     * @param {*} handleSuccess 
-     * @param {*} handleFailure 
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode root}:{@link Directory})。
+     * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError})。
      */
     getRoot(idOrObject, handleSuccess, handleFailure) {
         if (!this.start) {
@@ -452,10 +452,75 @@ export class FileStorage extends Module {
             let hierarchy = new FileHierarchy(this);
             let root = Directory.create(packet.getPayload().data, hierarchy);
             hierarchy.root = root;
-            this.fileHierarchyMap.put(root.ownerId, hierarchy);
+            this.fileHierarchyMap.put(root.getId(), hierarchy);
 
             handleSuccess(root);
         });
+    }
+
+    /**
+     * 新建目录。
+     * @param {Directory} workingDir 当前工作目录。
+     * @param {string} newDirName 新目录名。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode newDirectory}:{@link Directory}) 。
+     * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    newDirectory(workingDir, newDirName, handleSuccess, handleFailure) {
+        let root = this._recurseRoot(workingDir);
+        this.getRoot(root.getId(), (root) => {
+            let hierarchy = this.fileHierarchyMap.get(root.getId());
+            hierarchy.newDirectory(workingDir, newDirName, handleSuccess, handleFailure);
+        }, (error) => {
+            if (handleFailure) {
+                handleFailure(error);
+            }
+        });
+    }
+
+    /**
+     * 删除目录。
+     * @param {Directory} workingDir 当前工作目录。
+     * @param {Directory|number} pendingDir 待删除目录或者目录 ID 。
+     * @param {boolean} recursive 是否递归删除所有子文件和子目录。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode deletedDir}:{@link Directory}) 。
+     * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    deleteDirectory(workingDir, pendingDir, recursive, handleSuccess, handleFailure) {
+        let root = this._recurseRoot(workingDir);
+        this.getRoot(root.getId(), (root) => {
+            let hierarchy = this.fileHierarchyMap.get(root.getId());
+            hierarchy.deleteDirectory(workingDir, pendingDir, recursive, handleSuccess, handleFailure);
+        }, (error) => {
+            if (handleFailure) {
+                handleFailure(error);
+            }
+        });
+    }
+
+    /**
+     * 
+     * @param {*} workingDir 
+     * @param {*} pendingDir 
+     * @param {*} newDirName 
+     * @param {*} handleSuccess 
+     * @param {*} handleFailure 
+     */
+    renameDirectory(workingDir, pendingDir, newDirName, handleSuccess, handleFailure) {
+
+    }
+
+    /**
+     * 递归到根目录。
+     * @private
+     * @param {Directory} dir 
+     * @returns {Directory}
+     */
+    _recurseRoot(dir) {
+        if (null == dir.parent) {
+            return dir;
+        }
+
+        return this._recurseRoot(dir.parent);
     }
 
     /**
