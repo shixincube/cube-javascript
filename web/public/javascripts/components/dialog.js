@@ -92,7 +92,16 @@
         },
 
         closePrompt: function(ok) {
-            promptCallback(ok, $('#modal_prompt').find('.prompt-input').val());
+            var el = $('#modal_prompt');
+            if (ok) {
+                var res = promptCallback(ok, el.find('.prompt-input').val());
+                if (undefined === res || res) {
+                    el.modal('hide');
+                }
+            }
+            else {
+                promptCallback(ok, el.find('.prompt-input').val());
+            }
         },
 
         /**

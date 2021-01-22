@@ -40,6 +40,7 @@
 
     var table = null;
 
+    var rootDir = null;
     var currentDir = null;
 
     var FilesPanel = function(el) {
@@ -78,7 +79,14 @@
         btnNewDir.click(function() {
             g.dialog.showPrompt('新建文件夹', '请输入新建文件夹的名称', function(state, value) {
                 if (state) {
+                    var name = value.trim();
+                    if (name.length == 0) {
+                        alert('文件夹名称不能为空。');
+                        return false;
+                    }
 
+                    that.newDirectory(name);
+                    return true;
                 }
             });
         });
@@ -93,40 +101,53 @@
             return;
         }
 
-        var parentList = [];
-        this.recurseParent(parentList, currentDir);
+        var dirList = [];
+        this.recurseParent(dirList, currentDir);
+
+        var rootActive = (dirList.length == 0) ? ' active' : '';
+        var rootEl = (dirList.length == 0) ? '我的文件' :
+            '<a href="javascript:app.filesPanel.changeDirectory(\'' + rootDir.getId() + '\');">我的文件</a>';
 
         var html = ['<ol class="breadcrumb float-sm-right">',
-            '<li class="breadcrumb-item active"><a href="javascript:;">',
-                '我的文件',
-            '</li>'];
+            '<li class="breadcrumb-item', rootActive, '">', rootEl, '</li>'];
 
-        parentList.forEach(function(item) {
-            html.push('<li class="breadcrumb-item"><a href="javascript:;">');
-            html.push(item.getName());
-            html.push('</a></li>');
-        });
+        for (var i = 0; i < dirList.length; ++i) {
+            var dir = dirList[i];
+            html.push('<li class="breadcrumb-item');
+            if (i + 1 == dirList.length) {
+                html.push(' active');
+                html.push('">');
+                html.push(dir.getName());
+                html.push('</li>');
+            }
+            else {
+                html.push('"><a href="javascript:;">');
+                html.push(dir.getName());
+                html.push('</a></li>');
+            }
+        }
 
         html.push('</ol>');
 
         panelEl.find('.fp-path').html(html.join(''));
     }
 
-    FilesPanel.prototype.recurseParent = function(list, child) {
-        var parent = child.getParent();
+    FilesPanel.prototype.recurseParent = function(list, dir) {
+        var parent = dir.getParent();
         if (null == parent) {
             return;
         }
 
-        list.push(parent);
+        list.push(dir);
         this.recurseParent(list, parent);
     }
 
-    FilesPanel.prototype.loadAllFiles = function() {
+    FilesPanel.prototype.showRoot = function() {
         if (null == currentDir) {
             g.app.filesCtrl.getRoot(function(root) {
+                rootDir = root;
                 currentDir = root;
-                that.loadAllFiles();
+                that.showRoot();
             });
             return;
         }
@@ -135,12 +156,11 @@
 
         // test data
         // var now = Date.now();
-        // for (var i = 0; i < 20; ++i) {
+        // for (var i = 1; i <= 20; ++i) {
         //     var dir = new Directory(null);
         //     dir.id = i;
         //     dir.name = '我是文件夹 ' + i;
         //     dir.lastModified = now + i;
-        //     dir.numDirs = 20;
         //     currentDir.addChild(dir);
         // }
         // test data - end
@@ -165,8 +185,28 @@
         table.select(parseInt(id));
     }
 
-    FilesPanel.prototype.changeDir = function(id) {
-        table.changeDir(parseInt(id));
+    FilesPanel.prototype.changeDirectory = function(id) {
+        var dirId = parseInt(id);
+        if (currentDir.getId() == dirId) {
+            return;
+        }
+
+        var dir = currentDir.getDirectory(dirId);
+        currentDir = dir;
+
+        // 遍历目录
+        
+
+        this.updateTitlePath();
+    }
+
+    FilesPanel.prototype.newDirectory = function(dirName) {
+        g.dialog.launchToast(Toast.Info, '新建文件夹 "' + dirName + '"');
+        currentDir.newDirectory(dirName, function(newDir) {
+            table.insertFolder(newDir);
+        }, function(error) {
+            g.dialog.launchToast(Toast.Error, '新建文件夹失败: ' + error.code);
+        });
     }
 
     FilesPanel.prototype.resetSelectAllButton = function() {

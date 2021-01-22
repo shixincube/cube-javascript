@@ -14,4 +14,9 @@ body {
 
 .copyright {
     text-align: center;
+    font-size: 14px;
+}
+
+#btn_login {
+    font-size: 16px;
 }

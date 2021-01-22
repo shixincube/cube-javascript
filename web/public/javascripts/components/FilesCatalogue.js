@@ -50,7 +50,7 @@
     }
 
     FilesCatalogue.prototype.prepare = function() {
-        g.app.filesPanel.loadAllFiles();
+        g.app.filesPanel.showRoot();
     }
 
     FilesCatalogue.prototype.select = function(id) {
@@ -63,7 +63,7 @@
 
         if (btnAllFiles.attr('id') == id) {
             activeBtn = btnAllFiles;
-            g.app.filesPanel.loadAllFiles();
+            g.app.filesPanel.showRoot();
         }
         else if (btnImageFiles.attr('id') == id) {
             activeBtn = btnImageFiles;

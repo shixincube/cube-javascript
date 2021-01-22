@@ -29,22 +29,39 @@
 
     var tableEl = null;
     var noFileBg = null;
+    var surface = null;
     var surfaceA = null;
     var surfaceB = null;
 
-    var curDir = null;
+    var curFolder = null;
     var curBeginIndex = 0;
     var curEndIndex = 0;
+
+    function makeFolderRow(id, name, time) {
+        return [
+            '<tr onclick="app.filesPanel.select(\'', id, '\')"',
+                    ' ondblclick="app.filesPanel.changeDirectory(\'', id, '\')" id="ftr_', id, '">',
+                '<td><div class="icheck-primary">',
+                    '<input type="checkbox" value="" id="', id, '">',
+                        '<label for="', id, '"></label></div></td>',
+                '<td class="file-icon"><i class="ci ci-file-directory"></i></td>',
+                '<td class="file-name">', name, '</td>',
+                '<td class="file-size">--</td>',
+                '<td class="file-lastmodifed">', g.formatYMDHMS(time), '</td>',
+            '</tr>'
+        ];
+    }
 
     var FilesTable = function(el) {
         tableEl = el;
         noFileBg = $('#table_files_nofile');
         surfaceA = el.find('tbody[data-target="surface-a"]');
         surfaceB = el.find('tbody[data-target="surface-b"]');
+        surface = surfaceA;
     }
 
     FilesTable.prototype.updatePage = function(dir, begin, end, list) {
-        curDir = dir;
+        curFolder = dir;
         curBeginIndex = begin;
         curEndIndex = end;
 
@@ -71,18 +88,7 @@
                 ];
             }
             else {
-                rowHtml = [
-                    '<tr onclick="app.filesPanel.select(\'', element.getId(), '\')"',
-                            ' ondblclick="app.filesPanel.changeDir(\'', element.getId(), '\')" id="ftr_', element.getId(), '">',
-                        '<td><div class="icheck-primary">',
-                            '<input type="checkbox" value="" id="', element.getId(), '">',
-                                '<label for="', element.getId(), '"></label></div></td>',
-                        '<td class="file-icon"><i class="ci ci-file-directory"></i></td>',
-                        '<td class="file-name">', element.getName(), '</td>',
-                        '<td class="file-size">--</td>',
-                        '<td class="file-lastmodifed">', g.formatYMDHMS(element.getLastModified()), '</td>',
-                    '</tr>'
-                ];
+                rowHtml = makeFolderRow(element.getId(), element.getName(), element.getLastModified());
             }
 
             html = html.concat(rowHtml);
@@ -92,7 +98,7 @@
             noFileBg.css('display', 'none');
         }
 
-        surfaceA[0].innerHTML = html.join('');
+        surface[0].innerHTML = html.join('');
     }
 
     FilesTable.prototype.select = function(id) {
@@ -109,9 +115,9 @@
         }
     }
 
-    FilesTable.prototype.changeDir = function(id) {
-        var dir = curDir.getDirectory(id);
-
+    FilesTable.prototype.insertFolder = function(dir) {
+        var rowHtml = makeFolderRow(dir.getId(), dir.getName(), dir.getLastModified());
+        surface.prepend($(rowHtml.join('')));
     }
 
     g.FilesTable = FilesTable;
