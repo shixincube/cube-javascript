@@ -34,6 +34,7 @@
 
     var btnSelectAll = null;
     var btnNewDir = null;
+    var btnParent = null;
 
     var infoLoaded = 0;
     var infoTotal = 0;
@@ -49,6 +50,7 @@
 
         btnSelectAll = el.find('.checkbox-toggle');
         btnNewDir = el.find('button[data-target="new-dir"]');
+        btnParent = el.find('button[data-target="parent"]');
 
         infoLoaded = el.find('.info-loaded');
         infoTotal = el.find('.info-total');
@@ -89,6 +91,16 @@
                     return true;
                 }
             });
+        });
+
+        // 上一级/回到父目录
+        btnParent.click(function() {
+            if (currentDir == rootDir) {
+                return;
+            }
+
+            var parent = currentDir.getParent();
+            that.changeDirectory(parent);
         });
     }
 
@@ -184,14 +196,34 @@
         table.select(parseInt(id));
     }
 
-    FilesPanel.prototype.changeDirectory = function(id) {
-        var dirId = parseInt(id);
-        if (currentDir.getId() == dirId) {
-            return;
-        }
+    FilesPanel.prototype.changeDirectory = function(idOrDir) {
+        var type = (typeof idOrDir);
+        if (type == 'number' || type == 'string') {
+            var dirId = parseInt(idOrDir);
 
-        var dir = currentDir.getDirectory(dirId);
-        currentDir = dir;
+            if (currentDir.getId() == dirId) {
+                return;
+            }
+    
+            if (dirId == rootDir.getId()) {
+                currentDir = rootDir;
+            }
+            else {
+                var dir = currentDir.getDirectory(dirId);
+                if (null == dir) {
+                    // 从 FS 模块直接查询目录
+                    dir = g.cube().fs.querySelfDirectory(dirId);
+                }
+                currentDir = dir;
+            }
+        }
+        else {
+            if (idOrDir == currentDir) {
+                return;
+            }
+            
+            currentDir = idOrDir;
+        }
 
         // 遍历目录
         var tlist = [];

@@ -80,6 +80,7 @@
         curEndIndex = end;
 
         if (list.length == 0) {
+            surface[0].innerHTML = '';
             noFileBg.css('display', 'block');
             return;
         }

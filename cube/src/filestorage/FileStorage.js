@@ -459,6 +459,20 @@ export class FileStorage extends Module {
     }
 
     /**
+     * 获取指定 ID 或名称的目录。
+     * @param {number|string} idOrName 目录 ID 或者目录名。
+     * @returns {Directory} 返回指定 ID 或名称的目录。
+     */
+    querySelfDirectory(idOrName) {
+        let hierarchy = this.fileHierarchyMap.get(this.contactService.getSelf().getId());
+        if (null == hierarchy) {
+            return null;
+        }
+
+        return hierarchy.getDirectory(idOrName);
+    }
+
+    /**
      * 新建目录。
      * @param {Directory} workingDir 当前工作目录。
      * @param {string} newDirName 新目录名。

@@ -328,6 +328,10 @@ export class Directory {
 
         child.parent = this;
         this.children.put(child.id, child);
+
+        if (this.hierarchy) {
+            this.hierarchy.dirMap.put(child.id, child);
+        }
     }
 
     /**

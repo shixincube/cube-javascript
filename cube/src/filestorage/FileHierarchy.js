@@ -33,6 +33,7 @@ import { Directory } from "./Directory";
 import { FileStorageAction } from "./FileStorageAction";
 import { FileStorageState } from "./FileStorageState";
 import { FileLabel } from "./FileLabel";
+import { FastMap } from "../util/FastMap";
 
 /**
  * 文件层级结构描述。
@@ -52,6 +53,11 @@ export class FileHierarchy {
          * @type {Directory}
          */
         this.root = null;
+
+        /**
+         * @type {FastMap}
+         */
+        this.dirMap = new FastMap();
     }
 
     /**
@@ -59,6 +65,28 @@ export class FileHierarchy {
      */
     getRoot() {
         return this.root;
+    }
+
+    /**
+     * 获取指定 ID 或名称的目录。
+     * @param {number|string} idOrName 目录 ID 或者目录名。
+     * @returns {Directory} 返回指定 ID 或名称的目录。
+     */
+    getDirectory(idOrName) {
+        if (typeof idOrName === 'number') {
+            return this.dirMap.get(idOrName);
+        }
+        else if (typeof idOrName === 'string') {
+            let list = this.dirMap.values();
+            for (let i = 0; i < list.length; ++i) {
+                let dir = list[i];
+                if (dir.name == idOrName) {
+                    return dir;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
