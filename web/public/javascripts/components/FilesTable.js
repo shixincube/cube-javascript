@@ -52,6 +52,20 @@
         ];
     }
 
+    function makeFileRow(fileLabel) {
+        return [
+            '<tr onclick="app.filesPanel.select(\'', fileLabel.getId(), '\')" id="ftr_', fileLabel.getId(), '">',
+                '<td><div class="icheck-primary">',
+                    '<input type="checkbox" value="" id="', fileLabel.getId(), '">',
+                        '<label for="', fileLabel.getId(), '"></label></div></td>',
+                '<td class="file-icon"></td>',
+                '<td class="file-name">', fileLabel.getFileName(), '</td>',
+                '<td class="file-size">', g.formatSize(fileLabel.getFileSize()), '</td>',
+                '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getCompletedTime()), '</td>',
+            '</tr>'
+        ];
+    }
+
     var FilesTable = function(el) {
         tableEl = el;
         noFileBg = $('#table_files_nofile');
@@ -75,17 +89,7 @@
         list.forEach(function(element) {
             var rowHtml = null;
             if (element instanceof FileLabel) {
-                rowHtml = [
-                    '<tr onclick="app.filesPanel.select(\'', element.getId(), '\')" id="ftr_', element.getId(), '">',
-                        '<td><div class="icheck-primary">',
-                            '<input type="checkbox" value="" id="', element.getId(), '">',
-                                '<label for="', element.getId(), '"></label></div></td>',
-                        '<td class="file-icon"></td>',
-                        '<td class="file-name">', element.getFileName(), '</td>',
-                        '<td class="file-size">', g.formatSize(element.getFileSize()), '</td>',
-                        '<td class="file-lastmodifed">', g.formatYMDHMS(element.getCompletedTime()), '</td>',
-                    '</tr>'
-                ];
+                rowHtml = makeFileRow(element);
             }
             else {
                 rowHtml = makeFolderRow(element.getId(), element.getName(), element.getLastModified());

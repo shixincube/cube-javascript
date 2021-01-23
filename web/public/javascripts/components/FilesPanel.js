@@ -152,8 +152,6 @@
             return;
         }
 
-        var tlist = [];
-
         // test data
         // var now = Date.now();
         // for (var i = 1; i <= 20; ++i) {
@@ -165,6 +163,7 @@
         // }
         // test data - end
 
+        var tlist = [];
         currentDir.listDirectories(function(dir, list) {
             tlist = tlist.concat(list);
 
@@ -195,7 +194,19 @@
         currentDir = dir;
 
         // 遍历目录
-        
+        var tlist = [];
+        currentDir.listDirectories(function(dir, list) {
+            tlist = tlist.concat(list);
+
+            currentDir.listFiles(0, 20, function(dir, files) {
+                tlist = tlist.concat(files);
+                // 更新表格
+                table.updatePage(currentDir, 0, 20, tlist);
+
+                infoLoaded.text(tlist.length);
+                infoTotal.text(currentDir.totalDirs() + currentDir.totalFiles());
+            });
+        });
 
         this.updateTitlePath();
     }
