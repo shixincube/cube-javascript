@@ -311,7 +311,7 @@ export class Directory {
      * @param {Directory|number} dir 待删除目录或者目录 ID 。
      * @param {boolean} recursive 是否递归删除所有子文件和子目录。
      * @param {function} handleSuccess 成功回调。参数：({@linkcode deletedDir}:{@link Directory}) 。
-     * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
     deleteDirectory(dir, recursive, handleSuccess, handleFailure) {
         this.hierarchy.deleteDirectory(this, dir, recursive, handleSuccess, handleFailure);

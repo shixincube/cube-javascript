@@ -261,48 +261,48 @@
                             <div class="card-body p-0">
                                 <ul class="nav nav-pills flex-column">
                                     <li class="nav-item">
-                                        <a id="btn_all_files" href="javascript:app.filesCatalog.select('btn_all_files');" class="nav-link active" title="全部文件">
+                                        <a id="btn_all_files" href="javascript:;" class="nav-link active" title="全部文件">
                                             <i class="fas fa-file"></i>&nbsp;&nbsp;全部文件
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a id="btn_image_files" href="javascript:app.filesCatalog.select('btn_image_files');" class="nav-link" title="图片文件">
+                                        <a id="btn_image_files" href="javascript:;" class="nav-link" title="图片文件">
                                             <i class="fas fa-file-image"></i>&nbsp;&nbsp;图片文件
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a id="btn_doc_files" href="javascript:app.filesCatalog.select('btn_doc_files');" class="nav-link" title="文档文件">
+                                        <a id="btn_doc_files" href="javascript:;" class="nav-link" title="文档文件">
                                             <i class="fas fa-file-alt"></i>&nbsp;&nbsp;文档文件
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a id="btn_recyclebin" href="javascript:app.filesCatalog.select('btn_recyclebin');" class="nav-link" title="回收站">
+                                        <a id="btn_recyclebin" href="javascript:;" class="nav-link" title="回收站">
                                             <i class="far fa-trash-alt"></i>&nbsp;&nbsp;回收站
                                         </a>
                                     </li>
                                 </ul>
                             </div>
                         </div>
-                        <div class="card card-warning card-outline file-trans-list">
+                        <div class="card card-warning card-outline file-trans">
                             <div class="card-header">
                                 <h5 class="card-title">传输列表</h5>
                             </div>
                             <div class="card-body p-0">
                                 <ul class="nav nav-pills flex-column">
                                     <li class="nav-item">
-                                        <a href="#" class="nav-link">
+                                        <a id="btn_trans_upload" href="javascript:;" class="nav-link" title="上传列表">
                                             <i class="fas fa-upload"></i>&nbsp;&nbsp;正在上传
                                             <span class="badge bg-primary float-right"></span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a href="#" class="nav-link">
+                                        <a id="btn_trans_download" href="javascript:;" class="nav-link" title="下载列表">
                                             <i class="fas fa-download"></i>&nbsp;&nbsp;正在下载
                                             <span class="badge bg-primary float-right"></span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a href="#" class="nav-link">
+                                        <a id="btn_trans_complete" href="javascript:;" class="nav-link" title="传输完成列表">
                                             <i class="far fa-check-circle"></i>&nbsp;&nbsp;传输完成
                                             <span class="badge bg-primary float-right"></span>
                                         </a>
@@ -335,10 +335,10 @@
                                 <button type="button" class="btn btn-primary btn-sm" title="上传文件" data-target="upload"><i class="fas fa-upload"></i> 上传</button>
                                 <button type="button" class="btn btn-default btn-sm" title="新建文件夹" data-target="new-dir"><i class="fas fa-plus"></i> 新建文件夹</button>
                                 <div class="btn-group">
+                                    <button type="button" class="btn btn-default btn-sm" title="刷新" data-target="refresh"><i class="fas fa-sync-alt"></i></button>
                                     <button type="button" class="btn btn-default btn-sm" title="上一级" data-target="parent"><i class="fas fa-arrow-up"></i></button>
-                                    <button type="button" class="btn btn-default btn-sm"><i class="fas fa-sync-alt"></i></button>
-                                    <button type="button" class="btn btn-default btn-sm"><i class="fas fa-share"></i></button>
-                                    <button type="button" class="btn btn-default btn-sm"><i class="far fa-trash-alt"></i></button>
+                                    <!-- button type="button" class="btn btn-default btn-sm"><i class="fas fa-share"></i></button -->
+                                    <button type="button" class="btn btn-default btn-sm" title="移到回收站" data-target="recycle"><i class="far fa-trash-alt"></i></button>
                                 </div><!-- /.btn-group -->
                                 <div class="float-right">
                                     <span class="load-info">已加载 <span class="info-loaded">0</span> 个，共 <span class="info-total">0</span> 个</span>
@@ -381,6 +381,19 @@
                             </div>
                             <div id="table_files_nofile" class="no-file bg-nofile">
                                 <div>文件夹为空</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Trans List -->
+                    <div class="col-md-9 file-trans-list files-hidden">
+                        <div class="card file-content">
+                            <div class="card-header">
+                                <h5 class="card-title">
+                                    <span class="">全部文件</span>
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                
                             </div>
                         </div>
                     </div>

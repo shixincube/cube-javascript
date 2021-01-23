@@ -42,7 +42,7 @@
             '<tr onclick="app.filesPanel.select(\'', id, '\')"',
                     ' ondblclick="app.filesPanel.changeDirectory(\'', id, '\')" id="ftr_', id, '">',
                 '<td><div class="icheck-primary">',
-                    '<input type="checkbox" value="" id="', id, '">',
+                    '<input type="checkbox" data-type="folder" id="', id, '">',
                         '<label for="', id, '"></label></div></td>',
                 '<td class="file-icon"><i class="ci ci-file-directory"></i></td>',
                 '<td class="file-name">', name, '</td>',
@@ -56,7 +56,7 @@
         return [
             '<tr onclick="app.filesPanel.select(\'', fileLabel.getId(), '\')" id="ftr_', fileLabel.getId(), '">',
                 '<td><div class="icheck-primary">',
-                    '<input type="checkbox" value="" id="', fileLabel.getId(), '">',
+                    '<input type="checkbox" data-type="file" id="', fileLabel.getId(), '">',
                         '<label for="', fileLabel.getId(), '"></label></div></td>',
                 '<td class="file-icon"></td>',
                 '<td class="file-name">', fileLabel.getFileName(), '</td>',

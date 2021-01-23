@@ -27,6 +27,8 @@
 (function(g) {
     'use strict'
 
+    var that = null;
+
     var catalogEl = null;
     var transEl = null;
 
@@ -35,22 +37,45 @@
     var btnDocFiles = null;
     var btnRecyclebin = null;
 
+    var btnUploading = null;
+    var btnDownloading = null;
+    var btnComplete = null;
+
     var activeBtn = null;
 
-    var FilesCatalogue = function(catalogEl, transEl) {
-        catalogEl = catalogEl;
-        transEl = transEl;
+    var FilesCatalogue = function(catalog, trans) {
+        catalogEl = catalog;
+        transEl = trans;
 
         btnAllFiles = catalogEl.find('#btn_all_files');
         btnImageFiles = catalogEl.find('#btn_image_files');
         btnDocFiles = catalogEl.find('#btn_doc_files');
         btnRecyclebin = catalogEl.find('#btn_recyclebin');
 
+        btnUploading = transEl.find('#btn_trans_upload');
+        btnDownloading = transEl.find('#btn_trans_download');
+        btnComplete = transEl.find('#btn_trans_complete');
+
         activeBtn = btnAllFiles;
+
+        that = this;
     }
 
     FilesCatalogue.prototype.prepare = function() {
         g.app.filesPanel.showRoot();
+
+        btnAllFiles.click(function() {
+            that.select($(this).attr('id'));
+        });
+        btnImageFiles.click(function() {
+            that.select($(this).attr('id'));
+        });
+        btnDocFiles.click(function() {
+            that.select($(this).attr('id'));
+        });
+        btnRecyclebin.click(function() {
+            that.select($(this).attr('id'));
+        });
     }
 
     FilesCatalogue.prototype.select = function(id) {
@@ -59,7 +84,6 @@
         }
 
         activeBtn.removeClass('active');
-        // var filter = null;
 
         if (btnAllFiles.attr('id') == id) {
             activeBtn = btnAllFiles;
@@ -67,17 +91,15 @@
         }
         else if (btnImageFiles.attr('id') == id) {
             activeBtn = btnImageFiles;
-            // filter = ['jpg', 'jpeg', 'png', 'gif'];
+            g.app.filesPanel.showImages();
         }
         else if (btnDocFiles.attr('id') == id) {
             activeBtn = btnDocFiles;
-            // filter = ['pdf', 'doc', 'docm', 'docx', 'dotm', 'dotx', 'ett',
-            //     'xls', 'xlsm', 'xlsx', 'xlt', 'dpt', 'ppsm', 'ppsx', 'pot',
-            //     'potm', 'potx', 'pps', 'ppt', 'pptm', 'pptx'];
+            g.app.filesPanel.showDocuments();
         }
         else if (btnRecyclebin.attr('id') == id) {
             activeBtn = btnRecyclebin;
-            // filter = ['recycle'];
+            g.app.filesPanel.showRecyclebin();
         }
 
         activeBtn.addClass('active');

@@ -47,6 +47,12 @@ export const FileStorageAction = {
     GetRoot: 'getRoot',
 
     /**
+     * 插入文件到目录。
+     * @type {string}
+     */
+    InsertFile: 'insertFile',
+
+    /**
      * 罗列目录清单。
      * @type {string}
      */

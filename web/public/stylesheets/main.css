@@ -380,20 +380,20 @@ body {
 .file-catalog .card-title {
     font-size: 16px;
 }
-.file-trans-list {
+.file-trans {
     margin-top: 1.0rem;
     margin-bottom: 0;
     height: 161px;
     font-size: 14px;
 }
-.file-trans-list .card-title {
+.file-trans .card-title {
     font-size: 16px;
 }
 
 .file-catalog .nav-link {
     border-radius: 0;
 }
-.file-trans-list .nav-link {
+.file-trans .nav-link {
     border-radius: 0;
 }
 
@@ -502,6 +502,10 @@ body {
 .file-content .icheck-primary label::after {
     margin-left: 9px !important;
     margin-top: -1px !important;
+}
+
+.files-hidden {
+    display: none;
 }
 
 /* 文件界面 - 结束 */

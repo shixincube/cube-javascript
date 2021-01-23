@@ -33,8 +33,11 @@
     var toolbarEl = null;
 
     var btnSelectAll = null;
+
+    var btnUpload = null;
     var btnNewDir = null;
     var btnParent = null;
+    var btnRecycle = null;
 
     var infoLoaded = 0;
     var infoTotal = 0;
@@ -49,8 +52,10 @@
         table = new FilesTable(el.find('.table-files'));
 
         btnSelectAll = el.find('.checkbox-toggle');
+        btnUpload = el.find('button[data-target="upload"]');
         btnNewDir = el.find('button[data-target="new-dir"]');
         btnParent = el.find('button[data-target="parent"]');
+        btnRecycle = el.find('button[data-target="recycle"]');
 
         infoLoaded = el.find('.info-loaded');
         infoTotal = el.find('.info-total');
@@ -66,12 +71,12 @@
             var clicks = $(this).data('clicks');
             if (clicks) {
                 // Uncheck all checkboxes
-                $('.table-files input[type=\'checkbox\']').prop('checked', false);
+                $('.table-files input[type="checkbox"]').prop('checked', false);
                 $('.checkbox-toggle .far.fa-check-square').removeClass('fa-check-square').addClass('fa-square');
             }
             else {
                 // Check all checkboxes
-                $('.table-files input[type=\'checkbox\']').prop('checked', true);
+                $('.table-files input[type="checkbox"]').prop('checked', true);
                 $('.checkbox-toggle .far.fa-square').removeClass('fa-square').addClass('fa-check-square');
             }
             $(this).data('clicks', !clicks);
@@ -102,12 +107,53 @@
             var parent = currentDir.getParent();
             that.changeDirectory(parent);
         });
+
+        // 删除文件或文件夹
+        btnRecycle.click(function() {
+            var result = [];
+            var list = panelEl.find('.table-files input[type="checkbox"]');
+            for (var i = 0; i < list.length; ++i) {
+                var el = $(list.get(i));
+                if (el.prop('checked')) {
+                    result.push({
+                        id: parseInt(el.attr('id')),
+                        type: el.attr('data-type')
+                    });
+                }
+            }
+
+            if (result.length == 0) {
+                return;
+            }
+
+            var text = null;
+            if (result.length == 1) {
+                var dir = currentDir.getDirectory(result[0].id);
+                text = ['您确定要删除', result[0].type == 'folder' ? '文件夹' : '文件', ' "', dir.getName(), '" 吗？'];
+            }
+            else {
+                text = ['您确定要删除 ', result.length, ' 个项目吗？'];
+            }
+
+            g.dialog.showConfirm('删除文件', text.join(''), function(ok) {
+                if (ok) {
+
+                }
+            });
+        });
     }
 
+    /**
+     * 设置标题。
+     * @param {string} title 
+     */
     FilesPanel.prototype.setTitle = function(title) {
         panelEl.find('.fp-title').text(title);
     }
 
+    /**
+     * 更新标题里的路径信息。
+     */
     FilesPanel.prototype.updateTitlePath = function() {
         if (null == currentDir) {
             return;
@@ -144,6 +190,11 @@
         panelEl.find('.fp-path').html(html.join(''));
     }
 
+    /**
+     * 递归所有目录。
+     * @param {Array} list 
+     * @param {Directory} dir 
+     */
     FilesPanel.prototype.recurseParent = function(list, dir) {
         var parent = dir.getParent();
         if (null == parent) {
@@ -154,6 +205,9 @@
         this.recurseParent(list, parent);
     }
 
+    /**
+     * 显示根目录。
+     */
     FilesPanel.prototype.showRoot = function() {
         if (null == currentDir) {
             g.app.filesCtrl.getRoot(function(root) {
@@ -163,6 +217,9 @@
             });
             return;
         }
+
+        btnNewDir.css('display', 'inline-block');
+        btnParent.css('display', 'block');
 
         // test data
         // var now = Date.now();
@@ -190,6 +247,36 @@
         });
 
         this.updateTitlePath();
+    }
+
+    FilesPanel.prototype.showImages = function() {
+        panelEl.find('.fp-path').html('');
+        btnNewDir.css('display', 'none');
+        btnParent.css('display', 'none');
+
+        table.updatePage(currentDir, 0, 20, []);
+        infoLoaded.text(0);
+        infoTotal.text(0);
+    }
+
+    FilesPanel.prototype.showDocuments = function() {
+        panelEl.find('.fp-path').html('');
+        btnNewDir.css('display', 'none');
+        btnParent.css('display', 'none');
+
+        table.updatePage(currentDir, 0, 20, []);
+        infoLoaded.text(0);
+        infoTotal.text(0);
+    }
+
+    FilesPanel.prototype.showRecyclebin = function() {
+        panelEl.find('.fp-path').html('');
+        btnNewDir.css('display', 'none');
+        btnParent.css('display', 'none');
+
+        table.updatePage(currentDir, 0, 20, []);
+        infoLoaded.text(0);
+        infoTotal.text(0);
     }
 
     FilesPanel.prototype.select = function(id) {
@@ -221,7 +308,7 @@
             if (idOrDir == currentDir) {
                 return;
             }
-            
+
             currentDir = idOrDir;
         }
 

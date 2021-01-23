@@ -473,6 +473,24 @@ export class FileStorage extends Module {
     }
 
     /**
+     * 
+     * @param {File} file 
+     * @param {Directory} directory 
+     * @param {function} handleProcessing
+     * @param {function} handleSuccess 
+     * @param {function} handleFailure 
+     */
+    uploadFileTo(file, directory, handleProcessing, handleSuccess, handleFailure) {
+        this.uploadFile(file, (fileAnchor) => {
+
+        }, (fileAnchor) => {
+
+        }, (error) => {
+
+        });
+    }
+
+    /**
      * 新建目录。
      * @param {Directory} workingDir 当前工作目录。
      * @param {string} newDirName 新目录名。
@@ -680,6 +698,9 @@ export class FileStorage extends Module {
         if (event.name == ContactEvent.SignIn) {
             let self = event.data;
             this.cid = self.getId();
+        }
+        else if (event.name == ContactEvent.SignOut) {
+            this.fileHierarchyMap.clear();
         }
     }
 }
