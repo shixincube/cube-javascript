@@ -221,9 +221,9 @@ export class FileHierarchy {
     /**
      * 删除目录。
      * @param {Directory} workingDir 当前工作目录。
-     * @param {Directory|number} pendingDir 待删除目录或者目录 ID 。
+     * @param {Directory|Array|number|string} pendingDir 待删除目录或者目录 ID 。
      * @param {boolean} recursive 是否递归删除所有子文件和子目录。
-     * @param {function} handleSuccess 成功回调。参数：({@linkcode deletedDir}:{@link Directory}) 。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode workingDir}:{@link Directory}, {@linkcode deletedList}:{@linkcode Array<Directory>}) 。
      * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
     deleteDirectory(workingDir, pendingDir, recursive, handleSuccess, handleFailure) {
@@ -238,8 +238,51 @@ export class FileHierarchy {
             return;
         }
 
-        let deletedDir = workingDir.getDirectory((typeof pendingDir === 'number') ? pendingDir : pendingDir.getId());
-        if (null == deletedDir) {
+        // 删除列表
+        let deleteDirList = [];
+        let deleteDirIdList = [];
+        if (pendingDir instanceof Array) {
+            pendingDir.forEach((el) => {
+                if (typeof el === 'number' || typeof el === 'string') {
+                    let deletedDir = workingDir.getDirectory(el);
+                    if (null != deletedDir) {
+                        deleteDirList.push(deletedDir);
+                        deleteDirIdList.push(deletedDir.getId());
+                    }
+                }
+                else if (el instanceof Directory) {
+                    let deletedDir = workingDir.getDirectory(el.getId());
+                    if (null != deletedDir) {
+                        deleteDirList.push(deletedDir);
+                        deleteDirIdList.push(deletedDir.getId());
+                    }
+                }
+            });
+        }
+        else if (typeof pendingDir === 'number' || typeof pendingDir === 'string') {
+            let deletedDir = workingDir.getDirectory(pendingDir);
+            if (null != deletedDir) {
+                deleteDirList.push(deletedDir);
+                deleteDirIdList.push(deletedDir.getId());
+            }
+        }
+        else if (pendingDir instanceof Directory) {
+            let deletedDir = workingDir.getDirectory(pendingDir.getId());
+            if (null != deletedDir) {
+                deleteDirList.push(deletedDir);
+                deleteDirIdList.push(deletedDir.getId());
+            }
+        }
+        else {
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.Forbidden, pendingDir);
+            cell.Logger.w('FileHierarchy', '#deleteDirectory() - ' + error);
+            if (handleFailure) {
+                handleFailure(error);
+            }
+            return;
+        }
+
+        if (deleteDirList.length == 0) {
             let error = new ModuleError(FileStorage.NAME, FileStorageState.NotFound, pendingDir);
             cell.Logger.w('FileHierarchy', '#deleteDirectory() - ' + error);
             if (handleFailure) {
@@ -251,7 +294,7 @@ export class FileHierarchy {
         let request = new Packet(FileStorageAction.DeleteDir, {
             root: root.getId(),
             workingId: workingDir.getId(),
-            dirId: deletedDir.getId(),
+            dirList: deleteDirIdList,
             recursive: recursive
         });
         this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
@@ -274,13 +317,32 @@ export class FileHierarchy {
             }
 
             // 解析数据
-            // let data = packet.getPayload().data;
+            let data = packet.getPayload().data;
+            let deletedList = data.deletedList;
 
-            handleSuccess(deletedDir);
+            // 更新目录
+            let findDir = (dir) => {
+                for (let i = 0; i < deletedList.length; ++i) {
+                    let dirJson = deletedList[i];
+                    if (dirJson.id == dir.id) {
+                        return true;
+                    }
+                }
+                return false;
+            }
 
-            // 更新目录数量
-            workingDir.numDirs -= 1;
-            workingDir.removeChild(deletedDir);
+            let resultList = [];
+            for (let i = 0; i < deleteDirList.length; ++i) {
+                let dir = deleteDirList[i];
+                if (findDir(dir)) {
+                    workingDir.removeChild(dir);
+                    resultList.push(dir);
+                }   
+            }
+            // 更新数量
+            workingDir.numDirs -= resultList.length;
+
+            handleSuccess(workingDir, resultList);
         });
     }
 

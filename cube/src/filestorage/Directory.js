@@ -308,13 +308,13 @@ export class Directory {
 
     /**
      * 删除子目录。
-     * @param {Directory|number} dir 待删除目录或者目录 ID 。
+     * @param {Array|Directory|number|string} dirs 待删除目录或目录列表。
      * @param {boolean} recursive 是否递归删除所有子文件和子目录。
-     * @param {function} handleSuccess 成功回调。参数：({@linkcode deletedDir}:{@link Directory}) 。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode workingDir}:{@link Directory}, {@linkcode deletedList}:{@linkcode Array<Directory>}) 。
      * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
-    deleteDirectory(dir, recursive, handleSuccess, handleFailure) {
-        this.hierarchy.deleteDirectory(this, dir, recursive, handleSuccess, handleFailure);
+    deleteDirectory(dirs, recursive, handleSuccess, handleFailure) {
+        this.hierarchy.deleteDirectory(this, dirs, recursive, handleSuccess, handleFailure);
     }
 
     /**
@@ -336,10 +336,11 @@ export class Directory {
 
     /**
      * @private
-     * @param {Directory} child 
+     * @param {Directory|number} child 
      */
     removeChild(child) {
-        if (null != this.children.remove(child.id)) {
+        let id = (child instanceof Directory) ? child.id : child;
+        if (null != this.children.remove(id)) {
             child.parent = null;
         }
     }

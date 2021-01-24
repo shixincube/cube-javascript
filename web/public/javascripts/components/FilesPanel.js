@@ -137,7 +137,18 @@
 
             g.dialog.showConfirm('删除文件', text.join(''), function(ok) {
                 if (ok) {
+                    var dirList = [];
+                    result.forEach((item) => {
+                        if (item.type == 'folder') {
+                            dirList.push(item.id);
+                        }
+                    });
 
+                    currentDir.deleteDirectory(dirList, true, function(workingDir, resultList) {
+                        that.refreshUI();
+                    }, function(error) {
+                        g.dialog.launchToast(Toast.Error, '删除文件/文件夹失败: ' + error.code);
+                    });
                 }
             });
         });
@@ -205,6 +216,22 @@
         this.recurseParent(list, parent);
     }
 
+    FilesPanel.prototype.refreshUI = function() {
+        var tlist = [];
+        currentDir.listDirectories(function(dir, list) {
+            tlist = tlist.concat(list);
+
+            currentDir.listFiles(0, 20, function(dir, files) {
+                tlist = tlist.concat(files);
+                // 更新表格
+                table.updatePage(currentDir, 0, 20, tlist);
+
+                infoLoaded.text(tlist.length);
+                infoTotal.text(currentDir.totalDirs() + currentDir.totalFiles());
+            });
+        });
+    }
+
     /**
      * 显示根目录。
      */
@@ -232,19 +259,7 @@
         // }
         // test data - end
 
-        var tlist = [];
-        currentDir.listDirectories(function(dir, list) {
-            tlist = tlist.concat(list);
-
-            currentDir.listFiles(0, 20, function(dir, files) {
-                tlist = tlist.concat(files);
-                // 更新表格
-                table.updatePage(currentDir, 0, 20, tlist);
-
-                infoLoaded.text(tlist.length);
-                infoTotal.text(currentDir.totalDirs() + currentDir.totalFiles());
-            });
-        });
+        this.refreshUI();
 
         this.updateTitlePath();
     }
@@ -312,20 +327,8 @@
             currentDir = idOrDir;
         }
 
-        // 遍历目录
-        var tlist = [];
-        currentDir.listDirectories(function(dir, list) {
-            tlist = tlist.concat(list);
-
-            currentDir.listFiles(0, 20, function(dir, files) {
-                tlist = tlist.concat(files);
-                // 更新表格
-                table.updatePage(currentDir, 0, 20, tlist);
-
-                infoLoaded.text(tlist.length);
-                infoTotal.text(currentDir.totalDirs() + currentDir.totalFiles());
-            });
-        });
+        // 刷新目录
+        this.refreshUI();
 
         this.updateTitlePath();
     }
