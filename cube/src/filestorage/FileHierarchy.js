@@ -91,6 +91,7 @@ export class FileHierarchy {
 
     /**
      * 罗列指定目录下的子目录。
+     * @private
      * @param {Directory} directory 
      * @param {function} handleSuccess 
      * @param {function} handleFailure 
@@ -125,6 +126,7 @@ export class FileHierarchy {
     }
 
     /**
+     * 罗列指定目录下的文件。
      * @private
      * @param {Directory} directory 
      * @param {number} beginIndex 
@@ -343,6 +345,60 @@ export class FileHierarchy {
             workingDir.numDirs -= resultList.length;
 
             handleSuccess(workingDir, resultList);
+        });
+    }
+
+    /**
+     * 
+     * @param {File} file 
+     * @param {Directory} directory 
+     * @param {function} handleProcessing
+     * @param {function} handleSuccess 
+     * @param {function} [handleFailure] 
+     */
+    uploadFileTo(file, directory, handleProcessing, handleSuccess, handleFailure) {
+        this.storage.uploadFile(file, (fileAnchor) => {
+            handleProcessing(fileAnchor);
+        }, (fileAnchor) => {
+            // 将已上传文件插入到目录
+            let request = new Packet(FileStorageAction.InsertFile, {
+                root: this.root.getId(),
+                dirId: directory.getId(),
+                fileCode: fileAnchor.fileCode
+            });
+
+            this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
+                if (null == packet || packet.getStateCode() != StateCode.OK) {
+                    let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, fileAnchor);
+                    cell.Logger.w('FileHierarchy', '#uploadFileTo() - ' + error);
+                    if (handleFailure) {
+                        handleFailure(error);
+                    }
+                    return;
+                }
+
+                if (packet.getPayload().code != FileStorageState.Ok) {
+                    let error = new ModuleError(FileStorage.NAME, packet.getPayload().code, fileAnchor);
+                    cell.Logger.w('FileHierarchy', '#uploadFileTo() - ' + error);
+                    if (handleFailure) {
+                        handleFailure(error);
+                    }
+                    return;
+                }
+
+                // let dirJson = packet.getPayload().data.directory;
+                let fileJson = packet.getPayload().data.file;
+                let fileLabel = FileLabel.create(fileJson);
+                directory.addFile(fileLabel);
+                directory.numFiles += 1;
+
+                handleSuccess(directory, fileLabel);
+            });
+        }, (error) => {
+            cell.Logger.w('FileHierarchy', '#uploadFileTo() - ' + error);
+            if (handleFailure) {
+                handleFailure(error);
+            }
         });
     }
 

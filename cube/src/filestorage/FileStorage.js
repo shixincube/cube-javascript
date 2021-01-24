@@ -473,24 +473,6 @@ export class FileStorage extends Module {
     }
 
     /**
-     * 
-     * @param {File} file 
-     * @param {Directory} directory 
-     * @param {function} handleProcessing
-     * @param {function} handleSuccess 
-     * @param {function} handleFailure 
-     */
-    uploadFileTo(file, directory, handleProcessing, handleSuccess, handleFailure) {
-        this.uploadFile(file, (fileAnchor) => {
-
-        }, (fileAnchor) => {
-
-        }, (error) => {
-
-        });
-    }
-
-    /**
      * 新建目录。
      * @param {Directory} workingDir 当前工作目录。
      * @param {string} newDirName 新目录名。

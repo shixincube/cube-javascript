@@ -108,7 +108,7 @@ export class Directory {
         this.numFiles = 0;
 
         /**
-         * @type {OrderMap<number,FileLabel>}
+         * @type {OrderMap<string,FileLabel>}
          */
         this.files = new OrderMap();
     }
@@ -275,21 +275,25 @@ export class Directory {
     }
 
     /**
-     * 获取指定 ID 或者文件名的文件。
-     * @param {number|string} idOrName 
-     * @returns {FileLabel} 返回指定 ID 或者文件名的文件。
+     * 获取指定文件码的文件。
+     * @param {string} fileCode 
+     * @returns {FileLabel} 返回指定文件码的文件。
      */
-    getFile(idOrName) {
-        if (typeof idOrName === 'number') {
-            return this.files.get(idOrName);
-        }
-        else if (typeof idOrName === 'string') {
-            let list = this.files.values();
-            for (let i = 0; i < list.length; ++i) {
-                let file = list[i];
-                if (file.fileName == idOrName) {
-                    return file;
-                }
+    getFile(fileCode) {
+        return this.files.get(fileCode);
+    }
+
+    /**
+     * 
+     * @param {string} name 
+     * @returns {FileLabel} 返回指定文件名的文件。
+     */
+    getFileByName(name) {
+        let list = this.files.values();
+        for (let i = 0; i < list.length; ++i) {
+            let file = list[i];
+            if (file.fileName == name) {
+                return file;
             }
         }
 
@@ -315,6 +319,17 @@ export class Directory {
      */
     deleteDirectory(dirs, recursive, handleSuccess, handleFailure) {
         this.hierarchy.deleteDirectory(this, dirs, recursive, handleSuccess, handleFailure);
+    }
+
+    /**
+     * 上传文件到该目录。
+     * @param {File} file 
+     * @param {function} handleProcessing 
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode directory}:{@link Directory}, {@linkcode fileLabel}:{@link FileLabel}) 。
+     * @param {function} handleFailure 
+     */
+    uploadFile(file, handleProcessing, handleSuccess, handleFailure) {
+        this.hierarchy.uploadFileTo(file, this, handleProcessing, handleSuccess, handleFailure);
     }
 
     /**
@@ -350,11 +365,11 @@ export class Directory {
      * @param {FileLabel} fileLabel 
      */
     addFile(fileLabel) {
-        if (this.files.containsKey(fileLabel.getId())) {
+        if (this.files.containsKey(fileLabel.getFileCode())) {
             return;
         }
 
-        this.files.put(fileLabel.getId(), fileLabel);
+        this.files.put(fileLabel.getFileCode(), fileLabel);
     }
 
     /**
@@ -362,7 +377,7 @@ export class Directory {
      * @param {FileLabel} fileLabel 
      */
     removeFile(fileLabel) {
-        this.files.remove(fileLabel.getId());
+        this.files.remove(fileLabel.getFileCode());
     }
 
     /**

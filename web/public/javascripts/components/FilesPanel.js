@@ -82,6 +82,20 @@
             $(this).data('clicks', !clicks);
         });
 
+        // 上传文件
+        btnUpload.click(function() {
+            g.cube().launchFileSelector(function(event) {
+                let file = event.target.files[0];
+                currentDir.uploadFile(file, function(fileAnchor) {
+
+                }, function(dir, fileLabel) {
+                    that.refreshUI();
+                }, function(error) {
+
+                });
+            });
+        });
+
         // 新建文件夹
         btnNewDir.click(function() {
             g.dialog.showPrompt('新建文件夹', '请输入新建文件夹的名称', function(state, value) {
