@@ -219,8 +219,8 @@
             }
         },
 
-        showImage: function(fileCode) {
-            g.cube().fileStorage.getFileURL(fileCode, function(fileCode, url, surl) {
+        showImage: function(file) {
+            var show = function(url) {
                 var image = new Image();
                 image.src = url;
                 var viewer = new Viewer(image, {
@@ -229,6 +229,10 @@
                     }
                 });
                 viewer.show();
+            };
+
+            g.cube().fileStorage.getFileURL(file, function(fileLabel, url, surl) {
+                show(url);
             });
         },
 

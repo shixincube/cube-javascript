@@ -156,7 +156,7 @@ export class FileAttachment extends JSONable {
      */
     isImageType() {
         let type = this.getFileType();
-        if (type == 'png' || type == 'jpeg' || type == 'gif' || type == 'jpg') {
+        if (type == 'png' || type == 'jpeg' || type == 'gif' || type == 'jpg' || type == 'bmp') {
             return true;
         }
         else {

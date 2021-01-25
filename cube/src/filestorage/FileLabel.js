@@ -87,9 +87,8 @@ export class FileLabel extends Entity {
         this.fileCode = null;
 
         /**
-         * 文件状态。
+         * 文件类型。
          * @type {string}
-         * @see {@link FileType}
          */
         this.fileType = 'unknown';
 

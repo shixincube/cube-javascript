@@ -87,7 +87,7 @@
             g.cube().launchFileSelector(function(event) {
                 let file = event.target.files[0];
                 currentDir.uploadFile(file, function(fileAnchor) {
-
+                    
                 }, function(dir, fileLabel) {
                     that.refreshUI();
                 }, function(error) {
@@ -345,6 +345,21 @@
         this.refreshUI();
 
         this.updateTitlePath();
+    }
+
+    FilesPanel.prototype.openFile = function(fileCode) {
+        var fileLabel = currentDir.getFile(fileCode);
+        if (null == fileLabel) {
+            return;
+        }
+
+        var type = fileLabel.getFileType();
+        if (type == 'png' || type == 'jpeg' || type == 'gif' || type == 'jpg' || type == 'bmp') {
+            g.dialog.showImage(fileLabel);
+        }
+        else {
+
+        }
     }
 
     FilesPanel.prototype.newDirectory = function(dirName) {

@@ -307,27 +307,40 @@ export class FileStorage extends Module {
 
     /**
      * 获取文件的访问 URL 。
-     * @param {string} fileCode 文件码。
+     * @param {string} fileCodeOrLabel 文件码。
      * @param {function} handler 回调函数，函数参数：({@linkcode fileCode}:string, {@linkcode fileURL}:string, {@linkcode fileSecureURL}:string) 。
      */
-    getFileURL(fileCode, handler) {
+    getFileURL(fileCodeOrLabel, handler) {
         if (!this.started) {
             this.start();
         }
 
-        this.getFileLabel(fileCode, (fileLabel) => {
-            let url = [ fileLabel.getFileURL(),
+        if (fileCodeOrLabel instanceof FileLabel) {
+            let url = [ fileCodeOrLabel.getFileURL(),
                 '&token=', this.filePipeline.tokenCode,
-                '&type=', fileLabel.fileType
+                '&type=', fileCodeOrLabel.fileType
             ];
-            let surl = [ fileLabel.getFileSecureURL(),
+            let surl = [ fileCodeOrLabel.getFileSecureURL(),
                 '&token=', this.filePipeline.tokenCode,
-                '&type=', fileLabel.fileType
+                '&type=', fileCodeOrLabel.fileType
             ];
-            handler(fileCode, url.join(''), surl.join(''));
-        }, (fileCode) => {
-            handler(fileCode, null, null);
-        });
+            handler(fileCodeOrLabel, url.join(''), surl.join(''));
+        }
+        else {
+            this.getFileLabel(fileCodeOrLabel, (fileLabel) => {
+                let url = [ fileLabel.getFileURL(),
+                    '&token=', this.filePipeline.tokenCode,
+                    '&type=', fileLabel.fileType
+                ];
+                let surl = [ fileLabel.getFileSecureURL(),
+                    '&token=', this.filePipeline.tokenCode,
+                    '&type=', fileLabel.fileType
+                ];
+                handler(fileLabel, url.join(''), surl.join(''));
+            }, (fileCode) => {
+                handler(fileLabel, null, null);
+            });
+        }
     }
 
     /**

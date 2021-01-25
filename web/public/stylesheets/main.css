@@ -469,6 +469,13 @@ body {
 .table tbody + tbody {
     border-top: unset;
 }
+.table-files .file-name a {
+    color: #212529;
+}
+.table-files .file-name a:hover {
+    color: #007bff;
+}
+
 .no-file {
     position: absolute;
     float: left;
