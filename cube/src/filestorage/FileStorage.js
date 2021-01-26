@@ -458,6 +458,7 @@ export class FileStorage extends Module {
 
             if (packet.getPayload().code != FileStorageState.Ok) {
                 let error = new ModuleError(FileStorage.NAME, packet.getPayload().code, id);
+                cell.Logger.w('FileStorage', '#getRoot() - ' + error.toString());
                 handleFailure(error);
                 return;
             }
@@ -534,6 +535,24 @@ export class FileStorage extends Module {
      */
     renameDirectory(workingDir, pendingDir, newDirName, handleSuccess, handleFailure) {
 
+    }
+
+    /**
+     * 罗列当前登录联系人文件回收站里的废弃数据。
+     * @param {number} begin 开始索引。
+     * @param {number} end 结束索引。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode root}:{@link Directory}, {@linkcode begin}:{@linkcode number}, {@linkcode end}:{@linkcode number}, {@linkcode list}:{@linkcode Array}) 。
+     * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    listTrash(begin, end, handleSuccess, handleFailure) {
+        this.getSelfRoot((root) => {
+            let hierarchy = this.fileHierarchyMap.get(this.contactService.getSelf().getId());
+            hierarchy.listTrash(begin, end, handleSuccess, handleFailure);
+        }, (error) => {
+            if (handleFailure) {
+                handleFailure(error);
+            }
+        });
     }
 
     /**

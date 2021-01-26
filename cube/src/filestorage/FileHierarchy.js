@@ -96,6 +96,17 @@ export class FileHierarchy {
      * @param {function} handleSuccess 
      * @param {function} handleFailure 
      */
+    listDirectories(directory, handleSuccess, handleFailure) {
+        this.listDirs(directory, handleSuccess, handleFailure);
+    }
+
+    /**
+     * 罗列指定目录下的子目录。
+     * @private
+     * @param {Directory} directory 
+     * @param {function} handleSuccess 
+     * @param {function} handleFailure 
+     */
     listDirs(directory, handleSuccess, handleFailure) {
         let request = new Packet(FileStorageAction.ListDirs, {
             root: this.root.id,
@@ -349,6 +360,7 @@ export class FileHierarchy {
     }
 
     /**
+     * 上传文件到指定目录。
      * 
      * @param {File} file 
      * @param {Directory} directory 
@@ -403,6 +415,51 @@ export class FileHierarchy {
     }
 
     /**
+     * 罗列回收站内的废弃数据。
+     * @param {number} beginIndex 
+     * @param {number} endIndex 
+     * @param {function} handleSuccess 
+     * @param {function} handleFailure 
+     */
+    listTrash(beginIndex, endIndex, handleSuccess, handleFailure) {
+        let request = new Packet(FileStorageAction.ListTrash, {
+            root: this.root.id,
+            begin: beginIndex,
+            end: endIndex
+        });
+
+        this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
+            if (null == packet || packet.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, this.root);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            if (packet.getPayload().code != FileStorageState.Ok) {
+                let error = new ModuleError(FileStorage.NAME, packet.getPayload().code, this.root);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            let result = [];
+            let data = packet.getPayload().data;
+            let begin = data.begin;
+            let end = data.end;
+            let list = data.list;
+            list.forEach((json) => {
+                if (undefined !== json.directory) {
+                    result.push(this._unpackDirectoryTrash(json));
+                }
+            });
+            handleSuccess(this.root, begin, end, result);
+        });
+    }
+
+    /**
      * 递归到根目录。
      * @private
      * @param {Directory} dir 
@@ -414,5 +471,53 @@ export class FileHierarchy {
         }
 
         return this._recurseRoot(dir.parent);
+    }
+
+    /**
+     * @private
+     * @param {JSON} json 
+     */
+    _unpackDirectoryTrash(json) {
+        let dir = this._toDirectory(json);
+
+        if (json.parent) {
+            let parent = this._toDirectory(json.parent);
+            dir.parent = parent;
+        }
+
+        if (json.dirs) {
+            json.dirs.forEach((item) => {
+                let subdir = this._unpackDirectoryTrash(item);
+                dir.addChild(subdir);
+            });
+        }
+
+        if (json.files) {
+            json.files.forEach((item) => {
+                let file = FileLabel.create(item);
+                dir.addFile(file);
+            });
+        }
+
+        return dir;
+    }
+
+    /**
+     * @private
+     * @param {JSON} json 
+     * @returns {Directory}
+     */
+    _toDirectory(json) {
+        let dir = new Directory(null);
+        dir.id = json.id;
+        dir.domain = json.domain;
+        dir.name = json.name;
+        dir.creation = json.creation;
+        dir.lastModified = json.lastModified;
+        dir.size = json.size;
+        dir.hidden = json.hidden;
+        dir.numDirs = json.numDirs;
+        dir.numFiles = json.numFiles;
+        return dir;
     }
 }

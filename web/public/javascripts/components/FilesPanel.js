@@ -303,9 +303,13 @@
         btnNewDir.css('display', 'none');
         btnParent.css('display', 'none');
 
-        table.updatePage(currentDir, 0, 20, []);
-        infoLoaded.text(0);
-        infoTotal.text(0);
+        window.cube().fs.listTrash(0, 20, function(root, begin, end, list) {
+            table.updatePage(null, begin, end, list);
+            infoLoaded.text(list.length);
+            infoTotal.text('--');
+        }, function(error) {
+            g.dialog.launchToast(Toast.Error, '读取回收站数据错误: ' + error.code);
+        });
     }
 
     FilesPanel.prototype.select = function(id) {
@@ -358,7 +362,7 @@
             g.dialog.showImage(fileLabel);
         }
         else {
-
+            // TODO
         }
     }
 

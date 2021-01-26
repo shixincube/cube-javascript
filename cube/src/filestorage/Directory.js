@@ -399,8 +399,8 @@ export class Directory {
         dir.numDirs = json.numDirs;
         dir.numFiles = json.numFiles;
 
-        if (undefined !== json.parent) {
-            dir.parentId = json.parent;
+        if (undefined !== json.parentId) {
+            dir.parentId = json.parentId;
         }
 
         if (undefined !== json.dirs) {
