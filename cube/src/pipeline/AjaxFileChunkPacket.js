@@ -37,18 +37,20 @@ export class AjaxFileChunkPacket extends Packet {
      * @param {string} domain 域。
      * @param {string} fileName 文件名。
      * @param {number} fileSize 文件大小。
+     * @param {number} lastModified 文件最后修改时间。
      * @param {Blob} blob 文件数据块 Blob 。
      * @param {number} cursor 文件数据块的起始游标位置。
      * @param {number} size 文件数据块大小。
      * @param {number} [sn] 包序号。
      */
-    constructor(cid, domain, fileName, fileSize, blob, cursor, size, sn) {
+    constructor(cid, domain, fileName, fileSize, lastModified, blob, cursor, size, sn) {
         super('FileChunk', null, sn);
 
         let formData = new FormData();
         formData.append('cid', cid);
         formData.append('domain', domain);
         formData.append('fileSize', fileSize);
+        formData.append('lastModified', lastModified);
         formData.append('cursor', cursor);
         formData.append('size', size);
         formData.append('file', blob, fileName);

@@ -69,6 +69,12 @@ export class FileLabel extends Entity {
         this.fileSize = 0;
 
         /**
+         * 文件最后一次修改时间。
+         * @type {number}
+         */
+        this.lastModified = 0;
+
+        /**
          * 文件完成处理的时间。
          * @type {number}
          */
@@ -153,6 +159,13 @@ export class FileLabel extends Entity {
     }
 
     /**
+     * @returns {number} 返回文件最后一次修改时间。
+     */
+    getLastModified() {
+        return this.lastModified;
+    }
+
+    /**
      * @returns {string} 返回文件码。
      */
     getFileCode() {
@@ -220,6 +233,7 @@ export class FileLabel extends Entity {
         json.ownerId = this.ownerId;
         json.fileName = this.fileName;
         json.fileSize = this.fileSize;
+        json.lastModified = this.lastModified;
         json.completed = this.completedTime;
         json.expiry = this.expiryTime;
         json.fileType = this.fileType;
@@ -248,6 +262,7 @@ export class FileLabel extends Entity {
         label.ownerId = json.ownerId;
         label.fileName = json.fileName;
         label.fileSize = json.fileSize;
+        label.lastModified = json.lastModified;
         label.completedTime = json.completed;
         label.expiryTime = json.expiry;
         label.fileType = json.fileType;

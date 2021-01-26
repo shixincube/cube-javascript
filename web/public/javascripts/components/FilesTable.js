@@ -61,7 +61,7 @@
                 '<td class="file-icon">', matchFileIcon(fileLabel), '</td>',
                 '<td class="file-name"><a href="javascript:app.filesPanel.openFile(\'', fileLabel.getFileCode(), '\');">', fileLabel.getFileName(), '</a></td>',
                 '<td class="file-size">', g.formatSize(fileLabel.getFileSize()), '</td>',
-                '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getCompletedTime()), '</td>',
+                '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getLastModified()), '</td>',
             '</tr>'
         ];
     }

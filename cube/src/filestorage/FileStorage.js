@@ -654,6 +654,7 @@ export class FileStorage extends Module {
                 this.getAuthToken().domain,
                 file.name,
                 file.size,
+                file.lastModified,
                 blob,
                 fileAnchor.position,
                 blob.size);
