@@ -80,5 +80,11 @@ export const FileStorageAction = {
      * 罗列回收站里的垃圾数据。
      * @type {string}
      */
-    ListTrash: 'listTrash'
+    ListTrash: 'listTrash',
+
+    /**
+     * 清空回收站里的垃圾数据。
+     * @type {string}
+     */
+    EmptyTrash: 'emptyTrash'
 }

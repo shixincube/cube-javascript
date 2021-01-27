@@ -36,6 +36,7 @@
 
     var btnUpload = null;
     var btnNewDir = null;
+    var btnEmptyTrash = null;
     var btnParent = null;
     var btnRecycle = null;
 
@@ -55,6 +56,7 @@
 
         btnSelectAll = el.find('.checkbox-toggle');
         btnUpload = el.find('button[data-target="upload"]');
+        btnEmptyTrash = el.find('button[data-target="empty-trash"]');
         btnNewDir = el.find('button[data-target="new-dir"]');
         btnParent = el.find('button[data-target="parent"]');
         btnRecycle = el.find('button[data-target="recycle"]');
@@ -86,10 +88,10 @@
 
         // 上传文件
         btnUpload.click(function() {
-            g.cube().launchFileSelector(function(event) {
+            window.cube().launchFileSelector(function(event) {
                 let file = event.target.files[0];
                 currentDir.uploadFile(file, function(fileAnchor) {
-                    
+                    // 正在加载
                 }, function(dir, fileLabel) {
                     that.refreshUI();
                 }, function(error) {
@@ -110,6 +112,19 @@
 
                     that.newDirectory(name);
                     return true;
+                }
+            });
+        });
+
+        // 清空回收站
+        btnEmptyTrash.click(function() {
+            g.dialog.showConfirm('清空回收站', '您确认清空回收站吗？<br/><br/>提示：清空回收站将删除回收站内的所有文件，且不可恢复！', function(ok) {
+                if (ok) {
+                    window.cube().fs.emptyTrash(function(root) {
+                        that.showRecyclebin();
+                    }, function(error) {
+                        g.dialog.launchToast(Toast.Error, '清空回收站失败: ' + error.code);
+                    });
                 }
             });
         });
@@ -252,6 +267,9 @@
      * 显示根目录。
      */
     FilesPanel.prototype.showRoot = function() {
+        selectedRecycleBin = false;
+        btnEmptyTrash.css('display', 'none');
+
         if (null == currentDir) {
             g.app.filesCtrl.getRoot(function(root) {
                 rootDir = root;
@@ -264,23 +282,18 @@
         btnNewDir.css('display', 'inline-block');
         btnParent.css('display', 'block');
 
-        // test data
-        // var now = Date.now();
-        // for (var i = 1; i <= 20; ++i) {
-        //     var dir = new Directory(null);
-        //     dir.id = i;
-        //     dir.name = '我是文件夹 ' + i;
-        //     dir.lastModified = now + i;
-        //     currentDir.addChild(dir);
-        // }
-        // test data - end
-
         this.refreshUI();
 
         this.updateTitlePath();
     }
 
+    /**
+     * 显示图片文件
+     */
     FilesPanel.prototype.showImages = function() {
+        selectedRecycleBin = false;
+        btnEmptyTrash.css('display', 'none');
+
         panelEl.find('.fp-path').html('');
         btnNewDir.css('display', 'none');
         btnParent.css('display', 'none');
@@ -290,7 +303,13 @@
         infoTotal.text(0);
     }
 
+    /**
+     * 显示文档文件。
+     */
     FilesPanel.prototype.showDocuments = function() {
+        selectedRecycleBin = false;
+        btnEmptyTrash.css('display', 'none');
+
         panelEl.find('.fp-path').html('');
         btnNewDir.css('display', 'none');
         btnParent.css('display', 'none');
@@ -300,7 +319,13 @@
         infoTotal.text(0);
     }
 
+    /**
+     * 显示回收站。
+     */
     FilesPanel.prototype.showRecyclebin = function() {
+        selectedRecycleBin = true;
+        btnEmptyTrash.css('display', 'inline-block');
+
         panelEl.find('.fp-path').html('');
         btnNewDir.css('display', 'none');
         btnParent.css('display', 'none');
@@ -311,6 +336,9 @@
             infoTotal.text('--');
         }, function(error) {
             g.dialog.launchToast(Toast.Error, '读取回收站数据错误: ' + error.code);
+            table.updatePage(null, 0, 0, []);
+            infoLoaded.text(0);
+            infoTotal.text('--');
         });
     }
 
@@ -319,6 +347,10 @@
     }
 
     FilesPanel.prototype.changeDirectory = function(idOrDir) {
+        if (selectedRecycleBin) {
+            return;
+        }
+
         var type = (typeof idOrDir);
         if (type == 'number' || type == 'string') {
             var dirId = parseInt(idOrDir);

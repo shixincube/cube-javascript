@@ -452,10 +452,41 @@ export class FileHierarchy {
             let list = data.list;
             list.forEach((json) => {
                 if (undefined !== json.directory) {
-                    result.push(this._unpackDirectoryTrash(json));
+                    result.push(this._unpackDirectory(json.directory));
                 }
             });
             handleSuccess(this.root, result, begin, end);
+        });
+    }
+
+    /**
+     * 清空回收站。
+     * @param {function} handleSuccess 
+     * @param {function} handleFailure 
+     */
+    emptyTrash(handleSuccess, handleFailure) {
+        let request = new Packet(FileStorageAction.EmptyTrash, {
+            root: this.root.id
+        });
+
+        this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
+            if (null == packet || packet.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, this.root);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            if (packet.getPayload().code != FileStorageState.Ok) {
+                let error = new ModuleError(FileStorage.NAME, packet.getPayload().code, this.root);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            handleSuccess(this.root);
         });
     }
 
@@ -477,7 +508,7 @@ export class FileHierarchy {
      * @private
      * @param {JSON} json 
      */
-    _unpackDirectoryTrash(json) {
+    _unpackDirectory(json) {
         let dir = this._toDirectory(json);
 
         if (json.parent) {
@@ -487,7 +518,7 @@ export class FileHierarchy {
 
         if (json.dirs) {
             json.dirs.forEach((item) => {
-                let subdir = this._unpackDirectoryTrash(item);
+                let subdir = this._unpackDirectory(item);
                 dir.addChild(subdir);
             });
         }
