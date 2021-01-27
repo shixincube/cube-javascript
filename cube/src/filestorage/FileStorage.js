@@ -258,20 +258,22 @@ export class FileStorage extends Module {
                 let event = new ObservableEvent(FileStorageEvent.UploadCompleted, fileAnchor);
                 this.notifyObservers(event);
 
-                if (fileAnchor.finishCallback) {
-                    // 将锚点上的回调置空
-                    let callback = fileAnchor.finishCallback;
-                    fileAnchor.finishCallback = null;
+                setTimeout(() => {
+                    if (fileAnchor.finishCallback) {
+                        // 将锚点上的回调函数置空
+                        let callback = fileAnchor.finishCallback;
+                        fileAnchor.finishCallback = null;
 
-                    this.getFileLabel(fileAnchor.fileCode, (fileLabel) => {
-                        callback(fileLabel);
-                        this.fileAnchors.remove(fileAnchor.fileCode);
-                    }, (error) => {
-                        if (handleFailure) {
-                            handleFailure(error);
-                        }
-                    });
-                }
+                        this.getFileLabel(fileAnchor.fileCode, (fileLabel) => {
+                            callback(fileLabel);
+                            this.fileAnchors.remove(fileAnchor.fileCode);
+                        }, (error) => {
+                            if (handleFailure) {
+                                handleFailure(error);
+                            }
+                        });
+                    }
+                }, 3000);
             }
         }, (fileAnchor) => {
             // 正在上传
@@ -399,7 +401,7 @@ export class FileStorage extends Module {
                 }
 
                 if (responsePacket.getPayload().code != 0) {
-                    let error = new ModuleError(FileStorage.NAME, esponsePacket.getPayload().code, fileCode);
+                    let error = new ModuleError(FileStorage.NAME, responsePacket.getPayload().code, fileCode);
                     if (handleFailure) {
                         handleFailure(error);
                     }
@@ -536,9 +538,9 @@ export class FileStorage extends Module {
     /**
      * 删除目录。
      * @param {Directory} workingDir 当前工作目录。
-     * @param {Directory|number} pendingDir 待删除目录或者目录 ID 。
+     * @param {Directory|Array} pendingDir 待删除目录或者目录 ID 。
      * @param {boolean} recursive 是否递归删除所有子文件和子目录。
-     * @param {function} handleSuccess 成功回调。参数：({@linkcode deletedDir}:{@link Directory}) 。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode workingDir}:{@link Directory}, {@linkcode deletedList}:{@linkcode Array<Directory>}) 。
      * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
     deleteDirectory(workingDir, pendingDir, recursive, handleSuccess, handleFailure) {
@@ -565,8 +567,23 @@ export class FileStorage extends Module {
 
     }
 
-    deleteFile() {
-        
+    /**
+     * 删除指定目录下的文件。
+     * @param {Directory} workingDir 指定当前工作目录。
+     * @param {Array} fileCodes 指定待删除的文件码列表。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode workingDir}:{@link Directory}, {@linkcode deletedList}:{@linkcode Array<FileLabel>}) 。
+     * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    deleteFile(workingDir, fileCodes, handleSuccess, handleFailure) {
+        let root = this._recurseRoot(workingDir);
+        this.getRoot(root.getId(), (root) => {
+            let hierarchy = this.fileHierarchyMap.get(root.getId());
+            hierarchy.deleteFile(workingDir, fileCodes, handleSuccess, handleFailure);
+        }, (error) => {
+            if (handleFailure) {
+                handleFailure(error);
+            }
+        });
     }
 
     /**

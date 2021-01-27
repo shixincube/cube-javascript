@@ -147,7 +147,7 @@
                 var el = $(list.get(i));
                 if (el.prop('checked')) {
                     result.push({
-                        id: parseInt(el.attr('id')),
+                        id: el.attr('id'),
                         type: el.attr('data-type')
                     });
                 }
@@ -158,30 +158,63 @@
             }
 
             var text = null;
-            if (result.length == 1) {
-                var dir = currentDir.getDirectory(result[0].id);
-                text = ['您确定要删除', result[0].type == 'folder' ? '文件夹' : '文件', ' "', dir.getName(), '" 吗？'];
+
+            if (selectedRecycleBin) {
+
             }
             else {
-                text = ['您确定要删除 ', result.length, ' 个项目吗？'];
-            }
-
-            g.dialog.showConfirm('删除文件', text.join(''), function(ok) {
-                if (ok) {
-                    var dirList = [];
-                    result.forEach((item) => {
-                        if (item.type == 'folder') {
-                            dirList.push(item.id);
-                        }
-                    });
-
-                    currentDir.deleteDirectory(dirList, true, function(workingDir, resultList) {
-                        that.refreshUI();
-                    }, function(error) {
-                        g.dialog.launchToast(Toast.Error, '删除文件/文件夹失败: ' + error.code);
-                    });
+                if (result.length == 1) {
+                    var name = '';
+                    var item = currentDir.getDirectory(result[0].id);
+                    if (null == item) {
+                        item = currentDir.getFile(result[0].id);
+                        name = item.getFileName();
+                    }
+                    else {
+                        name = item.getName();
+                    }
+                    text = ['您确定要删除', result[0].type == 'folder' ? '文件夹' : '文件', ' "', name, '" 吗？'];
                 }
-            });
+                else {
+                    text = ['您确定要删除 ', result.length, ' 个项目吗？'];
+                }
+
+                g.dialog.showConfirm('删除文件', text.join(''), function(ok) {
+                    if (ok) {
+                        var dirList = [];
+                        var fileList = [];
+                        result.forEach(function(item) {
+                            if (item.type == 'folder') {
+                                dirList.push(item.id);
+                            }
+                            else {
+                                fileList.push(item.id);
+                            }
+                        });
+
+                        var dirCompleted = dirList.length == 0 ? true : false;
+                        var fileCompleted = fileList.length == 0 ? true : false;
+
+                        currentDir.deleteDirectory(dirList, true, function(workingDir, resultList) {
+                            dirCompleted = true;
+                            if (fileCompleted) {
+                                that.refreshUI();
+                            }
+                        }, function(error) {
+                            g.dialog.launchToast(Toast.Error, '删除文件夹失败: ' + error.code);
+                        });
+
+                        currentDir.deleteFile(fileList, function(workingDir, resultList) {
+                            fileCompleted = true;
+                            if (dirCompleted) {
+                                that.refreshUI();
+                            }
+                        }, function(error) {
+                            g.dialog.launchToast(Toast.Error, '删除文件失败: ' + error.code);
+                        });
+                    }
+                });
+            }
         });
     }
 

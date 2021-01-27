@@ -77,6 +77,12 @@ export const FileStorageAction = {
     DeleteDir: 'deleteDir',
 
     /**
+     * 删除文件。
+     * @type {string}
+     */
+    DeleteFile: 'deleteFile',
+
+    /**
      * 罗列回收站里的垃圾数据。
      * @type {string}
      */

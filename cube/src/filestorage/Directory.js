@@ -213,25 +213,39 @@ export class Directory {
     }
 
     /**
-     * 获取指定ID或者名称的子目录。
-     * @param {number|string} idOrName 
-     * @returns {Directory} 返回指定ID或者名称的子目录。
+     * 获取指定 ID 的子目录。
+     * @param {number|string} id 目录 ID 。
+     * @returns {Directory} 返回指定 ID 的子目录。
      */
-    getDirectory(idOrName) {
-        if (typeof idOrName === 'number') {
-            return this.children.get(idOrName);
-        }
-        else if (typeof idOrName === 'string') {
-            let list = this.children.values();
-            for (let i = 0; i < list.length; ++i) {
-                let dir = list[i];
-                if (dir.name == idOrName) {
-                    return dir;
-                }
+    getDirectory(id) {
+        return this.children.get(parseInt(id));
+    }
+
+    /**
+     * 获取指定名称的子目录。
+     * @param {string} name 目录名称。
+     * @returns {Directory} 返回指定名称的子目录。
+     */
+    getDirectoryByName(name) {
+        let list = this.children.values();
+        for (let i = 0; i < list.length; ++i) {
+            let dir = list[i];
+            if (dir.name == name) {
+                return dir;
             }
         }
-
         return null;
+    }
+
+    /**
+     * 上传文件到该目录。
+     * @param {File} file 
+     * @param {function} handleProcessing 
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode directory}:{@link Directory}, {@linkcode fileLabel}:{@link FileLabel}) 。
+     * @param {function} handleFailure 
+     */
+    uploadFile(file, handleProcessing, handleSuccess, handleFailure) {
+        this.hierarchy.uploadFileTo(file, this, handleProcessing, handleSuccess, handleFailure);
     }
 
     /**
@@ -284,7 +298,7 @@ export class Directory {
     }
 
     /**
-     * 
+     * 获取指定文件名的文件。
      * @param {string} name 
      * @returns {FileLabel} 返回指定文件名的文件。
      */
@@ -322,14 +336,13 @@ export class Directory {
     }
 
     /**
-     * 上传文件到该目录。
-     * @param {File} file 
-     * @param {function} handleProcessing 
-     * @param {function} handleSuccess 成功回调。参数：({@linkcode directory}:{@link Directory}, {@linkcode fileLabel}:{@link FileLabel}) 。
-     * @param {function} handleFailure 
+     * 删除文件。
+     * @param {Array} files 指定待删除的文件码列表。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode workingDir}:{@link Directory}, {@linkcode deletedList}:{@linkcode Array<FileLabel>}) 。
+     * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
-    uploadFile(file, handleProcessing, handleSuccess, handleFailure) {
-        this.hierarchy.uploadFileTo(file, this, handleProcessing, handleSuccess, handleFailure);
+    deleteFile(files, handleSuccess, handleFailure) {
+        this.hierarchy.deleteFile(this, files, handleSuccess, handleFailure);
     }
 
     /**

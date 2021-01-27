@@ -68,6 +68,61 @@ export class FileHierarchy {
     }
 
     /**
+     * 上传文件到指定目录。
+     * 
+     * @param {File} file 
+     * @param {Directory} directory 
+     * @param {function} handleProcessing
+     * @param {function} handleSuccess 
+     * @param {function} [handleFailure] 
+     */
+    uploadFileTo(file, directory, handleProcessing, handleSuccess, handleFailure) {
+        this.storage.uploadFile(file, (fileAnchor) => {
+            handleProcessing(fileAnchor);
+        }, (fileLabel) => {
+            // 将已上传文件插入到目录
+            let request = new Packet(FileStorageAction.InsertFile, {
+                root: this.root.getId(),
+                dirId: directory.getId(),
+                fileCode: fileLabel.fileCode
+            });
+
+            this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
+                if (null == packet || packet.getStateCode() != StateCode.OK) {
+                    let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, fileLabel);
+                    cell.Logger.w('FileHierarchy', '#uploadFileTo() - ' + error);
+                    if (handleFailure) {
+                        handleFailure(error);
+                    }
+                    return;
+                }
+
+                if (packet.getPayload().code != FileStorageState.Ok) {
+                    let error = new ModuleError(FileStorage.NAME, packet.getPayload().code, fileLabel);
+                    cell.Logger.w('FileHierarchy', '#uploadFileTo() - ' + error);
+                    if (handleFailure) {
+                        handleFailure(error);
+                    }
+                    return;
+                }
+
+                // let dirJson = packet.getPayload().data.directory;
+                let fileJson = packet.getPayload().data.file;
+                let fileLabel = FileLabel.create(fileJson);
+                directory.addFile(fileLabel);
+                directory.numFiles += 1;
+
+                handleSuccess(directory, fileLabel);
+            });
+        }, (error) => {
+            cell.Logger.w('FileHierarchy', '#uploadFileTo() - ' + error);
+            if (handleFailure) {
+                handleFailure(error);
+            }
+        });
+    }
+
+    /**
      * 获取指定 ID 或名称的目录。
      * @param {number|string} idOrName 目录 ID 或者目录名。
      * @returns {Directory} 返回指定 ID 或名称的目录。
@@ -243,7 +298,7 @@ export class FileHierarchy {
         // 校验根
         let root = this._recurseRoot(workingDir);
         if (root.getId() != this.root.getId()) {
-            let error = new ModuleError(FileStorage.NAME, FileStorageState.NotFound, pendingDir);
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.NotFound, workingDir);
             cell.Logger.w('FileHierarchy', '#deleteDirectory() - ' + error);
             if (handleFailure) {
                 handleFailure(error);
@@ -255,6 +310,10 @@ export class FileHierarchy {
         let deleteDirList = [];
         let deleteDirIdList = [];
         if (pendingDir instanceof Array) {
+            if (pendingDir.length == 0) {
+                return;
+            }
+
             pendingDir.forEach((el) => {
                 if (typeof el === 'number' || typeof el === 'string') {
                     let deletedDir = workingDir.getDirectory(el);
@@ -360,57 +419,66 @@ export class FileHierarchy {
     }
 
     /**
-     * 上传文件到指定目录。
-     * 
-     * @param {File} file 
-     * @param {Directory} directory 
-     * @param {function} handleProcessing
-     * @param {function} handleSuccess 
-     * @param {function} [handleFailure] 
+     * 删除文件。
+     * @param {Directory} workingDir 指定当前工作目录。
+     * @param {Array} fileCodes 指定待删除的文件码列表。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode workingDir}:{@link Directory}, {@linkcode deletedList}:{@linkcode Array<FileLabel>}) 。
+     * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
-    uploadFileTo(file, directory, handleProcessing, handleSuccess, handleFailure) {
-        this.storage.uploadFile(file, (fileAnchor) => {
-            handleProcessing(fileAnchor);
-        }, (fileLabel) => {
-            // 将已上传文件插入到目录
-            let request = new Packet(FileStorageAction.InsertFile, {
-                root: this.root.getId(),
-                dirId: directory.getId(),
-                fileCode: fileLabel.fileCode
-            });
-
-            this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
-                if (null == packet || packet.getStateCode() != StateCode.OK) {
-                    let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, fileLabel);
-                    cell.Logger.w('FileHierarchy', '#uploadFileTo() - ' + error);
-                    if (handleFailure) {
-                        handleFailure(error);
-                    }
-                    return;
-                }
-
-                if (packet.getPayload().code != FileStorageState.Ok) {
-                    let error = new ModuleError(FileStorage.NAME, packet.getPayload().code, fileLabel);
-                    cell.Logger.w('FileHierarchy', '#uploadFileTo() - ' + error);
-                    if (handleFailure) {
-                        handleFailure(error);
-                    }
-                    return;
-                }
-
-                // let dirJson = packet.getPayload().data.directory;
-                let fileJson = packet.getPayload().data.file;
-                let fileLabel = FileLabel.create(fileJson);
-                directory.addFile(fileLabel);
-                directory.numFiles += 1;
-
-                handleSuccess(directory, fileLabel);
-            });
-        }, (error) => {
-            cell.Logger.w('FileHierarchy', '#uploadFileTo() - ' + error);
+    deleteFile(workingDir, fileCodes, handleSuccess, handleFailure) {
+        // 校验根
+        let root = this._recurseRoot(workingDir);
+        if (root.getId() != this.root.getId()) {
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.NotFound, workingDir);
+            cell.Logger.w('FileHierarchy', '#deleteFile() - ' + error);
             if (handleFailure) {
                 handleFailure(error);
             }
+            return;
+        }
+
+        let fileCodeList = (fileCodes instanceof Array) ? fileCodes : [ fileCodes ];
+        if (fileCodeList.length == 0) {
+            return;
+        }
+
+        let request = new Packet(FileStorageAction.DeleteFile, {
+            root: root.getId(),
+            workingId: workingDir.getId(),
+            fileList: fileCodeList
+        });
+        this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
+            if (null == packet || packet.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, fileCodes);
+                cell.Logger.w('FileHierarchy', '#deleteFile() - ' + error);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            if (packet.getPayload().code != FileStorageState.Ok) {
+                let error = new ModuleError(FileStorage.NAME, packet.getPayload().code, fileCodes);
+                cell.Logger.w('FileHierarchy', '#deleteFile() - ' + error);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            // 解析数据
+            let data = packet.getPayload().data;
+            let deletedList = data.deletedList;
+            let deletedFile = [];
+            deletedList.forEach((json) => {
+                let fileLabel = FileLabel.create(json);
+                workingDir.removeFile(fileLabel);
+                deletedFile.push(fileLabel);
+            });
+            // 更新数量
+            workingDir.numFiles -= deletedList.length;
+
+            handleSuccess(workingDir, deletedFile);
         });
     }
 
