@@ -226,3 +226,8 @@
     background: url(../images/icon/file-unknown@2x.png) no-repeat center;
     background-size: 20px 20px;
 }
+.ci-fa-file {
+    font-size: 20px;
+    color: #6c757d;
+    margin-left: 3px;
+}

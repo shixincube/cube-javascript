@@ -47,6 +47,8 @@
     var rootDir = null;
     var currentDir = null;
 
+    var selectedRecycleBin = false;
+
     var FilesPanel = function(el) {
         panelEl = el;
         table = new FilesTable(el.find('.table-files'));
@@ -303,7 +305,7 @@
         btnNewDir.css('display', 'none');
         btnParent.css('display', 'none');
 
-        window.cube().fs.listTrash(0, 20, function(root, begin, end, list) {
+        window.cube().fs.listTrash(0, 20, function(root, list, begin, end) {
             table.updatePage(null, begin, end, list);
             infoLoaded.text(list.length);
             infoTotal.text('--');

@@ -111,7 +111,7 @@
             return '<i class="ci ci-file-ipa"></i>';
         }
         else {
-            return '<i class="ci ci-file-unknown"></i>';
+            return '<i class="fa fa-file ci-fa-file"></i>';    //'<i class="ci ci-file-unknown"></i>';
         }
     }
 

@@ -152,7 +152,7 @@ export class FileHierarchy {
             begin: beginIndex,
             end: endIndex
         });
-        
+
         this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
             if (null == packet || packet.getStateCode() != StateCode.OK) {
                 let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, directory);
@@ -455,7 +455,7 @@ export class FileHierarchy {
                     result.push(this._unpackDirectoryTrash(json));
                 }
             });
-            handleSuccess(this.root, begin, end, result);
+            handleSuccess(this.root, result, begin, end);
         });
     }
 
