@@ -118,7 +118,7 @@
 
         // 清空回收站
         btnEmptyTrash.click(function() {
-            g.dialog.showConfirm('清空回收站', '您确认清空回收站吗？<br/><br/>提示：清空回收站将删除回收站内的所有文件，且不可恢复！', function(ok) {
+            g.dialog.showConfirm('清空回收站', '您确认清空回收站吗？<p class="text-danger">提示：清空回收站将删除回收站内的所有文件，且不可恢复！</p>', function(ok) {
                 if (ok) {
                     window.cube().fs.emptyTrash(function(root) {
                         that.showRecyclebin();

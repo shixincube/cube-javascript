@@ -87,6 +87,12 @@ export class FileStorage extends Module {
         this.fileLabels = new OrderMap();
 
         /**
+         * 文件锚点。
+         * @type {OrderMap<string,FileAnchor>}
+         */
+        this.fileAnchors = new OrderMap();
+
+        /**
          * 文件层级表。键为层级对应的联系人ID或群组ID。
          * @type {OrderMap<number,FileHierarchy>}
          */
@@ -194,7 +200,7 @@ export class FileStorage extends Module {
      * 上传指定的文件。
      * @param {File} file 指定上传文件。
      * @param {function} [handleProcessing] 正在进行文件处理的回调函数。函数参数：({@linkcode fileAnchor}:{@link FileAnchor}) 。
-     * @param {function} [handleSuccess] 上传文件成功的回调函数。函数参数：({@linkcode fileAnchor}:{@link FileAnchor}) 。
+     * @param {function} [handleSuccess] 上传文件成功的回调函数。函数参数：({@linkcode fileLabel}:{@link FileLabel}) 。
      * @param {function} [handleFailure] 上传文件失败的回调函数。函数参数：({@linkcode error}:{@link ModuleError}) 。
      */
     uploadFile(file, handleProcessing, handleSuccess, handleFailure) {
@@ -215,6 +221,9 @@ export class FileStorage extends Module {
 
         fileAnchor.fileName = file.name;
         fileAnchor.fileSize = file.size;
+        fileAnchor.lastModified = file.lastModified;
+        // 记录回调函数
+        fileAnchor.finishCallback = handleSuccess;
 
         // 串行方式上传数据
         this._serialReadAndUpload(reader, file, fileAnchor, fileSize, (anchor) => {
@@ -230,21 +239,38 @@ export class FileStorage extends Module {
                     handleFailure(error);
                 }
 
-                let state = new ObservableEvent(FileStorageEvent.UploadFailed, error);
-                this.notifyObservers(state);
+                let event = new ObservableEvent(FileStorageEvent.UploadFailed, error);
+                this.notifyObservers(event);
             }
             else {
                 // 上传成功
+                this.fileAnchors.put(fileAnchor.fileCode, fileAnchor);
+
                 fileAnchor.fileName = anchor.fileName;
                 fileAnchor.fileSize = anchor.fileSize;
                 fileAnchor.fileCode = anchor.fileCode;
                 fileAnchor.success = true;
 
-                let state = new ObservableEvent(FileStorageEvent.UploadCompleted, fileAnchor);
-                this.notifyObservers(state);
+                if (handleProcessing) {
+                    handleProcessing(fileAnchor);
+                }
 
-                if (handleSuccess) {
-                    handleSuccess(fileAnchor);
+                let event = new ObservableEvent(FileStorageEvent.UploadCompleted, fileAnchor);
+                this.notifyObservers(event);
+
+                if (fileAnchor.finishCallback) {
+                    // 将锚点上的回调置空
+                    let callback = fileAnchor.finishCallback;
+                    fileAnchor.finishCallback = null;
+
+                    this.getFileLabel(fileAnchor.fileCode, (fileLabel) => {
+                        callback(fileLabel);
+                        this.fileAnchors.remove(fileAnchor.fileCode);
+                    }, (error) => {
+                        if (handleFailure) {
+                            handleFailure(error);
+                        }
+                    });
                 }
             }
         }, (fileAnchor) => {
@@ -347,7 +373,7 @@ export class FileStorage extends Module {
      * 获取文件标签。
      * @param {string} fileCode 指定文件码。
      * @param {function} handleSuccess 获取到数据回调该方法，参数：({@linkcode fileLabel}:{@link FileLabel})。
-     * @param {function} [handleFailure] 未能找到数据回调该方法，参数：({@linkcode fileCode}:{@linkcode string})。
+     * @param {function} [handleFailure] 未能找到数据回调该方法，参数：({@linkcode error}:{@link ModuleError})。
      */
     getFileLabel(fileCode, handleSuccess, handleFailure) {
         if (!this.started) {
@@ -365,15 +391,17 @@ export class FileStorage extends Module {
             let packet = new Packet(FileStorageAction.GetFile, { "fileCode" : fileCode });
             this.pipeline.send(FileStorage.NAME, packet, (pipeline, source, responsePacket) => {
                 if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+                    let error = new ModuleError(FileStorage.NAME, FileStorageState.NotFound, fileCode);
                     if (handleFailure) {
-                        handleFailure(fileCode);
+                        handleFailure(error);
                     }
                     return;
                 }
 
                 if (responsePacket.getPayload().code != 0) {
+                    let error = new ModuleError(FileStorage.NAME, esponsePacket.getPayload().code, fileCode);
                     if (handleFailure) {
-                        handleFailure(fileCode);
+                        handleFailure(error);
                     }
                     return;
                 }
@@ -537,6 +565,10 @@ export class FileStorage extends Module {
 
     }
 
+    deleteFile() {
+        
+    }
+
     /**
      * 罗列当前登录联系人文件回收站里的废弃数据。
      * @param {number} begin 开始索引。
@@ -623,8 +655,8 @@ export class FileStorage extends Module {
 
                     let anchor = FileAnchor.create(payload.data);
 
-                    let state = new ObservableEvent(FileStorageEvent.Uploading, anchor);
-                    this.notifyObservers(state);
+                    let event = new ObservableEvent(FileStorageEvent.Uploading, anchor);
+                    this.notifyObservers(event);
 
                     if (fileAnchor.position < fileSize) {
                         this._serialReadAndUpload(reader, file, fileAnchor, fileSize, completed, processing);
@@ -716,6 +748,15 @@ export class FileStorage extends Module {
 
         // 写入存储
         this.storage.writeFileLabel(fileLabel);
+
+        // 回调上传成功
+        let fileAnchor = this.fileAnchors.remove(fileLabel.getFileCode());
+        if (null != fileAnchor) {
+            if (fileAnchor.finishCallback) {
+                fileAnchor.finishCallback(fileLabel);
+                fileAnchor.finishCallback = null;
+            }
+        }
 
         // 通知事件
         this.notifyObservers(new ObservableEvent(FileStorageEvent.FileUpdated, fileLabel));

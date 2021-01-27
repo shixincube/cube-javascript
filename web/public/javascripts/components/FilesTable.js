@@ -80,7 +80,7 @@
         else if (type == 'doc' || type == 'docx') {
             return '<i class="ci ci-file-word"></i>';
         }
-        else if (type == 'mp3' || typee == 'ogg' || type == 'wav') {
+        else if (type == 'mp3' || type == 'ogg' || type == 'wav') {
             return '<i class="ci ci-file-music"></i>';
         }
         else if (type == 'pdf') {

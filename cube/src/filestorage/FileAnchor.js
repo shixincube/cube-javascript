@@ -53,7 +53,13 @@ export class FileAnchor extends JSONable {
          * 文件大小。单位：字节。
          * @type {number}
          */
-        this.fileSize = null;
+        this.fileSize = 0;
+
+        /**
+         * 文件最后修改时间。
+         * @type {number}
+         */
+        this.lastModified = 0;
 
         /**
          * 文件码。
@@ -66,6 +72,13 @@ export class FileAnchor extends JSONable {
          * @type {boolean}
          */
         this.success = false;
+
+        /**
+         * 文件上传完成回调。
+         * @type {function}
+         * @private
+         */
+        this.finishCallback = null;
     }
 
     /**
