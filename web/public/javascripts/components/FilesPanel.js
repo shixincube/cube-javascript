@@ -118,7 +118,7 @@
 
         // 清空回收站
         btnEmptyTrash.click(function() {
-            g.dialog.showConfirm('清空回收站', '您确认清空回收站吗？<p class="text-danger">提示：清空回收站将删除回收站内的所有文件，且不可恢复！</p>', function(ok) {
+            g.dialog.showConfirm('清空回收站', '您确认清空回收站吗？<p class="text-danger tip">清空回收站将删除回收站内的所有文件，不可恢复！</p>', function(ok) {
                 if (ok) {
                     window.cube().fs.emptyTrash(function(root) {
                         that.showRecyclebin();
@@ -126,7 +126,7 @@
                         g.dialog.launchToast(Toast.Error, '清空回收站失败: ' + error.code);
                     });
                 }
-            });
+            }, '清空');
         });
 
         // 上一级/回到父目录
@@ -160,7 +160,24 @@
             var text = null;
 
             if (selectedRecycleBin) {
+                var idList = [];
+                result.forEach(function(item) {
+                    idList.push(item.id);
+                });
 
+                text = ['您确定要删除所选择的“<span class="text-danger">', idList.length, '</span>”个项目吗？',
+                    '<p class="text-danger tip">将立即删除此项目。您不能撤销此操作。</p>'];
+
+                g.dialog.showConfirm('立即删除', text.join(''), function(ok) {
+                    if (ok) {
+                        // 抹除指定文件
+                        window.cube().fs.eraseTrash(idList, function(root) {
+                            that.showRecyclebin();
+                        }, function(error) {
+                            g.dialog.launchToast(Toast.Error, '删除文件失败: ' + error.code);
+                        });
+                    }
+                }, '立即删除');
             }
             else {
                 if (result.length == 1) {
@@ -173,10 +190,10 @@
                     else {
                         name = item.getName();
                     }
-                    text = ['您确定要删除', result[0].type == 'folder' ? '文件夹' : '文件', ' <span class="text-danger">', name, '</span> 吗？'];
+                    text = ['您确定要删除', result[0].type == 'folder' ? '文件夹' : '文件', '“<span class="text-danger">', name, '</span>”吗？'];
                 }
                 else {
-                    text = ['您确定要删除 <b>', result.length, '</b> 个项目吗？'];
+                    text = ['您确定要删除所选择的<b>', result.length, '</b>个项目吗？'];
                 }
 
                 g.dialog.showConfirm('删除文件', text.join(''), function(ok) {
@@ -213,7 +230,7 @@
                             g.dialog.launchToast(Toast.Error, '删除文件失败: ' + error.code);
                         });
                     }
-                });
+                }, '删除');
             }
         });
     }

@@ -623,6 +623,23 @@ export class FileStorage extends Module {
     }
 
     /**
+     * 抹除回收站里的指定废弃数据。
+     * @param {Array<number>} trashIdList 指定待抹除数据的 ID 列表。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode root}:{@link Directory}) 。
+     * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    eraseTrash(trashIdList, handleSuccess, handleFailure) {
+        this.getSelfRoot((root) => {
+            let hierarchy = this.fileHierarchyMap.get(this.contactService.getSelf().getId());
+            hierarchy.eraseTrash(trashIdList, handleSuccess, handleFailure);
+        }, (error) => {
+            if (handleFailure) {
+                handleFailure(error);
+            }
+        });
+    }
+
+    /**
      * 清空回收站里所有文件和文件夹。
      * @param {function} handleSuccess 成功回调。参数：({@linkcode root}:{@link Directory}) 。
      * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。

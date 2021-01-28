@@ -533,9 +533,48 @@ export class FileHierarchy {
     }
 
     /**
+     * 抹除回收站里的指定废弃数据。
+     * @param {Array<number>} list 
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode root}:{@link Directory}) 。
+     * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    eraseTrash(list, handleSuccess, handleFailure) {
+        let trashIdList = [];
+        list.forEach((item) => {
+            trashIdList.push(parseInt(item));
+        });
+
+        let request = new Packet(FileStorageAction.EraseTrash, {
+            root: this.root.id,
+            list: trashIdList
+        });
+        this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
+            if (null == packet || packet.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, trashIdList);
+                cell.Logger.w('FileHierarchy', '#eraseTrash() - ' + error);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            if (packet.getPayload().code != FileStorageState.Ok) {
+                let error = new ModuleError(FileStorage.NAME, packet.getPayload().code, trashIdList);
+                cell.Logger.w('FileHierarchy', '#eraseTrash() - ' + error);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            handleSuccess(this.root);
+        });
+    }
+
+    /**
      * 清空回收站。
-     * @param {function} handleSuccess 
-     * @param {function} handleFailure 
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode root}:{@link Directory}) 。
+     * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
     emptyTrash(handleSuccess, handleFailure) {
         let request = new Packet(FileStorageAction.EmptyTrash, {

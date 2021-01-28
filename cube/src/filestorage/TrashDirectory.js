@@ -62,6 +62,13 @@ export class TrashDirectory {
     }
 
     /**
+     * @returns {string}
+     */
+    getDomain() {
+        return this.dir.domain;
+    }
+
+    /**
      * @returns {Directory}
      */
     getParent() {

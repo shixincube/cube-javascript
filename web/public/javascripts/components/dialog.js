@@ -109,11 +109,14 @@
          * @param {string} title 
          * @param {string} content 
          * @param {function} callback 
+         * @param {string} okButtonLabel
          */
-        showConfirm: function(title, content, callback) {
+        showConfirm: function(title, content, callback, okButtonLabel) {
             var el = $('#modal_confirm');
             el.find('.modal-title').text(title);
             el.find('.modal-body').html('<p>' + content + '</p>');
+
+            el.find('.btn-primary').text(okButtonLabel ? okButtonLabel : '确定');
 
             confirmCallback = callback;
 

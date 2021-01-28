@@ -121,6 +121,13 @@ export class Directory {
     }
 
     /**
+     * @returns {string}
+     */
+    getDomain() {
+        return this.domain;
+    }
+
+    /**
      * @returns {Directory}
      */
     getParent() {

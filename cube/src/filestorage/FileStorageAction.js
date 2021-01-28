@@ -83,13 +83,18 @@ export const FileStorageAction = {
     DeleteFile: 'deleteFile',
 
     /**
-     * 罗列回收站里的垃圾数据。
+     * 罗列回收站里的废弃数据。
      * @type {string}
      */
     ListTrash: 'listTrash',
 
     /**
-     * 清空回收站里的垃圾数据。
+     * 抹除回收站里的废弃数据。
+     */
+    EraseTrash: 'eraseTrash',
+
+    /**
+     * 清空回收站里的废弃数据。
      * @type {string}
      */
     EmptyTrash: 'emptyTrash'

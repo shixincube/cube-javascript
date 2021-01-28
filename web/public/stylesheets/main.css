@@ -53,6 +53,9 @@ body {
 .modal-body {
     font-size: 14px;
 }
+.modal-body .tip {
+    font-size: 12px;
+}
 
 .info-box .info-box-desc {
     display: block;
