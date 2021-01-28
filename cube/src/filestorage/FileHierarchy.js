@@ -25,6 +25,7 @@
  */
 
 import cell from "@lib/cell-lib";
+import { FastMap } from "../util/FastMap";
 import { ModuleError } from "../core/error/ModuleError";
 import { Packet } from "../core/Packet";
 import { StateCode } from "../core/StateCode";
@@ -33,7 +34,8 @@ import { Directory } from "./Directory";
 import { FileStorageAction } from "./FileStorageAction";
 import { FileStorageState } from "./FileStorageState";
 import { FileLabel } from "./FileLabel";
-import { FastMap } from "../util/FastMap";
+import { TrashDirectory } from "./TrashDirectory";
+import { TrashFile } from "./TrashFile";
 
 /**
  * 文件层级结构描述。
@@ -520,10 +522,10 @@ export class FileHierarchy {
             let list = data.list;
             list.forEach((json) => {
                 if (undefined !== json.directory) {
-                    result.push(this._unpackDirectory(json.directory));
+                    result.push(new TrashDirectory(json));
                 }
                 else if (undefined !== json.file) {
-                    result.push(FileLabel.create(json.file));
+                    result.push(new TrashFile(json));
                 }
             });
             handleSuccess(this.root, result, begin, end);
@@ -573,35 +575,6 @@ export class FileHierarchy {
         }
 
         return this._recurseRoot(dir.parent);
-    }
-
-    /**
-     * @private
-     * @param {JSON} json 
-     */
-    _unpackDirectory(json) {
-        let dir = this._toDirectory(json);
-
-        if (json.parent) {
-            let parent = this._toDirectory(json.parent);
-            dir.parent = parent;
-        }
-
-        if (json.dirs) {
-            json.dirs.forEach((item) => {
-                let subdir = this._unpackDirectory(item);
-                dir.addChild(subdir);
-            });
-        }
-
-        if (json.files) {
-            json.files.forEach((item) => {
-                let file = FileLabel.create(item);
-                dir.addFile(file);
-            });
-        }
-
-        return dir;
     }
 
     /**
