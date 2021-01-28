@@ -37,7 +37,14 @@
     var curBeginIndex = 0;
     var curEndIndex = 0;
 
-    function makeFolderRow(id, name, time) {
+    function makeFolderRow(folder, extended) {
+        var id = folder.getId();
+        var name = folder.getName();
+        var time = folder.getLastModified();
+        if (extended) {
+            name = name + ' （于 ' + g.formatYMDHMS(folder.getTrashTimestamp()) + '）';
+        }
+
         return [
             '<tr onclick="app.filesPanel.select(\'', id, '\')"',
                     ' ondblclick="app.filesPanel.changeDirectory(\'', id, '\')" id="ftr_', id, '">',
@@ -52,14 +59,19 @@
         ];
     }
 
-    function makeFileRow(fileLabel) {
+    function makeFileRow(fileLabel, extended) {
+        var name = fileLabel.getFileName();
+        if (extended) {
+            name = name + ' （于 ' + g.formatYMDHMS(fileLabel.getTrashTimestamp()) + '）';
+        }
+
         return [
             '<tr onclick="app.filesPanel.select(\'', fileLabel.getFileCode(), '\')" id="ftr_', fileLabel.getFileCode(), '">',
                 '<td><div class="icheck-primary">',
                     '<input type="checkbox" data-type="file" id="', fileLabel.getFileCode(), '">',
                         '<label for="', fileLabel.getFileCode(), '"></label></div></td>',
                 '<td class="file-icon">', matchFileIcon(fileLabel), '</td>',
-                '<td class="file-name"><a href="javascript:app.filesPanel.openFile(\'', fileLabel.getFileCode(), '\');">', fileLabel.getFileName(), '</a></td>',
+                '<td class="file-name"><a href="javascript:app.filesPanel.openFile(\'', fileLabel.getFileCode(), '\');">', name, '</a></td>',
                 '<td class="file-size">', g.formatSize(fileLabel.getFileSize()), '</td>',
                 '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getLastModified()), '</td>',
             '</tr>'
@@ -123,7 +135,7 @@
         surface = surfaceA;
     }
 
-    FilesTable.prototype.updatePage = function(dir, begin, end, list) {
+    FilesTable.prototype.updatePage = function(dir, begin, end, list, extended) {
         curFolder = dir;
         curBeginIndex = begin;
         curEndIndex = end;
@@ -139,10 +151,10 @@
         list.forEach(function(element) {
             var rowHtml = null;
             if (element instanceof FileLabel) {
-                rowHtml = makeFileRow(element);
+                rowHtml = makeFileRow(element, extended);
             }
             else {
-                rowHtml = makeFolderRow(element.getId(), element.getName(), element.getLastModified());
+                rowHtml = makeFolderRow(element, extended);
             }
 
             html = html.concat(rowHtml);
@@ -170,7 +182,7 @@
     }
 
     FilesTable.prototype.insertFolder = function(dir) {
-        var rowHtml = makeFolderRow(dir.getId(), dir.getName(), dir.getLastModified());
+        var rowHtml = makeFolderRow(dir);
         surface.prepend($(rowHtml.join('')));
     }
 

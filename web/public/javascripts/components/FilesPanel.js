@@ -364,7 +364,7 @@
         btnParent.css('display', 'none');
 
         window.cube().fs.listTrash(0, 20, function(root, list, begin, end) {
-            table.updatePage(null, begin, end, list);
+            table.updatePage(null, begin, end, list, true);
             infoLoaded.text(list.length);
             infoTotal.text('--');
         }, function(error) {
@@ -419,6 +419,10 @@
     }
 
     FilesPanel.prototype.openFile = function(fileCode) {
+        if (selectedRecycleBin) {
+            return;
+        }
+
         var fileLabel = currentDir.getFile(fileCode);
         if (null == fileLabel) {
             return;
