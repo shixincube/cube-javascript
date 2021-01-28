@@ -258,22 +258,8 @@ export class FileStorage extends Module {
                 let event = new ObservableEvent(FileStorageEvent.UploadCompleted, fileAnchor);
                 this.notifyObservers(event);
 
-                setTimeout(() => {
-                    if (fileAnchor.finishCallback) {
-                        // 将锚点上的回调函数置空
-                        let callback = fileAnchor.finishCallback;
-                        fileAnchor.finishCallback = null;
-
-                        this.getFileLabel(fileAnchor.fileCode, (fileLabel) => {
-                            callback(fileLabel);
-                            this.fileAnchors.remove(fileAnchor.fileCode);
-                        }, (error) => {
-                            if (handleFailure) {
-                                handleFailure(error);
-                            }
-                        });
-                    }
-                }, 3000);
+                // 查询文件标签
+                this._queryFileLabel(fileAnchor, 0, handleFailure);
             }
         }, (fileAnchor) => {
             // 正在上传
@@ -281,6 +267,38 @@ export class FileStorage extends Module {
                 handleProcessing(fileAnchor);
             }
         });
+    }
+
+    /**
+     * @private
+     * @param {FileAnchor} fileAnchor 
+     * @param {number} count
+     * @param {function} failureCallback
+     */
+    _queryFileLabel(fileAnchor, count, failureCallback) {
+        let callback = fileAnchor.finishCallback;
+        if (callback) {
+            this.getFileLabel(fileAnchor.fileCode, (fileLabel) => {
+                // 将锚点上的回调函数置空
+                fileAnchor.finishCallback = null;
+
+                callback(fileLabel);
+
+                this.fileAnchors.remove(fileAnchor.fileCode);
+            }, (error) => {
+                if (count >= 3) {
+                    if (failureCallback) {
+                        failureCallback(error);
+                    }
+                    return;
+                }
+
+                setTimeout(() => {
+                    let newCount = count + 1;
+                    this._queryFileLabel(fileAnchor, newCount, failureCallback);
+                }, 1000);
+            });
+        }
     }
 
     /**

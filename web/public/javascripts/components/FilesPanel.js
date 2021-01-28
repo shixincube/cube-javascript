@@ -173,10 +173,10 @@
                     else {
                         name = item.getName();
                     }
-                    text = ['您确定要删除', result[0].type == 'folder' ? '文件夹' : '文件', ' "', name, '" 吗？'];
+                    text = ['您确定要删除', result[0].type == 'folder' ? '文件夹' : '文件', ' <span class="text-danger">', name, '</span> 吗？'];
                 }
                 else {
-                    text = ['您确定要删除 ', result.length, ' 个项目吗？'];
+                    text = ['您确定要删除 <b>', result.length, '</b> 个项目吗？'];
                 }
 
                 g.dialog.showConfirm('删除文件', text.join(''), function(ok) {

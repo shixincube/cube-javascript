@@ -522,6 +522,9 @@ export class FileHierarchy {
                 if (undefined !== json.directory) {
                     result.push(this._unpackDirectory(json.directory));
                 }
+                else if (undefined !== json.file) {
+                    result.push(FileLabel.create(json.file));
+                }
             });
             handleSuccess(this.root, result, begin, end);
         });
