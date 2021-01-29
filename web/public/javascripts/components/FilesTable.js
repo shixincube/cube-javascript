@@ -33,9 +33,6 @@
     var surfaceA = null;
     var surfaceB = null;
 
-    var curBeginIndex = 0;
-    var curEndIndex = 0;
-
     function makeFolderRow(folder, extended) {
         var id = folder.getId();
         var name = folder.getName();
@@ -145,7 +142,7 @@
             return '<i class="ci ci-file-ipa"></i>';
         }
         else {
-            return '<i class="fa fa-file ci-fa-file"></i>';    //'<i class="ci ci-file-unknown"></i>';
+            return '<i class="fa fa-file-alt ci-fa-file"></i>';    //'<i class="ci ci-file-unknown"></i>';
         }
     }
 

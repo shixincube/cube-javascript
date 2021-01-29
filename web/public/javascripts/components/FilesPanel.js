@@ -248,12 +248,54 @@
 
         // 上一页
         btnPrev.click(function() {
+            if (selectedRecycleBin) {
 
+            }
+            else if (selectedSearch) {
+
+            }
+            else {
+                if (currentPage.page == 0) {
+                    return;
+                }
+
+                currentPage.page -= 1;
+                if (currentPage.page == 0) {
+                    btnPrev.attr('disabled', 'disabled');
+                }
+
+                that.refreshTable();
+
+                btnNext.removeAttr('disabled');
+            }
         });
 
         // 下一页
         btnNext.click(function() {
+            if (selectedRecycleBin) {
 
+            }
+            else if (selectedSearch) {
+
+            }
+            else {
+                g.app.filesCtrl.getPageData(currentDir, currentPage.page + 1, function(result) {
+                    if (null == result) {
+                        // 没有新数据
+                        btnNext.attr('disabled', 'disabled');
+
+                        if (currentPage.page != 0) {
+                            btnPrev.removeAttr('disabled');
+                        }
+
+                        g.dialog.launchToast(Toast.Info, '没有更多数据');
+                    }
+                    else {
+                        currentPage.page += 1;
+                        that.refreshTable();
+                    }
+                });
+            }
         });
     }
 
@@ -337,6 +379,14 @@
             // 更新数量信息
             infoLoaded.text(currentPage.page * g.app.filesCtrl.numPerPage + result.length);
             infoTotal.text(currentDir.totalDirs() + currentDir.totalFiles());
+
+            // 判断下一页
+            if (currentPage.loaded < g.app.filesCtrl.numPerPage) {
+                btnNext.attr('disabled', 'disabled');
+            }
+            else {
+                btnNext.removeAttr('disabled');
+            }
         });
 
         // 判断上一页
@@ -393,6 +443,8 @@
         panelEl.find('.fp-path').html('');
         btnNewDir.css('display', 'none');
         btnParent.css('display', 'none');
+        btnPrev.attr('disabled', 'disabled');
+        btnNext.attr('disabled', 'disabled');
 
         // 搜索文件
         window.cube().fs.searchFile({
@@ -420,6 +472,8 @@
         panelEl.find('.fp-path').html('');
         btnNewDir.css('display', 'none');
         btnParent.css('display', 'none');
+        btnPrev.attr('disabled', 'disabled');
+        btnNext.attr('disabled', 'disabled');
 
         // 搜索文件
         window.cube().fs.searchFile({
@@ -449,6 +503,8 @@
         panelEl.find('.fp-path').html('');
         btnNewDir.css('display', 'none');
         btnParent.css('display', 'none');
+        btnPrev.attr('disabled', 'disabled');
+        btnNext.attr('disabled', 'disabled');
 
         window.cube().fs.listTrash(0, 20, function(root, list, begin, end) {
             table.updatePage(list, true);
