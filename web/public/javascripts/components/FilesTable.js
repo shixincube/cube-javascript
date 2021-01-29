@@ -33,7 +33,6 @@
     var surfaceA = null;
     var surfaceB = null;
 
-    var curFolder = null;
     var curBeginIndex = 0;
     var curEndIndex = 0;
 
@@ -160,17 +159,10 @@
 
     /**
      * 更新表格数据。
-     * @param {Directory} dir 
-     * @param {number} begin 
-     * @param {number} end 
      * @param {Array} list 
      * @param {boolean} [extended] 
      */
-    FilesTable.prototype.updatePage = function(dir, begin, end, list, extended) {
-        curFolder = dir;
-        curBeginIndex = begin;
-        curEndIndex = end;
-
+    FilesTable.prototype.updatePage = function(list, extended) {
         if (list.length == 0) {
             surface[0].innerHTML = '';
             noFileBg.css('display', 'block');
@@ -201,6 +193,11 @@
         surface[0].innerHTML = html.join('');
     }
 
+    /**
+     * 选中指定 ID 的行。
+     * 
+     * @param {string} id 
+     */
     FilesTable.prototype.select = function(id) {
         g.app.filesPanel.resetSelectAllButton();
 

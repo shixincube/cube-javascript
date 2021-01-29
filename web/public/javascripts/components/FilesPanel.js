@@ -30,7 +30,6 @@
     var that = null;
 
     var panelEl = null;
-    var toolbarEl = null;
 
     var btnSelectAll = null;
 
@@ -43,10 +42,17 @@
     var infoLoaded = 0;
     var infoTotal = 0;
 
+    var btnPrev = null;
+    var btnNext = null;
+
     var table = null;
 
     var rootDir = null;
     var currentDir = null;
+    var currentPage = {
+        page: 0,
+        loaded: 0
+    };
 
     var selectedSearch = false;
     var selectedRecycleBin = false;
@@ -64,6 +70,11 @@
 
         infoLoaded = el.find('.info-loaded');
         infoTotal = el.find('.info-total');
+
+        btnPrev = el.find('button[data-target="prev"]');
+        btnPrev.attr('disabled', 'disabled');
+        btnNext = el.find('button[data-target="next"]');
+        btnNext.attr('disabled', 'disabled');
 
         that = this;
 
@@ -94,7 +105,7 @@
                 currentDir.uploadFile(file, function(fileAnchor) {
                     // 正在加载
                 }, function(dir, fileLabel) {
-                    that.refreshUI();
+                    that.refreshTable(true);
                 }, function(error) {
 
                 });
@@ -216,7 +227,7 @@
                         currentDir.deleteDirectory(dirList, true, function(workingDir, resultList) {
                             dirCompleted = true;
                             if (fileCompleted) {
-                                that.refreshUI();
+                                that.refreshTable(true);
                             }
                         }, function(error) {
                             g.dialog.launchToast(Toast.Error, '删除文件夹失败: ' + error.code);
@@ -225,7 +236,7 @@
                         currentDir.deleteFile(fileList, function(workingDir, resultList) {
                             fileCompleted = true;
                             if (dirCompleted) {
-                                that.refreshUI();
+                                that.refreshTable(true);
                             }
                         }, function(error) {
                             g.dialog.launchToast(Toast.Error, '删除文件失败: ' + error.code);
@@ -233,6 +244,16 @@
                     }
                 }, '删除');
             }
+        });
+
+        // 上一页
+        btnPrev.click(function() {
+
+        });
+
+        // 下一页
+        btnNext.click(function() {
+
         });
     }
 
@@ -299,22 +320,40 @@
     }
 
     /**
-     * 当现实目录时刷新 UI 。
+     * 使用当前目录数据刷新表格。
      */
-    FilesPanel.prototype.refreshUI = function() {
-        var tlist = [];
-        currentDir.listDirectories(function(dir, list) {
-            tlist = tlist.concat(list);
+    FilesPanel.prototype.refreshTable = function(reset) {
+        if (reset) {
+            g.app.filesCtrl.resetPageData(currentDir);
+        }
 
-            currentDir.listFiles(0, 20, function(dir, files) {
-                tlist = tlist.concat(files);
-                // 更新表格
-                table.updatePage(currentDir, 0, 20, tlist);
+        g.app.filesCtrl.getPageData(currentDir, currentPage.page, function(result) {
+            // 更新表格
+            table.updatePage(result);
 
-                infoLoaded.text(tlist.length);
-                infoTotal.text(currentDir.totalDirs() + currentDir.totalFiles());
-            });
+            // 当前加载的数量
+            currentPage.loaded = result.length;
+
+            // 更新数量信息
+            infoLoaded.text(currentPage.page * g.app.filesCtrl.numPerPage + result.length);
+            infoTotal.text(currentDir.totalDirs() + currentDir.totalFiles());
         });
+
+        // 判断上一页
+        if (currentPage.page == 0) {
+            btnPrev.attr('disabled', 'disabled');
+        }
+        else {
+            btnPrev.removeAttr('disabled');
+        }
+
+        // 判断下一页
+        if (currentPage.loaded < g.app.filesCtrl.numPerPage) {
+            btnNext.attr('disabled', 'disabled');
+        }
+        else {
+            btnNext.removeAttr('disabled');
+        }
     }
 
     /**
@@ -323,6 +362,7 @@
     FilesPanel.prototype.showRoot = function() {
         selectedSearch = false;
         selectedRecycleBin = false;
+
         btnEmptyTrash.css('display', 'none');
 
         if (null == currentDir) {
@@ -337,7 +377,7 @@
         btnNewDir.css('display', 'inline-block');
         btnParent.css('display', 'block');
 
-        this.refreshUI();
+        this.refreshTable();
 
         this.updateTitlePath();
     }
@@ -360,7 +400,7 @@
             end: 20,
             type: ['jpg', 'png', 'gif', 'bmp']
         }, function(filter, list) {
-            table.updatePage(null, 0, 20, list);
+            table.updatePage(list);
             infoLoaded.text(list.length);
         }, function(error) {
             g.dialog.launchToast(Toast.Error, '过滤图片文件: ' + error.code);
@@ -389,7 +429,7 @@
                 'docm', 'dotm', 'dotx', 'ett', 'xlsm', 'xlt', 'dpt',
                 'ppsm', 'ppsx', 'pot', 'potm', 'potx', 'pps', 'ptm']
         }, function(filter, list) {
-            table.updatePage(null, 0, 20, list);
+            table.updatePage(list);
             infoLoaded.text(list.length);
         }, function(error) {
             g.dialog.launchToast(Toast.Error, '过滤图片文件: ' + error.code);
@@ -411,12 +451,12 @@
         btnParent.css('display', 'none');
 
         window.cube().fs.listTrash(0, 20, function(root, list, begin, end) {
-            table.updatePage(null, begin, end, list, true);
+            table.updatePage(list, true);
             infoLoaded.text(list.length);
             infoTotal.text('--');
         }, function(error) {
             g.dialog.launchToast(Toast.Error, '读取回收站数据错误: ' + error.code);
-            table.updatePage(null, 0, 0, []);
+            table.updatePage([]);
             infoLoaded.text(0);
             infoTotal.text('--');
         });
@@ -463,8 +503,8 @@
             currentDir = idOrDir;
         }
 
-        // 刷新目录
-        this.refreshUI();
+        // 刷新列表
+        this.refreshTable();
 
         this.updateTitlePath();
     }
@@ -492,9 +532,11 @@
     }
 
     FilesPanel.prototype.newDirectory = function(dirName) {
-        g.dialog.launchToast(Toast.Info, '新建文件夹 "' + dirName + '"');
+        g.dialog.launchToast(Toast.Info, '新建文件夹“' + dirName + '”');
         currentDir.newDirectory(dirName, function(newDir) {
             table.insertFolder(newDir);
+            // 重置分页数据
+            g.app.filesCtrl.resetPageData(currentDir);
         }, function(error) {
             g.dialog.launchToast(Toast.Error, '新建文件夹失败: ' + error.code);
         });
