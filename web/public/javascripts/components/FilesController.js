@@ -33,6 +33,10 @@
 
     var folderMap = new OrderMap();
 
+    /**
+     * 每页数据条目数。
+     * @type {number}
+     */
     var numPerPage = 20;
 
     /**

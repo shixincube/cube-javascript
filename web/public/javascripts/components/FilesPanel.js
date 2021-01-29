@@ -53,6 +53,7 @@
         page: 0,
         loaded: 0
     };
+    var currentFilter = null;
 
     var selectedSearch = false;
     var selectedRecycleBin = false;
@@ -252,7 +253,34 @@
 
             }
             else if (selectedSearch) {
+                if (currentFilter.begin == 0) {
+                    return;
+                }
 
+                currentFilter.end = currentFilter.begin;
+                currentFilter.begin = currentFilter.begin - g.app.filesCtrl.numPerPage;
+
+                if (currentFilter.begin == 0) {
+                    btnPrev.attr('disabled', 'disabled');
+                }
+
+                // 搜索文件
+                window.cube().fs.searchFile(currentFilter, function(filter, list) {
+                    if (list.length < g.app.filesCtrl.numPerPage) {
+                        btnNext.attr('disabled', 'disabled');
+
+                        if (list.length == 0) {
+                            return;
+                        }
+                    }
+
+                    table.updatePage(list);
+                    infoLoaded.text(list.length);
+
+                    btnNext.removeAttr('disabled');
+                }, function(error) {
+                    g.dialog.launchToast(Toast.Error, '过滤文件错误: ' + error.code);
+                });
             }
             else {
                 if (currentPage.page == 0) {
@@ -276,7 +304,28 @@
 
             }
             else if (selectedSearch) {
+                currentFilter.begin = currentFilter.end;
+                currentFilter.end = currentFilter.end + g.app.filesCtrl.numPerPage;
 
+                // 搜索文件
+                window.cube().fs.searchFile(currentFilter, function(filter, list) {
+                    if (list.length < g.app.filesCtrl.numPerPage) {
+                        btnNext.attr('disabled', 'disabled');
+
+                        if (list.length == 0) {
+                            currentFilter.end = currentFilter.end - g.app.filesCtrl.numPerPage;
+                            currentFilter.begin = currentFilter.end - g.app.filesCtrl.numPerPage;
+                            return;
+                        }
+                    }
+
+                    btnPrev.removeAttr('disabled');
+
+                    table.updatePage(list);
+                    infoLoaded.text(list.length);
+                }, function(error) {
+                    g.dialog.launchToast(Toast.Error, '过滤文件错误: ' + error.code);
+                });
             }
             else {
                 g.app.filesCtrl.getPageData(currentDir, currentPage.page + 1, function(result) {
@@ -370,6 +419,14 @@
         }
 
         g.app.filesCtrl.getPageData(currentDir, currentPage.page, function(result) {
+            if (null == result) {
+                btnNext.attr('disabled', 'disabled');
+                table.updatePage([]);
+                infoLoaded.text(0);
+                infoTotal.text(0);
+                return;
+            }
+
             // 更新表格
             table.updatePage(result);
 
@@ -446,14 +503,20 @@
         btnPrev.attr('disabled', 'disabled');
         btnNext.attr('disabled', 'disabled');
 
-        // 搜索文件
-        window.cube().fs.searchFile({
+        currentFilter = {
             begin: 0,
-            end: 20,
+            end: g.app.filesCtrl.numPerPage,
             type: ['jpg', 'png', 'gif', 'bmp']
-        }, function(filter, list) {
+        };
+
+        // 搜索文件
+        window.cube().fs.searchFile(currentFilter, function(filter, list) {
             table.updatePage(list);
             infoLoaded.text(list.length);
+
+            if (list.length == g.app.filesCtrl.numPerPage) {
+                btnNext.removeAttr('disabled');
+            }
         }, function(error) {
             g.dialog.launchToast(Toast.Error, '过滤图片文件: ' + error.code);
         });
@@ -475,18 +538,24 @@
         btnPrev.attr('disabled', 'disabled');
         btnNext.attr('disabled', 'disabled');
 
-        // 搜索文件
-        window.cube().fs.searchFile({
+        currentFilter = {
             begin: 0,
-            end: 20,
+            end: g.app.filesCtrl.numPerPage,
             type: ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
                 'docm', 'dotm', 'dotx', 'ett', 'xlsm', 'xlt', 'dpt',
                 'ppsm', 'ppsx', 'pot', 'potm', 'potx', 'pps', 'ptm']
-        }, function(filter, list) {
+        };
+
+        // 搜索文件
+        window.cube().fs.searchFile(currentFilter, function(filter, list) {
             table.updatePage(list);
             infoLoaded.text(list.length);
+
+            if (list.length == g.app.filesCtrl.numPerPage) {
+                btnNext.removeAttr('disabled');
+            }
         }, function(error) {
-            g.dialog.launchToast(Toast.Error, '过滤图片文件: ' + error.code);
+            g.dialog.launchToast(Toast.Error, '过滤文档文件: ' + error.code);
         });
 
         infoTotal.text('--');
@@ -526,8 +595,12 @@
         table.select(id);
     }
 
+    /**
+     * 切换目录。
+     * @param {*} idOrDir 
+     */
     FilesPanel.prototype.changeDirectory = function(idOrDir) {
-        if (selectedRecycleBin) {
+        if (selectedRecycleBin || selectedSearch) {
             return;
         }
 
@@ -538,7 +611,7 @@
             if (currentDir.getId() == dirId) {
                 return;
             }
-    
+
             if (dirId == rootDir.getId()) {
                 currentDir = rootDir;
             }
