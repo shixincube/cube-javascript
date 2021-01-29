@@ -36,6 +36,16 @@ import { FileStorageState } from "./FileStorageState";
 import { FileLabel } from "./FileLabel";
 import { TrashDirectory } from "./TrashDirectory";
 import { TrashFile } from "./TrashFile";
+import { SearchItem } from "./SearchItem";
+
+/**
+ * 搜索过滤器定义。
+ * @typedef {object} SearchFilter
+ * @property {Array} type 包含检索的文件类型。
+ * @property {number} begin 检索的起始索引。
+ * @property {number} end 检索的结束索引。
+ * @property {boolean} [inverseOrder] 是否安排时间倒序返回结果。
+ */
 
 /**
  * 文件层级结构描述。
@@ -599,6 +609,50 @@ export class FileHierarchy {
             }
 
             handleSuccess(this.root);
+        });
+    }
+
+    /**
+     * 搜索文件。
+     * @param {SearchFilter} filter 指定搜索过滤条件。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode filter}:{@link SearchFilter}, {@linkcode list}:{@linkcode Array<SearchItem>}) 。
+     * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    searchFile(filter, handleSuccess, handleFailure) {
+        let request = new Packet(FileStorageAction.SearchFile, {
+            "root": this.root.id,
+            "filter": filter
+        });
+
+        this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
+            if (null == packet || packet.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, this.root);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            if (packet.getPayload().code != FileStorageState.Ok) {
+                let error = new ModuleError(FileStorage.NAME, packet.getPayload().code, this.root);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            let data = packet.getPayload().data;
+            let filter = data.filter;
+            let result = data.result;
+
+            let list = [];
+            result.forEach((item) => {
+                let dir = this._toDirectory(item.directory);
+                let file = FileLabel.create(item.file);
+                list.push(new SearchItem(dir, file));
+            });
+
+            handleSuccess(filter, list);
         });
     }
 

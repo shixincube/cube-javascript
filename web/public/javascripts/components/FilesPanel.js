@@ -48,6 +48,7 @@
     var rootDir = null;
     var currentDir = null;
 
+    var selectedSearch = false;
     var selectedRecycleBin = false;
 
     var FilesPanel = function(el) {
@@ -126,7 +127,7 @@
                         g.dialog.launchToast(Toast.Error, '清空回收站失败: ' + error.code);
                     });
                 }
-            }, '清空');
+            }, '清空回收站');
         });
 
         // 上一级/回到父目录
@@ -297,6 +298,9 @@
         this.recurseParent(list, parent);
     }
 
+    /**
+     * 当现实目录时刷新 UI 。
+     */
     FilesPanel.prototype.refreshUI = function() {
         var tlist = [];
         currentDir.listDirectories(function(dir, list) {
@@ -317,6 +321,7 @@
      * 显示根目录。
      */
     FilesPanel.prototype.showRoot = function() {
+        selectedSearch = false;
         selectedRecycleBin = false;
         btnEmptyTrash.css('display', 'none');
 
@@ -341,6 +346,7 @@
      * 显示图片文件
      */
     FilesPanel.prototype.showImages = function() {
+        selectedSearch = true;
         selectedRecycleBin = false;
         btnEmptyTrash.css('display', 'none');
 
@@ -348,15 +354,26 @@
         btnNewDir.css('display', 'none');
         btnParent.css('display', 'none');
 
-        table.updatePage(currentDir, 0, 20, []);
-        infoLoaded.text(0);
-        infoTotal.text(0);
+        // 搜索文件
+        window.cube().fs.searchFile({
+            begin: 0,
+            end: 20,
+            type: ['jpg', 'png', 'gif', 'bmp']
+        }, function(filter, list) {
+            table.updatePage(null, 0, 20, list);
+            infoLoaded.text(list.length);
+        }, function(error) {
+            g.dialog.launchToast(Toast.Error, '过滤图片文件: ' + error.code);
+        });
+
+        infoTotal.text('--');
     }
 
     /**
      * 显示文档文件。
      */
     FilesPanel.prototype.showDocuments = function() {
+        selectedSearch = true;
         selectedRecycleBin = false;
         btnEmptyTrash.css('display', 'none');
 
@@ -364,15 +381,28 @@
         btnNewDir.css('display', 'none');
         btnParent.css('display', 'none');
 
-        table.updatePage(currentDir, 0, 20, []);
-        infoLoaded.text(0);
-        infoTotal.text(0);
+        // 搜索文件
+        window.cube().fs.searchFile({
+            begin: 0,
+            end: 20,
+            type: ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
+                'docm', 'dotm', 'dotx', 'ett', 'xlsm', 'xlt', 'dpt',
+                'ppsm', 'ppsx', 'pot', 'potm', 'potx', 'pps', 'ptm']
+        }, function(filter, list) {
+            table.updatePage(null, 0, 20, list);
+            infoLoaded.text(list.length);
+        }, function(error) {
+            g.dialog.launchToast(Toast.Error, '过滤图片文件: ' + error.code);
+        });
+
+        infoTotal.text('--');
     }
 
     /**
      * 显示回收站。
      */
     FilesPanel.prototype.showRecyclebin = function() {
+        selectedSearch = false;
         selectedRecycleBin = true;
         btnEmptyTrash.css('display', 'inline-block');
 
@@ -392,8 +422,12 @@
         });
     }
 
+    /**
+     * 选中指定 ID 的表格行。
+     * @param {*} id 
+     */
     FilesPanel.prototype.select = function(id) {
-        table.select(parseInt(id));
+        table.select(id);
     }
 
     FilesPanel.prototype.changeDirectory = function(idOrDir) {
@@ -437,6 +471,9 @@
 
     FilesPanel.prototype.openFile = function(fileCode) {
         if (selectedRecycleBin) {
+            return;
+        }
+        else if (selectedSearch) {
             return;
         }
 

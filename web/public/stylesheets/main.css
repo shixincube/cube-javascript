@@ -478,6 +478,11 @@ body {
 .table-files .file-name a:hover {
     color: #007bff;
 }
+.table-files .file-name .desc {
+    font-style: italic;
+    padding-left: 10px;
+    font-size: 10px;
+}
 
 .no-file {
     position: absolute;

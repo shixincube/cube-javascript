@@ -97,5 +97,10 @@ export const FileStorageAction = {
      * 清空回收站里的废弃数据。
      * @type {string}
      */
-    EmptyTrash: 'emptyTrash'
+    EmptyTrash: 'emptyTrash',
+
+    /**
+     * 检索文件。
+     */
+    SearchFile: 'searchFile'
 }

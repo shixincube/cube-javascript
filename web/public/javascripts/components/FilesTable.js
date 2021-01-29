@@ -78,6 +78,29 @@
         ];
     }
 
+    function makeSearchItemRow(item) {
+        var fileLabel = item.file;
+        var directory = item.directory;
+        var dirName = directory.getName();
+        if (dirName == 'root') {
+            dirName = '/';
+        }
+
+        return [
+            '<tr onclick="app.filesPanel.select(\'', fileLabel.getFileCode(), '\')" id="ftr_', fileLabel.getFileCode(), '">',
+                '<td><div class="icheck-primary">',
+                    '<input type="checkbox" data-type="file" id="', fileLabel.getFileCode(), '">',
+                        '<label for="', fileLabel.getFileCode(), '"></label></div></td>',
+                '<td class="file-icon">', matchFileIcon(fileLabel), '</td>',
+                '<td class="file-name"><a href="javascript:app.filesPanel.openFile(\'', fileLabel.getFileCode(), '\');">',
+                    fileLabel.getFileName(), '</a>', '<span class="desc">目录: ', dirName, '</span>',
+                '</td>',
+                '<td class="file-size">', g.formatSize(fileLabel.getFileSize()), '</td>',
+                '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getLastModified()), '</td>',
+            '</tr>'
+        ];
+    }
+
     function matchFileIcon(fileLabel) {
         var type = fileLabel.getFileType();
         if (type == 'png' || type == 'jpeg' || type == 'gif' || type == 'jpg' || type == 'bmp') {
@@ -135,6 +158,14 @@
         surface = surfaceA;
     }
 
+    /**
+     * 更新表格数据。
+     * @param {Directory} dir 
+     * @param {number} begin 
+     * @param {number} end 
+     * @param {Array} list 
+     * @param {boolean} [extended] 
+     */
     FilesTable.prototype.updatePage = function(dir, begin, end, list, extended) {
         curFolder = dir;
         curBeginIndex = begin;
@@ -152,6 +183,9 @@
             var rowHtml = null;
             if (element instanceof FileLabel) {
                 rowHtml = makeFileRow(element, extended);
+            }
+            else if (element instanceof SearchItem) {
+                rowHtml = makeSearchItemRow(element, extended);
             }
             else {
                 rowHtml = makeFolderRow(element, extended);

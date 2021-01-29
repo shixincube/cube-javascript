@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,80 +24,27 @@
  * SOFTWARE.
  */
 
+import { Directory } from "./Directory";
+import { FileLabel } from "./FileLabel";
+
 /**
- * 文件存储模块状态。
+ * 搜索结果项。
  */
-export const FileStorageState = {
+export class SearchItem {
 
     /**
-     * 成功。
-     * @type {number}
+     * @param {Directory} directory 
+     * @param {FileLabel} file 
      */
-    Ok: 0,
+    constructor(directory, file) {
+        /**
+         * @type {Directory}
+         */
+        this.directory = directory;
 
-    /**
-     * 遇到故障。
-     * @type {number}
-     */
-    Failure: 9,
-
-    /**
-     * 无效的域信息。
-     * @type {number}
-     */
-    InvalidDomain: 11,
-
-    /**
-     * 无效的参数，禁止访问。
-     * @type {number}
-     */
-    Forbidden: 12,
-
-    /**
-     * 未找到指定数据。
-     * @type {number}
-     */
-    NotFound: 13,
-
-    /**
-     * 未授权访问。
-     * @type {number}
-     */
-    Unauthorized: 14,
-
-    /**
-     * 拒绝操作。
-     * @type {number}
-     */
-    Reject: 15,
-
-    /**
-     * 重名。
-     * @type {number}
-     */
-    DuplicationOfName: 20,
-
-    /**
-     * 搜索条件错误。
-     * @type {number}
-     */
-    SearchConditionError: 25,
-
-    /**
-     * 上传失败。
-     * @type {number}
-     */
-    UploadFailed: 102,
-
-    /**
-     * 获取文件标签失败。
-     * @type {number}
-     */
-    GetFileLabelFailed: 105,
-
-    /**
-     * 未知的状态。
-     * @type {number}
-     */
-    Unknown: 99
+        /**
+         * @type {FileLabel}
+         */
+        this.file = file;
+    }
 }

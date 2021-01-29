@@ -656,6 +656,23 @@ export class FileStorage extends Module {
     }
 
     /**
+     * 搜索文件。
+     * @param {SearchFilter} filter 指定搜索过滤条件。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode filter}:{@link SearchFilter}, {@linkcode list}:{@linkcode Array<SearchItem>}) 。
+     * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    searchFile(filter, handleSuccess, handleFailure) {
+        this.getSelfRoot((root) => {
+            let hierarchy = this.fileHierarchyMap.get(this.contactService.getSelf().getId());
+            hierarchy.searchFile(filter, handleSuccess, handleFailure);
+        }, (error) => {
+            if (handleFailure) {
+                handleFailure(error);
+            }
+        });
+    }
+
+    /**
      * 递归到根目录。
      * @private
      * @param {Directory} dir 
