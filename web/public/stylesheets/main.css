@@ -479,8 +479,7 @@ body {
     color: #007bff;
 }
 .table-files .file-name .desc {
-    font-style: italic;
-    padding-left: 10px;
+    padding-left: 14px;
     font-size: 10px;
 }
 

@@ -588,11 +588,11 @@
     }
 
     /**
-     * 选中指定 ID 的表格行。
-     * @param {*} id 
+     * 切换选择指定 ID 的行。
+     * @param {string} id 
      */
-    FilesPanel.prototype.select = function(id) {
-        table.select(id);
+    FilesPanel.prototype.toggleSelect = function(id) {
+        table.toggleSelect(id);
     }
 
     /**
@@ -623,6 +623,8 @@
                 }
                 currentDir = dir;
             }
+
+            table.unselect(dirId);
         }
         else {
             if (idOrDir == currentDir) {
@@ -653,6 +655,7 @@
 
         var type = fileLabel.getFileType();
         if (type == 'png' || type == 'jpeg' || type == 'gif' || type == 'jpg' || type == 'bmp') {
+            table.unselect(fileCode);
             g.dialog.showImage(fileLabel);
         }
         else {

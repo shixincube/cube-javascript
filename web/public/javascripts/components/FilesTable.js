@@ -42,7 +42,7 @@
         }
 
         return [
-            '<tr onclick="app.filesPanel.select(\'', id, '\')"',
+            '<tr onclick="app.filesPanel.toggleSelect(\'', id, '\')"',
                     ' ondblclick="app.filesPanel.changeDirectory(\'', id, '\')" id="ftr_', id, '">',
                 '<td><div class="icheck-primary">',
                     '<input type="checkbox" data-type="folder" id="', id, '">',
@@ -62,7 +62,7 @@
         }
 
         return [
-            '<tr onclick="app.filesPanel.select(\'', fileLabel.getFileCode(), '\')" id="ftr_', fileLabel.getFileCode(), '">',
+            '<tr onclick="app.filesPanel.toggleSelect(\'', fileLabel.getFileCode(), '\')" id="ftr_', fileLabel.getFileCode(), '">',
                 '<td><div class="icheck-primary">',
                     '<input type="checkbox" data-type="file" id="', fileLabel.getFileCode(), '">',
                         '<label for="', fileLabel.getFileCode(), '"></label></div></td>',
@@ -83,13 +83,13 @@
         }
 
         return [
-            '<tr onclick="app.filesPanel.select(\'', fileLabel.getFileCode(), '\')" id="ftr_', fileLabel.getFileCode(), '">',
+            '<tr onclick="app.filesPanel.toggleSelect(\'', fileLabel.getFileCode(), '\')" id="ftr_', fileLabel.getFileCode(), '">',
                 '<td><div class="icheck-primary">',
                     '<input type="checkbox" data-type="file" id="', fileLabel.getFileCode(), '">',
                         '<label for="', fileLabel.getFileCode(), '"></label></div></td>',
                 '<td class="file-icon">', matchFileIcon(fileLabel), '</td>',
                 '<td class="file-name"><a href="javascript:app.filesPanel.openFile(\'', fileLabel.getFileCode(), '\');">',
-                    fileLabel.getFileName(), '</a>', '<span class="desc">目录: ', dirName, '</span>',
+                    fileLabel.getFileName(), '</a>', '<span class="desc">所在目录: ', dirName, '</span>',
                 '</td>',
                 '<td class="file-size">', g.formatSize(fileLabel.getFileSize()), '</td>',
                 '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getLastModified()), '</td>',
@@ -191,11 +191,10 @@
     }
 
     /**
-     * 选中指定 ID 的行。
-     * 
+     * 切换选择指定 ID 的行。
      * @param {string} id 
      */
-    FilesTable.prototype.select = function(id) {
+    FilesTable.prototype.toggleSelect = function(id) {
         g.app.filesPanel.resetSelectAllButton();
 
         var el = tableEl.find('#' + id);
@@ -206,6 +205,18 @@
         else {
             el.prop('checked', true);
             tableEl.find('#ftr_' + id).addClass('table-primary');
+        }
+    }
+
+    /**
+     * 取消选择。
+     * @param {string} id 
+     */
+    FilesTable.prototype.unselect = function(id) {
+        var el = tableEl.find('#' + id);
+        if (el.prop('checked')) {
+            el.prop('checked', false);
+            tableEl.find('#ftr_' + id).removeClass('table-primary');
         }
     }
 
