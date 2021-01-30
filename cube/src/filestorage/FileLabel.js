@@ -208,6 +208,7 @@ export class FileLabel extends Entity {
     }
 
     /**
+     * @private
      * @returns {string} 返回文件的访问 URL 地址。
      */
     getFileURL() {
@@ -215,6 +216,7 @@ export class FileLabel extends Entity {
     }
 
     /**
+     * @private
      * @returns {string} 返回文件的访问 SSL URL 地址。
      */
     getFileSecureURL() {
@@ -270,6 +272,15 @@ export class FileLabel extends Entity {
         label.sha1Code = (undefined !== json.sha1) ? json.sha1 : null;
         label.fileURL = (undefined !== json.fileURL) ? json.fileURL : null;
         label.fileSecureURL = (undefined !== json.fileSecureURL) ? json.fileSecureURL : null;
+
+        if ('unknown' == label.fileType) {
+            let index = label.fileName.lastIndexOf('.');
+            if (index > 0) {
+                let extension = label.fileName.substring(index + 1);
+                label.fileType = extension;
+            }
+        }
+
         return label;
     }
 }

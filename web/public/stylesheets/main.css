@@ -524,6 +524,31 @@ body {
 
 /* 文件界面 - 结束 */
 
+/* 文件详情界面 - 开始 */
+
+.card-file-details {
+    margin-bottom: 0px;
+    font-size: 14px;
+}
+.card-file-details .widget-user-username {
+    font-size: 20px;
+    margin-bottom: 4px;
+}
+.card-file-details .widget-user-desc {
+    font-size: 14px;
+}
+.card-file-details .description-header {
+    font-size: 14px;
+    font-weight: normal;
+    margin-bottom: 4px;
+}
+.card-file-details .description-text {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+/* 文件详情界面 - 结束 */
+
 /* 音/视频通话界面 - 开始 */
 
 .media-btn-group {

@@ -62,7 +62,8 @@
         }
 
         return [
-            '<tr onclick="app.filesPanel.toggleSelect(\'', fileLabel.getFileCode(), '\')" id="ftr_', fileLabel.getFileCode(), '">',
+            '<tr onclick="app.filesPanel.toggleSelect(\'', fileLabel.getFileCode(), '\')"',
+                    ' ondblclick="app.filesPanel.openFileDetails(\'', fileLabel.getFileCode(), '\')"', ' id="ftr_', fileLabel.getFileCode(), '">',
                 '<td><div class="icheck-primary">',
                     '<input type="checkbox" data-type="file" id="', fileLabel.getFileCode(), '">',
                         '<label for="', fileLabel.getFileCode(), '"></label></div></td>',

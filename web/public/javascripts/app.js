@@ -53,8 +53,9 @@
     var voiceCallPanel = null;
     var videoChatPanel = null;
     var contactDetails = null;
-
     var newGroupDialog = null;
+
+    var fileDetails = null;
 
     var filesCatalog = null;
     var filesPanel = null;
@@ -164,6 +165,8 @@
             contactDetails = new ContactDetails();
             newGroupDialog = new NewGroupDialog($('#new_group_dialog'));
 
+            fileDetails = new FileDetails($('#modal_file_details'));
+
             // 文件
             var filesEl = $('#files');
             // 文件目录
@@ -184,6 +187,8 @@
             that.videoChatPanel = videoChatPanel;
             that.contactDetails = contactDetails;
             that.newGroupDialog = newGroupDialog;
+
+            that.fileDetails = fileDetails;
 
             that.filesCatalog = filesCatalog;
             that.filesPanel = filesPanel;

@@ -248,4 +248,19 @@
         }
         return null;
     }
+
+    /**
+     * 递归当前目录的所有父目录。
+     * @param {Array} list
+     * @param {Directory} dir
+     */
+    g.recurseParent = function(list, dir) {
+        list.unshift(dir);
+
+        if (null == dir.getParent()) {
+            return;
+        }
+
+        return g.recurseParent(list, dir.getParent());
+    }
 })(window);

@@ -640,6 +640,10 @@
         this.updateTitlePath();
     }
 
+    /**
+     * 打开文件。
+     * @param {string} fileCode 
+     */
     FilesPanel.prototype.openFile = function(fileCode) {
         if (selectedRecycleBin) {
             return;
@@ -659,8 +663,30 @@
             g.dialog.showImage(fileLabel);
         }
         else {
-            // TODO
+            table.unselect(fileCode);
+            g.app.fileDetails.open(fileLabel, currentDir);
         }
+    }
+
+    /**
+     * 查看文件详情。
+     * @param {stirng} fileCode 
+     */
+    FilesPanel.prototype.openFileDetails = function(fileCode) {
+        if (selectedRecycleBin) {
+            return;
+        }
+        else if (selectedSearch) {
+            return;
+        }
+
+        var fileLabel = currentDir.getFile(fileCode);
+        if (null == fileLabel) {
+            return;
+        }
+
+        table.unselect(fileCode);
+        g.app.fileDetails.open(fileLabel, currentDir);
     }
 
     FilesPanel.prototype.newDirectory = function(dirName) {
