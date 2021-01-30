@@ -643,16 +643,26 @@
     /**
      * 打开文件。
      * @param {string} fileCode 
+     * @param {string} directoryId
      */
-    FilesPanel.prototype.openFile = function(fileCode) {
+    FilesPanel.prototype.openFile = function(fileCode, directoryId) {
+        var fileLabel = null;
+        var directory = null;
+
         if (selectedRecycleBin) {
-            return;
         }
         else if (selectedSearch) {
-            return;
+            var searchItem = window.cube().fs.querySearch(directoryId, fileCode);
+            if (null != searchItem) {
+                directory = searchItem.directory;
+                fileLabel = searchItem.file;
+            }
+        }
+        else {
+            directory = currentDir;
+            fileLabel = directory.getFile(fileCode);
         }
 
-        var fileLabel = currentDir.getFile(fileCode);
         if (null == fileLabel) {
             return;
         }
@@ -664,7 +674,7 @@
         }
         else {
             table.unselect(fileCode);
-            g.app.fileDetails.open(fileLabel, currentDir);
+            g.app.fileDetails.open(fileLabel, directory);
         }
     }
 

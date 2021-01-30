@@ -47,6 +47,7 @@ import { FileStructStorage } from "./FileStructStorage";
 import { FileStorageState } from "./FileStorageState";
 import { Directory } from "./Directory";
 import { FileHierarchy } from "./FileHierarchy";
+import { SearchItem } from "./SearchItem";
 
 /**
  * 上传文件回调函数。
@@ -521,17 +522,17 @@ export class FileStorage extends Module {
     }
 
     /**
-     * 获取指定 ID 或名称的目录。
-     * @param {number|string} idOrName 目录 ID 或者目录名。
-     * @returns {Directory} 返回指定 ID 或名称的目录。
+     * 获取指定 ID 的目录。
+     * @param {number|string} id 目录 ID 。
+     * @returns {Directory} 返回指定 ID 的目录。
      */
-    querySelfDirectory(idOrName) {
+    querySelfDirectory(id) {
         let hierarchy = this.fileHierarchyMap.get(this.contactService.getSelf().getId());
         if (null == hierarchy) {
             return null;
         }
 
-        return hierarchy.getDirectory(idOrName);
+        return hierarchy.getDirectory(id);
     }
 
     /**
@@ -670,6 +671,21 @@ export class FileStorage extends Module {
                 handleFailure(error);
             }
         });
+    }
+
+    /**
+     * 查询之前有效的搜索结果。
+     * @param {number|string} directoryId 目录 ID 。
+     * @param {string} fileCode 文件码。
+     * @returns {SearchItem} 返回搜索结果项。
+     */
+    querySearch(directoryId, fileCode) {
+        let hierarchy = this.fileHierarchyMap.get(this.contactService.getSelf().getId());
+        if (null == hierarchy) {
+            return null;
+        }
+
+        return hierarchy.getSearchItem(parseInt(directoryId), fileCode);
     }
 
     /**

@@ -47,4 +47,13 @@ export class SearchItem {
          */
         this.file = file;
     }
+
+    /**
+     * 判断两个搜索结果是否相同。
+     * @param {SearchItem} item 
+     * @returns {boolean} 如果相同返回 {@linkcode true} 。
+     */
+    equals(item) {
+        return (item.directory.id == this.directory.id) && (item.file.fileCode == this.file.fileCode);
+    }
 }

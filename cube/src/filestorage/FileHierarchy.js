@@ -70,6 +70,12 @@ export class FileHierarchy {
          * @type {FastMap}
          */
         this.dirMap = new FastMap();
+
+        /**
+         * 搜索结果。
+         * @type {Array}
+         */
+        this.searchResults = [];
     }
 
     /**
@@ -135,24 +141,28 @@ export class FileHierarchy {
     }
 
     /**
-     * 获取指定 ID 或名称的目录。
-     * @param {number|string} idOrName 目录 ID 或者目录名。
-     * @returns {Directory} 返回指定 ID 或名称的目录。
+     * 获取指定 ID 的目录。
+     * @param {number|string} id 目录 ID 。
+     * @returns {Directory} 返回指定 ID 的目录。
      */
-    getDirectory(idOrName) {
-        if (typeof idOrName === 'number') {
-            return this.dirMap.get(idOrName);
-        }
-        else if (typeof idOrName === 'string') {
-            let list = this.dirMap.values();
-            for (let i = 0; i < list.length; ++i) {
-                let dir = list[i];
-                if (dir.name == idOrName) {
-                    return dir;
-                }
+    getDirectory(id) {
+        let dirId = parseInt(id);
+        return this.dirMap.get(dirId);
+    }
+
+    /**
+     * 获取指定名称的目录。
+     * @param {number|string} name 目录名。
+     * @returns {Directory} 返回指定名称的目录。
+     */
+    getDirectoryByName(name) {
+        let list = this.dirMap.values();
+        for (let i = 0; i < list.length; ++i) {
+            let dir = list[i];
+            if (dir.name == name) {
+                return dir;
             }
         }
-
         return null;
     }
 
@@ -198,8 +208,10 @@ export class FileHierarchy {
                 directory.addChild(dir);
             });
             directory.numDirs = list.length;
-
             handleSuccess(directory);
+
+            // 缓存
+            this.dirMap.put(directory.getId(), directory);
         });
     }
 
@@ -242,6 +254,9 @@ export class FileHierarchy {
                 current.push(file);
             });
             handleSuccess(directory, current, data.begin, data.end);
+
+            // 缓存
+            this.dirMap.put(directory.getId(), directory);
         });
     }
 
@@ -295,6 +310,9 @@ export class FileHierarchy {
             // 更新目录数量
             workingDir.numDirs += 1;
             handleSuccess(dir);
+
+            // 缓存
+            this.dirMap.put(workingDir.getId(), workingDir);
         });
     }
 
@@ -427,6 +445,9 @@ export class FileHierarchy {
             workingDir.numDirs -= resultList.length;
 
             handleSuccess(workingDir, resultList);
+
+            // 缓存
+            this.dirMap.put(workingDir.getId(), workingDir);
         });
     }
 
@@ -491,6 +512,9 @@ export class FileHierarchy {
             workingDir.numFiles -= deletedList.length;
 
             handleSuccess(workingDir, deletedFile);
+
+            // 缓存
+            this.dirMap.put(workingDir.getId(), workingDir);
         });
     }
 
@@ -649,11 +673,30 @@ export class FileHierarchy {
             result.forEach((item) => {
                 let dir = this._toDirectory(item.directory);
                 let file = FileLabel.create(item.file);
-                list.push(new SearchItem(dir, file));
+                let sitem = new SearchItem(dir, file);
+                list.push(sitem);
+
+                this._putSearchItem(sitem);
             });
 
             handleSuccess(filter, list);
         });
+    }
+
+    /**
+     * 
+     * @param {*} dirId 
+     * @param {*} fileCode 
+     * @returns {SearchItem}
+     */
+    getSearchItem(dirId, fileCode) {
+        for (let i = 0; i < this.searchResults.length; ++i) {
+            let item = this.searchResults[i];
+            if (item.directory.id == dirId && item.file.fileCode == fileCode) {
+                return item;
+            }
+        }
+        return null;
     }
 
     /**
@@ -686,6 +729,27 @@ export class FileHierarchy {
         dir.hidden = json.hidden;
         dir.numDirs = json.numDirs;
         dir.numFiles = json.numFiles;
+
+        if (json.parent) {
+            dir.parent = this._toDirectory(json.parent);
+            dir.parentId = dir.parent.id;
+        }
+
         return dir;
+    }
+
+    /**
+     * @private
+     * @param {*} item 
+     */
+    _putSearchItem(item) {
+        for (let i = 0; i < this.searchResults.length; ++i) {
+            let si = this.searchResults[i];
+            if (item.equals(si)) {
+                return;
+            }
+        }
+
+        this.searchResults.push(item);
     }
 }
