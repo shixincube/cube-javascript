@@ -176,6 +176,16 @@ body {
     overflow-y: auto;
 }
 
+.main-header .cube-site {
+    display: inline-block;
+    font-size: 14px;
+}
+.main-header .main-title {
+    display: inline-block;
+    vertical-align: middle;
+    color: #343a40;
+}
+
 .main-sidebar:hover .opt .right {
     visibility: visible;
     opacity: 1.0;

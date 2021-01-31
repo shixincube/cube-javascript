@@ -137,6 +137,19 @@
             $('#' + tabBtnId).removeClass('active');
             $('#' + btnId).addClass('active');
             tabBtnId = btnId;
+
+            if (id == 'messaging') {
+                $('.main-title').text('消息');
+            }
+            else if (id == 'files') {
+                $('.main-title').text('文件');
+            }
+            else if (id == 'conference') {
+                $('.main-title').text('会议');
+            }
+            else if (id == 'contacts') {
+                $('.main-title').text('联系人');
+            }
         },
 
         /**
