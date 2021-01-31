@@ -32,16 +32,47 @@
 
     var contacts = null;
 
+    var dialogEl = null;
+    var elMyContacts = null;
+    var elGroupName = null;
+
+    var btnConfirm = null;
+
     var NewGroupDialog = function(el) {
-        this.el = el;
-        this.elMyContacts = el.find('div[data-target="my-contacts"]');
-        this.elGroupName = el.find('input[data-target="group-name"]');
+        dialogEl = el;
+        elMyContacts = el.find('div[data-target="my-contacts"]');
+        elGroupName = el.find('input[data-target="group-name"]');
+
+        btnConfirm = el.find('button[data-target="confirm"]');
+        btnConfirm.click(function() {
+            var groupName = elGroupName.val().trim();
+            if (groupName.length == 0) {
+                groupName = g.app.getSelf().getName() + '创建的群组';
+            }
+
+            var members = [];
+            elMyContacts.find('input[type="checkbox"]:checked').each(function(index, item) {
+                members.push(pareInt($(item).attr('data')));
+            });
+
+            if (members.length == 0) {
+                dialogEl.modal('hide');
+                return;
+            }
+
+            window.cube().contact.createGroup(groupName, members, function(group) {
+
+            }, function(error) {
+
+            });
+        });
     }
 
     NewGroupDialog.prototype.show = function() {
         contacts = g.app.getMyContacts();
 
-        this.elMyContacts.empty();
+        elGroupName.val('');
+        elMyContacts.empty();
 
         for (var i = 0; i < contacts.length; ++i) {
             var contact = contacts[i];
@@ -59,10 +90,10 @@
                 '</div></div></div>'
             ];
 
-            this.elMyContacts.append($(html.join('')));
+            elMyContacts.append($(html.join('')));
         }
 
-        this.el.modal('show');
+        dialogEl.modal('show');
     }
 
     g.NewGroupDialog = NewGroupDialog;

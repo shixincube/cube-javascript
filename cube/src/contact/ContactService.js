@@ -30,6 +30,7 @@ import { ModuleError } from "../core/error/ModuleError";
 import { Module } from "../core/Module";
 import { Packet } from "../core/Packet";
 import { StateCode } from "../core/StateCode";
+import { EntityInspector } from "../core/EntityInspector";
 import { AuthService } from "../auth/AuthService";
 import { ContactPipelineListener } from "./ContactPipelineListener";
 import { Self } from "./Self";
@@ -42,7 +43,7 @@ import { Device } from "./Device";
 import { Group } from "./Group";
 import { GroupState } from "./GroupState";
 import { GroupBundle } from "./GroupBundle";
-import { EntityInspector } from "../core/EntityInspector";
+import { ContactServiceState } from "./ContactServiceState";
 
 /**
  * 联系人模块。
@@ -712,7 +713,7 @@ export class ContactService extends Module {
      * @param {string} name 指定群组名。
      * @param {Array<number|Contact>} members 指定初始成员列表或者初始成员 ID 列表。
      * @param {function} handleSuccess 成功创建群组回调该方法。参数：({@linkcode group}:{@link Group}) ，创建成功的群组实例。
-     * @param {function} [handleFailure] 操作失败回调该方法。函数参数：({@linkcode groupId}:number, {@linkcode groupName}:number) ，创建失败的群组预 ID 和群名称。
+     * @param {function} [handleFailure] 操作失败回调该方法。函数参数：({@linkcode error}:{@link ModuleError}) 。
      * @returns {number} 返回待创建群组的创建预 ID ，如果返回 {@linkcode 0} 则表示参数错误。
      */
     createGroup(name, members, handleSuccess, handleFailure) {
@@ -758,8 +759,9 @@ export class ContactService extends Module {
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
             if (null == responsePacket) {
                 cell.Logger.w('ContactService', 'Create group failed: response packet is null');
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.Failure, group);
                 if (handleFailure) {
-                    handleFailure(group.getId(), group.getName());
+                    handleFailure(error);
                 }
                 return;
             }

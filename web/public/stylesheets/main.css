@@ -44,6 +44,9 @@ body {
 .modal-dialog .form-control {
     font-size: 14px;
 }
+.modal-dialog .input-group-text {
+    font-size: 14px;
+}
 .modal-header button {
     font-size: 1.25em;
 }
@@ -244,22 +247,23 @@ body {
     font-weight: normal;
     font-size: 12px;
 }
-
 .details-card img.table-avatar {
     border-radius: 10%;
     display: inline;
     width: 2.5rem;
 }
-
 .details-card .operation {
     margin-top: 1rem;
     float: right;
     text-align: right;
 }
-
 .details-card .operation .dropdown-menu {
     min-width: 120px;
 }
+.details-card .description-text {
+    font-size: 12px;
+}
+
 
 .dropdown-item-xs {
     padding-left: 0.75rem;
