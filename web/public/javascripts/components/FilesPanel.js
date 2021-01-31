@@ -470,8 +470,6 @@
         selectedSearch = false;
         selectedRecycleBin = false;
 
-        btnEmptyTrash.css('display', 'none');
-
         if (null == currentDir) {
             g.app.filesCtrl.getRoot(function(root) {
                 rootDir = root;
@@ -481,8 +479,10 @@
             return;
         }
 
+        btnUpload.css('display', 'inline-block');
         btnNewDir.css('display', 'inline-block');
         btnParent.css('display', 'block');
+        btnEmptyTrash.css('display', 'none');
 
         this.refreshTable();
 
@@ -498,6 +498,7 @@
         btnEmptyTrash.css('display', 'none');
 
         panelEl.find('.fp-path').html('');
+        btnUpload.css('display', 'none');
         btnNewDir.css('display', 'none');
         btnParent.css('display', 'none');
         btnPrev.attr('disabled', 'disabled');
@@ -533,6 +534,7 @@
         btnEmptyTrash.css('display', 'none');
 
         panelEl.find('.fp-path').html('');
+        btnUpload.css('display', 'none');
         btnNewDir.css('display', 'none');
         btnParent.css('display', 'none');
         btnPrev.attr('disabled', 'disabled');
@@ -570,6 +572,7 @@
         btnEmptyTrash.css('display', 'inline-block');
 
         panelEl.find('.fp-path').html('');
+        btnUpload.css('display', 'none');
         btnNewDir.css('display', 'none');
         btnParent.css('display', 'none');
         btnPrev.attr('disabled', 'disabled');
