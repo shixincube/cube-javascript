@@ -69,7 +69,7 @@
             desc = ' ';
             badge = '';
         }
-        else {
+        else if (typeof value === 'object') {
             id = value.id;
             thumb = value.avatar;
             label = value.name;
@@ -77,13 +77,13 @@
             badge = '';
         }
 
-        if (null == label) {
-            return;
+        if (undefined == label || null == label) {
+            return false;
         }
 
         var item = this.getItem(id);
         if (null != item) {
-            return;
+            return false;
         }
 
         item = {
@@ -119,6 +119,8 @@
 
         // 绑定事件
         this.bindEvent(el);
+
+        return true;
     }
 
     MessageCatalogue.prototype.updateItem = function(target, desc, time, label) {
@@ -140,7 +142,9 @@
 
         var item = this.getItem(id);
         if (null == item) {
-            return false;
+            if (!this.appendItem(target)) {
+                return false;
+            }
         }
 
         var el = item.el;
@@ -232,6 +236,12 @@
         var entity = g.app.queryContact(id);
         if (entity instanceof Contact) {
             g.app.contactDetails.show(entity);
+            return;
+        }
+
+        entity = g.app.queryGroup(id);
+        if (entity instanceof Group) {
+            g.app.groupDetails.show(entity);
         }
     }
 

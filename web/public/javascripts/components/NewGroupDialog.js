@@ -56,14 +56,15 @@
             });
 
             if (members.length == 0) {
-                g.dialog.showAlert('请选择群组成员。');
+                g.dialog.showAlert('请选择群组成员。', null, '我知道了');
                 return;
             }
 
-            // window.cube().contact.createGroup(groupName, members, function(group) {
-            //     dialogEl.modal('hide');
-            // }, function(error) {
-            // });
+            window.cube().contact.createGroup(groupName, members, function(group) {
+                dialogEl.modal('hide');
+            }, function(error) {
+                g.dialog.launchToast(Toast.Error, '创建群组失败: ' + error.code);
+            });
         });
     }
 

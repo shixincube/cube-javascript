@@ -42,6 +42,8 @@
 
     var cubeContacts = [];
 
+    var cubeGroups = [];
+
     var tabId = 'messaging';
     var tabBtnId = 'tab_messaging';
 
@@ -53,6 +55,7 @@
     var voiceCallPanel = null;
     var videoChatPanel = null;
     var contactDetails = null;
+    var groupDetails = null;
     var newGroupDialog = null;
 
     var fileDetails = null;
@@ -69,6 +72,16 @@
             var c = cubeContacts[i];
             if (c.getId() == id) {
                 return c;
+            }
+        }
+        return null;
+    }
+
+    var queryGroup = function(id) {
+        for (var i = 0; i < cubeGroups.length; ++i) {
+            var g = cubeGroups[i];
+            if (g.getId() == id) {
+                return g;
             }
         }
         return null;
@@ -175,7 +188,8 @@
 
             voiceCallPanel = new VoiceCallPanel($('#voice_call'));
             videoChatPanel = new VideoChatPanel($('#video_chat'));
-            contactDetails = new ContactDetails();
+            contactDetails = new ContactDetails($('#modal_contact_details'));
+            groupDetails = new GroupDetails($('#modal_group_details'));
             newGroupDialog = new NewGroupDialog($('#new_group_dialog'));
 
             fileDetails = new FileDetails($('#modal_file_details'));
@@ -199,6 +213,7 @@
             that.voiceCallPanel = voiceCallPanel;
             that.videoChatPanel = videoChatPanel;
             that.contactDetails = contactDetails;
+            that.groupDetails = groupDetails;
             that.newGroupDialog = newGroupDialog;
 
             that.fileDetails = fileDetails;
@@ -387,7 +402,7 @@
                 // 添加自己
                 cubeContacts.push(cube.contact.getSelf());
 
-                // 消息控制器准备数据
+                // 消息控制器更新联系人消息
                 messagingCtrl.updateContactMessages(cubeContacts);
 
                 // 加载群组信息
@@ -407,21 +422,21 @@
             cube.contact.queryGroups(function(groups) {
                 for (var i = 0; i < groups.length; ++i) {
                     var group = groups[i];
-                    that.addGroup(group);
+                    cubeGroups.push(group);
+
+                    // 添加群组
+                    messageCatalog.appendItem(group);
                 }
+
+                // 消息控制器更新群组消息
+                messagingCtrl.updateGroupMessages(cubeGroups);
+
             });
-        },
-
-        addGroup: function(group) {
-
-        },
-
-        removeGroup: function(group) {
-
         }
     };
 
     app.queryContact = queryContact;
+    app.queryGroup = queryGroup;
 
     that = app;
     g.app = app;

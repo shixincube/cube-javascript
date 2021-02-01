@@ -202,6 +202,50 @@
         </div>
         <!-- Contact Details - end -->
 
+        <!-- Group Details - begin -->
+        <div id="modal_group_details" class="modal fade">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="card card-widget widget-user details-card">
+                        <div class="widget-user-header text-white" style="background: url('/images/bg01.png') center center;">
+                            <h3 class="widget-user-username text-right">群组详情</h3>
+                            <div class="operation">
+                                <div class="input-group">
+                                    <button class="btn btn-info btn-xs dropdown-toggle" type="button" data-toggle="dropdown">&nbsp;&nbsp;更多操作&nbsp;&nbsp;
+                                        <div class="dropdown-menu dropdown-menu-left">
+                                            <a id="group_details_modify" class="dropdown-item btn-xs dropdown-item-xs" href="javascript:void(0);" data="0">
+                                                <i class="fas fa-pen-square"></i>
+                                                <span>修改群组信息</span>
+                                            </a>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="widget-user-image">
+                            <img class="img-circle elevation-2 user-avatar" src="images/group-avatar.png" />
+                        </div>
+                        <div class="card-footer">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th style="width:1%;">#</th>
+                                        <th>头像</th>
+                                        <th>昵称</th>
+                                        <th>账号</th>
+                                        <th>地区</th>
+                                        <th>部门</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Group Details - end -->
+
         <!-- New Group Dialog - begin -->
         <div id="new_group_dialog" class="modal fade">
             <div class="modal-dialog">
@@ -675,6 +719,7 @@
 <script type="text/javascript" src="javascripts/components/VoiceCallPanel.js"></script>
 <script type="text/javascript" src="javascripts/components/VideoChatPanel.js"></script>
 <script type="text/javascript" src="javascripts/components/ContactDetails.js"></script>
+<script type="text/javascript" src="javascripts/components/GroupDetails.js"></script>
 <script type="text/javascript" src="javascripts/components/NewGroupDialog.js"></script>
 <script type="text/javascript" src="javascripts/components/MessagingController.js"></script>
 <script type="text/javascript" src="javascripts/components/CallController.js"></script>

@@ -27,21 +27,25 @@
 (function(g) {
     'use strict'
 
-    var ContactDetails = function(el) {
+    var GroupDetails = function(el) {
         this.el = el;
     }
 
-    ContactDetails.prototype.show = function(contact) {
+    GroupDetails.prototype.show = function(group) {
         var el = this.el;
-        el.find('.widget-user-username').text(contact.getName());
-        el.find('.widget-user-desc').text(contact.getId());
-        el.find('.user-avatar').attr('src', contact.getContext().avatar);
-        el.find('.user-state').text(contact.getContext().state == 'online' ? '在线' : '离线');
-        el.find('.user-region').text(contact.getContext().region);
-        el.find('.user-department').text(contact.getContext().department);
+        el.find('.widget-user-username').text(group.getName());
+
+        // // 设置数据
+        $('#group_details_modify').attr('data', group.getId());
+        // $('#group_details_quit').attr('data', group.getId());
+        // $('#group_details_dissolve').attr('data', group.getId());
+
+        // var table = el.find('.table');
+        // table.find('tbody').remove();
+        // table.append(this.current.detailMemberTable);
         el.modal('show');
     }
 
-    g.ContactDetails = ContactDetails;
+    g.GroupDetails = GroupDetails;
 
 })(window);

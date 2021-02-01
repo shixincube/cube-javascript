@@ -386,17 +386,7 @@
         var entity = this.current.entity;
 
         if (this.current.groupable) {
-            var el = $('#modal_group_details');
-            el.find('.widget-user-username').text(entity.getName());
-    
-            // 设置数据
-            $('#group_details_quit').attr('data', entity.getId());
-            $('#group_details_dissolve').attr('data', entity.getId());
-
-            var table = el.find('.table');
-            table.find('tbody').remove();
-            table.append(this.current.detailMemberTable);
-            el.modal('show');
+            g.app.groupDetails.show(entity);
         }
         else {
             g.app.contactDetails.show(entity);

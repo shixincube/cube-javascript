@@ -31,6 +31,8 @@
 
     var contacts = null;
 
+    var groups = null;
+
     var elSelectFile = null;
 
     var getContact = function(id) {
@@ -38,6 +40,16 @@
             var c = contacts[i];
             if (c.getId() == id) {
                 return c;
+            }
+        }
+        return null;
+    }
+
+    var getGroup = function(id) {
+        for (var i = 0; i < groups.length; ++i) {
+            var g = groups[i];
+            if (g.getId() == id) {
+                return g;
             }
         }
         return null;
@@ -111,6 +123,39 @@
 
             cube.messaging.queryMessageWithContact(contact, time, function(id, time, list) {
                 handler(id, list);
+            });
+        }
+    }
+
+    MessagingController.prototype.updateGroupMessages = function(cubeGroups) {
+        groups = cubeGroups;
+        var time = Date.now() - window.AWeek;
+
+        for (var i = 0; i < cubeGroups.length; ++i) {
+            var group = cubeGroups[i];
+            cube.messaging.queryMessageWithGroup(group, time, function(groupId, time, list) {
+                for (var i = 0; i < list.length; ++i) {
+                    var message = list[i];
+                    var target = null;
+                    // 判断自己是否是该消息的发件人
+                    if (cube.messaging.isSender(message)) {
+                        target = getContact(message.getTo());
+                    }
+                    else {
+                        target = getContact(message.getFrom());
+                    }
+
+                    // 添加到消息面板
+                    g.app.messagePanel.appendMessage(getGroup(groupId), getContact(message.getFrom()), message);
+                }
+
+                for (var i = list.length - 1; i >= 0; --i) {
+                    var last = list[i];
+                    // 更新目录项
+                    if (g.app.messageCatalog.updateItem(groupId, last, last.getRemoteTimestamp())) {
+                        break;
+                    }
+                }
             });
         }
     }

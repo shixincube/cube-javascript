@@ -121,12 +121,15 @@
         var now = Date.now();
         if (now > value) {
             // 今日零点
-            var zeroHour = new Date(new Date().setHours(0, 0, 0, 0));
-            zeroHour = zeroHour.getTime();
+            var today = new Date(new Date().setHours(0, 0, 0, 0));
+            var zeroHour = today.getTime();
             // 昨日零点
             var yesterdayZeroHour = zeroHour - OneDay + 1;
+            // 前天零点
+            var beforeYesterdayZeroHour = yesterdayZeroHour - OneDay;
+
             var date = new Date(value);
-            if (value < yesterdayZeroHour) {
+            if (value >= beforeYesterdayZeroHour && value < yesterdayZeroHour) {
                 result.push('前天');
             }
             else if (value >= yesterdayZeroHour && value < zeroHour) {
@@ -138,6 +141,10 @@
                 result.push(formatNumber(date.getMinutes(), 2));
             }
             else {
+                if (date.getFullYear() != today.getFullYear()) {
+                    result.push(date.getFullYear());
+                    result.push('-');
+                }
                 result.push(formatNumber(date.getMonth() + 1, 2));
                 result.push('-');
                 result.push(formatNumber(date.getDate(), 2));
