@@ -29,7 +29,57 @@
  */
 export const ContactServiceState = {
 
+    /**
+     * 成功。
+     * @type {number}
+     */
     Ok: 0,
 
-    Failure: 9
+    /**
+     * 遇到故障。
+     * @type {number}
+     */
+    Failure: 9,
+
+    /**
+     * 无效域信息。
+     * @type {number}
+     */
+    InvalidDomain: 11,
+
+    /**
+     * 未签入联系人。
+     * @type {number}
+     */
+    NoSignIn: 12,
+
+    /**
+     * 令牌不一致。
+     * @type {number}
+     */
+    InconsistentToken: 21,
+
+    /**
+     * 不被接受的非法操作。
+     * @type {number}
+     */
+    IllegalOperation: 25,
+
+    /**
+     * 服务器错误。
+     * @type {number}
+     */
+    ServerError: 101,
+
+    /**
+     * 不被允许的操作。
+     * @type {number}
+     */
+    NotAllowed: 102,
+
+    /**
+     * 未知的状态。
+     * @type {number}
+     */
+    Unknown: 99
 };

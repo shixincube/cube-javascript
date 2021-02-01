@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -146,9 +146,26 @@ export class ContactStorage {
     }
 
     /**
+     * 读取指定联系人信息。
+     * @param {number} id 指定联系人 ID 。
+     * @param {function} handler 回调函数，参数：({@linkcode contact}:{@link Contact}) 。如果没有在数据库里找到数据 {@linkcode contact} 为 {@linkcode null} 值。
+     */
+    readContact(id, handler) {
+        handler(null);
+    }
+
+    /**
+     * 将联系人数据写入数据库。
+     * @param {Contact} contact 指定写入数据的联系人。
+     */
+    writeContact(contact) {
+        // TODO
+    }
+
+    /**
      * 判断是否已经存储了指定 ID 的群组。
      * @param {number} id 群组 ID 。
-     * @param {function} handler 回调函数，参数：({@linkcode id}:number, {@linkcode contains}:boolean) - (群组的ID, 是否存储了该群组)。
+     * @param {function} handler 回调函数，参数：({@linkcode id}:{@linkcode number}, {@linkcode contains}:{@linkcode boolean}) - (群组的ID, 是否存储了该群组)。
      * @returns {boolean} 返回是否执行了查询操作。
      */
     containsGroup(id, handler) {
@@ -172,7 +189,7 @@ export class ContactStorage {
      * 读取指定最近活跃时间的群组。
      * @param {number} beginning 指定查询起始时间。
      * @param {number} ending 指定查询结束时间。
-     * @param {function} handler 查询结果回调函数，参数：({@linkcode beginning}:number, {@linkcode ending}:number, {@linkcode groups}:Array<{@link Group}>) 。
+     * @param {function} handler 查询结果回调函数，参数：({@linkcode beginning}:{@linkcode number}, {@linkcode ending}:{@linkcode number}, {@linkcode groups}:Array<{@link Group}>) 。
      * @param {Array} [matchingStates] 指定需要匹配的群组状态。
      * @returns {boolean} 返回是否执行了查询操作。
      */
@@ -231,7 +248,7 @@ export class ContactStorage {
     /**
      * 读取指定 ID 的群组。
      * @param {number} id 指定群组 ID 。
-     * @param {function} handler 查询结果回调函数，参数：({@linkcode id}:number, {@linkcode group}:{@link Group}) - (群组的ID, 查询到的群组) 。如果查询不到指定群组，参数 {@linkcode group} 为 {@linkcode null} 值。
+     * @param {function} handler 查询结果回调函数，参数：({@linkcode id}:{@linkcode number}, {@linkcode group}:{@link Group}) - (群组的ID, 查询到的群组) 。如果查询不到指定群组，参数 {@linkcode group} 为 {@linkcode null} 值。
      * @returns {boolean} 返回是否执行了查询操作。
      */
     readGroup(id, handler) {

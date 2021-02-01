@@ -342,28 +342,35 @@ export class ContactService extends Module {
 
             if (null == contact) {
                 // 从存储读取
-                // this.storage.readContact(id, (contact) => {
+                this.storage.readContact(id, (contact) => {
+                    if (null != contact) {
+                        resolve(contact);
+                        return;
+                    }
 
-                // });
+                    let packet = new Packet(ContactAction.GetContact, {
+                        "id": id,
+                        "domain": AuthService.DOMAIN
+                    });
+                    this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
+                        if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+                            if (responsePacket.data.code == ContactServiceState.Ok) {
+                                contact = Contact.create(responsePacket.data.data);
+                                // 保存到内存
+                                this.contacts.put(contact.getId(), contact);
+                                // 更新存储
+                                this.storage.writeContact(contact);
 
-                let packet = new Packet(ContactAction.GetContact, {
-                    "id": id,
-                    "domain": AuthService.DOMAIN
-                });
-                this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-                    if (null != responsePacket) {
-                        if (responsePacket.getStateCode() == StateCode.OK && responsePacket.data.code == 0) {
-                            contact = Contact.create(responsePacket.data.data);
-                            this.contacts.put(contact.getId(), contact);
-                            resolve(contact);
+                                resolve(contact);
+                            }
+                            else {
+                                reject(new ModuleError(ContactService.NAME, responsePacket.data.code, id));
+                            }
                         }
                         else {
-                            reject(new ModuleError(ContactService.NAME, responsePacket.getStateCode(), id));
+                            reject(new ModuleError(ContactService.NAME, ContactServiceState.ServerError, id));
                         }
-                    }
-                    else {
-                        reject(new ModuleError(ContactService.NAME, 101, id));
-                    }
+                    });
                 });
             }
             else {
@@ -391,21 +398,21 @@ export class ContactService extends Module {
     }
 
     /**
-     * 获取指定 ID 列表里的联系人信息。
+     * 更新指定 ID 列表里的联系人信息。
      * @protected
      * @param {Array} idList 联系人 ID 列表。
      * @param {function} [handleSuccess] 操作成功回调该方法。
      * @param {function} [handleFailure] 操作失败回调该方法。
      */
-    getContactList(idList, handleSuccess, handleFailure) {
+    updateContactList(idList, handleSuccess, handleFailure) {
         let promise = new Promise((resolve, reject) => {
             let packet = new Packet(ContactAction.GetContactList, {
                 "list": idList,
                 "domain": AuthService.DOMAIN
             });
             this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-                if (null != responsePacket) {
-                    if (responsePacket.getStateCode() == StateCode.OK && responsePacket.data.code == 0) {
+                if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+                    if (responsePacket.data.code == ContactServiceState.Ok) {
                         let list = responsePacket.data.data;
                         let contactList = [];
 
@@ -413,17 +420,21 @@ export class ContactService extends Module {
                             let contact = Contact.create(list[i]);
                             contactList.push(contact);
 
+                            // 更新到内存
                             this.contacts.put(contact.getId(), contact);
+
+                            // 写入存储
+                            this.storage.writeContact(contact);
                         }
 
                         resolve(contactList);
                     }
                     else {
-                        reject();
+                        reject(new ModuleError(ContactService.NAME, responsePacket.data.code, idList));
                     }
                 }
                 else {
-                    reject();
+                    reject(new ModuleError(ContactService.NAME, ContactServiceState.ServerError, idList));
                 }
             });
         });
@@ -431,8 +442,8 @@ export class ContactService extends Module {
         if (handleSuccess && handleFailure) {
             promise.then((contactList) => {
                 handleSuccess(contactList);
-            }).catch(() => {
-                handleFailure(idList);
+            }).catch((error) => {
+                handleFailure(error);
             });
         }
         else if (handleSuccess) {
@@ -451,7 +462,7 @@ export class ContactService extends Module {
      * 获取指定 ID 的群组信息。
      * @param {number} id 指定群组 ID 。
      * @param {function} handleSuccess 成功获取到数据回调该方法，参数：({@linkcode group}:{@link Group})，(群组实例)。
-     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode id}:number)，(群组的 ID)。
+     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode id}:{@linkcode number})，(群组的 ID)。
      */
     getGroup(id, handleSuccess, handleFailure) {
         if (typeof id === 'string') {
@@ -461,13 +472,12 @@ export class ContactService extends Module {
         let promise = new Promise((resolve, reject) => {
             // 从缓存读取
             let group = this.groups.get(id);
-
-            // 从存储库读取
             if (null != group) {
                 resolve(group);
                 return;
             }
 
+            // 从存储库读取
             this.storage.readGroup(id, (id, group) => {
                 if (null != group) {
                     resolve(group);
@@ -480,8 +490,8 @@ export class ContactService extends Module {
                     "domain": AuthService.DOMAIN
                 });
                 this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-                    if (null != responsePacket) {
-                        if (responsePacket.getStateCode() == StateCode.OK && responsePacket.data.code == 0) {
+                    if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+                        if (responsePacket.data.code == ContactServiceState.Ok) {
                             let group = Group.create(this, responsePacket.data.data);
                             // 写入缓存
                             this.groups.put(group.getId(), group);
@@ -491,11 +501,11 @@ export class ContactService extends Module {
                             resolve(group);
                         }
                         else {
-                            reject(id);
+                            reject(new ModuleError(ContactService.NAME, responsePacket.data.code, id));
                         }
                     }
                     else {
-                        reject(id);
+                        reject(new ModuleError(ContactService.NAME, ContactServiceState.ServerError, id));
                     }
                 });
             });
@@ -504,8 +514,8 @@ export class ContactService extends Module {
         if (handleSuccess && handleFailure) {
             promise.then((group) => {
                 handleSuccess(group);
-            }).catch(() => {
-                handleFailure(id);
+            }).catch((error) => {
+                handleFailure(error);
             });
         }
         else if (handleSuccess) {
@@ -768,16 +778,18 @@ export class ContactService extends Module {
 
             if (responsePacket.getStateCode() != StateCode.OK) {
                 cell.Logger.w('ContactService', 'Create group failed: ' + responsePacket.getStateCode());
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, group);
                 if (handleFailure) {
-                    handleFailure(group.getId(), group.getName());
+                    handleFailure(error);
                 }
                 return;
             }
 
-            if (responsePacket.getPayload().code != 0) {
+            if (responsePacket.getPayload().code != ContactServiceState.Ok) {
                 cell.Logger.w('ContactService', 'Create group failed, state code: ' + responsePacket.getPayload().code);
+                let error = new ModuleError(ContactService.NAME, responsePacket.getPayload().code, group);
                 if (handleFailure) {
-                    handleFailure(group.getId(), group.getName());
+                    handleFailure(error);
                 }
                 return;
             }
@@ -814,7 +826,16 @@ export class ContactService extends Module {
 
         if (group.getOwner().equals(this.self)) {
             // 本终端创建的群
-            group = this.groups.get(group.getId());
+            let cachedGroup = this.groups.get(group.getId());
+            if (null == cachedGroup) {
+                // 缓存到内存
+                this.groups.put(group.getId(), group);
+                // 保存到存储
+                this.storage.writeGroup(group);
+            }
+            else {
+                group = cachedGroup;
+            }
         }
         else {
             let members = group.getMembers();
@@ -839,14 +860,15 @@ export class ContactService extends Module {
      * 解散指定的群组。
      * @param {Group} group 指定待解散的群组。
      * @param {function} [handleSuccess] 操作成功回调该方法，函数参数：({@linkcode group}:{@link Group}) ，解散成功的群组实例。
-     * @param {function} [handleFailure] 操作失败回调该方法，函数参数：({@linkcode group}:{@link Group}) ，解散失败的群组实例。
+     * @param {function} [handleFailure] 操作失败回调该方法，函数参数：({@linkcode error}:{@link ModuleError}) 。
      * @returns {boolean} 返回该群是否允许由当前联系人解散。
      */
     dissolveGroup(group, handleSuccess, handleFailure) {
         if (group.getOwner().getId() != this.self.getId()) {
             // 群组的所有者不是自己，不能解散
+            let error = new ModuleError(ContactService.NAME, ContactServiceState.NotAllowed, group);
             if (handleFailure) {
-                handleFailure(group);
+                handleFailure(error);
             }
             return false;
         }
@@ -854,17 +876,19 @@ export class ContactService extends Module {
         let packet = new Packet(ContactAction.DissolveGroup, group.toCompactJSON());
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
             if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
-                cell.Logger.w('ContactService', 'Dissolve group failed');
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, group);
+                cell.Logger.w('ContactService', 'Dissolve group failed - ' + error);
                 if (handleFailure) {
-                    handleFailure(group);
+                    handleFailure(error);
                 }
                 return;
             }
 
-            if (responsePacket.getPayload().code != 0) {
-                cell.Logger.w('ContactService', 'Dissolve group failed, state code: ' + responsePacket.getPayload().code);
+            if (responsePacket.getPayload().code != ContactServiceState.Ok) {
+                let error = new ModuleError(ContactService.NAME, responsePacket.getPayload().code, group);
+                cell.Logger.w('ContactService', 'Dissolve group failed - ' + error);
                 if (handleFailure) {
-                    handleFailure(group);
+                    handleFailure(error);
                 }
                 return;
             }
@@ -918,23 +942,25 @@ export class ContactService extends Module {
      * 退出指定的群组。
      * @param {Group} group 指定群组。
      * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}) 。
-     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode group}:{@link Group}) 。
+     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError}) 。
      * @returns {boolean} 返回是否能执行退出操作。
      */
     quitGroup(group, handleSuccess, handleFailure) {
         let selfId = this.self.getId();
         if (!group.hasMember(this.self)) {
             // 非群组成员
+            let error = new ModuleError(ContactService.NAME, ContactServiceState.NotAllowed, group);
             if (handleFailure) {
-                handleFailure(group);
+                handleFailure(error);
             }
             return false;
         }
 
         if (group.getOwner().getId() == selfId) {
             // 群所有者不能退出
+            let error = new ModuleError(ContactService.NAME, ContactServiceState.NotAllowed, group);
             if (handleFailure) {
-                handleFailure(group);
+                handleFailure(error);
             }
             return false;
         }
@@ -949,15 +975,17 @@ export class ContactService extends Module {
         });
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
             if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, group);
                 if (handleFailure) {
-                    handleFailure(group);
+                    handleFailure(error);
                 }
                 return;
             }
 
-            if (responsePacket.getPayload().code != 0) {
+            if (responsePacket.getPayload().code != ContactServiceState.Ok) {
+                let error = new ModuleError(ContactService.NAME, responsePacket.getPayload().code, group);
                 if (handleFailure) {
-                    handleFailure(group);
+                    handleFailure(error);
                 }
                 return;
             }
@@ -994,7 +1022,7 @@ export class ContactService extends Module {
      * @param {Group} group 指定群组。
      * @param {Array<Contact|number>} members 指定群组成员列表。
      * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode members}:Array, {@linkcode operator}:{@link Contact}) 。
-     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode members}:Array, {@linkcode operator}:{@link Contact}) 。
+     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError}) 。
      * @returns {boolean} 返回是否能执行该操作。
      */
     removeGroupMembers(group, members, handleSuccess, handleFailure) {
@@ -1026,8 +1054,13 @@ export class ContactService extends Module {
         }
 
         if (memberIdList.length == 0) {
+            let error = new ModuleError(ContactService.NAME, ContactServiceState.NotAllowed, {
+                group: group,
+                members: members,
+                operator: this.self
+            });
             if (handleFailure) {
-                handleFailure(group, members, this.self);
+                handleFailure(error);
             }
             return false;
         }
@@ -1043,15 +1076,25 @@ export class ContactService extends Module {
 
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
             if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, {
+                    group: group,
+                    members: members,
+                    operator: operator
+                });
                 if (handleFailure) {
-                    handleFailure(group, members, operator);
+                    handleFailure(error);
                 }
                 return;
             }
 
-            if (responsePacket.getPayload().code != 0) {
+            if (responsePacket.getPayload().code != ContactServiceState.Ok) {
+                let error = new ModuleError(ContactService.NAME, responsePacket.getPayload().code, {
+                    group: group,
+                    members: members,
+                    operator: operator
+                });
                 if (handleFailure) {
-                    handleFailure(group, members, operator);
+                    handleFailure(error);
                 }
                 return;
             }
@@ -1123,7 +1166,7 @@ export class ContactService extends Module {
      * @param {Group} group 指定群组。
      * @param {Array<Contact|number>} members 指定群组成员列表。
      * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode members}:Array, {@linkcode operator}:{@link Contact}) 。
-     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode members}:Array, {@linkcode operator}:{@link Contact}) 。
+     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError}) 。
      * @returns {boolean} 返回是否能执行该操作。
      */
     addGroupMembers(group, members, handleSuccess, handleFailure) {
@@ -1151,14 +1194,24 @@ export class ContactService extends Module {
         }
 
         if (null != memberList && memberList.length == 0) {
+            let error = new ModuleError(ContactService.NAME, ContactServiceState.NotAllowed, {
+                group: group,
+                members: members,
+                operator: this.self
+            });
             if (handleFailure) {
-                handleFailure(group, members, this.self);
+                handleFailure(error);
             }
             return false;
         }
         else if (null != memberIdList && memberIdList.length == 0) {
+            let error = new ModuleError(ContactService.NAME, ContactServiceState.NotAllowed, {
+                group: group,
+                members: members,
+                operator: this.self
+            });
             if (handleFailure) {
-                handleFailure(group, members, this.self);
+                handleFailure(error);
             }
             return false;
         }
@@ -1184,15 +1237,25 @@ export class ContactService extends Module {
 
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
             if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, {
+                    group: group,
+                    members: members,
+                    operator: operator
+                });
                 if (handleFailure) {
-                    handleFailure(group, members, operator);
+                    handleFailure(error);
                 }
                 return;
             }
 
-            if (responsePacket.getPayload().code != 0) {
+            if (responsePacket.getPayload().code != ContactServiceState.Ok) {
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, {
+                    group: group,
+                    members: members,
+                    operator: operator
+                });
                 if (handleFailure) {
-                    handleFailure(group, members, operator);
+                    handleFailure(error);
                 }
                 return;
             }
@@ -1258,13 +1321,14 @@ export class ContactService extends Module {
      * @param {string} name 指定新的群名称。如果不变更群名称，此参数填写 {@linkcode null} 值。
      * @param {JSON} context 指定新的群附件上下文。如果不变更群上下文，此参数填写 {@linkcode null} 值。
      * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}) 。
-     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode group}:{@link Group}) 。
+     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError}) 。
      * @returns {boolean} 返回是否能执行该操作。
      */
     modifyGroup(group, owner, name, context, handleSuccess, handleFailure) {
         if (null == owner && null == name && null == context) {
+            let error = new ModuleError(ContactService.NAME, ContactServiceState.NotAllowed, group);
             if (handleFailure) {
-                handleFailure(group);
+                handleFailure(error);
             }
             return false;
         }
@@ -1293,15 +1357,17 @@ export class ContactService extends Module {
 
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
             if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, group);
                 if (handleFailure) {
-                    handleFailure(group);
+                    handleFailure(error);
                 }
                 return;
             }
 
-            if (responsePacket.getPayload().code != 0) {
+            if (responsePacket.getPayload().code != ContactServiceState.Ok) {
+                let error = new ModuleError(ContactService.NAME, responsePacket.getPayload().code, group);
                 if (handleFailure) {
-                    handleFailure(group);
+                    handleFailure(error);
                 }
                 return;
             }
@@ -1348,11 +1414,15 @@ export class ContactService extends Module {
      * @param {Group} group 指定群组。
      * @param {Contact} member 指定修改信息的成员数据。
      * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode member}:{@link Contact}) 。
-     * @param {function} [handleFailure] 操作错误回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode member}:{@link Contact}) 。
+     * @param {function} [handleFailure] 操作错误回调该方法，参数：({@linkcode error}:{@link ModuleError}) 。
      * @returns {boolean} 返回是否能执行该操作。
      */
     modifyGroupMember(group, member, handleSuccess, handleFailure) {
         if (!group.hasMember(member)) {
+            let error = new ModuleError(ContactService.NAME, ContactServiceState.NotAllowed, group);
+            if (handleFailure) {
+                handleFailure(error);
+            }
             return false;
         }
 
@@ -1365,15 +1435,23 @@ export class ContactService extends Module {
 
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
             if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, {
+                    group: group,
+                    member: member
+                });
                 if (handleFailure) {
-                    handleFailure(group, member);
+                    handleFailure(error);
                 }
                 return;
             }
 
-            if (responsePacket.getPayload().code != 0) {
+            if (responsePacket.getPayload().code != ContactServiceState.Ok) {
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, {
+                    group: group,
+                    member: member
+                });
                 if (handleFailure) {
-                    handleFailure(group, member);
+                    handleFailure(error);
                 }
                 return;
             }
