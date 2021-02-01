@@ -259,18 +259,24 @@
         // 判断消息是否来自群组
         if (message.isFromGroup()) {
             // 消息来自群组
-            /*var group = this.getGroup(message.getSource());
+            var group = getGroup(message.getSource());
             if (null != group) {
-                // 更新目录
-                this.messageCatalogue.updateItem(group.getId(), message, message.getRemoteTimestamp());
-
                 // 更新消息面板
-                this.messagePanel.appendMessage(message.getId(), this.getContact(message.getFrom()), message, message.getRemoteTimestamp(), group);
+                g.app.messagePanel.appendMessage(group, getContact(message.getFrom()), message);
+                // 更新消息目录
+                g.app.messageCatalog.updateItem(group.getId(), message, message.getRemoteTimestamp());
             }
             else {
-                // 从服务器获取新群组
-                // TODO
-            }*/
+                // 从 Cube 获取群组数据
+                cube.contact.getGroup(message.getSource(), function(group) {
+                    groups.push(group);
+
+                    // 更新消息面板
+                    g.app.messagePanel.appendMessage(group, getContact(message.getFrom()), message);
+                    // 更新消息目录
+                    g.app.messageCatalog.updateItem(group.getId(), message, message.getRemoteTimestamp());
+                });
+            }
         }
         else {
             // 消息来自联系人
@@ -288,9 +294,15 @@
                 target = sender;
             }
 
+            // 更新消息面板
             g.app.messagePanel.appendMessage(target, sender, message);
+            // 更新消息目录
             g.app.messageCatalog.updateItem(itemId, message, message.getLocalTimestamp());
         }
+    }
+
+    MessagingController.prototype.removeGroupMember = function() {
+        // TODO
     }
 
     g.MessagingController = MessagingController;

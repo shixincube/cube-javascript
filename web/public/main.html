@@ -217,6 +217,20 @@
                                                 <i class="fas fa-pen-square"></i>
                                                 <span>修改群组信息</span>
                                             </a>
+                                            <div class="dropdown-divider"></div>
+                                            <a id="group_details_add" class="dropdown-item btn-xs dropdown-item-xs" href="javascript:void(0);" data="0">
+                                                <i class="fas fa-plus-circle"></i>
+                                                <span>添加群成员</span>
+                                            </a>
+                                            <div class="dropdown-divider"></div>
+                                            <a id="group_details_quit" class="dropdown-item btn-xs dropdown-item-xs" href="javascript:void(0);" data="0">
+                                                <i class="fas fa-minus-circle"></i>
+                                                <span>退出群组</span>
+                                            </a>
+                                            <a id="group_details_dissolve" class="dropdown-item btn-xs dropdown-item-xs" href="javascript:void(0);" data="0">
+                                                <i class="fas fa-user-times"></i>
+                                                <span>解散群组</span>
+                                            </a>
                                         </div>
                                     </button>
                                 </div>
@@ -226,7 +240,7 @@
                             <img class="img-circle elevation-2 user-avatar" src="images/group-avatar.png" />
                         </div>
                         <div class="card-footer">
-                            <table class="table table-striped">
+                            <table class="table table-striped group-details-table">
                                 <thead>
                                     <tr>
                                         <th style="width:1%;">#</th>

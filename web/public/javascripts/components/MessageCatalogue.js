@@ -145,6 +145,8 @@
             if (!this.appendItem(target)) {
                 return false;
             }
+
+            item = this.getItem(id);
         }
 
         var el = item.el;

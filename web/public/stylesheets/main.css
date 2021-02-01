@@ -386,6 +386,18 @@ body {
     padding: 0;
 }
 
+.group-details-table {
+    font-size: 14px;
+}
+.group-details-table td {
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+.group-details-table td button {
+    height: 22px;
+    font-size: 12px;
+}
+
 /* 文件界面 - 开始 */
 
 .file-catalog {

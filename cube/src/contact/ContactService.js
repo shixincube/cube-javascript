@@ -462,7 +462,7 @@ export class ContactService extends Module {
      * 获取指定 ID 的群组信息。
      * @param {number} id 指定群组 ID 。
      * @param {function} handleSuccess 成功获取到数据回调该方法，参数：({@linkcode group}:{@link Group})，(群组实例)。
-     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode id}:{@linkcode number})，(群组的 ID)。
+     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError}) 。
      */
     getGroup(id, handleSuccess, handleFailure) {
         if (typeof id === 'string') {
