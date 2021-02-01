@@ -56,15 +56,14 @@
             });
 
             if (members.length == 0) {
-                dialogEl.modal('hide');
+                g.dialog.showAlert('请选择群组成员。');
                 return;
             }
 
-            window.cube().contact.createGroup(groupName, members, function(group) {
-
-            }, function(error) {
-
-            });
+            // window.cube().contact.createGroup(groupName, members, function(group) {
+            //     dialogEl.modal('hide');
+            // }, function(error) {
+            // });
         });
     }
 

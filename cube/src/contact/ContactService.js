@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -265,7 +265,7 @@ export class ContactService extends Module {
 
     /**
      * 触发联系人签入。
-     * @protected
+     * @private
      * @param {object} payload 来自服务器数据。
      */
     triggerSignIn(payload) {
@@ -306,7 +306,7 @@ export class ContactService extends Module {
 
     /**
      * 触发联系人签出。
-     * @protected
+     * @private
      * @param {object} payload 来自服务器数据。
      */
     triggerSignOut(payload) {
@@ -614,8 +614,8 @@ export class ContactService extends Module {
 
     /**
      * 获取当前联系人所在的所有群。
-     * @param {number} [beginning] 指定查询群的起始的最近一次活跃时间戳。
-     * @param {number} [ending] 指定查询群的截止的最近一次活跃时间戳。
+     * @param {number} [beginning] 指定查询群的起始的最近一次活跃时间戳，单位：毫秒。
+     * @param {number} [ending] 指定查询群的截止的最近一次活跃时间戳，单位：毫秒。
      * @param {function} handler 获取到数据后的回调函数，函数参数：({@linkcode list}:Array<{@link Group}>) 。
      */
     listGroups(beginning, ending, handler) {
@@ -661,6 +661,7 @@ export class ContactService extends Module {
 
     /**
      * 处理接收到的 List Groups 数据。
+     * @private
      * @param {JSON} paylaod 
      */
     triggerListGroups(paylaod) {
@@ -814,6 +815,7 @@ export class ContactService extends Module {
 
     /**
      * 处理接收到创建群数据。
+     * @private
      * @param {JSON} payload 数据包数据。
      * @param {object} context 数据包携带的上下文。
      */
@@ -913,6 +915,7 @@ export class ContactService extends Module {
 
     /**
      * 处理接收到解散群数据。
+     * @private
      * @param {JSON} payload 数据包数据。
      * @param {object} context 数据包携带的上下文。
      */
@@ -1128,6 +1131,7 @@ export class ContactService extends Module {
 
     /**
      * 接收移除群成员数据。
+     * @private
      * @param {JSON} payload 数据包数据。
      * @param {object} context 数据包携带的上下文。
      */
@@ -1282,6 +1286,7 @@ export class ContactService extends Module {
 
     /**
      * 接收添加群成员数据。
+     * @private
      * @param {JSON} payload 数据包数据。
      * @param {object} context 数据包携带的上下文。
      */
@@ -1392,6 +1397,7 @@ export class ContactService extends Module {
 
     /**
      * 接收修改群组数据。
+     * @private
      * @param {JSON} payload 数据包数据。
      * @param {object} context 数据包携带的上下文。
      */
@@ -1475,6 +1481,7 @@ export class ContactService extends Module {
 
     /**
      * 接收修改群成员数据。
+     * @private
      * @param {JSON} payload 数据包数据。
      * @param {object} context 数据包携带的上下文。
      */

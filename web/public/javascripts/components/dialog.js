@@ -129,12 +129,20 @@
 
         /**
          * 显示提示框。
-         * @param {*} content 
-         * @param {*} callback 
+         * @param {string} content 
+         * @param {function} callback 
+         * @param {string} [buttonLabel]
          */
-        showAlert: function(content, callback) {
+        showAlert: function(content, callback, buttonLabel) {
             var el = $('#modal_alert');
             el.find('.modal-body').html('<p>' + content + '</p>');
+
+            if (buttonLabel) {
+                el.find('button.btn-default').text(buttonLabel);
+            }
+            else {
+                el.find('button.btn-default').text('确定');
+            }
     
             if (undefined === callback) {
                 alertCallback = null;
@@ -150,6 +158,7 @@
             if (null != alertCallback) {
                 alertCallback();
             }
+            $('#modal_alert').modal('hide');
         },
 
         /**

@@ -26,6 +26,7 @@
 
 /**
  * 浏览器辅助函数。
+ * @private
  */
 export const BroswerUtil = {
 
