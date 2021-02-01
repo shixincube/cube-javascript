@@ -301,6 +301,17 @@
         }
     }
 
+    MessagingController.prototype.modifyGroupName = function(group, newName, handle) {
+        group.modifyName(newName, function(group) {
+            g.dialog.launchToast(Toast.Success, '已修改群组名称');
+            if (handle) {
+                handle(group);
+            }
+        }, function(error) {
+            g.dialog.launchToast(Toast.Warning, '修改群名称失败: ' + error.code);
+        });
+    }
+
     MessagingController.prototype.removeGroupMember = function() {
         // TODO
     }

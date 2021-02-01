@@ -30,6 +30,8 @@ import { ContactService } from "./ContactService";
 import { GroupState } from "./GroupState";
 import { Self } from "./Self";
 import { AuthService } from "../auth/AuthService";
+import { ModuleError } from "../core/error/ModuleError";
+import { ContactServiceState } from "./ContactServiceState";
 
 /**
  * 群组类。包含了多个联系人的集合。
@@ -37,7 +39,6 @@ import { AuthService } from "../auth/AuthService";
 export class Group extends Contact {
 
     /**
-     * 构造函数。
      * @param {ContactService} service 联系人服务。
      * @param {Contact} owner 群组的所有人。
      * @param {number} [id] 群组的 ID 。
@@ -95,47 +96,49 @@ export class Group extends Contact {
      * 修改群主。
      * @param {Contact} newOwner 指定新群组。
      * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}) 。
-     * @param {function} [handleError] 操作失败回调该方法，参数：({@linkcode group}:{@link Group}) 。
+     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError}) 。
      * @returns {boolean} 返回是否能执行该操作。
      */
-    changeOwner(newOwner, handleSuccess, handleError) {
+    changeOwner(newOwner, handleSuccess, handleFailure) {
         if (!(newOwner instanceof Contact)) {
-            if (handleError) {
-                handleError(this);
+            if (handleFailure) {
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.NotAllowed, this);
+                handleFailure(error);
             }
             return false;
         }
 
-        return this.service.modifyGroup(this, newOwner, null, null, handleSuccess, handleError);
+        return this.service.modifyGroup(this, newOwner, null, null, handleSuccess, handleFailure);
     }
 
     /**
      * 修改群组名称。
      * @param {string} name 指定新的群组名称。
      * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}) 。
-     * @param {function} [handleError] 操作失败回调该方法，参数：({@linkcode group}:{@link Group}) 。
+     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError}) 。
      * @returns {boolean} 返回是否能执行该操作。
      */
-    modifyName(name, handleSuccess, handleError) {
+    modifyName(name, handleSuccess, handleFailure) {
         if (name == this.name) {
-            if (handleError) {
-                handleError(this);
+            if (handleFailure) {
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.NotAllowed, this);
+                handleFailure(error);
             }
             return false;
         }
 
-        return this.service.modifyGroup(this, null, name, null, handleSuccess, handleError);
+        return this.service.modifyGroup(this, null, name, null, handleSuccess, handleFailure);
     }
 
     /**
      * 修改群组上下文数据。
      * @param {JSON|object} context 指定新的上下文数据。
      * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}) 。
-     * @param {function} [handleError] 操作失败回调该方法，参数：({@linkcode group}:{@link Group}) 。
+     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError}) 。
      * @returns {boolean} 返回是否能执行该操作。
      */
-    modifyContext(context, handleSuccess, handleError) {
-        return this.service.modifyGroup(this, null, null, context, handleSuccess, handleError);
+    modifyContext(context, handleSuccess, handleFailure) {
+        return this.service.modifyGroup(this, null, null, context, handleSuccess, handleFailure);
     }
 
     /**
@@ -210,22 +213,22 @@ export class Group extends Contact {
      * 添加群组成员。
      * @param {Array<Contact|number>} members 指定群组成员或者群组成员 ID 。
      * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode members}:Array, {@linkcode operator}:{@link Contact}) 。
-     * @param {function} [handleError] 操作失败回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode members}:Array, {@linkcode operator}:{@link Contact}) 。
+     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError}) 。
      * @returns {boolean} 返回是否能执行该操作。
      */
-    addMembers(members, handleSuccess, handleError) {
-        return this.service.addGroupMembers(this, members, handleSuccess, handleError);
+    addMembers(members, handleSuccess, handleFailure) {
+        return this.service.addGroupMembers(this, members, handleSuccess, handleFailure);
     }
 
     /**
      * 移除群组成员。
      * @param {Array<Contact|number>} members 指定群组成员或者群组成员 ID 。
      * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode members}:Array, {@linkcode operator}:{@link Contact}) 。
-     * @param {function} [handleError] 操作失败回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode members}:Array, {@linkcode operator}:{@link Contact}) 。
+     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError}) 。
      * @returns {boolean} 返回是否能执行该操作。
      */
-    removeMembers(members, handleSuccess, handleError) {
-        return this.service.removeGroupMembers(this, members, handleSuccess, handleError);
+    removeMembers(members, handleSuccess, handleFailure) {
+        return this.service.removeGroupMembers(this, members, handleSuccess, handleFailure);
     }
 
     /**
@@ -313,6 +316,7 @@ export class Group extends Contact {
 
     /**
      * 由 JSON 格式数据创建 {@link Group} 实例。
+     * @private
      * @param {ContactService} service 联系人服务。
      * @param {JSON} json 符合 {@link Group} 格式的 JSON 数据。
      * @param {Contact} [owner] 群主。

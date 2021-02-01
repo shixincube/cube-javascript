@@ -27,31 +27,80 @@
 (function(g) {
     'use strict'
 
+    var lastGroup = null;
+    var lastTimestamp = 0;
+
+    var elGroupName = null;
+
     var btnModify = null;
+    var btnAddMember = null;
+    var btnQuit = null;
+    var btnDissolve = null;
+
+    var fireModify = function() {
+        g.dialog.showPrompt('修改群组名称', '请输入新的群组名', function(ok, text) {
+            if (ok) {
+                if (text.length >= 3) {
+                    g.app.messagingCtrl.modifyGroupName(lastGroup, text, function(group) {
+                        elGroupName.text(group.getName());
+                    });
+                }
+                else {
+                    g.dialog.showAlert('输入的群组名称不能少于3个字符。');
+                    return false;
+                }
+            }
+        });
+    }
+
+    var fireAddMember = function() {
+
+    }
+
+    var fireQuit = function() {
+
+    }
+
+    var fireDissolve = function() {
+
+    }
 
     var GroupDetails = function(el) {
         this.el = el;
-        this.lastGroup = null;
-        this.lastTimestamp = 0;
+
+        elGroupName = el.find('.widget-user-username');
+
+        btnModify = $('#group_details_modify');
+        btnModify.click(fireModify);
+
+        btnAddMember = $('#group_details_add');
+        btnAddMember.click(fireAddMember);
+
+        btnQuit = $('#group_details_quit');
+        btnQuit.click(fireQuit);
+
+        btnDissolve = $('#group_details_dissolve');
+        btnDissolve.click(fireDissolve);
     }
 
     GroupDetails.prototype.show = function(group) {
-        if (null != this.lastGroup && this.lastGroup.getId() == group.getId() && group.getLastActiveTime() == this.lastTimestamp) {
+        if (null != lastGroup && lastGroup.getId() == group.getId() && group.getLastActiveTime() == lastTimestamp) {
             this.el.modal('show');
             return;
         }
 
-        this.lastGroup = group;
-        this.lastTimestamp = group.getLastActiveTime();
+        lastGroup = group;
+        lastTimestamp = group.getLastActiveTime();
 
         var el = this.el;
-        el.find('.widget-user-username').text(group.getName());
 
-        // // 设置数据
-        $('#group_details_modify').attr('data', group.getId());
-        $('#group_details_add').attr('data', group.getId());
-        $('#group_details_quit').attr('data', group.getId());
-        $('#group_details_dissolve').attr('data', group.getId());
+        elGroupName.text(group.getName());
+
+        // 设置数据
+        btnModify.attr('data', group.getId());
+        btnAddMember.attr('data', group.getId());
+        btnQuit.attr('data', group.getId());
+        btnDissolve.attr('data', group.getId());
 
         var table = el.find('.table');
         table.find('tbody').remove();
