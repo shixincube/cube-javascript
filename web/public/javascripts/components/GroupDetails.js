@@ -42,7 +42,10 @@
             if (ok) {
                 if (text.length >= 3) {
                     g.app.messagingCtrl.modifyGroupName(lastGroup, text, function(group) {
+                        // 修改对话框里的群组名
                         elGroupName.text(group.getName());
+                        // 更新消息界面
+                        g.app.messagingCtrl.updateGroup(group);
                     });
                 }
                 else {

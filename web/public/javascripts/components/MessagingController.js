@@ -160,6 +160,11 @@
         }
     }
 
+    MessagingController.prototype.updateGroup = function(group) {
+        g.app.messagePanel.changePanel(group.getId(), group);
+        g.app.messageCatalog.updateItem(group, null, null, group.getName());
+    }
+
     MessagingController.prototype.selectFile = function(el) {
         if (null == elSelectFile) {
             var that = this;

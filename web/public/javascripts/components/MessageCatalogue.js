@@ -184,15 +184,18 @@
         }
 
         // 更新时间
-        item.time = time;
+        if (null != time) {
+            item.time = time;
 
-        el.find('.badge').text(formatShortTime(time));
+            el.find('.badge').text(formatShortTime(time));
+        }
 
         if (label) {
             el.find('.title').text(label);
         }
 
         el.remove();
+        // 将节点添加到首位
         this.el.prepend(el);
 
         // 绑定事件
