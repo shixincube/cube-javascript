@@ -160,6 +160,10 @@
         }
     }
 
+    /**
+     * 更新群组在 UI 里的信息。
+     * @param {*} group 
+     */
     MessagingController.prototype.updateGroup = function(group) {
         g.app.messagePanel.changePanel(group.getId(), group);
         g.app.messageCatalog.updateItem(group, null, null, group.getName());
@@ -317,8 +321,32 @@
         });
     }
 
-    MessagingController.prototype.removeGroupMember = function() {
-        // TODO
+    MessagingController.prototype.removeGroupMember = function(groupId, memberId, handle) {
+        var group = getGroup(groupId);
+        var member = getContact(memberId);
+        var memName = null;
+        if (null != member) {
+            memName = member.getName();
+        }
+        else {
+            memName = memberId;
+        }
+
+        g.dialog.showConfirm('移除群成员', '您确定要把“' + memName + '”移除群组吗？', function(ok) {
+            if (ok) {
+                group.removeMembers([ memberId ], function(group, list, operator) {
+                    g.dialog.launchToast(Toast.Success, '已移除成员“' + memName + '”');
+                    if (handle) {
+                        handle(group, list, operator);
+                    }
+
+                    // 刷新对话框
+                    g.app.groupDetails.refresh();
+                }, function(error) {
+                    g.dialog.launchToast(Toast.Warning, '移除群成员失败: ' + error.code);
+                });
+            }
+        });
     }
 
     g.MessagingController = MessagingController;

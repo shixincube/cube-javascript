@@ -1024,7 +1024,7 @@ export class ContactService extends Module {
      * 移除群组成员。
      * @param {Group} group 指定群组。
      * @param {Array<Contact|number>} members 指定群组成员列表。
-     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode members}:Array, {@linkcode operator}:{@link Contact}) 。
+     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode members}:Array<{@link Contact}>, {@linkcode operator}:{@link Contact}) 。
      * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError}) 。
      * @returns {boolean} 返回是否能执行该操作。
      */

@@ -57,7 +57,19 @@
     }
 
     var fireAddMember = function() {
+        var contactList = g.app.getMyContacts();
+        g.app.contactListDialog.show(contactList, lastGroup.getMembers(), function(list) {
+            if (contactList == lastGroup.getMembers()) {
+                return true;
+            }
 
+            if (list.length == 0) {
+                g.dialog.showAlert('没有选择联系人');
+                return false;
+            }
+
+            return true;
+        });
     }
 
     var fireQuit = function() {
@@ -108,6 +120,21 @@
         var table = el.find('.table');
         table.find('tbody').remove();
         table.append(this.createGroupDetailsTable(group));
+        el.modal('show');
+    }
+
+    /**
+     * 刷新当前群组信息。
+     */
+    GroupDetails.prototype.refresh = function() {
+        if (null == lastGroup) {
+            return;
+        }
+
+        var el = this.el;
+        var table = el.find('.table');
+        table.find('tbody').remove();
+        table.append(this.createGroupDetailsTable(lastGroup));
         el.modal('show');
     }
 

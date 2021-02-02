@@ -265,7 +265,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title">新建群组</h4>
+                        <h5 class="modal-title">新建群组</h5>
                         <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -291,6 +291,42 @@
             </div>
         </div>
         <!-- New Group Dialog - end -->
+
+        <!-- Contact List - start -->
+        <div id="contact_list_dialog" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">联系人列表</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="tip">请选择联系人</p>
+                        <table class="table table-striped contact-list-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>头像</th>
+                                    <th>昵称</th>
+                                    <th>账号</th>
+                                    <th>地区</th>
+                                    <th>部门</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">关闭</button>
+                        <button class="btn btn-primary" type="button" data-target="confirm">确定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Contact List - end -->
     </div>
     <!-- Messaging Page - end -->
 
@@ -735,6 +771,7 @@
 <script type="text/javascript" src="javascripts/components/ContactDetails.js"></script>
 <script type="text/javascript" src="javascripts/components/GroupDetails.js"></script>
 <script type="text/javascript" src="javascripts/components/NewGroupDialog.js"></script>
+<script type="text/javascript" src="javascripts/components/ContactListDialog.js"></script>
 <script type="text/javascript" src="javascripts/components/MessagingController.js"></script>
 <script type="text/javascript" src="javascripts/components/CallController.js"></script>
 <script type="text/javascript" src="javascripts/components/FilesCatalogue.js"></script>
