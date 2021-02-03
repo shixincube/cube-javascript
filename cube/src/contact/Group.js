@@ -151,7 +151,7 @@ export class Group extends Contact {
 
     /**
      * 判断指定联系人是否是该群所有者。
-     * @param {Contact|number} contact 指定联系人。
+     * @param {Contact|number} [contact] 指定联系人，当不指定联系人时，判断该群是否是当前联系人所有。
      * @returns {boolean} 如果联系人是群主返回 {@linkcode true} 。
      */
     isOwner(contact) {
@@ -162,8 +162,11 @@ export class Group extends Contact {
         else if (contact instanceof Self) {
             id = contact.getId();
         }
-        else {
+        else if (typeof contact === 'number') {
             id = contact;
+        }
+        else {
+            id = this.service.getSelf().getId();
         }
 
         return (id == this.owner.id);

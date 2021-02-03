@@ -123,6 +123,34 @@
         return true;
     }
 
+    MessageCatalogue.prototype.removeItem = function(target) {
+        var itemId = 0;
+        if (target instanceof Group) {
+            itemId = target.getId();
+        }
+        else if (target instanceof Contact) {
+            itemId = target.getId();
+        }
+        else {
+            itemId = parseInt(target);
+        }
+
+        var item = null;
+        for (var i = 0; i < this.items.length; ++i) {
+            var data = this.items[i];
+            if (data.id == itemId) {
+                item = data;
+                this.items.splice(i, 1);
+                break;
+            }
+        }
+        if (null == item) {
+            return;
+        }
+
+        item.el.remove();
+    }
+
     MessageCatalogue.prototype.updateItem = function(target, desc, time, label) {
         var id = 0;
 

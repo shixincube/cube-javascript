@@ -184,6 +184,24 @@
         this.elContent.scrollTop(offset);
     }
 
+    MessagePanel.prototype.clearPanel = function(id) {
+        var panel = this.panels[id.toString()];
+        if (undefined != panel) {
+            panel.el.remove();
+
+            if (this.current == panel) {
+                this.current = null;
+            }
+
+            delete this.panels[id.toString()];
+        }
+
+        this.btnVideoCall.attr('disabled', 'disabled');
+        this.btnVoiceCall.attr('disabled', 'disabled');
+        this.btnSendFile.attr('disabled', 'disabled');
+        this.elTitle.text('');
+    }
+
     /**
      * 删除消息。
      * @param {Contact|Group} target 

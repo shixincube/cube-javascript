@@ -81,7 +81,21 @@
     }
 
     var fireQuit = function() {
+        if (lastGroup.isOwner()) {
+            g.dialog.showAlert('您是该群组的群主，不能退出该群。', null, '我知道了');
+            return;
+        }
 
+        g.dialog.showConfirm('退出群组', '您确定要退出“' + lastGroup.getName() + '”群组吗？', function(ok) {
+            if (ok) {
+                window.cube().contact.quitGroup(lastGroup, function() {
+                    g.app.messagingCtrl.removeGroup(lastGroup);
+                    g.app.groupDetails.hide();
+                }, function(error) {
+                    g.dialog.launchToast(Toast.Error, '退出群组成员失败: ' + error.code);
+                });
+            }
+        });
     }
 
     var fireDissolve = function() {
@@ -106,6 +120,10 @@
         btnDissolve.click(fireDissolve);
     }
 
+    /**
+     * 显示群组详情界面。
+     * @param {*} group 
+     */
     GroupDetails.prototype.show = function(group) {
         if (null != lastGroup && lastGroup.getId() == group.getId() && group.getLastActiveTime() == lastTimestamp) {
             this.el.modal('show');
@@ -132,6 +150,13 @@
     }
 
     /**
+     * 隐藏群组详情界面。
+     */
+    GroupDetails.prototype.hide = function() {
+        this.el.modal('hide');
+    }
+
+    /**
      * 刷新当前群组信息。
      */
     GroupDetails.prototype.refresh = function() {
@@ -153,7 +178,7 @@
     GroupDetails.prototype.createGroupDetailsTable = function(group) {
         var detailMemberTable = $('<tbody></tbody>');
 
-        var removeable = group.isOwner(g.app.getSelf());
+        var removeable = group.isOwner();
 
         var clickEvent = [
             'app.messagingCtrl.removeGroupMember(', 
@@ -167,11 +192,18 @@
         for (var i = 0; i < members.length; ++i) {
             var member = members[i];
 
-            var operation = (member.equals(g.app.getSelf()) || group.isOwner(member)) ? [ '' ]
-                : [ '<button class="btn btn-danger btn-xs', (removeable ? '' : ' disabled'), '" onclick="', clickEvent, '"',
+            var operation = removeable ? [ '<button class="btn btn-danger btn-xs" onclick="', clickEvent, '"',
                     ' data-member="', member.getId(), '"',
                     ' data-group="', group.getId(), '"',
-                    ' data-original-title="从本群中移除" data-placement="top" data-toggle="tooltip"><i class="fas fa-minus"></i></button>'];
+                    ' data-original-title="从本群中移除" data-placement="top" data-toggle="tooltip"><i class="fas fa-minus"></i></button>']
+                : [];
+
+            if (removeable) {
+                if (member.equals(g.app.getSelf())) {
+                    operation = [];
+                }
+            }
+
             operation = operation.join('');
 
             var contact = g.app.queryContact(member.getId());
