@@ -58,8 +58,10 @@
 
     var fireAddMember = function() {
         var contactList = g.app.getMyContacts();
-        g.app.contactListDialog.show(contactList, lastGroup.getMembers(), function(list) {
-            if (contactList == lastGroup.getMembers()) {
+        var members = lastGroup.getMembers();
+        g.app.contactListDialog.show(contactList, members, function(list) {
+            if (contactList.length == members.length + 1) {
+                // 当前账号的联系人都已经是群组成员
                 return true;
             }
 
@@ -67,6 +69,12 @@
                 g.dialog.showAlert('没有选择联系人');
                 return false;
             }
+
+            lastGroup.addMembers(list, function() {
+                g.app.groupDetails.refresh();
+            }, function(error) {
+                g.dialog.launchToast(Toast.Error, '添加群组成员失败: ' + error.code);
+            });
 
             return true;
         });
@@ -171,10 +179,10 @@
                 '<tr>',
                     '<td>', (i + 1), '</td>',
                     '<td><img class="table-avatar" src="', contact.getContext().avatar, '" /></td>',
-                    '<td>', member.getName(), '</td>',
-                    '<td>', member.getId(), '</td>',
-                    '<td>', member.getContext().region, '</td>',
-                    '<td>', member.getContext().department, '</td>',
+                    '<td>', contact.getName(), '</td>',
+                    '<td>', contact.getId(), '</td>',
+                    '<td>', contact.getContext().region, '</td>',
+                    '<td>', contact.getContext().department, '</td>',
                     '<td>', operation, '</td>',
                 '</tr>'];
     

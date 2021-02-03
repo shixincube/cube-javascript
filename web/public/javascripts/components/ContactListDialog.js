@@ -58,7 +58,7 @@
             var id = parseInt($(item).attr('data'));
             var contact = findMember(id, preselected);
             if (null == contact) {
-                result.push(contact);
+                result.push(id);
             }
         });
 
