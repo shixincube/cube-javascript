@@ -116,6 +116,10 @@
         });
     }
 
+    /**
+     * 群组详情对话框。
+     * @param {jQuery} el 界面元素。
+     */
     var GroupDetails = function(el) {
         this.el = el;
 
@@ -136,7 +140,7 @@
 
     /**
      * 显示群组详情界面。
-     * @param {*} group 
+     * @param {Group} group 指定群组。
      */
     GroupDetails.prototype.show = function(group) {
         if (null != lastGroup && lastGroup.getId() == group.getId() && group.getLastActiveTime() == lastTimestamp) {

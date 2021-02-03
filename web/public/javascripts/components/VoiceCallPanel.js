@@ -52,7 +52,7 @@
         this.btnMic = el.find('button[data-target="microphone"]');
         this.btnMic.attr('disabled', 'disabled');
         this.btnMic.on('click', function() {
-            if (g.app.callCtrl.switchMicrophone()) {
+            if (g.app.callCtrl.toggleMicrophone()) {
                 // 麦克风未静音
                 that.btnMic.empty();
                 that.btnMic.append($('<i class="ci ci-btn ci-microphone-opened"></i>'));
@@ -67,7 +67,7 @@
         this.btnVol = el.find('button[data-target="volume"]');
         this.btnVol.attr('disabled', 'disabled');
         this.btnVol.on('click', function() {
-            if (g.app.callCtrl.switchLoudspeaker()) {
+            if (g.app.callCtrl.toggleLoudspeaker()) {
                 // 扬声器未静音
                 that.btnVol.empty();
                 that.btnVol.append($('<i class="ci ci-btn ci-volume-unmuted"></i>'));

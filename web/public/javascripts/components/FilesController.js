@@ -48,10 +48,20 @@
         this.fileIndex = 0;
     }
 
+    /**
+     * 返回指定页的数据列表。
+     * @param {number} page 页码索引。
+     * @returns {Array} 返回指定页的数据列表。
+     */
     Folder.prototype.get = function(page) {
         return this.pages.get(page);
     }
 
+    /**
+     * 添加指定页对应的数据。
+     * @param {number} page 页码索引。
+     * @param {FileLabel|Directory} data 文件标签或者目录。
+     */
     Folder.prototype.append = function(page, data) {
         if (this.contains(data)) {
             return false;
@@ -67,6 +77,11 @@
         return true;
     }
 
+    /**
+     * 返回指定页包含的数据数量。
+     * @param {number} page 页码索引。
+     * @returns {number} 返回指定页包含的数据数量。
+     */
     Folder.prototype.size = function(page) {
         var pdata = this.pages.get(page);
         if (null == pdata) {
@@ -75,6 +90,11 @@
         return pdata.length;
     }
 
+    /**
+     * 当前文件夹是否包含了指定数据。
+     * @param {FileLabel|Directory} data 指定数据。
+     * @returns {boolean} 如果包含返回 {@linkcode true} 。
+     */
     Folder.prototype.contains = function(data) {
         for (var i = 0; i < this.list.length; ++i) {
             var d = this.list[i];
@@ -89,7 +109,7 @@
 
     /**
      * 文件控制器。
-     * @param {*} cubeEngine 
+     * @param {Cube} cubeEngine 
      */
     var FilesController = function(cubeEngine) {
         cube = cubeEngine;
@@ -98,7 +118,7 @@
 
     /**
      * 获取当前用户的根目录。
-     * @param {*} handler 
+     * @param {function} handler 回调函数，参数：({@linkcode root}:{@link Directory}) 。
      */
     FilesController.prototype.getRoot = function(handler) {
         if (null != selfRoot) {
@@ -116,16 +136,17 @@
 
     /**
      * 重置目录的分页数据。
-     * @param {*} directory 
+     * @param {Directory} directory 目录。
      */
     FilesController.prototype.resetPageData = function(directory) {
         folderMap.remove(directory.getId());
     }
 
     /**
-     * 目录的指定页的数据量。
-     * @param {*} directory 
-     * @param {*} page 
+     * 获取目录的指定页的数据量。
+     * @param {Directory} directory 目录。
+     * @param {number} page 页码索引。
+     * @returns {number} 返回目录的指定页的数据量。
      */
     FilesController.prototype.sizePage = function(directory, page) {
         var folder = folderMap.get(directory.getId());
@@ -141,9 +162,9 @@
 
     /**
      * 获取指定目录所在页的分页数据。
-     * @param {*} directory 
-     * @param {*} page 
-     * @param {*} callback 
+     * @param {Directory} directory 目录。
+     * @param {number} page 页码索引。
+     * @param {function} callback 回调函数。参数：({@linkcode list}:Array<{@link FileLabel}|{@link Directory}>) 。
      */
     FilesController.prototype.getPageData = function(directory, page, callback) {
         var folder = folderMap.get(directory.getId());

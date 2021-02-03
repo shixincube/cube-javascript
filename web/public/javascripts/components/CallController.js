@@ -186,6 +186,10 @@
         }, 500);
     }
 
+    /**
+     * 通话控制器。
+     * @param {Cube} cubeEngine 
+     */
     var CallController = function(cubeEngine) {
         that = this;
 
@@ -201,6 +205,11 @@
         cube.mpComm.on(CallEvent.CallFailed, onCallFailed);
     }
 
+    /**
+     * 发起通话请求。
+     * @param {Contact} target 
+     * @param {boolean} videoEnabled 
+     */
     CallController.prototype.makeCall = function(target, videoEnabled) {
         if (working) {
             return false;
@@ -229,6 +238,9 @@
         return cube.mpComm.makeCall(target, mediaConstraint);
     }
 
+    /**
+     * 应答通话请求。
+     */
     CallController.prototype.answerCall = function() {
         if (!working) {
             return false;
@@ -266,6 +278,9 @@
         return false;
     }
 
+    /**
+     * 挂断通话或拒绝通话请求。
+     */
     CallController.prototype.hangupCall = function() {
         if (!working) {
             return false;
@@ -299,16 +314,19 @@
         return true;
     }
 
-    CallController.prototype.switchCamera = function() {
+    /**
+     * 开关摄像机设备。
+     */
+    CallController.prototype.toggleCamera = function() {
         var field = cube.mpComm.getActiveField();
         if (null == field) {
-            console.debug('CallController - #switchCamera() field is null');
+            console.debug('CallController - #toggleCamera() field is null');
             return true;
         }
 
         var rtcDevice = field.getRTCDevice();
         if (null == rtcDevice) {
-            console.debug('CallController - #switchCamera() rtcDevice is null');
+            console.debug('CallController - #toggleCamera() rtcDevice is null');
             return true;
         }
 
@@ -321,16 +339,19 @@
         return rtcDevice.outboundVideoEnabled();
     }
 
-    CallController.prototype.switchMicrophone = function() {
+    /**
+     * 开关麦克风设备。
+     */
+    CallController.prototype.toggleMicrophone = function() {
         var field = cube.mpComm.getActiveField();
         if (null == field) {
-            console.debug('CallController - #switchMicrophone() field is null');
+            console.debug('CallController - #toggleMicrophone() field is null');
             return true;
         }
 
         var rtcDevice = field.getRTCDevice();
         if (null == rtcDevice) {
-            console.debug('CallController - #switchMicrophone() rtcDevice is null');
+            console.debug('CallController - #toggleMicrophone() rtcDevice is null');
             return true;
         }
 
@@ -343,21 +364,24 @@
         return rtcDevice.outboundAudioEnabled();
     }
 
-    CallController.prototype.switchLoudspeaker = function() {
+    /**
+     * 开关扬声器设备。
+     */
+    CallController.prototype.toggleLoudspeaker = function() {
         var field = cube.mpComm.getActiveField();
         if (null == field) {
-            console.debug('CallController - #switchLoudspeaker() field is null');
+            console.debug('CallController - #toggleLoudspeaker() field is null');
             return true;
         }
 
         var rtcDevice = field.getRTCDevice();
         if (null == rtcDevice) {
-            console.debug('CallController - #switchLoudspeaker() rtcDevice is null');
+            console.debug('CallController - #toggleLoudspeaker() rtcDevice is null');
             return true;
         }
 
         var vol = rtcDevice.getVolume();
-        console.debug('CallController - #switchLoudspeaker() volume is ' + vol);
+        console.debug('CallController - #toggleLoudspeaker() volume is ' + vol);
         if (vol > 0) {
             volume = vol;
             rtcDevice.setVolume(0);

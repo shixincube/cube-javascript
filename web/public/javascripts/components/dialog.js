@@ -57,6 +57,9 @@
 
     var dialog = {
 
+        /**
+         * 获取浏览器内容区域高度。
+         */
         getFullHeight: function() {
             return parseInt(document.body.clientHeight) + 57 + 8;
         },
@@ -75,9 +78,9 @@
 
         /**
          * 显示提示输入框。
-         * @param {string} title 
-         * @param {string} label 
-         * @param {function} callback 
+         * @param {string} title 标题。
+         * @param {string} label 输入内容提示。
+         * @param {function} callback 回调函数。回调函数不返回值或者返回 {@linkcode true} 时关闭对话框。
          */
         showPrompt: function(title, label, callback) {
             var el = $('#modal_prompt');
@@ -91,6 +94,10 @@
             el.modal();
         },
 
+        /**
+         * 关闭提示输入框。
+         * @param {boolean} ok 是否点击了确定按钮。
+         */
         closePrompt: function(ok) {
             var el = $('#modal_prompt');
             if (ok) {
@@ -104,12 +111,16 @@
             }
         },
 
+        hidePrompt: function(ok) {
+            this.closePrompt(ok);
+        },
+
         /**
          * 显示确认框。
-         * @param {string} title 
-         * @param {string} content 
-         * @param {function} callback 
-         * @param {string} okButtonLabel
+         * @param {string} title 标题。
+         * @param {string} content 提示内容。
+         * @param {function} callback 回调函数。
+         * @param {string} [okButtonLabel] 确认按钮的显示文本，默认：“确定”。
          */
         showConfirm: function(title, content, callback, okButtonLabel) {
             var el = $('#modal_confirm');
@@ -123,15 +134,23 @@
             el.modal();
         },
 
+        /**
+         * 关闭确认框。
+         * @param {boolean} yesOrNo 是否点击了确定按钮。
+         */
         closeConfirm: function(yesOrNo) {
             confirmCallback(yesOrNo);
         },
 
+        hideConfirm: function(yesOrNo) {
+            this.closeConfirm();
+        },
+
         /**
          * 显示提示框。
-         * @param {string} content 
-         * @param {function} callback 
-         * @param {string} [buttonLabel]
+         * @param {string} content 内容。
+         * @param {function} [callback] 回调函数。
+         * @param {string} [buttonLabel] 按钮显示的文本，默认：“确定”
          */
         showAlert: function(content, callback, buttonLabel) {
             var el = $('#modal_alert');
@@ -154,6 +173,9 @@
             el.modal();
         },
 
+        /**
+         * 关闭提示框。
+         */
         closeAlert: function() {
             if (null != alertCallback) {
                 alertCallback();
@@ -161,10 +183,14 @@
             $('#modal_alert').modal('hide');
         },
 
+        hideAlert: function() {
+            this.closeAlert();
+        },
+
         /**
          * 显示进度提示。
-         * @param {*} content 
-         * @param {*} timeout 
+         * @param {string} content 提示的内容。
+         * @param {number} timeout 超时时长。单位：毫秒。
          */
         showLoading: function(content, timeout) {
             if (loading) {
@@ -222,6 +248,9 @@
             return el;
         },
 
+        /**
+         * 隐藏加载提示对话框。
+         */
         hideLoading: function() {
             if (null != loadingModal) {
                 loadingModal.modal('hide');
@@ -231,6 +260,10 @@
             }
         },
 
+        /**
+         * 显示指定文件标签的图片。
+         * @param {FileLabel} file 文件标签。
+         */
         showImage: function(file) {
             var show = function(url) {
                 var image = new Image();
@@ -248,6 +281,10 @@
             });
         },
 
+        /**
+         * 下载文件并显示保存文件对话框。
+         * @param {string} fileCode 指定下载文件的文件码。
+         */
         downloadFile: function(fileCode) {
             g.cube().fileStorage.downloadFile(fileCode);
         }

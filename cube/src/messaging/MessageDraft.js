@@ -24,41 +24,14 @@
  * SOFTWARE.
  */
 
-(function(g) {
-    'use strict'
+/**
+ * 消息草稿。
+ */
+export class MessageDraft {
 
-    var dialogEl = null;
+    constructor() {
 
-    /**
-     * 联系人详情对话框。
-     * @param {jQuery} el 
-     */
-    var ContactDetails = function(el) {
-        dialogEl = el;
     }
 
-    /**
-     * 显示对话框。
-     * @param {Contact} contact 
-     */
-    ContactDetails.prototype.show = function(contact) {
-        var el = dialogEl;
-        el.find('.widget-user-username').text(contact.getName());
-        el.find('.widget-user-desc').text(contact.getId());
-        el.find('.user-avatar').attr('src', contact.getContext().avatar);
-        el.find('.user-state').text(contact.getContext().state == 'online' ? '在线' : '离线');
-        el.find('.user-region').text(contact.getContext().region);
-        el.find('.user-department').text(contact.getContext().department);
-        el.modal('show');
-    }
 
-    /**
-     * 隐藏对话框。
-     */
-    ContactDetails.prototype.hide = function() {
-        dialogEl.modal('hide');
-    }
-
-    g.ContactDetails = ContactDetails;
-
-})(window);
+}

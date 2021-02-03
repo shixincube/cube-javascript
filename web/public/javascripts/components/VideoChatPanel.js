@@ -123,7 +123,7 @@
         this.btnVol.attr('disabled', 'disabled');
 
         this.btnCam.on('click', function() {
-            if (g.app.callCtrl.switchCamera()) {
+            if (g.app.callCtrl.toggleCamera()) {
                 // 摄像头已启用
                 that.btnCam.empty();
                 that.btnCam.append($('<i class="ci ci-btn ci-camera-opened"></i>'));
@@ -135,7 +135,7 @@
             }
         });
         this.btnMic.on('click', function() {
-            if (g.app.callCtrl.switchMicrophone()) {
+            if (g.app.callCtrl.toggleMicrophone()) {
                 // 麦克风未静音
                 that.btnMic.empty();
                 that.btnMic.append($('<i class="ci ci-btn ci-microphone-opened"></i>'));
@@ -147,7 +147,7 @@
             }
         });
         this.btnVol.on('click', function() {
-            if (g.app.callCtrl.switchLoudspeaker()) {
+            if (g.app.callCtrl.toggleLoudspeaker()) {
                 // 扬声器未静音
                 that.btnVol.empty();
                 that.btnVol.append($('<i class="ci ci-btn ci-volume-unmuted"></i>'));

@@ -30,13 +30,18 @@
     var dialogEl = null;
 
     /**
-     * 文件详情。
-     * @param {*} el 
+     * 文件详情对话框。
+     * @param {jQuery} el 
      */
     var FileDetails = function(el) {
         dialogEl = el;
     }
 
+    /**
+     * 打开文件详情对话框。
+     * @param {FileLabel} fileLabel 文件标签。
+     * @param {Directory} [directory] 文件所在的目录。
+     */
     FileDetails.prototype.open = function(fileLabel, directory) {
         dialogEl.find('h3[data-target="file-name"]').text(fileLabel.getFileName());
         dialogEl.find('h5[data-target="file-type"]').text(fileLabel.getFileType().toUpperCase());
@@ -64,6 +69,13 @@
         }
 
         dialogEl.modal('show');
+    }
+
+    /**
+     * 关闭对话框。
+     */
+    FileDetails.prototype.close = function() {
+        dialogEl.modal('hide');
     }
 
     g.FileDetails = FileDetails;

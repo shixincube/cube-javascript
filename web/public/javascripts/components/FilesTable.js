@@ -33,6 +33,11 @@
     var surfaceA = null;
     var surfaceB = null;
 
+    /**
+     * 生成文件夹的行界面。
+     * @param {*} folder 
+     * @param {*} extended 
+     */
     function makeFolderRow(folder, extended) {
         var id = folder.getId();
         var name = folder.getName();
@@ -55,6 +60,11 @@
         ];
     }
 
+    /**
+     * 生成文件的行界面。
+     * @param {*} fileLabel 
+     * @param {*} extended 
+     */
     function makeFileRow(fileLabel, extended) {
         var name = fileLabel.getFileName();
         if (extended) {
@@ -75,6 +85,10 @@
         ];
     }
 
+    /**
+     * 生成搜索结构的行界面。
+     * @param {*} item 
+     */
     function makeSearchItemRow(item) {
         var fileLabel = item.file;
         var directory = item.directory;
@@ -99,6 +113,11 @@
         ];
     }
 
+    /**
+     * 根据文件类型匹配文件图标。
+     * @param {FileLabel} fileLabel 
+     * @returns {string}
+     */
     function matchFileIcon(fileLabel) {
         var type = fileLabel.getFileType();
         if (type == 'png' || type == 'jpeg' || type == 'gif' || type == 'jpg' || type == 'bmp') {
@@ -148,6 +167,11 @@
         }
     }
 
+
+    /**
+     * 文件表格。
+     * @param {jQuery} el 
+     */
     var FilesTable = function(el) {
         tableEl = el;
         noFileBg = $('#table_files_nofile');
@@ -158,8 +182,8 @@
 
     /**
      * 更新表格数据。
-     * @param {Array} list 
-     * @param {boolean} [extended] 
+     * @param {Array} list 数据列表。
+     * @param {boolean} [extended] 是否在文件名后附加目录信息。
      */
     FilesTable.prototype.updatePage = function(list, extended) {
         if (list.length == 0) {
@@ -194,7 +218,7 @@
 
     /**
      * 切换选择指定 ID 的行。
-     * @param {string} id 
+     * @param {string} id 指定 ID 。
      */
     FilesTable.prototype.toggleSelect = function(id) {
         g.app.filesPanel.resetSelectAllButton();
@@ -211,8 +235,8 @@
     }
 
     /**
-     * 取消选择。
-     * @param {string} id 
+     * 取消已选择的行。
+     * @param {string} id 指定行 ID 。
      */
     FilesTable.prototype.unselect = function(id) {
         var el = tableEl.find('#' + id);
@@ -222,6 +246,10 @@
         }
     }
 
+    /**
+     * 在表格首行插入文件夹样式的行。
+     * @param {Directory} dir 指定目录。
+     */
     FilesTable.prototype.insertFolder = function(dir) {
         var rowHtml = makeFolderRow(dir);
         surface.prepend($(rowHtml.join('')));

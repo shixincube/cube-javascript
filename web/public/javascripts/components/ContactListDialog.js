@@ -35,7 +35,12 @@
     var btnConfirm = null;
     var confirmCallback = null;
 
-    function findMember(contact, list) {
+    /**
+     * 在指定列表里查找是否有指定联系人。
+     * @param {Contact|number} contact 
+     * @param {Array} list 
+     */
+    function findContact(contact, list) {
         var cid = (typeof contact === 'number') ? contact : contact.getId();
         for (var i = 0; i < list.length; ++i) {
             var c = list[i];
@@ -56,8 +61,9 @@
         var tbody = dialogEl.find('tbody');
         tbody.find('input[type="checkbox"]:checked').each(function(i, item) {
             var id = parseInt($(item).attr('data'));
-            var contact = findMember(id, preselected);
+            var contact = findContact(id, preselected);
             if (null == contact) {
+                // 是新选择联系人，记录 ID
                 result.push(id);
             }
         });
@@ -72,7 +78,7 @@
 
     /**
      * 联系人列表对话框。
-     * @param {*} el 
+     * @param {jQuery} el 
      */
     var ContactListDialog = function(el) {
         dialogEl = el;
@@ -81,6 +87,12 @@
         btnConfirm.click(fireConfirm);
     }
 
+    /**
+     * 显示联系人列表对话框。
+     * @param {Array} list 联系人列表。
+     * @param {Array} selectedList 已经被选中的联系人列表。
+     * @param {function} confirmHandle 确认事件回调。
+     */
     ContactListDialog.prototype.show = function(list, selectedList, confirmHandle) {
         currentList = list;
         preselected = selectedList;
@@ -96,7 +108,7 @@
 
         for (var i = 0; i < list.length; ++i) {
             var contact = list[i];
-            var selected = (null != findMember(contact, selectedList));
+            var selected = (null != findContact(contact, selectedList));
             var row = [
                 '<tr>',
                     '<td>',
@@ -124,6 +136,9 @@
         dialogEl.modal('show');
     }
 
+    /**
+     * 隐藏联系人列表对话框。
+     */
     ContactListDialog.prototype.hide = function() {
         dialogEl.modal('hide');
         confirmCallback = null;

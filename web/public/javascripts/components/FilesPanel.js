@@ -58,6 +58,10 @@
     var selectedSearch = false;
     var selectedRecycleBin = false;
 
+    /**
+     * 我的文件主界面的文件表格面板。
+     * @param {jQuery} el 界面元素。
+     */
     var FilesPanel = function(el) {
         panelEl = el;
         table = new FilesTable(el.find('.table-files'));
@@ -82,6 +86,10 @@
         this.initUI();
     }
 
+    /**
+     * 初始化 UI 。
+     * @private
+     */
     FilesPanel.prototype.initUI = function() {
         // 全选按钮
         btnSelectAll.click(function () {
@@ -350,7 +358,7 @@
 
     /**
      * 设置标题。
-     * @param {string} title 
+     * @param {string} title 标题。
      */
     FilesPanel.prototype.setTitle = function(title) {
         panelEl.find('.fp-title').text(title);
@@ -396,9 +404,9 @@
     }
 
     /**
-     * 递归所有目录。
-     * @param {Array} list 
-     * @param {Directory} dir 
+     * 向上递归（递归父目录）所有目录，并依次保存到列表里。
+     * @param {Array} list 列表。
+     * @param {Directory} dir 起始目录。
      */
     FilesPanel.prototype.recurseParent = function(list, dir) {
         var parent = dir.getParent();
@@ -412,6 +420,7 @@
 
     /**
      * 使用当前目录数据刷新表格。
+     * @param {boolean} reset 是否重置当前目录。
      */
     FilesPanel.prototype.refreshTable = function(reset) {
         if (reset) {
@@ -592,7 +601,7 @@
 
     /**
      * 切换选择指定 ID 的行。
-     * @param {string} id 
+     * @param {string} id 数据的 ID 。
      */
     FilesPanel.prototype.toggleSelect = function(id) {
         table.toggleSelect(id);
@@ -600,7 +609,7 @@
 
     /**
      * 切换目录。
-     * @param {*} idOrDir 
+     * @param {number|Directory} idOrDir 指定切换的目录。
      */
     FilesPanel.prototype.changeDirectory = function(idOrDir) {
         if (selectedRecycleBin || selectedSearch) {
@@ -644,9 +653,9 @@
     }
 
     /**
-     * 打开文件。
-     * @param {string} fileCode 
-     * @param {string} directoryId
+     * 使用默认方式打开文件。
+     * @param {string} fileCode 文件码。
+     * @param {number} directoryId 文件所在的目录 ID 。
      */
     FilesPanel.prototype.openFile = function(fileCode, directoryId) {
         var fileLabel = null;
@@ -682,8 +691,8 @@
     }
 
     /**
-     * 查看文件详情。
-     * @param {stirng} fileCode 
+     * 打开对应文件的文件详情界面。
+     * @param {stirng} fileCode 文件码。
      */
     FilesPanel.prototype.openFileDetails = function(fileCode) {
         if (selectedRecycleBin) {
@@ -702,6 +711,10 @@
         g.app.fileDetails.open(fileLabel, currentDir);
     }
 
+    /**
+     * 在当前表格里插入新的目录。
+     * @param {string} dirName 新目录的名称。
+     */
     FilesPanel.prototype.newDirectory = function(dirName) {
         g.dialog.launchToast(Toast.Info, '新建文件夹“' + dirName + '”');
         currentDir.newDirectory(dirName, function(newDir) {
@@ -713,6 +726,9 @@
         });
     }
 
+    /**
+     * 重置“全选”复选框。
+     */
     FilesPanel.prototype.resetSelectAllButton = function() {
         btnSelectAll.data('clicks', false);
         $('.checkbox-toggle .far.fa-check-square').removeClass('fa-check-square').addClass('fa-square');

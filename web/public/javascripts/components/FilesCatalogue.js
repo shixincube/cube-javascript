@@ -43,6 +43,11 @@
 
     var activeBtn = null;
 
+    /**
+     * 我的文件主界面的引导目录。
+     * @param {jQuery} catalog 主目录元素。
+     * @param {jQuery} trans 传输列表元素。
+     */
     var FilesCatalogue = function(catalog, trans) {
         catalogEl = catalog;
         transEl = trans;
@@ -61,6 +66,9 @@
         that = this;
     }
 
+    /**
+     * 初始化控件数据。
+     */
     FilesCatalogue.prototype.prepare = function() {
         g.app.filesPanel.showRoot();
 
@@ -78,6 +86,10 @@
         });
     }
 
+    /**
+     * 选择指定目录ID对应的数据进行显示。
+     * @param {string} id 目录ID 。
+     */
     FilesCatalogue.prototype.select = function(id) {
         if (activeBtn.attr('id') == id) {
             return;
