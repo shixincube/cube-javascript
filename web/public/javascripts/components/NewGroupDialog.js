@@ -52,7 +52,7 @@
 
             var members = [];
             elMyContacts.find('input[type="checkbox"]:checked').each(function(index, item) {
-                members.push(pareInt($(item).attr('data')));
+                members.push(parseInt($(item).attr('data')));
             });
 
             if (members.length == 0) {
@@ -61,6 +61,7 @@
             }
 
             window.cube().contact.createGroup(groupName, members, function(group) {
+                g.app.messageCatalog.appendItem(group);
                 dialogEl.modal('hide');
             }, function(error) {
                 g.dialog.launchToast(Toast.Error, '创建群组失败: ' + error.code);

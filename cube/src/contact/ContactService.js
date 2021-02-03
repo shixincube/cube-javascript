@@ -600,11 +600,15 @@ export class ContactService extends Module {
             let list = result.sort((a, b) => {
                 return this.sortGroup(a, b);
             });
+            let resultList = [];
             for (let i = 0; i < list.length; ++i) {
                 let group = list[i];
+                if (group.state == GroupState.Normal) {
+                    resultList.push(group);
+                }
                 this.groups.put(group.getId(), group);
             }
-            handler(list);
+            handler(resultList);
         }, states);
 
         if (!ret) {

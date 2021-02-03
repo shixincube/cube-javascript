@@ -92,14 +92,28 @@
                     g.app.messagingCtrl.removeGroup(lastGroup);
                     g.app.groupDetails.hide();
                 }, function(error) {
-                    g.dialog.launchToast(Toast.Error, '退出群组成员失败: ' + error.code);
+                    g.dialog.launchToast(Toast.Error, '退出群组失败: ' + error.code);
                 });
             }
         });
     }
 
     var fireDissolve = function() {
+        if (!lastGroup.isOwner()) {
+            g.dialog.showAlert('您不是该群组的群主，不能解散该群。', null, '我知道了');
+            return;
+        }
 
+        g.dialog.showConfirm('解散群组', '您确定要解散“' + lastGroup.getName() + '”群组吗？', function(ok) {
+            if (ok) {
+                window.cube().contact.dissolveGroup(lastGroup, function() {
+                    g.app.messagingCtrl.removeGroup(lastGroup);
+                    g.app.groupDetails.hide();
+                }, function(error) {
+                    g.dialog.launchToast(Toast.Error, '解散群组失败: ' + error.code);
+                });
+            }
+        });
     }
 
     var GroupDetails = function(el) {
