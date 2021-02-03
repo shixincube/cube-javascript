@@ -63,7 +63,12 @@
         cube.messaging.on(MessagingEvent.Sent, function(event) {
             var message = event.data;
             g.app.messagePanel.appendMessage(g.app.messagePanel.current.entity, g.app.getSelf(), message);
-            g.app.messageCatalog.updateItem(message.getTo(), message, message.getLocalTimestamp());
+            if (message.isFromGroup()) {
+                g.app.messageCatalog.updateItem(message.getSource(), message, message.getLocalTimestamp());
+            }
+            else {
+                g.app.messageCatalog.updateItem(message.getTo(), message, message.getLocalTimestamp());
+            }
         });
 
         // 监听接收消息事件
