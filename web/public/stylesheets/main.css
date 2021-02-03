@@ -29,6 +29,10 @@ body {
     overflow: hidden;
 }
 
+.width-100 {
+    width: 100%;
+}
+
 .modeless {
     top: 10%;
     left: 50%;
@@ -821,3 +825,38 @@ body {
 }
 
 /* 音/视频通话界面 - 结束 */
+
+/* 会议界面 - 开始 */
+
+.conference {
+    font-size: 14px;
+}
+.conference button {
+    font-size: 16px;
+}
+
+.conference .container-fluid .row {
+    margin-left: unset;
+}
+
+.conference-row {
+    font-size: 14px;
+}
+
+.conference-toolbar {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+.conference .timeline {
+    width: 100%;
+}
+
+.conference-panel {
+    width: 642px;
+    margin-left: -321px;
+    color: #f8f9fa;
+    overflow: hidden;
+}
+
+/* 会议界面 - 结束 */

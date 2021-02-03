@@ -477,7 +477,6 @@
                                 </h5>
                             </div>
                             <div class="card-body">
-                                
                             </div>
                         </div>
                     </div>
@@ -488,10 +487,72 @@
     <!-- Files Page - end -->
 
     <!-- Conference Page - begin -->
-    <div id="conference" class="content-wrapper content-wrapper-hidden">
+    <div id="conference" class="content-wrapper content-wrapper-hidden conference">
         <section class="content">
             <div class="container-fluid">
-                <div class="row">
+                <div class="row conference-row">
+                    <div class="col-md-6">
+                        <div class="btn-toolbar conference-toolbar">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-primary"><i class="fas fa-users"></i> 创建会议</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row width-100">
+                    <div class="card card-primary width-100">
+                        <div class="card-body width-100">
+                            <div class="row width-100">
+                                <div class="col-md-3">
+                                    <div class="nav flex-column nav-tabs h-100" id="conf-timeline-tab" role="tablist" aria-orientation="vertical">
+                                        <a class="nav-link active" id="conf-timeline-conferencing-tab" data-toggle="pill" href="#conf-timeline-conferencing" role="tab" aria-controls="conf-timeline-conferencing" aria-selected="true">进行中的</a>
+                                        <a class="nav-link" id="conf-timeline-scheme-tab" data-toggle="pill" href="#conf-timeline-scheme" role="tab" aria-controls="conf-timeline-scheme" aria-selected="false">计划的</a>
+                                        <a class="nav-link" id="conf-timeline-closed-tab" data-toggle="pill" href="#conf-timeline-closed" role="tab" aria-controls="conf-timeline-closed" aria-selected="false">结束的</a>
+                                        <a class="nav-link" id="conf-timeline-all-tab" data-toggle="pill" href="#conf-timeline-all" role="tab" aria-controls="conf-timeline-all" aria-selected="false">全部的</a>
+                                    </div>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="tab-content" id="conf-timeline-tabContent">
+                                        <div class="tab-pane text-left fade active show" id="conf-timeline-conferencing" role="tabpanel" aria-labelledby="conf-timeline-conferencing-tab">
+                                            <div class="timeline">
+                                                <div class="time-label">
+                                                    <span class="bg-red">1月21日</span>
+                                                </div>
+                                                <div>
+                                                    <i class="fas fa-users bg-blue"></i>
+                                                    <div class="timeline-item">
+                                                        <span class="time"><i class="fas fa-clock"></i> 9:00</span>
+                                                        <h3 class="timeline-header"><a href="#">技术部例会</a></h3>
+                                                        <div class="timeline-body">
+                                                        </div>
+                                                        <div class="timeline-footer">
+                                                            <a class="btn btn-primary btn-sm">加入会议</a>
+                                                            <a class="btn btn-danger btn-sm">删除</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="conf-timeline-scheme" role="tabpanel" aria-labelledby="conf-timeline-scheme-tab">
+                                            <div class="timeline">
+
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="conf-timeline-closed" role="tabpanel" aria-labelledby="conf-timeline-closed-tab">
+                                            <div class="timeline">
+
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="conf-timeline-all" role="tabpanel" aria-labelledby="conf-timeline-all-tab">
+                                            <div class="timeline">
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -623,6 +684,21 @@
         </div>
     </div>
     <!-- File Details - end -->
+
+    <!-- Conference UI - begin -->
+    <div id="video_chat" class="modal fade modeless conference-panel">
+        <div class="modal-dialog modal-dialog-modeless">
+            <div class="modal-content">
+                <div class="modal-header">
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Conference UI - end -->
 
     <!-- Content Wrapper - end -->
 
