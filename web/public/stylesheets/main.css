@@ -193,6 +193,11 @@ body {
     color: #343a40;
 }
 
+.main-footer {
+    font-size: 12px;
+    padding: .75rem;
+}
+
 .main-sidebar:hover .opt .right {
     visibility: visible;
     opacity: 1.0;
@@ -300,23 +305,36 @@ body {
     margin: 8px 0;
 }
 
-.main-content {
+.messaging-main-content {
     margin-top: 0.6rem;
     margin-bottom: 0rem;
     height: calc(100vh - 124px);
 }
 
-.main-content textarea {
+.messaging-main-content textarea {
     resize: none;
+    font-size: 14px;
+}
+.messaging-main-content textarea {
+    resize: none;
+    font-size: 14px;
+}
+.messaging-main-content .input-group .btn-default {
+    font-size: 14px;
 }
 
-.main-content .week-day {
+.messaging-main-content .week-day {
     font-size: 12px;
 }
 
-.main-footer {
+.messaging-sidebar {
+    margin-top: 0.6rem;
+    margin-bottom: 0rem;
+    height: calc(100vh - 124px);
     font-size: 12px;
-    padding: .75rem;
+}
+.messaging-sidebar .card-header {
+    font-size: 14px;
 }
 
 .card-background::before {

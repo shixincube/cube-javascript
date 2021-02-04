@@ -297,6 +297,7 @@ export class Message extends Entity {
 
     /**
      * 从 JSON 数据创建 {@link Message} 对象。
+     * @private
      * @param {JSON} json 符合格式的 JSON 对象。
      * @returns {Message} 返回 {@link Message} 实例。
      */

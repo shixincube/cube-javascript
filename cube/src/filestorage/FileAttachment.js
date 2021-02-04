@@ -257,6 +257,7 @@ export class FileAttachment extends JSONable {
 
     /**
      * 从 JSON 数据创建 {@link FileAttachment} 对象。
+     * @private
      * @param {JSON} json 
      */
     static create(json) {
