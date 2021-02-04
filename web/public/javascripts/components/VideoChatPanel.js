@@ -60,6 +60,10 @@
     var callingTimer = 0;
     var callingElapsed = 0;
 
+    /**
+     * 视频通话面板。
+     * @param {jQuery} el 
+     */
     var VideoChatPanel = function(el) {
         this.el = el;
         that = this;
@@ -293,7 +297,7 @@
 
     /**
      * 发起通话。
-     * @param {*} target 
+     * @param {Contact} target 
      */
     VideoChatPanel.prototype.showMakeCall = function(target) {
         console.log('发起视频连线 ' + target.getId());
@@ -314,7 +318,7 @@
 
     /**
      * 发起应答。
-     * @param {*} caller 
+     * @param {Contact} caller 
      */
     VideoChatPanel.prototype.showAnswerCall = function(caller) {
         console.log('应答视频通话 ' + caller.getId());
@@ -335,6 +339,10 @@
         this.el.modal('hide');
     }
 
+    /**
+     * 在主屏上提示正在呼叫。
+     * @param {Contact} callee 
+     */
     VideoChatPanel.prototype.tipWaitForAnswer = function(callee) {
         if (wfaTimer > 0) {
             return;
@@ -350,6 +358,9 @@
         }, 1000);
     }
 
+    /**
+     * 在主屏上提示已接通。
+     */
     VideoChatPanel.prototype.tipConnected = function() {
         if (wfaTimer > 0) {
             clearInterval(wfaTimer);
@@ -373,6 +384,10 @@
         }, 1000);
     }
 
+    /**
+     * 开启有通话邀请的提示框。
+     * @param {Contact} contact 
+     */
     VideoChatPanel.prototype.openNewCallToast = function(contact) {
         var body = [
             '<div class="toasts-info">\
@@ -400,10 +415,16 @@
         });
     }
 
+    /**
+     * 关闭有通话邀请的提示框。
+     */
     VideoChatPanel.prototype.closeNewCallToast = function() {
         $('#toastsContainerBottomRight').find('.video-new-call').remove();
     }
 
+    /**
+     * 切换主视频和画中画。
+     */
     VideoChatPanel.prototype.switchVideo = function() {
         if (mainVideo == remoteVideo) {
             mainVideo = localVideo;

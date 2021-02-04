@@ -37,6 +37,10 @@
     var callingTimer = 0;
     var callingElapsed = 0;
 
+    /**
+     * 语音通话面板。
+     * @param {jQuery} el 
+     */
     var VoiceCallPanel = function(el) {
         that = this;
 
@@ -106,6 +110,10 @@
         });
     }
 
+    /**
+     * 显示发起通话界面。
+     * @param {Contact} target 
+     */
     VoiceCallPanel.prototype.showMakeCall = function(target) {
         console.log('发起语音通话 ' + target.getId());
 
@@ -124,6 +132,10 @@
         }
     }
 
+    /**
+     * 显示应答通话界面。
+     * @param {Contact} caller 
+     */
     VoiceCallPanel.prototype.showAnswerCall = function(caller) {
         console.log('应答语音通话 ' + caller.getId());
 
@@ -137,10 +149,17 @@
         });
     }
 
+    /**
+     * 关闭面板。
+     */
     VoiceCallPanel.prototype.close = function() {
         this.el.modal('hide');
     }
 
+    /**
+     * 提示等待信息。
+     * @param {Contact} callee 
+     */
     VoiceCallPanel.prototype.tipWaitForAnswer = function(callee) {
         if (wfaTimer > 0) {
             return;
@@ -152,6 +171,9 @@
         }, 1000);
     }
 
+    /**
+     * 提示已接通通话。
+     */
     VoiceCallPanel.prototype.tipConnected = function() {
         if (wfaTimer > 0) {
             clearInterval(wfaTimer);
@@ -170,6 +192,10 @@
         }, 1000);
     }
 
+    /**
+     * 开启通话邀请提示框。
+     * @param {Contact} contact 
+     */
     VoiceCallPanel.prototype.openNewCallToast = function(contact) {
         var body = [
             '<div class="toasts-info">\
@@ -197,6 +223,9 @@
         });
     }
 
+    /**
+     * 关闭通话邀请提示框。
+     */
     VoiceCallPanel.prototype.closeNewCallToast = function() {
         $('#toastsContainerBottomRight').find('.voice-new-call').remove();
     }

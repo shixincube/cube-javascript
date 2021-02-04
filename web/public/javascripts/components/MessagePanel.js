@@ -24,21 +24,22 @@
  * SOFTWARE.
  */
 
-/**
- * 消息操作主面板。
- */
 (function(g) {
     'use strict'
 
+    var that = null;
+
+    /**
+     * 消息操作主面板。
+     * @param {jQuery} el 界面元素。
+     */
     var MessagePanel = function(el) {
         this.el = el;
         this.panels = {};
 
-        var that = this;
+        that = this;
 
-        /**
-         * 当前面板
-         */
+        // 当前面板
         this.current = null;
 
         this.elTitle = this.el.find('.card-title');
@@ -99,8 +100,10 @@
         this.initContextMenu();
     }
 
+    /**
+     * 初始化上下文菜单操作。
+     */
     MessagePanel.prototype.initContextMenu = function() {
-        var that = this;
         this.elContent.contextMenu({
             selector: '.direct-chat-text',
             callback: function(key, options) {
@@ -134,8 +137,8 @@
 
     /**
      * 切换面板。
-     * @param {number} id 
-     * @param {Contact|Group} entity 
+     * @param {number} id 面板 ID 。
+     * @param {Contact|Group} entity 对应的联系人或者群组。
      */
     MessagePanel.prototype.changePanel = function(id, entity) {
         var panel = this.panels[id.toString()];
@@ -184,6 +187,10 @@
         this.elContent.scrollTop(offset);
     }
 
+    /**
+     * 清空指定面板。
+     * @param {number} id 指定面板 ID 。
+     */
     MessagePanel.prototype.clearPanel = function(id) {
         var panel = this.panels[id.toString()];
         if (undefined != panel) {
@@ -204,8 +211,8 @@
 
     /**
      * 删除消息。
-     * @param {Contact|Group} target 
-     * @param {Message} message 
+     * @param {Contact|Group} target 指定面板对应的数据实体。
+     * @param {Message} message 指定待删除的消息。
      */
     MessagePanel.prototype.removeMessage = function(target, message) {
         var panelId = target.getId();
@@ -227,9 +234,9 @@
 
     /**
      * 向指定面板内追加消息。
-     * @param {Contact|Group} target 
-     * @param {Contact} sender 
-     * @param {Message} message 
+     * @param {Contact|Group} target 面板对应的数据实体。
+     * @param {Contact} sender 消息发送者。
+     * @param {Message} message 消息。
      */
     MessagePanel.prototype.appendMessage = function(target, sender, message) {
         var panelId = target.getId();
@@ -350,8 +357,8 @@
 
     /**
      * 插入注解内容到消息面板。
-     * @param {Contact|Group} target
-     * @param {string} note 
+     * @param {Contact|Group} target 面板对应的数据实体。
+     * @param {string} note 注解内容。
      */
     MessagePanel.prototype.appendNote = function(target, note) {
         var panelId = target.getId();
@@ -381,6 +388,10 @@
         this.elContent.scrollTop(offset);
     }
 
+    /**
+     * 当触发发送消息事件时回调。
+     * @param {*} e 
+     */
     MessagePanel.prototype.onSend = function(e) {
         var text = this.elInput.val();
         if (text.length == 0) {
@@ -396,6 +407,10 @@
         }
     }
 
+    /**
+     * 当触发点击详情是回调。
+     * @param {*} e 
+     */
     MessagePanel.prototype.onDetailsClick = function(e) {
         if (null == this.current) {
             return;

@@ -38,6 +38,10 @@
 
     var btnConfirm = null;
 
+    /**
+     * 新建群组对话框。
+     * @param {jQuery} el 
+     */
     var NewGroupDialog = function(el) {
         dialogEl = el;
         elMyContacts = el.find('div[data-target="my-contacts"]');
@@ -69,6 +73,9 @@
         });
     }
 
+    /**
+     * 显示对话框。
+     */
     NewGroupDialog.prototype.show = function() {
         contacts = g.app.getMyContacts();
 

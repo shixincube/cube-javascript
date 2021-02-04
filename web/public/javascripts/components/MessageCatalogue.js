@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,12 +27,21 @@
 (function(g) {
     'use strict'
 
+    /**
+     * 消息目录。
+     * @param {jQuery} el 界面元素。
+     */
     var MessageCatalogue = function(el) {
         this.el = el;
         this.items = [];
         this.lastItem = null;
     };
 
+    /**
+     * 获取指定 ID 的目录项。
+     * @param {number|string} itemId 目录项的 ID 。
+     * @returns {object} 目录项对象。
+     */
     MessageCatalogue.prototype.getItem = function(itemId) {
         var id = parseInt(itemId);
         for (var i = 0; i < this.items.length; ++i) {
@@ -45,8 +54,9 @@
     }
 
     /**
-     * 追加菜单项
-     * @param {Contact|Group|Account} value 
+     * 追加菜单项。
+     * @param {Contact|Group|Account} value 数据值。
+     * @returns {boolean} 返回 {@linkcode true} 表示追加成功。
      */
     MessageCatalogue.prototype.appendItem = function(value) {
         var index = this.items.length;
@@ -123,6 +133,10 @@
         return true;
     }
 
+    /**
+     * 移除指定数据对应的目录项。
+     * @param {Group|Contact|number|string} target 数据项。
+     */
     MessageCatalogue.prototype.removeItem = function(target) {
         var itemId = 0;
         if (target instanceof Group) {
@@ -151,6 +165,13 @@
         item.el.remove();
     }
 
+    /**
+     * 更新目录项。
+     * @param {number|Group|Contact} target 数据目标。
+     * @param {string} desc 描述信息。
+     * @param {number} time 时间标签。
+     * @param {string} [label] 主标签。
+     */
     MessageCatalogue.prototype.updateItem = function(target, desc, time, label) {
         var id = 0;
 
@@ -232,6 +253,9 @@
         return true;
     }
 
+    /**
+     * 刷新当前目录项顺序，按照时间倒序进行排序。
+     */
     MessageCatalogue.prototype.refreshOrder = function() {
         this.items.sort(function(a, b) {
             return b.time - a.time;
@@ -245,6 +269,10 @@
         });
     }
 
+    /**
+     * 点击目录项时回调。
+     * @param {number} id 被点击的目录项 ID 。
+     */
     MessageCatalogue.prototype.onItemClick = function(id) {
         if (null != this.lastItem) {
             if (this.lastItem.id == id) {
@@ -265,6 +293,10 @@
         g.app.messagingCtrl.toggle(this.lastItem.id);
     }
 
+    /**
+     * 双击目录项时回调。
+     * @param {number} id 双击的目录项的 ID 。
+     */
     MessageCatalogue.prototype.onItemDoubleClick = function(id) {
         var entity = g.app.queryContact(id);
         if (entity instanceof Contact) {
@@ -278,6 +310,10 @@
         }
     }
 
+    /**
+     * @private
+     * @param {*} el 
+     */
     MessageCatalogue.prototype.bindEvent = function(el) {
         var that = this;
         el.on('click', function(e) {

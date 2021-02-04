@@ -27,6 +27,10 @@
 (function(g) {
     'use strict'
 
+    /**
+     * 侧边栏账号面板。
+     * @param {*} el 
+     */
     var SidebarAccountPanel = function(el) {
         this.el = el;
     };

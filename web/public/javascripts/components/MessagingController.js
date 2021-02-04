@@ -55,6 +55,10 @@
         return null;
     }
 
+    /**
+     * 消息模块的控制器。
+     * @param {Cube} cubeEngine 
+     */
     var MessagingController = function(cubeEngine) {
         cube = cubeEngine;
         var that = this;
@@ -132,6 +136,10 @@
         }
     }
 
+    /**
+     * 更新群组的消息。
+     * @param {Array} cubeGroups 
+     */
     MessagingController.prototype.updateGroupMessages = function(cubeGroups) {
         groups = cubeGroups;
         var time = Date.now() - window.AWeek;
@@ -167,13 +175,17 @@
 
     /**
      * 更新群组在 UI 里的信息。
-     * @param {*} group 
+     * @param {Group} group 
      */
     MessagingController.prototype.updateGroup = function(group) {
         g.app.messagePanel.changePanel(group.getId(), group);
         g.app.messageCatalog.updateItem(group, null, null, group.getName());
     }
 
+    /**
+     * 显示选择文件界面。
+     * @param {*} el 
+     */
     MessagingController.prototype.selectFile = function(el) {
         if (null == elSelectFile) {
             var that = this;
@@ -188,10 +200,10 @@
     }
 
     /**
-     * 发送消息。
-     * @param {number} id 
-     * @param {Contact|Group} target 
-     * @param {string|File} content 
+     * 触发发送消息。
+     * @param {Contact|Group} target 接收消息的对象。
+     * @param {string|File} content 消息内容。
+     * @returns {Message} 返回消息对象实例。
      */
     MessagingController.prototype.fireSend = function(target, content) {
         var message = null;
@@ -219,7 +231,7 @@
 
     /**
      * 切换消息面板。
-     * @param {number} id 
+     * @param {number} id 切换消息面板的目标 ID 。
      */
     MessagingController.prototype.toggle = function(id) {
         var handle = function(item) {
@@ -240,6 +252,11 @@
         });
     }
 
+    /**
+     * 撤回消息。
+     * @param {Contact|Group} entity 当前操作对应的联系人或群组。
+     * @param {number} id 待撤回消息的 ID 。
+     */
     MessagingController.prototype.recallMessage = function(entity, id) {
         cube.messaging.recallMessage(id, function(message) {
             g.app.messagePanel.appendNote(entity, '消息已撤回 ' + g.formatFullTime(Date.now()));
@@ -251,6 +268,11 @@
         })
     }
 
+    /**
+     * 删除消息。
+     * @param {Contact|Group} entity 当前操作对应的联系人或群组。
+     * @param {number} id 待删除消息的 ID 。
+     */
     MessagingController.prototype.deleteMessage = function(entity, id) {
         cube.messaging.deleteMessage(id, function(message) {
             g.dialog.launchToast(Toast.Success, '消息已删除');
@@ -261,14 +283,26 @@
         });
     }
 
+    /**
+     * 打开语音通话界面。
+     * @param {Contact} target 通话对象。
+     */
     MessagingController.prototype.openVoiceCall = function(target) {
         g.app.voiceCallPanel.showMakeCall(target);
     }
 
+    /**
+     * 打开视频通话界面。
+     * @param {Contact} target 通话对象。
+     */
     MessagingController.prototype.openVideoChat = function(target) {
         g.app.videoChatPanel.showMakeCall(target);
     }
 
+    /**
+     * 从 Cube 收到新消息时回调该方法。
+     * @param {Message} message 收到的消息。
+     */
     MessagingController.prototype.onNewMessage = function(message) {
         // 判断消息是否来自群组
         if (message.isFromGroup()) {
@@ -315,6 +349,12 @@
         }
     }
 
+    /**
+     * 修改群组名称。
+     * @param {Group} group 
+     * @param {string} newName 
+     * @param {funciton} handle 
+     */
     MessagingController.prototype.modifyGroupName = function(group, newName, handle) {
         group.modifyName(newName, function(group) {
             g.dialog.launchToast(Toast.Success, '已修改群组名称');
@@ -326,6 +366,12 @@
         });
     }
 
+    /**
+     * 移除群组成员。
+     * @param {number} groupId 
+     * @param {number} memberId 
+     * @param {funciton} handle 
+     */
     MessagingController.prototype.removeGroupMember = function(groupId, memberId, handle) {
         var group = getGroup(groupId);
         var member = getContact(memberId);
@@ -354,6 +400,10 @@
         });
     }
 
+    /**
+     * 从界面上移除群组。
+     * @param {Group} group 
+     */
     MessagingController.prototype.removeGroup = function(group) {
         g.app.messageCatalog.removeItem(group);
         g.app.messagePanel.clearPanel(group.getId());
