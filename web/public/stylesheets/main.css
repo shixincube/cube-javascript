@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,6 +31,10 @@ body {
 
 .width-100 {
     width: 100%;
+}
+
+.no-display {
+    display: none;
 }
 
 .modeless {
@@ -204,16 +208,6 @@ body {
     transition: opacity .3s ease-in-out;
 }
 
-.main-catalog {
-    margin-top: 0.6rem;
-    margin-bottom: 0;
-    height: calc(100vh - 124px);
-}
-
-.main-catalog .catalog {
-    padding: 0rem;
-}
-
 .catalog .item {
     border-bottom: none;
     cursor: default;
@@ -305,25 +299,35 @@ body {
     margin: 8px 0;
 }
 
-.messaging-main-content {
+.messaging-catalog {
+    margin-top: 0.6rem;
+    margin-bottom: 0;
+    height: calc(100vh - 124px);
+}
+
+.messaging-catalog .catalog {
+    padding: 0rem;
+}
+
+.messaging-content {
     margin-top: 0.6rem;
     margin-bottom: 0rem;
     height: calc(100vh - 124px);
 }
 
-.messaging-main-content textarea {
+.messaging-content textarea {
     resize: none;
     font-size: 14px;
 }
-.messaging-main-content textarea {
+.messaging-content textarea {
     resize: none;
     font-size: 14px;
 }
-.messaging-main-content .input-group .btn-default {
+.messaging-content .input-group .btn-default {
     font-size: 14px;
 }
 
-.messaging-main-content .week-day {
+.messaging-content .week-day {
     font-size: 12px;
 }
 
