@@ -44,6 +44,7 @@ import { Group } from "./Group";
 import { GroupState } from "./GroupState";
 import { GroupBundle } from "./GroupBundle";
 import { ContactServiceState } from "./ContactServiceState";
+import { ContactAppendix } from "./ContactAppendix";
 
 /**
  * 联系人模块。
@@ -112,6 +113,11 @@ export class ContactService extends Module {
          * @type {function}
          */
         this.listGroupsContext = null;
+
+        /**
+         * 附录记录。
+         */
+        this.appendixMap = new OrderMap();
     }
 
     /**
@@ -269,7 +275,7 @@ export class ContactService extends Module {
      * @param {object} payload 来自服务器数据。
      */
     triggerSignIn(payload) {
-        if (payload.code != 0) {
+        if (payload.code != ContactServiceState.Ok) {
             cell.Logger.e('ContactService', 'SignIn failed: ' + payload.code);
             return;
         }
@@ -310,7 +316,7 @@ export class ContactService extends Module {
      * @param {object} payload 来自服务器数据。
      */
     triggerSignOut(payload) {
-        if (payload.code != 0) {
+        if (payload.code != ContactServiceState.Ok) {
             cell.Logger.e('ContactService', 'SignOut failed: ' + payload.code);
             return;
         }
@@ -824,7 +830,7 @@ export class ContactService extends Module {
      * @param {object} context 数据包携带的上下文。
      */
     triggerCreateGroup(payload, context) {
-        if (payload.code != 0) {
+        if (payload.code != ContactServiceState.Ok) {
             return;
         }
 
@@ -924,7 +930,7 @@ export class ContactService extends Module {
      * @param {object} context 数据包携带的上下文。
      */
     triggerDissolveGroup(payload, context) {
-        if (payload.code != 0) {
+        if (payload.code != ContactServiceState.Ok) {
             return;
         }
 
@@ -1140,7 +1146,7 @@ export class ContactService extends Module {
      * @param {object} context 数据包携带的上下文。
      */
     triggerRemoveMember(payload, context) {
-        if (payload.code != 0) {
+        if (payload.code != ContactServiceState.Ok) {
             return;
         }
 
@@ -1295,7 +1301,7 @@ export class ContactService extends Module {
      * @param {object} context 数据包携带的上下文。
      */
     triggerAddMember(payload, context) {
-        if (payload.code != 0) {
+        if (payload.code != ContactServiceState.Ok) {
             return;
         }
 
@@ -1406,7 +1412,7 @@ export class ContactService extends Module {
      * @param {object} context 数据包携带的上下文。
      */
     triggerModifyGroup(payload, context) {
-        if (payload.code != 0) {
+        if (payload.code != ContactServiceState.Ok) {
             return;
         }
 
@@ -1456,7 +1462,7 @@ export class ContactService extends Module {
             }
 
             if (responsePacket.getPayload().code != ContactServiceState.Ok) {
-                let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, {
+                let error = new ModuleError(ContactService.NAME, responsePacket.getPayload().code, {
                     group: group,
                     member: member
                 });
@@ -1490,7 +1496,7 @@ export class ContactService extends Module {
      * @param {object} context 数据包携带的上下文。
      */
     triggerModifyGroupMember(payload, context) {
-        if (payload.code != 0) {
+        if (payload.code != ContactServiceState.Ok) {
             return;
         }
 
@@ -1516,5 +1522,87 @@ export class ContactService extends Module {
                 }
             });
         }
+    }
+
+    /**
+     * 
+     * @param {*} contactOrGroup 
+     * @param {*} handleSuccess 
+     * @param {*} handleFailure 
+     */
+    getAppendix(contactOrGroup, handleSuccess, handleFailure) {
+        let requestData = null;
+        if (contactOrGroup instanceof Contact) {
+            let appendix = this.appendixMap.get(contactOrGroup.getId());
+            if (null != appendix) {
+                handleSuccess(appendix);
+                return;
+            }
+
+            requestData = {
+                "contactId": contactOrGroup.getId()
+            };
+        }
+        else if (contactOrGroup instanceof Group) {
+            let appendix = this.appendixMap.get(contactOrGroup.getId());
+            if (null != appendix) {
+                handleSuccess(appendix);
+                return;
+            }
+
+            requestData = {
+                "groupId": contactOrGroup.getId()
+            };
+        }
+        else {
+            let error = new ModuleError(ContactService.NAME, ContactServiceState.NotAllowed, contactOrGroup);
+            if (handleFailure) {
+                handleFailure(error);
+            }
+            return;
+        }
+
+        let request = new Packet(ContactAction.GetAppendix, requestData);
+        this.pipeline.send(ContactService.NAME, request, (pipeline, source, packet) => {
+            if (null == packet || packet.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, contactOrGroup);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            if (packet.getPayload().code != ContactServiceState.Ok) {
+                let error = new ModuleError(ContactService.NAME, packet.getPayload().code, contactOrGroup);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            let data = packet.getPayload().data;
+            if (requestData.contactId) {
+                let owner = Contact.create(data.owner, AuthService.DOMAIN);
+                let contactAppendix = new ContactAppendix(this, owner);
+                contactAppendix.remarkName = data.remarkName;
+
+                this.appendixMap.put(owner.getId(), contactAppendix);
+
+                handleSuccess(contactAppendix);
+            }
+            else {
+
+            }
+        });
+    }
+
+    remarkContactName(contact, name, handleSuccess, handleFailure) {
+        this.getAppendix(contact, (appendix) => {
+            appendix.updateRemarkName(name, handleSuccess, handleFailure);
+        }, (error) => {
+            if (handleFailure) {
+                handleFailure(error);
+            }
+        });
     }
 }

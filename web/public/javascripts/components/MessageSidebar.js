@@ -27,12 +27,19 @@
 (function(g) {
     'use strict'
 
-    var MessageSidebar = function(el) {
-        this.el = el;
+    var el = null;
+
+    var MessageSidebar = function(sidebarEl) {
+        el = sidebarEl;
     }
 
     MessageSidebar.prototype.update = function(group) {
-        this.el.find('#group_name').val(group.getName());
+        el.find('#sidebar_group_name').val(group.getName());
+
+        // 读取群组的附录，从附录里读取群组的备注
+        // window.cube().contact.getAppendix(group, function(appendix) {
+        //     el.find('#sidebar_group_remark').val(appendix.getRemark());
+        // });
     }
 
     g.MessageSidebar = MessageSidebar;

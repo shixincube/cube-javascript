@@ -345,8 +345,12 @@ body {
     font-size: 14px;
 }
 .messaging-sidebar label {
-    font-size: 11px;
+    font-size: 12px;
     color: #6c757d;
+}
+.messaging-sidebar label span {
+    font-size: 10px;
+    color: #939ba2;
 }
 .messaging-sidebar .form-control {
     height: unset;

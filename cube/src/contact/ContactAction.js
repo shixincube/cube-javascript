@@ -111,5 +111,17 @@ export const ContactAction = {
      * 修改群组内成员的信息。
      * @type {string}
      */
-    ModifyGroupMember: 'modifyGroupMember'
+    ModifyGroupMember: 'modifyGroupMember',
+
+    /**
+     * 获取指定的附录。
+     * @type {string}
+     */
+    GetAppendix: 'getAppendix',
+
+    /**
+     * 更新附录。
+     * @type {string}
+     */
+    UpdateAppendix: 'updateAppendix'
 }

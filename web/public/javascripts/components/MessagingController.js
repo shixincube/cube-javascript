@@ -72,6 +72,9 @@
         colCatalog = $('#col_messaging_catalog');
         colContent = $('#col_messaging_content');
         colSidebar = $('#col_messaging_sidebar');
+        if (!colSidebar.hasClass('no-display')) {
+            colSidebar.addClass('no-display');
+        }
 
         // 监听消息已发送事件
         cube.messaging.on(MessagingEvent.Sent, function(event) {
