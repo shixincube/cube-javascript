@@ -27,6 +27,8 @@
 (function(g) {
     'use strict'
 
+    var that = null;
+
     var cube = null;
 
     var contacts = null;
@@ -34,6 +36,10 @@
     var groups = null;
 
     var elSelectFile = null;
+
+    var colCatalog = null;
+    var colContent = null;
+    var colSidebar = null;
 
     var getContact = function(id) {
         for (var i = 0; i < contacts.length; ++i) {
@@ -61,7 +67,11 @@
      */
     var MessagingController = function(cubeEngine) {
         cube = cubeEngine;
-        var that = this;
+        that = this;
+
+        colCatalog = $('#col_messaging_catalog');
+        colContent = $('#col_messaging_content');
+        colSidebar = $('#col_messaging_sidebar');
 
         // 监听消息已发送事件
         cube.messaging.on(MessagingEvent.Sent, function(event) {
@@ -188,7 +198,6 @@
      */
     MessagingController.prototype.selectFile = function(el) {
         if (null == elSelectFile) {
-            var that = this;
             elSelectFile = el;
             elSelectFile.on('change', function(e) {
                 var file = e.target.files[0];
@@ -245,11 +254,44 @@
         g.app.getGroup(id, function(group) {
             if (null == group) {
                 g.app.getContact(id, handle);
+                that.hideSidebar();
             }
             else {
                 handle(group);
+                g.app.messageSidebar.update(group);
+                that.showSidebar();
             }
         });
+    }
+
+    /**
+     * 显示侧边栏。
+     */
+    MessagingController.prototype.showSidebar = function() {
+        if (!colSidebar.hasClass('no-display')) {
+            return;
+        }
+
+        colContent.removeClass('col-md-9');
+        colContent.removeClass('col-sm-10');
+        colContent.addClass('col-md-6');
+        colContent.addClass('col-sm-6');
+        colSidebar.removeClass('no-display');
+    }
+
+    /**
+     * 隐藏侧边栏。
+     */
+    MessagingController.prototype.hideSidebar = function() {
+        if (colSidebar.hasClass('no-display')) {
+            return;
+        }
+
+        colContent.removeClass('col-md-6');
+        colContent.removeClass('col-sm-6');
+        colContent.addClass('col-md-9');
+        colContent.addClass('col-sm-10');
+        colSidebar.addClass('no-display');
     }
 
     /**

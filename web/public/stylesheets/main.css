@@ -46,6 +46,10 @@ body {
     height: auto;
 }
 
+.form-control {
+    font-size: 14px;
+}
+
 .modal-dialog button {
     font-size: 14px;
 }
@@ -339,6 +343,16 @@ body {
 }
 .messaging-sidebar .card-header {
     font-size: 14px;
+}
+.messaging-sidebar label {
+    font-size: 11px;
+    color: #6c757d;
+}
+.messaging-sidebar .form-control {
+    height: unset;
+    padding: 4px 8px;
+    font-size: 12px;
+    color: #343a40;
 }
 
 .card-background::before {

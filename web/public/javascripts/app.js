@@ -51,6 +51,7 @@
 
     var messageCatalog = null;
     var messagePanel = null;
+    var messageSidebar = null;
 
     var voiceCallPanel = null;
     var videoChatPanel = null;
@@ -185,7 +186,9 @@
             // 消息目录
             messageCatalog = new MessageCatalogue(messagingEl.find('ul[data-target="catalogue"]'));
             // 消息面板
-            messagePanel = new MessagePanel(messagingEl.find('#messages'));
+            messagePanel = new MessagePanel(messagingEl.find('.messaging-content'));
+            // 消息侧边栏
+            messageSidebar = new MessageSidebar(messagingEl.find('.messaging-sidebar'));
 
             voiceCallPanel = new VoiceCallPanel($('#voice_call'));
             videoChatPanel = new VideoChatPanel($('#video_chat'));
@@ -211,6 +214,7 @@
 
             that.messageCatalog = messageCatalog;
             that.messagePanel = messagePanel;
+            that.messageSidebar = messageSidebar;
 
             that.voiceCallPanel = voiceCallPanel;
             that.videoChatPanel = videoChatPanel;

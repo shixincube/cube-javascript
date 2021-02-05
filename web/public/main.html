@@ -116,7 +116,7 @@
 
                     <!-- Content -->
                     <div id="col_messaging_content" class="col-md-9 col-sm-10">
-                        <div id="messages" class="card direct-chat direct-chat-primary messaging-content card-background">
+                        <div class="card direct-chat direct-chat-primary card-background messaging-content">
                             <div class="card-header">
                                 <h3 class="card-title">&nbsp;</h3>
                                 <div class="card-tools">
@@ -159,7 +159,7 @@
                             <div class="card-header p-0 border-bottom-0">
                                 <ul class="nav nav-tabs" id="sidebar-tab" role="tablist">
                                     <li class="nav-item">
-                                        <a class="nav-link active" id="sidebar-profile-tab" data-toggle="tab" href="#sidebar-profile" role="tab" aria-controls="sidebar-profile" aria-selected="true">信息</a>
+                                        <a class="nav-link active" id="sidebar-profile-tab" data-toggle="tab" href="#sidebar-profile" role="tab" aria-controls="sidebar-profile" aria-selected="true">详情</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" id="sidebar-image-tab" data-toggle="tab" href="#sidebar-image" role="tab" aria-controls="sidebar-image" aria-selected="false">图片</a>
@@ -172,7 +172,12 @@
                             <div class="card-body">
                                 <div class="tab-content" id="sidebar-tab-content">
                                     <div class="tab-pane fade show active" id="sidebar-profile" role="tabpanel" aria-labelledby="sidebar-profile-tab">
-                                        <div>信息</div>
+                                        <div class="form">
+                                            <div class="form-group">
+                                                <label for="group_name">群组名称</label>
+                                                <input type="text" class="form-control" id="group_name" value="群组名称" disabled />
+                                              </div>
+                                        </div>
                                     </div>
                                     <div class="tab-pane fade" id="sidebar-image" role="tabpanel" aria-labelledby="sidebar-image-tab">
                                         <div>图片</div>
@@ -874,6 +879,7 @@
 <script type="text/javascript" src="javascripts/components/SidebarAccountPanel.js"></script>
 <script type="text/javascript" src="javascripts/components/MessageCatalogue.js"></script>
 <script type="text/javascript" src="javascripts/components/MessagePanel.js"></script>
+<script type="text/javascript" src="javascripts/components/MessageSidebar.js"></script>
 <script type="text/javascript" src="javascripts/components/VoiceCallPanel.js"></script>
 <script type="text/javascript" src="javascripts/components/VideoChatPanel.js"></script>
 <script type="text/javascript" src="javascripts/components/ContactDetails.js"></script>
