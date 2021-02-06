@@ -26,6 +26,7 @@
 
 import { AuthService } from "../auth/AuthService";
 import { Entity } from "../core/Entity";
+import { ContactAppendix } from "./ContactAppendix";
 import { Device } from "./Device";
 
 /**
@@ -74,6 +75,13 @@ export class Contact extends Entity {
          * @type {Array<Device>}
          */
         this.devices = [];
+
+        /**
+         * 联系人附录。
+         * @private
+         * @type {ContactAppendix}
+         */
+        this.appendix = null;
     }
 
     /**
@@ -150,6 +158,14 @@ export class Contact extends Entity {
         }
 
         return this.devices[this.devices.length - 1];
+    }
+
+    /**
+     * 获取联系人附录。
+     * @returns {ContactAppendix} 返回联系人附录。
+     */
+    getAppendix() {
+        return this.appendix;
     }
 
     /**

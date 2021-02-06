@@ -333,13 +333,21 @@ export class ContactService extends Module {
 
     /**
      * 获取指定 ID 的联系人信息。
-     * @param {number} id 指定联系人 ID 。
+     * @param {number} contactId 指定联系人 ID 。
      * @param {function} handleSuccess 成功获取到数据回调该方法，参数：({@linkcode contact}:{@link Contact}) ，(联系人实例)。
      * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError}) ，(故障信息))。
      */
-    getContact(id, handleSuccess, handleFailure) {
-        if (typeof id === 'string') {
-            id = parseInt(id);
+    getContact(contactId, handleSuccess, handleFailure) {
+        if (!this.selfReady) {
+            if (handleFailure) {
+                handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.NotAllowed, contactId));
+            }
+            return;
+        }
+
+        let id = contactId;
+        if (typeof contactId === 'string') {
+            id = parseInt(contactId);
         }
 
         let promise = new Promise((resolve, reject) => {
@@ -367,7 +375,13 @@ export class ContactService extends Module {
                                 // 更新存储
                                 this.storage.writeContact(contact);
 
-                                resolve(contact);
+                                // 获取附录
+                                this.getAppendix(contact, (appendix) => {
+                                    contact.appendix = appendix;
+                                    resolve(contact);
+                                }, (error) => {
+                                    reject(error);
+                                });
                             }
                             else {
                                 reject(new ModuleError(ContactService.NAME, responsePacket.data.code, id));
@@ -411,6 +425,13 @@ export class ContactService extends Module {
      * @param {function} [handleFailure] 操作失败回调该方法。
      */
     updateContactList(idList, handleSuccess, handleFailure) {
+        if (!this.selfReady) {
+            if (handleFailure) {
+                handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.NotAllowed, contactId));
+            }
+            return;
+        }
+
         let promise = new Promise((resolve, reject) => {
             let packet = new Packet(ContactAction.GetContactList, {
                 "list": idList,
@@ -1525,8 +1546,8 @@ export class ContactService extends Module {
     }
 
     /**
-     * 
-     * @param {*} contactOrGroup 
+     * 获取指定联系人或群组的附录。
+     * @param {Contact|Group} contactOrGroup 
      * @param {*} handleSuccess 
      * @param {*} handleFailure 
      */

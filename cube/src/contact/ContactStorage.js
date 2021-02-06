@@ -151,6 +151,7 @@ export class ContactStorage {
      * @param {function} handler 回调函数，参数：({@linkcode contact}:{@link Contact}) 。如果没有在数据库里找到数据 {@linkcode contact} 为 {@linkcode null} 值。
      */
     readContact(id, handler) {
+        // TODO 超期控制
         handler(null);
     }
 

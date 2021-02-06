@@ -38,7 +38,7 @@
 
     var account = null;
 
-    var contactAccounts = [];
+    // var contactAccounts = [];
 
     var cubeContacts = [];
 
@@ -77,6 +77,17 @@
             }
         }
         return null;
+    }
+
+    var updateContact = function(contact) {
+        for (var i = 0; i < cubeContacts.length; ++i) {
+            var c = cubeContacts[i];
+            if (c.getId() == contact.getId()) {
+                cubeContacts.splice(i, 1);
+                break;
+            }
+        }
+        cubeContacts.push(contact);
     }
 
     var queryGroup = function(id) {
@@ -210,8 +221,6 @@
             callCtrl = new CallController(cube);
             filesCtrl = new FilesController(cube);
 
-            this.prepare();
-
             that.messageCatalog = messageCatalog;
             that.messagePanel = messagePanel;
             that.messageSidebar = messageSidebar;
@@ -292,12 +301,14 @@
                 if (null == ctx) {
                     var localContact = queryContact(contact.getId());
                     if (null != localContact) {
-                        contact = localContact;
+                        contact.setContext(localContact.getContext());
                     }
                 }
 
+                updateContact(contact);
                 callback(contact);
-            }, function(id) {
+            }, function(error) {
+                console.log('CubeApp #getContact ' + error);
                 callback(null);
             });
         },
@@ -366,7 +377,12 @@
                 // 启用音视频模块
                 cube.mpComm.start();
 
-                that.onReady();
+                var timer = setInterval(function() {
+                    if (cube.contact.hasSignedIn()) {
+                        clearInterval(timer);
+                        that.onReady();
+                    }
+                }, 100);
             }, function(error) {
                 console.log('Start Cube FAILED: ' + error);
             });
@@ -377,9 +393,11 @@
         },
 
         onReady: function() {
-            console.log('Cube WebApp Ready');
+            that.prepare();
 
             filesCatalog.prepare();
+
+            console.log('Cube WebApp Ready');
         },
 
         /**
@@ -389,36 +407,55 @@
             sidebarAccountPanel.updateAvatar(account.avatar);
             sidebarAccountPanel.updateName(account.name);
 
+            var itemMap = {
+                count: 0
+            };
+
             // 获取所有联系人
             $.get('/account/all', function(response, status, xhr) {
                 var list = response;
                 list.forEach(function(item) {
                     if (item.id != account.id) {
-                        contactAccounts.push(item);
+                        // contactAccounts.push(item);
+                        itemMap[item.id] = item;
 
-                        // 联系人
-                        var contact = new Contact(item.id, item.name);
-                        // 将 App 的账号数据设置为 Cube 联系人的上下文
-                        contact.setContext(item);
-                        cubeContacts.push(contact);
-
-                        messageCatalog.appendItem(item);
+                        that.getContact(item.id, function(contact) {
+                            // 将 App 的账号数据设置为 Cube 联系人的上下文
+                            var account = itemMap[contact.getId()];
+                            contact.setContext(account);
+                            messageCatalog.appendItem(contact);
+                            itemMap.count += 1;
+                        });
                     }
                 });
 
-                // 添加自己
-                cubeContacts.push(cube.contact.getSelf());
+                var promise = new Promise(function(resolve, reject) {
+                    var timer = setInterval(function() {
+                        if (itemMap.count + 1 == list.length) {
+                            clearInterval(timer);
+                            resolve();
+                        }
+                    }, 500);
+                });
 
-                // 消息控制器更新联系人消息
-                messagingCtrl.updateContactMessages(cubeContacts);
+                promise.then(function() {
+                    // 添加自己
+                    cubeContacts.push(cube.contact.getSelf());
 
-                // 加载群组信息
-                that.prepareGroups();
+                    // 消息控制器更新联系人消息
+                    messagingCtrl.updateContactMessages(cubeContacts);
 
-                // 隐藏进度提示
-                setTimeout(function() {
+                    // 加载群组信息
+                    that.prepareGroups();
+
+                    // 隐藏进度提示
                     dialog.hideLoading();
-                }, 500);
+                }).catch(function() {
+                    // 隐藏进度提示
+                    setTimeout(function() {
+                        dialog.hideLoading();
+                    }, 500);
+                });
             });
         },
 

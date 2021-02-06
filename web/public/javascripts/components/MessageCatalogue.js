@@ -55,7 +55,7 @@
 
     /**
      * 追加菜单项。
-     * @param {Contact|Group|Account} value 数据值。
+     * @param {Contact|Group|object} value 数据值。
      * @returns {boolean} 返回 {@linkcode true} 表示追加成功。
      */
     MessageCatalogue.prototype.appendItem = function(value) {
@@ -75,7 +75,8 @@
         }
         else if (value instanceof Contact) {
             id = value.getId();
-            label = value.getName();
+            thumb = value.getContext().avatar;
+            label = value.getContext().name;
             desc = ' ';
             badge = '';
         }

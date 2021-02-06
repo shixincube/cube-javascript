@@ -59,6 +59,7 @@ export class ContactAppendix {
     }
 
     /**
+     * 获取备注名。
      * @returns {string} 返回备注名。
      */
     getRemarkName() {
@@ -66,10 +67,10 @@ export class ContactAppendix {
     }
 
     /**
-     * 
-     * @param {*} name 
-     * @param {*} handleSuccess 
-     * @param {*} handleFailure 
+     * 更新备注名。
+     * @param {string} name 
+     * @param {function} handleSuccess 
+     * @param {function} handleFailure 
      */
     updateRemarkName(name, handleSuccess, handleFailure) {
         let request = new Packet(ContactAction.UpdateAppendix, {
@@ -97,7 +98,9 @@ export class ContactAppendix {
             // 修改备注名
             this.remarkName = name;
 
-            handleSuccess(this);
+            if (handleSuccess) {
+                handleSuccess(this);
+            }
         });
     }
 }
