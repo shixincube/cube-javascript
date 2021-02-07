@@ -45,6 +45,7 @@ import { GroupState } from "./GroupState";
 import { GroupBundle } from "./GroupBundle";
 import { ContactServiceState } from "./ContactServiceState";
 import { ContactAppendix } from "./ContactAppendix";
+import { GroupAppendix } from "./GroupAppendix";
 
 /**
  * 联系人模块。
@@ -1548,23 +1549,12 @@ export class ContactService extends Module {
     /**
      * 获取指定联系人或群组的附录。
      * @param {Contact|Group} contactOrGroup 
-     * @param {*} handleSuccess 
-     * @param {*} handleFailure 
+     * @param {function} handleSuccess 
+     * @param {function} handleFailure 
      */
     getAppendix(contactOrGroup, handleSuccess, handleFailure) {
         let requestData = null;
-        if (contactOrGroup instanceof Contact) {
-            let appendix = this.appendixMap.get(contactOrGroup.getId());
-            if (null != appendix) {
-                handleSuccess(appendix);
-                return;
-            }
-
-            requestData = {
-                "contactId": contactOrGroup.getId()
-            };
-        }
-        else if (contactOrGroup instanceof Group) {
+        if (contactOrGroup instanceof Group) {
             let appendix = this.appendixMap.get(contactOrGroup.getId());
             if (null != appendix) {
                 handleSuccess(appendix);
@@ -1573,6 +1563,17 @@ export class ContactService extends Module {
 
             requestData = {
                 "groupId": contactOrGroup.getId()
+            };
+        }
+        else if (contactOrGroup instanceof Contact) {
+            let appendix = this.appendixMap.get(contactOrGroup.getId());
+            if (null != appendix) {
+                handleSuccess(appendix);
+                return;
+            }
+
+            requestData = {
+                "contactId": contactOrGroup.getId()
             };
         }
         else {
@@ -1612,11 +1613,24 @@ export class ContactService extends Module {
                 handleSuccess(contactAppendix);
             }
             else {
+                let owner = Group.create(this, data.owner);
+                let groupAppendix = new GroupAppendix(this, owner);
+                groupAppendix.remark = data.remark;
 
+                this.appendixMap.put(owner.getId(), groupAppendix);
+
+                handleSuccess(groupAppendix);
             }
         });
     }
 
+    /**
+     * 备注联系人。
+     * @param {*} contact 
+     * @param {*} name 
+     * @param {*} handleSuccess 
+     * @param {*} handleFailure 
+     */
     remarkContactName(contact, name, handleSuccess, handleFailure) {
         this.getAppendix(contact, (appendix) => {
             appendix.updateRemarkName(name, handleSuccess, handleFailure);

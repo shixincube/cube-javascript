@@ -27,19 +27,21 @@
 (function(g) {
     'use strict'
 
-    var el = null;
+    var sidebarEl = null;
 
-    var MessageSidebar = function(sidebarEl) {
-        el = sidebarEl;
+    var MessageSidebar = function(el) {
+        sidebarEl = el;
     }
 
     MessageSidebar.prototype.update = function(group) {
-        el.find('#sidebar_group_name').val(group.getName());
+        sidebarEl.find('#sidebar_group_name').val(group.getName());
 
         // 读取群组的附录，从附录里读取群组的备注
-        // window.cube().contact.getAppendix(group, function(appendix) {
-        //     el.find('#sidebar_group_remark').val(appendix.getRemark());
-        // });
+        window.cube().contact.getAppendix(group, function(appendix) {
+            sidebarEl.find('#sidebar_group_remark').val(appendix.getRemark());
+        }, function(error) {
+            console.log(error.toString());
+        });
     }
 
     g.MessageSidebar = MessageSidebar;

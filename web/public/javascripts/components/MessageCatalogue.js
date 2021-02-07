@@ -304,15 +304,16 @@
      * @param {number} id 双击的目录项的 ID 。
      */
     MessageCatalogue.prototype.onItemDoubleClick = function(id) {
-        var entity = g.app.queryContact(id);
-        if (entity instanceof Contact) {
-            g.app.contactDetails.show(entity);
+        var entity = g.app.queryGroup(id);
+        if (entity instanceof Group) {
+            g.app.groupDetails.show(entity);
             return;
         }
 
-        entity = g.app.queryGroup(id);
-        if (entity instanceof Group) {
-            g.app.groupDetails.show(entity);
+        entity = g.app.queryContact(id);
+        if (entity instanceof Contact) {
+            g.app.contactDetails.show(entity);
+            return;
         }
     }
 

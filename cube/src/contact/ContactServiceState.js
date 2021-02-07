@@ -54,6 +54,12 @@ export const ContactServiceState = {
     NoSignIn: 12,
 
     /**
+     * 未找到群组。
+     * @type {number}
+     */
+    NotFindGroup: 15,
+
+    /**
      * 令牌不一致。
      * @type {number}
      */

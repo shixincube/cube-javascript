@@ -34,7 +34,7 @@
     var currentContact = null;
 
     var editRemarkName = function() {
-        dialog.showPrompt('修改联系人备注', '请输入“'+ currentContact.getName() +'”的备注名', function(ok, text) {
+        dialog.showPrompt('修改联系人备注', '请输入“'+ currentContact.getName() +'”的备注名：', function(ok, text) {
             if (ok) {
                 // 修改联系人附录里的备注名
                 currentContact.getAppendix().updateRemarkName(text, function(appendix) {
