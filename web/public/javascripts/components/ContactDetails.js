@@ -43,7 +43,8 @@
      */
     ContactDetails.prototype.show = function(contact) {
         var el = dialogEl;
-        el.find('.widget-user-username').text(contact.getName());
+        var name = contact.getAppendix().hasRemarkName() ? contact.getAppendix().getRemarkName() : contact.getName();
+        el.find('.widget-user-username').text(name);
         el.find('.widget-user-desc').text(contact.getId());
         el.find('.user-avatar').attr('src', contact.getContext().avatar);
         el.find('.user-state').text(contact.getContext().state == 'online' ? '在线' : '离线');

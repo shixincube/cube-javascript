@@ -59,6 +59,19 @@ export class ContactAppendix {
     }
 
     /**
+     * 是否设置了备注名。
+     * @returns {boolean} 如果设置了备注名返回 {@linkcode true} 。
+     */
+    hasRemarkName() {
+        if (null != this.remarkName && this.remarkName.length > 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
      * 获取备注名。
      * @returns {string} 返回备注名。
      */

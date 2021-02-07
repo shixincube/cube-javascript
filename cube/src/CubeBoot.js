@@ -48,6 +48,7 @@ import { Self } from "./contact/Self";
 import { Group } from "./contact/Group";
 import { GroupState } from "./contact/GroupState";
 import { DummyContact } from "./contact/DummyContact";
+import { ContactAppendix } from "./contact/ContactAppendix";
 import { MessagingService } from "./messaging/MessagingService";
 import { MessagingServiceState } from "./messaging/MessagingServiceState";
 import { MessagingEvent } from "./messaging/MessagingEvent";
@@ -111,6 +112,7 @@ import { Announcer } from "./util/Announcer";
     global.Group = Group;
     global.GroupState = GroupState;
     global.DummyContact = DummyContact;
+    global.ContactAppendix = ContactAppendix;
 
     global.MessagingService = MessagingService;
     global.MessagingServiceState = MessagingServiceState;

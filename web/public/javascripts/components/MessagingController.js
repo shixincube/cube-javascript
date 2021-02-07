@@ -157,6 +157,11 @@
         groups = cubeGroups;
         var time = Date.now() - window.AWeek;
 
+        var announcer = new Announcer(cubeGroups.length, 10000);
+        announcer.addAudience(function(total, map) {
+            g.app.messageCatalog.refreshOrder();
+        });
+
         for (var i = 0; i < cubeGroups.length; ++i) {
             var group = cubeGroups[i];
             cube.messaging.queryMessageWithGroup(group, time, function(groupId, time, list) {
@@ -182,6 +187,8 @@
                         break;
                     }
                 }
+
+                announcer.announce(group.getId().toString(), list);
             });
         }
     }

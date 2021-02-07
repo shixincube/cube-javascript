@@ -423,6 +423,7 @@
                             // 将 App 的账号数据设置为 Cube 联系人的上下文
                             var account = itemMap[contact.getId()];
                             contact.setContext(account);
+                            contact.setName(account.name);
                             messageCatalog.appendItem(contact);
                             itemMap.count += 1;
                         });

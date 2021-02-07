@@ -76,7 +76,12 @@
         else if (value instanceof Contact) {
             id = value.getId();
             thumb = value.getContext().avatar;
-            label = value.getContext().name;
+            if (value.getAppendix().hasRemarkName()) {
+                label = value.getAppendix().getRemarkName();
+            }
+            else {
+                label = value.getContext().name;
+            }
             desc = ' ';
             badge = '';
         }
