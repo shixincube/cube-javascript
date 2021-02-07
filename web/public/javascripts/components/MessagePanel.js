@@ -136,6 +136,38 @@
     }
 
     /**
+     * 更新面板数据。
+     * @param {number} id 
+     * @param {Contact|Group} entity 
+     */
+    MessagePanel.prototype.updatePanel = function(id, entity) {
+        var panel = this.panels[id.toString()];
+        if (undefined === panel) {
+            var el = $('<div class="direct-chat-messages"></div>');
+            panel = {
+                id: id,
+                el: el,
+                entity: entity,
+                messageIds: [],
+                groupable: (entity instanceof Group)
+            };
+            this.panels[id.toString()] = panel;
+        }
+
+        if (null != this.current) {
+            if (this.current.id == id) {
+                if (panel.groupable) {
+                    this.elTitle.text(entity.getName());
+                }
+                else {
+                    this.elTitle.text(entity.getAppendix().hasRemarkName() ?
+                        entity.getAppendix().getRemarkName() : entity.getName());
+                }
+            }
+        }
+    }
+
+    /**
      * 切换面板。
      * @param {number} id 面板 ID 。
      * @param {Contact|Group} entity 对应的联系人或者群组。
@@ -174,13 +206,16 @@
             if (!this.btnVoiceCall[0].hasAttribute('disabled')) {
                 this.btnVoiceCall.attr('disabled', 'disabled');
             }
+
+            this.elTitle.text(entity.getName());
         }
         else {
             this.btnVideoCall.removeAttr('disabled');
             this.btnVoiceCall.removeAttr('disabled');
-        }
 
-        this.elTitle.text(entity.getName());
+            this.elTitle.text(entity.getAppendix().hasRemarkName() ?
+                entity.getAppendix().getRemarkName() : entity.getName());
+        }
 
         // 滚动条控制
         var offset = parseInt(this.elContent.prop('scrollHeight'));

@@ -31,9 +31,9 @@
 
     var cube = null;
 
-    var contacts = null;
+    var contacts = [];
 
-    var groups = null;
+    var groups = [];
 
     var elSelectFile = null;
 
@@ -194,11 +194,21 @@
     }
 
     /**
+     * 更新联系人在 UI 里的信息。
+     * @param {Contact} contact 
+     */
+    MessagingController.prototype.updateContact = function(contact) {
+        g.app.messagePanel.updatePanel(contact.getId(), contact);
+        g.app.messageCatalog.updateItem(contact, null, null,
+            contact.getAppendix().hasRemarkName() ? contact.getAppendix().getRemarkName() : contact.getName());
+    }
+
+    /**
      * 更新群组在 UI 里的信息。
      * @param {Group} group 
      */
     MessagingController.prototype.updateGroup = function(group) {
-        g.app.messagePanel.changePanel(group.getId(), group);
+        g.app.messagePanel.updatePanel(group.getId(), group);
         g.app.messageCatalog.updateItem(group, null, null, group.getName());
     }
 

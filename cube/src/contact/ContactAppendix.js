@@ -81,9 +81,9 @@ export class ContactAppendix {
 
     /**
      * 更新备注名。
-     * @param {string} name 
-     * @param {function} handleSuccess 
-     * @param {function} handleFailure 
+     * @param {string} name 新的备注名。
+     * @param {function} [handleSuccess] 成功回调。参数：({@linkcode appendix}:{@link ContactAppendix}) 。
+     * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
     updateRemarkName(name, handleSuccess, handleFailure) {
         let request = new Packet(ContactAction.UpdateAppendix, {

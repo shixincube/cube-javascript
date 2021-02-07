@@ -81,13 +81,19 @@
          * @param {string} title 标题。
          * @param {string} label 输入内容提示。
          * @param {function} callback 回调函数。回调函数不返回值或者返回 {@linkcode true} 时关闭对话框。
+         * @param {string} [prevalue] 预置输入框内的文本。
          */
-        showPrompt: function(title, label, callback) {
+        showPrompt: function(title, label, callback, prevalue) {
             var el = $('#modal_prompt');
             el.find('.modal-title').text(title);
             el.find('.prompt-label').text(label);
 
-            el.find('.prompt-input').val('');
+            if (prevalue) {
+                el.find('.prompt-input').val(prevalue);
+            }
+            else {
+                el.find('.prompt-input').val('');
+            }
 
             promptCallback = callback;
 
@@ -111,8 +117,18 @@
             }
         },
 
+        /**
+         * 隐藏提示输入框。
+         * @param {boolean} [ok] 是否点击确定。
+         */
         hidePrompt: function(ok) {
-            this.closePrompt(ok);
+            if (undefined !== ok) {
+                this.closePrompt(ok);
+            }
+            else {
+                var el = $('#modal_prompt');
+                el.modal('hide');
+            }
         },
 
         /**

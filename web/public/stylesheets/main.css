@@ -243,8 +243,13 @@ body {
     padding-top: 4px;
 }
 
-.widget-user-desc {
+.widget-user-username {
     font-weight: normal !important;
+}
+.widget-user-desc {
+    font-weight: 300 !important;
+    font-size: 16px;
+    margin-top: 4px !important;
 }
 
 .details-card {
@@ -269,6 +274,9 @@ body {
 }
 .details-card .description-text {
     font-size: 12px;
+}
+.details-card .btn-sm {
+    padding: 0.05rem 0.3rem;
 }
 
 
@@ -307,6 +315,7 @@ body {
     margin-top: 0.6rem;
     margin-bottom: 0;
     height: calc(100vh - 124px);
+    border-radius: 0%;
 }
 
 .messaging-catalog .catalog {
