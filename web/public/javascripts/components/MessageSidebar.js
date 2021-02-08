@@ -27,13 +27,39 @@
 (function(g) {
     'use strict'
 
+    var currentGroup = null;
+
     var sidebarEl = null;
+
+    var btnGroupRemark = null;
+
+    function onGroupRemarkClick() {
+        var el = sidebarEl.find('#sidebar_group_remark');
+        if (el.prop('disabled')) {
+            el.removeAttr('disabled');
+        }
+        else {
+            var text = el.val().trim();
+            el.attr('disabled', 'disabled');
+            window.cube().contact.remarkGroup(currentGroup, text, function() {
+                dialog.launchToast(Toast.Success, '已备注群组');
+            }, function(error) {
+                dialog.launchToast(Toast.Error, '修改群组备注失败：' + error.code);
+            })
+        }
+    }
 
     var MessageSidebar = function(el) {
         sidebarEl = el;
+        sidebarEl.find('#sidebar_group_remark').attr('disabled', 'disabled');
+
+        btnGroupRemark = el.find('button[data-target="remark"]');
+        btnGroupRemark.click(onGroupRemarkClick);
     }
 
     MessageSidebar.prototype.update = function(group) {
+        currentGroup = group;
+
         sidebarEl.find('#sidebar_group_name').val(group.getName());
 
         // 读取群组的附录，从附录里读取群组的备注

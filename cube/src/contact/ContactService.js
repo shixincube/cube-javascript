@@ -1548,9 +1548,9 @@ export class ContactService extends Module {
 
     /**
      * 获取指定联系人或群组的附录。
-     * @param {Contact|Group} contactOrGroup 
-     * @param {function} handleSuccess 
-     * @param {function} handleFailure 
+     * @param {Contact|Group} contactOrGroup 指定联系人或群组。
+     * @param {function} handleSuccess 成功回调，参数：({@linkcode appendix}:{@link ContactAppendix}|{@link GroupAppendix}) 。
+     * @param {function} handleFailure 失败回调，参数：({@linkcode error}:{@link ModuleError}) 。
      */
     getAppendix(contactOrGroup, handleSuccess, handleFailure) {
         let requestData = null;
@@ -1625,11 +1625,28 @@ export class ContactService extends Module {
     }
 
     /**
+     * 备注群组，群组备注仅对当前联系人有效。
+     * @param {Group} group 指定群组。
+     * @param {string} remark 指定备注信息。
+     * @param {function} handleSuccess 成功回调，参数：({@linkcode appendix}:{@link GroupAppendix}) 。
+     * @param {function} handleFailure 失败回调，参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    remarkGroup(group, remark, handleSuccess, handleFailure) {
+        this.getAppendix(group, (appendix) => {
+            appendix.updateRemark(remark, handleSuccess, handleFailure);
+        }, (error) => {
+            if (handleFailure) {
+                handleFailure(error);
+            }
+        });
+    }
+
+    /**
      * 备注联系人。
-     * @param {*} contact 
-     * @param {*} name 
-     * @param {*} handleSuccess 
-     * @param {*} handleFailure 
+     * @param {Contact} contact 指定需要备注的联系人。
+     * @param {string} name 联系人的备注名。
+     * @param {function} handleSuccess 成功回调，参数：({@linkcode appendix}:{@link ContactAppendix}) 。
+     * @param {function} handleFailure 失败回调，参数：({@linkcode error}:{@link ModuleError}) 。
      */
     remarkContactName(contact, name, handleSuccess, handleFailure) {
         this.getAppendix(contact, (appendix) => {
