@@ -28,43 +28,86 @@
     'use strict'
 
     var currentGroup = null;
+    var currentGroupRemark = null;
+    var currentGroupNotice = null;
 
     var sidebarEl = null;
 
+    var inputGroupRemark = null;
     var btnGroupRemark = null;
 
-    function onGroupRemarkClick() {
-        var el = sidebarEl.find('#sidebar_group_remark');
-        if (el.prop('disabled')) {
-            el.removeAttr('disabled');
+    var textGroupNotice = null;
+
+    function onGroupRemarkButtonClick() {
+        if (inputGroupRemark.prop('disabled')) {
+            currentGroupRemark = inputGroupRemark.val().trim();
+            inputGroupRemark.removeAttr('disabled');
+            inputGroupRemark.focus();
         }
         else {
-            var text = el.val().trim();
-            el.attr('disabled', 'disabled');
+            var text = inputGroupRemark.val().trim();
+            inputGroupRemark.attr('disabled', 'disabled');
+            if (currentGroupRemark == text) {
+                return;
+            }
+
             window.cube().contact.remarkGroup(currentGroup, text, function() {
                 dialog.launchToast(Toast.Success, '已备注群组');
             }, function(error) {
                 dialog.launchToast(Toast.Error, '修改群组备注失败：' + error.code);
-            })
+            });
+        }
+    }
+
+    function onGroupRemarkBlur() {
+        onGroupRemarkButtonClick();
+    }
+
+    function onNoticeButtonClick() {
+        if (textGroupNotice.prop('disabled')) {
+            currentGroupNotice = textGroupNotice.val().trim();
+            textGroupNotice.removeAttr('disabled');
+            textGroupNotice.focus();
+        }
+        else {
+            var text = textGroupNotice.val().trim();
+            textGroupNotice.attr('disabled', 'disabled');
+            if (currentGroupNotice == text) {
+                return;
+            }
         }
     }
 
     var MessageSidebar = function(el) {
         sidebarEl = el;
-        sidebarEl.find('#sidebar_group_remark').attr('disabled', 'disabled');
 
-        btnGroupRemark = el.find('button[data-target="remark"]');
-        btnGroupRemark.click(onGroupRemarkClick);
+        inputGroupRemark= sidebarEl.find('input[data-target="group-remark"]');
+        inputGroupRemark.attr('disabled', 'disabled');
+        inputGroupRemark.blur(onGroupRemarkBlur);
+
+        btnGroupRemark = sidebarEl.find('button[data-target="remark"]');
+        btnGroupRemark.click(onGroupRemarkButtonClick);
+
+        textGroupNotice = sidebarEl.find('textarea[data-target="group-notice"]');
+        textGroupNotice.attr('disabled', 'disabled');
+        sidebarEl.find('button[data-target="notice"]').click(onNoticeButtonClick);
     }
 
     MessageSidebar.prototype.update = function(group) {
         currentGroup = group;
 
-        sidebarEl.find('#sidebar_group_name').val(group.getName());
+        sidebarEl.find('input[data-target="group-name"]').val(group.getName());
+
+        if (!currentGroup.isOwner()) {
+            sidebarEl.find('.group-notice-btn-group').css('display', 'none');
+        }
+        else {
+            sidebarEl.find('.group-notice-btn-group').css('display', 'block');
+        }
 
         // 读取群组的附录，从附录里读取群组的备注
         window.cube().contact.getAppendix(group, function(appendix) {
-            sidebarEl.find('#sidebar_group_remark').val(appendix.getRemark());
+            inputGroupRemark.val(appendix.getRemark());
         }, function(error) {
             console.log(error.toString());
         });

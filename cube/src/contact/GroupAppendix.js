@@ -56,6 +56,11 @@ export class GroupAppendix {
          * @type {string}
          */
         this.remark = null;
+
+        /**
+         * @type {string}
+         */
+        this.notice = '';
     }
 
     /**
@@ -77,6 +82,14 @@ export class GroupAppendix {
      */
     getRemark() {
         return this.remark;
+    }
+
+    /**
+     * 获取群的公告。
+     * @returns {string} 返回群的公告。
+     */
+    getNotice() {
+        return this.notice;
     }
 
     /**
@@ -110,6 +123,44 @@ export class GroupAppendix {
 
             // 修改备注信息
             this.remark = content;
+
+            if (handleSuccess) {
+                handleSuccess(this);
+            }
+        });
+    }
+
+    /**
+     * 更新公告信息。
+     * @param {string} notice 新的群组公告。
+     * @param {function} [handleSuccess] 成功回调。参数：({@linkcode appendix}:{@link GroupAppendix}) 。
+     * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    updateNotice(notice, handleSuccess, handleFailure) {
+        let request = new Packet(ContactAction.UpdateAppendix, {
+            "groupId": this.owner.getId(),
+            "notice": notice
+        });
+
+        this.service.pipeline.send(ContactService.NAME, request, (pipeline, source, packet) => {
+            if (null == packet || packet.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, this);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            if (packet.getPayload().code != ContactServiceState.Ok) {
+                let error = new ModuleError(ContactService.NAME, packet.getPayload().code, this);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            // 修改公告
+            this.notice = notice;
 
             if (handleSuccess) {
                 handleSuccess(this);
