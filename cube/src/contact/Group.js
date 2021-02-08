@@ -32,6 +32,7 @@ import { Self } from "./Self";
 import { AuthService } from "../auth/AuthService";
 import { ModuleError } from "../core/error/ModuleError";
 import { ContactServiceState } from "./ContactServiceState";
+import { GroupAppendix } from "./GroupAppendix";
 
 /**
  * 群组类。包含了多个联系人的集合。
@@ -90,6 +91,13 @@ export class Group extends Contact {
          * @type {number}
          */
         this.state = GroupState.Normal;
+
+        /**
+         * 群组的附录。
+         * @protected
+         * @type {GroupAppendix}
+         */
+        this.appendix = null;
     }
 
     /**
@@ -194,6 +202,17 @@ export class Group extends Contact {
      */
     getState() {
         return this.state;
+    }
+
+    /**
+     * 获取群组的附录。
+     * @returns {GroupAppendix} 返回群组的附录。
+     */
+    getAppendix() {
+        if (null == this.appendix) {
+            this.appendix = this.service.appendixMap.get(this.id);
+        }
+        return this.appendix;
     }
 
     /**

@@ -55,6 +55,7 @@
                 dialog.launchToast(Toast.Success, '已备注群组');
             }, function(error) {
                 dialog.launchToast(Toast.Error, '修改群组备注失败：' + error.code);
+                inputGroupRemark.val(currentGroupRemark);
             });
         }
     }
@@ -75,7 +76,19 @@
             if (currentGroupNotice == text) {
                 return;
             }
+
+            // 更新群组公告
+            currentGroup.getAppendix().updateNotice(text, function() {
+                dialog.launchToast(Toast.Success, '已修改群组公告');
+            }, function() {
+                dialog.launchToast(Toast.Error, '修改群组公告失败：' + error.code);
+                textGroupNotice.val(currentGroupNotice);
+            });
         }
+    }
+
+    function onNoticeBlur() {
+        onNoticeButtonClick();
     }
 
     var MessageSidebar = function(el) {
@@ -90,6 +103,7 @@
 
         textGroupNotice = sidebarEl.find('textarea[data-target="group-notice"]');
         textGroupNotice.attr('disabled', 'disabled');
+        textGroupNotice.blur(onNoticeBlur);
         sidebarEl.find('button[data-target="notice"]').click(onNoticeButtonClick);
     }
 
@@ -108,6 +122,7 @@
         // 读取群组的附录，从附录里读取群组的备注
         window.cube().contact.getAppendix(group, function(appendix) {
             inputGroupRemark.val(appendix.getRemark());
+            textGroupNotice.val(appendix.getNotice());
         }, function(error) {
             console.log(error.toString());
         });

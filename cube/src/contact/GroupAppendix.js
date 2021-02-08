@@ -48,6 +48,7 @@ export class GroupAppendix {
         this.service = service;
 
         /**
+         * @private
          * @type {Group}
          */
         this.owner = owner;

@@ -508,7 +508,13 @@ export class ContactService extends Module {
             // 从存储库读取
             this.storage.readGroup(id, (id, group) => {
                 if (null != group) {
-                    resolve(group);
+                    this.getAppendix(group, (appendix) => {
+                        // 设置群组的附录
+                        group.appendix = appendix;
+                        resolve(group);
+                    }, (error) => {
+                        reject(error);
+                    });
                     return;
                 }
 
@@ -526,7 +532,14 @@ export class ContactService extends Module {
                             // 写入存储
                             this.storage.writeGroup(group);
 
-                            resolve(group);
+                            // 获取附录
+                            this.getAppendix(group, (appendix) => {
+                                // 设置附录
+                                group.appendix = appendix;
+                                resolve(group);
+                            }, (error) => {
+                                reject(error);
+                            });
                         }
                         else {
                             reject(new ModuleError(ContactService.NAME, responsePacket.data.code, id));
@@ -1557,6 +1570,9 @@ export class ContactService extends Module {
         if (contactOrGroup instanceof Group) {
             let appendix = this.appendixMap.get(contactOrGroup.getId());
             if (null != appendix) {
+                if (null == contactOrGroup.appendix) {
+                    contactOrGroup.appendix = appendix;
+                }
                 handleSuccess(appendix);
                 return;
             }
@@ -1568,6 +1584,9 @@ export class ContactService extends Module {
         else if (contactOrGroup instanceof Contact) {
             let appendix = this.appendixMap.get(contactOrGroup.getId());
             if (null != appendix) {
+                if (null == contactOrGroup.appendix) {
+                    contactOrGroup.appendix = appendix;
+                }
                 handleSuccess(appendix);
                 return;
             }
@@ -1604,18 +1623,33 @@ export class ContactService extends Module {
 
             let data = packet.getPayload().data;
             if (requestData.contactId) {
-                let owner = Contact.create(data.owner, AuthService.DOMAIN);
+                let owner = this.contacts.get(data.owner.id);
+                if (null == owner) {
+                    owner = Contact.create(data.owner, AuthService.DOMAIN);
+                }
+
                 let contactAppendix = new ContactAppendix(this, owner);
                 contactAppendix.remarkName = data.remarkName;
+
+                // 设置附录
+                owner.appendix = contactAppendix;
 
                 this.appendixMap.put(owner.getId(), contactAppendix);
 
                 handleSuccess(contactAppendix);
             }
             else {
-                let owner = Group.create(this, data.owner);
+                let owner = this.groups.get(data.owner.id);
+                if (null == owner) {
+                    owner = Group.create(this, data.owner);
+                }
+
                 let groupAppendix = new GroupAppendix(this, owner);
                 groupAppendix.remark = data.remark;
+                groupAppendix.notice = data.notice;
+
+                // 设置附录
+                owner.appendix = groupAppendix;
 
                 this.appendixMap.put(owner.getId(), groupAppendix);
 

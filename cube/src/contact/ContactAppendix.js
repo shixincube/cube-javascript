@@ -48,6 +48,7 @@ export class ContactAppendix {
         this.service = service;
 
         /**
+         * @private
          * @type {Contact}
          */
         this.owner = owner;
