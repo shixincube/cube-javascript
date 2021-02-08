@@ -38,6 +38,8 @@
 
     var textGroupNotice = null;
 
+    var memberListEl = null;
+
     function onGroupRemarkButtonClick() {
         if (inputGroupRemark.prop('disabled')) {
             currentGroupRemark = inputGroupRemark.val().trim();
@@ -105,6 +107,8 @@
         textGroupNotice.attr('disabled', 'disabled');
         textGroupNotice.blur(onNoticeBlur);
         sidebarEl.find('button[data-target="notice"]').click(onNoticeButtonClick);
+
+        memberListEl = sidebarEl.find('.group-member-list');
     }
 
     MessageSidebar.prototype.update = function(group) {
@@ -126,6 +130,10 @@
         }, function(error) {
             console.log(error.toString());
         });
+
+        // 加载成员列表
+        memberListEl.empty();
+        
     }
 
     g.MessageSidebar = MessageSidebar;

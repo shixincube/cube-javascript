@@ -31,35 +31,11 @@
 
     var cube = null;
 
-    var contacts = [];
-
-    var groups = [];
-
     var elSelectFile = null;
 
     var colCatalog = null;
     var colContent = null;
     var colSidebar = null;
-
-    var getContact = function(id) {
-        for (var i = 0; i < contacts.length; ++i) {
-            var c = contacts[i];
-            if (c.getId() == id) {
-                return c;
-            }
-        }
-        return null;
-    }
-
-    var getGroup = function(id) {
-        for (var i = 0; i < groups.length; ++i) {
-            var g = groups[i];
-            if (g.getId() == id) {
-                return g;
-            }
-        }
-        return null;
-    }
 
     /**
      * 消息模块的控制器。
@@ -98,31 +74,56 @@
 
     /**
      * 更新联系人的消息清单。
-     * @param {Array} cubeContacts 
+     * @param {Contact} contact 
+     * @param {funciton} completed
      */
-    MessagingController.prototype.updateContactMessages = function(cubeContacts) {
-        contacts = cubeContacts;
+    MessagingController.prototype.updateContactMessages = function(contact, completed) {
+        if (contact.getId() == g.app.account.id) {
+            // 不查询自己
+            return;
+        }
+
         var time = Date.now() - window.AWeek;
+        var count = 0;
 
-        var announcer = new Announcer(contacts.length - 1, 10000);
-        announcer.addAudience(function(total, map) {
-            g.app.messageCatalog.refreshOrder();
-        });
-
-        var handler = function(id, list) {
-            for (var i = 0; i < list.length; ++i) {
-                var message = list[i];
-                var target = null;
+        var handler = function(message) {
+            g.app.getContact(message.getFrom(), function(sender) {
                 // 判断自己是否是该消息的发件人
                 if (cube.messaging.isSender(message)) {
-                    target = getContact(message.getTo());
+                    g.app.getContact(message.getTo(), function(target) {
+                        // 添加到消息面板
+                        g.app.messagePanel.appendMessage(target, sender, message);
+
+                        --count;
+                        if (completed && count == 0) {
+                            completed();
+                        }
+                    });
                 }
                 else {
-                    target = getContact(message.getFrom());
-                }
+                    g.app.getContact(message.getFrom(), function(target) {
+                        // 添加到消息面板
+                        g.app.messagePanel.appendMessage(target, sender, message);
 
-                // 添加到消息面板
-                g.app.messagePanel.appendMessage(target, getContact(message.getFrom()), message);
+                        --count;
+                        if (completed && count == 0) {
+                            completed();
+                        }
+                    });
+                }
+            });
+        }
+
+        cube.messaging.queryMessageWithContact(contact, time, function(id, time, list) {
+            count = list.length;
+
+            if (completed && count == 0) {
+                completed();
+                return;
+            }
+
+            for (var i = 0; i < list.length; ++i) {
+                handler(list[i]);
             }
 
             for (var i = list.length - 1; i >= 0; --i) {
@@ -132,65 +133,57 @@
                     break;
                 }
             }
-
-            announcer.announce(id.toString(), list);
-        }
-
-        for (var i = 0; i < cubeContacts.length; ++i) {
-            var contact = cubeContacts[i];
-            if (contact.getId() == g.app.account.id) {
-                // 跳过自己
-                continue;
-            }
-
-            cube.messaging.queryMessageWithContact(contact, time, function(id, time, list) {
-                handler(id, list);
-            });
-        }
+        });
     }
 
     /**
      * 更新群组的消息。
-     * @param {Array} cubeGroups 
+     * @param {Group} group 
+     * @param {funciton} completed
      */
-    MessagingController.prototype.updateGroupMessages = function(cubeGroups) {
-        groups = cubeGroups;
+    MessagingController.prototype.updateGroupMessages = function(group, completed) {
         var time = Date.now() - window.AWeek;
+        var count = 0;
 
-        var announcer = new Announcer(cubeGroups.length, 10000);
-        announcer.addAudience(function(total, map) {
-            g.app.messageCatalog.refreshOrder();
-        });
+        // var announcer = new Announcer(cubeGroups.length, 10000);
+        // announcer.addAudience(function(total, map) {
+        //     g.app.messageCatalog.refreshOrder();
+        // });
 
-        for (var i = 0; i < cubeGroups.length; ++i) {
-            var group = cubeGroups[i];
-            cube.messaging.queryMessageWithGroup(group, time, function(groupId, time, list) {
-                for (var i = 0; i < list.length; ++i) {
-                    var message = list[i];
-                    var target = null;
-                    // 判断自己是否是该消息的发件人
-                    if (cube.messaging.isSender(message)) {
-                        target = getContact(message.getTo());
-                    }
-                    else {
-                        target = getContact(message.getFrom());
-                    }
+        var handler = function(group, message) {
+            g.app.getContact(message.getFrom(), function(sender) {
+                // 添加到消息面板
+                g.app.messagePanel.appendMessage(group, sender, message);
 
-                    // 添加到消息面板
-                    g.app.messagePanel.appendMessage(getGroup(groupId), getContact(message.getFrom()), message);
+                --count;
+                if (completed && count == 0) {
+                    completed();
                 }
-
-                for (var i = list.length - 1; i >= 0; --i) {
-                    var last = list[i];
-                    // 更新目录项
-                    if (g.app.messageCatalog.updateItem(groupId, last, last.getRemoteTimestamp())) {
-                        break;
-                    }
-                }
-
-                announcer.announce(group.getId().toString(), list);
             });
         }
+
+        cube.messaging.queryMessageWithGroup(group, time, function(groupId, time, list) {
+            count = list.length;
+
+            if (completed && count == 0) {
+                completed();
+                return;
+            }
+
+            for (var i = 0; i < list.length; ++i) {
+                handler(group, list[i]);
+            }
+
+            for (var i = list.length - 1; i >= 0; --i) {
+                var last = list[i];
+                // 更新目录项
+                if (g.app.messageCatalog.updateItem(groupId, last, last.getRemoteTimestamp())) {
+                    break;
+                }
+            }
+
+            // announcer.announce(group.getId().toString(), list);
+        });
     }
 
     /**
@@ -314,6 +307,10 @@
         colSidebar.addClass('no-display');
     }
 
+    MessagingController.prototype.showGroupMember = function() {
+        // TODO
+    }
+
     /**
      * 撤回消息。
      * @param {Contact|Group} entity 当前操作对应的联系人或群组。
@@ -379,8 +376,6 @@
             else {
                 // 从 Cube 获取群组数据
                 cube.contact.getGroup(message.getSource(), function(group) {
-                    groups.push(group);
-
                     // 更新消息面板
                     g.app.messagePanel.appendMessage(group, getContact(message.getFrom()), message);
                     // 更新消息目录

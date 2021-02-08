@@ -348,6 +348,8 @@ body {
     font-size: 12px;
 }
 
+/* 消息界面侧边栏 - 开始 */
+
 .messaging-sidebar {
     margin-top: 0.6rem;
     margin-bottom: 0rem;
@@ -356,6 +358,11 @@ body {
 }
 .messaging-sidebar .card-header {
     font-size: 14px;
+}
+.messaging-sidebar .card-body {
+    overflow-y: auto;
+    padding: 0 0.6rem 0 0.6rem;
+    margin: 0.6rem 0 0.6rem 0;
 }
 .messaging-sidebar label {
     font-size: 12px;
@@ -385,6 +392,33 @@ body {
     top: -28px;
     right: 0px;
 }
+.messaging-sidebar .group-member-list {
+    font-size: 14px;
+}
+.messaging-sidebar .group-member-list .group-member-cell {
+    width: 100%;
+    border-radius: .25rem;
+}
+.messaging-sidebar .group-member-list .group-member-more {
+    width: 100%;
+    text-align: center;
+    margin-top: 6px;
+}
+.messaging-sidebar .group-member-list .group-member-cell:hover {
+    background-color: #ececec;
+}
+.messaging-sidebar .group-member-list .group-member-cell div {
+    display: inline-block;
+}
+.messaging-sidebar .group-member-list .member-avatar {
+    padding: 6px 6px;
+}
+.messaging-sidebar .group-member-list .member-name {
+    padding-left: 10px;
+    user-select: none;
+}
+
+/* 消息界面侧边栏 - 结束 */
 
 .card-background::before {
     content: '';

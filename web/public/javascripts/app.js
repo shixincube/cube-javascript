@@ -38,8 +38,6 @@
 
     var account = null;
 
-    // var contactAccounts = [];
-
     var cubeContacts = [];
 
     var cubeGroups = [];
@@ -292,21 +290,33 @@
 
         /**
          * 获取联系人。
-         * @param {*} id 
-         * @param {*} callback 
+         * @param {number} id 
+         * @param {function} callback 
          */
         getContact: function(id, callback) {
             cube.contact.getContact(id, function(contact) {
-                let ctx = contact.getContext();
-                if (null == ctx) {
-                    var localContact = queryContact(contact.getId());
-                    if (null != localContact) {
-                        contact.setContext(localContact.getContext());
-                    }
+                var localContact = queryContact(contact.getId());
+                if (null != localContact) {
+                    contact.setContext(localContact.getContext());
+                    callback(contact);
                 }
-
-                updateContact(contact);
-                callback(contact);
+                else {
+                    $.ajax({
+                        type: 'GET',
+                        url: '/account/info',
+                        data: { "id": id },
+                        success: function(response, status, xhr) {
+                            contact.setContext(response);
+                            contact.setName(response.name);
+                            updateContact(contact);
+                            callback(contact);
+                        },
+                        error: function(xhr, error) {
+                            console.log(error);
+                            callback(null);
+                        }
+                    });
+                }
             }, function(error) {
                 console.log('CubeApp #getContact ' + error);
                 callback(null);
@@ -315,13 +325,13 @@
 
         /**
          * 获取群组。
-         * @param {*} id 
-         * @param {*} callback 
+         * @param {number} id 
+         * @param {function} callback 
          */
         getGroup: function(id, callback) {
             cube.contact.getGroup(id, function(group) {
                 callback(group);
-            }, function(id) {
+            }, function(error) {
                 callback(null);
             });
         },
@@ -416,7 +426,6 @@
                 var list = response;
                 list.forEach(function(item) {
                     if (item.id != account.id) {
-                        // contactAccounts.push(item);
                         itemMap[item.id] = item;
 
                         that.getContact(item.id, function(contact) {
@@ -440,11 +449,23 @@
                 });
 
                 promise.then(function() {
-                    // 添加自己
-                    cubeContacts.push(cube.contact.getSelf());
+                    // 处理完成时的事件
+                    var count = cubeContacts.length;
+                    var completedCallback = function() {
+                        --count;
+                        if (count == 0) {
+                            // 目录排序
+                            messageCatalog.refreshOrder();
+                        }
+                    }
 
                     // 消息控制器更新联系人消息
-                    messagingCtrl.updateContactMessages(cubeContacts);
+                    for (var i = 0; i < cubeContacts.length; ++i) {
+                        messagingCtrl.updateContactMessages(cubeContacts[i], completedCallback);
+                    }
+
+                    // 添加自己
+                    cubeContacts.push(cube.contact.getSelf());
 
                     // 加载群组信息
                     that.prepareGroups();
@@ -465,17 +486,25 @@
          */
         prepareGroups: function() {
             cube.contact.queryGroups(function(groups) {
+                var count = groups.length;
+                var completedCallback = function() {
+                    --count;
+                    if (count == 0) {
+                        // 目录排序
+                        messageCatalog.refreshOrder();
+                    }
+                }
+
                 for (var i = 0; i < groups.length; ++i) {
                     var group = groups[i];
                     cubeGroups.push(group);
 
                     // 添加群组
                     messageCatalog.appendItem(group);
+
+                    // 消息控制器更新群组消息
+                    messagingCtrl.updateGroupMessages(group, completedCallback);
                 }
-
-                // 消息控制器更新群组消息
-                messagingCtrl.updateGroupMessages(cubeGroups);
-
             });
         }
     };
