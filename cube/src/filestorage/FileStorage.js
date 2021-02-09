@@ -473,7 +473,7 @@ export class FileStorage extends Module {
         }
 
         let id = 0;
-        if (typeof id === 'number') {
+        if (typeof idOrObject === 'number') {
             id = idOrObject;
         }
         else if (idOrObject instanceof Group) {
@@ -481,6 +481,9 @@ export class FileStorage extends Module {
         }
         else if (idOrObject instanceof Contact) {
             id = idOrObject.getId();
+        }
+        else if (typeof idOrObject === 'string') {
+            id = parseInt(idOrObject);
         }
         else {
             let error = new ModuleError(FileStorage.NAME, FileStorageState.Forbidden, idOrObject);
@@ -575,15 +578,15 @@ export class FileStorage extends Module {
     }
 
     /**
-     * 
-     * @param {*} workingDir 
-     * @param {*} pendingDir 
-     * @param {*} newDirName 
-     * @param {*} handleSuccess 
-     * @param {*} handleFailure 
+     * 重命名目录。
+     * @param {Directory} workingDir 
+     * @param {Directory} pendingDir 
+     * @param {string} newDirName 
+     * @param {function} handleSuccess 
+     * @param {function} handleFailure 
      */
     renameDirectory(workingDir, pendingDir, newDirName, handleSuccess, handleFailure) {
-
+        // TODO
     }
 
     /**

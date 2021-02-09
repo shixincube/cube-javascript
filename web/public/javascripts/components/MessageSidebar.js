@@ -27,11 +27,15 @@
 (function(g) {
     'use strict'
 
+    var that = null;
+
     var currentGroup = null;
     var currentGroupRemark = null;
     var currentGroupNotice = null;
 
     var sidebarEl = null;
+
+    var imageFileListEl = null;
 
     var inputGroupRemark = null;
     var btnGroupRemark = null;
@@ -94,7 +98,10 @@
     }
 
     var MessageSidebar = function(el) {
+        that = this;
+
         sidebarEl = el;
+        imageFileListEl = sidebarEl.find('.image-file-list');
 
         inputGroupRemark= sidebarEl.find('input[data-target="group-remark"]');
         inputGroupRemark.attr('disabled', 'disabled');
@@ -111,6 +118,10 @@
         memberListEl = sidebarEl.find('.group-member-list');
     }
 
+    /**
+     * 使用群组数据更新数据。
+     * @param {Group} group 
+     */
     MessageSidebar.prototype.update = function(group) {
         currentGroup = group;
 
@@ -145,6 +156,38 @@
                 memberListEl.append($(html.join('')));
             });
         });
+
+        // 检索群组的图片
+        window.cube().fs.getRoot(group, function(root) {
+            root.searchFile({
+                "type": ['jpg', 'png', 'gif', 'bmp'],
+                "begin": 0,
+                "end": 20,
+                "inverseOrder": true
+            }, function(filter, list) {
+                list.forEach(function(item) {
+                    that.appendImage(item.file);
+                });
+            }, function(error) {
+                console.log('MessageSidebar #searchFile() : ' + error.code);
+            });
+        }, function(error) {
+            console.log('MessageSidebar #getRoot() : ' + error.code);
+        });
+    }
+
+    MessageSidebar.prototype.appendImage = function(fileLabel) {
+        var html = [
+            '<div class="file-cell">',
+                '<div class="file-type">',
+                    '<div class="file-thumb"></div>',
+                '</div>',
+                '<div class="file-info">',
+                    '<div data-target="date">2021年1月3日</div>',
+                    '<div data-target="size">902 KB</div>',
+                '</div>',
+            '</div>'
+        ];
     }
 
     g.MessageSidebar = MessageSidebar;

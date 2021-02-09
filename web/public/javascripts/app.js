@@ -455,7 +455,9 @@
                         --count;
                         if (count == 0) {
                             // 目录排序
-                            messageCatalog.refreshOrder();
+                            setTimeout(function() {
+                                messageCatalog.refreshOrder();
+                            }, 500);
                         }
                     }
 

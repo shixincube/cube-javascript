@@ -353,6 +353,16 @@ export class Directory {
     }
 
     /**
+     * 搜索文件。
+     * @param {SearchFilter} filter 
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode filter}:{@link SearchFilter}, {@linkcode list}:{@linkcode Array<SearchItem>}) 。
+     * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    searchFile(filter, handleSuccess, handleFailure) {
+        this.hierarchy.searchFile(filter, handleSuccess, handleFailure);
+    }
+
+    /**
      * @private
      * @param {Directory} child 
      */
