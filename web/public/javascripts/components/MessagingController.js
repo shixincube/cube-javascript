@@ -367,43 +367,40 @@
         // 判断消息是否来自群组
         if (message.isFromGroup()) {
             // 消息来自群组
-            var group = getGroup(message.getSource());
-            if (null != group) {
+            cube.contact.getGroup(message.getSource(), function(group) {
                 // 更新消息面板
-                g.app.messagePanel.appendMessage(group, getContact(message.getFrom()), message);
+                g.app.getContact(message.getFrom(), function(sender) {
+                    g.app.messagePanel.appendMessage(group, sender, message);
+                });
+
                 // 更新消息目录
                 g.app.messageCatalog.updateItem(group.getId(), message, message.getRemoteTimestamp());
-            }
-            else {
-                // 从 Cube 获取群组数据
-                cube.contact.getGroup(message.getSource(), function(group) {
-                    // 更新消息面板
-                    g.app.messagePanel.appendMessage(group, getContact(message.getFrom()), message);
-                    // 更新消息目录
-                    g.app.messageCatalog.updateItem(group.getId(), message, message.getRemoteTimestamp());
-                });
-            }
+            });
         }
         else {
             // 消息来自联系人
-            var itemId = 0;
-            var sender = g.app.queryContact(message.getFrom());
-            var target = null;
 
-            if (g.app.account.id == message.getFrom()) {
-                // 从“我”的其他终端发送的消息
-                itemId = message.getTo();
-                target = g.app.queryContact(message.getTo());
-            }
-            else {
-                itemId = message.getFrom();
-                target = sender;
-            }
+            g.app.getContact(message.getFrom(), function(sender) {
+                // 获取到发件人
+                if (g.app.account.id == message.getFrom()) {
+                    // 从“我”的其他终端发送的消息
+                    g.app.getContact(message.getTo(), function(target) {
+                        // 更新消息面板
+                        g.app.messagePanel.appendMessage(target, sender, message);
+                        // 更新消息目录
+                        g.app.messageCatalog.updateItem(target.getId(), message, message.getLocalTimestamp());
+                    });
+                }
+                else {
+                    // 来自其他联系人或群组
+                    target = sender;
 
-            // 更新消息面板
-            g.app.messagePanel.appendMessage(target, sender, message);
-            // 更新消息目录
-            g.app.messageCatalog.updateItem(itemId, message, message.getLocalTimestamp());
+                    // 更新消息面板
+                    g.app.messagePanel.appendMessage(target, sender, message);
+                    // 更新消息目录
+                    g.app.messageCatalog.updateItem(target.getId(), message, message.getLocalTimestamp());
+                }
+            });
         }
     }
 

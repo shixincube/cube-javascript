@@ -345,23 +345,45 @@
 
         if (null != attachment) {
             var action = null;
+            var fileDesc = null;
 
             if (attachment.isImageType()) {
-                action = ['<a class="btn btn-xs btn-default" title="查看图片" href="javascript:dialog.showImage(\'',
+                /*action = ['<a class="btn btn-xs btn-default" title="查看图片" href="javascript:dialog.showImage(\'',
                                 attachment.getFileCode(), '\');">',
                     '<i class="fas fa-file-image"></i>',
-                '</a>'];
+                '</a>'];*/
+
+                action = ['javascript:dialog.showImage(\'', attachment.getFileCode(), '\');'];
+
+                fileDesc = ['<table class="file-label" border="0" cellspacing="4" cellpodding="0">',
+                    '<tr>',
+                        '<td>',
+                            '<img class="thumb" src="', attachment.getDefaultThumbURL(), '" onclick="', action.join(''), '" ',
+                                'alt="', attachment.getFileName(), '"', ' />',
+                        '</td>',
+                    '</tr>',
+                    /*
+                    '<tr>',
+                        //'<td rowspan="2">', attachment.isImageType() ? '<i class="fa fa-file-image file-icon"></i>' : '<i class="fa fa-file file-icon"></i>', '</td>',
+                        '<td rowspan="2">', attachment.isImageType() ? '<img class="thumb" src="' + attachment.getDefaultThumbURL() + '" />' : '<i class="fa fa-file file-icon"></i>', '</td>',
+                        '<td colspan="2" class="file-name">', attachment.getFileName(), '</td>',
+                    '</tr>',
+                    '<tr>',
+                        '<td class="file-size">', formatSize(attachment.getFileSize()), '</td>',
+                        '<td class="file-action">', action.join(''), '</td>',
+                    '</tr>',
+                    */
+                '</table>'];
             }
             else {
                 action = ['<a class="btn btn-xs btn-default" title="下载文件" href="javascript:dialog.downloadFile(\'',
                                 attachment.getFileCode(), '\');">',
                     '<i class="fas fa-download"></i>',
                 '</a>'];
-            }
 
-            var fileDesc = ['<table class="file-label" border="0" cellspacing="4" cellpodding="0">',
+                fileDesc = ['<table class="file-label" border="0" cellspacing="4" cellpodding="0">',
                     '<tr>',
-                        '<td rowspan="2">', attachment.isImageType() ? '<i class="fa fa-file-image file-icon"></i>' : '<i class="fa fa-file file-icon"></i>', '</td>',
+                        '<td rowspan="2">', '<i class="fa fa-file file-icon"></i>', '</td>',
                         '<td colspan="2" class="file-name">', attachment.getFileName(), '</td>',
                     '</tr>',
                     '<tr>',
@@ -369,6 +391,8 @@
                         '<td class="file-action">', action.join(''), '</td>',
                     '</tr>',
                 '</table>'];
+            }
+
             text = fileDesc.join('');
         }
 

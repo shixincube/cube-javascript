@@ -463,12 +463,11 @@ body {
 }
 
 .file-label {
-    background-color: #343a40;
+    background-color: #6c757d;
     color: #f1f1f1;
     margin: 4px 0px 4px 0px;
     border-radius: 0.3rem;
 }
-
 .file-label .file-icon {
     font-size: 40px;
     padding: 4px 8px 4px 6px;
@@ -490,6 +489,11 @@ body {
     height: 20px;
     width: 24px;
     padding: 0;
+}
+.file-label .thumb {
+    max-height: 120px;
+    border-radius: 0.3rem;
+    cursor: pointer;
 }
 
 .group-details-table {
