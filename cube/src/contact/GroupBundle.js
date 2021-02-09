@@ -74,6 +74,7 @@ export class GroupBundle {
         for (let i = 0; i < modified.length; ++i) {
             let json = modified[i];
             let contact = Contact.create(json, bundle.group.getDomain());
+            service.getAppendix(contact);
             bundle.modified.push(contact);
 
             if (contact.getId() == service.self.getId()) {
@@ -84,6 +85,7 @@ export class GroupBundle {
         // 读取操作员
         if (undefined !== json.operator) {
             bundle.operator = Contact.create(json.operator, bundle.group.getDomain());
+            service.getAppendix(bundle.operator);
         }
 
         return bundle;

@@ -43,6 +43,7 @@ export class ContactAppendix {
      */
     constructor(service, owner) {
         /**
+         * @private
          * @type {ContactService}
          */
         this.service = service;
@@ -54,9 +55,10 @@ export class ContactAppendix {
         this.owner = owner;
 
         /**
+         * @private
          * @type {string}
          */
-        this.remarkName = null;
+        this.remarkName = '';
     }
 
     /**

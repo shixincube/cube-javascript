@@ -262,6 +262,7 @@
             }
 
             g.app.messagePanel.changePanel(id, item);
+            g.app.messageCatalog.activeItem(id);
         }
 
         g.app.getGroup(id, function(group) {

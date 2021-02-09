@@ -412,6 +412,7 @@ body {
 }
 .messaging-sidebar .group-member-list .member-avatar {
     padding: 6px 6px;
+    user-select: none;
 }
 .messaging-sidebar .group-member-list .member-name {
     padding-left: 10px;

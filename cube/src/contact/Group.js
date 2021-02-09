@@ -347,6 +347,7 @@ export class Group extends Contact {
     static create(service, json, owner) {
         if (undefined === owner) {
             owner = new Contact.create(json.owner, json.domain);
+            service.getAppendix(owner);
         }
 
         let group = new Group(service, owner, json.id, json.name, json.domain);
@@ -358,6 +359,7 @@ export class Group extends Contact {
             for (let i = 0; i < json.members.length; ++i) {
                 let member = Contact.create(json.members[i], json.domain);
                 if (!group.hasMember(member)) {
+                    service.getAppendix(member);
                     group.memberList.push(member);
                 }
             }

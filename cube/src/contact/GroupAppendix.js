@@ -43,6 +43,7 @@ export class GroupAppendix {
      */
     constructor(service, owner) {
         /**
+         * @private
          * @type {ContactService}
          */
         this.service = service;
@@ -54,11 +55,13 @@ export class GroupAppendix {
         this.owner = owner;
 
         /**
+         * @private
          * @type {string}
          */
         this.remark = null;
 
         /**
+         * @private
          * @type {string}
          */
         this.notice = '';

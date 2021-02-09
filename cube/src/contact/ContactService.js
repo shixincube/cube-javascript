@@ -1562,8 +1562,8 @@ export class ContactService extends Module {
     /**
      * 获取指定联系人或群组的附录。
      * @param {Contact|Group} contactOrGroup 指定联系人或群组。
-     * @param {function} handleSuccess 成功回调，参数：({@linkcode appendix}:{@link ContactAppendix}|{@link GroupAppendix}) 。
-     * @param {function} handleFailure 失败回调，参数：({@linkcode error}:{@link ModuleError}) 。
+     * @param {function} [handleSuccess] 成功回调，参数：({@linkcode appendix}:{@link ContactAppendix}|{@link GroupAppendix}) 。
+     * @param {function} [handleFailure] 失败回调，参数：({@linkcode error}:{@link ModuleError}) 。
      */
     getAppendix(contactOrGroup, handleSuccess, handleFailure) {
         let requestData = null;
@@ -1573,7 +1573,9 @@ export class ContactService extends Module {
                 if (null == contactOrGroup.appendix) {
                     contactOrGroup.appendix = appendix;
                 }
-                handleSuccess(appendix);
+                if (handleSuccess) {
+                    handleSuccess(appendix);
+                }
                 return;
             }
 
@@ -1587,7 +1589,9 @@ export class ContactService extends Module {
                 if (null == contactOrGroup.appendix) {
                     contactOrGroup.appendix = appendix;
                 }
-                handleSuccess(appendix);
+                if (handleSuccess) {
+                    handleSuccess(appendix);
+                }
                 return;
             }
 
@@ -1636,7 +1640,9 @@ export class ContactService extends Module {
 
                 this.appendixMap.put(owner.getId(), contactAppendix);
 
-                handleSuccess(contactAppendix);
+                if (handleSuccess) {
+                    handleSuccess(contactAppendix);
+                }
             }
             else {
                 let owner = this.groups.get(data.owner.id);
@@ -1653,7 +1659,9 @@ export class ContactService extends Module {
 
                 this.appendixMap.put(owner.getId(), groupAppendix);
 
-                handleSuccess(groupAppendix);
+                if (handleSuccess) {
+                    handleSuccess(groupAppendix);
+                }
             }
         });
     }

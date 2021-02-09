@@ -276,6 +276,27 @@
     }
 
     /**
+     * 激活指定 ID 的目录项。
+     * @param {number} id 
+     */
+    MessageCatalogue.prototype.activeItem = function(id) {
+        if (null != this.lastItem) {
+            if (this.lastItem.id == id) {
+                // 同一个 item 元素
+                return;
+            }
+
+            this.lastItem.el.removeClass('catalog-active');
+        }
+
+        var current = this.getItem(id);
+
+        current.el.addClass('catalog-active');
+
+        this.lastItem = current;
+    }
+
+    /**
      * 点击目录项时回调。
      * @param {number} id 被点击的目录项 ID 。
      */
