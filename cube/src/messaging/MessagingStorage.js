@@ -26,15 +26,26 @@
 
 import cell from "@lib/cell-lib";
 import InDB from "indb";
+import { ModuleError } from "../core/error/ModuleError";
 import { Message } from "./Message";
 import { MessageState } from "./MessageState";
+import { MessagingService } from "./MessagingService";
 
 /**
  * 消息存储器。
  */
 export class MessagingStorage {
 
-    constructor() {
+    /**
+     * @param {MessagingService} service 消息服务。
+     */
+    constructor(service) {
+        /**
+         * 消息服务。
+         * @type {MessagingService}
+         */
+        this.service = service;
+
         /**
          * 存储器操作的域。
          * @type {string}
@@ -257,6 +268,12 @@ export class MessagingStorage {
                     continue;
                 }
 
+                let res = await this.service.fillMessage(message);
+                if (res instanceof ModuleError) {
+                    cell.Logger.e(MessagingService.NAME, res.toString());
+                }
+
+                // 有效的消息
                 messages.push(message);
             }
             handler(beginning, messages);
@@ -283,6 +300,12 @@ export class MessagingStorage {
             }
             value.domain = this.domain;
             let message = Message.create(value);
+
+            let res = await this.service.fillMessage(message);
+            if (res instanceof ModuleError) {
+                cell.Logger.e(MessagingService.NAME, res.toString());
+            }
+
             handler(message);
         })();
 
@@ -318,6 +341,12 @@ export class MessagingStorage {
                     continue;
                 }
 
+                let res = await this.service.fillMessage(message);
+                if (res instanceof ModuleError) {
+                    cell.Logger.e(MessagingService.NAME, res.toString());
+                }
+
+                // 记录有效消息
                 messages.push(message);
             }
             handler(contactId, beginning, messages);
@@ -352,6 +381,12 @@ export class MessagingStorage {
                     continue;
                 }
 
+                let res = await this.service.fillMessage(message);
+                if (res instanceof ModuleError) {
+                    cell.Logger.e(MessagingService.NAME, res.toString());
+                }
+
+                // 记录有效有消息
                 messages.push(message);
             }
             handler(groupId, beginning, messages);
@@ -372,6 +407,7 @@ export class MessagingStorage {
 
         (async ()=> {
             let result = null;
+
             await this.messageStore.iterate((cursor, next, stop) => {
                 var obj = cursor.value;
                 if ((obj.from == contactId || obj.to == contactId) && (obj.source == 0)
@@ -388,6 +424,13 @@ export class MessagingStorage {
                 writable: false,
                 direction: 'prev'
             });
+
+            if (null != result) {
+                let res = await this.service.fillMessage(result);
+                if (res instanceof ModuleError) {
+                    cell.Logger.e(MessagingService.NAME, res.toString());
+                }
+            }
 
             handler(result);
         })();
@@ -408,6 +451,7 @@ export class MessagingStorage {
 
         (async ()=> {
             let result = null;
+
             await this.messageStore.iterate((cursor, next, stop) => {
                 var obj = cursor.value;
                 if ((obj.source == groupId) && (obj.state == MessageState.Read || obj.state == MessageState.Sent)) {
@@ -423,6 +467,13 @@ export class MessagingStorage {
                 writable: false,
                 direction: 'prev'
             });
+
+            if (null != result) {
+                let res = await this.service.fillMessage(result);
+                if (res instanceof ModuleError) {
+                    cell.Logger.e(MessagingService.NAME, res.toString());
+                }
+            }
 
             handler(result);
         })();
@@ -458,6 +509,13 @@ export class MessagingStorage {
                 writable: false,
                 direction: 'prev'
             });
+
+            if (null != result) {
+                let res = await this.service.fillMessage(result);
+                if (res instanceof ModuleError) {
+                    cell.Logger.e(MessagingService.NAME, res.toString());
+                }
+            }
 
             handler(result);
         })();

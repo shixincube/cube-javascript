@@ -66,12 +66,14 @@
         var label = null;
         var desc = null;
         var badge = null;
+        var time = 0;
 
         if (value instanceof Group) {
             id = value.getId();
             label = value.getName();
             desc = ' ';
             badge = formatShortTime(value.getLastActiveTime());
+            time = value.getLastActiveTime();
         }
         else if (value instanceof Contact) {
             id = value.getId();
@@ -110,7 +112,7 @@
             label: label,
             desc: desc,
             badge: badge,
-            time: 0
+            time: time
         };
 
         this.items.push(item);

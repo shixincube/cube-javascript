@@ -87,38 +87,28 @@
         var count = 0;
 
         var handler = function(message) {
-            g.app.getContact(message.getFrom(), function(sender) {
-                // 判断自己是否是该消息的发件人
-                if (cube.messaging.isSender(message)) {
-                    g.app.getContact(message.getTo(), function(target) {
-                        // 添加到消息面板
-                        g.app.messagePanel.appendMessage(target, sender, message);
+            // 判断自己是否是该消息的发件人
+            if (cube.messaging.isSender(message)) {
+                g.app.messagePanel.appendMessage(message.getReceiver(), message.getSender(), message);
+            }
+            else {
+                g.app.messagePanel.appendMessage(message.getSender(), message.getSender(), message);
+            }
 
-                        --count;
-                        if (completed && count == 0) {
-                            completed();
-                        }
-                    });
-                }
-                else {
-                    g.app.getContact(message.getFrom(), function(target) {
-                        // 添加到消息面板
-                        g.app.messagePanel.appendMessage(target, sender, message);
-
-                        --count;
-                        if (completed && count == 0) {
-                            completed();
-                        }
-                    });
-                }
-            });
+            --count;
+            if (completed && count == 0) {
+                completed();
+            }
         }
 
         cube.messaging.queryMessageWithContact(contact, time, function(id, time, list) {
             count = list.length;
 
-            if (completed && count == 0) {
-                completed();
+            if (count == 0) {
+                // 没有消息
+                if (completed) {
+                    completed();
+                }
                 return;
             }
 
@@ -144,20 +134,29 @@
     MessagingController.prototype.updateGroupMessages = function(group, completed) {
         var time = Date.now() - window.AWeek;
         var count = 0;
-
-        // var announcer = new Announcer(cubeGroups.length, 10000);
-        // announcer.addAudience(function(total, map) {
-        //     g.app.messageCatalog.refreshOrder();
-        // });
+        var messageList = null;
+        var senderMap = new OrderMap();
 
         var handler = function(group, message) {
             g.app.getContact(message.getFrom(), function(sender) {
-                // 添加到消息面板
-                g.app.messagePanel.appendMessage(group, sender, message);
+                // 记录发件人
+                senderMap.put(message.getId(), sender);
 
                 --count;
-                if (completed && count == 0) {
-                    completed();
+                if (count == 0) {
+                    messageList.forEach(function(msg) {
+                        var sender = senderMap.get(msg.getId());
+                        // 添加到消息面板
+                        g.app.messagePanel.appendMessage(group, sender, msg);
+                    });
+
+                    messageList = null;
+                    senderMap.clear();
+                    senderMap = null;
+
+                    if (completed) {
+                        completed();
+                    }
                 }
             });
         }
@@ -165,10 +164,15 @@
         cube.messaging.queryMessageWithGroup(group, time, function(groupId, time, list) {
             count = list.length;
 
-            if (completed && count == 0) {
-                completed();
+            if (count == 0) {
+                // 没有数据
+                if (completed) {
+                    completed();
+                }
                 return;
             }
+
+            messageList = list;
 
             for (var i = 0; i < list.length; ++i) {
                 handler(group, list[i]);
@@ -181,8 +185,6 @@
                     break;
                 }
             }
-
-            // announcer.announce(group.getId().toString(), list);
         });
     }
 

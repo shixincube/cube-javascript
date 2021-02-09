@@ -348,11 +348,6 @@
             var fileDesc = null;
 
             if (attachment.isImageType()) {
-                /*action = ['<a class="btn btn-xs btn-default" title="查看图片" href="javascript:dialog.showImage(\'',
-                                attachment.getFileCode(), '\');">',
-                    '<i class="fas fa-file-image"></i>',
-                '</a>'];*/
-
                 action = ['javascript:dialog.showImage(\'', attachment.getFileCode(), '\');'];
 
                 fileDesc = ['<table class="file-label" border="0" cellspacing="4" cellpodding="0">',
@@ -362,17 +357,6 @@
                                 'alt="', attachment.getFileName(), '"', ' />',
                         '</td>',
                     '</tr>',
-                    /*
-                    '<tr>',
-                        //'<td rowspan="2">', attachment.isImageType() ? '<i class="fa fa-file-image file-icon"></i>' : '<i class="fa fa-file file-icon"></i>', '</td>',
-                        '<td rowspan="2">', attachment.isImageType() ? '<img class="thumb" src="' + attachment.getDefaultThumbURL() + '" />' : '<i class="fa fa-file file-icon"></i>', '</td>',
-                        '<td colspan="2" class="file-name">', attachment.getFileName(), '</td>',
-                    '</tr>',
-                    '<tr>',
-                        '<td class="file-size">', formatSize(attachment.getFileSize()), '</td>',
-                        '<td class="file-action">', action.join(''), '</td>',
-                    '</tr>',
-                    */
                 '</table>'];
             }
             else {

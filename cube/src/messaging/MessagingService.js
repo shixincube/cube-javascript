@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -114,7 +114,7 @@ export class MessagingService extends Module {
          * 消息存储器。
          * @type {MessagingStorage}
          */
-        this.storage = new MessagingStorage();
+        this.storage = new MessagingStorage(this);
 
         /**
          * 最近一条消息的时间。
@@ -318,20 +318,27 @@ export class MessagingService extends Module {
         msg.localTS = Date.now();
         msg.remoteTS = msg.localTS;
 
-        // 更新状态
-        let promise = new Promise((resolve, reject) => {
-            // 存储
-            this.storage.writeMessage(msg);
+        (async ()=> {
+            let result = await this.fillMessage(msg);
+            if (result instanceof ModuleError) {
+                cell.Logger.e(MessagingService.NAME, result.toString());
+            }
 
-            // 事件通知
-            this.notifyObservers(new ObservableEvent(MessagingEvent.Sending, msg));
-            resolve(msg);
-        });
-        promise.then((msg) => {
-            // 写入队列
-            this.pushQueue.push(msg);
-        });
-    
+            // 更新状态
+            let promise = new Promise((resolve, reject) => {
+                // 存储
+                this.storage.writeMessage(msg);
+
+                // 事件通知
+                this.notifyObservers(new ObservableEvent(MessagingEvent.Sending, msg));
+                resolve(msg);
+            });
+            promise.then((msg) => {
+                // 写入队列
+                this.pushQueue.push(msg);
+            });
+        })();
+
         return msg;
     }
 
@@ -377,19 +384,26 @@ export class MessagingService extends Module {
         msg.localTS = Date.now();
         msg.remoteTS = msg.localTS;
 
-        // 更新状态
-        let promise = new Promise((resolve, reject) => {
-            // 存储
-            this.storage.writeMessage(msg);
+        (async ()=> {
+            let result = await this.fillMessage(msg);
+            if (result instanceof ModuleError) {
+                cell.Logger.e(MessagingService.NAME, result.toString());
+            }
 
-            // 事件通知
-            this.notifyObservers(new ObservableEvent(MessagingEvent.Sending, msg));
-            resolve(msg);
-        });
-        promise.then((msg) => {
-            // 写入队列
-            this.pushQueue.push(msg);
-        });
+            // 更新状态
+            let promise = new Promise((resolve, reject) => {
+                // 存储
+                this.storage.writeMessage(msg);
+
+                // 事件通知
+                this.notifyObservers(new ObservableEvent(MessagingEvent.Sending, msg));
+                resolve(msg);
+            });
+            promise.then((msg) => {
+                // 写入队列
+                this.pushQueue.push(msg);
+            });
+        })();
 
         return msg;
     }
@@ -885,6 +899,75 @@ export class MessagingService extends Module {
     }
 
     /**
+     * 补充填写消息关于 Contact 和 Group 的对象。
+     * @private
+     * @param {Message} message 
+     * @returns {Promise}
+     */
+    fillMessage(message) {
+        return new Promise((resolve, reject) => {
+            let gotSender = false;
+            let gotReceiver = false;
+            let gotSource = false;
+
+            if (message.isFromGroup()) {
+                this.contactService.getContact(message.getFrom(), (contact) => {
+                    message.sender = contact;
+                    gotSender = true;
+                    if (gotSource) {
+                        resolve(message);
+                    }
+                }, (error) => {
+                    gotSender = true;
+                    if (gotSource) {
+                        reject(error);
+                    }
+                });
+
+                this.contactService.getGroup(message.getSource(), (group) => {
+                    message.sourecGroup = group;
+                    gotSource = true;
+                    if (gotSender) {
+                        resolve(message);
+                    }
+                }, (error) => {
+                    gotSource = true;
+                    if (gotSender) {
+                        reject(error);
+                    }
+                });
+            }
+            else {
+                this.contactService.getContact(message.getFrom(), (contact) => {
+                    message.sender = contact;
+                    gotSender = true;
+                    if (gotReceiver) {
+                        resolve(message);
+                    }
+                }, (error) => {
+                    gotSender = true;
+                    if (gotReceiver) {
+                        reject(error);
+                    }
+                });
+
+                this.contactService.getContact(message.getTo(), (contact) => {
+                    message.receiver = contact;
+                    gotReceiver = true;
+                    if (gotSender) {
+                        resolve(message);
+                    }
+                }, (error) => {
+                    gotReceiver = true;
+                    if (gotSender) {
+                        reject(error);
+                    }
+                });
+            }
+        });
+    }
+
+    /**
      * 触发观察者 Notify 回调。
      * @private
      * @param {JSON|Message} payload 
@@ -894,41 +977,48 @@ export class MessagingService extends Module {
         let data = (undefined === payload.code && undefined === payload.data) ? payload : payload.data;
         let message = Message.create(data);
 
-        message.state = MessageState.Sent;
-
-        // 使用服务器的时间戳设置为最新消息时间
-        this.refreshLastMessageTime(message.getRemoteTimestamp());
-
-        let promise = new Promise((resolve, reject) => {
-            // 如果是群组消息，更新群组的活跃时间
-            if (message.getSource() > 0) {
-                this.contactService.updateGroupActiveTime(message.getSource(), message.getRemoteTimestamp());
+        (async ()=> {
+            let result = await this.fillMessage(message);
+            if (result instanceof ModuleError) {
+                cell.Logger.e(MessagingService.NAME, result.toString());
             }
 
-            // 判断是否存在该消息
-            this.storage.containsMessage(message, (message, contained) => {
-                // 写消息
-                this.storage.writeMessage(message);
-                resolve(contained);
-            });
-        });
-        promise.then((contained) => {
-            // 对于已经在数据库里的消息不回调 Notify 事件
-            if (!contained) {
-                // 标注 Token
-                if (null != message.attachment) {
-                    message.attachment.token = this.getAuthToken().code;
+            message.state = MessageState.Sent;
+
+            // 使用服务器的时间戳设置为最新消息时间
+            this.refreshLastMessageTime(message.getRemoteTimestamp());
+
+            let promise = new Promise((resolve, reject) => {
+                // 如果是群组消息，更新群组的活跃时间
+                if (message.getSource() > 0) {
+                    this.contactService.updateGroupActiveTime(message.getSource(), message.getRemoteTimestamp());
                 }
 
-                // 获取事件钩子
-                let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
-                // 调用插件处理
-                message = hook.apply(message);
+                // 判断是否存在该消息
+                this.storage.containsMessage(message, (message, contained) => {
+                    // 写消息
+                    this.storage.writeMessage(message);
+                    resolve(contained);
+                });
+            });
+            promise.then((contained) => {
+                // 对于已经在数据库里的消息不回调 Notify 事件
+                if (!contained) {
+                    // 标注 Token
+                    if (null != message.attachment) {
+                        message.attachment.token = this.getAuthToken().code;
+                    }
 
-                // 回调事件
-                this.notifyObservers(new ObservableEvent(MessagingEvent.Notify, message));
-            }
-        });
+                    // 获取事件钩子
+                    let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+                    // 调用插件处理
+                    message = hook.apply(message);
+
+                    // 回调事件
+                    this.notifyObservers(new ObservableEvent(MessagingEvent.Notify, message));
+                }
+            });
+        })();
     }
 
     /**
@@ -966,27 +1056,33 @@ export class MessagingService extends Module {
         }
 
         let message = Message.create(payload.data);
+        (async ()=> {
+            let result = await this.fillMessage(message);
+            if (result instanceof ModuleError) {
+                cell.Logger.e(MessagingService.NAME, result.toString());
+            }
 
-        if (message.getFrom() == this.contactService.getSelf().getId()) {
-            this.storage.readMessageById(message.getId(), (message) => {
-                if (null != message) {
-                    message.state = MessageState.Read;
-                    this.storage.updateMessage(message);
-
-                    // 标注 Token
-                    if (null != message.attachment) {
-                        message.attachment.token = this.getAuthToken().code;
+            if (message.getFrom() == this.contactService.getSelf().getId()) {
+                this.storage.readMessageById(message.getId(), (message) => {
+                    if (null != message) {
+                        message.state = MessageState.Read;
+                        this.storage.updateMessage(message);
+    
+                        // 标注 Token
+                        if (null != message.attachment) {
+                            message.attachment.token = this.getAuthToken().code;
+                        }
+    
+                        // 使用插件
+                        let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+                        message = hook.apply(message);
+    
+                        // 事件通知
+                        this.notifyObservers(new ObservableEvent(MessagingEvent.Read, message));
                     }
-
-                    // 使用插件
-                    let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
-                    message = hook.apply(message);
-
-                    // 事件通知
-                    this.notifyObservers(new ObservableEvent(MessagingEvent.Read, message));
-                }
-            });
-        }
+                });
+            }
+        })();
     }
 
     /**
@@ -1001,22 +1097,28 @@ export class MessagingService extends Module {
         }
 
         let message = Message.create(payload.data);
+        (async ()=> {
+            let result = await this.fillMessage(message);
+            if (result instanceof ModuleError) {
+                cell.Logger.e(MessagingService.NAME, result.toString());
+            }
 
-        // 更新消息内容
-        this.storage.updateMessage(message);
+            // 更新消息内容
+            this.storage.updateMessage(message);
 
-        cell.Logger.d('MessagingService', 'Recall message: ' + message.getId());
+            cell.Logger.d('MessagingService', 'Recall message: ' + message.getId());
 
-        // 标注 Token
-        if (null != message.attachment) {
-            message.attachment.token = this.getAuthToken().code;
-        }
+            // 标注 Token
+            if (null != message.attachment) {
+                message.attachment.token = this.getAuthToken().code;
+            }
 
-        // 使用插件
-        let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
-        message = hook.apply(message);
+            // 使用插件
+            let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+            message = hook.apply(message);
 
-        this.notifyObservers(new ObservableEvent(MessagingEvent.Recall, message));
+            this.notifyObservers(new ObservableEvent(MessagingEvent.Recall, message));
+        })();
     }
 
     /**
@@ -1151,6 +1253,12 @@ export class MessagingService extends Module {
 
                 // 收到的应答消息
                 let respMessage = Message.create(responsePacket.data.data);
+                (async ()=> {
+                    let result = await this.fillMessage(respMessage);
+                    if (result instanceof ModuleError) {
+                        cell.Logger.e(MessagingService.NAME, result.toString());
+                    }
+                })();
 
                 // 从正在发送队列移除
                 this.sendingMap.remove(respMessage.id);

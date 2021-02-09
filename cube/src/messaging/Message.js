@@ -29,6 +29,8 @@ import { Entity } from "../core/Entity";
 import { MessageState } from "./MessageState";
 import { AuthService } from "../auth/AuthService";
 import { FileAttachment } from "../filestorage/FileAttachment";
+import { Contact } from "../contact/Contact";
+import { Group } from "../contact/Group";
 
 /**
  * 消息实体。
@@ -83,16 +85,34 @@ export class Message extends Entity {
         this.from = cloning ? payload.from : 0;
 
         /**
+         * 消息发件人。
+         * @type {Contact}
+         */
+        this.sender = cloning ? payload.sender : null;
+
+        /**
          * 消息接收方 ID 。
          * @type {number}
          */
         this.to = cloning ? payload.to : 0;
 
         /**
+         * 消息收件人。
+         * @type {Contact}
+         */
+        this.receiver = cloning ? payload.receiver : null;
+
+        /**
          * 消息的收发源。该属性表示消息在一个广播域里的域标识或者域 ID 。
          * @type {number}
          */
         this.source = cloning ? payload.source : 0;
+
+        /**
+         * 消息的收发群组。
+         * @type {Group}
+         */
+        this.sourecGroup = cloning ? payload.sourecGroup : null;
 
         /**
          * 消息持有者 ID 。
@@ -153,6 +173,14 @@ export class Message extends Entity {
     }
 
     /**
+     * 获取消息的发件人。
+     * @returns {Contact} 返回消息发件人对象实例。
+     */
+    getSender() {
+        return this.sender;
+    }
+
+    /**
      * 获取消息接收方的 ID 。
      * @returns {number} 返回消息接收方的 ID 。
      */
@@ -161,11 +189,27 @@ export class Message extends Entity {
     }
 
     /**
+     * 获取消息的收件人。
+     * @returns {Contact} 返回消息的收件人对象实例。
+     */
+    getReceiver() {
+        return this.receiver;
+    }
+
+    /**
      * 获取消息的收发源。该属性表示消息在一个广播域里的域标识或者域 ID 。
      * @returns {number}
      */
     getSource() {
         return this.source;
+    }
+
+    /**
+     * 获取消息的收发来源群组。
+     * @returns {Group} 返回消息的收发来源的群组对象实例。
+     */
+    getSourceGroup() {
+        return this.sourecGroup;
     }
 
     /**
