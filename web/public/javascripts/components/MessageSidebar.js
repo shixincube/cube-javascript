@@ -139,9 +139,7 @@
                 var html = [
                     '<div class="group-member-cell" ondblclick="javascript:app.messagingCtrl.toggle(', contact.getId(), ');">',
                         '<div class="member-avatar"><img class="img-size-32 img-round-rect" src="', contact.getContext().avatar, '" /></div>',
-                        '<div class="member-name">',
-                            contact.getAppendix().hasRemarkName() ? contact.getAppendix().getRemarkName() : contact.getName(),
-                        '</div>',
+                        '<div class="member-name">', contact.getPriorityName(), '</div>',
                     '</div>'
                 ];
                 memberListEl.append($(html.join('')));

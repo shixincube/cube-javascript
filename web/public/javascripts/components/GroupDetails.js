@@ -229,7 +229,7 @@
                 '<tr>',
                     '<td>', (i + 1), '</td>',
                     '<td><img class="table-avatar" src="', contact.getContext().avatar, '" /></td>',
-                    '<td>', contact.getName(), '</td>',
+                    '<td>', contact.getPriorityName(), '</td>',
                     '<td>', contact.getId(), '</td>',
                     '<td>', contact.getContext().region, '</td>',
                     '<td>', contact.getContext().department, '</td>',

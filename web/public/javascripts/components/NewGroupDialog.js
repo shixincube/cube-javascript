@@ -86,7 +86,7 @@
             var contact = contacts[i];
             var id = contact.getId();
             var avatar = contact.getContext().avatar;
-            var name = contact.getName();
+            var name = contact.getPriorityName();
 
             var html = [
                 '<div class="col-6"><div class="form-group"><div class="custom-control custom-checkbox select-group-member">',

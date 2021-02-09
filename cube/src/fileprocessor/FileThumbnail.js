@@ -110,6 +110,30 @@ export class FileThumbnail extends Entity {
     }
 
     /**
+     * {@inheritdoc}
+     */
+    toJSON() {
+        let json = super.toJSON();
+        json.id = this.id;
+        json.domain = this.domain;
+        json.fileLabel = this.fileLabel.toJSON();
+        json.width = this.width;
+        json.height = this.height;
+        json.sourceFileCode = this.sourceFileCode;
+        json.sourceWidth = this.sourceWidth;
+        json.sourceHeight = this.sourceHeight;
+        json.quality = this.quality;
+        return json;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    toCompactJSON() {
+        return this.toJSON();
+    }
+
+    /**
      * 从 JSON 数据创建 {@link FileThumbnail} 对象。
      * @private
      * @param {JSON} json 符合格式的 JSON 数据。

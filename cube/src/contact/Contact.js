@@ -117,6 +117,24 @@ export class Contact extends Entity {
     }
 
     /**
+     * 获取联系人优先显示的名称。
+     * @returns {string} 返回联系人优先显示的名称。
+     */
+    getPriorityName() {
+        if (null != this.appendix) {
+            if (this.appendix.hasRemarkName()) {
+                return this.appendix.getRemarkName();
+            }
+            else {
+                return this.name;
+            }
+        }
+        else {
+            return this.name;
+        }
+    }
+
+    /**
      * 添加联系人使用的设备。
      * @param {Device} device 设备描述。
      */

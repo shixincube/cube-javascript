@@ -213,6 +213,9 @@
             else if (desc instanceof TextMessage) {
                 el.find('.product-description').text(desc.getText());
             }
+            else if (desc instanceof ImageMessage) {
+                el.find('.product-description').text('[图片] ' + desc.getFileName());
+            }
             else if (desc instanceof FileMessage) {
                 var msg = desc;
                 if (msg.hasAttachment()) {
