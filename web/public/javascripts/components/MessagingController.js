@@ -112,14 +112,23 @@
                 return;
             }
 
+            var unreadCount = 0;
             for (var i = 0; i < list.length; ++i) {
-                handler(list[i]);
+                var message = list[i];
+                handler(message);
+
+                if (!message.isRead()) {
+                    ++unreadCount;
+                }
             }
 
             for (var i = list.length - 1; i >= 0; --i) {
                 var last = list[i];
                 // 更新目录项
                 if (g.app.messageCatalog.updateItem(id, last, last.getRemoteTimestamp())) {
+                    if (unreadCount > 0) {
+                        g.app.messageCatalog.updateBadge(id, unreadCount);
+                    }
                     break;
                 }
             }
@@ -174,14 +183,23 @@
 
             messageList = list;
 
+            var unreadCount = 0;
             for (var i = 0; i < list.length; ++i) {
-                handler(group, list[i]);
+                var message = list[i];
+                handler(group, message);
+
+                if (!message.isRead()) {
+                    ++unreadCount;
+                }
             }
 
             for (var i = list.length - 1; i >= 0; --i) {
                 var last = list[i];
                 // 更新目录项
                 if (g.app.messageCatalog.updateItem(groupId, last, last.getRemoteTimestamp())) {
+                    if (unreadCount > 0) {
+                        g.app.messageCatalog.updateBadge(groupId, unreadCount);
+                    }
                     break;
                 }
             }
@@ -265,6 +283,7 @@
 
             g.app.messagePanel.changePanel(id, item);
             g.app.messageCatalog.activeItem(id);
+            g.app.messageCatalog.updateBadge(id, 0);
         }
 
         g.app.getGroup(id, function(group) {
@@ -395,7 +414,7 @@
                 }
                 else {
                     // 来自其他联系人或群组
-                    target = sender;
+                    var target = sender;
 
                     // 更新消息面板
                     g.app.messagePanel.appendMessage(target, sender, message);

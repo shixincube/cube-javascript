@@ -321,9 +321,18 @@ body {
     height: calc(100vh - 124px);
     border-radius: 0%;
 }
-
 .messaging-catalog .catalog {
     padding: 0rem;
+}
+.messaging-catalog .catalog .unread-badge {
+    position: absolute;
+    float: right;
+    left: 45px;
+    margin-top: -5px;
+    font-size: 11px;
+}
+.catalog .products-list .product-info {
+    margin-left: 65px;
 }
 
 .messaging-content {

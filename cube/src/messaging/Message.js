@@ -254,6 +254,18 @@ export class Message extends Entity {
     }
 
     /**
+     * 消息是否是已读状态。
+     * @returns {boolean} 如果消息是已读状态返回 {@linkcode true} 。
+     */
+    isRead() {
+        if (this.owner == 0 || this.from == this.owner) {
+            return true;
+        }
+
+        return (this.state == MessageState.Read);
+    }
+
+    /**
      * 设置文件附件。
      * @param {File} file 
      */

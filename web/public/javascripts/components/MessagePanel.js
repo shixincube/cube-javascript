@@ -220,6 +220,10 @@
         // 滚动条控制
         var offset = parseInt(this.elContent.prop('scrollHeight'));
         this.elContent.scrollTop(offset);
+
+        panel.messageIds.forEach(function(messageId) {
+            window.cube().messaging.markRead(messageId);
+        });
     }
 
     /**

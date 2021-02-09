@@ -65,14 +65,14 @@
         var thumb = 'images/group-avatar.png';
         var label = null;
         var desc = null;
-        var badge = null;
+        var timeBadge = null;
         var time = 0;
 
         if (value instanceof Group) {
             id = value.getId();
             label = value.getName();
             desc = ' ';
-            badge = formatShortTime(value.getLastActiveTime());
+            timeBadge = formatShortTime(value.getLastActiveTime());
             time = value.getLastActiveTime();
         }
         else if (value instanceof Contact) {
@@ -85,14 +85,14 @@
                 label = value.getContext().name;
             }
             desc = ' ';
-            badge = '';
+            timeBadge = '';
         }
         else if (typeof value === 'object') {
             id = value.id;
             thumb = value.avatar;
             label = value.name;
             desc = ' ';
-            badge = '';
+            timeBadge = '';
         }
 
         if (undefined == label || null == label) {
@@ -111,7 +111,7 @@
             thumb: thumb,
             label: label,
             desc: desc,
-            badge: badge,
+            timeBadge: timeBadge,
             time: time
         };
 
@@ -119,11 +119,12 @@
 
         var html = [
             '<li id="mc_item_', index, '" class="item pl-2 pr-2" data="', id, '">',
-                '<div class="product-img"><img class="img-size-50 img-round-rect" src="', thumb ,'"/></div>',
+                '<div class="product-img"><img class="img-size-50 img-round-rect" src="', thumb ,'"/>',
+                    '<span class="badge badge-danger unread-badge"></span>', '</div>',
                 '<div class="product-info ellipsis">',
                     '<span class="product-title ellipsis">',
                         '<span class="title">', label, '</span>',
-                        '<span class="badge badge-light float-right">', badge, '</span>',
+                        '<span class="badge badge-light float-right last-time">', timeBadge, '</span>',
                     '</span>',
                     '<span class="product-description">', desc, '</span>',
                 '</div>',
@@ -247,7 +248,7 @@
         if (null != time) {
             item.time = time;
 
-            el.find('.badge').text(formatShortTime(time));
+            el.find('.last-time').text(formatShortTime(time));
         }
 
         if (label) {
@@ -262,6 +263,20 @@
         this.bindEvent(el);
 
         return true;
+    }
+
+    MessageCatalogue.prototype.updateBadge = function(id, badge) {
+        var item = this.getItem(id);
+        if (null == item) {
+            return;
+        }
+
+        if (0 == badge) {
+            item.el.find('.unread-badge').text('');
+        }
+        else {
+            item.el.find('.unread-badge').text(badge);
+        }
     }
 
     /**
