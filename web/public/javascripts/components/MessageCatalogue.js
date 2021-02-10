@@ -275,7 +275,12 @@
             item.el.find('.unread-badge').text('');
         }
         else {
-            item.el.find('.unread-badge').text(badge);
+            if (badge > 99) {
+                item.el.find('.unread-badge').text('99+');
+            }
+            else {
+                item.el.find('.unread-badge').text(badge);
+            }
         }
     }
 
