@@ -27,6 +27,8 @@
 import { ModuleError } from "../core/error/ModuleError";
 import { Packet } from "../core/Packet";
 import { StateCode } from "../core/StateCode";
+import { OrderMap } from "../util/OrderMap";
+import { Contact } from "./Contact";
 import { ContactAction } from "./ContactAction";
 import { ContactService } from "./ContactService";
 import { ContactServiceState } from "./ContactServiceState";
@@ -55,16 +57,24 @@ export class GroupAppendix {
         this.owner = owner;
 
         /**
+         * 当前联系人对该群的备注。
          * @private
          * @type {string}
          */
         this.remark = null;
 
         /**
+         * 群组的公告。
          * @private
          * @type {string}
          */
         this.notice = '';
+
+        /**
+         * @private
+         * @type {OrderMap}
+         */
+        this.memberRemarkMap = new OrderMap();
     }
 
     /**
@@ -94,6 +104,16 @@ export class GroupAppendix {
      */
     getNotice() {
         return this.notice;
+    }
+
+    /**
+     * 仅用于维护本地数据。
+     * @private
+     * @param {Contact} member 
+     * @param {string} remark 
+     */
+    setMemberRemark(member, remark) {
+        
     }
 
     /**

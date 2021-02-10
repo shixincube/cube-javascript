@@ -456,8 +456,8 @@
         }
 
         var html = ['<div id="', id, '" class="direct-chat-msg ', right, '"><div class="direct-chat-infos clearfix">',
-            '<span class="direct-chat-name ', nfloat, '">',
-                sender.getName(),
+            '<span class="direct-chat-name ', nfloat, panel.groupable ? '' : ' no-display', '">',
+                sender.getPriorityName(),
             '</span><span class="direct-chat-timestamp ', tfloat, '">',
                 formatFullTime(time),
             '</span></div>',

@@ -276,6 +276,10 @@
      * @param {number} id 切换消息面板的目标 ID 。
      */
     MessagingController.prototype.toggle = function(id) {
+        if (id == g.app.account.id) {
+            return;
+        }
+
         var handle = function(item) {
             if (null == item) {
                 return;
