@@ -340,7 +340,6 @@ body {
     margin-bottom: 0rem;
     height: calc(100vh - 124px);
 }
-
 .messaging-content textarea {
     resize: none;
     font-size: 14px;
@@ -352,7 +351,6 @@ body {
 .messaging-content .input-group .btn-default {
     font-size: 14px;
 }
-
 .messaging-content .week-day {
     font-size: 12px;
 }
@@ -505,21 +503,29 @@ body {
     border-radius: 0.3rem;
 }
 .file-label .file-icon {
-    font-size: 40px;
-    padding: 4px 8px 4px 6px;
+    margin: 4px;
+    border-top-left-radius: 0.3rem;
+    border-bottom-left-radius: 0.3rem;
+    /*font-size: 40px;
+    padding: 4px 8px 4px 6px;*/
 }
 .file-label .file-name {
+    font-size: 14px;
+    padding-left: 8px;
     padding-right: 10px;
+    vertical-align: bottom;
 }
 .file-label .file-size {
     font-size: 12px;
+    color: #6c757d;
     vertical-align: middle;
+    padding-left: 8px;
     padding-right: 10px;
 }
 .file-label .file-action {
     padding-left: 20px;
     padding-right: 12px;
-    vertical-align: top;
+    vertical-align: middle;
 }
 .file-label .file-action .btn {
     height: 20px;

@@ -29,6 +29,54 @@
 
     var that = null;
 
+    function matchFileIcon(type) {
+        if (type == 'png' || type == 'jpeg' || type == 'gif' || type == 'jpg' || type == 'bmp') {
+            return '<i class="file-icon ci-wide ci-file-image-wide"></i>';
+        }
+        else if (type == 'xls' || type == 'xlsx') {
+            return '<i class="file-icon ci-wide ci-file-excel-wide"></i>';
+        }
+        else if (type == 'ppt' || type == 'pptx') {
+            return '<i class="file-icon ci-wide ci-file-powerpoint-wide"></i>';
+        }
+        else if (type == 'doc' || type == 'docx') {
+            return '<i class="file-icon ci-wide ci-file-word-wide"></i>';
+        }
+        else if (type == 'mp3' || type == 'ogg' || type == 'wav') {
+            return '<i class="file-icon ci-wide ci-file-music-wide"></i>';
+        }
+        else if (type == 'pdf') {
+            return '<i class="file-icon ci-wide ci-file-pdf-wide"></i>';
+        }
+        else if (type == 'rar') {
+            return '<i class="file-icon ci-wide ci-file-rar-wide"></i>';
+        }
+        else if (type == 'zip' || type == 'gz') {
+            return '<i class="file-icon ci-wide ci-file-zip-wide"></i>';
+        }
+        else if (type == 'txt' || type == 'log') {
+            return '<i class="file-icon ci-wide ci-file-text-wide"></i>';
+        }
+        else if (type == 'mp4' || type == 'mkv' || type == 'avi' || type == 'ts') {
+            return '<i class="file-icon ci-wide ci-file-video-wide"></i>';
+        }
+        else if (type == 'psd') {
+            return '<i class="file-icon ci-wide ci-file-psd-wide"></i>';
+        }
+        else if (type == 'exe' || type == 'dll') {
+            return '<i class="file-icon ci-wide ci-file-windows-wide"></i>';
+        }
+        else if (type == 'apk') {
+            return '<i class="file-icon ci-wide ci-file-apk-wide"></i>';
+        }
+        else if (type == 'dmg') {
+            return '<i class="file-icon ci-wide ci-file-dmg-wide"></i>';
+        }
+        else {
+            return '<i class="file-icon ci-wide ci-file-unknown-wide"></i>';
+        }
+    }
+
     /**
      * 消息操作主面板。
      * @param {jQuery} el 界面元素。
@@ -394,7 +442,7 @@
 
                 fileDesc = ['<table class="file-label" border="0" cellspacing="4" cellpodding="0">',
                     '<tr>',
-                        '<td rowspan="2">', '<i class="fa fa-file file-icon"></i>', '</td>',
+                        '<td rowspan="2" valign="middle" align="center">', matchFileIcon(attachment.getFileType()), '</td>',
                         '<td colspan="2" class="file-name">', attachment.getFileName(), '</td>',
                     '</tr>',
                     '<tr>',

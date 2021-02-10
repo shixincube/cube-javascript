@@ -153,6 +153,9 @@
         else if (type == 'psd') {
             return '<i class="ci ci-file-psd"></i>';
         }
+        else if (type == 'exe' || type == 'dll') {
+            return '<i class="ci ci-file-windows"></i>';
+        }
         else if (type == 'apk') {
             return '<i class="ci ci-file-apk"></i>';
         }

@@ -32,6 +32,10 @@
     display: inline-block;
     line-height: 1;
 }
+.ci-wide {
+    display: block;
+    line-height: 1;
+}
 
 .ci-btn {
     margin-top: 4px;
@@ -142,11 +146,35 @@
     background: url(../images/icon/file-image@2x.png) no-repeat center;
     background-size: 20px 20px;
 }
+.ci-file-image-wide {
+    width: 120px;
+    height: 68px;
+    background: url(../images/icon/file-image-wide@2x.png) no-repeat center;
+    background-size: auto 70px;
+}
+.ci-file-windows {
+    width: 20px;
+    height: 20px;
+    background: url(../images/icon/file-windows@2x.png) no-repeat center;
+    background-size: 20px 20px;
+}
+.ci-file-windows-wide {
+    width: 120px;
+    height: 68px;
+    background: url(../images/icon/file-windows-wide@2x.png) no-repeat center;
+    background-size: auto 70px;
+}
 .ci-file-apk {
     width: 20px;
     height: 20px;
     background: url(../images/icon/file-apk@2x.png) no-repeat center;
     background-size: 20px 20px;
+}
+.ci-file-apk-wide {
+    width: 120px;
+    height: 68px;
+    background: url(../images/icon/file-apk-wide@2x.png) no-repeat center;
+    background-size: auto 70px;
 }
 .ci-file-dmg {
     width: 20px;
@@ -154,58 +182,16 @@
     background: url(../images/icon/file-dmg@2x.png) no-repeat center;
     background-size: 20px 20px;
 }
+.ci-file-dmg-wide {
+    width: 120px;
+    height: 68px;
+    background: url(../images/icon/file-dmg-wide@2x.png) no-repeat center;
+    background-size: auto 70px;
+}
 .ci-file-ipa {
     width: 20px;
     height: 20px;
     background: url(../images/icon/file-ipa@2x.png) no-repeat center;
-    background-size: 20px 20px;
-}
-.ci-file-excel {
-    width: 20px;
-    height: 20px;
-    background: url(../images/icon/file-excel@2x.png) no-repeat center;
-    background-size: 20px 20px;
-}
-.ci-file-powerpoint {
-    width: 20px;
-    height: 20px;
-    background: url(../images/icon/file-powerpoint@2x.png) no-repeat center;
-    background-size: 20px 20px;
-}
-.ci-file-music {
-    width: 20px;
-    height: 20px;
-    background: url(../images/icon/file-music@2x.png) no-repeat center;
-    background-size: 20px 20px;
-}
-.ci-file-pdf {
-    width: 20px;
-    height: 20px;
-    background: url(../images/icon/file-pdf@2x.png) no-repeat center;
-    background-size: 20px 20px;
-}
-.ci-file-psd {
-    width: 20px;
-    height: 20px;
-    background: url(../images/icon/file-psd@2x.png) no-repeat center;
-    background-size: 20px 20px;
-}
-.ci-file-rar {
-    width: 20px;
-    height: 20px;
-    background: url(../images/icon/file-rar@2x.png) no-repeat center;
-    background-size: 20px 20px;
-}
-.ci-file-text {
-    width: 20px;
-    height: 20px;
-    background: url(../images/icon/file-text@2x.png) no-repeat center;
-    background-size: 20px 20px;
-}
-.ci-file-video {
-    width: 20px;
-    height: 20px;
-    background: url(../images/icon/file-video@2x.png) no-repeat center;
     background-size: 20px 20px;
 }
 .ci-file-word {
@@ -214,17 +200,131 @@
     background: url(../images/icon/file-word@2x.png) no-repeat center;
     background-size: 20px 20px;
 }
+.ci-file-word-wide {
+    width: 120px;
+    height: 68px;
+    background: url(../images/icon/file-word-wide@2x.png) no-repeat center;
+    background-size: auto 70px;
+}
+.ci-file-excel {
+    width: 20px;
+    height: 20px;
+    background: url(../images/icon/file-excel@2x.png) no-repeat center;
+    background-size: 20px 20px;
+}
+.ci-file-excel-wide {
+    width: 120px;
+    height: 68px;
+    background: url(../images/icon/file-excel-wide@2x.png) no-repeat center;
+    background-size: auto 70px;
+}
+.ci-file-powerpoint {
+    width: 20px;
+    height: 20px;
+    background: url(../images/icon/file-powerpoint@2x.png) no-repeat center;
+    background-size: 20px 20px;
+}
+.ci-file-powerpoint-wide {
+    width: 120px;
+    height: 68px;
+    background: url(../images/icon/file-powerpoint-wide@2x.png) no-repeat center;
+    background-size: auto 70px;
+}
+.ci-file-music {
+    width: 20px;
+    height: 20px;
+    background: url(../images/icon/file-music@2x.png) no-repeat center;
+    background-size: 20px 20px;
+}
+.ci-file-music-wide {
+    width: 120px;
+    height: 68px;
+    background: url(../images/icon/file-music-wide@2x@2x.png) no-repeat center;
+    background-size: auto 70px;
+}
+.ci-file-pdf {
+    width: 20px;
+    height: 20px;
+    background: url(../images/icon/file-pdf@2x.png) no-repeat center;
+    background-size: 20px 20px;
+}
+.ci-file-pdf-wide {
+    width: 120px;
+    height: 68px;
+    background: url(../images/icon/file-pdf-wide@2x.png) no-repeat center;
+    background-size: auto 70px;
+}
+.ci-file-psd {
+    width: 20px;
+    height: 20px;
+    background: url(../images/icon/file-psd@2x.png) no-repeat center;
+    background-size: 20px 20px;
+}
+.ci-file-psd-wide {
+    width: 120px;
+    height: 68px;
+    background: url(../images/icon/file-psd-wide@2x.png) no-repeat center;
+    background-size: auto 70px;
+}
+.ci-file-rar {
+    width: 20px;
+    height: 20px;
+    background: url(../images/icon/file-rar@2x.png) no-repeat center;
+    background-size: 20px 20px;
+}
+.ci-file-rar-wide {
+    width: 120px;
+    height: 68px;
+    background: url(../images/icon/file-rar-wide@2x.png) no-repeat center;
+    background-size: auto 70px;
+}
+.ci-file-text {
+    width: 20px;
+    height: 20px;
+    background: url(../images/icon/file-text@2x.png) no-repeat center;
+    background-size: 20px 20px;
+}
+.ci-file-text-wide {
+    width: 120px;
+    height: 68px;
+    background: url(../images/icon/file-text-wide@2x.png) no-repeat center;
+    background-size: auto 70px;
+}
+.ci-file-video {
+    width: 20px;
+    height: 20px;
+    background: url(../images/icon/file-video@2x.png) no-repeat center;
+    background-size: 20px 20px;
+}
+.ci-file-video-wide {
+    width: 120px;
+    height: 68px;
+    background: url(../images/icon/file-video-wide@2x.png) no-repeat center;
+    background-size: auto 70px;
+}
 .ci-file-zip {
     width: 20px;
     height: 20px;
     background: url(../images/icon/file-zip@2x.png) no-repeat center;
     background-size: 20px 20px;
 }
+.ci-file-zip-wide {
+    width: 120px;
+    height: 68px;
+    background: url(../images/icon/file-zip-wide@2x.png) no-repeat center;
+    background-size: auto 70px;
+}
 .ci-file-unknown {
     width: 20px;
     height: 20px;
     background: url(../images/icon/file-unknown@2x.png) no-repeat center;
     background-size: 20px 20px;
+}
+.ci-file-unknown-wide {
+    width: 120px;
+    height: 68px;
+    background: url(../images/icon/file-unknown-wide@2x.png) no-repeat center;
+    background-size: auto 70px;
 }
 .ci-fa-file {
     font-size: 20px;
