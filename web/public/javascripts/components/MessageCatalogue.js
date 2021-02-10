@@ -35,7 +35,14 @@
         this.el = el;
         this.items = [];
         this.lastItem = null;
-    };
+    }
+
+    /**
+     * @returns {object} 返回当前激活的目录项。
+     */
+    MessageCatalogue.prototype.getActiveItem = function() {
+        return this.lastItem;
+    }
 
     /**
      * 获取指定 ID 的目录项。

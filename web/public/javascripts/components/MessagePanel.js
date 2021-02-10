@@ -136,6 +136,21 @@
     }
 
     /**
+     * @returns {object} 返回当前面板。
+     */
+    MessagePanel.prototype.getCurrentPanel = function() {
+        return this.current;
+    }
+
+    /**
+     * @param {number} id 指定面板 ID 。
+     * @returns {object}
+     */
+    MessagePanel.prototype.getPanel = function(id) {
+        return this.panels[id.toString()];
+    }
+
+    /**
      * 更新面板数据。
      * @param {number} id 
      * @param {Contact|Group} entity 
@@ -149,6 +164,7 @@
                 el: el,
                 entity: entity,
                 messageIds: [],
+                unreadCount: 0,
                 groupable: (entity instanceof Group)
             };
             this.panels[id.toString()] = panel;
@@ -160,8 +176,7 @@
                     this.elTitle.text(entity.getName());
                 }
                 else {
-                    this.elTitle.text(entity.getAppendix().hasRemarkName() ?
-                        entity.getAppendix().getRemarkName() : entity.getName());
+                    this.elTitle.text(entity.getPriorityName());
                 }
             }
         }
@@ -181,6 +196,7 @@
                 el: el,
                 entity: entity,
                 messageIds: [],
+                unreadCount: 0,
                 groupable: (entity instanceof Group)
             };
             this.panels[id.toString()] = panel;
@@ -198,6 +214,7 @@
         this.elContent.append(panel.el);
 
         this.current = panel;
+        panel.unreadCount = 0;
 
         if (panel.groupable) {
             if (!this.btnVideoCall[0].hasAttribute('disabled')) {
@@ -288,13 +305,14 @@
                 el: el,
                 entity: target,
                 messageIds: [],
+                unreadCount: 0,
                 groupable: (target instanceof Group)
             };
             this.panels[panelId.toString()] = panel;
         }
 
         var id = message.getId();
-        var time = message.getLocalTimestamp();
+        var time = message.getRemoteTimestamp();
 
         var index = panel.messageIds.indexOf(id);
         if (index >= 0) {
@@ -303,11 +321,16 @@
         // 更新消息 ID 列表
         panel.messageIds.push(id);
 
+        // 更新未读数量
+        if (!message.isRead()) {
+            panel.unreadCount += 1;
+        }
+
         var right = '';
         var nfloat = 'float-left';
         var tfloat = 'float-right';
 
-        if (sender.id == g.app.getSelf().getId()) {
+        if (sender.getId() == g.app.getSelf().getId()) {
             right = 'right';
             nfloat = 'float-right';
             tfloat = 'float-left';

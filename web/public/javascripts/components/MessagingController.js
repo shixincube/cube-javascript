@@ -57,10 +57,10 @@
             var message = event.data;
             g.app.messagePanel.appendMessage(g.app.messagePanel.current.entity, g.app.getSelf(), message);
             if (message.isFromGroup()) {
-                g.app.messageCatalog.updateItem(message.getSource(), message, message.getLocalTimestamp());
+                g.app.messageCatalog.updateItem(message.getSource(), message, message.getRemoteTimestamp());
             }
             else {
-                g.app.messageCatalog.updateItem(message.getTo(), message, message.getLocalTimestamp());
+                g.app.messageCatalog.updateItem(message.getTo(), message, message.getRemoteTimestamp());
             }
         });
 
@@ -400,7 +400,6 @@
         }
         else {
             // 消息来自联系人
-
             g.app.getContact(message.getFrom(), function(sender) {
                 // 获取到发件人
                 if (g.app.account.id == message.getFrom()) {
@@ -409,7 +408,9 @@
                         // 更新消息面板
                         g.app.messagePanel.appendMessage(target, sender, message);
                         // 更新消息目录
-                        g.app.messageCatalog.updateItem(target.getId(), message, message.getLocalTimestamp());
+                        g.app.messageCatalog.updateItem(target.getId(), message, message.getRemoteTimestamp());
+
+                        that.updateUnread(target.getId(), message);
                     });
                 }
                 else {
@@ -419,9 +420,29 @@
                     // 更新消息面板
                     g.app.messagePanel.appendMessage(target, sender, message);
                     // 更新消息目录
-                    g.app.messageCatalog.updateItem(target.getId(), message, message.getLocalTimestamp());
+                    g.app.messageCatalog.updateItem(target.getId(), message, message.getRemoteTimestamp());
+
+                    that.updateUnread(target.getId(), message);
                 }
             });
+        }
+    }
+
+    MessagingController.prototype.updateUnread = function(id, message) {
+        var panel = g.app.messagePanel.getCurrentPanel();
+        if (null == panel) {
+            return;
+        }
+
+        if (panel.id == id) {
+            // 将新消息标记为已读
+            cube.messaging.markRead(message);
+        }
+        else {
+            panel = g.app.messagePanel.getPanel(id);
+            if (panel.unreadCount > 0) {
+                g.app.messageCatalog.updateBadge(id, panel.unreadCount);
+            }
         }
     }
 
