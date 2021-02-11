@@ -44,7 +44,7 @@ export class CallRecordMessage extends TypeableMessage {
 
         if (param instanceof CallRecord) {
             this.payload = {};
-            this.payload.type = "call-record";
+            this.payload.type = "call";
 
             this.setConstraint(param.callerMediaConstraint.videoEnabled,
                 param.callerMediaConstraint.audioEnabled);
@@ -55,9 +55,16 @@ export class CallRecordMessage extends TypeableMessage {
         }
         else {
             if (undefined === this.payload.type) {
-                this.payload.type = "call-record";
+                this.payload.type = "call";
             }
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    getSummary() {
+        return this.getConstraint().video ? '[视频通话]' : '[语音通话]';
     }
 
     /**

@@ -221,15 +221,15 @@
                 el.find('.product-description').text(desc);
             }
             else if (desc instanceof TextMessage) {
-                el.find('.product-description').text(desc.getText());
+                el.find('.product-description').text(desc.getSummary());
             }
             else if (desc instanceof ImageMessage) {
-                el.find('.product-description').text('[图片] ' + desc.getFileName());
+                el.find('.product-description').text(desc.getSummary());
             }
             else if (desc instanceof FileMessage) {
                 var msg = desc;
                 if (msg.hasAttachment()) {
-                    el.find('.product-description').text('[文件] ' + msg.getFileName());
+                    el.find('.product-description').text(msg.getSummary());
                 }
                 else {
                     el.find('.product-description').text('[文件]');

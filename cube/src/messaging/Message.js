@@ -245,10 +245,11 @@ export class Message extends Entity {
     }
 
     /**
-     * 
+     * 获取消息的摘要。
+     * @returns {string} 返回消息的摘要。
      */
     getSummary() {
-        return this.payload;
+        return this.payload.toString();
     }
 
     /**

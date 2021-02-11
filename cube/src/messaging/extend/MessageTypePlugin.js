@@ -57,7 +57,7 @@ export class MessageTypePlugin extends MessagePlugin {
             else if (payload.type == 'image') {
                 return new ImageMessage(message);
             }
-            else if (payload.type == 'call-record') {
+            else if (payload.type == 'call') {
                 return new CallRecordMessage(message);
             }
         }
