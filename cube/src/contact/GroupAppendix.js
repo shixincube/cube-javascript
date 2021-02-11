@@ -107,13 +107,41 @@ export class GroupAppendix {
     }
 
     /**
+     * 获取群组成员的备注。
+     * @param {Contact|number} member 指定群成员或者成员 ID 。
+     * @returns {string} 返回群组成员的备注。
+     */
+    getMemberRemark(member) {
+        if (member instanceof Contact) {
+            return this.memberRemarkMap.get(member.getId());
+        }
+        else {
+            return this.memberRemarkMap.get(member);
+        }
+    }
+
+    /**
+     * 是否备注了指定成员。
+     * @param {Contact|number} member 指定群成员或者成员 ID 。
+     * @returns {boolea} 如果有该成员的备注，返回 {@linkcode true} 。
+     */
+    hasMemberRemark(member) {
+        if (member instanceof Contact) {
+            return this.memberRemarkMap.containsKey(member.getId());
+        }
+        else {
+            return this.memberRemarkMap.containsKey(member);
+        }
+    }
+
+    /**
      * 仅用于维护本地数据。
      * @private
      * @param {Contact} member 
      * @param {string} remark 
      */
     setMemberRemark(member, remark) {
-        
+        this.memberRemarkMap.put(member.getId(), remark);
     }
 
     /**

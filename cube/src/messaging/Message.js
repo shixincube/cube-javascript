@@ -245,6 +245,13 @@ export class Message extends Entity {
     }
 
     /**
+     * 
+     */
+    getSummary() {
+        return this.payload;
+    }
+
+    /**
      * 获取消息的状态。
      * @returns {number} 返回消息状态。
      * @see MessageState
