@@ -145,6 +145,18 @@ export class GroupAppendix {
     }
 
     /**
+     * 仅用于维护本地数据。
+     * @private
+     * @param {Array} array 
+     */
+    setMemberRemarks(array) {
+        for (let i = 0; i < array.length; ++i) {
+            let mr = array[i];
+            this.memberRemarkMap.put(mr.id, mr.remark);
+        }
+    }
+
+    /**
      * 更新备注信息。
      * @param {string} content 新的备注信息。
      * @param {function} [handleSuccess] 成功回调。参数：({@linkcode appendix}:{@link GroupAppendix}) 。
@@ -213,6 +225,48 @@ export class GroupAppendix {
 
             // 修改公告
             this.notice = notice;
+
+            if (handleSuccess) {
+                handleSuccess(this);
+            }
+        });
+    }
+
+    /**
+     * 更新群组成员备注。
+     * @param {Contact|number} member 指定群成员。
+     * @param {string} remark 指定群成员的备注。
+     * @param {function} [handleSuccess] 成功回调。参数：({@linkcode appendix}:{@link GroupAppendix}) 。
+     * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    updateMemberRemark(member, remark, handleSuccess, handleFailure) {
+        let request = new Packet(ContactAction.UpdateAppendix, {
+            "groupId": this.owner.getId(),
+            "memberRemark": {
+                "id": member.getId(),
+                "remark": remark
+            }
+        });
+
+        this.service.pipeline.send(ContactService.NAME, request, (pipeline, source, packet) => {
+            if (null == packet || packet.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, this);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            if (packet.getPayload().code != ContactServiceState.Ok) {
+                let error = new ModuleError(ContactService.NAME, packet.getPayload().code, this);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            // 修改成员备注
+            this.setMemberRemark(member, remark);
 
             if (handleSuccess) {
                 handleSuccess(this);

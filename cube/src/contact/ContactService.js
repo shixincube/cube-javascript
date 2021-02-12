@@ -1653,6 +1653,7 @@ export class ContactService extends Module {
                 let groupAppendix = new GroupAppendix(this, owner);
                 groupAppendix.remark = data.remark;
                 groupAppendix.notice = data.notice;
+                groupAppendix.setMemberRemarks(data.memberRemarks);
 
                 // 设置附录
                 owner.appendix = groupAppendix;
