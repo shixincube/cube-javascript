@@ -501,7 +501,18 @@ export class ContactService extends Module {
             // 从缓存读取
             let group = this.groups.get(id);
             if (null != group) {
-                resolve(group);
+                if (null == group.getAppendix()) {
+                    this.getAppendix(group, (appendix) => {
+                        // 设置群组的附录
+                        group.appendix = appendix;
+                        resolve(group);
+                    }, (error) => {
+                        reject(error);
+                    });
+                }
+                else {
+                    resolve(group);
+                }
                 return;
             }
 

@@ -147,11 +147,17 @@
 
         group.getMembers().forEach(function(element) {
             g.app.getContact(element.getId(), function(contact) {
+                var operate = [ '<button class="btn btn-sm btn-default btn-flat"' ,
+                    ' onclick="javascript:app.messageSidebar.fireUpdateMemberRemark(', contact.getId(), ');"><i class="fas fa-edit"></i></button>' ];
                 var html = [
-                    '<div class="group-member-cell" ondblclick="javascript:app.messagingCtrl.toggle(', contact.getId(), ');">',
+                    '<div class="group-member-cell" data-target="', contact.getId(), '" ondblclick="javascript:app.messagingCtrl.toggle(', contact.getId(), ');">',
                         '<div class="member-avatar"><img class="img-size-32 img-round-rect" src="', contact.getContext().avatar, '" /></div>',
                         '<div class="member-name">',
                             group.getAppendix().hasMemberRemark(contact) ? group.getAppendix().getMemberRemark() : contact.getPriorityName(),
+                        '</div>',
+                        '<div class="member-operate">',
+                            group.isOwner() ? operate.join('') :
+                                (contact.getId() == g.app.account.id ? operate.join('') : ''),
                         '</div>',
                     '</div>'
                 ];
@@ -190,6 +196,14 @@
                 '</div>',
             '</div>'
         ];
+    }
+
+    MessageSidebar.prototype.fireUpdateMemberRemark = function(id) {
+        var el = sidebarEl.find('div[data-target="' + id + '"]').find('.member-name');
+        el.empty();
+
+        var html = ['<input class="form-control-sm" type="text" />'];
+        el.html(html.join(''));
     }
 
     g.MessageSidebar = MessageSidebar;
