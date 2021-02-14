@@ -201,7 +201,7 @@ export class ContactService extends Module {
         }
 
         if (!this.pipeline.isReady()) {
-            cell.Logger.d('ContactService', 'Pipeline "' + this.pipeline.getName() + '" is no ready');
+            cell.Logger.w('ContactService', 'Pipeline "' + this.pipeline.getName() + '" is no ready');
             return false;
         }
 
