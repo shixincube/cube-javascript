@@ -116,7 +116,7 @@ export class GroupAppendix {
             return this.memberRemarkMap.get(member.getId());
         }
         else {
-            return this.memberRemarkMap.get(member);
+            return this.memberRemarkMap.get(parseInt(member));
         }
     }
 
@@ -130,18 +130,18 @@ export class GroupAppendix {
             return this.memberRemarkMap.containsKey(member.getId());
         }
         else {
-            return this.memberRemarkMap.containsKey(member);
+            return this.memberRemarkMap.containsKey(parseInt(member));
         }
     }
 
     /**
      * 仅用于维护本地数据。
      * @private
-     * @param {Contact} member 
+     * @param {Contact|number|string} member 
      * @param {string} remark 
      */
     setMemberRemark(member, remark) {
-        this.memberRemarkMap.put(member.getId(), remark);
+        this.memberRemarkMap.put((member instanceof Contact) ? member.getId() : parseInt(member), remark);
     }
 
     /**
@@ -243,7 +243,7 @@ export class GroupAppendix {
         let request = new Packet(ContactAction.UpdateAppendix, {
             "groupId": this.owner.getId(),
             "memberRemark": {
-                "id": member.getId(),
+                "id": (member instanceof Contact) ? member.getId() : parseInt(member),
                 "remark": remark
             }
         });

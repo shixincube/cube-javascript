@@ -86,7 +86,7 @@
             // 更新群组公告
             currentGroup.getAppendix().updateNotice(text, function() {
                 dialog.launchToast(Toast.Success, '已修改群组公告');
-            }, function() {
+            }, function(error) {
                 dialog.launchToast(Toast.Error, '修改群组公告失败：' + error.code);
                 textGroupNotice.val(currentGroupNotice);
             });
@@ -95,6 +95,28 @@
 
     function onNoticeBlur() {
         onNoticeButtonClick();
+    }
+
+    function onMemberNameBlur() {
+        var newText = $(this).val();
+        var preText = $(this).attr('predata');
+
+        if (newText == preText || newText.length < 3) {
+            g.app.messageSidebar.recoverMemberName($(this).parent(), preText);
+            return;
+        }
+
+        var memberId = $(this).attr('data-target');
+
+        // 更新群组成员的备注
+        currentGroup.getAppendix().updateMemberRemark(memberId, newText, function() {
+            dialog.launchToast(Toast.Success, '已修改群组成员备注');
+        }, function(error) {
+            dialog.launchToast(Toast.Error, '备注群组成员失败：' + error.code);
+        });
+
+        // 恢复 UI 显示
+        g.app.messageSidebar.recoverMemberName($(this).parent(), newText);
     }
 
     var MessageSidebar = function(el) {
@@ -153,7 +175,7 @@
                     '<div class="group-member-cell" data-target="', contact.getId(), '" ondblclick="javascript:app.messagingCtrl.toggle(', contact.getId(), ');">',
                         '<div class="member-avatar"><img class="img-size-32 img-round-rect" src="', contact.getContext().avatar, '" /></div>',
                         '<div class="member-name">',
-                            group.getAppendix().hasMemberRemark(contact) ? group.getAppendix().getMemberRemark() : contact.getPriorityName(),
+                            group.getAppendix().hasMemberRemark(contact) ? group.getAppendix().getMemberRemark(contact) : contact.getPriorityName(),
                         '</div>',
                         '<div class="member-operate">',
                             group.isOwner() ? operate.join('') :
@@ -199,11 +221,25 @@
     }
 
     MessageSidebar.prototype.fireUpdateMemberRemark = function(id) {
-        var el = sidebarEl.find('div[data-target="' + id + '"]').find('.member-name');
+        var el = sidebarEl.find('div[data-target="' + id + '"]');
+        var width = parseInt(el.width());
+        el = el.find('.member-name');
+        var name = el.text();
         el.empty();
 
-        var html = ['<input class="form-control-sm" type="text" />'];
+        width -= 44 + 40 + 16;
+        var html = ['<input class="form-control form-control-sm" type="text" style="width:', width, 'px;" predata="', name, '" data-target="'
+            , id, '" />'];
         el.html(html.join(''));
+
+        var inputEl = el.find('input');
+        inputEl.blur(onMemberNameBlur);
+        inputEl.focus();
+    }
+
+    MessageSidebar.prototype.recoverMemberName = function(el, text) {
+        el.empty();
+        el.text(text);
     }
 
     g.MessageSidebar = MessageSidebar;

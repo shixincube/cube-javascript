@@ -416,6 +416,7 @@ body {
 }
 .messaging-sidebar .group-member-list .group-member-cell div {
     display: inline-block;
+    vertical-align: middle;
 }
 .messaging-sidebar .group-member-list .member-avatar {
     padding: 6px 6px;
@@ -425,10 +426,13 @@ body {
     padding-left: 10px;
     user-select: none;
 }
+.messaging-sidebar .group-member-list .member-name .form-control {
+    font-size: 12px;
+}
 .messaging-sidebar .group-member-list .member-operate {
     text-align: right;
     float: right;
-    padding-top: 8px;
+    padding-top: 9px;
     padding-right: 6px;
 }
 .messaging-sidebar .group-member-list .member-operate button {
