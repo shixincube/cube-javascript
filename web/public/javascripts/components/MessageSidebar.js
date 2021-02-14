@@ -97,16 +97,25 @@
         onNoticeButtonClick();
     }
 
-    function onMemberNameBlur() {
-        var newText = $(this).val();
-        var preText = $(this).attr('predata');
+    function onMemberNameKeyup(event) {
+        if (event.keyCode == 13) {
+            onMemberNameModified($(this));
+        }
+    }
+
+    function onMemberNameBlur(event) {
+        onMemberNameModified($(this));
+    }
+
+    function onMemberNameModified(thisEl) { 
+        var newText = thisEl.val();
+        var preText = thisEl.attr('predata');
+        var memberId = thisEl.attr('data-target');
 
         if (newText == preText || newText.length < 3) {
-            g.app.messageSidebar.recoverMemberName($(this).parent(), preText);
+            g.app.messageSidebar.recoverMemberName(memberId, thisEl.parent(), preText);
             return;
         }
-
-        var memberId = $(this).attr('data-target');
 
         // 更新群组成员的备注
         currentGroup.getAppendix().updateMemberRemark(memberId, newText, function() {
@@ -116,7 +125,7 @@
         });
 
         // 恢复 UI 显示
-        g.app.messageSidebar.recoverMemberName($(this).parent(), newText);
+        g.app.messageSidebar.recoverMemberName(memberId, thisEl.parent(), newText);
     }
 
     var MessageSidebar = function(el) {
@@ -222,6 +231,10 @@
 
     MessageSidebar.prototype.fireUpdateMemberRemark = function(id) {
         var el = sidebarEl.find('div[data-target="' + id + '"]');
+
+        var btn = el.find('button');
+        btn.attr('disabled', 'disabled');
+
         var width = parseInt(el.width());
         el = el.find('.member-name');
         var name = el.text();
@@ -234,12 +247,16 @@
 
         var inputEl = el.find('input');
         inputEl.blur(onMemberNameBlur);
+        inputEl.keyup(onMemberNameKeyup);
         inputEl.focus();
     }
 
-    MessageSidebar.prototype.recoverMemberName = function(el, text) {
+    MessageSidebar.prototype.recoverMemberName = function(memberId, el, text) {
         el.empty();
         el.text(text);
+
+        var cellEl = sidebarEl.find('div[data-target="' + memberId + '"]');
+        cellEl.find('.member-operate').find('button').removeAttr('disabled');
     }
 
     g.MessageSidebar = MessageSidebar;
