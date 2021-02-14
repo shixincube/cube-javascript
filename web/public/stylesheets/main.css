@@ -182,16 +182,32 @@ body {
     transition: opacity .3s ease-in-out;
 }
 
-.control-sidebar p {
-    font-size: 14px;
-}
-.control-sidebar ul {
-    margin-left: -10px;
-}
-.control-sidebar li {
-    font-size: 14px;
+.control-sidebar-dark .nav-tabs {
+    background-color: rgba(255,255,255,0.2);
 }
 .control-sidebar {
+    width: 300px;
+    font-size: 14px;
+}
+.control-sidebar .card {
+    box-shadow: unset;
+    margin-bottom: unset;
+    height: calc(100vh - 100px);
+}
+.control-sidebar .card-dark {
+    background-color: #343a40;
+}
+.control-sidebar .card-dark:not(.card-outline) > .card-header a.active {
+    color: #fff;
+}
+.control-sidebar .card.card-tabs:not(.card-outline) > .card-header .nav-item:first-child .nav-link {
+    margin-left: 0px;
+}
+.control-sidebar .card-dark:not(.card-outline) > .card-header, .card-dark:not(.card-outline) > .card-header a {
+    color: #f8f9fa;
+}
+.control-sidebar .card-body {
+    padding: 0.25rem;
     overflow-y: auto;
 }
 

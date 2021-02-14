@@ -874,22 +874,41 @@
 
     <!-- Right Sidebar - begin -->
     <aside class="control-sidebar control-sidebar-dark">
-        <div class="p-3">
-            <h5>时信魔方</h5>
-            <p><a href="https://shixincube.com" target="_blank">时信魔方</a>是面向开发者的实时协作开发框架。帮助开发者快速、高效的在项目中集成实时协作能力。</p>
-            <ul>
-                <li>即时消息（Instant Messaging / IM）。</li>
-                <li>实时多人语音/多人视频（Multipoint RTC）。</li>
-                <li>超大规模(100+)视频会议 （Video Conference）。支持会议控制、演讲模式，自定义 MCU 和 SFU 布局等。</li>
-                <li>群组管理（Group management）。</li>
-                <li>共享桌面（Remote Desktop Sharing）。</li>
-                <li>云端文件存储（Cloud File Storage）。</li>
-                <li>实时白板（Realtime Whiteboard）。</li>
-                <li>视频直播（Live video）。</li>
-                <li>在线文档协作（Online Document Collaboration）。支持 Word、PowerPoint、Excel 等主流格式文多人在写协作。</li>
-                <li>支持安全与运维管理（Operation and Maintenance management）。</li>
-            </ul>
-        </div>
+        <div class="card card-dark card-tabs">
+            <div class="card-header p-0">
+                <ul class="nav nav-tabs" id="app-details-tab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="app-details-about-tab" data-toggle="pill" href="#app-details-about" role="tab" aria-controls="app-details-about" aria-selected="true">关于</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="app-details-log-tab" data-toggle="pill" href="#app-details-log" role="tab" aria-controls="app-details-log" aria-selected="false">日志</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="app-details-tabContent">
+                    <div class="tab-pane fade active show" id="app-details-about" role="tabpanel" aria-labelledby="app-details-about-tab">
+                        <h5>时信魔方</h5>
+                        <p><a href="https://shixincube.com" target="_blank">时信魔方</a>是面向开发者的实时协作开发框架。帮助开发者快速、高效的在项目中集成实时协作能力。</p>
+                        <ul>
+                            <li>即时消息（Instant Messaging / IM）。</li>
+                            <li>实时多人语音/多人视频（Multipoint RTC）。</li>
+                            <li>超大规模(100+)视频会议 （Video Conference）。支持会议控制、演讲模式，自定义 MCU 和 SFU 布局等。</li>
+                            <li>群组管理（Group management）。</li>
+                            <li>共享桌面（Remote Desktop Sharing）。</li>
+                            <li>云端文件存储（Cloud File Storage）。</li>
+                            <li>实时白板（Realtime Whiteboard）。</li>
+                            <li>视频直播（Live video）。</li>
+                            <li>在线文档协作（Online Document Collaboration）。支持 Word、PowerPoint、Excel 等主流格式文多人在写协作。</li>
+                            <li>支持安全与运维管理（Operation and Maintenance management）。</li>
+                        </ul>
+                    </div>
+                    <div class="tab-pane fade" id="app-details-log" role="tabpanel" aria-labelledby="app-details-log-tab">
+                        
+                    </div>
+                </div>
+            </div>
+          </div>
     </aside>
     <!-- Right Sidebar - end -->
 
