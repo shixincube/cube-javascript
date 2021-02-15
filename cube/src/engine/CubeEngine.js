@@ -24,9 +24,11 @@
  * SOFTWARE.
  */
 
+import cell from "@lib/cell-lib";
 import { Kernel } from "../core/Kernel";
 import { Module } from "../core/Module";
 import { Pipeline } from "../core/Pipeline";
+import { LogHandler } from "../core/LogHandler";
 import { CellPipeline } from "../pipeline/CellPipeline";
 import { AjaxPipeline } from "../pipeline/AjaxPipeline";
 import { AuthService } from "../auth/AuthService";
@@ -43,8 +45,6 @@ import { FaceMonitor } from "../facemonitor/FaceMonitor";
  */
 export class CubeEngine {
 
-    /**
-     */
     constructor() {
         this.kernel = new Kernel();
         this.kernel.installPipeline(new CellPipeline());
@@ -188,6 +188,22 @@ export class CubeEngine {
         let inputEl = document.getElementById('_cube_file_input');
         inputEl.setAttribute("accept", accept);
         inputEl.click();
+    }
+
+    /**
+     * 添加日志监听器。
+     * @param {LogHandler} handler 日志监听器。
+     */
+    addLogHandler(handler) {
+        cell.Logger.addHandler(handler);
+    }
+
+    /**
+     * 移除日志监听器。
+     * @param {LogHandler} handler 日志监听器。
+     */
+    removeLogHandler(handler) {
+        cell.Logger.removeHandler(handler);
     }
 
     /**

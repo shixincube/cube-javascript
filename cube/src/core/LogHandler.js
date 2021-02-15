@@ -35,5 +35,15 @@ export class LogHandler extends cell.LogHandler {
         super();
     }
 
+    debug(time, tag, text) {
+    }
 
+    info(time, tag, text) {
+    }
+
+    warn(time, tag, text) {
+    }
+
+    error(time, tag, text) {
+    }
 }

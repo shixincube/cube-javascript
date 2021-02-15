@@ -24,14 +24,31 @@
  * SOFTWARE.
  */
 
+import { Entity } from "../core/Entity";
+
 /**
  * 消息草稿。
  */
-export class MessageDraft {
+export class MessageDraft extends Entity {
 
-    constructor() {
+    /**
+     * 
+     * @param {*} owner 
+     * @param {*} message 
+     */
+    constructor(owner, message) {
+        super();
 
+        this.owner = owner;
+
+        this.message = message;
     }
 
+    getOwner() {
+        return this.owner;
+    }
 
+    toJSON() {
+        let json = super.toJSON();
+    }
 }

@@ -161,4 +161,20 @@ export class CubeShortcut {
     launchFileSelector(handle, accept) {
         this.engine.launchFileSelector(handle, accept);
     }
+
+    /**
+     * 添加日志监听器。
+     * @param {LogHandler} handler 日志监听器。
+     */
+    addLogHandler(handler) {
+        this.engine.addLogHandler(handler);
+    }
+
+    /**
+     * 移除日志监听器。
+     * @param {LogHandler} handler 日志监听器。
+     */
+    removeLogHandler(handler) {
+        this.engine.removeLogHandler(handler);
+    }
 }
