@@ -256,9 +256,20 @@
             this.btnSendFile.removeAttr('disabled');
         }
         else {
+            // 生成草稿
+            // var text = this.elInput.val().trim();
+            // if (text.length > 0) {
+            //     g.app.messageCatalog.updateItem(this.current.id, '[草稿] ' + text, null, null);
+            // }
+            // else {
+            //     g.app.messageCatalog.restoreLastDesc(this.current.id);
+            // }
+
+            this.elInput.val('');
             this.current.el.remove();
         }
 
+        // 更新 HTML 数据
         this.elContent.append(panel.el);
 
         this.current = panel;
@@ -289,6 +300,10 @@
         panel.messageIds.forEach(function(messageId) {
             window.cube().messaging.markRead(messageId);
         });
+
+        // 加载草稿
+        // window.cube().messaging.loadDraft(this.current.id, function(draft) {
+        // });
     }
 
     /**

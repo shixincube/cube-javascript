@@ -28,6 +28,7 @@ import cell from "@lib/cell-lib";
 import InDB from "indb";
 import { ModuleError } from "../core/error/ModuleError";
 import { Message } from "./Message";
+import { MessageDraft } from "./MessageDraft";
 import { MessageState } from "./MessageState";
 import { MessagingService } from "./MessagingService";
 
@@ -69,6 +70,12 @@ export class MessagingStorage {
          * @type {object}
          */
         this.messageStore = null;
+
+        /**
+         * 草稿库。
+         * @type {object}
+         */
+        this.draftStore = null;
     }
 
     /**
@@ -139,6 +146,7 @@ export class MessagingStorage {
 
         this.configStore = this.db.use('config');
         this.messageStore = this.db.use('message');
+        this.draftStore = this.db.use('draft');
     }
 
     /**
@@ -538,6 +546,39 @@ export class MessagingStorage {
             delete data["domain"];
             await this.messageStore.put(data);
         })();
+        return true;
+    }
+
+    writeDraft(draft) {
+        if (null == this.db) {
+            return false;
+        }
+
+        (async ()=> {
+            let data = draft.toJSON();
+            await this.draftStore.put(data);
+        })();
+        return true;
+    }
+
+    readDraft(ownerId, handler) {
+        if (null == this.db) {
+            return false;
+        }
+
+        (async ()=> {
+            let value = await this.draftStore.get(ownerId);
+            if (null == value) {
+                handler(null);
+                return;
+            }
+
+            value.message.domain = this.domain;
+            let message = Message.create(value.message);
+            let draft = new MessageDraft(ownerId, message);
+            handler(draft);
+        })();
+
         return true;
     }
 }

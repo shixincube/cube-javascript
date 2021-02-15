@@ -72,6 +72,7 @@
         var thumb = 'images/group-avatar.png';
         var label = null;
         var desc = null;
+        var lastDesc = ' ';
         var timeBadge = null;
         var time = 0;
 
@@ -118,6 +119,7 @@
             thumb: thumb,
             label: label,
             desc: desc,
+            lastDesc: lastDesc,
             timeBadge: timeBadge,
             time: time
         };
@@ -174,6 +176,7 @@
                 break;
             }
         }
+
         if (null == item) {
             return;
         }
@@ -201,7 +204,7 @@
             id = target.getId();
         }
         else {
-            console.log('[App] MessageCatalogue#updateItem() 输入参数错误');
+            console.log('[App] MessageCatalogue#updateItem 输入参数错误');
             return false;
         }
 
@@ -217,48 +220,52 @@
         var el = item.el;
 
         if (null != desc) {
+            item.lastDesc = item.desc;
+
             if (typeof desc === 'string') {
-                el.find('.product-description').text(desc);
+                item.desc = desc;
             }
             else if (desc instanceof TextMessage) {
-                el.find('.product-description').text(desc.getSummary());
+                item.desc = desc.getSummary();
             }
             else if (desc instanceof ImageMessage) {
-                el.find('.product-description').text(desc.getSummary());
+                item.desc = desc.getSummary();
             }
             else if (desc instanceof FileMessage) {
                 var msg = desc;
                 if (msg.hasAttachment()) {
-                    el.find('.product-description').text(msg.getSummary());
+                    item.desc = msg.getSummary();
                 }
                 else {
-                    el.find('.product-description').text('[文件]');
+                    item.desc = '[文件]';
                 }
             }
             else if (desc instanceof CallRecordMessage) {
                 if (desc.getConstraint().video) {
-                    el.find('.product-description').text('[视频通话]');
+                    item.desc = '[视频通话]';
                 }
                 else {
-                    el.find('.product-description').text('[语音通话]');
+                    item.desc = '[语音通话]';
                 }
             }
             else if (desc instanceof File) {
-                el.find('.product-description').text('[文件] ' + desc.name);
+                item.desc = '[文件] ' + desc.name;
             }
             else {
                 return false;
             }
+
+            el.find('.product-description').text(item.desc);
         }
 
         // 更新时间
         if (null != time) {
             item.time = time;
-
             el.find('.last-time').text(formatShortTime(time));
         }
 
         if (label) {
+            item.label = label;
             el.find('.title').text(label);
         }
 
@@ -270,6 +277,31 @@
         this.bindEvent(el);
 
         return true;
+    }
+
+    MessageCatalogue.prototype.restoreLastDesc = function(target) {
+        var id = 0;
+
+        if (typeof target === 'number') {
+            id = target;
+        }
+        else if (target instanceof Contact) {
+            id = target.getId();
+        }
+        else if (target instanceof Group) {
+            id = target.getId();
+        }
+        else {
+            console.log('[App] MessageCatalogue#updateItem 输入参数错误');
+            return;
+        }
+
+        var item = this.getItem(id);
+        if (null == item) {
+            return;
+        }
+
+        item.el.find('.product-description').text(item.lastDesc);
     }
 
     MessageCatalogue.prototype.updateBadge = function(id, badge) {

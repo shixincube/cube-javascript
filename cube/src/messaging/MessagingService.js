@@ -48,6 +48,7 @@ import { ObservableEvent } from "../core/ObservableEvent";
 import { StateCode } from "../core/StateCode";
 import { InstantiateHook } from "./hook/InstantiateHook";
 import { MessagePlugin } from "./MessagePlugin";
+import { MessageDraft } from "./MessageDraft";
 
 /**
  * 消息服务模块接口。
@@ -889,6 +890,47 @@ export class MessagingService extends Module {
 
         let packet = new Packet(MessagingAction.Pull, payload);
         this.pipeline.send(MessagingService.NAME, packet);
+
+        return true;
+    }
+
+    saveDraft(target, message) {
+        if (!this.contactService.selfReady) {
+            return false;
+        }
+
+        this.storage.writeDraft(new MessageDraft(target, message));
+        return true;
+    }
+
+    loadDraft(target, handleSuccess, handleFailure) {
+        if (!this.contactService.selfReady) {
+            return false;
+        }
+
+        let id = 0;
+        if (typeof target === 'number') {
+            id = target;
+        }
+        else {
+            id = target.getId();
+        }
+
+        this.storage.readDraft(id, (draft) => {
+            if (null == draft) {
+                let error = new ModuleError(MessagingService.NAME, MessagingCode.StorageNoData, target);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            // 使用插件
+            let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+            let result = hook.apply(draft.message);
+            draft.message = result;
+            handleSuccess(draft);
+        });
 
         return true;
     }

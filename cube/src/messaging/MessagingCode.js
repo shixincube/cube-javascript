@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -76,6 +76,12 @@ export const MessagingCode = {
      * @type {number}
      */
     DataStructureError: 20,
+
+    /**
+     * 存储错误。
+     * @type {number}
+     */
+    StorageNoData: 101,
 
     /**
      * 未知的状态。

@@ -294,7 +294,7 @@
          * @param {function} callback 
          */
         getContact: function(id, callback) {
-            cube.contact.getContact(id, function(contact) {
+            cube.contact.getContact(parseInt(id), function(contact) {
                 var localContact = queryContact(contact.getId());
                 if (null != localContact) {
                     contact.setContext(localContact.getContext());
@@ -306,19 +306,24 @@
                         url: '/account/info',
                         data: { "id": id },
                         success: function(response, status, xhr) {
+                            if (null == response) {
+                                callback(null);
+                                return;
+                            }
+
                             contact.setContext(response);
                             contact.setName(response.name);
                             updateContact(contact);
                             callback(contact);
                         },
                         error: function(xhr, error) {
-                            console.log(error);
+                            console.log(error + ' - ' + id);
                             callback(null);
                         }
                     });
                 }
             }, function(error) {
-                console.log('CubeApp #getContact ' + error);
+                console.log('CubeApp #getContact ' + error + ' - ' + id);
                 callback(null);
             });
         },

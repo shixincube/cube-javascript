@@ -350,6 +350,9 @@ export class ContactService extends Module {
         if (typeof contactId === 'string') {
             id = parseInt(contactId);
         }
+        else if (contactId instanceof Contact) {
+            id = contactId.getId();
+        }
 
         let promise = new Promise((resolve, reject) => {
             // 从缓存读取
@@ -359,7 +362,16 @@ export class ContactService extends Module {
                 // 从存储读取
                 this.storage.readContact(id, (contact) => {
                     if (null != contact) {
-                        resolve(contact);
+                        // 保存到内存
+                        this.contacts.put(contact.getId(), contact);
+
+                        // 获取附录
+                        this.getAppendix(contact, (appendix) => {
+                            contact.appendix = appendix;
+                            resolve(contact);
+                        }, (error) => {
+                            reject(error);
+                        });
                         return;
                     }
 
@@ -370,7 +382,7 @@ export class ContactService extends Module {
                     this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
                         if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
                             if (responsePacket.data.code == ContactServiceState.Ok) {
-                                contact = Contact.create(responsePacket.data.data);
+                                let contact = Contact.create(responsePacket.data.data);
                                 // 保存到内存
                                 this.contacts.put(contact.getId(), contact);
                                 // 更新存储

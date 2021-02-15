@@ -25,6 +25,9 @@
  */
 
 import { Entity } from "../core/Entity";
+import { Contact } from "../contact/Contact";
+import { Group } from "../contact/Group";
+import { Message } from "./Message";
 
 /**
  * 消息草稿。
@@ -32,23 +35,37 @@ import { Entity } from "../core/Entity";
 export class MessageDraft extends Entity {
 
     /**
-     * 
-     * @param {*} owner 
-     * @param {*} message 
+     * @param {Contact|Group|number} owner 草稿归属的实体对象。
+     * @param {Message} message 草稿的消息内容。
      */
     constructor(owner, message) {
         super();
 
-        this.owner = owner;
+        /**
+         * 草稿归属的实体对象。
+         * @type {Contact|Group|number}
+         */
+        this.ownerId = (typeof owner === 'number') ? owner : owner.getId();
 
+        /**
+         * 草稿的消息内容。
+         * @type {Message}
+         */
         this.message = message;
     }
 
-    getOwner() {
-        return this.owner;
+    getOwnerId() {
+        return this.ownerId;
+    }
+
+    getMessage() {
+        return this.message;
     }
 
     toJSON() {
         let json = super.toJSON();
+        json.owner = this.ownerId;
+        json.message = this.message.toJSON();
+        return json;
     }
 }
