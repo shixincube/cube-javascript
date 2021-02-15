@@ -54,10 +54,16 @@ export class MessageDraft extends Entity {
         this.message = message;
     }
 
+    /**
+     * @returns {number}
+     */
     getOwnerId() {
         return this.ownerId;
     }
 
+    /**
+     * @returns {Message}
+     */
     getMessage() {
         return this.message;
     }

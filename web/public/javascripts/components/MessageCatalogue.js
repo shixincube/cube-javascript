@@ -72,7 +72,7 @@
         var thumb = 'images/group-avatar.png';
         var label = null;
         var desc = null;
-        var lastDesc = ' ';
+        var lastDesc = '';
         var timeBadge = null;
         var time = 0;
 
@@ -292,7 +292,7 @@
             id = target.getId();
         }
         else {
-            console.log('[App] MessageCatalogue#updateItem 输入参数错误');
+            console.log('[App] MessageCatalogue#restoreLastDesc 输入参数错误');
             return;
         }
 
@@ -302,6 +302,8 @@
         }
 
         item.el.find('.product-description').text(item.lastDesc);
+        item.desc = item.lastDesc;
+        item.lastDesc = '';
     }
 
     MessageCatalogue.prototype.updateBadge = function(id, badge) {

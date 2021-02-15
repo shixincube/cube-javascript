@@ -561,6 +561,17 @@ export class MessagingStorage {
         return true;
     }
 
+    deleteDraft(draftOwner) {
+        if (null == this.db) {
+            return false;
+        }
+
+        (async ()=> {
+            await this.draftStore.delete(draftOwner);
+        })();
+        return true;
+    }
+
     readDraft(ownerId, handler) {
         if (null == this.db) {
             return false;

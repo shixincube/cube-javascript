@@ -257,13 +257,17 @@
         }
         else {
             // 生成草稿
-            // var text = this.elInput.val().trim();
-            // if (text.length > 0) {
-            //     g.app.messageCatalog.updateItem(this.current.id, '[草稿] ' + text, null, null);
-            // }
-            // else {
-            //     g.app.messageCatalog.restoreLastDesc(this.current.id);
-            // }
+            var text = this.elInput.val().trim();
+            if (text.length > 0) {
+                // 保存草稿
+                if (window.cube().messaging.saveDraft(this.current.entity, new TextMessage(text))) {
+                    g.app.messageCatalog.updateItem(this.current.id, '[草稿] ' + text, null, null);
+                }
+            }
+            else {
+                // 删除草稿
+                window.cube().messaging.deleteDraft(this.current.id);
+            }
 
             this.elInput.val('');
             this.current.el.remove();
@@ -302,8 +306,10 @@
         });
 
         // 加载草稿
-        // window.cube().messaging.loadDraft(this.current.id, function(draft) {
-        // });
+        window.cube().messaging.loadDraft(this.current.id, function(draft) {
+            g.app.messageCatalog.restoreLastDesc(panel.id);
+            that.elInput.val(draft.getMessage().getText());
+        });
     }
 
     /**

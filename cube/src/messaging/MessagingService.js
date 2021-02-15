@@ -903,6 +903,16 @@ export class MessagingService extends Module {
         return true;
     }
 
+    deleteDraft(target) {
+        if (!this.contactService.selfReady) {
+            return false;
+        }
+
+        let id = (typeof target === 'number') ? target : target.getId();
+        this.storage.deleteDraft(id);
+        return true;
+    }
+
     loadDraft(target, handleSuccess, handleFailure) {
         if (!this.contactService.selfReady) {
             return false;
