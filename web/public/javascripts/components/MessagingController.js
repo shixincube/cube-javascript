@@ -400,6 +400,8 @@
 
                 // 更新消息目录
                 g.app.messageCatalog.updateItem(group.getId(), message, message.getRemoteTimestamp());
+
+                that.updateUnread(group.getId(), message);
             });
         }
         else {
@@ -435,6 +437,10 @@
     MessagingController.prototype.updateUnread = function(id, message) {
         var panel = g.app.messagePanel.getCurrentPanel();
         if (null == panel) {
+            return;
+        }
+
+        if (message.isRead()) {
             return;
         }
 

@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -103,7 +103,15 @@ export class CubeShortcut {
             config.pipelineReady = true;
         }
 
-        this.engine.start(config, handleSuccess, handleFailure);
+        this.engine.start(config, (kernel) => {
+            this.contact.start();
+            this.fileStorage.start();
+            this.fileProcessor.start();
+            this.messaging.start();
+            this.mpComm.start();
+
+            handleSuccess(kernel);
+        }, handleFailure);
     }
 
     /**

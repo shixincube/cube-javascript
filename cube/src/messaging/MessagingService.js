@@ -128,6 +128,9 @@ export class MessagingService extends Module {
          * @type {number}
          */
         this.lastQueryTime = 0;
+
+        // TODO
+        this.serviceReady = false;
     }
 
     /**
