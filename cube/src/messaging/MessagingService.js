@@ -129,7 +129,10 @@ export class MessagingService extends Module {
          */
         this.lastQueryTime = 0;
 
-        // TODO
+        /**
+         * @private
+         * @type {boolean}
+         */
         this.serviceReady = false;
     }
 
@@ -175,6 +178,21 @@ export class MessagingService extends Module {
             this.storage.open(self.getId(), AuthService.DOMAIN);
 
             this.storage.queryLastMessageTime((value) => {
+                let now = Date.now();
+
+                if (value == 0) {
+                    this.lastMessageTime = now - this.defaultRetrospect;
+                }
+                else {
+                    this.lastMessageTime = value;
+                }
+
+                this.queryRemoteMessage(this.lastMessageTime, now);
+
+                this.serviceReady = true;
+            });
+
+            /*this.storage.queryLastMessageTime((value) => {
                 if (value == 0) {
                     this.lastMessageTime = Date.now() - this.defaultRetrospect;
                 }
@@ -182,7 +200,6 @@ export class MessagingService extends Module {
                     this.lastMessageTime = value;
                 }
             });
-
             if (this.lastMessageTime > 0) {
                 this.queryRemoteMessage();
             }
@@ -196,7 +213,7 @@ export class MessagingService extends Module {
                         this.queryRemoteMessage(now - this.defaultRetrospect, now);
                     }
                 }, 500);
-            }
+            }*/
         }
 
         return true;
@@ -234,6 +251,15 @@ export class MessagingService extends Module {
 
         // 关闭存储器
         this.storage.close();
+
+        this.serviceReady = false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    isReady() {
+        return this.serviceReady;
     }
 
     /**
@@ -446,8 +472,8 @@ export class MessagingService extends Module {
         }
 
         let payload = {
-            contactId: self.getId(),
-            messageId: messageId
+            "contactId": self.getId(),
+            "messageId": messageId
         };
         let packet = new Packet(MessagingAction.Read, payload);
         this.pipeline.send(MessagingService.NAME, packet, (pipeline, source, responsePacket) => {
@@ -897,8 +923,14 @@ export class MessagingService extends Module {
         return true;
     }
 
+    /**
+     * 保存草稿。
+     * @param {Contact|Group|number} target 草稿的目标实体。
+     * @param {Message} message 草稿的消息实体。
+     * @returns {boolean} 保存成功返回 {@linkcode true} 。
+     */
     saveDraft(target, message) {
-        if (!this.contactService.selfReady) {
+        if (!this.serviceReady) {
             return false;
         }
 
@@ -906,8 +938,13 @@ export class MessagingService extends Module {
         return true;
     }
 
+    /**
+     * 删除草稿。
+     * @param {Contact|Group|number} target 
+     * @returns {boolean} 
+     */
     deleteDraft(target) {
-        if (!this.contactService.selfReady) {
+        if (!this.serviceReady) {
             return false;
         }
 
@@ -916,8 +953,19 @@ export class MessagingService extends Module {
         return true;
     }
 
+    /**
+     * 加载草稿。
+     * @param {Contact|Group|number} target 
+     * @param {function} handleSuccess 
+     * @param {function} handleFailure 
+     * @returns {boolean} 
+     */
     loadDraft(target, handleSuccess, handleFailure) {
-        if (!this.contactService.selfReady) {
+        if (!this.serviceReady) {
+            let error = new ModuleError(MessagingService.NAME, MessagingCode.Failure, target);
+            if (handleFailure) {
+                handleFailure(error);
+            }
             return false;
         }
 
@@ -1048,12 +1096,16 @@ export class MessagingService extends Module {
         let message = Message.create(data);
 
         (async ()=> {
-            let result = await this.fillMessage(message);
-            if (result instanceof ModuleError) {
-                cell.Logger.e(MessagingService.NAME, result.toString());
+            let result = null;
+            try {
+                result = await this.fillMessage(message);
+            } catch (error) {
+                cell.Logger.d(MessagingService.NAME, error.toString());
+                return;
             }
 
-            message.state = MessageState.Sent;
+            // 赋值
+            message = result;
 
             // 使用服务器的时间戳设置为最新消息时间
             this.refreshLastMessageTime(message.getRemoteTimestamp());
@@ -1087,6 +1139,8 @@ export class MessagingService extends Module {
                     // 回调事件
                     this.notifyObservers(new ObservableEvent(MessagingEvent.Notify, message));
                 }
+            }).catch((error) => {
+                console.log('MessagingService ' + error);
             });
         })();
     }
@@ -1372,15 +1426,21 @@ export class MessagingService extends Module {
             this.storage.open(self.getId(), self.getDomain());
 
             this.storage.queryLastMessageTime((value) => {
+                let now = Date.now();
+
                 if (value == 0) {
-                    this.lastMessageTime = Date.now() - this.defaultRetrospect;
+                    this.lastMessageTime = now - this.defaultRetrospect;
                 }
                 else {
                     this.lastMessageTime = value;
                 }
+
+                this.queryRemoteMessage(this.lastMessageTime, now);
+
+                this.serviceReady = true;
             });
 
-            if (this.lastMessageTime > 0) {
+            /*if (this.lastMessageTime > 0) {
                 this.queryRemoteMessage();
             }
             else {
@@ -1393,7 +1453,7 @@ export class MessagingService extends Module {
                         this.queryRemoteMessage(now - this.defaultRetrospect, now);
                     }
                 }, 500);
-            }
+            }*/
         }
         else if (event.name == ContactEvent.SignOut) {
             // 关闭存储

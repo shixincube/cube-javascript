@@ -158,6 +158,13 @@ export class ContactService extends Module {
     }
 
     /**
+     * {@inheritdoc}
+     */
+    isReady() {
+        return this.selfReady;
+    }
+
+    /**
      * 获取当前的 {@link Self} 实例。
      * @returns {Self} 返回当前的 {@link Self} 实例。
      */
@@ -547,7 +554,7 @@ export class ContactService extends Module {
                     "domain": AuthService.DOMAIN
                 });
                 this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-                    if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+                    if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK && null != responsePacket.data) {
                         if (responsePacket.data.code == ContactServiceState.Ok) {
                             let group = Group.create(this, responsePacket.data.data);
                             // 写入缓存
@@ -565,11 +572,13 @@ export class ContactService extends Module {
                             });
                         }
                         else {
-                            reject(new ModuleError(ContactService.NAME, responsePacket.data.code, id));
+                            let error = new ModuleError(ContactService.NAME, responsePacket.data.code, id);
+                            reject(error);
                         }
                     }
                     else {
-                        reject(new ModuleError(ContactService.NAME, ContactServiceState.ServerError, id));
+                        let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, id);
+                        reject(error);
                     }
                 });
             });
@@ -585,8 +594,8 @@ export class ContactService extends Module {
         else if (handleSuccess) {
             promise.then((group) => {
                 handleSuccess(group);
-            }).catch(() => {
-                // Nothing
+            }).catch((error) => {
+                cell.Logger.d(ContactService.NAME, '#getGroup ' + error.toString());
             });
         }
         else {

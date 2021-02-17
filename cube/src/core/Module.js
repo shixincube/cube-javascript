@@ -287,6 +287,14 @@ export class Module extends Subject {
     }
 
     /**
+     * 模块是否就绪。
+     * @returns {boolean} 如果模块就绪返回 {@linkcode true} 。
+     */
+    isReady() {
+        return true;
+    }
+
+    /**
      * 设置指定事件的监听回调函数。
      * @param {string} [event] 指定事件名。
      * @param {function} listener 当发生该事件时回调此函数，函数参数参看 {@link ModuleEvent} 。

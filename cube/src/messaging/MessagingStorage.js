@@ -190,12 +190,13 @@ export class MessagingStorage {
      */
     queryLastMessageTime(handler) {
         if (null == this.db) {
+            handler(0);
             return false;
         }
 
         (async () => {
             let item = await this.configStore.get('lastMessageTime');
-            if (undefined === item) {
+            if (undefined === item || null == item) {
                 item = { value: 0 };
             }
 

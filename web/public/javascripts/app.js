@@ -183,12 +183,14 @@
         start: function(current) {
             account = current;
             that.account = account;
-            console.log('account: ' + account.id + ' - ' + account.state);
+            console.log('Account: ' + account.id + ' - ' + account.state);
 
             // 启动 Cube Engine
             this.startupCube();
 
             sidebarAccountPanel = new SidebarAccountPanel($('.account-panel'));
+            sidebarAccountPanel.updateAvatar(account.avatar);
+            sidebarAccountPanel.updateName(account.name);
 
             // 消息主面板
             var messagingEl = $('#messaging');
@@ -245,6 +247,56 @@
          */
         stop: function() {
             window.location.href = 'index.html?ts=' + Date.now();
+        },
+
+        /**
+         * 启动 Cube Engine 。
+         */
+        startupCube: function() {
+            // 实例化 Cube 引擎
+            cube = window.cube();
+
+            // 监听网络状态
+            cube.on('network', function(event) {
+                if (event.name == 'failed') {
+                    dialog.launchToast(Toast.Error, '网络错误：' + event.error.code);
+                }
+                else if (event.name == 'open') {
+                    dialog.launchToast(Toast.Info, '已连接到服务器');
+                }
+            });
+
+            // 注册消息插件
+            cube.messaging.register(new MessageTypePlugin());
+
+            // 启动 Cube
+            cube.start({
+                address: '127.0.0.1',
+                domain: 'shixincube.com',
+                appKey: 'shixin-cubeteam-opensource-appkey'
+            }, function() {
+                console.log('Start Cube OK');
+
+                // 启用消息模块
+                cube.messaging.start();
+                // 启动存储模块
+                cube.fs.start();
+                // 启用音视频模块
+                cube.mpComm.start();
+
+                var timer = setInterval(function() {
+                    if (cube.isReady()) {
+                        clearInterval(timer);
+                        that.onReady();
+                    }
+                }, 100);
+            }, function(error) {
+                console.log('Start Cube FAILED: ' + error);
+            });
+
+            // 将当前账号签入，将 App 的账号信息设置为 Cube Contact 的上下文
+            // 在执行 cube#start() 之后可直接签入，不需要等待 Cube 就绪
+            cube.signIn(account.id, account.name, account);
         },
 
         /**
@@ -357,56 +409,6 @@
             return list;
         },
 
-        /**
-         * 启动 Cube Engine 。
-         */
-        startupCube: function() {
-            // 实例化 Cube 引擎
-            cube = window.cube();
-
-            // 监听网络状态
-            cube.on('network', function(event) {
-                if (event.name == 'failed') {
-                    dialog.launchToast(Toast.Error, '网络错误：' + event.error.code);
-                }
-                else if (event.name == 'open') {
-                    dialog.launchToast(Toast.Info, '已连接到服务器');
-                }
-            });
-
-            // 注册消息插件
-            cube.messaging.register(new MessageTypePlugin());
-
-            // 启动 Cube
-            cube.start({
-                address: '127.0.0.1',
-                domain: 'shixincube.com',
-                appKey: 'shixin-cubeteam-opensource-appkey'
-            }, function() {
-                console.log('Start Cube OK');
-
-                // 启用消息模块
-                cube.messaging.start();
-                // 启动存储模块
-                cube.fs.start();
-                // 启用音视频模块
-                cube.mpComm.start();
-
-                var timer = setInterval(function() {
-                    if (cube.contact.hasSignedIn()) {
-                        clearInterval(timer);
-                        that.onReady();
-                    }
-                }, 100);
-            }, function(error) {
-                console.log('Start Cube FAILED: ' + error);
-            });
-
-            // 将当前账号签入，将 App 的账号信息设置为 Cube Contact 的上下文
-            // 在执行 cube#start() 之后可直接签入，不需要等待 Cube 就绪
-            cube.signIn(account.id, account.name, account);
-        },
-
         onReady: function() {
             that.prepare();
 
@@ -419,9 +421,6 @@
          * 进行数据加载和界面信息更新。
          */
         prepare: function() {
-            sidebarAccountPanel.updateAvatar(account.avatar);
-            sidebarAccountPanel.updateName(account.name);
-
             var itemMap = {
                 count: 0
             };

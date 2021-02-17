@@ -222,6 +222,11 @@ export class ContactStorage {
                 result = await this.groupStore.select(conditions);
             }
 
+            if (null == result || undefined === result) {
+                handler(beginning, ending, []);
+                return;
+            }
+
             let groups = [];
             for (let i = 0; i < result.length; ++i) {
                 let json = result[i];
@@ -259,7 +264,7 @@ export class ContactStorage {
 
         (async ()=> {
             let result = await this.groupStore.query('id', id);
-            if (result.length > 0) {
+            if (null != result && result.length > 0) {
                 let json = result[0];
                 handler(id, Group.create(this.service, json));
             }

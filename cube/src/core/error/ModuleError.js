@@ -27,17 +27,15 @@
 /**
  * 模块发生的错误。
  */
-export class ModuleError extends Error {
+export class ModuleError {
 
     /**
-     * @param {string} module 
-     * @param {number} code 
-     * @param {object} data 
-     * @param {object} [desc]
+     * @param {string} module 模块名。
+     * @param {number} code 错误码。
+     * @param {object} data 相关数据。
+     * @param {object} [desc] 附加描述信息。
      */
     constructor(module, code, data, desc) {
-        super();
-
         /**
          * @type {string}
          */

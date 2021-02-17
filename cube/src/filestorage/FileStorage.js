@@ -134,6 +134,12 @@ export class FileStorage extends Module {
          * @type {FileStructStorage}
          */
         this.storage = new FileStructStorage();
+
+        /**
+         * @private
+         * @type {boolean}
+         */
+        this.serviceReady = false;
     }
 
     /**
@@ -178,6 +184,13 @@ export class FileStorage extends Module {
 
         // 关闭存储库
         this.storage.close();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    isReady() {
+        return this.serviceReady;
     }
 
     /**
@@ -858,9 +871,11 @@ export class FileStorage extends Module {
         if (event.name == ContactEvent.SignIn) {
             let self = event.data;
             this.cid = self.getId();
+            this.serviceReady = true;
         }
         else if (event.name == ContactEvent.SignOut) {
             this.fileHierarchyMap.clear();
+            this.serviceReady = false;
         }
     }
 }

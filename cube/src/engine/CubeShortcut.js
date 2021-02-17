@@ -122,6 +122,15 @@ export class CubeShortcut {
     }
 
     /**
+     * 判断所有模块是否都准备就绪。
+     * @returns {boolean} 如果已安装模块准备就绪返回 {@linkcode true} 。
+     */
+    isReady() {
+        return this.contact.isReady() && this.fileStorage.isReady() && this.fileProcessor.isReady()
+            && this.messaging.isReady() && this.mpComm.isReady();
+    }
+
+    /**
      * 获取指定名称的模块。
      * @param {string} moduleName 模块名。
      */
