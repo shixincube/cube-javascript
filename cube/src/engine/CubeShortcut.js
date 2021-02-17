@@ -39,6 +39,7 @@ export class CubeShortcut {
     constructor() {
         /**
          * 引擎实例。
+         * @private
          * @type {CubeEngine}
          */
         this.engine = new CubeEngine();
@@ -88,6 +89,7 @@ export class CubeShortcut {
         /**
          * 多方通讯模块。
          * @type {MultipointComm}
+         * @public
          */
         this.mpComm = this.engine.getMultipointComm();
     }
@@ -96,7 +98,7 @@ export class CubeShortcut {
      * 启动 Cube 并与服务器建立连接。
      * @param {KernelConfig} config 配置信息。
      * @param {function} handleSuccess 启动成功回调。
-     * @param {function} handleFailure 启动失败回调。
+     * @param {function} [handleFailure] 启动失败回调。
      */
     start(config, handleSuccess, handleFailure) {
         if (config.pipelineReady === undefined) {
@@ -142,8 +144,8 @@ export class CubeShortcut {
      * 设置事件监听器。
      * @param {string} event 事件名。
      * 支持的事件：
-     * ['network']{@linkcode PipelineListener},
-     * ['pipeline']{@linkcode PipelineListener}
+     * ['network']{@link PipelineListener},
+     * ['pipeline']{@link PipelineListener}
      * @param {CubeNetworkCallback} listener 监听函数。
      */
     on(event, listener) {

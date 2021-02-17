@@ -49,6 +49,7 @@ import { GroupAppendix } from "./GroupAppendix";
 
 /**
  * 联系人模块。
+ * @extends Module
  */
 export class ContactService extends Module {
 
@@ -59,13 +60,13 @@ export class ContactService extends Module {
     static NAME = 'Contact';
 
     /**
-     * 构造函数。
      */
     constructor() {
         super('Contact');
 
         /**
          * 当前有效的在线联系人。
+         * @private
          * @type {Self}
          */
         this.self = null;
@@ -79,18 +80,21 @@ export class ContactService extends Module {
 
         /**
          * 联系人内存缓存。
+         * @private
          * @type {OrderMap<number,Contact>}
          */
         this.contacts = new OrderMap();
 
         /**
          * 群组内存缓存。
+         * @private
          * @type {OrderMap<number,Contact>}
          */
         this.groups = new OrderMap();
 
         /**
          * 实体生命周期管理器。
+         * @private
          * @type {EntityInspector}
          */
         this.inspector = new EntityInspector();
@@ -99,30 +103,35 @@ export class ContactService extends Module {
 
         /**
          * 数据通道监听器。
+         * @private
          * @type {ContactPipelineListener}
          */
         this.pipelineListener = new ContactPipelineListener(this);
 
         /**
          * 联系人存储器。
+         * @private
          * @type {ContactStorage}
          */
         this.storage = new ContactStorage(this);
 
         /**
          * List Groups 操作的上下文。
+         * @private
          * @type {function}
          */
         this.listGroupsContext = null;
 
         /**
          * 附录记录。
+         * @private
+         * @type {OrderMap}
          */
         this.appendixMap = new OrderMap();
     }
 
     /**
-     * @inheritdoc
+     * @inheritdoc  
      */
     start() {
         if (!super.start()) {
@@ -158,7 +167,7 @@ export class ContactService extends Module {
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     isReady() {
         return this.selfReady;
@@ -572,13 +581,11 @@ export class ContactService extends Module {
                             });
                         }
                         else {
-                            let error = new ModuleError(ContactService.NAME, responsePacket.data.code, id);
-                            reject(error);
+                            reject(new ModuleError(ContactService.NAME, responsePacket.data.code, id));
                         }
                     }
                     else {
-                        let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, id);
-                        reject(error);
+                        reject(new ModuleError(ContactService.NAME, ContactServiceState.ServerError, id));
                     }
                 });
             });

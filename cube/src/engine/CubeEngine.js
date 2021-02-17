@@ -64,8 +64,8 @@ export class CubeEngine {
     /**
      * 启动引擎。
      * @param {KernelConfig} config 配置信息。
-     * @param {function} handleSuccess 启动成功回调。
-     * @param {function} handleFailure 启动失败回调。
+     * @param {function} [handleSuccess] 启动成功回调。
+     * @param {function} [handleFailure] 启动失败回调。
      */
     start(config, handleSuccess, handleFailure) {
         let success = handleSuccess || function() {};
@@ -118,6 +118,7 @@ export class CubeEngine {
     }
 
     /**
+     * 获取联系人服务。
      * @returns {ContactService} 返回联系人模块。
      */
     getContactService() {
@@ -125,6 +126,7 @@ export class CubeEngine {
     }
 
     /**
+     * 获取文件存储服务。
      * @returns {FileStorage} 返回文件存储模块。
      */
     getFileStorage() {
@@ -132,6 +134,7 @@ export class CubeEngine {
     }
 
     /**
+     * 获取消息服务。
      * @returns {MessagingService} 返回消息模块。
      */
     getMessagingService() {
@@ -139,6 +142,7 @@ export class CubeEngine {
     }
 
     /**
+     * 获取文件处理服务。
      * @returns {FileProcessor} 返回文件处理模块。
      */
     getFileProcessor() {
@@ -146,6 +150,7 @@ export class CubeEngine {
     }
 
     /**
+     * 获取多方通讯服务。
      * @returns {MultipointComm} 返回多方通讯模块。
      */
     getMultipointComm() {

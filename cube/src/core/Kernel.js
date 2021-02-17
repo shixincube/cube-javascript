@@ -59,9 +59,6 @@ export class Kernel {
      */
     static gsInstance = null;
 
-    /**
-     * 构造函数。
-     */
     constructor() {
         /**
          * 内核配置信息。
@@ -71,24 +68,28 @@ export class Kernel {
 
         /**
          * 内核是否正在工作。
+         * @private
          * @type {boolean}
          */
         this.working = false;
 
         /**
          * 依赖文件 URI 路径。
+         * @private
          * @type {string}
          */
         this.depsPath = 'libs/';
 
         /**
          * 数据管道对象映射。
+         * @private
          * @type {FastMap<string,Pipeline>}
          */
         this.pipelines = new FastMap();
 
         /**
          * 模块对象映射。
+         * @private
          * @type {FastMap<string,Module>}
          */
         this.modules = new FastMap();
@@ -183,7 +184,6 @@ export class Kernel {
         let list = this.pipelines.values();
         for (let i = 0; i < list.length; ++i) {
             let pl = list[i];
-            
             pl.close();
         }
 
@@ -229,6 +229,7 @@ export class Kernel {
     /**
      * 获取指定名称的数据通道。
      * @param {string} name 指定数据通道名称。
+     * @returns {Pipeline} 返回指定名称的数据通道。
      */
     getPipeline(name) {
         return this.pipelines.get(name);
@@ -320,7 +321,7 @@ export class Kernel {
 
     /**
      * 检查授权信息。
-     * @private
+     * @protected
      * @param {KernelConfig} config 配置信息。
      * @returns {AuthToken} 返回有效的授权令牌对象。如果未能获取令牌返回 {@linkcode null} 值。
      */

@@ -41,11 +41,11 @@ import { OrderMap } from "../util/OrderMap";
 
 /**
  * 内核模块类。
+ * @extends Subject
  */
 export class Module extends Subject {
 
     /**
-     * 构造函数。
      * @param {string} name 指定模块名称。
      */
     constructor(name) {

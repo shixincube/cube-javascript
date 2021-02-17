@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,6 @@ import { OrderMap } from "./OrderMap";
 export class Announcer {
 
     /**
-     * 构造函数。
      * @param {number} total 约定的计数计数器次数。
      * @param {number} timeout 超时时间。
      */
@@ -121,6 +120,7 @@ export class Announcer {
 
     /**
      * 定时器执行函数。
+     * @private
      */
     _fireTimeout() {
         for (let i = 0; i < this.audienceList.length; ++i) {

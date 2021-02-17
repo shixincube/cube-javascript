@@ -31,6 +31,7 @@ import { Device } from "./Device";
 
 /**
  * 联系人。
+ * @extends Entity
  */
 export class Contact extends Entity {
 

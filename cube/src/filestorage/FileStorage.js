@@ -187,7 +187,7 @@ export class FileStorage extends Module {
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     isReady() {
         return this.serviceReady;

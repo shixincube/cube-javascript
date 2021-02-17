@@ -48,7 +48,7 @@ export class ImageMessage extends TypeableMessage {
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     getSummary() {
         return '[图片] ' + this.getFileName();

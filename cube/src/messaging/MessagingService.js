@@ -256,7 +256,7 @@ export class MessagingService extends Module {
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     isReady() {
         return this.serviceReady;

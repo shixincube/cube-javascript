@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,11 +28,11 @@ import { KernelError } from "./KernelError";
 
 /**
  * 未实现方法错误。
+ * @extends KernelError
  */
 export class UnimplementedMethodError extends KernelError {
 
     /**
-     * 构造函数。
      * @param {string} className 发生错误的类名。
      * @param {string} methodName 发生错误的方法名。
      */

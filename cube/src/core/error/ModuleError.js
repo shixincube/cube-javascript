@@ -26,8 +26,9 @@
 
 /**
  * 模块发生的错误。
+ * @extends Error
  */
-export class ModuleError {
+export class ModuleError extends Error {
 
     /**
      * @param {string} module 模块名。
@@ -36,27 +37,36 @@ export class ModuleError {
      * @param {object} [desc] 附加描述信息。
      */
     constructor(module, code, data, desc) {
+        super();
+
         /**
+         * 模块名。
          * @type {string}
          */
         this.module = module;
 
         /**
+         * 错误码。
          * @type {number}
          */
         this.code = code;
 
         /**
+         * 相关数据。
          * @type {object}
          */
         this.data = data;
 
         /**
+         * 附加描述信息。
          * @type {object}
          */
         this.desc = desc;
     }
 
+    /**
+     * @inheritdoc
+     */
     toString() {
         return 'ModuleError [' + this.module + '] : ' + this.code
             + (this.desc ? ' - ' + this.desc.toString() : '');

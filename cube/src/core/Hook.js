@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,6 @@ import { PluginSystem } from "./PluginSystem";
 export class Hook {
 
     /**
-     * 构造函数。
      * @param {string} name 触发的事件名。
      */
     constructor(name) {
@@ -44,6 +43,7 @@ export class Hook {
 
         /**
          * 钩子的系统宿主。
+         * @private
          * @type {PluginSystem}
          */
         this.system = null;

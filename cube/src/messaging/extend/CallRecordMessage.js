@@ -61,7 +61,7 @@ export class CallRecordMessage extends TypeableMessage {
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     getSummary() {
         return this.getConstraint().video ? '[视频通话]' : '[语音通话]';

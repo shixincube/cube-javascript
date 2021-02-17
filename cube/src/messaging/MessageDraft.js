@@ -71,7 +71,7 @@ export class MessageDraft extends Entity {
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     toJSON() {
         let json = super.toJSON();

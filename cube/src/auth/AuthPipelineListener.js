@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,11 +29,11 @@ import { AuthService } from "./AuthService";
 
 /**
  * 授权通道监听器。
+ * @extends PipelineListener
  */
 export class AuthPipelineListener extends PipelineListener {
 
     /**
-     * 构造函数。
      * @param {AuthService} authService 授权服务实例。
      */
     constructor(authService) {
@@ -50,6 +50,5 @@ export class AuthPipelineListener extends PipelineListener {
      * @inheritdoc
      */
     onReceived(pipeline, endpoint, packet) {
-
     }
 }

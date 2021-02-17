@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -83,7 +83,6 @@ export class Packet {
 
     /**
      * 获取状态码。
-     * 
      * @returns {number} 尝试获得状态码。
      */
     getStateCode() {
@@ -96,7 +95,6 @@ export class Packet {
 
     /**
      * 返回负载数据。
-     * 
      * @returns {JSON} 返回负载数据。
      */
     getPayload() {
@@ -106,6 +104,7 @@ export class Packet {
     /**
      * 从 JSON 格式创建 {@link Packet} 实例。
      * @param {JSON} json 符合格式的 JSON 对象。
+     * @returns {Packet} 返回 {@link Packet} 对象实例。
      */
     static create(json) {
         let packet = new Packet(json.name, json.data, json.sn);

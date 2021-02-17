@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,6 +38,7 @@ import { TokenStorage } from "./TokenStorage";
 /**
  * 授权服务。
  * 管理引擎的授权信息。
+ * @extends Module
  */
 export class AuthService extends Module {
 
@@ -88,12 +89,14 @@ export class AuthService extends Module {
 
         /**
          * 数据通道监听器。
+         * @private
          * @type {AuthPipelineListener}
          */
         this.pipelineListener = new AuthPipelineListener(this);
 
         /**
          * 校验定时器。
+         * @private
          * @type {number}
          */
         this.checkTimer = 0;
@@ -140,8 +143,7 @@ export class AuthService extends Module {
     /**
      * 分配令牌。
      * @param {number} id 指定待分配令牌的 ID 。
-     * @param {function} handler 分配处理回调函数。
-     * @returns {AuthToken} 返回令牌实例。
+     * @param {function} handler 分配处理回调函数。参数：({@linkcode token}:{@link AuthToken}) 。
      */
     allocToken(id, handler) {
         let storage = new TokenStorage();
@@ -249,7 +251,7 @@ export class AuthService extends Module {
      * 申请令牌。
      * @param {string} domain 指定有效的域。
      * @param {string} appKey 指定对应的 App Key 值。
-     * @returns {AuthToken} 返回有效的 {@linkcode AuthToken} 令牌，如果发生错误返回 {@linkcode null} 值。
+     * @returns {Promise} 返回有效的 {@link AuthToken} 令牌，如果发生错误返回 {@linkcode null} 值。
      */
     applyToken(domain, appKey) {
         return new Promise((resolve, reject) => {

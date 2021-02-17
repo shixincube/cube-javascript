@@ -47,7 +47,7 @@ export class TextMessage extends TypeableMessage {
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     getSummary() {
         return this.getText();

@@ -40,7 +40,7 @@ export class FileMessage extends TypeableMessage {
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     getSummary() {
         return '[文件] ' + this.getFileName();

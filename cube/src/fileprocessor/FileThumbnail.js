@@ -110,7 +110,7 @@ export class FileThumbnail extends Entity {
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     toJSON() {
         let json = super.toJSON();
@@ -127,7 +127,7 @@ export class FileThumbnail extends Entity {
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     toCompactJSON() {
         return this.toJSON();

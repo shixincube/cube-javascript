@@ -35,15 +35,39 @@ export class LogHandler extends cell.LogHandler {
         super();
     }
 
+    /**
+     * 当记录 Debug 等级日志时调用。
+     * @param {string} time 日志时间。
+     * @param {string} tag 日志标签。
+     * @param {string} text 日志文本内容。
+     */
     debug(time, tag, text) {
     }
 
+    /**
+     * 当记录 Info 等级日志时调用。
+     * @param {string} time 日志时间。
+     * @param {string} tag 日志标签。
+     * @param {string} text 日志文本内容。
+     */
     info(time, tag, text) {
     }
 
+    /**
+     * 当记录 Warning 等级日志时调用。
+     * @param {string} time 日志时间。
+     * @param {string} tag 日志标签。
+     * @param {string} text 日志文本内容。
+     */
     warn(time, tag, text) {
     }
 
+    /**
+     * 当记录 Error 等级日志时调用。
+     * @param {string} time 日志时间。
+     * @param {string} tag 日志标签。
+     * @param {string} text 日志文本内容。
+     */
     error(time, tag, text) {
     }
 }

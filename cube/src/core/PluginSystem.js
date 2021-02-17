@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,8 +30,10 @@ import { Plugin } from "./Plugin";
 
 /**
  * 哑元钩子。
+ * @extends Hook
  */
 class DummyHook extends Hook {
+
     constructor() {
         super('CubeDummyHook');
     }
@@ -46,8 +48,6 @@ class DummyHook extends Hook {
  */
 export class PluginSystem {
 
-    /**
-     */
     constructor() {
         /**
          * 事件钩子。

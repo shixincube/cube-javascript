@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,6 +35,7 @@ import { Participant } from "./Participant";
 
 /**
  * 会议描述。
+ * @extends Entity
  */
 export class Conference extends Entity {
 
@@ -119,6 +120,7 @@ export class Conference extends Entity {
     }
 
     /**
+     * 获取会议 ID 。
      * @returns {number} 返回会议 ID 。
      */
     getId() {
@@ -126,21 +128,24 @@ export class Conference extends Entity {
     }
 
     /**
-     * @returns {Contact}
+     * 获取会议创建人。
+     * @returns {Contact} 返回会议创建人。
      */
     getFounder() {
         return this.founder;
     }
 
     /**
-     * @returns {Contact}
+     * 获取会议主持人。
+     * @returns {Contact} 返回会议主持人。
      */
     getPresenter() {
         return this.presenter;
     }
 
     /**
-     * @returns {Room}
+     * 获取会议房间。
+     * @returns {Room} 返回会议房间。
      */
     getRoom() {
         return this.room;

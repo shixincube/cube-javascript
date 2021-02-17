@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,11 +29,11 @@ import { PrimaryDescription } from "./PrimaryDescription";
 
 /**
  * 授权访问的令牌。
+ * @extends JSONable
  */
 export class AuthToken extends JSONable {
 
     /**
-     * 构造函数。
      * @param {string} code 令牌编码。
      * @param {string} domain 令牌对应的域。
      * @param {string} appKey 令牌指定的 App Key 信息。

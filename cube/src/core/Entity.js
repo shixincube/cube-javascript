@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,15 +32,14 @@ import { EntityAction } from "./EntityAction";
 /**
  * 信息实体对象。
  * 所有实体对象的基类。
+ * @extends JSONable
  */
 export class Entity extends JSONable {
 
     /**
-     * 构造函数。
      * @param {number} lifespan 实体的生存周期，单位：毫秒。
      */
     constructor(lifespan) {
-        
         super();
 
         /**
