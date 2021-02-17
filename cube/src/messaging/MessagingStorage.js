@@ -550,6 +550,10 @@ export class MessagingStorage {
         return true;
     }
 
+    /**
+     * 写入草稿。
+     * @param {MessageDraft} draft 草稿。
+     */
     writeDraft(draft) {
         if (null == this.db) {
             return false;
@@ -562,17 +566,26 @@ export class MessagingStorage {
         return true;
     }
 
-    deleteDraft(draftOwner) {
+    /**
+     * 删除草稿。
+     * @param {number} ownerId 草稿所属的实体 ID 。
+     */
+    deleteDraft(ownerId) {
         if (null == this.db) {
             return false;
         }
 
         (async ()=> {
-            await this.draftStore.delete(draftOwner);
+            await this.draftStore.delete(ownerId);
         })();
         return true;
     }
 
+    /**
+     * 读取草稿。
+     * @param {number} ownerId 草稿所属实体的 ID 。
+     * @param {function} handler 结果回调，参数：({@linkcode draft}:{@link MessageDraft}) 。
+     */
     readDraft(ownerId, handler) {
         if (null == this.db) {
             return false;

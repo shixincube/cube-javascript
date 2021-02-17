@@ -940,8 +940,8 @@ export class MessagingService extends Module {
 
     /**
      * 删除草稿。
-     * @param {Contact|Group|number} target 
-     * @returns {boolean} 
+     * @param {Contact|Group|number} target 草稿的目标实体。
+     * @returns {boolean} 删除成功返回 {@linkcode true} 。
      */
     deleteDraft(target) {
         if (!this.serviceReady) {
@@ -955,10 +955,10 @@ export class MessagingService extends Module {
 
     /**
      * 加载草稿。
-     * @param {Contact|Group|number} target 
-     * @param {function} handleSuccess 
-     * @param {function} handleFailure 
-     * @returns {boolean} 
+     * @param {Contact|Group|number} target 草稿的目标实体。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode draft}:{@link MessageDraft}) 。
+     * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     * @returns {boolean} 是否可加载。
      */
     loadDraft(target, handleSuccess, handleFailure) {
         if (!this.serviceReady) {

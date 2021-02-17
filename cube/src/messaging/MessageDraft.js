@@ -55,19 +55,24 @@ export class MessageDraft extends Entity {
     }
 
     /**
-     * @returns {number}
+     * 返回草稿的所属实体 ID 。
+     * @returns {number} 返回草稿的所属实体 ID 。
      */
     getOwnerId() {
         return this.ownerId;
     }
 
     /**
-     * @returns {Message}
+     * 获取草稿的消息实体。
+     * @returns {Message} 返回草稿的消息实体。
      */
     getMessage() {
         return this.message;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     toJSON() {
         let json = super.toJSON();
         json.owner = this.ownerId;
