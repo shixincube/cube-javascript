@@ -391,46 +391,34 @@
     MessagingController.prototype.onNewMessage = function(message) {
         // 判断消息是否来自群组
         if (message.isFromGroup()) {
-            // 消息来自群组
-            cube.contact.getGroup(message.getSource(), function(group) {
-                // 更新消息面板
-                g.app.getContact(message.getFrom(), function(sender) {
-                    g.app.messagePanel.appendMessage(group, sender, message);
-                });
+            // 更新消息面板
+            g.app.messagePanel.appendMessage(message.getSourceGroup(), message.getSender(), message);
 
-                // 更新消息目录
-                g.app.messageCatalog.updateItem(group.getId(), message, message.getRemoteTimestamp());
+            // 更新消息目录
+            g.app.messageCatalog.updateItem(message.getSource(), message, message.getRemoteTimestamp());
 
-                that.updateUnread(group.getId(), message);
-            });
+            that.updateUnread(group.getId(), message);
         }
         else {
             // 消息来自联系人
-            g.app.getContact(message.getFrom(), function(sender) {
-                // 获取到发件人
-                if (g.app.account.id == message.getFrom()) {
-                    // 从“我”的其他终端发送的消息
-                    g.app.getContact(message.getTo(), function(target) {
-                        // 更新消息面板
-                        g.app.messagePanel.appendMessage(target, sender, message);
-                        // 更新消息目录
-                        g.app.messageCatalog.updateItem(target.getId(), message, message.getRemoteTimestamp());
 
-                        that.updateUnread(target.getId(), message);
-                    });
-                }
-                else {
-                    // 来自其他联系人或群组
-                    var target = sender;
+            if (g.app.account.id == message.getFrom()) {
+                // 从“我”的其他终端发送的消息
+                // 更新消息面板
+                g.app.messagePanel.appendMessage(message.getReceiver(), message.getSender(), message);
+                // 更新消息目录
+                g.app.messageCatalog.updateItem(message.getTo(), message, message.getRemoteTimestamp());
 
-                    // 更新消息面板
-                    g.app.messagePanel.appendMessage(target, sender, message);
-                    // 更新消息目录
-                    g.app.messageCatalog.updateItem(target.getId(), message, message.getRemoteTimestamp());
+                that.updateUnread(message.getTo(), message);
+            }
+            else {
+                // 更新消息面板
+                g.app.messagePanel.appendMessage(message.getSender(), message.getSender(), message);
+                // 更新消息目录
+                g.app.messageCatalog.updateItem(message.getFrom(), message, message.getRemoteTimestamp());
 
-                    that.updateUnread(target.getId(), message);
-                }
-            });
+                that.updateUnread(message.getFrom(), message);
+            }
         }
     }
 

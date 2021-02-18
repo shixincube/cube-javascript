@@ -94,6 +94,12 @@ export class MessagingService extends Module {
         this.pushQueue = [];
 
         /**
+         * 消息通知达到队列。
+         * @type {Array<Message>}
+         */
+        this.notifiedQueue = [];
+
+        /**
          * 正在发送队列。
          * @type {OrderMap<number,Message>}
          */
@@ -248,6 +254,8 @@ export class MessagingService extends Module {
             fs.detach(fun);
             this.fileStorageEventFun = null;
         }
+
+        this.notifiedQueue.splice(0, this.notifiedQueue.length);
 
         // 关闭存储器
         this.storage.close();
@@ -1095,7 +1103,26 @@ export class MessagingService extends Module {
         let data = (undefined === payload.code && undefined === payload.data) ? payload : payload.data;
         let message = Message.create(data);
 
+        let start = (this.notifiedQueue.length == 0);
+
+        this.notifiedQueue.push(message);
+
+        if (start) {
+            this._processNotify();
+        }
+    }
+
+    /**
+     * @private
+     */
+    _processNotify() {
         (async ()=> {
+            if (this.notifiedQueue.length == 0) {
+                return;
+            }
+
+            let message = this.notifiedQueue.shift();
+
             let result = null;
             try {
                 result = await this.fillMessage(message);
@@ -1106,11 +1133,6 @@ export class MessagingService extends Module {
 
             // 赋值
             message = result;
-
-            // 状态修正
-            if (message.state != MessageState.Read) {
-                message.state = MessageState.Sent;
-            }
 
             // 使用服务器的时间戳设置为最新消息时间
             this.refreshLastMessageTime(message.getRemoteTimestamp());
@@ -1144,8 +1166,11 @@ export class MessagingService extends Module {
                     // 回调事件
                     this.notifyObservers(new ObservableEvent(MessagingEvent.Notify, message));
                 }
+
+                this._processNotify();
             }).catch((error) => {
                 console.log('MessagingService ' + error);
+                this._processNotify();
             });
         })();
     }
