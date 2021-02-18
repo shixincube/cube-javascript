@@ -1107,6 +1107,11 @@ export class MessagingService extends Module {
             // 赋值
             message = result;
 
+            // 状态修正
+            if (message.state != MessageState.Read) {
+                message.state = MessageState.Sent;
+            }
+
             // 使用服务器的时间戳设置为最新消息时间
             this.refreshLastMessageTime(message.getRemoteTimestamp());
 
