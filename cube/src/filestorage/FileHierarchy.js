@@ -221,8 +221,8 @@ export class FileHierarchy {
      * @param {Directory} directory 
      * @param {number} beginIndex 
      * @param {number} endIndex 
-     * @param {function} handleSuccess 
-     * @param {function} handleFailure 
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode directory}, {@linkcode fileList}, {@linkcode beginIndex}, {@linkcode endIndex}) 。
+     * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
     listFiles(directory, beginIndex, endIndex, handleSuccess, handleFailure) {
         let request = new Packet(FileStorageAction.ListFiles, {

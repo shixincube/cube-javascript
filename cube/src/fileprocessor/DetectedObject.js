@@ -29,6 +29,7 @@ import { BoundingBox } from "../util/BoundingBox";
 
 /**
  * 检测到的物体描述。
+ * @extends Entity
  */
 export class DetectedObject extends Entity {
 

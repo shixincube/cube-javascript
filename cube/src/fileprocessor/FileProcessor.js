@@ -36,6 +36,7 @@ import { CVResult } from "./CVResult";
 
 /**
  * 文件处理器。
+ * @extends Module
  */
 export class FileProcessor extends Module {
 

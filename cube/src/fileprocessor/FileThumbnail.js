@@ -29,6 +29,7 @@ import { FileLabel } from "../filestorage/FileLabel";
 
 /**
  * 文件缩略图。
+ * @extends Entity
  */
 export class FileThumbnail extends Entity {
 

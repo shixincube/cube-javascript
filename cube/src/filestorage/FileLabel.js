@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,7 @@ import { Entity } from "../core/Entity";
 
 /**
  * 文件标签。
+ * @extends Entity
  */
 export class FileLabel extends Entity {
 
@@ -124,6 +125,7 @@ export class FileLabel extends Entity {
     }
 
     /**
+     * 获取文件的 ID 。
      * @returns {number} 返回文件 ID 。
      */
     getId() {
@@ -131,6 +133,7 @@ export class FileLabel extends Entity {
     }
 
     /**
+     * 获取文件所属的域。
      * @returns {string} 返回文件域。
      */
     getDomain() {
@@ -138,6 +141,7 @@ export class FileLabel extends Entity {
     }
 
     /**
+     * 获取文件所有人的 ID 。
      * @returns {number} 返回文件所有人 ID 。
      */
     getOwnderId() {
@@ -145,6 +149,7 @@ export class FileLabel extends Entity {
     }
 
     /**
+     * 获取文件名。
      * @returns {string} 返回文件名。
      */
     getFileName() {
@@ -152,6 +157,7 @@ export class FileLabel extends Entity {
     }
 
     /**
+     * 获取文件大小。
      * @returns {number} 返回文件大小，单位：字节。
      */
     getFileSize() {
@@ -159,6 +165,7 @@ export class FileLabel extends Entity {
     }
 
     /**
+     * 获取文件最后一次修改时间。
      * @returns {number} 返回文件最后一次修改时间。
      */
     getLastModified() {
@@ -166,6 +173,7 @@ export class FileLabel extends Entity {
     }
 
     /**
+     * 获取文件的访问文件码。
      * @returns {string} 返回文件码。
      */
     getFileCode() {
@@ -173,6 +181,7 @@ export class FileLabel extends Entity {
     }
 
     /**
+     * 获取文件的上传完成时间。
      * @returns {number} 返回文件完成时间。
      */
     getCompletedTime() {
@@ -180,6 +189,7 @@ export class FileLabel extends Entity {
     }
 
     /**
+     * 获取文件的过期时间。
      * @returns {number} 返回文件过期时间。
      */
     getExpiryTime() {
@@ -187,6 +197,7 @@ export class FileLabel extends Entity {
     }
 
     /**
+     * 获取文件类型。
      * @returns {string} 返回文件类型描述。
      */
     getFileType() {
@@ -194,6 +205,7 @@ export class FileLabel extends Entity {
     }
 
     /**
+     * 获取文件数据的 MD5 码。
      * @returns {string} 返回文件 MD5 码。
      */
     getMD5Code() {
@@ -201,6 +213,7 @@ export class FileLabel extends Entity {
     }
 
     /**
+     * 获取文件数据的 SHA1 码。
      * @returns {string} 返回文件 SHA1 码。
      */
     getSHA1Code() {
@@ -255,6 +268,7 @@ export class FileLabel extends Entity {
 
     /**
      * 从 JSON 数据创建 {@link FileLabel} 对象。
+     * @private
      * @param {JSON} json 符合格式的 JSON 数据。
      * @returns {FileLabel} 返回 {@link FileLabel} 对象实例。
      */

@@ -57,6 +57,7 @@ import { SearchItem } from "./SearchItem";
 
 /**
  * 云端文件存储模块。
+ * @extends Module
  */
 export class FileStorage extends Module {
 
@@ -66,9 +67,6 @@ export class FileStorage extends Module {
      */
     static NAME = 'FileStorage';
 
-    /**
-     * 构造函数。
-     */
     constructor() {
         super('FileStorage');
 

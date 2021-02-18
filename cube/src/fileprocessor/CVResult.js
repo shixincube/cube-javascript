@@ -33,20 +33,30 @@ export class CVResult {
 
     constructor() {
         /**
+         * 文件码。
+         * @private
          * @type {string}
          */
         this.fileCode = null;
         
         /**
+         * 检测到的对象。
+         * @private
          * @type {Array<DetectedObject>}
          */
         this.detectedObjects = [];
     }
 
+    /**
+     * @returns {string}
+     */
     getFileCode() {
         return this.fileCode;
     }
 
+    /**
+     * @returns {Array<DetectedObject>}
+     */
     getDetectedObjects() {
         return this.detectedObjects;
     }
@@ -54,7 +64,7 @@ export class CVResult {
     /**
      * 创建符合 JSON 格式的 {@link CVResult} 对象实例。
      * @param {JSON} json 
-     * @returns {CVResult}
+     * @returns {CVResult} 返回 {@link CVResult} 对象实例。
      */
     static create(json) {
         let result = new CVResult();

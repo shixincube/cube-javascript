@@ -117,6 +117,9 @@ export class FileStructStorage {
         this.labelStore = this.db.use('label');
     }
 
+    /**
+     * 关闭存储器。
+     */
     close() {
         if (null == this.db) {
             return;

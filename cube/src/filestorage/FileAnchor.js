@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,7 @@ import { JSONable } from "../util/JSONable";
 
 /**
  * 文件锚点。
+ * @extends JSONable
  */
 export class FileAnchor extends JSONable {
 
@@ -114,12 +115,16 @@ export class FileAnchor extends JSONable {
         return this.toJSON();
     }
 
+    /**
+     * @inheritdoc
+     */
     toString() {
         return this.position.toString();
     }
 
     /**
      * 从 JSON 数据创建 {@link FileAnchor} 对象。
+     * @private
      * @param {JSON} json 符合 {@link FileAnchor} 格式的 JSON 对象。
      * @returns {FileAnchor} 返回 {@link FileAnchor} 实例。
      */

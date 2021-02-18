@@ -28,6 +28,7 @@ import { FileLabel } from "./FileLabel";
 
 /**
  * 废弃的文件。
+ * @extends FileLabel
  */
 export class TrashFile extends FileLabel {
 
@@ -59,20 +60,23 @@ export class TrashFile extends FileLabel {
     }
 
     /**
-     * @returns {boolean} 是否是文件。
+     * 是否是文件。
+     * @returns {boolean} 返回 {@linkcode true} 。
      */
     isFile() {
         return true;
     }
 
     /**
-     * @returns {boolean} 是否是目录。
+     * 是否是目录。
+     * @returns {boolean} 返回 {@linkcode false} 。
      */
     isDirectory() {
         return false;
     }
 
     /**
+     * 获取废弃的时间戳。
      * @returns {number} 返回废弃的时间戳。
      */
     getTrashTimestamp() {

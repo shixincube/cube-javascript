@@ -36,6 +36,7 @@ import { TouchedRecord } from "./TouchedRecord";
 
 /**
  * 人脸监视模块。
+ * @extends Module
  */
 export class FaceMonitor extends Module {
 

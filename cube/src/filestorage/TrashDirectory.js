@@ -55,7 +55,8 @@ export class TrashDirectory {
     }
 
     /**
-     * @returns {number}
+     * 获取废弃目录的 ID 。
+     * @returns {number} 返回废弃目录的 ID 。
      */
     getId() {
         return this.trashId;
@@ -69,85 +70,95 @@ export class TrashDirectory {
     }
 
     /**
-     * @returns {Directory}
+     * 获取废弃目录的原父目录。
+     * @returns {Directory} 返回废弃目录的原父目录。
      */
     getParent() {
         return this.dir.parent;
     }
 
     /**
-     * @returns {boolean}
+     * 废弃目录是否是根目录。
+     * @returns {boolean} 如果是根目录返回 {@linkcode true} 。
      */
     isRoot() {
         return (null == this.dir.parent);
     }
 
     /**
-     * @returns {string}
+     * 获取目录名。
+     * @returns {string} 返回目录名。
      */
     getName() {
         return this.dir.name;
     }
 
     /**
-     * @returns {number}
+     * 获取目录的创建时间。
+     * @returns {number} 返回目录的创建时间。
      */
     getCreation() {
         return this.dir.creation;
     }
 
     /**
-     * @returns {number}
+     * 获取目录最后一次修改时间。
+     * @returns {number} 返回目录最后一次修改时间。
      */
     getLastModified() {
         return this.dir.lastModified;
     }
 
     /**
-     * @returns {number}
+     * 获取目录包含的所有文件大小。
+     * @returns {number} 返回目录包含的所有文件大小。
      */
     getSize() {
         return this.dir.size;
     }
 
     /**
-     * @returns {boolean}
+     * 当前目录是否是隐藏目录。
+     * @returns {boolean} 如果是隐藏目录返回 {@linkcode true} 。
      */
     isHidden() {
         return this.dir.hidden;
     }
 
     /**
-     * 合计文件夹数量。
-     * @returns {number}
+     * 合计包含的同级目录数量。
+     * @returns {number} 返回包含的同级目录数量。
      */
     totalDirs() {
         return this.dir.numDirs;
     }
 
     /**
-     * 合计文件数量。
-     * @returns {number}
+     * 合计包含的同级文件数量。
+     * @returns {number} 返回包含的同级文件数量。
      */
     totalFiles() {
         return this.dir.numFiles;
     }
 
     /**
-     * @returns {boolean} 是否是文件。
+     * 是否是文件。
+     * @returns {boolean} 返回 {@linkcode false} 。
      */
     isFile() {
         return false;
     }
 
     /**
-     * @returns {boolean} 是否是目录。
+     * 是否是目录。
+     * @returns {boolean} 返回 {@linkcode true} 。
      */
     isDirectory() {
         return true;
     }
 
     /**
+     * 获取废弃的时间戳。
      * @returns {number} 返回废弃的时间戳。
      */
     getTrashTimestamp() {

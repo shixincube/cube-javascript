@@ -38,155 +38,179 @@ export class Directory {
      */
     constructor(hierarchy) {
         /**
+         * 文件层级描述。
          * @type {FileHierarchy}
          */
         this.hierarchy = hierarchy;
 
         /**
+         * 目录的 ID 。
          * @type {number}
          */
         this.id = 0;
 
         /**
+         * 目录所属的域。
          * @type {string}
          */
         this.domain = null;
 
         /**
+         * 目录所属的实体 ID 。
          * @type {number}
          */
         this.ownerId = 0;
 
         /**
+         * 父目录 ID 。
          * @type {number}
          */
         this.parentId = 0;
 
         /**
+         * 父目录。
          * @type {Directory}
          */
         this.parent = null;
 
         /**
+         * 目录名。
          * @type {string}
          */
         this.name = null;
 
         /**
+         * 目录的创建时间。
          * @type {number}
          */
         this.creation = 0;
 
         /**
+         * 目录最后一次修改时间。
          * @type {number}
          */
         this.lastModified = 0;
 
         /**
+         * 是否是隐藏目录。
          * @type {boolean}
          */
         this.hidden = false;
 
         /**
+         * 目录内所有各级文件大小总和。
          * @type {number}
          */
         this.size = 0;
 
         /**
+         * 当前目录的子目录数量。
          * @type {number}
          */
         this.numDirs = 0;
 
         /**
+         * 子目录映射。
          * @type {OrderMap<number,Directory>}
          */
         this.children = new OrderMap();
 
         /**
+         * 当前目录下的文件数量。
          * @type {number}
          */
         this.numFiles = 0;
 
         /**
+         * 包含的文件映射。
          * @type {OrderMap<string,FileLabel>}
          */
         this.files = new OrderMap();
     }
 
     /**
-     * @returns {number}
+     * 获取目录的 ID 。
+     * @returns {number} 返回目录的 ID 。
      */
     getId() {
         return this.id;
     }
 
     /**
-     * @returns {string}
+     * 获取目录所属的域。
+     * @returns {string} 返回目录所属的域。
      */
     getDomain() {
         return this.domain;
     }
 
     /**
-     * @returns {Directory}
+     * 获取父目录。
+     * @returns {Directory} 返回父目录。
      */
     getParent() {
         return this.parent;
     }
 
     /**
-     * @returns {boolean}
+     * 是否是根目录。
+     * @returns {boolean} 如果当前目录是根目录返回 {@linkcode true} 。
      */
     isRoot() {
         return (null == this.parent);
     }
 
     /**
-     * @returns {string}
+     * 获取目录名。
+     * @returns {string} 返回目录名。
      */
     getName() {
         return this.name;
     }
 
     /**
-     * @returns {number}
+     * 获取目录创建时间。
+     * @returns {number} 返回目录创建时间。
      */
     getCreation() {
         return this.creation;
     }
 
     /**
-     * @returns {number}
+     * 获取目录最近一次修改时间。
+     * @returns {number} 返回目录最近一次修改时间。
      */
     getLastModified() {
         return this.lastModified;
     }
 
     /**
-     * @returns {number}
+     * 获取目录包含的所有文件大小。
+     * @returns {number} 返回目录包含的所有文件大小。
      */
     getSize() {
         return this.size;
     }
 
     /**
-     * @returns {boolean}
+     * 当前目录是否是隐藏目录。
+     * @returns {boolean} 如果是隐藏目录返回 {@linkcode true} 。
      */
     isHidden() {
         return this.hidden;
     }
 
     /**
-     * 合计文件夹数量。
-     * @returns {number}
+     * 合计包含的同级目录数量。
+     * @returns {number} 返回包含的同级目录数量。
      */
     totalDirs() {
         return this.numDirs;
     }
 
     /**
-     * 合计文件数量。
-     * @returns {number}
+     * 合计包含的同级文件数量。
+     * @returns {number} 返回包含的同级文件数量。
      */
     totalFiles() {
         return this.numFiles;
@@ -246,10 +270,10 @@ export class Directory {
 
     /**
      * 上传文件到该目录。
-     * @param {File} file 
-     * @param {function} handleProcessing 
+     * @param {File} file 指定文件。
+     * @param {function} handleProcessing 正在上传文件回调。
      * @param {function} handleSuccess 成功回调。参数：({@linkcode directory}:{@link Directory}, {@linkcode fileLabel}:{@link FileLabel}) 。
-     * @param {function} handleFailure 
+     * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
     uploadFile(file, handleProcessing, handleSuccess, handleFailure) {
         this.hierarchy.uploadFileTo(file, this, handleProcessing, handleSuccess, handleFailure);
@@ -257,10 +281,10 @@ export class Directory {
 
     /**
      * 罗列指定索引范围内的所有文件。
-     * @param {number} beginIndex 
-     * @param {number} endIndex 
-     * @param {function} handleSuccess 成功回调。参数：({@linkcode dir}:{@link Directory}, {@linkcode list}:{@linkcode Array}, {@linkcode begin}:{@linkcode number}, {@linkcode end}:{@linkcode number})
-     * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError})
+     * @param {number} beginIndex 起始索引。
+     * @param {number} endIndex 结束索引。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode dir}:{@link Directory}, {@linkcode list}:{@linkcode Array}, {@linkcode begin}:{@linkcode number}, {@linkcode end}:{@linkcode number}) 。
+     * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
     listFiles(beginIndex, endIndex, handleSuccess, handleFailure) {
         if (this.numFiles == this.files.size()) {
@@ -297,7 +321,7 @@ export class Directory {
 
     /**
      * 获取指定文件码的文件。
-     * @param {string} fileCode 
+     * @param {string} fileCode 指定文件码。
      * @returns {FileLabel} 返回指定文件码的文件。
      */
     getFile(fileCode) {
@@ -306,7 +330,7 @@ export class Directory {
 
     /**
      * 获取指定文件名的文件。
-     * @param {string} name 
+     * @param {string} name 指定文件名。
      * @returns {FileLabel} 返回指定文件名的文件。
      */
     getFileByName(name) {
@@ -412,6 +436,7 @@ export class Directory {
 
     /**
      * 创建 JSON 格式指定的 {@link Directory} 对象实例。
+     * @private
      * @param {JSON} json 
      * @param {FileHierarchy} hierarchy
      * @returns {Directory} 

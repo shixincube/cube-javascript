@@ -32,6 +32,7 @@ import { AuthService } from "../auth/AuthService";
 
 /**
  * 文件附件。
+ * @extends JSONable
  */
 export class FileAttachment extends JSONable {
 
@@ -203,6 +204,7 @@ export class FileAttachment extends JSONable {
     }
 
     /**
+     * 获取文件默认缩略图。
      * @returns {FileThumbnail} 返回文件默认缩略图。
      */
     getDefaultThumb() {
@@ -216,6 +218,7 @@ export class FileAttachment extends JSONable {
     }
 
     /**
+     * 获取文件默认缩略图的访问 URL 。
      * @returns {string} 返回文件默认缩略图的 URL 信息。
      */
     getDefaultThumbURL(secure) {

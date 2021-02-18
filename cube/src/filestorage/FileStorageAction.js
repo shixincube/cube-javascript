@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -90,6 +90,7 @@ export const FileStorageAction = {
 
     /**
      * 抹除回收站里的废弃数据。
+     * @type {string}
      */
     EraseTrash: 'eraseTrash',
 
@@ -101,6 +102,7 @@ export const FileStorageAction = {
 
     /**
      * 检索文件。
+     * @type {string}
      */
     SearchFile: 'searchFile'
 }
