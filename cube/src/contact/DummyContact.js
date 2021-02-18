@@ -28,6 +28,7 @@ import { Contact } from "./Contact";
 
 /**
  * 哑元联系人。
+ * @extends Contact
  */
 export class DummyContact extends Contact {
 

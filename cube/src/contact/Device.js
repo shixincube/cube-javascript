@@ -29,6 +29,7 @@ import { BroswerUtil } from "../util/BroswerUtil";
 
 /**
  * 设备描述。
+ * @extends JSONable
  */
 export class Device extends JSONable {
 

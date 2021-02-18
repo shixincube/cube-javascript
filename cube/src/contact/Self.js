@@ -30,6 +30,7 @@ import { AuthService } from "../auth/AuthService";
 
 /**
  * 用户描述自己的账号。
+ * @extends Contact
  */
 export class Self extends Contact {
 

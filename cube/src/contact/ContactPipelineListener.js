@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,11 +32,11 @@ import { StateCode } from "../core/StateCode";
 
 /**
  * 联系人数据管道监听器。
+ * @extends PipelineListener
  */
 export class ContactPipelineListener extends PipelineListener {
 
     /**
-     * 构造函数。
      * @param {ContactService} contactService 联系人模块实例。
      */
     constructor(contactService) {
