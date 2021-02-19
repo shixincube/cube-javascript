@@ -32,7 +32,6 @@ import { EntityAction } from "./EntityAction";
 /**
  * 信息实体对象。
  * 所有实体对象的基类。
- * @extends JSONable
  */
 export class Entity extends JSONable {
 

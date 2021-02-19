@@ -32,7 +32,6 @@ import { CallRecordMessage } from "./CallRecordMessage";
 
 /**
  * 消息类型插件。
- * @extends MessagePlugin
  */
 export class MessageTypePlugin extends MessagePlugin {
 

@@ -29,7 +29,6 @@ import { TypeableMessage } from "./TypeableMessage";
 
 /**
  * 图片消息。
- * @extends TypeableMessage
  */
 export class ImageMessage extends TypeableMessage {
 

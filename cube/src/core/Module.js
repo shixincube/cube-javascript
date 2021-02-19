@@ -41,7 +41,6 @@ import { OrderMap } from "../util/OrderMap";
 
 /**
  * 内核模块类。
- * @extends Subject
  */
 export class Module extends Subject {
 

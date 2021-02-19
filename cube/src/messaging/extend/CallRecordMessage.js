@@ -30,7 +30,6 @@ import { TypeableMessage } from "./TypeableMessage";
 
 /**
  * 通话记录消息。
- * @extends TypeableMessage
  */
 export class CallRecordMessage extends TypeableMessage {
 
