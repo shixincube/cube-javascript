@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,7 @@ import { Message } from "./Message";
 
 /**
  * 通知插件。
+ * @extends Plugin
  */
 export class MessagePlugin extends Plugin {
 
@@ -38,7 +39,7 @@ export class MessagePlugin extends Plugin {
     }
 
     /**
-     * @private
+     * @inheritdoc
      */
     onEvent(name, data) {
         if (name == InstantiateHook.NAME) {
@@ -52,7 +53,7 @@ export class MessagePlugin extends Plugin {
     /**
      * 当消息需要实例化（分化）时调用该回调。
      * @param {Message} message 原始消息实例。
-     * @returns {*} 消息实例。
+     * @returns {Message|*} 消息实例。
      */
     onInstantiate(message) {
         return message;

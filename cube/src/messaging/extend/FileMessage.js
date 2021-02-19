@@ -28,6 +28,7 @@ import { TypeableMessage } from "./TypeableMessage";
 
 /**
  * 文件消息。
+ * @extends TypeableMessage
  */
 export class FileMessage extends TypeableMessage {
 

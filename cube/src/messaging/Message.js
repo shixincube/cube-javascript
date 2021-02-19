@@ -34,6 +34,7 @@ import { Group } from "../contact/Group";
 
 /**
  * 消息实体。
+ * @extends Entity
  */
 export class Message extends Entity {
 
@@ -275,7 +276,7 @@ export class Message extends Entity {
 
     /**
      * 设置文件附件。
-     * @param {File} file 
+     * @param {File|FileAttachment} file 指定文件实例。
      */
     setAttachment(file) {
         if (file instanceof File) {

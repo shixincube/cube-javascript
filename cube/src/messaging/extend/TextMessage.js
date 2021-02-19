@@ -29,6 +29,7 @@ import { TypeableMessage } from "./TypeableMessage";
 
 /**
  * 文本消息。
+ * @extends TypeableMessage
  */
 export class TextMessage extends TypeableMessage {
 

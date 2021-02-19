@@ -30,11 +30,12 @@ import { TypeableMessage } from "./TypeableMessage";
 
 /**
  * 通话记录消息。
+ * @extends TypeableMessage
  */
 export class CallRecordMessage extends TypeableMessage {
 
     /**
-     * @param {*} param 
+     * @param {CallRecord} param 
      */
     constructor(param) {
         super(param);
@@ -180,6 +181,7 @@ export class CallRecordMessage extends TypeableMessage {
     }
 
     /**
+     * 获取应答时的时间戳。
      * @returns {number} 返回应答时间戳。
      */
     getAnswerTime() {

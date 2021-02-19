@@ -31,6 +31,7 @@ import { Message } from "./Message";
 
 /**
  * 消息草稿。
+ * @extends Entity
  */
 export class MessageDraft extends Entity {
 

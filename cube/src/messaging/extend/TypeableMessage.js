@@ -28,6 +28,7 @@ import { Message } from "../Message";
 
 /**
  * 可分类消息。
+ * @extends Message
  */
 export class TypeableMessage extends Message {
 

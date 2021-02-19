@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,6 @@ import { CellPipeline } from "./CellPipeline";
 export class CellTalkListener extends cell.TalkListener {
 
     /**
-     * 构造函数。
      * @param {CellPipeline} pipeline 数据通道实例。
      */
     constructor(pipeline) {

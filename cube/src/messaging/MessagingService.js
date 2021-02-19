@@ -52,6 +52,7 @@ import { MessageDraft } from "./MessageDraft";
 
 /**
  * 消息服务模块接口。
+ * @extends Module
  */
 export class MessagingService extends Module {
 

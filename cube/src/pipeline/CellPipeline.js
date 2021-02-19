@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,6 +33,7 @@ import { StateCode } from "../core/StateCode";
 
 /**
  * 使用 Cell 进行通信的管道服务。
+ * @extends Pipeline
  */
 export class CellPipeline extends Pipeline {
 
@@ -42,9 +43,6 @@ export class CellPipeline extends Pipeline {
      */
     static NAME = 'Cell';
 
-    /**
-     * 构造函数。
-     */
     constructor() {
         super('Cell');
 
@@ -69,6 +67,7 @@ export class CellPipeline extends Pipeline {
 
         /**
          * 应答超时控制定时器。
+         * @type {number}
          */
         this.responseTimer = 0;
         /**
