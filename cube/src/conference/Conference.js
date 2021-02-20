@@ -160,7 +160,7 @@ export class Conference extends Entity {
         this.service.updateAppointment(this);
     }
 
-    sendOutInvitation(name, displayName) {
+    sendInvitation(name, displayName) {
         this.invitees.put(name, new Invitation(name, displayName));
     }
 

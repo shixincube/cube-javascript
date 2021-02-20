@@ -41,7 +41,7 @@ class AccountRepository {
         }, {
             id: 50001002,
             name: '王沛珊',
-            avatar: '/images/avatar02.png',
+            avatar: '/images/avatar13.png',
             state: 'offline',
             region: '武汉',
             department: '媒介部',
@@ -49,7 +49,7 @@ class AccountRepository {
         }, {
             id: 50001003,
             name: '郝思雁',
-            avatar: '/images/avatar03.png',
+            avatar: '/images/avatar15.png',
             state: 'offline',
             region: '上海',
             department: '公关部',
@@ -57,7 +57,7 @@ class AccountRepository {
         }, {
             id: 50001004,
             name: '高海光',
-            avatar: '/images/avatar04.png',
+            avatar: '/images/avatar09.png',
             state: 'offline',
             region: '成都',
             department: '技术部',
@@ -65,7 +65,7 @@ class AccountRepository {
         }, {
             id: 50001005,
             name: '张明宇',
-            avatar: '/images/avatar05.png',
+            avatar: '/images/avatar12.png',
             state: 'offline',
             region: '广州',
             department: '设计部',
