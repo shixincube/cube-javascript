@@ -36,6 +36,12 @@ export const ContactServiceState = {
     Ok: 0,
 
     /**
+     * 无效的参数。
+     * @type {number}
+     */
+    InvalidParameter: 5,
+
+    /**
      * 遇到故障。
      * @type {number}
      */
