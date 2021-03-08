@@ -31,7 +31,7 @@ const stringRandom = require('string-random');
  * 模拟应用程序管理的类。
  */
 class CubeAppManager {
-    
+
     constructor() {
         this.accountRepo = new AccountRepository();
 

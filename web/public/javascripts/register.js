@@ -31,8 +31,12 @@
         $('#account').val('');
         $('#password').val('');
 
-        // 登录按钮
-        $('#btn_login').on('click', function(e) {
+        $('#select_avatar').on('click', function(e) {
+            $('#modal_avatar').modal('show');
+        });
+
+        // 注册按钮
+        $('#btn_register').on('click', function(e) {
             var account = $('#account').val();
             var password = $('#password').val();
 
@@ -67,10 +71,6 @@
             // $.post('/account/login', data, function(response, status, xhr) {
             //     window.location.href = 'main.html?t=' + response.token;
             // }, 'json');
-        });
-
-        // 注册按钮
-        $('#btn_register').on('click', function(e) {
         });
     });
 

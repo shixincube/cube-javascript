@@ -4,6 +4,10 @@ body {
     font-family: MicrosoftYaHei, "Microsoft YaHei", "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
+h4 {
+    font-size: 20px;
+}
+
 .fas {
     padding-left: 4px;
 }
@@ -17,6 +21,20 @@ body {
     font-size: 14px;
 }
 
-#btn_login {
+.btn {
     font-size: 16px;
+}
+
+.modal .btn {
+    font-size: 14px;
+}
+
+.avatar {
+    text-align: center;
+    padding: 8px 10px;
+}
+.avatar img {
+    width: 50px;
+    height: 50px;
+    border-radius: 10%;
 }

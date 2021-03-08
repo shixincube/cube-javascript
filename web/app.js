@@ -4,11 +4,14 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var logger = require('morgan');
+var manager = require('./app/CubeAppManager');
 
 var indexRouter = require('./routes/index');
 var accountRouter = require('./routes/account');
 
 var app = express();
+
+app.set('manager', manager);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
