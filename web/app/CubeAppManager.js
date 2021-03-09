@@ -53,10 +53,28 @@ class CubeAppManager {
                 return;
             }
 
-            
+            // 比较密码
+            if (password != data.password) {
+                callback(8, '');
+                return;
+            }
 
-            callback(0, '');
+            // 生成 Token
+            let token = stringRandom(32, {numbers: false});
+            // 更新令牌
+            this.accRepo.updateToken(data.id, token, maxAge);
+
+            callback(0, token);
         });
+    }
+
+    /**
+     * 账号登出。
+     * @param {number} id 
+     * @param {string} token 
+     */
+    logout(id, token) {
+        // TODO
     }
 
     /**
@@ -72,10 +90,6 @@ class CubeAppManager {
             if (null == data) {
                 callback(9, {});
                 return;
-            }
-
-            if () {
-                
             }
 
             callback(0, data);

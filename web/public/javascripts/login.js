@@ -30,6 +30,7 @@
     function login() {
         var account = $('#account').val();
         var password = $('#password').val();
+        var remember = $('#remember').prop('checked');
 
         if (account.length < 3) {
             $(document).Toasts('create', {
@@ -63,7 +64,8 @@
         // request
         $.post('/account/login', {
             "account": account,
-            "password": pwdMD5
+            "password": pwdMD5,
+            "remember": remember
         }, function(response, status, xhr) {
             if (response.code == 0) {
                 alert('ok');

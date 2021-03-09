@@ -57,3 +57,7 @@ h4 {
     border-top-right-radius: 10%;
     border-bottom-right-radius: 10%;
 }
+
+.icheck-primary {
+    font-size: 14px;
+}

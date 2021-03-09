@@ -24,6 +24,7 @@
  * SOFTWARE.
  */
 
+const e = require('express');
 const mysql = require('mysql');
 const config = require('../config');
 
@@ -36,69 +37,94 @@ class AccountRepository {
         config.db.connectionLimit = 10;
         this.pool = mysql.createPool(config.db);
 
-        /*this.accounts = [{
+        setTimeout(() => {
+            this.buildInData();
+        }, 1000);
+    }
+
+    buildInData() {
+        let accounts = [{
             id: 50001001,
+            account: 'cube1',
+            password: 'c7af98d321febe62e04d45e8806852e0',
             name: '李国诚',
-            avatar: '/images/avatar01.png',
-            state: 'offline',
+            avatar: 'images/avatar01.png',
+            state: 0,
             region: '北京',
             department: '产品中心',
             last: 0
         }, {
             id: 50001002,
+            account: 'cube2',
+            password: 'c7af98d321febe62e04d45e8806852e0',
             name: '王沛珊',
-            avatar: '/images/avatar13.png',
-            state: 'offline',
+            avatar: 'images/avatar13.png',
+            state: 0,
             region: '武汉',
             department: '媒介部',
             last: 0
         }, {
             id: 50001003,
+            account: 'cube3',
+            password: 'c7af98d321febe62e04d45e8806852e0',
             name: '郝思雁',
-            avatar: '/images/avatar15.png',
-            state: 'offline',
+            avatar: 'images/avatar15.png',
+            state: 0,
             region: '上海',
             department: '公关部',
             last: 0
         }, {
             id: 50001004,
+            account: 'cube4',
+            password: 'c7af98d321febe62e04d45e8806852e0',
             name: '高海光',
-            avatar: '/images/avatar09.png',
-            state: 'offline',
+            avatar: 'images/avatar09.png',
+            state: 0,
             region: '成都',
             department: '技术部',
             last: 0
         }, {
             id: 50001005,
+            account: 'cube5',
+            password: 'c7af98d321febe62e04d45e8806852e0',
             name: '张明宇',
-            avatar: '/images/avatar12.png',
-            state: 'offline',
+            avatar: 'images/avatar12.png',
+            state: 0,
             region: '广州',
             department: '设计部',
             last: 0
-        }];*/
-    }
+        }];
 
-    queryAccount(account, handlerCallback) {
-        this.pool.query("SELECT * FROM account WHERE `account`='" + account + "'", function(error, results, fields) {
-            if (error || results.length == 0) {
-                handlerCallback(null);
-                return;
+        (async () => {
+            for (let i = 0; i < accounts.length; ++i) {
+                let acc = accounts[i];
+                let result = await this.queryAccount(acc.account);
+                if (null == result) {
+                    let params = [
+                        acc.id,
+                        acc.account,
+                        acc.password,
+                        acc.name,
+                        acc.avatar,
+                        acc.region,
+                        acc.department
+                    ];
+                    this.pool.query('INSERT INTO `account` (id,account,password,name,avatar,region,department) VALUE (?,?,?,?,?,?,?)', params, (error, result) => {
+                    });
+                }
             }
-
-            handlerCallback(results[0]);
-        });
+        })();
     }
 
     createAccount(account, password, nickname, avatar, handlerCallback) {
-        var params = [
+        let params = [
             this.generateSerialNumber(),
             account,
             password,
             nickname,
             avatar
         ];
-        this.pool.query('INSERT INTO `account` (id,account,password,name,avatar) VALUE (?,?,?,?,?)', params, function(error, result) {
+        this.pool.query('INSERT INTO `account` (id,account,password,name,avatar) VALUE (?,?,?,?,?)', params, (error, result) => {
             if (error) {
                 handlerCallback(null);
                 return;
@@ -115,6 +141,53 @@ class AccountRepository {
                 department: '--',
                 last: 0
             });
+        });
+    }
+
+    queryAccount(account, handlerCallback) {
+        if (undefined === handlerCallback) {
+            return new Promise((resolve, reject) => {
+                this.pool.query("SELECT * FROM account WHERE `account`='" + account + "'", (error, results, fields) => {
+                    if (error || results.length == 0) {
+                        resolve(null);
+                    }
+                    else {
+                        resolve(results[0]);
+                    }
+                });
+            });
+        }
+        else {
+            this.pool.query("SELECT * FROM account WHERE `account`='" + account + "'", (error, results, fields) => {
+                if (error || results.length == 0) {
+                    handlerCallback(null);
+                    return;
+                }
+
+                handlerCallback(results[0]);
+            });
+        }
+    }
+
+    updateToken(id, token, maxAge, handlerCallback) {
+        let time = Date.now();
+        let params = [
+            id,
+            token,
+            time,
+            time + maxAge
+        ];
+        this.pool.query('INSERT INTO `token` (account_id,token,creation,expire) VALUE (?,?,?,?)', params, (error, result) => {
+            if (error) {
+                if (handlerCallback) {
+                    handlerCallback(null);
+                }
+                return;
+            }
+
+            if (handlerCallback) {
+                handlerCallback(token);
+            }
         });
     }
 

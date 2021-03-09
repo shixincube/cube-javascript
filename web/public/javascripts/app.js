@@ -28,7 +28,7 @@
  * Web Application Main
  */
 (function (g) {
-    'use strict'
+    'use strict';
 
     var that = null;
 
@@ -116,7 +116,7 @@
             function heartbeat() {
                 $.post('/account/hb', { "token": token }, function(response, status, xhr) {
                     var state = response.state;
-                    if (state == 'offline') {
+                    if (state == 0) {
                         window.location.href = 'index.html?ts=' + Date.now();
                     }
                 }, 'json');
@@ -188,6 +188,7 @@
             // 启动 Cube Engine
             this.startupCube();
 
+            // 侧边账号栏
             sidebarAccountPanel = new SidebarAccountPanel($('.account-panel'));
             sidebarAccountPanel.updateAvatar(account.avatar);
             sidebarAccountPanel.updateName(account.name);
@@ -425,6 +426,13 @@
                 count: 0
             };
 
+            // 从 Cube 里获取指定的联系人分组
+            cube.contact.getContactZone('friend', function() {
+
+            });
+
+            // TODO 不再获取全部联系人
+            /*
             // 获取所有联系人
             $.get('/account/all', function(response, status, xhr) {
                 var list = response;
@@ -484,7 +492,7 @@
                         dialog.hideLoading();
                     }, 500);
                 });
-            });
+            });*/
         },
 
         /**

@@ -46,6 +46,17 @@ router.post('/login', function(req, res, next) {
 });
 
 
+/* POST /logout */
+router.post('/logout', function(req, res, next) {
+    let mgr = req.app.get('manager');
+    let id = parseInt(req.body.id);
+    let token = req.body.token;
+
+    mgr.logout(id, token);
+    res.json({ "id": id, "token": token });
+});
+
+
 
 
 
@@ -94,6 +105,7 @@ router.post('/login/form', function(req, res, next) {
 });
 
 /* POST /logout */
+/*
 router.post('/logout', function(req, res, next) {
     let mgr = req.app.get('manager');
     let id = parseInt(req.body.id);
@@ -123,7 +135,7 @@ router.post('/logout', function(req, res, next) {
         let token = req.body.token;
         res.json({ "id": id, "token": token });
     }
-});
+});*/
 
 /* POST /hb */
 router.post('/hb', function(req, res, next) {

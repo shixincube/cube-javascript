@@ -446,6 +446,10 @@ export class ContactService extends Module {
         }
     }
 
+    getContactZone(name, handleSuccess, handleFailure) {
+
+    }
+
     /**
      * 更新指定 ID 列表里的联系人信息。
      * @protected
