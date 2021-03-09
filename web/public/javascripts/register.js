@@ -24,8 +24,23 @@
  * SOFTWARE.
  */
 
-(function ($) {
+(function ($, g) {
     'use strict';
+
+    var avatar = 'images/avatar01.png';
+
+    g.selectAvatar = function(num) {
+        if (num < 10) {
+            avatar = 'images/avatar0'+ num +'.png';
+        }
+        else {
+            avatar = 'images/avatar'+ num +'.png';
+        }
+
+        $('#select_avatar img').attr('src', avatar);
+
+        $('#modal_avatar').modal('hide');
+    }
 
     $(document).ready(function() {
         $('#account').val('');
@@ -74,4 +89,4 @@
         });
     });
 
-})(jQuery);
+})(jQuery, window);

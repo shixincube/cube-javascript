@@ -38,3 +38,17 @@ h4 {
     height: 50px;
     border-radius: 10%;
 }
+.avatar > a {
+    display: inline-block;
+    width: 54px;
+    height: 54px;
+    border: 2px solid #f8f9fa;
+    border-radius: 10%;
+}
+.avatar > a:hover {
+    border: 2px solid #007bff;
+}
+
+.modal-dialog .overlay {
+    background-color: unset;
+}

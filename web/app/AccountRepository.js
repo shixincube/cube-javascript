@@ -24,13 +24,18 @@
  * SOFTWARE.
  */
 
+const mysql = require('mysql');
+const config = require('../config');
+
 /**
  * 模拟账号数据库。
  */
 class AccountRepository {
 
     constructor() {
-        this.accounts = [{
+        this.conn = mysql.createConnection(config.db);
+        
+        /*this.accounts = [{
             id: 50001001,
             name: '李国诚',
             avatar: '/images/avatar01.png',
@@ -70,18 +75,11 @@ class AccountRepository {
             region: '广州',
             department: '设计部',
             last: 0
-        }];
+        }];*/
     }
 
-    queryAccount(id) {
-        for (let i = 0; i < this.accounts.length; ++i) {
-            let account = this.accounts[i];
-            if (account.id == id) {
-                return account;
-            }
-        }
+    queryAccount(account) {
 
-        return null;
     }
 }
 

@@ -27,50 +27,56 @@
 (function ($) {
     'use strict';
 
+    function login() {
+        var account = $('#account').val();
+        var password = $('#password').val();
+
+        if (account.length < 3) {
+            $(document).Toasts('create', {
+                class: 'bg-danger', 
+                title: '提示',
+                autohide: true,
+                delay: 3000,
+                body: '请输入正确的账号'
+            });
+            return;
+        }
+
+        if (password.length < 8) {
+            $(document).Toasts('create', {
+                class: 'bg-danger', 
+                title: '提示',
+                autohide: true,
+                delay: 3000,
+                body: '密码长度不能少于8位'
+            });
+            return;
+        }
+
+        var pwdMD5 = md5(password);
+
+        $('#password').val('');
+        $('#password').blur();
+
+        $('#modal_login').modal('show');
+
+        // $.post('/account/login', data, function(response, status, xhr) {
+        //     window.location.href = 'main.html?t=' + response.token;
+        // }, 'json');
+    }
+
     $(document).ready(function() {
-        $('#account').val('');
         $('#password').val('');
 
         // 登录按钮
         $('#btn_login').on('click', function(e) {
-            var account = $('#account').val();
-            var password = $('#password').val();
-
-            if (account.length < 3) {
-                $(document).Toasts('create', {
-                    class: 'bg-danger', 
-                    title: '提示',
-                    autohide: true,
-                    delay: 3000,
-                    body: '请输入正确的账号'
-                });
-                return;
-            }
-
-            if (password.length < 8) {
-                $(document).Toasts('create', {
-                    class: 'bg-danger', 
-                    title: '提示',
-                    autohide: true,
-                    delay: 3000,
-                    body: '密码长度不能少于8位'
-                });
-                return;
-            }
-
-            var pwdMD5 = md5(password);
-
-            // var data = {
-            //     "id" : id,
-            //     "name" : name
-            // };
-            // $.post('/account/login', data, function(response, status, xhr) {
-            //     window.location.href = 'main.html?t=' + response.token;
-            // }, 'json');
+            login();
         });
 
-        // 注册按钮
-        $('#btn_register').on('click', function(e) {
+        $('#password').on('keypress', function(e) {
+            if (e.keyCode == 13) {
+                login();
+            }
         });
     });
 
