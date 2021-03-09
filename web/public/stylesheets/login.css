@@ -52,3 +52,8 @@ h4 {
 .modal-dialog .overlay {
     background-color: unset;
 }
+
+.input-group > .input-group-append:not(:last-child) > .input-group-text {
+    border-top-right-radius: 10%;
+    border-bottom-right-radius: 10%;
+}

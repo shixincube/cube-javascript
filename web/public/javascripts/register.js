@@ -27,7 +27,58 @@
 (function ($, g) {
     'use strict';
 
+    var validator = null;
+
     var avatar = 'images/avatar01.png';
+
+    function register() {
+        var avatar = $('#select_avatar img').attr('src');
+        var nickname = $('#nickname').val().trim();
+        var account = $('#account').val().trim();
+        var password = $('#password').val().trim();
+
+        if (!validator.form()) {
+            return;
+        }
+
+        var pwdMD5 = md5(password);
+
+        $('#modal_register').modal('show');
+        $('#password').val('');
+        $('#retype_password').val('');
+
+        var data = {
+            "account" : account,
+            "password" : pwdMD5,
+            "nickname": nickname,
+            "avatar": avatar
+        };
+        $.post('/account/register', data, function(response, status, xhr) {
+            $('#modal_register').modal('hide');
+            if (response.code == 0) {
+                $(document).Toasts('create', {
+                    class: 'bg-success', 
+                    title: '提示',
+                    autohide: true,
+                    delay: 4000,
+                    body: '账号 "' + account + '" 注册成功，即将返回首页'
+                });
+                setTimeout(function() {
+                    window.location.href = 'index.html';
+                }, 4200);
+            }
+            else {
+                $(document).Toasts('create', {
+                    class: 'bg-danger', 
+                    title: '提示',
+                    autohide: true,
+                    delay: 3000,
+                    body: '账号重名，请更换账号名后再尝试注册'
+                });
+            }
+        }, 'json');
+    }
+
 
     g.selectAvatar = function(num) {
         if (num < 10) {
@@ -43,49 +94,83 @@
     }
 
     $(document).ready(function() {
-        $('#account').val('');
-        $('#password').val('');
-
+        // 选择头像
         $('#select_avatar').on('click', function(e) {
             $('#modal_avatar').modal('show');
         });
 
         // 注册按钮
         $('#btn_register').on('click', function(e) {
-            var account = $('#account').val();
-            var password = $('#password').val();
+            register();
+        });
 
-            if (account.length < 3) {
-                $(document).Toasts('create', {
-                    class: 'bg-danger', 
-                    title: '提示',
-                    autohide: true,
-                    delay: 3000,
-                    body: '请输入正确的账号'
-                });
-                return;
+        // 密码输入框
+        $('#password').on('keypress', function(e) {
+            if (e.keyCode == 13) {
+                register();
             }
-
-            if (password.length < 8) {
-                $(document).Toasts('create', {
-                    class: 'bg-danger', 
-                    title: '提示',
-                    autohide: true,
-                    delay: 3000,
-                    body: '密码长度不能少于8位'
-                });
-                return;
+        });
+        // 密码输入框
+        $('#retype_password').on('keypress', function(e) {
+            if (e.keyCode == 13) {
+                register();
             }
+        });
 
-            var pwdMD5 = md5(password);
+        $.validator.addMethod("isAccount", function(value, element) {   
+            var tel = /^\w+$/;
+            return this.optional(element) || (tel.test(value));
+        }, "请正确填写账号，只能使用字母、数字和下划线“_”");
 
-            // var data = {
-            //     "id" : id,
-            //     "name" : name
-            // };
-            // $.post('/account/login', data, function(response, status, xhr) {
-            //     window.location.href = 'main.html?t=' + response.token;
-            // }, 'json');
+        validator = $('.register').validate({
+            rules: {
+                nickname: {
+                    required: true,
+                    minlength: 3
+                },
+                account: {
+                    required: true,
+                    minlength: 6,
+                    maxlength: 30,
+                    isAccount: true
+                },
+                password: {
+                    required: true,
+                    minlength: 8
+                },
+                retype_password: {
+                    equalTo: "#password"
+                }
+            },
+            messages: {
+                nickname: {
+                    required: "请正确填写您的昵称",
+                    minlength: $.validator.format("昵称最少需要 {0} 个字符")
+                },
+                account: {
+                    required: "请正确填写您的账号名",
+                    minlength: $.validator.format("账号最少需要 {0} 个字符"),
+                    maxlength: $.validator.format("账号最多只能包含 {0} 个字符"),
+                },
+                password: {
+                    required: "请正确填写您的密码",
+                    minlength: $.validator.format("密码最少需要 {0} 个字符")
+                },
+                retype_password: {
+                    equalTo: "请填写与上一项相同的密码"
+                }
+            },
+            errorElement: 'span',
+            errorPlacement: function (error, element) {
+                error.addClass('invalid-feedback');
+                element.closest('.input-group').append(error);
+            },
+            highlight: function (element, errorClass, validClass) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function (element, errorClass, validClass) {
+                $(element).removeClass('is-invalid');
+            }
         });
     });
 

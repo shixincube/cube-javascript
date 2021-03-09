@@ -37,7 +37,7 @@
                 title: '提示',
                 autohide: true,
                 delay: 3000,
-                body: '请输入正确的账号'
+                body: '请正确填写您的账号'
             });
             return;
         }
@@ -48,7 +48,7 @@
                 title: '提示',
                 autohide: true,
                 delay: 3000,
-                body: '密码长度不能少于8位'
+                body: '请正确填写您的密码，密码长度不能少于8位'
             });
             return;
         }
@@ -60,9 +60,26 @@
 
         $('#modal_login').modal('show');
 
-        // $.post('/account/login', data, function(response, status, xhr) {
-        //     window.location.href = 'main.html?t=' + response.token;
-        // }, 'json');
+        // request
+        $.post('/account/login', {
+            "account": account,
+            "password": pwdMD5
+        }, function(response, status, xhr) {
+            if (response.code == 0) {
+                alert('ok');
+                //window.location.href = 'main.html?t=' + response.token;
+            }
+            else {
+                $('#modal_login').modal('hide');
+                $(document).Toasts('create', {
+                    class: 'bg-danger', 
+                    title: '提示',
+                    autohide: true,
+                    delay: 3000,
+                    body: '登录失败，请确认用户名或密码是否正确'
+                });
+            }
+        }, 'json');
     }
 
     $(document).ready(function() {

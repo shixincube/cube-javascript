@@ -33,8 +33,9 @@ const config = require('../config');
 class AccountRepository {
 
     constructor() {
-        this.conn = mysql.createConnection(config.db);
-        
+        config.db.connectionLimit = 10;
+        this.pool = mysql.createPool(config.db);
+
         /*this.accounts = [{
             id: 50001001,
             name: '李国诚',
@@ -78,8 +79,60 @@ class AccountRepository {
         }];*/
     }
 
-    queryAccount(account) {
+    queryAccount(account, handlerCallback) {
+        this.pool.query("SELECT * FROM account WHERE `account`='" + account + "'", function(error, results, fields) {
+            if (error || results.length == 0) {
+                handlerCallback(null);
+                return;
+            }
 
+            handlerCallback(results[0]);
+        });
+    }
+
+    createAccount(account, password, nickname, avatar, handlerCallback) {
+        var params = [
+            this.generateSerialNumber(),
+            account,
+            password,
+            nickname,
+            avatar
+        ];
+        this.pool.query('INSERT INTO `account` (id,account,password,name,avatar) VALUE (?,?,?,?,?)', params, function(error, result) {
+            if (error) {
+                handlerCallback(null);
+                return;
+            }
+
+            handlerCallback({
+                id: params[0],
+                account: params[1],
+                password: params[2],
+                name: params[3],
+                avatar: params[4],
+                state: 0,
+                region: '--',
+                department: '--',
+                last: 0
+            });
+        });
+    }
+
+    generateSerialNumber() {
+        let sn = Date.now();
+        sn += this.randomNumber();
+        return Math.abs(sn);
+    }
+
+    randomNumber(min, max) {
+        if (min === undefined) {
+            min = -32768;
+        }
+        if (max === undefined) {
+            max = 32767;
+        }
+
+        return Math.floor(Math.random() * (max - min)) + min;
     }
 }
 

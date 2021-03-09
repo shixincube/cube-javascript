@@ -1,5 +1,53 @@
-var express = require('express');
-var router = express.Router();
+/**
+ * This file is part of Cube.
+ * https://shixincube.com
+ * 
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2020 Shixin Cube Team.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+const express = require('express');
+const router = express.Router();
+
+/* POST /register */
+router.post('/register', function(req, res, next) {
+    req.app.get('manager').register(req.body.account, req.body.password, req.body.nickname, req.body.avatar,
+        function(code, account) {
+            res.json({ "code": code, "account" : account });
+        }
+    );
+});
+
+
+/* POST /login */
+router.post('/login', function(req, res, next) {
+    req.app.get('manager').login(req.body.account, req.body.password, function(code, token) {
+        res.json({ "code": code, "token" : token });
+    });
+});
+
+
+
+
 
 /* GET /all */
 router.get('/all', function(req, res, next) {
@@ -36,12 +84,6 @@ router.get('/info', function(req, res, next) {
     else {
         res.sendStatus(400);
     }
-});
-
-/* POST /login */
-router.post('/login', function(req, res, next) {
-    let token = req.app.get('manager').login(parseInt(req.body.id), req.body.name);
-    res.json({ "token" : token });
 });
 
 /* POST /login/form */

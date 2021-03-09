@@ -33,7 +33,7 @@ const stringRandom = require('string-random');
 class CubeAppManager {
 
     constructor() {
-        this.accountRepo = new AccountRepository();
+        this.accRepo = new AccountRepository();
 
         setInterval(() => {
             this.onTick();
@@ -41,16 +41,52 @@ class CubeAppManager {
     }
 
     /**
-     * 返回所有账号
+     * 账号登录。
+     * @param {string} account 
+     * @param {string} password 
+     * @param {function} callback 
      */
+    login(account, password, callback) {
+        this.accRepo.queryAccount(account, (data) => {
+            if (null == data) {
+                callback(9, '');
+                return;
+            }
+
+            
+
+            callback(0, '');
+        });
+    }
+
+    /**
+     * 账号注册。
+     * @param {string} account 
+     * @param {string} password 
+     * @param {string} nickname 
+     * @param {string} avatar 
+     * @param {function} callback 
+     */
+    register(account, password, nickname, avatar, callback) {
+        this.accRepo.createAccount(account, password, nickname, avatar, (data) => {
+            if (null == data) {
+                callback(9, {});
+                return;
+            }
+
+            if () {
+                
+            }
+
+            callback(0, data);
+        });
+    }
+
+    /*
     getAccounts() {
         return this.accountRepo.accounts;
     }
 
-    /**
-     * 返回指定 ID 的账号
-     * @param {*} id 
-     */
     getAccount(id) {
         return this.accountRepo.queryAccount(id);
     }
@@ -157,20 +193,20 @@ class CubeAppManager {
             account.last = Date.now();
             return true;
         }
-    }
+    }*/
 
     onTick() {
         let now = Date.now();
-        let list = this.accountRepo.accounts;
-        for (let i = 0; i < list.length; ++i) {
-            let account = list[i];
-            if (account.state == 'online') {
-                if (now - account.last > 300000) {
-                    // 如果 5 分钟没有心跳，则设置为离线
-                    account.state = 'offline';
-                }
-            }
-        }
+        // let list = this.accountRepo.accounts;
+        // for (let i = 0; i < list.length; ++i) {
+        //     let account = list[i];
+        //     if (account.state == 'online') {
+        //         if (now - account.last > 300000) {
+        //             // 如果 5 分钟没有心跳，则设置为离线
+        //             account.state = 'offline';
+        //         }
+        //     }
+        // }
     }
 }
 
