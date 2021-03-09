@@ -26,10 +26,10 @@
 
 const config = {
     db: {
-        host     : '211.157.135.146',
-        port     : '63307',
-        user     : 'root',
-        password : 'Cube_2020',
+        host     : '192.168.122.100',
+        port     : '3307',
+        user     : 'cube',
+        password : 'shixincube',
         database : 'cube_3_app',
         charset  : 'UTF8',
         supportBigNumbers : true
