@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>MediaConstraint - Cube for Javascript</title>
+    <title>ContactZone - Cube for Javascript</title>
     
     <meta name="description" content="Cube Javascript" />
     
@@ -46,7 +46,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">MediaConstraint</h1>
+    <h1 class="page-title">ContactZone</h1>
     
 
     
@@ -59,10 +59,10 @@
 <header>
     
         <h2>
-        MediaConstraint
+        ContactZone
         </h2>
         
-            <div class="class-description usertext"><p>媒体约束。</p></div>
+            <div class="class-description usertext"><p>联系人分区数据。</p></div>
         
     
 </header>
@@ -77,7 +77,7 @@
     <h2>Constructor</h2>
     
 
-    <h4 class="name" id="MediaConstraint"><span class="type-signature"></span>new MediaConstraint<span class="signature">(videoEnabled, audioEnabled)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="ContactZone"><span class="type-signature"></span>new ContactZone<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 
@@ -131,78 +131,6 @@
 
 
 
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>videoEnabled</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>是否使用 Video 设备。</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>audioEnabled</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>是否使用 Audio 设备。</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -234,7 +162,7 @@
         <h3 class="subsection-title">Classes</h3>
 
         <dl>
-            <dt><a href="MediaConstraint.html">MediaConstraint</a></dt>
+            <dt><a href="ContactZone.html">ContactZone</a></dt>
             <dd></dd>
         </dl>
     
@@ -250,7 +178,7 @@
 
         
             
-<h4 class="name" id="videoEnabled"><span class="type-signature"></span>videoEnabled<span class="type-signature"> :boolean</span></h4>
+<h4 class="name" id="name"><span class="type-signature"></span>name<span class="type-signature"> :string</span></h4>
 
 
 
@@ -296,7 +224,7 @@
 
 
 <div class="description usertext">
-    <p>是否使用视频流通道。</p>
+    <p>分区名。</p>
 </div>
 
 
@@ -305,7 +233,7 @@
     <ul>
         <li>
             
-<span class="param-type">boolean</span>
+<span class="param-type">string</span>
 
 
         </li>
@@ -318,7 +246,7 @@
 
         
             
-<h4 class="name" id="audioEnabled"><span class="type-signature"></span>audioEnabled<span class="type-signature"> :boolean</span></h4>
+<h4 class="name" id="contacts"><span class="type-signature"></span>contacts<span class="type-signature"> :Array.&lt;number></span></h4>
 
 
 
@@ -364,7 +292,7 @@
 
 
 <div class="description usertext">
-    <p>是否使用音频流通道。</p>
+    <p>分区内的联系人 ID 列表。</p>
 </div>
 
 
@@ -373,7 +301,7 @@
     <ul>
         <li>
             
-<span class="param-type">boolean</span>
+<span class="param-type">Array.&lt;number></span>
 
 
         </li>
@@ -387,580 +315,6 @@
         
     
 
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-
-    
-
-    <h4 class="name" id="setVideoDimension"><span class="type-signature"></span>setVideoDimension<span class="signature">(dimension)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>设置视频尺寸。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>dimension</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="global.html#VideoDimension">VideoDimension</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>指定视频尺寸规格。</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="getVideoDimension"><span class="type-signature"></span>getVideoDimension<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="global.html#VideoDimension">VideoDimension</a>}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>获取视频尺寸。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>返回视频尺寸。</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="global.html#VideoDimension">VideoDimension</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="getConstraints"><span class="type-signature"></span>getConstraints<span class="signature">()</span><span class="type-signature"> &rarr; {JSON}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>获取媒体约束描述。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>返回约束的 JSON 格式。</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">JSON</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="toJSON"><span class="type-signature"></span>toJSON<span class="signature">()</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id=".create"><span class="type-signature">(static) </span>create<span class="signature">(json)</span><span class="type-signature"> &rarr; {<a href="MediaConstraint.html">MediaConstraint</a>}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>创建 <a href="MediaConstraint.html">MediaConstraint</a> 实例。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>json</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">JSON</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>指定符合 <a href="MediaConstraint.html"><code>MediaConstraint</code></a> 格式的 JSON 对象。</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>返回 <a href="MediaConstraint.html">MediaConstraint</a> 实例。</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="MediaConstraint.html">MediaConstraint</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
     
 
     

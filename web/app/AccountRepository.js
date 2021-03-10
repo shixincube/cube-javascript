@@ -37,6 +37,8 @@ class AccountRepository {
         config.db.connectionLimit = 10;
         this.pool = mysql.createPool(config.db);
 
+        this.buildInAccounts = null;
+
         setTimeout(() => {
             this.buildInData();
         }, 1000);
@@ -113,7 +115,12 @@ class AccountRepository {
                     });
                 }
             }
+            this.buildInAccounts = accounts;
         })();
+    }
+
+    getBuildInAccounts() {
+        return this.buildInAccounts;
     }
 
     createAccount(account, password, nickname, avatar, handlerCallback) {
@@ -202,6 +209,21 @@ class AccountRepository {
             time + maxAge
         ];
         this.pool.query("INSERT INTO `token` (account_id,token,creation,expire) VALUE (?,?,?,?)", params, (error, result) => {
+            if (error) {
+                if (handlerCallback) {
+                    handlerCallback(null);
+                }
+                return;
+            }
+
+            if (handlerCallback) {
+                handlerCallback(token);
+            }
+        });
+    }
+
+    deleteToken(token, handlerCallback) {
+        this.pool.query("DELETE FROM `token` WHERE `token`='" + token + "'", (error, result) => {
             if (error) {
                 if (handlerCallback) {
                     handlerCallback(null);

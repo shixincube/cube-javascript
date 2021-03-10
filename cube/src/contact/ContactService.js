@@ -46,6 +46,7 @@ import { GroupBundle } from "./GroupBundle";
 import { ContactServiceState } from "./ContactServiceState";
 import { ContactAppendix } from "./ContactAppendix";
 import { GroupAppendix } from "./GroupAppendix";
+import { ContactZone } from "./ContactZone";
 
 /**
  * 联系人模块。
@@ -446,14 +447,96 @@ export class ContactService extends Module {
         }
     }
 
+    /**
+     * 获取指定名称的联系人分区。
+     * @param {string} name 分区名。
+     * @param {function} handleSuccess 操作成功回调该方法，参数：({@linkcode contactZone}:{@link ContactZone})。
+     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
+     */
     getContactZone(name, handleSuccess, handleFailure) {
-        let packet = new Packet(ContactAction.GetContact, {
-            "id": id,
-            "domain": AuthService.DOMAIN
+        let packet = new Packet(ContactAction.GetContactZone, {
+            "name": name
         });
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
             if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
                 if (responsePacket.data.code == ContactServiceState.Ok) {
+                    handleSuccess(new ContactZone(responsePacket.data.data));
+                }
+                else {
+                    if (handleFailure) {
+                        handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.Failure, name));
+                    }
+                }
+            }
+            else {
+                if (handleFailure) {
+                    handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.ServerError, name));
+                }
+            }
+        });
+    }
+
+    /**
+     * 添加联系人到分区。
+     * @param {string} name 分区名。
+     * @param {number} contactId 指定联系人 ID 。
+     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode name}:{@linkcode string}, {@linkcode contactId}:{@linkcode number})。
+     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
+     */
+    addContactToZone(name, contactId, handleSuccess, handleFailure) {
+        let packet = new Packet(ContactAction.AddContactToZone, {
+            "name": name,
+            "contactId": contactId
+        });
+        this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+                if (responsePacket.data.code == ContactServiceState.Ok) {
+                    if (handleSuccess) {
+                        handleSuccess(name, contactId);
+                    }
+                }
+                else {
+                    if (handleFailure) {
+                        handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.Failure, name));
+                    }
+                }
+            }
+            else {
+                if (handleFailure) {
+                    handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.ServerError, name));
+                }
+            }
+        });
+    }
+
+    /**
+     * 从分区中移除联系人。
+     * @param {string} name 分区名。
+     * @param {number} contactId 指定联系人 ID 。
+     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode name}:{@linkcode string}, {@linkcode contactId}:{@linkcode number})。
+     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
+     */
+    removeContactFromZone(name, contactId, handleSuccess, handleFailure) {
+        let packet = new Packet(ContactAction.RemoveContactFromZone, {
+            "name": name,
+            "contactId": contactId
+        });
+        this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+                if (responsePacket.data.code == ContactServiceState.Ok) {
+                    if (handleSuccess) {
+                        handleSuccess(name, contactId);
+                    }
+                }
+                else {
+                    if (handleFailure) {
+                        handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.Failure, name));
+                    }
+                }
+            }
+            else {
+                if (handleFailure) {
+                    handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.ServerError, name));
                 }
             }
         });

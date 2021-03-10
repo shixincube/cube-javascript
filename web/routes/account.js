@@ -44,7 +44,7 @@ router.post('/login', function(req, res, next) {
         req.app.get('manager').login(req.body.account, req.body.password, function(code, token) {
             if (req.body.remember) {
                 // 7天内自动登录
-                res.cookie('CubeAppToken', token, { maxAge: 7 * 24 * 3600 });
+                res.cookie('CubeAppToken', token, { maxAge: 7 * 24 * 3600 * 1000 });
             }
             res.json({ "code": code, "token" : token });
         });
@@ -90,19 +90,39 @@ router.get('/get', function(req, res, next) {
 
 /* GET /info */
 router.get('/info', function(req, res, next) {
-    if (undefined === req.query.id) {
-        res.sendStatus(400);
-        return;
+    if (req.query.id) {
+        req.app.get('manager').getAccount(req.query.token, req.query.id, function(account) {
+            if (null == account) {
+                res.sendStatus(404);
+            }
+            else {
+                res.json(account);
+            }
+        });
     }
+    else if (req.query.list) {
+        let array = req.query.list.split(',');
+        let count = 0;
+        let accounts = [];
 
-    req.app.get('manager').getAccount(req.query.token, req.query.id, function(account) {
-        if (null == account) {
-            res.sendStatus(404);
+        for (let i = 0; i < array.length; ++i) {
+            let id = parseInt(array[i].trim());
+            req.app.get('manager').getAccountById(id, function(account) {
+                ++count;
+
+                if (null != account) {
+                    accounts.push(account);
+                }
+
+                if (count == array.length) {
+                    res.json(accounts);
+                }
+            });
         }
-        else {
-            res.json(account);
-        }
-    });
+    }
+    else {
+        res.sendStatus(400);
+    }
 });
 
 
@@ -115,6 +135,13 @@ router.post('/hb', function(req, res, next) {
     else {
         res.json({ "success": false });
     }
+});
+
+
+/* GET /buildin */
+router.get('/buildin', function(req, res, next) {
+    let list = req.app.get('manager').getBuildInAccounts();
+    res.json(list);
 });
 
 

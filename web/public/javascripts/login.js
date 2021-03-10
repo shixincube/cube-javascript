@@ -97,12 +97,18 @@
             }
         });
 
-        // 尝试使用 Cookie 登录
-        $.post('/account/login', {}, function(response, status, xhr) {
-            if (response.code == 0) {
-                window.location.href = 'main.html';
-            }
-        });
+        if (document.cookie.indexOf('CubeAppToken') >= 0) {
+            // 尝试使用 Cookie 登录
+            $('#modal_login').modal('show');
+
+            $.post('/account/login', {}, function(response, status, xhr) {
+                if (response.code == 0) {
+                    window.location.href = 'main.html';
+                }
+
+                $('#modal_login').modal('hide');
+            });
+        }
     });
 
 })(jQuery);

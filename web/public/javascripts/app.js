@@ -67,6 +67,11 @@
     var callCtrl = null;
     var filesCtrl = null;
 
+    /**
+     * 从内存里查询对应的联系人
+     * @param {number} id 
+     * @returns 
+     */
     var queryContact = function(id) {
         for (var i = 0; i < cubeContacts.length; ++i) {
             var c = cubeContacts[i];
@@ -88,6 +93,11 @@
         cubeContacts.push(contact);
     }
 
+    /**
+     * 从内存里查询群组。
+     * @param {number} id 
+     * @returns 
+     */
     var queryGroup = function(id) {
         for (var i = 0; i < cubeGroups.length; ++i) {
             var g = cubeGroups[i];
@@ -360,7 +370,7 @@
                     $.ajax({
                         type: 'GET',
                         url: '/account/info',
-                        data: { "id": id },
+                        data: { "id": id, "token": token },
                         success: function(response, status, xhr) {
                             if (null == response) {
                                 callback(null);
@@ -369,7 +379,9 @@
 
                             contact.setContext(response);
                             contact.setName(response.name);
+                            // 更新到内存
                             updateContact(contact);
+
                             callback(contact);
                         },
                         error: function(xhr, error) {
@@ -429,16 +441,8 @@
                 count: 0
             };
 
-            // 从 Cube 里获取指定的联系人分组
-            cube.contact.getContactZone('friend', function() {
-                
-            });
-
-            // TODO 不再获取全部联系人
-            /*
-            // 获取所有联系人
-            $.get('/account/all', function(response, status, xhr) {
-                var list = response;
+            // list - Array<object>
+            var process = function(list) {
                 list.forEach(function(item) {
                     if (item.id != account.id) {
                         itemMap[item.id] = item;
@@ -456,7 +460,7 @@
 
                 var promise = new Promise(function(resolve, reject) {
                     var timer = setInterval(function() {
-                        if (itemMap.count + 1 == list.length) {
+                        if (itemMap.count == list.length) {
                             clearInterval(timer);
                             resolve();
                         }
@@ -495,6 +499,41 @@
                         dialog.hideLoading();
                     }, 500);
                 });
+            };
+
+            // 从 Cube 里获取指定的联系人分组
+            cube.contact.getContactZone('contacts', function(zone) {
+                if (zone.contacts.length == 0) {
+                    // 将内置的账号设置为该联系人的通讯录
+                    $.get('/account/buildin', function(response, status, xhr) {
+                        // 处理
+                        process(response);
+
+                        // 依次添加到 Zone
+                        response.forEach(function(value, index) {
+                            cube.contact.addContactToZone('contacts', value.id);
+                        });
+                    });
+                }
+                else {
+                    $.get('/account/info', {
+                        "list": zone.contacts.toString(),
+                        "token": token
+                    }, function(response, status, xhr) {
+                        // 处理
+                        process(response);
+                    });
+                }
+            }, function(error) {
+                console.log(error);
+            });
+
+            // TODO 不再获取全部联系人
+            /*
+            // 获取所有联系人
+            $.get('/account/all', function(response, status, xhr) {
+                var list = response;
+                
             });*/
         },
 

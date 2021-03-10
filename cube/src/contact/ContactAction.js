@@ -66,6 +66,24 @@ export const ContactAction = {
     GetContactList: 'getContactList',
 
     /**
+     * 获取联系人分区。
+     * @type {string}
+     */
+     GetContactZone: 'getContactZone',
+
+     /**
+      * 添加联系人到分区。
+      * @type {string}
+      */
+     AddContactToZone: 'addContactToZone',
+ 
+     /**
+      * 从分区移除联系人。
+      * @type {string}
+      */
+     RemoveContactFromZone: 'removeContactFromZone',
+
+    /**
      * 获取指定群组的信息。
      * @type {string}
      */

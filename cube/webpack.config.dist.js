@@ -53,20 +53,22 @@ var CubeAllConfig = {
             ]
         }),
         new FileManagerPlugin({
-            onEnd: {
-                copy: [{
-                    source: path.resolve(__dirname, './dist') + '/*.js',
-                    destination: path.resolve(__dirname, '../web/public/javascripts/')
-                }, {
-                    source: path.resolve(__dirname, './dist') + '/*.js.map',
-                    destination: path.resolve(__dirname, '../web/public/javascripts/')
-                }, {
-                    source: path.resolve(__dirname, './dist') + '/*.js',
-                    destination: path.resolve(__dirname, './examples/js/')
-                }, {
-                    source: path.resolve(__dirname, './dist') + '/*.js.map',
-                    destination: path.resolve(__dirname, './examples/js/')
-                }]
+            events: {
+                onEnd: {
+                    copy: [{
+                        source: path.resolve(__dirname, './dist') + '/*.js',
+                        destination: path.resolve(__dirname, '../web/public/javascripts/')
+                    }, {
+                        source: path.resolve(__dirname, './dist') + '/*.js.map',
+                        destination: path.resolve(__dirname, '../web/public/javascripts/')
+                    }, {
+                        source: path.resolve(__dirname, './dist') + '/*.js',
+                        destination: path.resolve(__dirname, './examples/js/')
+                    }, {
+                        source: path.resolve(__dirname, './dist') + '/*.js.map',
+                        destination: path.resolve(__dirname, './examples/js/')
+                    }]
+                }
             }
         })
     ]
@@ -126,20 +128,22 @@ var CubeConfig = {
             ]
         }),
         new FileManagerPlugin({
-            onEnd: {
-                copy: [{
-                    source: path.resolve(__dirname, './dist') + '/*.js',
-                    destination: path.resolve(__dirname, '../web/public/javascripts/')
-                }, {
-                    source: path.resolve(__dirname, './dist') + '/*.js.map',
-                    destination: path.resolve(__dirname, '../web/public/javascripts/')
-                }, {
-                    source: path.resolve(__dirname, './dist') + '/*.js',
-                    destination: path.resolve(__dirname, './examples/js/')
-                }, {
-                    source: path.resolve(__dirname, './dist') + '/*.js.map',
-                    destination: path.resolve(__dirname, './examples/js/')
-                }]
+            events: {
+                onEnd: {
+                    copy: [{
+                        source: path.resolve(__dirname, './dist') + '/*.js',
+                        destination: path.resolve(__dirname, '../web/public/javascripts/')
+                    }, {
+                        source: path.resolve(__dirname, './dist') + '/*.js.map',
+                        destination: path.resolve(__dirname, '../web/public/javascripts/')
+                    }, {
+                        source: path.resolve(__dirname, './dist') + '/*.js',
+                        destination: path.resolve(__dirname, './examples/js/')
+                    }, {
+                        source: path.resolve(__dirname, './dist') + '/*.js.map',
+                        destination: path.resolve(__dirname, './examples/js/')
+                    }]
+                }
             }
         })
     ]

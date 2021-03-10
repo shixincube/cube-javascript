@@ -90,6 +90,17 @@ class CubeAppManager {
         })();
     }
 
+    getAccountById(id, callback) {
+        (async () => {
+            let data = await this.accRepo.queryAccountById(id);
+            if (null != data) {
+                delete data["account"];
+                delete data["password"];
+            }
+            callback(data);
+        })();
+    }
+
     /**
      * 账号登录。
      * @param {string} account 
@@ -111,9 +122,8 @@ class CubeAppManager {
 
             // 生成 Token
             let token = stringRandom(32, {numbers: false});
-            let maxAge = 7 * 24 * 3600;
             // 更新令牌
-            this.accRepo.updateToken(data.id, token, maxAge * 1000);
+            this.accRepo.updateToken(data.id, token, 7 * 24 * 3600 * 1000);
 
             this.addOnlineAccount(data, token);
 
@@ -147,7 +157,9 @@ class CubeAppManager {
      * @param {string} token 
      */
     logout(token) {
-        this.removeOnlineAccount(token);
+        this.accRepo.deleteToken(token, () => {
+            this.removeOnlineAccount(token);
+        });
     }
 
     /**
@@ -203,108 +215,18 @@ class CubeAppManager {
         });
     }
 
-    /*
-    getAccounts() {
-        return this.accountRepo.accounts;
-    }
-
-    getAccount(id) {
-        return this.accountRepo.queryAccount(id);
-    }
-
-    getContacts(id) {
-        let result = [];
-        // 用户
-        let accounts = this.accountRepo.accounts;
-        for (let i = 0; i < accounts.length; ++i) {
-            let account = accounts[i];
-            if (account.id == id) {
-                // 过滤自己
-                continue;
+    getBuildInAccounts() {
+        let array = this.accRepo.getBuildInAccounts();
+        array.forEach((value) => {
+            if (value.account) {
+                delete value["account"];
             }
-
-            result.push(account);
-        }
-
-        return result;
+            if (value.password) {
+                delete value["password"];
+            }
+        });
+        return array;
     }
-
-    getOfflineAccounts() {
-        let result = [];
-        let list = this.accountRepo.accounts;
-        for (let i = 0; i < list.length; ++i) {
-            let acc = list[i];
-            if (acc.state == 'offline') {
-                result.push(acc);
-            }
-        }
-
-        return result;
-    }
-
-    login(id, name, useCookie) {
-        let account = this.accountRepo.queryAccount(id);
-        if (null == account) {
-            return null;
-        }
-
-        account.last = Date.now();
-        account.state = 'online';
-        if (name) {
-            account.name = name;
-        }
-
-        if (useCookie) {
-            let cookie = id + ',' + stringRandom(16, {numbers: false});
-            account.token = cookie;
-            return cookie;
-        }
-        else {
-            let token = stringRandom(32, {numbers: false});
-            account.token = token;
-            return token;
-        }
-    }
-
-    logout(id) {
-        let account = this.accountRepo.queryAccount(id);
-        if (null == account) {
-            return;
-        }
-
-        account.last = Date.now();
-        account.state = 'offline';
-        account.token = null;
-    }
-
-    heartbeat(token, cookie) {
-        if (undefined !== cookie) {
-            let account = this.accountRepo.queryAccount(token);
-            if (null == account) {
-                return false;
-            }
-
-            if (account.state == 'offline') {
-                return false;
-            }
-
-            account.last = Date.now();
-            return true;
-        }
-        else {
-            let account = this.getAccountByToken(token);
-            if (null == account) {
-                return false;
-            }
-
-            if (account.state == 'offline') {
-                return false;
-            }
-
-            account.last = Date.now();
-            return true;
-        }
-    }*/
 }
 
 module.exports = new CubeAppManager();

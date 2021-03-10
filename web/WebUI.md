@@ -130,7 +130,13 @@ Request
     "token": "JSZeCEqjQgHpeoMAqwVVtmzLcDyJxGUK"
 }
 ```
-
+*OR*
+```json
+{
+    "list": "50001002,50001003,50001004",
+    "token": "JSZeCEqjQgHpeoMAqwVVtmzLcDyJxGUK"
+}
+```
 
 Respond
 ```json
