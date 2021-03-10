@@ -109,7 +109,7 @@ class AccountRepository {
                         acc.region,
                         acc.department
                     ];
-                    this.pool.query('INSERT INTO `account` (id,account,password,name,avatar,region,department) VALUE (?,?,?,?,?,?,?)', params, (error, result) => {
+                    this.pool.query("INSERT INTO `account` (id,account,password,name,avatar,region,department) VALUE (?,?,?,?,?,?,?)", params, (error, result) => {
                     });
                 }
             }
@@ -124,7 +124,7 @@ class AccountRepository {
             nickname,
             avatar
         ];
-        this.pool.query('INSERT INTO `account` (id,account,password,name,avatar) VALUE (?,?,?,?,?)', params, (error, result) => {
+        this.pool.query("INSERT INTO `account` (id,account,password,name,avatar) VALUE (?,?,?,?,?)", params, (error, result) => {
             if (error) {
                 handlerCallback(null);
                 return;
@@ -169,6 +169,30 @@ class AccountRepository {
         }
     }
 
+    queryAccountById(id) {
+        return new Promise((resolve, reject) => {
+            this.pool.query("SELECT * FROM account WHERE `id`=" + id, (error, results, fields) => {
+                if (error || results.length == 0) {
+                    resolve(null);
+                }
+                else {
+                    resolve(results[0]);
+                }
+            });
+        });
+    }
+
+    queryToken(token, handlerCallback) {
+        this.pool.query("SELECT * FROM token WHERE `token`='" + token + "'", (error, results, fields) => {
+            if (error || results.length == 0) {
+                handlerCallback(null);
+                return;
+            }
+
+            handlerCallback(results[0]);
+        });
+    }
+
     updateToken(id, token, maxAge, handlerCallback) {
         let time = Date.now();
         let params = [
@@ -177,7 +201,7 @@ class AccountRepository {
             time,
             time + maxAge
         ];
-        this.pool.query('INSERT INTO `token` (account_id,token,creation,expire) VALUE (?,?,?,?)', params, (error, result) => {
+        this.pool.query("INSERT INTO `token` (account_id,token,creation,expire) VALUE (?,?,?,?)", params, (error, result) => {
             if (error) {
                 if (handlerCallback) {
                     handlerCallback(null);

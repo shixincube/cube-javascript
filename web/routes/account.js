@@ -40,32 +40,36 @@ router.post('/register', function(req, res, next) {
 
 /* POST /login */
 router.post('/login', function(req, res, next) {
-    req.app.get('manager').login(req.body.account, req.body.password, function(code, token) {
-        res.json({ "code": code, "token" : token });
-    });
+    if (req.body.account && req.body.password) {
+        req.app.get('manager').login(req.body.account, req.body.password, function(code, token) {
+            if (req.body.remember) {
+                // 7天内自动登录
+                res.cookie('CubeAppToken', token, { maxAge: 7 * 24 * 3600 });
+            }
+            res.json({ "code": code, "token" : token });
+        });
+    }
+    else {
+        let token = req.cookies['CubeAppToken'];
+        if (token) {
+            req.app.get('manager').loginByToken(token, function(code) {
+                res.json({ "code": code, "token" : token });
+            });
+        }
+        else {
+            res.sendStatus(400);
+        }
+    }
 });
 
 
 /* POST /logout */
 router.post('/logout', function(req, res, next) {
-    let mgr = req.app.get('manager');
-    let id = parseInt(req.body.id);
     let token = req.body.token;
-
-    mgr.logout(id, token);
-    res.json({ "id": id, "token": token });
+    req.app.get('manager').logout(token);
+    res.json({ "code": 0, "token": token });
 });
 
-
-
-
-
-/* GET /all */
-router.get('/all', function(req, res, next) {
-    let mgr = req.app.get('manager');
-    let list = mgr.getAccounts();
-    res.json(list);
-});
 
 /* GET /get */
 router.get('/get', function(req, res, next) {
@@ -74,8 +78,7 @@ router.get('/get', function(req, res, next) {
         return;
     }
 
-    let mgr = req.app.get('manager');
-    let account = mgr.getAccountByToken(req.query.t);
+    let account = req.app.get('manager').getOnlineAccountByToken(req.query.t);
     if (null == account) {
         res.sendStatus(404);
         return;
@@ -84,25 +87,81 @@ router.get('/get', function(req, res, next) {
     res.json(account);
 });
 
+
 /* GET /info */
 router.get('/info', function(req, res, next) {
-    if (undefined !== req.query.id) {
-        let id = parseInt(req.query.id);
-        let mgr = req.app.get('manager');
-        let account = mgr.getAccount(id);
-        res.json(account);
+    if (undefined === req.query.id) {
+        res.sendStatus(400);
+        return;
+    }
+
+    req.app.get('manager').getAccount(req.query.token, req.query.id, function(account) {
+        if (null == account) {
+            res.sendStatus(404);
+        }
+        else {
+            res.json(account);
+        }
+    });
+});
+
+
+/* POST /hb */
+router.post('/hb', function(req, res, next) {
+    let token = req.body.token;
+    if (req.app.get('manager').heartbeat(token)) {
+        res.json({ "success": true });
     }
     else {
-        res.sendStatus(400);
+        res.json({ "success": false });
     }
 });
 
+
+
+/* GET /all */
+// router.get('/all', function(req, res, next) {
+//     let mgr = req.app.get('manager');
+//     let list = mgr.getAccounts();
+//     res.json(list);
+// });
+
+/* GET /get */
+// router.get('/get', function(req, res, next) {
+//     if (undefined === req.query.t) {
+//         res.sendStatus(400);
+//         return;
+//     }
+
+//     let mgr = req.app.get('manager');
+//     let account = mgr.getAccountByToken(req.query.t);
+//     if (null == account) {
+//         res.sendStatus(404);
+//         return;
+//     }
+
+//     res.json(account);
+// });
+
+/* GET /info */
+// router.get('/info', function(req, res, next) {
+//     if (undefined !== req.query.id) {
+//         let id = parseInt(req.query.id);
+//         let mgr = req.app.get('manager');
+//         let account = mgr.getAccount(id);
+//         res.json(account);
+//     }
+//     else {
+//         res.sendStatus(400);
+//     }
+// });
+
 /* POST /login/form */
-router.post('/login/form', function(req, res, next) {
-    let cookie = req.app.get('manager').login(parseInt(req.body.id), req.body.name);
-    res.cookie('CubeAppToken', cookie, { maxAge: 60480000 });
-    res.redirect('/');
-});
+// router.post('/login/form', function(req, res, next) {
+//     let cookie = req.app.get('manager').login(parseInt(req.body.id), req.body.name);
+//     res.cookie('CubeAppToken', cookie, { maxAge: 60480000 });
+//     res.redirect('/');
+// });
 
 /* POST /logout */
 /*
@@ -138,28 +197,28 @@ router.post('/logout', function(req, res, next) {
 });*/
 
 /* POST /hb */
-router.post('/hb', function(req, res, next) {
-    let mgr = req.app.get('manager');
+// router.post('/hb', function(req, res, next) {
+//     let mgr = req.app.get('manager');
 
-    let id = req.body.id;
-    if (undefined !== id) {
-        let cookie = req.cookies['CubeAppToken'];
-        if (mgr.heartbeat(parseInt(id), cookie)) {
-            res.json({ "id": id, "state": "online" });
-        }
-        else {
-            res.json({ "id": id, "state": "offline" });
-        }
-    }
-    else {
-        let token = req.body.token;
-        if (mgr.heartbeat(token)) {
-            res.json({ "token": token, "state": "online" });
-        }
-        else {
-            res.json({ "token": token, "state": "offline" });
-        }
-    }
-});
+//     let id = req.body.id;
+//     if (undefined !== id) {
+//         let cookie = req.cookies['CubeAppToken'];
+//         if (mgr.heartbeat(parseInt(id), cookie)) {
+//             res.json({ "id": id, "state": "online" });
+//         }
+//         else {
+//             res.json({ "id": id, "state": "offline" });
+//         }
+//     }
+//     else {
+//         let token = req.body.token;
+//         if (mgr.heartbeat(token)) {
+//             res.json({ "token": token, "state": "online" });
+//         }
+//         else {
+//             res.json({ "token": token, "state": "offline" });
+//         }
+//     }
+// });
 
 module.exports = router;

@@ -447,7 +447,16 @@ export class ContactService extends Module {
     }
 
     getContactZone(name, handleSuccess, handleFailure) {
-
+        let packet = new Packet(ContactAction.GetContact, {
+            "id": id,
+            "domain": AuthService.DOMAIN
+        });
+        this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+                if (responsePacket.data.code == ContactServiceState.Ok) {
+                }
+            }
+        });
     }
 
     /**

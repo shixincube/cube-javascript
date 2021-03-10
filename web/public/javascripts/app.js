@@ -104,6 +104,9 @@
          */
         launch: function() {
             token = g.getQueryString('t');
+            if (null == token) {
+                token = g.readCookie('CubeAppToken');
+            }
             console.log('cube token: ' + token);
 
             var tab = g.getQueryString('tab');
@@ -115,8 +118,8 @@
 
             function heartbeat() {
                 $.post('/account/hb', { "token": token }, function(response, status, xhr) {
-                    var state = response.state;
-                    if (state == 0) {
+                    var success = response.success;
+                    if (!success) {
                         window.location.href = 'index.html?ts=' + Date.now();
                     }
                 }, 'json');
@@ -178,12 +181,12 @@
 
         /**
          * 启动。
-         * @param {*} current 
+         * @param {object} current 
          */
         start: function(current) {
             account = current;
             that.account = account;
-            console.log('Account: ' + account.id + ' - ' + account.state);
+            console.log('Account: ' + account.id + ' - ' + account.account);
 
             // 启动 Cube Engine
             this.startupCube();
@@ -428,7 +431,7 @@
 
             // 从 Cube 里获取指定的联系人分组
             cube.contact.getContactZone('friend', function() {
-
+                
             });
 
             // TODO 不再获取全部联系人

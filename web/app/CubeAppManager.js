@@ -35,9 +35,59 @@ class CubeAppManager {
     constructor() {
         this.accRepo = new AccountRepository();
 
+        // Key : account {string}
+        this.onlineAccounts = {};
+
         setInterval(() => {
             this.onTick();
         }, 60000);
+    }
+
+    addOnlineAccount(data, token) {
+        data.last = Date.now();
+        data.token = token;
+        this.onlineAccounts[data.account] = data;
+    }
+
+    removeOnlineAccount(token) {
+        for (let account in this.onlineAccounts) {
+            let data = this.onlineAccounts[account];
+            if (data.token == token) {
+                delete this.onlineAccounts[account];
+                break;
+            }
+        }
+    }
+
+    getOnlineAccount(account) {
+        return this.onlineAccounts[account];
+    }
+
+    getOnlineAccountByToken(token) {
+        for (let account in this.onlineAccounts) {
+            let data = this.onlineAccounts[account];
+            if (data.token == token) {
+                return data;
+            }
+        }
+        return null;
+    }
+
+    getAccount(token, accountId, callback) {
+        let accountData = this.getOnlineAccountByToken(token);
+        if (null == accountData) {
+            callback(null);
+            return;
+        }
+
+        (async () => {
+            let data = await this.accRepo.queryAccountById(accountId);
+            if (null != data) {
+                delete data["account"];
+                delete data["password"];
+            }
+            callback(data);
+        })();
     }
 
     /**
@@ -61,20 +111,43 @@ class CubeAppManager {
 
             // 生成 Token
             let token = stringRandom(32, {numbers: false});
+            let maxAge = 7 * 24 * 3600;
             // 更新令牌
-            this.accRepo.updateToken(data.id, token, maxAge);
+            this.accRepo.updateToken(data.id, token, maxAge * 1000);
+
+            this.addOnlineAccount(data, token);
 
             callback(0, token);
         });
     }
 
+    loginByToken(token, callback) {
+        this.accRepo.queryToken(token, (data) => {
+            if (data.expire <= Date.now()) {
+                // Token 无效
+                callback(9, token);
+            }
+            else {
+                (async () => {
+                    let account = await this.accRepo.queryAccountById(data.account_id);
+                    if (null == account) {
+                        callback(5, token);
+                        return;
+                    }
+
+                    this.addOnlineAccount(account, token);
+                    callback(0, token);
+                })();
+            }
+        });
+    }
+
     /**
      * 账号登出。
-     * @param {number} id 
      * @param {string} token 
      */
-    logout(id, token) {
-        // TODO
+    logout(token) {
+        this.removeOnlineAccount(token);
     }
 
     /**
@@ -96,6 +169,40 @@ class CubeAppManager {
         });
     }
 
+    /**
+     * 对指定的 Token 进行心跳保持。
+     * @param {string} token 
+     * @returns 
+     */
+    heartbeat(token) {
+        let data = this.getOnlineAccountByToken(token);
+        if (null == data) {
+            return false;
+        }
+
+        data.last = Date.now();
+
+        return true;
+    }
+
+    onTick() {
+        let now = Date.now();
+        let offlines = [];
+
+        for (let account in this.onlineAccounts) {
+            let data = this.onlineAccounts[account];
+            // 如果 5 分钟没有心跳，则设置为离线
+            if (now - data.last > 300000) {
+                offlines.push(account);
+            }
+        }
+
+        offlines.forEach((value) => {
+            console.log('Account "' + value + '" offline');
+            delete this.onlineAccounts[value];
+        });
+    }
+
     /*
     getAccounts() {
         return this.accountRepo.accounts;
@@ -103,16 +210,6 @@ class CubeAppManager {
 
     getAccount(id) {
         return this.accountRepo.queryAccount(id);
-    }
-
-    getAccountByToken(token) {
-        for (let i = 0, len = this.accountRepo.accounts.length; i < len; ++i) {
-            let account = this.accountRepo.accounts[i];
-            if (account.token && account.token == token) {
-                return account;
-            }
-        }
-        return null;
     }
 
     getContacts(id) {
@@ -208,20 +305,6 @@ class CubeAppManager {
             return true;
         }
     }*/
-
-    onTick() {
-        let now = Date.now();
-        // let list = this.accountRepo.accounts;
-        // for (let i = 0; i < list.length; ++i) {
-        //     let account = list[i];
-        //     if (account.state == 'online') {
-        //         if (now - account.last > 300000) {
-        //             // 如果 5 分钟没有心跳，则设置为离线
-        //             account.state = 'offline';
-        //         }
-        //     }
-        // }
-    }
 }
 
 module.exports = new CubeAppManager();

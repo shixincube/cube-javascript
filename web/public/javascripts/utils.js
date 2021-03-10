@@ -257,6 +257,27 @@
     }
 
     /**
+     * 读取指定名称的 Cookie 的值。
+     * @param {string} cname 
+     * @returns 
+     */
+    g.readCookie = function(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for(var i = 0; i <ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    }
+
+    /**
      * 递归当前目录的所有父目录。
      * @param {Array} list
      * @param {Directory} dir

@@ -72,7 +72,6 @@ Respond
 Request
 ```json
 {
-    "id": 1615268975051,
     "token": "JSZeCEqjQgHpeoMAqwVVtmzLcDyJxGUK"
 }
 ```
@@ -80,8 +79,92 @@ Request
 Respond
 ```json
 {
-    "id": 1615268975051,
+    "code": 0,
     "token": "JSZeCEqjQgHpeoMAqwVVtmzLcDyJxGUK"
+}
+```
+
+&nbsp;
+
+## /account/get
+
+使用令牌获取账号信息
+
+> /account/get
+> GET
+
+```json
+{
+    "t": "JSZeCEqjQgHpeoMAqwVVtmzLcDyJxGUK"
+}
+```
+
+Respond
+```json
+{
+    "id": 50001003,
+    "account": "cube3",
+    "password": "c7af98d321febe62e04d45e8806852e0",
+    "name": "郝思雁",
+    "avatar": "images/avatar03.png",
+    "state": 0,
+    "region": "上海",
+    "department": "公关部",
+    "last": 0
+}
+```
+
+&nbsp;
+
+## /account/info
+
+获取指定账号数据
+
+> /account/info
+> GET
+
+Request
+```json
+{
+    "id": 50001003,
+    "token": "JSZeCEqjQgHpeoMAqwVVtmzLcDyJxGUK"
+}
+```
+
+
+Respond
+```json
+{
+    "id": 50001003,
+    "name": "郝思雁",
+    "avatar": "images/avatar03.png",
+    "state": 0,
+    "region": "上海",
+    "department": "公关部",
+    "last": 0
+}
+```
+
+&nbsp;
+
+## /account/hb
+
+心跳指令，客户端保持活跃。
+
+> /account/hb
+> POST
+
+Request
+```json
+{
+    "token": "JSZeCEqjQgHpeoMAqwVVtmzLcDyJxGUK"
+}
+```
+
+Respond
+```json
+{
+    "success": true
 }
 ```
 
@@ -139,32 +222,5 @@ Respond
     last: 0
 }]
 ```
-
-&nbsp;
-
-## /account/get
-
-使用令牌获取账号信息
-
-> /account/get
-> GET
-
-
-Request query string: `?t=JSZeCEqjQgHpeoMAqwVVtmzLcDyJxGUK`
-
-
-Respond
-```json
-{
-    "id": 50001003,
-    "name": "郝思雁",
-    "avatar": "images/avatar03.png",
-    "state": "online",
-    "region": "上海",
-    "department": "公关部",
-    "last": 0
-}
-```
-
 
 &nbsp;

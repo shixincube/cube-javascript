@@ -68,8 +68,7 @@
             "remember": remember
         }, function(response, status, xhr) {
             if (response.code == 0) {
-                alert('ok');
-                //window.location.href = 'main.html?t=' + response.token;
+                window.location.href = 'main.html?t=' + response.token;
             }
             else {
                 $('#modal_login').modal('hide');
@@ -78,7 +77,7 @@
                     title: '提示',
                     autohide: true,
                     delay: 3000,
-                    body: '登录失败，请确认用户名或密码是否正确'
+                    body: '登录失败，请确认用户名或密码是否正确 (' + response.code + ')'
                 });
             }
         }, 'json');
@@ -95,6 +94,13 @@
         $('#password').on('keypress', function(e) {
             if (e.keyCode == 13) {
                 login();
+            }
+        });
+
+        // 尝试使用 Cookie 登录
+        $.post('/account/login', {}, function(response, status, xhr) {
+            if (response.code == 0) {
+                window.location.href = 'main.html';
             }
         });
     });
