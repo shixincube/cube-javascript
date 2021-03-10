@@ -28,7 +28,7 @@
     'use strict';
 
     $(document).ready(function() {
-        $.get('/account/all', function(response, status, xhr) {
+        $.get('/account/buildin', function(response, status, xhr) {
             var list = response;
 
             var accounts = [];

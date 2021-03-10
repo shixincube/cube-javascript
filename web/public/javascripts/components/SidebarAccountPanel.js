@@ -25,14 +25,18 @@
  */
 
 (function(g) {
-    'use strict'
+    'use strict';
 
     /**
      * 侧边栏账号面板。
-     * @param {*} el 
+     * @param {jQuery} el 
      */
     var SidebarAccountPanel = function(el) {
         this.el = el;
+        var that = this;
+        this.el.find('a[data-target="name"]').on('click', function() {
+            that.showDetail();
+        });
     };
 
     SidebarAccountPanel.prototype.updateAvatar = function(path) {
@@ -41,6 +45,10 @@
 
     SidebarAccountPanel.prototype.updateName = function(name) {
         this.el.find('a[data-target="name"]').text(name);
+    }
+
+    SidebarAccountPanel.prototype.showDetail = function() {
+        // Nothing
     }
 
     g.SidebarAccountPanel = SidebarAccountPanel;

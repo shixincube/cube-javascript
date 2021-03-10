@@ -205,6 +205,9 @@
             sidebarAccountPanel = new SidebarAccountPanel($('.account-panel'));
             sidebarAccountPanel.updateAvatar(account.avatar);
             sidebarAccountPanel.updateName(account.name);
+            sidebarAccountPanel.showDetail = function() {
+                contactDetails.show(cube.contact.getSelf());
+            };
 
             // 消息主面板
             var messagingEl = $('#messaging');
@@ -324,7 +327,7 @@
                     var timer = 0;
 
                     var logout = function() {
-                        $.post('/account/logout', { "id": account.id, "token": token }, function(response, status, xhr) {
+                        $.post('/account/logout', { "token": token }, function(response, status, xhr) {
                             clearTimeout(timer);
 
                             // 回到登录界面，停止引擎
@@ -445,11 +448,11 @@
             var process = function(list) {
                 list.forEach(function(item) {
                     if (item.id != account.id) {
-                        itemMap[item.id] = item;
+                        itemMap[item.id.toString()] = item;
 
                         that.getContact(item.id, function(contact) {
                             // 将 App 的账号数据设置为 Cube 联系人的上下文
-                            var account = itemMap[contact.getId()];
+                            var account = itemMap[contact.getId().toString()];
                             contact.setContext(account);
                             contact.setName(account.name);
                             messageCatalog.appendItem(contact);
@@ -527,14 +530,6 @@
             }, function(error) {
                 console.log(error);
             });
-
-            // TODO 不再获取全部联系人
-            /*
-            // 获取所有联系人
-            $.get('/account/all', function(response, status, xhr) {
-                var list = response;
-                
-            });*/
         },
 
         /**

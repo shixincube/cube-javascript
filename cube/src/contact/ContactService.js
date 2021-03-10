@@ -322,10 +322,22 @@ export class ContactService extends Module {
             this.self.setContext(data["context"]);
         }
 
-        // 更新状态
-        this.selfReady = true;
+        // 获取附录
+        this.getAppendix(this.self, (appendix) => {
+            this.self.appendix = appendix;
 
-        this.notifyObservers(new ObservableEvent(ContactEvent.SignIn, this.self));
+            // 更新状态
+            this.selfReady = true;
+
+            this.notifyObservers(new ObservableEvent(ContactEvent.SignIn, this.self));
+        }, (error) => {
+            cell.Logger.w('ContactService', 'Get self appendix: ' + error);
+
+            // 更新状态
+            this.selfReady = true;
+
+            this.notifyObservers(new ObservableEvent(ContactEvent.SignIn, this.self));
+        });
     }
 
     /**

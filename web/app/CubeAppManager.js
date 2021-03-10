@@ -133,6 +133,12 @@ class CubeAppManager {
 
     loginByToken(token, callback) {
         this.accRepo.queryToken(token, (data) => {
+            if (null == data) {
+                // 状态码 7 - 找不到令牌
+                callback(7, token);
+                return;
+            }
+
             if (data.expire <= Date.now()) {
                 // Token 无效
                 callback(9, token);

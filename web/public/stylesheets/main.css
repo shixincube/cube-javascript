@@ -213,12 +213,12 @@ body {
 
 .main-header .cube-site {
     display: inline-block;
-    font-size: 14px;
+    font-size: 12px;
 }
 .main-header .main-title {
     display: inline-block;
-    vertical-align: middle;
     color: #343a40;
+    padding-top: 7px;
 }
 
 .main-footer {
@@ -1040,3 +1040,27 @@ body {
 }
 
 /* 会议界面 - 结束 */
+
+/* 联系人 - 开始 */
+
+.contacts-card {
+    margin-top: 0.6rem;
+}
+.contacts-card .tab-content {
+    font-size: 14px;
+    overflow-y: auto;
+}
+.contacts-card .tab-content > div {
+    height: calc(100vh - 210px);
+}
+.contacts-card img.table-avatar {
+    border-radius: 10%;
+    display: inline;
+    width: 50px;
+}
+
+.table-contacts td {
+    vertical-align: middle;
+}
+
+/* 联系人 - 结束 */

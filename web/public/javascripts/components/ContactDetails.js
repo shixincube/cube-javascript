@@ -25,7 +25,7 @@
  */
 
 (function(g) {
-    'use strict'
+    'use strict';
 
     var dialogEl = null;
 

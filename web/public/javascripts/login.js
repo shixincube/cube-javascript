@@ -102,11 +102,11 @@
             $('#modal_login').modal('show');
 
             $.post('/account/login', {}, function(response, status, xhr) {
+                $('#modal_login').modal('hide');
+
                 if (response.code == 0) {
                     window.location.href = 'main.html';
                 }
-
-                $('#modal_login').modal('hide');
             });
         }
     });

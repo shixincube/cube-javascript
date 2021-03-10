@@ -178,12 +178,12 @@ Respond
 
 ----
 
-## /account/all
+## /account/buildin
 
-> /account/all
+> /account/buildin
 > GET
 
-返回所有联系人列表。
+返回系统内置的联系人列表。
 
 ```javascript
 [{
