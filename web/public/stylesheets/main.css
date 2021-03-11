@@ -1064,8 +1064,12 @@ body {
 .contacts-card .nav-tabs {
     display: inline-block;
 }
-.contacts-card .card-tools {
-    margin-top: 0.4rem !important;
+.contacts-card .card-tools .refresh {
+    display: inline-block;
+    width: 36px;
+}
+.contacts-card .card-tools .search {
+    display: inline-flex;
 }
 
 .table-contacts {

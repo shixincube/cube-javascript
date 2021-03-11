@@ -42,12 +42,22 @@
 
     var delayTimer = 0;
 
+    var btnRefresh = null;
+
     var ContactsController = function(cubeEngine) {
         that = this;
         cube = cubeEngine;
         table = new g.ContactsTable($('div[data-target="contacts-table"]'));
+        btnRefresh = $('.contacts-card').find('button[data-target="refresh"]');
+        btnRefresh.on('click', function() {
+            that.update();
+        });
     }
 
+    /**
+     * 添加联系人数据。
+     * @param {*} contact 
+     */
     ContactsController.prototype.addContact = function(contact) {
         contactList.push(contact);
 
@@ -61,7 +71,11 @@
         }, 1000);
     }
 
-    ContactsController.prototype.goToChat = function(index) {
+    /**
+     * 跳转到消息界面。
+     * @param {number} index 
+     */
+    ContactsController.prototype.goToMessaging = function(index) {
         var contact = currentPage[index];
         if (undefined === contact) {
             return;
@@ -74,7 +88,11 @@
         }, 100);
     }
 
-    ContactsController.prototype.editContact = function(index) {
+    /**
+     * 编辑联系人备注。
+     * @param {*} index 
+     */
+    ContactsController.prototype.editRemark = function(index) {
         var contact = currentPage[index];
         if (undefined === contact) {
             return;
@@ -98,7 +116,7 @@
 
     /**
      * 显示指定页。
-     * @param {*} newPagination 
+     * @param {number} newPagination 
      * @returns 
      */
     ContactsController.prototype.showPage = function(newPagination) {
@@ -166,6 +184,7 @@
         table.paging(maxPagination);
 
         // 显示指定页
+        table.reset();
         table.showPage(pagination, currentPage);
     }
 

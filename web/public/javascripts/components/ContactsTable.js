@@ -29,8 +29,6 @@
 
     var that = null;
 
-    var cube = null;
-
     var container = null;
     var tableEl = null;
     var tbodyEl = null;
@@ -39,6 +37,7 @@
     var curPage = 0;
 
     var ContactsTable = function(el) {
+        that = this;
         container = el;
         tableEl = el.find('.table');
         tbodyEl = tableEl.find('tbody');
@@ -59,6 +58,10 @@
         pagingEl.html(html.join(''));
     }
 
+    ContactsTable.prototype.reset = function() {
+        curPage = 0;
+    }
+
     ContactsTable.prototype.showPage = function(page, contacts) {
         if (page == curPage) {
             return;
@@ -70,6 +73,8 @@
         pagingEl.find('.page-' + page).addClass('active');
         // 更新页码
         curPage = page;
+
+        tbodyEl.empty();
 
         for (var i = 0; i < contacts.length; ++i) {
             var contact = contacts[i];
@@ -85,8 +90,8 @@
                     '<td>', ctx.region, '</td>',
                     '<td>', ctx.department, '</td>',
                     '<td class="text-right">',
-                        '<a class="btn btn-primary btn-sm" href="javascript:app.contactsCtrl.goToChat(', i, ');"><i class="fas fa-comments"></i> 发消息</a>',
-                        '<a class="btn btn-info btn-sm" href="javascript:app.contactsCtrl.editContact(', i, ');" style="margin-left:8px;"><i class="fas fa-pencil-alt"></i> 备注</a>',
+                        '<a class="btn btn-primary btn-sm" href="javascript:app.contactsCtrl.goToMessaging(', i, ');"><i class="fas fa-comments"></i> 发消息</a>',
+                        '<a class="btn btn-info btn-sm" href="javascript:app.contactsCtrl.editRemark(', i, ');" style="margin-left:8px;"><i class="fas fa-pencil-alt"></i> 备注</a>',
                     '</td>',
                 '</tr>'
             ];
