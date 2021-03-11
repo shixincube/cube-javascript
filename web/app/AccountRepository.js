@@ -38,9 +38,93 @@ class AccountRepository {
 
         this.buildInAccounts = null;
 
-        setTimeout(() => {
+        this.selfChecking(() => {
+            console.log('Database self-check done');
             this.buildInData();
-        }, 1000);
+        });
+    }
+
+    /**
+     * 自检表。
+     */
+    selfChecking(completedCallback) {
+        this.pool.query('SHOW TABLES', (error, results, fields) => {
+            if (error) {
+                console.log(error.code);
+                return;
+            }
+
+            let list = [];
+            results.forEach((value, index) => {
+                for (let key in value) {
+                    list.push(value[key]);
+                }
+            });
+
+            let accountDone = false;
+            let tokenDone = false;
+
+            if (list.indexOf('account') < 0) {
+                let sql = [
+                    "CREATE TABLE `account` (",
+                        "`id` bigint(13) NOT NULL,",
+                        "`account` varchar(128) NOT NULL,",
+                        "`password` varchar(64) NOT NULL,",
+                        "`name` varchar(128) NOT NULL,",
+                        "`avatar` varchar(512) NOT NULL,",
+                        "`state` int(11) NOT NULL DEFAULT '0',",
+                        "`region` varchar(45) NOT NULL DEFAULT '--',",
+                        "`department` varchar(45) NOT NULL DEFAULT '--',",
+                        "`last` bigint(13) NOT NULL DEFAULT '0',",
+                        "PRIMARY KEY (`id`),",
+                        "UNIQUE KEY `account_UNIQUE` (`account`)",
+                      ") ENGINE=InnoDB DEFAULT CHARSET=utf8"
+                ];
+                this.pool.query(sql.join(''), (error, results) => {
+                    if (error) {
+                        console.log(error);
+                    }
+
+                    accountDone = true;
+                    if (tokenDone) {
+                        completedCallback();
+                    }
+                });
+            }
+            else {
+                accountDone = true;
+            }
+
+            if (list.indexOf('token') < 0) {
+                let sql = [
+                    "CREATE TABLE `token` (",
+                        "`id` int(10) unsigned NOT NULL AUTO_INCREMENT,",
+                        "`account_id` bigint(13) NOT NULL,",
+                        "`token` varchar(128) NOT NULL,",
+                        "`creation` bigint(13) NOT NULL,",
+                        "`expire` bigint(13) NOT NULL,",
+                        "PRIMARY KEY (`id`)",
+                      ") ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8"
+                ];
+                this.pool.query(sql.join(''), (error, results) => {
+                    if (error) {
+                        console.log(error);
+                    }
+
+                    tokenDone = true;
+                    if (accountDone) {
+                        completedCallback();
+                    }
+                });
+            }
+            else {
+                tokenDone = true;
+            }
+
+            if (accountDone && tokenDone) {
+                completedCallback();
+            }
+        });
     }
 
     buildInData() {
