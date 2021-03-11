@@ -36,22 +36,137 @@
     var contactList = [];
 
     var currentPage = null;
+    var pagination = 1;
+    var pageSize = 10;
+    var maxPagination = 0;
+
+    var delayTimer = 0;
 
     var ContactsController = function(cubeEngine) {
+        that = this;
         cube = cubeEngine;
         table = new g.ContactsTable($('div[data-target="contacts-table"]'));
     }
 
-    ContactsController.prototype.addContact = function() {
-        contactList = '';
+    ContactsController.prototype.addContact = function(contact) {
+        contactList.push(contact);
+
+        if (delayTimer > 0) {
+            clearTimeout(delayTimer);
+        }
+        delayTimer = setTimeout(function() {
+            clearTimeout(delayTimer);
+            delayTimer = 0;
+            that.update();
+        }, 1000);
     }
 
     ContactsController.prototype.goToChat = function(index) {
+        var contact = currentPage[index];
+        if (undefined === contact) {
+            return;
+        }
 
+        // 切换到消息面板
+        app.toggle('messaging', 'tab_messaging');
+        setTimeout(function() {
+            app.messagingCtrl.toggle(contact.getId());
+        }, 100);
     }
 
     ContactsController.prototype.editContact = function(index) {
+        var contact = currentPage[index];
+        if (undefined === contact) {
+            return;
+        }
 
+        g.dialog.showPrompt('备注联系人', '请填写联系人“' + contact.getName() + '”的备注：', function(ok, value) {
+            if (ok) {
+                var remark = value.trim();
+                if (remark.length == 0) {
+                    g.dialog.launchToast(g.Toast.Warning, '请正确填写联系人备注');
+                    return false;
+                }
+
+                // 更新联系人备注
+                contact.getAppendix().updateRemarkName(remark, function() {
+                    table.modifyRemark(index, remark);
+                });
+            }
+        });
+    }
+
+    /**
+     * 显示指定页。
+     * @param {*} newPagination 
+     * @returns 
+     */
+    ContactsController.prototype.showPage = function(newPagination) {
+        if (pagination == newPagination) {
+            return;
+        }
+
+        if (newPagination < 1 || newPagination > maxPagination) {
+            return;
+        }
+
+        pagination = newPagination;
+        currentPage = [];
+        for (var i = (pagination - 1) * pageSize; i < contactList.length && currentPage.length < pageSize; ++i) {
+            currentPage.push(contactList[i]);
+        }
+
+        // 更新表格
+        table.showPage(pagination, currentPage);
+    }
+
+    /**
+     * 切换到上一页。
+     */
+    ContactsController.prototype.prevPage = function() {
+        if (pagination == 1) {
+            return;
+        }
+
+        var page = pagination - 1;
+        this.showPage(page);
+        pagination -= 1;
+    }
+
+    /**
+     * 切换到下一页。
+     */
+    ContactsController.prototype.nextPage = function() {
+        if (pagination == maxPagination) {
+            return;
+        }
+
+        var page = pagination + 1;
+        this.showPage(page);
+        pagination += 1;
+    }
+
+    /**
+     * 更新数据。
+     */
+    ContactsController.prototype.update = function() {
+        contactList.sort(function(a, b) {
+            return a.getName().localeCompare(b.getName());
+        });
+
+        currentPage = [];
+        for (var i = 0; i < pageSize && i < contactList.length; ++i) {
+            currentPage.push(contactList[i]);
+        }
+        // 第一页
+        pagination = 1;
+
+        // 分页
+        maxPagination = Math.ceil(contactList.length / pageSize);
+        table.paging(maxPagination);
+
+        // 显示指定页
+        table.showPage(pagination, currentPage);
     }
 
     g.ContactsController = ContactsController;

@@ -462,7 +462,13 @@
                             var account = itemMap[contact.getId().toString()];
                             contact.setContext(account);
                             contact.setName(account.name);
+
+                            // 向消息目录添加联系人
                             messageCatalog.appendItem(contact);
+
+                            // 向联系人表格添加联系人
+                            contactsCtrl.addContact(contact);
+
                             itemMap.count += 1;
                         });
                     }

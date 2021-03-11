@@ -34,31 +34,74 @@
     var container = null;
     var tableEl = null;
     var tbodyEl = null;
+    var pagingEl = null;
+
+    var curPage = 0;
 
     var ContactsTable = function(el) {
         container = el;
         tableEl = el.find('.table');
         tbodyEl = tableEl.find('tbody');
+        pagingEl = el.find('.pagination');
     }
 
-    ContactsTable.prototype.appendContact = function(contact) {
+    ContactsTable.prototype.paging = function(num) {
         var html = [
-            '<tr>',
-                '<td></td>',
-                '<td><img class="table-avatar" src="" /></td>',
-                '<td></td>',
-                '<td class="text-muted"></td>',
-                '<td></td>',
-                '<td></td>',
-                '<td></td>',
-                '<td class="text-right">',
-                    '<a class="btn btn-primary btn-sm" href="javascript:app.contactsCtrl.goToChat(0);"><i class="fas fa-comments"></i> 发消息</a>',
-                    '<a class="btn btn-info btn-sm" href="javascript:app.contactsCtrl.editContact(0);"><i class="fas fa-pencil-alt"></i> 备注</a>',
-                '</td>',
-            '</tr>'
+            '<li class="page-item"><a class="page-link" href="javascript:app.contactsCtrl.prevPage();">«</a></li>'
         ];
 
-        // tbodyEl
+        for (var i = 1; i <= num; ++i) {
+            html.push('<li class="page-item page-' + i + '"><a class="page-link" href="javascript:app.contactsCtrl.showPage(' + i + ');">' + i + '</a></li>');
+        }
+
+        html.push('<li class="page-item"><a class="page-link" href="javascript:app.contactsCtrl.nextPage();">»</a></li>');
+
+        pagingEl.html(html.join(''));
+    }
+
+    ContactsTable.prototype.showPage = function(page, contacts) {
+        if (page == curPage) {
+            return;
+        }
+
+        if (curPage > 0) {
+            pagingEl.find('.page-' + curPage).removeClass('active');
+        }
+        pagingEl.find('.page-' + page).addClass('active');
+        // 更新页码
+        curPage = page;
+
+        for (var i = 0; i < contacts.length; ++i) {
+            var contact = contacts[i];
+            var ctx = contact.getContext();
+            var appendix = contact.getAppendix();
+            var html = [
+                '<tr data-target="', i, '">',
+                    '<td>', (page - 1) * 10 + (i + 1), '</td>',
+                    '<td><img class="table-avatar" src="', ctx.avatar, '" /></td>',
+                    '<td>', contact.getName(), '</td>',
+                    '<td class="text-muted">', appendix.hasRemarkName() ? appendix.getRemarkName() : '', '</td>',
+                    '<td>', contact.getId(), '</td>',
+                    '<td>', ctx.region, '</td>',
+                    '<td>', ctx.department, '</td>',
+                    '<td class="text-right">',
+                        '<a class="btn btn-primary btn-sm" href="javascript:app.contactsCtrl.goToChat(', i, ');"><i class="fas fa-comments"></i> 发消息</a>',
+                        '<a class="btn btn-info btn-sm" href="javascript:app.contactsCtrl.editContact(', i, ');" style="margin-left:8px;"><i class="fas fa-pencil-alt"></i> 备注</a>',
+                    '</td>',
+                '</tr>'
+            ];
+            tbodyEl.append($(html.join('')));
+        }
+    }
+
+    ContactsTable.prototype.modifyRemark = function(rowIndex, remark) {
+        this.modifyCell(rowIndex, 3, remark);
+    }
+
+    ContactsTable.prototype.modifyCell = function(rowIndex, colIndex, text) {
+        var rowEl = tbodyEl.find('tr[data-target="' + rowIndex + '"]');
+        var cell = rowEl.find('td').eq(colIndex);
+        cell.text(text);
     }
 
     g.ContactsTable = ContactsTable;
