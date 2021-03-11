@@ -1,5 +1,6 @@
 /**
  * This file is part of Cube.
+ * https://shixincube.com
  * 
  * The MIT License (MIT)
  *
@@ -24,22 +25,18 @@
  * SOFTWARE.
  */
 
-const config = {
-    db: {
-        host     : '192.168.100.122',   // 数据库服务器地址
-        port     : '3307',              // 数据库服务器端口
-        user     : 'cube',              // 数据库访问用户
-        password : 'shixincube',        // 数据库访问密码
-        database : 'cube_3_app',        // 数据库 Schema
-        charset  : 'UTF8',
-        supportBigNumbers : true
-    },
+var express = require('express');
+var router = express.Router();
 
-    cube: {
-        address : '127.0.0.1',          // 魔方服务器地址
-        domain  : 'shixincube.com',     // 当前应用所在的域
-        appKey  : 'shixin-cubeteam-opensource-appkey'   // 当前应用的 App-Key
+/* GET /config */
+router.get('/config', function(req, res, next) {
+    let config = req.app.get('manager').getCubeConfig(req.query.t);
+    if (null == config) {
+        res.sendStatus(404);
+        return;
     }
-};
 
-module.exports = config;
+    res.json(config);
+});
+
+module.exports = router;

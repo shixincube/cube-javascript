@@ -26,6 +26,7 @@
 
 const AccountRepository = require('./AccountRepository');
 const stringRandom = require('string-random');
+const config = require('../config');
 
 /**
  * 模拟应用程序管理的类。
@@ -99,6 +100,15 @@ class CubeAppManager {
             }
             callback(data);
         })();
+    }
+
+    getCubeConfig(token) {
+        let accountData = this.getOnlineAccountByToken(token);
+        if (null == accountData) {
+            return null;
+        }
+
+        return config.cube;
     }
 
     /**

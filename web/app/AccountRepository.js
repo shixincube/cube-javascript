@@ -24,7 +24,6 @@
  * SOFTWARE.
  */
 
-const e = require('express');
 const mysql = require('mysql');
 const config = require('../config');
 

@@ -35,6 +35,7 @@ var manager = require('./app/CubeAppManager');
 
 var indexRouter = require('./routes/index');
 var accountRouter = require('./routes/account');
+var cubeRouter = require('./routes/cube');
 
 var app = express();
 
@@ -54,6 +55,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/account', accountRouter);
+app.use('/cube', cubeRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

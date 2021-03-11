@@ -29,6 +29,14 @@ body {
     overflow: hidden;
 }
 
+.btn {
+    font-size: 14px;
+}
+
+.sidebar .nav-link {
+    font-size: 16px;
+}
+
 .nav-link {
     font-size: 14px;
 }
@@ -1014,9 +1022,6 @@ body {
 
 .conference {
     font-size: 14px;
-}
-.conference button {
-    font-size: 16px;
 }
 
 .conference .container-fluid .row {

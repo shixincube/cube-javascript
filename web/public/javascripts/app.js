@@ -199,9 +199,29 @@
             that.account = account;
             console.log('Account: ' + account.id + ' - ' + account.account);
 
-            // 启动 Cube Engine
-            this.startupCube();
+            // 从服务器获取配置
+            $.get('/cube/config', {
+                "t": token
+            }, function(response, status, xhr) {
+                // 启动 Cube Engine
+                app.startupCube(response);
 
+                // 准备 UI 数据
+                app.prepareUI();
+            });
+        },
+
+        /**
+         * 停止。
+         */
+        stop: function() {
+            window.location.href = 'index.html?ts=' + Date.now();
+        },
+
+        /**
+         * 初始化 UI 。
+         */
+        prepareUI: function() {
             // 侧边账号栏
             sidebarAccountPanel = new SidebarAccountPanel($('.account-panel'));
             sidebarAccountPanel.updateAvatar(account.avatar);
@@ -267,16 +287,9 @@
         },
 
         /**
-         * 停止。
-         */
-        stop: function() {
-            window.location.href = 'index.html?ts=' + Date.now();
-        },
-
-        /**
          * 启动 Cube Engine 。
          */
-        startupCube: function() {
+        startupCube: function(config) {
             // 实例化 Cube 引擎
             cube = window.cube();
 
@@ -294,11 +307,11 @@
             cube.messaging.register(new MessageTypePlugin());
 
             // 启动 Cube
-            cube.start({
+            cube.start(undefined === config ? {
                 address: '127.0.0.1',
                 domain: 'shixincube.com',
                 appKey: 'shixin-cubeteam-opensource-appkey'
-            }, function() {
+            } : config, function() {
                 console.log('Start Cube OK');
 
                 // 启用消息模块
@@ -437,9 +450,6 @@
 
         onReady: function() {
             that.prepare();
-
-            filesCatalog.prepare();
-
             console.log('Cube WebApp Ready');
         },
 
@@ -470,6 +480,7 @@
                             contactsCtrl.addContact(contact);
 
                             itemMap.count += 1;
+                            console.debug('Debug #getContact: ' + contact.getId() + ' - ' + itemMap.count);
                         });
                     }
                 });
@@ -506,6 +517,9 @@
 
                     // 加载群组信息
                     that.prepareGroups();
+
+                    // 文件目录准备
+                    filesCatalog.prepare();
 
                     // 隐藏进度提示
                     dialog.hideLoading();

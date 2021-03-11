@@ -1,5 +1,28 @@
 # Web UI 接口
 
+## /cube/config
+
+获取时信魔方的配置信息。
+
+> /cube/config
+> GET
+
+Request
+```json
+{
+    "t": "JSZeCEqjQgHpeoMAqwVVtmzLcDyJxGUK"
+}
+```
+
+Respond
+```json
+{
+    "address": "127.0.0.1",
+    "domain": "shixincube.com",
+    "appKey": "shixin-cubeteam-opensource-appkey"
+}
+```
+
 ## /account/register
 
 注册账号
