@@ -29,6 +29,10 @@ body {
     overflow: hidden;
 }
 
+.nav-link {
+    font-size: 14px;
+}
+
 .width-100 {
     width: 100%;
 }
@@ -1048,7 +1052,6 @@ body {
 }
 .contacts-card .tab-content {
     font-size: 14px;
-    overflow-y: auto;
 }
 .contacts-card .tab-content > div {
     height: calc(100vh - 210px);
@@ -1058,7 +1061,22 @@ body {
     display: inline;
     width: 50px;
 }
+.contacts-card .nav-tabs {
+    display: inline-block;
+}
+.contacts-card .card-tools {
+    margin-top: 0.4rem !important;
+}
 
+.table-contacts {
+    height: calc(100vh - 252px);
+    overflow-y: auto;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #dee2e6;
+}
+.table-contacts .table {
+    margin-bottom: unset;
+}
 .table-contacts td {
     vertical-align: middle;
 }

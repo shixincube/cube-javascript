@@ -650,43 +650,45 @@
                                         <a class="nav-link active" id="contacts-tabs-default-tab" data-toggle="pill" href="#contacts-tabs-default" role="tab" aria-controls="contacts-tabs-default" aria-selected="true">全部</a>
                                     </li>
                                 </ul>
+                                <div class="card-tools">
+                                    <div class="input-group input-group-sm" style="width: 150px;">
+                                        <input type="text" name="table_search" class="form-control float-right" placeholder="搜索" />
+                                        <div class="input-group-append">
+                                            <button type="submit" class="btn btn-default"><i class="fas fa-search"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <div class="tab-content" id="contacts-tabs-content">
-                                    <div class="tab-pane fade show active" id="contacts-tabs-default" role="tabpanel" aria-labelledby="contacts-tabs-default-tab">
-                                        <table class="table table-striped table-head-fixed table-contacts">
-                                            <thead>
-                                                <tr>
-                                                    <th>序号</th>
-                                                    <th>头像</th>
-                                                    <th>昵称</th>
-                                                    <th>备注</th>
-                                                    <th>魔方号</th>
-                                                    <th>地区</th>
-                                                    <th>部门</th>
-                                                    <th></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>1</td>
-                                                    <td><img class="table-avatar" src="images/avatar07.png" /></td>
-                                                    <td>名字</td>
-                                                    <td>备注</td>
-                                                    <td>500010005</td>
-                                                    <td>北京</td>
-                                                    <td>技术部</td>
-                                                    <td class="text-right">
-                                                        <a class="btn btn-primary btn-sm" href="#">
-                                                            <i class="fas fa-comments"></i> 发消息
-                                                        </a>
-                                                        <a class="btn btn-info btn-sm" href="#">
-                                                            <i class="fas fa-pencil-alt"></i> 备注
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
+                                    <div class="tab-pane fade show active" id="contacts-tabs-default" data-target="contacts-table" role="tabpanel" aria-labelledby="contacts-tabs-default-tab">
+                                        <div class="table-contacts">
+                                            <table class="table table-striped table-hover table-head-fixed text-nowrap">
+                                                <thead>
+                                                    <tr>
+                                                        <th>序号</th>
+                                                        <th>头像</th>
+                                                        <th>昵称</th>
+                                                        <th>备注</th>
+                                                        <th>魔方号</th>
+                                                        <th>地区</th>
+                                                        <th>部门</th>
+                                                        <th></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="table-pagination">
+                                            <ul class="pagination pagination-sm m-0 float-right">
+                                                <li class="page-item"><a class="page-link" href="#">«</a></li>
+                                                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                                <li class="page-item"><a class="page-link" href="#">»</a></li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
                             </div><!-- /.card-body -->
@@ -1002,6 +1004,8 @@
 <script type="text/javascript" src="javascripts/components/FilesTable.js"></script>
 <script type="text/javascript" src="javascripts/components/FilesPanel.js"></script>
 <script type="text/javascript" src="javascripts/components/FilesController.js"></script>
+<script type="text/javascript" src="javascripts/components/ContactsTable.js"></script>
+<script type="text/javascript" src="javascripts/components/ContactsController.js"></script>
 <script type="text/javascript" src="javascripts/app.js"></script>
 <script type="text/javascript">
 (function ($) {

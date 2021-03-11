@@ -66,6 +66,7 @@
     var messagingCtrl = null;
     var callCtrl = null;
     var filesCtrl = null;
+    var contactsCtrl = null;
 
     /**
      * 从内存里查询对应的联系人
@@ -234,9 +235,14 @@
             // 文件面板
             filesPanel = new FilesPanel(filesEl.find('.files-panel'));
 
+            // 消息控制器
             messagingCtrl = new MessagingController(cube);
+            // 通话控制器
             callCtrl = new CallController(cube);
+            // 文件控制器
             filesCtrl = new FilesController(cube);
+            // 联系人控制器
+            contactsCtrl = new ContactsController(cube);
 
             that.messageCatalog = messageCatalog;
             that.messagePanel = messagePanel;
@@ -257,6 +263,7 @@
             that.messagingCtrl = messagingCtrl;
             that.callCtrl = callCtrl;
             that.filesCtrl = filesCtrl;
+            that.contactsCtrl = contactsCtrl;
         },
 
         /**
