@@ -519,7 +519,9 @@
                     that.prepareGroups();
 
                     // 文件目录准备
-                    filesCatalog.prepare();
+                    setTimeout(function() {
+                        filesCatalog.prepare();
+                    }, 100);
 
                     // 隐藏进度提示
                     dialog.hideLoading();
