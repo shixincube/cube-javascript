@@ -636,6 +636,39 @@ export class FileHierarchy {
         });
     }
 
+    restoreTrash(list, handleSuccess, handleFailure) {
+        let trashIdList = [];
+        list.forEach((item) => {
+            trashIdList.push(parseInt(item));
+        });
+
+        let request = new Packet(FileStorageAction.RestoreTrash, {
+            root: this.root.id,
+            list: trashIdList
+        });
+        this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
+            if (null == packet || packet.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, trashIdList);
+                cell.Logger.w('FileHierarchy', '#restoreTrash() - ' + error);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            if (packet.getPayload().code != FileStorageState.Ok) {
+                let error = new ModuleError(FileStorage.NAME, packet.getPayload().code, trashIdList);
+                cell.Logger.w('FileHierarchy', '#restoreTrash() - ' + error);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            handleSuccess(this.root, packet.getPayload().data);
+        });
+    }
+
     /**
      * 搜索文件。
      * @param {SearchFilter} filter 指定搜索过滤条件。

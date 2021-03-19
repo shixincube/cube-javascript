@@ -36,6 +36,7 @@
     var btnUpload = null;
     var btnNewDir = null;
     var btnEmptyTrash = null;
+    var btnRestore = null;
     var btnParent = null;
     var btnRecycle = null;
 
@@ -69,6 +70,7 @@
         btnSelectAll = el.find('.checkbox-toggle');
         btnUpload = el.find('button[data-target="upload"]');
         btnEmptyTrash = el.find('button[data-target="empty-trash"]');
+        btnRestore = el.find('button[data-target="restore"]');
         btnNewDir = el.find('button[data-target="new-dir"]');
         btnParent = el.find('button[data-target="parent"]');
         btnRecycle = el.find('button[data-target="recycle"]');
@@ -148,6 +150,28 @@
                     });
                 }
             }, '清空回收站');
+        });
+
+        // 恢复文件
+        btnRestore.click(function() {
+            var idList = [];
+            var list = panelEl.find('.table-files input[type="checkbox"]');
+            for (var i = 0; i < list.length; ++i) {
+                var el = $(list.get(i));
+                if (el.prop('checked')) {
+                    idList.push(parseInt(el.attr('id')));
+                }
+            }
+
+            if (idList.length == 0) {
+                return;
+            }
+
+            window.cube().fs.restoreTrash(idList, function(root, result) {
+                that.showRecyclebin();
+            }, function(error) {
+                g.dialog.launchToast(Toast.Error, '清空回收站失败: ' + error.code);
+            });
         });
 
         // 上一级/回到父目录
@@ -492,6 +516,7 @@
         btnNewDir.css('display', 'inline-block');
         btnParent.css('display', 'block');
         btnEmptyTrash.css('display', 'none');
+        btnRestore.css('display', 'none');
 
         this.refreshTable();
 
@@ -505,6 +530,7 @@
         selectedSearch = true;
         selectedRecycleBin = false;
         btnEmptyTrash.css('display', 'none');
+        btnRestore.css('display', 'none');
 
         panelEl.find('.fp-path').html('');
         btnUpload.css('display', 'none');
@@ -541,6 +567,7 @@
         selectedSearch = true;
         selectedRecycleBin = false;
         btnEmptyTrash.css('display', 'none');
+        btnRestore.css('display', 'none');
 
         panelEl.find('.fp-path').html('');
         btnUpload.css('display', 'none');
@@ -579,6 +606,7 @@
         selectedSearch = false;
         selectedRecycleBin = true;
         btnEmptyTrash.css('display', 'inline-block');
+        btnRestore.css('display', 'inline-block');
 
         panelEl.find('.fp-path').html('');
         btnUpload.css('display', 'none');

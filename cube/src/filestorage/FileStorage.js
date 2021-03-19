@@ -670,6 +670,17 @@ export class FileStorage extends Module {
         });
     }
 
+    restoreTrash(trashIdList, handleSuccess, handleFailure) {
+        this.getSelfRoot((root) => {
+            let hierarchy = this.fileHierarchyMap.get(this.contactService.getSelf().getId());
+            hierarchy.restoreTrash(trashIdList, handleSuccess, handleFailure);
+        }, (error) => {
+            if (handleFailure) {
+                handleFailure(error);
+            }
+        });
+    }
+
     /**
      * 搜索文件。
      * @param {SearchFilter} filter 指定搜索过滤条件。

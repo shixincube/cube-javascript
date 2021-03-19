@@ -101,6 +101,12 @@ export const FileStorageAction = {
     EmptyTrash: 'emptyTrash',
 
     /**
+     * 从回收站恢复废弃数据。
+     * @type {string}
+     */
+    RestoreTrash: 'restoreTrash',
+
+    /**
      * 检索文件。
      * @type {string}
      */

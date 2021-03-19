@@ -71,12 +71,13 @@
             name = name + ' （于 ' + g.formatYMDHMS(fileLabel.getTrashTimestamp()) + '）';
         }
 
+        var id = fileLabel.getId();
         return [
-            '<tr onclick="app.filesPanel.toggleSelect(\'', fileLabel.getFileCode(), '\')"',
-                    ' ondblclick="app.filesPanel.openFileDetails(\'', fileLabel.getFileCode(), '\')"', ' id="ftr_', fileLabel.getFileCode(), '">',
+            '<tr onclick="app.filesPanel.toggleSelect(\'', id, '\')"',
+                    ' ondblclick="app.filesPanel.openFileDetails(\'', fileLabel.getFileCode(), '\')"', ' id="ftr_', id, '">',
                 '<td><div class="icheck-primary">',
-                    '<input type="checkbox" data-type="file" id="', fileLabel.getFileCode(), '">',
-                        '<label for="', fileLabel.getFileCode(), '"></label></div></td>',
+                    '<input type="checkbox" data-type="file" id="', id, '">',
+                        '<label for="', id, '"></label></div></td>',
                 '<td class="file-icon">', matchFileIcon(fileLabel), '</td>',
                 '<td class="file-name"><a href="javascript:app.filesPanel.openFile(\'', fileLabel.getFileCode(), '\');">', name, '</a></td>',
                 '<td class="file-size">', g.formatSize(fileLabel.getFileSize()), '</td>',
@@ -97,11 +98,12 @@
             dirName = '/';
         }
 
+        var id = fileLabel.getId();
         return [
-            '<tr onclick="app.filesPanel.toggleSelect(\'', fileLabel.getFileCode(), '\')" id="ftr_', fileLabel.getFileCode(), '">',
+            '<tr onclick="app.filesPanel.toggleSelect(\'', id, '\')" id="ftr_', id, '">',
                 '<td><div class="icheck-primary">',
-                    '<input type="checkbox" data-type="file" id="', fileLabel.getFileCode(), '">',
-                        '<label for="', fileLabel.getFileCode(), '"></label></div></td>',
+                    '<input type="checkbox" data-type="file" id="', id, '">',
+                        '<label for="', id, '"></label></div></td>',
                 '<td class="file-icon">', matchFileIcon(fileLabel), '</td>',
                 '<td class="file-name"><a href="javascript:app.filesPanel.openFile(\'', fileLabel.getFileCode(), '\',\'',
                     directory.getId() , '\');">',
@@ -199,7 +201,7 @@
 
         list.forEach(function(element) {
             var rowHtml = null;
-            if (element instanceof FileLabel) {
+            if (element instanceof FileLabel || element instanceof TrashFile) {
                 rowHtml = makeFileRow(element, extended);
             }
             else if (element instanceof SearchItem) {
