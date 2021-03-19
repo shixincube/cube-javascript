@@ -638,9 +638,9 @@ export class FileHierarchy {
 
     /**
      * 从回收站恢复指定数据。
-     * @param {*} list 
-     * @param {*} handleSuccess 
-     * @param {*} handleFailure 
+     * @param {Array} list 废弃数据的 ID 列表。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode root}:{@link Directory}, {@linkcode result}:{@link RestoreResult}) 。
+     * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
     restoreTrash(list, handleSuccess, handleFailure) {
         let trashIdList = [];

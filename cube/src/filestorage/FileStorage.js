@@ -56,6 +56,13 @@ import { SearchItem } from "./SearchItem";
  */
 
 /**
+ * 文件恢复结果描述。
+ * @typedef {object} RestoreResult
+ * @property {Array<Trash>} successList 成功恢复的数据列表。
+ * @property {Array<Trash>} failureList 未能成功恢复的数据列表。
+ */
+
+/**
  * 云端文件存储模块。
  * @extends Module
  */
@@ -672,9 +679,9 @@ export class FileStorage extends Module {
 
     /**
      * 从回收站恢复指定数据。
-     * @param {Array} trashIdList 
-     * @param {function} handleSuccess 
-     * @param {function} handleFailure 
+     * @param {Array} trashIdList 废弃数据的 ID 列表。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode root}:{@link Directory}, {@linkcode result}:{@link RestoreResult}) 。
+     * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
     restoreTrash(trashIdList, handleSuccess, handleFailure) {
         this.getSelfRoot((root) => {
