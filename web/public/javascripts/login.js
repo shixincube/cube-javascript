@@ -101,7 +101,13 @@
             // 尝试使用 Cookie 登录
             $('#modal_login').modal('show');
 
+            var timer = setTimeout(function() {
+                $('#modal_login').modal('hide');
+            }, 10000);
+
             $.post('/account/login', {}, function(response, status, xhr) {
+                clearTimeout(timer);
+
                 $('#modal_login').modal('hide');
 
                 if (response.code == 0) {

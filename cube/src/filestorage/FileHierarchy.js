@@ -203,8 +203,8 @@ export class FileHierarchy {
             }
 
             let list = packet.getPayload().data.list;
-            list.forEach((jdir) => {
-                let dir = Directory.create(jdir, this);
+            list.forEach((value) => {
+                let dir = Directory.create(value, this);
                 directory.addChild(dir);
             });
             directory.numDirs = list.length;
@@ -248,8 +248,8 @@ export class FileHierarchy {
             let current = [];
             let data = packet.getPayload().data;
             let list = data.list;
-            list.forEach((jfile) => {
-                let file = FileLabel.create(jfile);
+            list.forEach((value) => {
+                let file = FileLabel.create(value);
                 directory.addFile(file);
                 current.push(file);
             });
@@ -665,7 +665,23 @@ export class FileHierarchy {
                 return;
             }
 
-            handleSuccess(this.root, packet.getPayload().data);
+            var result = packet.getPayload().data;
+            // 处理成功列表
+            result.successList.forEach((value) => {
+                if (value.parentId == this.root.id) {
+                    // 当前结果影响 Root 目录
+                    if (value.file) {
+                        let fileLabel = FileLabel.create(value.file);
+                        this.root.addFile(fileLabel);
+                    }
+                    else if (value.directory) {
+                        let newDir = Directory.create(value.directory, this);
+                        this.root.addChild(newDir);
+                    }
+                }
+            });
+
+            handleSuccess(this.root, result);
         });
     }
 

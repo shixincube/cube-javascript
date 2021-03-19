@@ -320,12 +320,25 @@ export class Directory {
     }
 
     /**
-     * 获取指定文件码的文件。
-     * @param {string} fileCode 指定文件码。
+     * 获取指定文件码或文件 ID 的文件。
+     * @param {string|number} fileCodeOrId 指定文件码或文件 ID 。
      * @returns {FileLabel} 返回指定文件码的文件。
      */
-    getFile(fileCode) {
-        return this.files.get(fileCode);
+    getFile(fileCodeOrId) {
+        if (typeof fileCodeOrId === 'string') {
+            return this.files.get(fileCode);
+        }
+        else {
+            let list = this.files.values();
+            for (let i = 0; i < list.length; ++i) {
+                let file = list[i];
+                if (file.id == fileCodeOrId) {
+                    return file;
+                }
+            }
+
+            return null;
+        }
     }
 
     /**
@@ -373,7 +386,17 @@ export class Directory {
      * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
     deleteFile(files, handleSuccess, handleFailure) {
-        this.hierarchy.deleteFile(this, files, handleSuccess, handleFailure);
+        let fileCodes = [];
+        files.forEach((value) => {
+            if (typeof value === 'number') {
+                fileCodes.push(this.getFile(value).getFileCode());
+            }
+            else {
+                fileCodes.push(value);
+            }
+        });
+
+        this.hierarchy.deleteFile(this, fileCodes, handleSuccess, handleFailure);
     }
 
     /**

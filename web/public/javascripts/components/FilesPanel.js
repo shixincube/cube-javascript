@@ -168,7 +168,10 @@
             }
 
             window.cube().fs.restoreTrash(idList, function(root, result) {
+                // 刷新回收站数据
                 that.showRecyclebin();
+                // 重置根目录分页数据
+                app.filesCtrl.resetPageData(root);
             }, function(error) {
                 g.dialog.launchToast(Toast.Error, '清空回收站失败: ' + error.code);
             });
@@ -192,7 +195,7 @@
                 var el = $(list.get(i));
                 if (el.prop('checked')) {
                     result.push({
-                        id: el.attr('id'),
+                        id: parseInt(el.attr('id')),
                         type: el.attr('data-type')
                     });
                 }
