@@ -636,6 +636,12 @@ export class FileHierarchy {
         });
     }
 
+    /**
+     * 从回收站恢复指定数据。
+     * @param {*} list 
+     * @param {*} handleSuccess 
+     * @param {*} handleFailure 
+     */
     restoreTrash(list, handleSuccess, handleFailure) {
         let trashIdList = [];
         list.forEach((item) => {

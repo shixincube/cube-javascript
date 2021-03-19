@@ -670,6 +670,12 @@ export class FileStorage extends Module {
         });
     }
 
+    /**
+     * 从回收站恢复指定数据。
+     * @param {Array} trashIdList 
+     * @param {function} handleSuccess 
+     * @param {function} handleFailure 
+     */
     restoreTrash(trashIdList, handleSuccess, handleFailure) {
         this.getSelfRoot((root) => {
             let hierarchy = this.fileHierarchyMap.get(this.contactService.getSelf().getId());
