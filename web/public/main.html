@@ -647,9 +647,12 @@
                     <div class="col-12">
                         <div class="card card-primary card-tabs contacts-card">
                             <div class="card-header p-0 pt-1">
-                                <ul class="nav nav-tabs" id="contacts-tabs-one-tab" role="tablist">
+                                <ul class="nav nav-tabs" id="contacts-tabs-tab" role="tablist">
                                     <li class="nav-item">
                                         <a class="nav-link active" id="contacts-tabs-default-tab" data-toggle="pill" href="#contacts-tabs-default" role="tab" aria-controls="contacts-tabs-default" aria-selected="true">我的联系人</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="contacts-tabs-mygroups-tab" data-toggle="pill" href="#contacts-tabs-mygroups" role="tab" aria-controls="contacts-tabs-mygroups" aria-selected="false">我的群组</a>
                                     </li>
                                 </ul>
                                 <div class="card-tools">
@@ -687,6 +690,9 @@
                                         <div class="table-pagination">
                                             <ul class="pagination pagination-sm m-0 float-right"></ul>
                                         </div>
+                                    </div><!-- /.tab-pane -->
+                                    <div class="tab-pane fade" id="contacts-tabs-mygroups" data-target="mygroups-table" role="tabpanel" aria-labelledby="contacts-tabs-mygroups-tab">
+
                                     </div>
                                 </div>
                             </div><!-- /.card-body -->
@@ -880,7 +886,7 @@
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="conf-participant" class="col-sm-2 col-form-label">参与者</label>
+                        <label for="conf-participant" class="col-sm-2 col-form-label">参会邀请</label>
                         <div class="col-sm-10" id="conf-participant">
                             <div class="btn-participant">
                                 <button type="button" class="btn btn-default btn-append"><i class="fas fa-plus"></i></button>

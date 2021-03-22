@@ -71,6 +71,11 @@
         return list;
     }
 
+
+    /**
+     * 会议控制器。
+     * @param {*} cubeEngine 
+     */
     var ConferenceController = function(cubeEngine) {
         cube = cubeEngine;
         this.init();

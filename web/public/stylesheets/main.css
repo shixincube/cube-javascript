@@ -1066,8 +1066,11 @@ body {
     display: inline;
     width: 50px;
 }
-.contacts-card .nav-tabs {
-    display: inline-block;
+.contacts-card .card-tools {
+    float: left;
+    position: absolute;
+    top: 3px;
+    right: 3px;
 }
 .contacts-card .card-tools .refresh {
     display: inline-block;
