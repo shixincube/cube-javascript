@@ -29,12 +29,46 @@
 
     var cube = null;
 
-    function onNewConference(e) {
-        var el = $('#new_conference_dialog');
-        el.modal('show');
-        // g.app.selectContactsDialog.show(function(result) {
+    var newConferenceDialog = null;
 
-        // });
+    function onNewConference(e) {
+        var el = newConferenceDialog;
+        el.find('#conf-subject').val('');
+        el.find('input[data-target="#datetimepicker-schedule"]').val('');
+        el.find('input[data-target="#datetimepicker-expire"]').val('');
+        el.find('div.participant').each(function() {
+            $(this).remove();
+        });
+        el.modal('show');
+    }
+
+    function onAppendParticipant(e) {
+        g.app.selectContactsDialog.show(function(result) {
+            var el = newConferenceDialog.find('#conf-participant');
+            result.forEach(function(value, index) {
+                var html = [
+                    '<div class="participant" data="', value.getId(), '">',
+                        '<div class="avatar">',
+                            '<img src="', value.getContext().avatar, '" />',
+                        '</div>',
+                        '<div class="name">',
+                            '<div>', value.getPriorityName(), '</div>',
+                        '</div>',
+                        '<a href="javascript:app.confCtrl.removeParticipantInNewDialog(', value.getId(), ');"><span class="badge badge-danger">&times;</span></a>',
+                    '</div>'
+                ];
+                el.append($(html.join('')));
+            });
+        }, getAppendedParticipants());
+    }
+
+    function getAppendedParticipants() {
+        var list = [];
+        newConferenceDialog.find('div.participant').each(function() {
+            var id = $(this).attr('data');
+            list.push(parseInt(id));
+        });
+        return list;
     }
 
     var ConferenceController = function(cubeEngine) {
@@ -43,11 +77,20 @@
     }
 
     ConferenceController.prototype.init = function() {
+        // 新建会议按钮
         $('button[data-toggle="new-conference"]').on('click', onNewConference);
 
-        $('#datetimepicker-schedule').datetimepicker({
+        // 新建会议对话框
+        newConferenceDialog = $('#new_conference_dialog');
+        newConferenceDialog.find('#datetimepicker-schedule').datetimepicker({
             locale: 'zh-cn'
         });
+        newConferenceDialog.find('#conf-participant button').on('click', onAppendParticipant);
+    }
+
+    ConferenceController.prototype.removeParticipantInNewDialog = function(id) {
+        var el = newConferenceDialog.find('#conf-participant').find('div[data="' + id + '"]');
+        el.remove();
     }
 
     g.ConferenceController = ConferenceController;

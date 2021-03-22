@@ -1110,3 +1110,40 @@ body {
     height: 40px;
     border-radius: 10%;
 }
+
+
+.new-conference-dialog .participant, .new-conference-dialog .btn-participant {
+    display: inline-block;
+    vertical-align: top;
+    text-align: center;
+    width: 70px;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+.new-conference-dialog .btn-append {
+    width: 40px;
+    height: 40px;
+    vertical-align: top;
+}
+.new-conference-dialog .participant .name {
+    margin-top: 6px;
+}
+.new-conference-dialog .participant .name div {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+.new-conference-dialog .avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 10%;
+}
+.new-conference-dialog .participant .badge {
+    float: right;
+    position: absolute;
+    top: 0;
+    margin: -4px 0px 0px 10px;
+}
+.new-conference-dialog .participant a:hover {
+    color: #6c757d;
+}

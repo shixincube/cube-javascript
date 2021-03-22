@@ -35,6 +35,8 @@
 
     var callback = null;
 
+    var disabledList = [];
+
     var confirmed = false;
 
     function onDialogClosed() {
@@ -81,7 +83,7 @@
 
     /**
      * 选择联系人对话框。
-     * @param {*} cubeEngine 
+     * @param {Cube} cubeEngine 
      */
     var SelectContactsDialog = function(cubeEngine) {
         that = this;
@@ -91,7 +93,7 @@
         el.find('button[data-target="confirm"]').on('click', onConfirmClick);
     }
 
-    SelectContactsDialog.prototype.show = function(handlerCallback) {
+    SelectContactsDialog.prototype.show = function(handlerCallback, disabledList) {
         callback = handlerCallback;
         confirmed = false;
 
@@ -105,9 +107,11 @@
             var avatar = contact.getContext().avatar;
             var name = contact.getPriorityName();
 
+            var disabled = disabledList.indexOf(id) >= 0;
+
             var html = [
                 '<div class="form-group"><div class="custom-control custom-checkbox select-group-member">',
-                    '<input class="custom-control-input" type="checkbox" id="contact_', i, '" data="', id, '" />',
+                    '<input class="custom-control-input" type="checkbox" id="contact_', i, '" data="', id, '" ', disabled ? 'disabled="disabled"' : '', ' />',
                     '<label class="custom-control-label" for="contact_', i, '">',
                         '<img src="', avatar, '" />',
                         '<span>', name, '</span>',
