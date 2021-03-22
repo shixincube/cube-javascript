@@ -10,11 +10,12 @@
     <link rel="stylesheet" href="plugins/ionicons/css/ionicons.min.css">
     <link rel="stylesheet" href="plugins/icheck-bootstrap/icheck-bootstrap.min.css">
     <link rel="stylesheet" href="plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+    <link rel="stylesheet" href="plugins/bootstrap-select/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    <link rel="stylesheet" href="plugins/jquery-ui/jquery-ui.min.css">
+    <link rel="stylesheet" href="stylesheets/jquery.contextMenu.min.css">
     <link rel="stylesheet" href="stylesheets/adminlte.min.css">
     <link rel="stylesheet" href="stylesheets/viewer.min.css">
-    <link rel="stylesheet" href="stylesheets/jquery.contextMenu.min.css">
-    <link rel="stylesheet" href="plugins/bootstrap-select/css/bootstrap-select.min.css">
-    <link rel="stylesheet" href="plugins/jquery-ui/jquery-ui.min.css">
     <link rel="stylesheet" href="stylesheets/main.css">
     <link rel="stylesheet" href="stylesheets/icon.css">
 </head>
@@ -98,7 +99,7 @@
     </aside>
     <!-- Main Sidebar Container - end -->
 
-    <!-- Content Wrapper - begin -->
+    <!-- Main - begin -->
 
     <!-- Messaging Page - begin  -->
     <div id="messaging" class="content-wrapper">
@@ -573,7 +574,7 @@
                     <div class="col-md-6">
                         <div class="btn-toolbar conference-toolbar">
                             <div class="btn-group">
-                                <button type="button" class="btn btn-primary"><i class="fas fa-users"></i> 创建会议</button>
+                                <button type="button" class="btn btn-primary" data-toggle="new-conference"><i class="fas fa-users"></i> 创建会议</button>
                             </div>
                         </div>
                     </div>
@@ -813,7 +814,7 @@
     <!-- File Details - end -->
 
     <!-- Conference UI - begin -->
-    <div id="video_chat" class="modal fade modeless conference-panel">
+    <div id="conference_window" class="modal fade modeless conference-panel">
         <div class="modal-dialog modal-dialog-modeless">
             <div class="modal-content">
                 <div class="modal-header">
@@ -827,7 +828,117 @@
     </div>
     <!-- Conference UI - end -->
 
-    <!-- Content Wrapper - end -->
+    <!-- New Conference Dialog - begin -->
+    <div id="new_conference_dialog" class="modal fade" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">创建会议</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label for="conf-subject" class="col-sm-2 col-form-label">会议主题 <sup class="text-danger">*</sup></label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control form-control-sm" id="conf-subject" placeholder="会议主题">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="conf-pwd" class="col-sm-2 col-form-label">会议密码</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control form-control-sm" id="conf-pwd" placeholder="会议密码">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="conf-summary" class="col-sm-2 col-form-label">会议摘要</label>
+                        <div class="col-sm-10">
+                            <textarea rows="3" class="form-control form-control-sm" id="conf-summary" placeholder="会议摘要" style="resize:none;"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="conf-schedule" class="col-sm-2 col-form-label">计划时间 <sup class="text-danger">*</sup></label>
+                        <div class="col-sm-10">
+                            <div class="input-group date" id="datetimepicker-schedule" data-target-input="nearest">
+                                <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker-schedule"/>
+                                <div class="input-group-append" data-target="#datetimepicker-schedule" data-toggle="datetimepicker">
+                                    <div class="input-group-text"><i class="fas fa-calendar"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">关闭</button>
+                    <button class="btn btn-primary" type="button" data-target="confirm">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- New Conference Dialog - end -->
+
+    <!-- Select Contacts - begin -->
+    <div id="select_contacts_dialog" class="modal fade select-contacts-dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">选择联系人</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-5">
+                            <div class="input-group input-group-sm mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                </div>
+                                <input class="form-control" type="text" placeholder="搜索联系人" data-target="contact-name" />
+                            </div>
+                            <div class="card card-primary card-outline card-outline-tabs">
+                                <div class="card-header p-0 border-bottom-0">
+                                    <ul class="nav nav-tabs" id="select-contact-tabs" role="tablist">
+                                        <li class="nav-item">
+                                        <a class="nav-link active" id="select-contact-tabs-default-tab" data-toggle="pill" href="#select-contact-tabs-default" role="tab" aria-controls="select-contact-tabs-default" aria-selected="true">我的联系人</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="card-body">
+                                    <div class="tab-content" id="select-contact-tabs-content">
+                                        <div class="tab-pane fade show active" id="select-contact-tabs-default" role="tabpanel" aria-labelledby="select-contact-tabs-default">
+                                            <div data-target="list">
+                                                <!-- ## -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div><!-- /.card -->
+                        </div>
+                        <div class="col-1 text-center">
+                            <hr />
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label for="selecte-contacts">已选择的的联系人</label>
+                                <table class="table table-sm selected-table">
+                                    <!-- ## -->
+                                </table>
+                            </div>
+                        </div>
+                    </div><!-- /.row -->
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">关闭</button>
+                    <button class="btn btn-primary" type="button" data-target="confirm">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Select Contacts - end -->
+
+    <!-- Main - end -->
 
     <!-- Common Element - begin -->
 
@@ -975,12 +1086,15 @@
 <script type="text/javascript" src="plugins/jquery-ui/jquery-ui.min.js"></script>
 <script type="text/javascript" src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script type="text/javascript" src="plugins/sweetalert2/sweetalert2.min.js"></script>
-<script type="text/javascript" src="javascripts/adminlte.min.js"></script>
-<script type="text/javascript" src="javascripts/viewer.min.js"></script>
+<script type="text/javascript" src="plugins/bootstrap-select/bootstrap-select.min.js"></script>
+<script type="text/javascript" src="plugins/moment/moment.min.js"></script>
+<script type="text/javascript" src="plugins/moment/locale/zh-cn.js"></script>
+<script type="text/javascript" src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+<script type="text/javascript" src="plugins/popper/umd/popper.min.js"></script>
 <script type="text/javascript" src="javascripts/jquery.contextMenu.min.js"></script>
 <script type="text/javascript" src="javascripts/jquery.ui.position.min.js"></script>
-<script type="text/javascript" src="plugins/bootstrap-select/bootstrap-select.min.js"></script>
-<script type="text/javascript" src="plugins/popper/umd/popper.min.js"></script>
+<script type="text/javascript" src="javascripts/adminlte.min.js"></script>
+<script type="text/javascript" src="javascripts/viewer.min.js"></script>
 <script type="text/javascript" src="javascripts/cube.js"></script>
 <script type="text/javascript" src="javascripts/utils.js"></script>
 <script type="text/javascript" src="javascripts/components/dialog.js"></script>
@@ -1003,6 +1117,8 @@
 <script type="text/javascript" src="javascripts/components/FilesController.js"></script>
 <script type="text/javascript" src="javascripts/components/ContactsTable.js"></script>
 <script type="text/javascript" src="javascripts/components/ContactsController.js"></script>
+<script type="text/javascript" src="javascripts/components/ConferenceController.js"></script>
+<script type="text/javascript" src="javascripts/components/SelectContactsDialog.js"></script>
 <script type="text/javascript" src="javascripts/app.js"></script>
 <script type="text/javascript">
 (function ($) {

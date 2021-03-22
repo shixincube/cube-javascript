@@ -1091,3 +1091,22 @@ body {
 }
 
 /* 联系人 - 结束 */
+
+
+.select-contacts-dialog {
+    min-height: 400px;
+}
+.select-contacts-dialog hr {
+    width: 1px;
+    height: 90%;
+    display: inline-block;
+    border-right: 1px solid #dee2e6;
+}
+.select-contacts-dialog .selected-table {
+    border: 1px solid #dee2e6;
+}
+.select-contacts-dialog .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 10%;
+}

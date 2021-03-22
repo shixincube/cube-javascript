@@ -326,8 +326,8 @@ export class AuthService extends Module {
             }
             else {
                 // 错误的 Code
-                let state = new ObservableEvent(AuthEvent.InvalidToken, this.token);
-                this.notifyObservers(state);
+                let event = new ObservableEvent(AuthEvent.InvalidToken, this.token);
+                this.notifyObservers(event);
 
                 if (window.localStorage) {
                     let storage = new TokenStorage();

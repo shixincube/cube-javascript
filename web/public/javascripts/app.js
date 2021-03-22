@@ -284,6 +284,10 @@
             that.callCtrl = callCtrl;
             that.filesCtrl = filesCtrl;
             that.contactsCtrl = contactsCtrl;
+            that.confCtrl = new ConferenceController(cube);
+
+            // 选择联系人对话框
+            that.selectContactsDialog = new SelectContactsDialog(cube);
         },
 
         /**
