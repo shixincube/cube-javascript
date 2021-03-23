@@ -1092,6 +1092,17 @@ body {
 .table-contacts td {
     vertical-align: middle;
 }
+.table-contacts .members {
+    vertical-align: middle;
+}
+.table-contacts .members .list-inline {
+    margin-top: 0.125rem;
+    margin-bottom: 0.125rem;
+}
+.table-contacts .members .table-avatar {
+    width: 30px;
+    height: 30px;
+}
 
 /* 联系人 - 结束 */
 

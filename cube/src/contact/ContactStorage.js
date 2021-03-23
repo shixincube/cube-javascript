@@ -28,6 +28,7 @@ import cell from "@lib/cell-lib";
 import InDB from "indb";
 import { ContactService } from "./ContactService";
 import { Group } from "./Group";
+import { GroupAppendix } from "./GroupAppendix";
 
 /**
  * 消息存储器。
@@ -64,6 +65,12 @@ export class ContactStorage {
          * @type {object}
          */
         this.contactStore = null;
+
+        /**
+         * 附录库。
+         * @type {object}
+         */
+        this.appendixStore = null;
     }
 
     /**
@@ -112,6 +119,14 @@ export class ContactStorage {
                     unique: true
                 }]
             }, {
+                name: 'appendix',
+                keyPath: 'id',
+                indexes: [{
+                    name: 'id',
+                    keyPath: 'id',
+                    unique: true
+                }]
+            }, {
                 name: 'config',
                 keyPath: 'item',
                 indexes: [{
@@ -129,6 +144,7 @@ export class ContactStorage {
 
         this.groupStore = this.db.use('group');
         this.contactStore = this.db.use('contact');
+        this.appendixStore = this.db.use('appendix');
     }
 
     /**
@@ -266,7 +282,16 @@ export class ContactStorage {
             let result = await this.groupStore.query('id', id);
             if (null != result && result.length > 0) {
                 let json = result[0];
-                handler(id, Group.create(this.service, json));
+                let group = Group.create(this.service, json);
+
+                (async ()=> {
+                    let appendixData = await this.appendixStore.query('id', id);
+
+                    let appendix = GroupAppendix.create(this.service, group, appendixData[0]);
+                    group.appendix = appendix;
+
+                    handler(id, group);
+                })();
             }
             else {
                 handler(id, null);
@@ -291,6 +316,12 @@ export class ContactStorage {
             delete data["domain"];
             await this.groupStore.put(data);
         })();
+
+        (async () => {
+            let data = group.getAppendix().toJSON();
+            await this.appendixStore.put(data);
+        })();
+
         return true;
     }
 }

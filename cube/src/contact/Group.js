@@ -233,6 +233,32 @@ export class Group extends Contact {
     }
 
     /**
+     * 列出所有成员数据。
+     * @param {function} handler 回调成员数据清单，参数：({@linkcode list}:{@linkcode Array<Contact>}, {@linkcode group}:{@link Group}) 。
+     */
+    listMembers(handler) {
+        (new Promise((resolve, reject) => {
+            let list = [];
+            for (let i = 0; i < this.memberList.length; ++i) {
+                let member = this.memberList[i];
+                this.service.getContact(member.id, (contact) => {
+                    list.push(contact);
+                    if (list.length == this.memberList.length) {
+                        resolve(list);
+                    }
+                }, (error) => {
+                    reject(error);
+                });
+            }
+        })).then((list) => {
+            handler(list, this);
+        }).catch((error) => {
+            console.error(error);
+            handler([], this);
+        });
+    }
+
+    /**
      * 添加群组成员。
      * @param {Array<Contact|number>} members 指定群组成员或者群组成员 ID 。
      * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode members}:Array<{@link Contact}>, {@linkcode operator}:{@link Contact}) 。

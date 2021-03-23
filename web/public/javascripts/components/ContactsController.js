@@ -32,25 +32,34 @@
     var cube = null;
 
     var contactList = [];
+    var groupList = [];
 
     var tabEl = null;
 
     var contactsTable = null;
-    var groupTable = null;
+    var groupsTable = null;
 
     var currentTable = null;
 
-    var delayTimer = 0;
+    var contactDelayTimer = 0;
+    var groupDelayTimer = 0;
 
     var btnRefresh = null;
 
     function onTabChanged(e) {
-        if (e.target.id) {
-
+        if (e.target.id == 'contacts-tabs-groups-tab') {
+            currentTable = groupsTable;
+        }
+        else {
+            currentTable = contactsTable;
         }
     }
 
 
+    /**
+     * 联系人主页面控制器。
+     * @param {CubeEngine} cubeEngine 
+     */
     var ContactsController = function(cubeEngine) {
         that = this;
         cube = cubeEngine;
@@ -58,7 +67,10 @@
         tabEl = $('#contacts-tabs-tab');
         tabEl.on('show.bs.tab', onTabChanged);
 
-        contactsTable = new g.ContactsTable($('div[data-target="contacts-table"]'));
+        contactsTable = new ContactsTable($('div[data-target="contacts-table"]'));
+
+        groupsTable = new GroupsTable($('div[data-target="groups-table"]'));
+
         btnRefresh = $('.contacts-card').find('button[data-target="refresh"]');
         btnRefresh.on('click', function() {
             that.update();
@@ -74,13 +86,26 @@
     ContactsController.prototype.addContact = function(contact) {
         contactList.push(contact);
 
-        if (delayTimer > 0) {
-            clearTimeout(delayTimer);
+        if (contactDelayTimer > 0) {
+            clearTimeout(contactDelayTimer);
         }
-        delayTimer = setTimeout(function() {
-            clearTimeout(delayTimer);
-            delayTimer = 0;
+        contactDelayTimer = setTimeout(function() {
+            clearTimeout(contactDelayTimer);
+            contactDelayTimer = 0;
             contactsTable.update(contactList);
+        }, 1000);
+    }
+
+    ContactsController.prototype.addGroup = function(group) {
+        groupList.push(group);
+
+        if (groupDelayTimer > 0) {
+            clearTimeout(groupDelayTimer);
+        }
+        groupDelayTimer = setTimeout(function() {
+            clearTimeout(groupDelayTimer);
+            groupDelayTimer = 0;
+            groupsTable.update(groupList);
         }, 1000);
     }
 
@@ -89,15 +114,15 @@
      * @param {number} index 
      */
     ContactsController.prototype.goToMessaging = function(index) {
-        var contact = contactsTable.getCurrentContact(index);
-        if (undefined === contact) {
+        var entity = currentTable.getCurrentContact(index);
+        if (undefined === entity) {
             return;
         }
 
         // 切换到消息面板
         app.toggle('messaging', 'tab_messaging');
         setTimeout(function() {
-            app.messagingCtrl.toggle(contact.getId());
+            app.messagingCtrl.toggle(entity.getId());
         }, 100);
     }
 
@@ -106,25 +131,27 @@
      * @param {*} index 
      */
     ContactsController.prototype.editRemark = function(index) {
-        var contact = contactsTable.getCurrentContact(index);
-        if (undefined === contact) {
-            return;
-        }
-
-        g.dialog.showPrompt('备注联系人', '请填写联系人“' + contact.getName() + '”的备注：', function(ok, value) {
-            if (ok) {
-                var remark = value.trim();
-                if (remark.length == 0) {
-                    g.dialog.launchToast(g.Toast.Warning, '请正确填写联系人备注');
-                    return false;
-                }
-
-                // 更新联系人备注
-                contact.getAppendix().updateRemarkName(remark, function() {
-                    contactsTable.modifyRemark(index, remark);
-                });
+        if (currentTable == contactsTable) {
+            var contact = contactsTable.getCurrentContact(index);
+            if (undefined === contact) {
+                return;
             }
-        });
+    
+            g.dialog.showPrompt('备注联系人', '请填写联系人“' + contact.getName() + '”的备注：', function(ok, value) {
+                if (ok) {
+                    var remark = value.trim();
+                    if (remark.length == 0) {
+                        g.dialog.launchToast(g.Toast.Warning, '请正确填写联系人备注');
+                        return false;
+                    }
+    
+                    // 更新联系人备注
+                    contact.getAppendix().updateRemarkName(remark, function() {
+                        contactsTable.modifyRemark(index, remark);
+                    });
+                }
+            });
+        }
     }
 
     /**
@@ -154,7 +181,8 @@
      * 更新数据。
      */
     ContactsController.prototype.update = function() {
-        // currentTable.update(contactList);
+        contactsTable.update(contactList);
+        groupsTable.update(groupList);
     }
 
     g.ContactsController = ContactsController;

@@ -588,6 +588,9 @@
 
                     // 消息控制器更新群组消息
                     messagingCtrl.updateGroupMessages(group, completedCallback);
+
+                    // 向联系人表格添加群组
+                    contactsCtrl.addGroup(group);
                 }
             });
         }

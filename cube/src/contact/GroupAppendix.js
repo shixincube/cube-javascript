@@ -27,6 +27,7 @@
 import { ModuleError } from "../core/error/ModuleError";
 import { Packet } from "../core/Packet";
 import { StateCode } from "../core/StateCode";
+import { JSONable } from "../util/JSONable";
 import { OrderMap } from "../util/OrderMap";
 import { Contact } from "./Contact";
 import { ContactAction } from "./ContactAction";
@@ -37,13 +38,15 @@ import { Group } from "./Group";
 /**
  * 群组附录。
  */
-export class GroupAppendix {
+export class GroupAppendix extends JSONable {
 
     /**
      * @param {ContactService} service 
      * @param {Group} owner 
      */
     constructor(service, owner) {
+        super();
+
         /**
          * @private
          * @type {ContactService}
@@ -272,5 +275,53 @@ export class GroupAppendix {
                 handleSuccess(this);
             }
         });
+    }
+
+    /**
+     * @inheritdoc
+     */
+     toJSON() {
+        let json = super.toJSON();
+        json.id = this.owner.getId();
+        
+        if (null != this.remark) {
+            json.remark = this.remark;
+        }
+
+        json.notice = this.notice;
+
+        json.memberRemarks = [];
+        this.memberRemarkMap.keySet().forEach((key) => {
+            let value = this.memberRemarkMap.get(key);
+            json.memberRemarks.push({ id: key, remark: value });
+        });
+
+        return json;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    toCompactJSON() {
+        return this.toJSON();
+    }
+
+    /**
+     * 创建群组附录实例。
+     * @param {ContactService} service 
+     * @param {Group} owner 
+     * @param {JSON} json 
+     * @returns {GroupAppendix}
+     */
+    static create(service, owner, json) {
+        let appendix = new GroupAppendix(service, owner);
+        if (json.remark) {
+            appendix.remark = json.remark;
+        }
+        appendix.notice = json.notice;
+        json.memberRemarks.forEach((value) => {
+            appendix.memberRemarkMap.put(value.id, value.remark);
+        });
+        return appendix;
     }
 }

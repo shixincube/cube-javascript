@@ -876,31 +876,39 @@ export class ContactService extends Module {
                 group.owner = this.self;
             }
 
-            // 与本地数据进行比较
-            this.storage.readGroup(group.getId(), (id, current) => {
-                if (null != current) {
-                    // 比较两个群的活跃时间
-                    if (current.lastActiveTime != group.lastActiveTime) {
-                        // 回调更新
-                        this.notifyObservers(new ObservableEvent(ContactEvent.GroupUpdated, buf.get(current.getId())));
-                    }
-                }
-                else {
-                    let g = buf.get(id);
-                    if (g.getState() == GroupState.Normal || g.getState() == GroupState.Dismissed) {
-                        this.notifyObservers(new ObservableEvent(ContactEvent.GroupUpdated, g));
-                    }
-                }
-
-                this.storage.writeGroup(buf.get(id));
-            });
-
             // 更新内存
             if (group.getState() == GroupState.Normal) {
                 this.groups.put(group.getId(), group);
             }
 
-            this.listGroupsContext.list.push(group);
+            // 获取群组的附录
+            this.getAppendix(group, (appendix) => {
+                // 与本地数据进行比较
+                this.storage.readGroup(group.getId(), (id, current) => {
+                    if (null != current) {
+                        // 比较两个群的活跃时间
+                        if (current.lastActiveTime != group.lastActiveTime) {
+                            // 回调更新
+                            this.notifyObservers(new ObservableEvent(ContactEvent.GroupUpdated, buf.get(current.getId())));
+                        }
+                    }
+                    else {
+                        let g = buf.get(id);
+                        if (g.getState() == GroupState.Normal || g.getState() == GroupState.Dismissed) {
+                            this.notifyObservers(new ObservableEvent(ContactEvent.GroupUpdated, g));
+                        }
+                    }
+
+                    this.storage.writeGroup(buf.get(id));
+                });
+
+                // 更新本次请求的清单
+                this.listGroupsContext.list.push(group);
+            }, (error) => {
+                cell.Logger.e('ContactService', '#triggerListGroups() - #getAppendix(): ' + error);
+                // 更新本次请求的清单
+                this.listGroupsContext.list.push(group);
+            });
         }
 
         if (this.listGroupsContext.list.length == total) {
