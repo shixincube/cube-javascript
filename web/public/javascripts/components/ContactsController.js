@@ -33,23 +33,31 @@
 
     var contactList = [];
 
+    var tabEl = null;
+
     var contactsTable = null;
     var groupTable = null;
 
     var currentTable = null;
 
-    var currentPage = null;
-    var pagination = 1;
-    var pageSize = 10;
-    var maxPagination = 0;
-
     var delayTimer = 0;
 
     var btnRefresh = null;
 
+    function onTabChanged(e) {
+        if (e.target.id) {
+
+        }
+    }
+
+
     var ContactsController = function(cubeEngine) {
         that = this;
         cube = cubeEngine;
+
+        tabEl = $('#contacts-tabs-tab');
+        tabEl.on('show.bs.tab', onTabChanged);
+
         contactsTable = new g.ContactsTable($('div[data-target="contacts-table"]'));
         btnRefresh = $('.contacts-card').find('button[data-target="refresh"]');
         btnRefresh.on('click', function() {
@@ -72,7 +80,7 @@
         delayTimer = setTimeout(function() {
             clearTimeout(delayTimer);
             delayTimer = 0;
-            that.update();
+            contactsTable.update(contactList);
         }, 1000);
     }
 
@@ -81,7 +89,7 @@
      * @param {number} index 
      */
     ContactsController.prototype.goToMessaging = function(index) {
-        var contact = currentPage[index];
+        var contact = contactsTable.getCurrentContact(index);
         if (undefined === contact) {
             return;
         }
@@ -98,7 +106,7 @@
      * @param {*} index 
      */
     ContactsController.prototype.editRemark = function(index) {
-        var contact = currentPage[index];
+        var contact = contactsTable.getCurrentContact(index);
         if (undefined === contact) {
             return;
         }
@@ -125,72 +133,28 @@
      * @returns 
      */
     ContactsController.prototype.showPage = function(newPagination) {
-        if (pagination == newPagination) {
-            return;
-        }
-
-        if (newPagination < 1 || newPagination > maxPagination) {
-            return;
-        }
-
-        pagination = newPagination;
-        currentPage = [];
-        for (var i = (pagination - 1) * pageSize; i < contactList.length && currentPage.length < pageSize; ++i) {
-            currentPage.push(contactList[i]);
-        }
-
-        // 更新表格
-        contactsTable.showPage(pagination, currentPage);
+        currentTable.showPage(newPagination);
     }
 
     /**
      * 切换到上一页。
      */
     ContactsController.prototype.prevPage = function() {
-        if (pagination == 1) {
-            return;
-        }
-
-        var page = pagination - 1;
-        this.showPage(page);
-        pagination -= 1;
+        currentTable.prevPage();
     }
 
     /**
      * 切换到下一页。
      */
     ContactsController.prototype.nextPage = function() {
-        if (pagination == maxPagination) {
-            return;
-        }
-
-        var page = pagination + 1;
-        this.showPage(page);
-        pagination += 1;
+        currentTable.nextPage();
     }
 
     /**
      * 更新数据。
      */
     ContactsController.prototype.update = function() {
-        contactList.sort(function(a, b) {
-            return a.getName().localeCompare(b.getName());
-        });
-
-        currentPage = [];
-        for (var i = 0; i < pageSize && i < contactList.length; ++i) {
-            currentPage.push(contactList[i]);
-        }
-        // 第一页
-        pagination = 1;
-
-        // 分页
-        maxPagination = Math.ceil(contactList.length / pageSize);
-        contactsTable.paging(maxPagination);
-
-        // 显示指定页
-        contactsTable.reset();
-        contactsTable.showPage(pagination, currentPage);
+        // currentTable.update(contactList);
     }
 
     g.ContactsController = ContactsController;

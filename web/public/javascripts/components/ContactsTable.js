@@ -34,7 +34,13 @@
     var tbodyEl = null;
     var pagingEl = null;
 
-    var curPage = 0;
+    var contactList = [];
+
+    var currentPage = null;
+
+    var pagination = 1;
+    var pageSize = 10;
+    var maxPagination = 0;
 
     var ContactsTable = function(el) {
         that = this;
@@ -43,6 +49,51 @@
         tbodyEl = tableEl.find('tbody');
         pagingEl = el.find('.pagination');
     }
+
+    ContactsTable.prototype.getCurrentContact = function(index) {
+        return currentPage[index];
+    }
+
+    ContactsTable.prototype.update = function(contacts) {
+        contactList = contacts;
+
+        contactList.sort(function(a, b) {
+            return a.getName().localeCompare(b.getName());
+        });
+
+        currentPage = [];
+        for (var i = 0; i < pageSize && i < contactList.length; ++i) {
+            currentPage.push(contactList[i]);
+        }
+        
+        // 分页
+        maxPagination = Math.ceil(contactList.length / pageSize);
+        this.paging(maxPagination);
+
+        // 显示指定页
+        // 第一页
+        pagination = 0;
+        this.show(1, currentPage);
+    }
+
+    ContactsTable.prototype.showPage = function(newPagination) {
+        if (pagination == newPagination) {
+            return;
+        }
+
+        if (newPagination < 1 || newPagination > maxPagination) {
+            return;
+        }
+
+        currentPage = [];
+        for (var i = (newPagination - 1) * pageSize; i < contactList.length && currentPage.length < pageSize; ++i) {
+            currentPage.push(contactList[i]);
+        }
+
+        // 更新表格
+        this.show(newPagination, currentPage);
+    }
+
 
     ContactsTable.prototype.paging = function(num) {
         var html = [
@@ -58,21 +109,17 @@
         pagingEl.html(html.join(''));
     }
 
-    ContactsTable.prototype.reset = function() {
-        curPage = 0;
-    }
-
-    ContactsTable.prototype.showPage = function(page, contacts) {
-        if (page == curPage) {
+    ContactsTable.prototype.show = function(page, contacts) {
+        if (page == pagination) {
             return;
         }
 
-        if (curPage > 0) {
-            pagingEl.find('.page-' + curPage).removeClass('active');
+        if (pagination > 0) {
+            pagingEl.find('.page-' + pagination).removeClass('active');
         }
         pagingEl.find('.page-' + page).addClass('active');
         // 更新页码
-        curPage = page;
+        pagination = page;
 
         tbodyEl.empty();
 
@@ -97,6 +144,30 @@
             ];
             tbodyEl.append($(html.join('')));
         }
+    }
+
+    /**
+     * 切换到上一页。
+     */
+     ContactsTable.prototype.prevPage = function() {
+        if (pagination == 1) {
+            return;
+        }
+
+        var page = pagination - 1;
+        this.showPage(page);
+    }
+
+    /**
+     * 切换到下一页。
+     */
+     ContactsTable.prototype.nextPage = function() {
+        if (pagination == maxPagination) {
+            return;
+        }
+
+        var page = pagination + 1;
+        this.showPage(page);
     }
 
     ContactsTable.prototype.modifyRemark = function(rowIndex, remark) {
