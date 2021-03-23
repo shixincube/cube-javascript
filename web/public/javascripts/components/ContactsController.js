@@ -31,9 +31,12 @@
 
     var cube = null;
 
-    var table = null;
-
     var contactList = [];
+
+    var contactsTable = null;
+    var groupTable = null;
+
+    var currentTable = null;
 
     var currentPage = null;
     var pagination = 1;
@@ -47,11 +50,13 @@
     var ContactsController = function(cubeEngine) {
         that = this;
         cube = cubeEngine;
-        table = new g.ContactsTable($('div[data-target="contacts-table"]'));
+        contactsTable = new g.ContactsTable($('div[data-target="contacts-table"]'));
         btnRefresh = $('.contacts-card').find('button[data-target="refresh"]');
         btnRefresh.on('click', function() {
             that.update();
         });
+
+        currentTable = contactsTable;
     }
 
     /**
@@ -108,7 +113,7 @@
 
                 // 更新联系人备注
                 contact.getAppendix().updateRemarkName(remark, function() {
-                    table.modifyRemark(index, remark);
+                    contactsTable.modifyRemark(index, remark);
                 });
             }
         });
@@ -135,7 +140,7 @@
         }
 
         // 更新表格
-        table.showPage(pagination, currentPage);
+        contactsTable.showPage(pagination, currentPage);
     }
 
     /**
@@ -181,11 +186,11 @@
 
         // 分页
         maxPagination = Math.ceil(contactList.length / pageSize);
-        table.paging(maxPagination);
+        contactsTable.paging(maxPagination);
 
         // 显示指定页
-        table.reset();
-        table.showPage(pagination, currentPage);
+        contactsTable.reset();
+        contactsTable.showPage(pagination, currentPage);
     }
 
     g.ContactsController = ContactsController;

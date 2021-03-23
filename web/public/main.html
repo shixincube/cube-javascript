@@ -652,7 +652,7 @@
                                         <a class="nav-link active" id="contacts-tabs-default-tab" data-toggle="pill" href="#contacts-tabs-default" role="tab" aria-controls="contacts-tabs-default" aria-selected="true">我的联系人</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link" id="contacts-tabs-mygroups-tab" data-toggle="pill" href="#contacts-tabs-mygroups" role="tab" aria-controls="contacts-tabs-mygroups" aria-selected="false">我的群组</a>
+                                        <a class="nav-link" id="contacts-tabs-groups-tab" data-toggle="pill" href="#contacts-tabs-groups" role="tab" aria-controls="contacts-tabs-groups" aria-selected="false">我的群组</a>
                                     </li>
                                 </ul>
                                 <div class="card-tools">
@@ -684,16 +684,39 @@
                                                         <th></th>
                                                     </tr>
                                                 </thead>
-                                                <tbody></tbody>
+                                                <tbody>
+                                                    <!-- ## -->
+                                                </tbody>
                                             </table>
                                         </div>
                                         <div class="table-pagination">
                                             <ul class="pagination pagination-sm m-0 float-right"></ul>
                                         </div>
                                     </div><!-- /.tab-pane -->
-                                    <div class="tab-pane fade" id="contacts-tabs-mygroups" data-target="mygroups-table" role="tabpanel" aria-labelledby="contacts-tabs-mygroups-tab">
-
-                                    </div>
+                                    <div class="tab-pane fade" id="contacts-tabs-groups" data-target="groups-table" role="tabpanel" aria-labelledby="contacts-tabs-groups-tab">
+                                        <div class="table-contacts">
+                                            <table class="table table-striped table-hover table-head-fixed text-nowrap">
+                                                <thead>
+                                                    <tr>
+                                                        <th>序号</th>
+                                                        <th></th>
+                                                        <th>群组名称</th>
+                                                        <th>群组备注</th>
+                                                        <th>群号</th>
+                                                        <th>群组公告</th>
+                                                        <th>群组成员</th>
+                                                        <th></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <!-- ## -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="table-pagination">
+                                            <ul class="pagination pagination-sm m-0 float-right"></ul>
+                                        </div>
+                                    </div><!-- /.tab-pane -->
                                 </div>
                             </div><!-- /.card-body -->
                         </div><!-- /.card -->
@@ -1141,6 +1164,7 @@
 <script type="text/javascript" src="javascripts/components/FilesPanel.js"></script>
 <script type="text/javascript" src="javascripts/components/FilesController.js"></script>
 <script type="text/javascript" src="javascripts/components/ContactsTable.js"></script>
+<script type="text/javascript" src="javascripts/components/GroupsTable.js"></script>
 <script type="text/javascript" src="javascripts/components/ContactsController.js"></script>
 <script type="text/javascript" src="javascripts/components/ConferenceController.js"></script>
 <script type="text/javascript" src="javascripts/components/SelectContactsDialog.js"></script>
