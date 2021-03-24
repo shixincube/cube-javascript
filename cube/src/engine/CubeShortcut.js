@@ -30,6 +30,7 @@ import { FileStorage } from "../filestorage/FileStorage";
 import { MessagingService } from "../messaging/MessagingService";
 import { FileProcessor } from "../fileprocessor/FileProcessor";
 import { MultipointComm } from "../multipointcomm/MultipointComm";
+import { ConferenceService } from "../conference/ConferenceService";
 
 /**
  * Cube Engine 的快捷操作方式封装。
@@ -92,6 +93,20 @@ export class CubeShortcut {
          * @public
          */
         this.mpComm = this.engine.getMultipointComm();
+
+        /**
+         * 会议模块。
+         * @type {ConferenceService}
+         * @public
+         */
+        this.conference = this.engine.getConferenceService();
+
+        /**
+         * 会议模块。
+         * @type {ConferenceService}
+         * @public
+         */
+        this.cs = this.conference;
     }
 
     /**

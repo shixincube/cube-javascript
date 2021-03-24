@@ -30,14 +30,14 @@
 export const ConferenceAction = {
 
     /**
+     * 查询指定条件的会议。
+     * @type {string}
+     */
+    ListConferences: 'listConferences',
+
+    /**
      * 创建会议。
      * @type {string}
      */
-    Create: 'create',
-
-    /**
-     * 获取指定会议信息。
-     * @type {string}
-     */
-    Get: 'get'
+     CreateConference: 'createConference',
 }

@@ -53,16 +53,10 @@ export class Conference extends Entity {
         this.service = service;
 
         /**
-         * 会议 ID 。
-         * @type {number}
-         */
-        this.id = 0;
-
-        /**
-         * 会议标题。
+         * 会议主题。
          * @type {string}
          */
-        this.title = null;
+        this.subject = null;
 
         /**
          * 会议密码。
@@ -71,34 +65,52 @@ export class Conference extends Entity {
         this.password = null;
 
         /**
+         * 会议摘要。
+         * @type {string}
+         */
+        this.summary = null;
+
+        /**
          * 会议号/会议访问码。
          * @type {string}
          */
-        this.access = null;
-
-        /**
-         * 会议预约开始时间。
-         * @type {number}
-         */
-        this.appointmentTime = 0;
-
-        /**
-         * 会议预估时长，单位：分钟。
-         * @type {number}
-         */
-        this.estimatedDurationInMinutes = 0;
+        this.code = null;
 
         /**
          * 会议创建人。
          * @type {Contact}
          */
-        this.founder = null;
+         this.founder = null;
 
-        /**
+         /**
          * 会议主持人。
          * @type {Contact}
          */
         this.presenter = null;
+
+        /**
+         * 会议创建时间。
+         * @type {number}
+         */
+        this.creation = 0;
+
+        /**
+         * 会议预约开始时间。
+         * @type {number}
+         */
+        this.scheduleTime = 0;
+
+        /**
+         * 会议到期时间。
+         * @type {number}
+         */
+        this.expireTime = 0;
+
+        /*
+         * 会议预估时长，单位：分钟。
+         * @type {number}
+         */
+        // this.estimatedDurationInMinutes = 0;
 
         /**
          * 会议邀请列表。
@@ -113,10 +125,10 @@ export class Conference extends Entity {
         this.room = null;
 
         /**
-         * 会议参与者列表。
-         * @type {Array<Participant>}
+         * 会议是否已取消。
+         * @type {boolean}
          */
-        this.participants = [];
+        this.cancelled = false;
     }
 
     /**
@@ -155,21 +167,13 @@ export class Conference extends Entity {
      * 设置预约时间。
      * @param {number} time 
      */
-    setAppointmentTime(time)  {
+    setScheduleTime(time)  {
         this.appointmentTime =  time;
-        this.service.updateAppointment(this);
+        this.service.updateScheduleTime(this);
     }
 
     sendInvitation(name, displayName) {
         this.invitees.put(name, new Invitation(name, displayName));
-    }
-
-    join() {
-
-    }
-
-    getParticipants() {
-        return this.participants;
     }
 
     /**
@@ -178,25 +182,25 @@ export class Conference extends Entity {
     toJSON() {
         let json = super.toJSON();
         json.id = this.id;
-        json.title = this.title;
+        json.subject = this.subject;
         if (null != this.password) {
             json.password = this.password;
         }
 
         json.founder = this.founder.toCompactJSON();
-        json.access = this.access;
+        json.code = this.code;
 
         if (null != this.presenter) {
             json.presenter = this.presenter.toCompactJSON();
         }
 
-        let inviteeArray = [];
-        let invitees = this.invitees.values();
-        for (let i = 0; i < invitees.length; ++i) {
-            let inv = invitees[i];
-            inviteeArray.push(inv.toJSON());
-        }
-        json.invitees = inviteeArray;
+        // let inviteeArray = [];
+        // let invitees = this.invitees.values();
+        // for (let i = 0; i < invitees.length; ++i) {
+        //     let inv = invitees[i];
+        //     inviteeArray.push(inv.toJSON());
+        // }
+        // json.invitees = inviteeArray;
 
         return json;
     }

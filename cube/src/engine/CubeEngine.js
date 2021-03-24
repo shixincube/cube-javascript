@@ -38,6 +38,7 @@ import { MessagingService } from "../messaging/MessagingService";
 import { FileProcessor } from "../fileprocessor/FileProcessor";
 import { MultipointComm } from "../multipointcomm/MultipointComm";
 import { WhiteboardService } from "../whiteboard/WhiteboardService";
+import { ConferenceService } from "../conference/ConferenceService";
 import { FaceMonitor } from "../facemonitor/FaceMonitor";
 
 /**
@@ -56,6 +57,7 @@ export class CubeEngine {
         this.kernel.installModule(new FileProcessor());
         this.kernel.installModule(new MultipointComm());
         this.kernel.installModule(new WhiteboardService());
+        this.kernel.installModule(new ConferenceService());
         this.kernel.installModule(new FaceMonitor());
 
         this.selectFileHandle = null;
@@ -155,6 +157,14 @@ export class CubeEngine {
      */
     getMultipointComm() {
         return this.kernel.getModule(MultipointComm.NAME);
+    }
+
+    /**
+     * 获取会议服务。
+     * @returns {ConferenceService} 返回会议服务模块。
+     */
+    getConferenceService() {
+        return this.kernel.getModule(ConferenceService.NAME);
     }
 
     /**

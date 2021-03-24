@@ -585,16 +585,17 @@
                             <div class="row width-100">
                                 <div class="col-md-3">
                                     <div class="nav flex-column nav-tabs h-100" id="conf-timeline-tab" role="tablist" aria-orientation="vertical">
-                                        <a class="nav-link active" id="conf-timeline-conferencing-tab" data-toggle="pill" href="#conf-timeline-conferencing" role="tab" aria-controls="conf-timeline-conferencing" aria-selected="true">进行中的</a>
-                                        <a class="nav-link" id="conf-timeline-scheme-tab" data-toggle="pill" href="#conf-timeline-scheme" role="tab" aria-controls="conf-timeline-scheme" aria-selected="false">计划的</a>
-                                        <a class="nav-link" id="conf-timeline-closed-tab" data-toggle="pill" href="#conf-timeline-closed" role="tab" aria-controls="conf-timeline-closed" aria-selected="false">结束的</a>
-                                        <a class="nav-link" id="conf-timeline-all-tab" data-toggle="pill" href="#conf-timeline-all" role="tab" aria-controls="conf-timeline-all" aria-selected="false">全部的</a>
+                                        <a class="nav-link active" id="conf-timeline-all-tab" data-toggle="pill" href="#conf-timeline-all" role="tab" aria-controls="conf-timeline-all" aria-selected="false">全部会议</a>
+                                        <a class="nav-link" id="conf-timeline-active-tab" data-toggle="pill" href="#conf-timeline-active" role="tab" aria-controls="conf-timeline-active" aria-selected="true">进行中的会议</a>
+                                        <a class="nav-link" id="conf-timeline-scheme-tab" data-toggle="pill" href="#conf-timeline-scheme" role="tab" aria-controls="conf-timeline-scheme" aria-selected="false">计划的会议</a>
+                                        <a class="nav-link" id="conf-timeline-closed-tab" data-toggle="pill" href="#conf-timeline-closed" role="tab" aria-controls="conf-timeline-closed" aria-selected="false">结束的会议</a>
                                     </div>
                                 </div>
                                 <div class="col-md-9">
                                     <div class="tab-content" id="conf-timeline-tab-content">
-                                        <div class="tab-pane text-left fade active show" id="conf-timeline-conferencing" role="tabpanel" aria-labelledby="conf-timeline-conferencing-tab">
+                                        <div class="tab-pane text-left fade show active" id="conf-timeline-all" role="tabpanel" aria-labelledby="conf-timeline-all-tab">
                                             <div class="timeline">
+                                                <!--
                                                 <div class="time-label">
                                                     <span class="bg-red">1月21日</span>
                                                 </div>
@@ -611,21 +612,46 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                -->
+                                            </div>
+                                            <div class="no-conference">
+                                                <div class="content">
+                                                    <i class="fas fa-users"></i><br/>
+                                                    <div class="tip">没有发现会议，您可以去<a href="javascript:app.confCtrl.fireNewConference();">创建新会议</a>。</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="conf-timeline-active" role="tabpanel" aria-labelledby="conf-timeline-active-tab">
+                                            <div class="timeline">
+
+                                            </div>
+                                            <div class="no-conference">
+                                                <div class="content">
+                                                    <i class="fas fa-users"></i><br/>
+                                                    <div class="tip">没有进行中的会议，您可以去<a href="javascript:app.confCtrl.fireNewConference();">创建新会议</a>。</div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="tab-pane fade" id="conf-timeline-scheme" role="tabpanel" aria-labelledby="conf-timeline-scheme-tab">
                                             <div class="timeline">
 
                                             </div>
+                                            <div class="no-conference">
+                                                <div class="content">
+                                                    <i class="fas fa-users"></i><br/>
+                                                    <div class="tip">没有计划内的会议，您可以去<a href="javascript:app.confCtrl.fireNewConference();">创建新会议</a>。</div>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="tab-pane fade" id="conf-timeline-closed" role="tabpanel" aria-labelledby="conf-timeline-closed-tab">
                                             <div class="timeline">
 
                                             </div>
-                                        </div>
-                                        <div class="tab-pane fade" id="conf-timeline-all" role="tabpanel" aria-labelledby="conf-timeline-all-tab">
-                                            <div class="timeline">
-
+                                            <div class="no-conference">
+                                                <div class="content">
+                                                    <i class="fas fa-users"></i><br/>
+                                                    <div class="tip">没有已结束的会议，您可以去<a href="javascript:app.confCtrl.fireNewConference();">创建新会议</a>。</div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -1166,6 +1192,7 @@
 <script type="text/javascript" src="javascripts/components/ContactsTable.js"></script>
 <script type="text/javascript" src="javascripts/components/GroupsTable.js"></script>
 <script type="text/javascript" src="javascripts/components/ContactsController.js"></script>
+<script type="text/javascript" src="javascripts/components/ConferenceTimeline.js"></script>
 <script type="text/javascript" src="javascripts/components/ConferenceController.js"></script>
 <script type="text/javascript" src="javascripts/components/SelectContactsDialog.js"></script>
 <script type="text/javascript" src="javascripts/app.js"></script>

@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,56 +24,26 @@
  * SOFTWARE.
  */
 
-import { Entity } from "../core/Entity";
-import { Group } from "../contact/Group";
-import { CommField } from "../multipointcomm/CommField";
+ (function(g) {
+    'use strict';
 
-/**
- * 会议房间。
- * 会议房间里所有持有 Cube 联系人的参与者都加入到房间对应的群组里。
- * 所有音视频参与的终端都使用对应的通讯场域进行通讯。
- */
-export class Room extends Entity {
+    var container = null;
+    var timelineEl = null;
 
-    /**
-     * @param {Group} group
-     * @param {CommField} commField 
-     */
-    constructor(group, commField) {
-        super();
-
-        /**
-         * 房间的群组。
-         * @type {Group}
-         * @private
-         */
-        this.group = group;
-
-        /**
-         * 房间的通讯场。
-         * @type {CommField}
-         * @private
-         */
-        this.commField = commField;
-
-        /**
-         * 会议参与者列表。
-         * @type {Array<Participant>}
-         */
-         this.participants = [];
+    var ConferenceTimeline = function(el) {
+        container = el;
+        timelineEl = el.find('.timeline');
     }
 
-    mute(contact, device) {
-
+    ConferenceTimeline.prototype.update = function(list) {
+        if (list.length > 0) {
+            container.find('.no-conference').css('display', 'none');
+        }
+        else {
+            container.find('.no-conference').css('display', 'table');
+        }
     }
 
-    toJSON() {
-        let json = super.toJSON();
-        return json;
-    }
+    g.ConferenceTimeline = ConferenceTimeline;
 
-    toCompactJSON() {
-        let json = super.toCompactJSON();
-        return json;
-    }
-}
+ })(window);

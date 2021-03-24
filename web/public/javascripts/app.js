@@ -66,6 +66,7 @@
     var messagingCtrl = null;
     var callCtrl = null;
     var filesCtrl = null;
+    var confCtrl = null;
     var contactsCtrl = null;
 
     /**
@@ -261,6 +262,8 @@
             callCtrl = new CallController(cube);
             // 文件控制器
             filesCtrl = new FilesController(cube);
+            // 会议控制器
+            confCtrl = new ConferenceController(cube);
             // 联系人控制器
             contactsCtrl = new ContactsController(cube);
 
@@ -283,8 +286,8 @@
             that.messagingCtrl = messagingCtrl;
             that.callCtrl = callCtrl;
             that.filesCtrl = filesCtrl;
+            that.confCtrl = confCtrl;
             that.contactsCtrl = contactsCtrl;
-            that.confCtrl = new ConferenceController(cube);
 
             // 选择联系人对话框
             that.selectContactsDialog = new SelectContactsDialog(cube);
@@ -454,6 +457,7 @@
 
         onReady: function() {
             that.prepare();
+            confCtrl.ready();
             console.log('Cube WebApp Ready');
         },
 

@@ -35,6 +35,7 @@ import { ConferenceServiceState } from "./ConferenceServiceState";
 import { ConferencePipelineListener } from "./ConferencePipelineListener";
 import { ConferenceAction } from "./ConferenceAction";
 import { ConferenceEvent } from "./ConferenceEvent";
+import { ModuleError } from "../core/error/ModuleError";
 
 /**
  * 会议服务。
@@ -108,15 +109,61 @@ export class ConferenceService extends Module {
     }
 
     /**
+     * 查询指定时间段内的所有会议。
+     * @param {*} beginning 
+     * @param {*} ending 
+     * @param {*} successCallback 
+     * @param {*} failureCallback 
+     */
+    listConferences(beginning, ending, successCallback, failureCallback) {
+        let requestPacket = new Packet(ConferenceAction.ListConferences, {
+            "beginning": beginning,
+            "ending": ending
+        });
+
+        this.pipeline.send(ConferenceService.NAME, requestPacket, (pipeline, source, packet) => {
+            if (null == packet || packet.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(ConferenceService.NAME, ConferenceServiceState.ServerError, this);
+                if (failureCallback) {
+                    failureCallback(error);
+                }
+                return;
+            }
+
+            if (packet.getPayload().code != ConferenceServiceState.Ok) {
+                let error = new ModuleError(ConferenceService.NAME, packet.getPayload().code, this);
+                if (failureCallback) {
+                    failureCallback(error);
+                }
+                return;
+            }
+
+            // 清空列表
+            this.confs = [];
+
+            let data = packet.getPayload().data;
+            let resBeginning = data.beginning;
+            let resEnding = data.ending;
+            let list = packet.getPayload().data.list;
+            list.forEach((value) => {
+                let conference = Conference.create(this, value);
+                this.confs.push(conference);
+            });
+
+            successCallback(this.confs, resBeginning, resEnding);
+        });
+    }
+
+    /**
      * 创建会议。
-     * @param {string} title 会议标题。
+     * @param {string} subject 会议标题。
      * @param {string} password 会议密码，设置为 {@linkcode null} 时表示不需要密码。
      * @param {function} successCallback
      * @param {function} failureCallback
      */
-    createConference(title, password, successCallback, failureCallback) {
-        let dataPacket = new Packet(ConferenceAction.Create, {
-            "title": title,
+    createConference(subject, password, successCallback, failureCallback) {
+        let dataPacket = new Packet(ConferenceAction.CreateConference, {
+            "subject": subject,
             "password": (null == password) ? "" : password,
             "founder": this.contact.getSelf().toCompactJSON()
         });
@@ -156,7 +203,7 @@ export class ConferenceService extends Module {
         });
     }
 
-    updateAppointment(conference) {
+    updateScheduleTime(conference) {
 
     }
 }

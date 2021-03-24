@@ -1106,6 +1106,7 @@ body {
 
 /* 联系人 - 结束 */
 
+/* 选择联系人 - 开始 */
 
 .select-contacts-dialog {
     min-height: 400px;
@@ -1124,6 +1125,8 @@ body {
     height: 40px;
     border-radius: 10%;
 }
+
+/* 选择联系人 - 结束 */
 
 
 .new-conference-dialog .participant, .new-conference-dialog .btn-participant {
@@ -1160,4 +1163,21 @@ body {
 }
 .new-conference-dialog .participant a:hover {
     color: #6c757d;
+}
+
+
+.no-conference {
+    display: table;
+    width: 100%;
+    height: 400px;
+    text-align: center;
+    color: #6c757d;
+    font-size: 36px;
+}
+.no-conference .content {
+    display: table-cell;
+    vertical-align: middle;
+}
+.no-conference .tip {
+    font-size: 12px;
 }

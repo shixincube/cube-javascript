@@ -35,8 +35,50 @@ export const ConferenceServiceState = {
     Ok: 0,
 
     /**
+     * 无效参数。
+     * @type {number}
+     */
+    InvalidParameter: 5,
+
+    /**
      * 遇到故障。
      * @type {number}
      */
-    Failure: 9
+    Failure: 9,
+
+    /**
+     * 无效域信息。
+     * @type {number}
+     */
+    InvalidDomain: 11,
+
+    /**
+     * 未签入联系人。
+     * @type {number}
+     */
+    NoSignIn: 12,
+ 
+    /**
+     * 搜索条件错误。
+     * @type {number}
+     */
+    SearchConditionError: 25,
+
+    /**
+     * 服务器错误。
+     * @type {number}
+     */
+     ServerError: 101,
+
+     /**
+      * 不被允许的操作。
+      * @type {number}
+      */
+     NotAllowed: 102,
+ 
+     /**
+      * 未知的状态。
+      * @type {number}
+      */
+     Unknown: 99
 }

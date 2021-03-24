@@ -29,6 +29,8 @@
 
     var cube = null;
 
+    var timelineAll = null;
+
     var newConferenceDialog = null;
 
     function onNewConference(e) {
@@ -82,6 +84,8 @@
     }
 
     ConferenceController.prototype.init = function() {
+        timelineAll = new ConferenceTimeline($('#conf-timeline-all'));
+
         // 新建会议按钮
         $('button[data-toggle="new-conference"]').on('click', onNewConference);
 
@@ -93,9 +97,23 @@
         newConferenceDialog.find('#conf-participant button').on('click', onAppendParticipant);
     }
 
+    ConferenceController.prototype.ready = function() {
+        var ending = Date.now();
+        var beginning = ending - (30 * 24 * 60 * 60 * 1000);
+        cube.cs.listConferences(beginning, ending, function(list, beginning, ending) {
+            timelineAll.update(list);
+        }, function(error) {
+            console.log(error);
+        });
+    }
+
     ConferenceController.prototype.removeParticipantInNewDialog = function(id) {
         var el = newConferenceDialog.find('#conf-participant').find('div[data="' + id + '"]');
         el.remove();
+    }
+
+    ConferenceController.prototype.fireNewConference = function() {
+        onNewConference();
     }
 
     g.ConferenceController = ConferenceController;
