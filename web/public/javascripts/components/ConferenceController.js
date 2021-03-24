@@ -73,10 +73,19 @@
         return list;
     }
 
+    function onNewConfirm() {
+        var el = newConferenceDialog.find('input[name="conf-subject"]');
+        var subject = el.val().trim();
+        if (subject.length <= 3) {
+            g.validate(el, '请输入会议主题，会议主题不能少于3个字符。');
+            return;
+        }
+    }
+
 
     /**
      * 会议控制器。
-     * @param {*} cubeEngine 
+     * @param {CubeEngine} cubeEngine 
      */
     var ConferenceController = function(cubeEngine) {
         cube = cubeEngine;
@@ -95,6 +104,7 @@
             locale: 'zh-cn'
         });
         newConferenceDialog.find('#conf-participant button').on('click', onAppendParticipant);
+        newConferenceDialog.find('button[data-target="confirm"]').on('click', onNewConfirm);
     }
 
     ConferenceController.prototype.ready = function() {

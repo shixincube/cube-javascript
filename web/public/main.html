@@ -894,54 +894,56 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group row">
-                        <label for="conf-subject" class="col-sm-2 col-form-label">会议主题 <sup class="text-danger">*</sup></label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control form-control-sm" id="conf-subject" placeholder="会议主题">
+                    <from>
+                        <div class="form-group row">
+                            <label for="conf-subject" class="col-sm-2 col-form-label">会议主题 <sup class="text-danger">*</sup></label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control form-control-sm" id="conf-subject" name="conf-subject" placeholder="会议主题" />
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="conf-pwd" class="col-sm-2 col-form-label">会议密码</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control form-control-sm" id="conf-pwd" placeholder="会议密码">
+                        <div class="form-group row">
+                            <label for="conf-pwd" class="col-sm-2 col-form-label">会议密码</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control form-control-sm" id="conf-pwd" name="conf-pwd" placeholder="会议密码" />
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="conf-summary" class="col-sm-2 col-form-label">会议摘要</label>
-                        <div class="col-sm-10">
-                            <textarea rows="3" class="form-control form-control-sm" id="conf-summary" placeholder="会议摘要" style="resize:none;"></textarea>
+                        <div class="form-group row">
+                            <label for="conf-summary" class="col-sm-2 col-form-label">会议摘要</label>
+                            <div class="col-sm-10">
+                                <textarea rows="3" class="form-control form-control-sm" id="conf-summary" name="conf-summary" placeholder="会议摘要" style="resize:none;"></textarea>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="conf-schedule" class="col-sm-2 col-form-label">计划时间 <sup class="text-danger">*</sup></label>
-                        <div class="col-sm-10">
-                            <div class="input-group date" id="datetimepicker-schedule" data-target-input="nearest">
-                                <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker-schedule"/>
-                                <div class="input-group-append" data-target="#datetimepicker-schedule" data-toggle="datetimepicker">
-                                    <div class="input-group-text"><i class="fas fa-calendar"></i></div>
+                        <div class="form-group row">
+                            <label for="conf-schedule" class="col-sm-2 col-form-label">计划时间 <sup class="text-danger">*</sup></label>
+                            <div class="col-sm-10">
+                                <div class="input-group date" id="datetimepicker-schedule" data-target-input="nearest">
+                                    <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker-schedule" id="conf-schedule" name="conf-schedule" />
+                                    <div class="input-group-append" data-target="#datetimepicker-schedule" data-toggle="datetimepicker">
+                                        <div class="input-group-text"><i class="fas fa-calendar"></i></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="conf-expire" class="col-sm-2 col-form-label">结束时间</label>
-                        <div class="col-sm-10">
-                            <div class="input-group date" id="datetimepicker-expire" data-target-input="nearest">
-                                <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker-expire"/>
-                                <div class="input-group-append" data-target="#datetimepicker-expire" data-toggle="datetimepicker">
-                                    <div class="input-group-text"><i class="fas fa-calendar"></i></div>
+                        <div class="form-group row">
+                            <label for="conf-expire" class="col-sm-2 col-form-label">结束时间</label>
+                            <div class="col-sm-10">
+                                <div class="input-group date" id="datetimepicker-expire" data-target-input="nearest">
+                                    <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker-expire" id="conf-expire" name="conf-expire" />
+                                    <div class="input-group-append" data-target="#datetimepicker-expire" data-toggle="datetimepicker">
+                                        <div class="input-group-text"><i class="fas fa-calendar"></i></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="conf-participant" class="col-sm-2 col-form-label">参会邀请</label>
-                        <div class="col-sm-10" id="conf-participant">
-                            <div class="btn-participant">
-                                <button type="button" class="btn btn-default btn-append"><i class="fas fa-plus"></i></button>
+                        <div class="form-group row">
+                            <label for="conf-participant" class="col-sm-2 col-form-label">参会邀请</label>
+                            <div class="col-sm-10" id="conf-participant">
+                                <div class="btn-participant">
+                                    <button type="button" class="btn btn-default btn-append"><i class="fas fa-plus"></i></button>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </from>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">关闭</button>
@@ -1165,6 +1167,8 @@
 <script type="text/javascript" src="plugins/moment/locale/zh-cn.js"></script>
 <script type="text/javascript" src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
 <script type="text/javascript" src="plugins/popper/umd/popper.min.js"></script>
+<script type="text/javascript" src="plugins/jquery-validation/jquery.validate.min.js"></script>
+<script type="text/javascript" src="plugins/jquery-validation/additional-methods.min.js"></script>
 <script type="text/javascript" src="javascripts/jquery.contextMenu.min.js"></script>
 <script type="text/javascript" src="javascripts/jquery.ui.position.min.js"></script>
 <script type="text/javascript" src="javascripts/adminlte.min.js"></script>

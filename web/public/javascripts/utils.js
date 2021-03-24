@@ -291,4 +291,14 @@
 
         return g.recurseParent(list, dir.getParent());
     }
+
+    g.validate = function(el, text) {
+        el.addClass('input-invalid');
+        var tipEl = $('<span class="text-danger input-invalid-tip"><i class="fas fas-info-circle"></i> ' + text + '</span>');
+        el.parent().append(tipEl);
+        setTimeout(function() {
+            el.removeClass('input-invalid');
+            tipEl.remove();
+        }, 3000);
+    }
 })(window);
