@@ -244,6 +244,7 @@ export class ContactStorage {
             }
 
             let groups = [];
+            let count = 0;
             for (let i = 0; i < result.length; ++i) {
                 let json = result[i];
                 if (json.lastActive > beginning && json.lastActive <= ending) {
@@ -257,11 +258,30 @@ export class ContactStorage {
 
                     json.domain = this.domain;
                     let group = Group.create(this.service, json);
-                    groups.push(group);
+                    ++count;
+
+                    // 读取附录
+                    (async (curGroup)=> {
+                        // 读取附录
+                        let appendixData = await this.appendixStore.query('id', curGroup.id);
+
+                        if (appendixData.length > 0) {
+                            let appendix = GroupAppendix.create(this.service, curGroup, appendixData[0]);
+                            curGroup.appendix = appendix;
+                        }
+
+                        groups.push(curGroup);
+
+                        if (count == groups.length) {
+                            handler(beginning, ending, groups);
+                        }
+                    })(group);
                 }
             }
 
-            handler(beginning, ending, groups);
+            if (count == groups.length) {
+                handler(beginning, ending, groups);
+            }
         })();
 
         return true;
@@ -285,10 +305,13 @@ export class ContactStorage {
                 let group = Group.create(this.service, json);
 
                 (async ()=> {
+                    // 读取附录
                     let appendixData = await this.appendixStore.query('id', id);
 
-                    let appendix = GroupAppendix.create(this.service, group, appendixData[0]);
-                    group.appendix = appendix;
+                    if (appendixData.length > 0) {
+                        let appendix = GroupAppendix.create(this.service, group, appendixData[0]);
+                        group.appendix = appendix;
+                    }
 
                     handler(id, group);
                 })();

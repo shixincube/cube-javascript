@@ -116,6 +116,10 @@ export class ConferenceService extends Module {
      * @param {*} failureCallback 
      */
     listConferences(beginning, ending, successCallback, failureCallback) {
+        if (!this.started) {
+            this.start();
+        }
+
         let requestPacket = new Packet(ConferenceAction.ListConferences, {
             "beginning": beginning,
             "ending": ending
@@ -171,6 +175,10 @@ export class ConferenceService extends Module {
      * @param {function} failureCallback
      */
     createConference(subject, password, summary, scheduleTime, expireTime, invitations, successCallback, failureCallback) {
+        if (!this.started) {
+            this.start();
+        }
+        
         let invitationArray = [];
         if (null != invitations) {
             invitations.forEach((value) => {

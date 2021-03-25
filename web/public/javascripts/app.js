@@ -142,6 +142,7 @@
                 url: '/account/get',
                 data: { "t": token },
                 success: function(response, status, xhr) {
+                    delete response["password"];
                     app.start(response);
                     heartbeat();
                 },
@@ -327,6 +328,8 @@
                 cube.fs.start();
                 // 启用音视频模块
                 cube.mpComm.start();
+                // 启用会议模块
+                cube.cs.start();
 
                 var timer = setInterval(function() {
                     if (cube.isReady()) {
@@ -406,6 +409,8 @@
                                 callback(null);
                                 return;
                             }
+
+                            delete response["password"];
 
                             contact.setContext(response);
                             contact.setName(response.name);

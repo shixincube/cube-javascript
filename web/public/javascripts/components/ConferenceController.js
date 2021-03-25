@@ -39,12 +39,15 @@
         el.find('input[name="conf-pwd"]').val('');
         el.find('textarea[name="conf-summary"]').val('');
 
-        el.find('input[name="conf-schedule"]').val('');
+        var date = new Date();
+        date.setMinutes(date.getMinutes() + 30);
+        el.find('input[name="conf-schedule"]').val(g.datetimePickerToString(date));
 
         el.find('div.participant').each(function() {
             $(this).remove();
         });
 
+        el.find('.overlay').css('visibility', 'hidden');
         el.modal('show');
     }
 
@@ -82,25 +85,56 @@
      * @returns 
      */
     function onNewConfirm() {
+        // 主题
         var el = newConferenceDialog.find('input[name="conf-subject"]');
         var subject = el.val().trim();
-        if (subject.length <= 3) {
+        if (subject.length < 3) {
             g.validate(el, '请填写会议主题，会议主题不能少于3个字符。');
             return;
         }
 
+        // 密码
         el = newConferenceDialog.find('input[name="conf-pwd"]');
         var password = el.val().trim();
 
+        // 摘要
         el = newConferenceDialog.find('textarea[name="conf-summary"]');
         var summary = el.val().trim();
 
+        // 计划时间
         el = newConferenceDialog.find('input[name="conf-schedule"]');
         var value = el.val().trim();
         if (value.length <= 10) {
-            g.validate(el, '请填写会议计划开始时间。');
+            g.validate(el);
             return;
         }
+        var schedule = g.datetimePickerToDate(value);
+        var scheduleTime = schedule.getTime();
+
+        // 结束时间，用时长计算
+        el = newConferenceDialog.find('select[name="conf-duration"]');
+        el = el.find(':selected');
+        var duration = parseInt(el.attr('data'));
+        var expireTime = scheduleTime + (duration * 60 * 60 * 1000);
+
+        // 邀请
+        var idList = getAppendedParticipants();
+        var invitationList = [];
+        idList.forEach(function(value) {
+            var contact = app.queryContact(value);
+            invitationList.push(new Invitation(contact.getId(), contact.getName(), contact.getPriorityName()));
+        });
+
+        newConferenceDialog.find('.overlay').css('visibility', 'visible');
+
+        // 创建会议
+        cube.cs.createConference(subject, password, summary, scheduleTime, expireTime, invitationList, function(conference) {
+            newConferenceDialog.modal('hide');
+            g.dialog.showAlert('会议“<b>' + conference.subject + '</b>”已创建，计划开始时间是<b>' + g.formatFullTime(conference.scheduleTime) + '</b>。');
+        }, function(error) {
+            newConferenceDialog.modal('hide');
+            g.dialog.showAlert('创建会议失败，请稍后再试！错误码：' + error.code);
+        });
     }
 
 

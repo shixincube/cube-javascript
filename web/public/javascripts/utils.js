@@ -292,13 +292,57 @@
         return g.recurseParent(list, dir.getParent());
     }
 
+    /**
+     * 提示输入项需要验证。
+     * @param {*} el 
+     * @param {*} text 
+     */
     g.validate = function(el, text) {
         el.addClass('input-invalid');
-        var tipEl = $('<span class="text-danger input-invalid-tip"><i class="fas fas-info-circle"></i> ' + text + '</span>');
-        el.parent().append(tipEl);
+        var tipEl = null;
+
+        if (text) {
+            tipEl = $('<span class="text-danger input-invalid-tip"><i class="fas fas-info-circle"></i> ' + text + '</span>');
+            el.parent().append(tipEl);
+        }
+
         setTimeout(function() {
             el.removeClass('input-invalid');
-            tipEl.remove();
+            if (null != tipEl) {
+                tipEl.remove();
+            }
         }, 3000);
+    }
+
+    g.datetimePickerToDate = function(string) {
+        var buf = string.split(' ');
+
+        var seg = buf[0].split('/');
+        var date = new Date();
+        date.setFullYear(parseInt(seg[0]));
+        date.setMonth(parseInt(seg[1]) - 1);
+        date.setDate(parseInt(seg[2]));
+
+        seg = buf[1].split(':');
+        date.setHours(parseInt(seg[0]));
+        date.setMinutes(parseInt(seg[1]));
+        date.setSeconds(0);
+        date.setMilliseconds(0);
+        return date;
+    }
+
+    g.datetimePickerToString = function(date) {
+        var buf = [
+            date.getFullYear(),
+            '/',
+            date.getMonth() + 1,
+            '/',
+            date.getDate(),
+            ' ',
+            date.getHours(),
+            ':',
+            date.getMinutes()
+        ];
+        return buf.join('');
     }
 })(window);

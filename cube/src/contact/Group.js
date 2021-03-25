@@ -66,6 +66,13 @@ export class Group extends Contact {
         this.owner = owner;
 
         /**
+         * 群组的标签。
+         * @protected
+         * @type {string}
+         */
+        this.tag = 'public';
+
+        /**
          * 创建时间。
          * @protected
          * @type {number}
@@ -340,6 +347,7 @@ export class Group extends Contact {
         let json = super.toJSON();
         delete json.devices;
         json.owner = this.owner.toCompactJSON();
+        json.tag = this.tag;
         json.creation = this.creationTime;
         json.lastActive = this.lastActiveTime;
         json.state = this.state;
@@ -357,6 +365,7 @@ export class Group extends Contact {
         let json = super.toCompactJSON();
         json.domain = this.domain;
         json.owner = this.owner.toCompactJSON();
+        json.tag = this.tag;
         json.creation = this.creationTime;
         json.lastActive = this.lastActiveTime;
         json.state = this.state;
@@ -378,6 +387,7 @@ export class Group extends Contact {
         }
 
         let group = new Group(service, owner, json.id, json.name, json.domain);
+        group.tag = json.tag;
         group.creationTime = json.creation;
         group.lastActiveTime = json.lastActive;
         group.state = json.state;

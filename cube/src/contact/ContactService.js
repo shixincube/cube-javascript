@@ -557,6 +557,7 @@ export class ContactService extends Module {
     /**
      * 更新指定 ID 列表里的联系人信息。
      * @protected
+     * @deprecated
      * @param {Array} idList 联系人 ID 列表。
      * @param {function} [handleSuccess] 操作成功回调该方法。
      * @param {function} [handleFailure] 操作失败回调该方法。
@@ -789,14 +790,41 @@ export class ContactService extends Module {
                 return this.sortGroup(a, b);
             });
             let resultList = [];
+            let count = 0;
             for (let i = 0; i < list.length; ++i) {
                 let group = list[i];
-                if (group.state == GroupState.Normal) {
-                    resultList.push(group);
+
+                if (group.state == GroupState.Normal && group.tag == 'public') {
+                    // 更新计数
+                    ++count;
+
+                    if (null == group.appendix) {
+                        this.getAppendix(group, (appendix, group) => {
+                            resultList.push(group);
+
+                            if (count == resultList.length) {
+                                handler(resultList);
+                            }
+                        }, (error) => {
+                            error.data.appendix = new GroupAppendix(this, error.data);
+                            resultList.push(error.data);
+
+                            if (count == resultList.length) {
+                                handler(resultList);
+                            }
+                        });
+                    }
+                    else {
+                        resultList.push(group);
+                    }
                 }
+
                 this.groups.put(group.getId(), group);
             }
-            handler(resultList);
+
+            if (count == resultList.length) {
+                handler(resultList);
+            }
         }, states);
 
         if (!ret) {
@@ -882,7 +910,7 @@ export class ContactService extends Module {
             }
 
             // 获取群组的附录
-            this.getAppendix(group, (appendix) => {
+            this.getAppendix(group, (appendix, group) => {
                 // 与本地数据进行比较
                 this.storage.readGroup(group.getId(), (id, current) => {
                     if (null != current) {
@@ -907,7 +935,7 @@ export class ContactService extends Module {
             }, (error) => {
                 cell.Logger.e('ContactService', '#triggerListGroups() - #getAppendix(): ' + error);
                 // 更新本次请求的清单
-                this.listGroupsContext.list.push(group);
+                this.listGroupsContext.list.push(error.data);
             });
         }
 
@@ -1001,13 +1029,20 @@ export class ContactService extends Module {
             // 设置上下文
             responsePacket.context = newGroup;
 
-            // 保存到内存
-            this.groups.put(newGroup.getId(), newGroup);
+            // 获取群组附录
+            this.getAppendix(newGroup, (appendix, newGroup) => {
+                // 保存到内存
+                this.groups.put(newGroup.getId(), newGroup);
 
-            // 保存到存储
-            this.storage.writeGroup(newGroup);
+                // 保存到存储
+                this.storage.writeGroup(newGroup);
 
-            handleSuccess(newGroup);
+                handleSuccess(newGroup);
+            }, (error) => {
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+            });
         });
 
         return group.getId();
@@ -1717,7 +1752,7 @@ export class ContactService extends Module {
     /**
      * 获取指定联系人或群组的附录。
      * @param {Contact|Group} contactOrGroup 指定联系人或群组。
-     * @param {function} [handleSuccess] 成功回调，参数：({@linkcode appendix}:{@link ContactAppendix}|{@link GroupAppendix}) 。
+     * @param {function} [handleSuccess] 成功回调，参数：({@linkcode appendix}:{@link ContactAppendix}|{@link GroupAppendix},{@linkcode entity}:{@link Contact}|{@link Group}) 。
      * @param {function} [handleFailure] 失败回调，参数：({@linkcode error}:{@link ModuleError}) 。
      */
     getAppendix(contactOrGroup, handleSuccess, handleFailure) {
@@ -1782,7 +1817,7 @@ export class ContactService extends Module {
 
             let data = packet.getPayload().data;
             if (requestData.contactId) {
-                let owner = this.contacts.get(data.owner.id);
+                let owner = contactOrGroup;//this.contacts.get(data.owner.id);
                 if (null == owner) {
                     owner = Contact.create(data.owner, AuthService.DOMAIN);
                 }
@@ -1796,11 +1831,11 @@ export class ContactService extends Module {
                 this.appendixMap.put(owner.getId(), contactAppendix);
 
                 if (handleSuccess) {
-                    handleSuccess(contactAppendix);
+                    handleSuccess(contactAppendix, contactOrGroup);
                 }
             }
             else {
-                let owner = this.groups.get(data.owner.id);
+                let owner = contactOrGroup;//this.groups.get(data.owner.id);
                 if (null == owner) {
                     owner = Group.create(this, data.owner);
                 }
@@ -1816,7 +1851,7 @@ export class ContactService extends Module {
                 this.appendixMap.put(owner.getId(), groupAppendix);
 
                 if (handleSuccess) {
-                    handleSuccess(groupAppendix);
+                    handleSuccess(groupAppendix, contactOrGroup);
                 }
             }
         });

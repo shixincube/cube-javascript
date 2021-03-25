@@ -927,7 +927,7 @@
                         <div class="form-group row">
                             <label for="conf-duration" class="col-sm-2 col-form-label">会议时长</label>
                             <div class="col-sm-10">
-                                <select id="conf-duration" class="custom-select custom-select-sm">
+                                <select id="conf-duration" name="conf-duration" class="custom-select custom-select-sm">
                                     <option data="1">1 小时</option>
                                     <option data="2">2 小时</option>
                                     <option data="3">3 小时</option>
@@ -962,6 +962,7 @@
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">关闭</button>
                     <button class="btn btn-primary" type="button" data-target="confirm">确定</button>
                 </div>
+                <div class="overlay"><span><i class="fas fa-2x fa-sync-alt fa-spin"></i></span><span class="text">正在创建会议，请稍候……</span></div>
             </div>
         </div>
     </div>

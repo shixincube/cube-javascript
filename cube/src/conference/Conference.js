@@ -73,7 +73,7 @@ export class Conference extends Entity {
          * 会议摘要。
          * @type {string}
          */
-        this.summary = null;
+        this.summary = '';
 
         /**
          * 会议创建人。
@@ -226,7 +226,7 @@ export class Conference extends Entity {
         conference.code = json.code;
         conference.subject = json.subject;
         conference.existingPwd = json.existingPwd;
-        conference.summary = summary;
+        conference.summary = json.summary;
         conference.founder = Contact.create(json.founder);
         conference.presenter = Contact.create(json.presenter);
         conference.creation = json.creation;
