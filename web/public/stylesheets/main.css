@@ -164,6 +164,10 @@ body {
     width: 2.5rem;
 }
 
+.timeline-footer .btn {
+    margin-right: 8px;
+}
+
 .context-menu-list {
     width: 160px !important;
     max-width: 160px !important;

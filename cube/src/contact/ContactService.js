@@ -674,16 +674,19 @@ export class ContactService extends Module {
                 this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
                     if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK && null != responsePacket.data) {
                         if (responsePacket.data.code == ContactServiceState.Ok) {
+                            // 实例化
                             let group = Group.create(this, responsePacket.data.data);
-                            // 写入缓存
-                            this.groups.put(group.getId(), group);
-                            // 写入存储
-                            this.storage.writeGroup(group);
-
                             // 获取附录
-                            this.getAppendix(group, (appendix) => {
+                            this.getAppendix(group, (appendix, group) => {
                                 // 设置附录
                                 group.appendix = appendix;
+
+                                // 写入缓存
+                                this.groups.put(group.getId(), group);
+
+                                // 写入存储
+                                this.storage.writeGroup(group);
+
                                 resolve(group);
                             }, (error) => {
                                 reject(error);

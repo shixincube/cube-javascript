@@ -69,6 +69,8 @@
         return '' + num;
     }
 
+    g.formatNumber = formatNumber;
+
     /**
      * 格式化时钟计数。
      * @param {number} seconds 

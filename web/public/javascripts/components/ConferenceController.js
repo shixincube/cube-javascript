@@ -33,6 +33,21 @@
 
     var newConferenceDialog = null;
 
+    function alignTime(minutes) {
+        if (minutes <= 15) {
+            return 15;
+        }
+        else if (minutes > 15 && minutes <= 30) {
+            return 30;
+        }
+        else if (minutes > 30 && minutes <= 45) {
+            return 45;
+        }
+        else {
+            return 0;
+        }
+    }
+
     function onNewConference(e) {
         var el = newConferenceDialog;
         el.find('input[name="conf-subject"]').val('');
@@ -40,7 +55,19 @@
         el.find('textarea[name="conf-summary"]').val('');
 
         var date = new Date();
-        date.setMinutes(date.getMinutes() + 30);
+        var fix = alignTime(date.getMinutes());
+        date.setMinutes(fix);
+        if (fix == 0) {
+            date.setHours(date.getHours() + 1);
+        }
+        var newMins = date.getMinutes() + 30;
+        if (newMins >= 60) {
+            date.setHours(date.getHours() + 1);
+            date.setMinutes(0);
+        }
+        else {
+            date.setMinutes(newMins);
+        }
         el.find('input[name="conf-schedule"]').val(g.datetimePickerToString(date));
 
         el.find('div.participant').each(function() {
@@ -156,7 +183,8 @@
         // 新建会议对话框
         newConferenceDialog = $('#new_conference_dialog');
         newConferenceDialog.find('#datetimepicker-schedule').datetimepicker({
-            locale: 'zh-cn'
+            locale: 'zh-cn',
+            stepping: 5
         });
         newConferenceDialog.find('#conf-participant button').on('click', onAppendParticipant);
         newConferenceDialog.find('button[data-target="confirm"]').on('click', onNewConfirm);
