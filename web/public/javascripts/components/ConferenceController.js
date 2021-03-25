@@ -35,12 +35,16 @@
 
     function onNewConference(e) {
         var el = newConferenceDialog;
-        el.find('#conf-subject').val('');
-        el.find('input[data-target="#datetimepicker-schedule"]').val('');
-        el.find('input[data-target="#datetimepicker-expire"]').val('');
+        el.find('input[name="conf-subject"]').val('');
+        el.find('input[name="conf-pwd"]').val('');
+        el.find('textarea[name="conf-summary"]').val('');
+
+        el.find('input[name="conf-schedule"]').val('');
+
         el.find('div.participant').each(function() {
             $(this).remove();
         });
+
         el.modal('show');
     }
 
@@ -73,11 +77,28 @@
         return list;
     }
 
+    /**
+     * 确认新建会议。
+     * @returns 
+     */
     function onNewConfirm() {
         var el = newConferenceDialog.find('input[name="conf-subject"]');
         var subject = el.val().trim();
         if (subject.length <= 3) {
-            g.validate(el, '请输入会议主题，会议主题不能少于3个字符。');
+            g.validate(el, '请填写会议主题，会议主题不能少于3个字符。');
+            return;
+        }
+
+        el = newConferenceDialog.find('input[name="conf-pwd"]');
+        var password = el.val().trim();
+
+        el = newConferenceDialog.find('textarea[name="conf-summary"]');
+        var summary = el.val().trim();
+
+        el = newConferenceDialog.find('input[name="conf-schedule"]');
+        var value = el.val().trim();
+        if (value.length <= 10) {
+            g.validate(el, '请填写会议计划开始时间。');
             return;
         }
     }

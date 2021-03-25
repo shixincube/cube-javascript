@@ -144,13 +144,18 @@ export class ConferenceService extends Module {
             let data = packet.getPayload().data;
             let resBeginning = data.beginning;
             let resEnding = data.ending;
-            let list = packet.getPayload().data.list;
-            list.forEach((value) => {
-                let conference = Conference.create(this, value);
-                this.confs.push(conference);
-            });
 
-            successCallback(this.confs, resBeginning, resEnding);
+            (async () => {
+                let list = packet.getPayload().data.list;
+
+                for (let i = 0; i < list.length; ++i) {
+                    let conference = Conference.create(this, list[i]);
+                    await this.fillConference(conference);
+                    this.confs.push(conference);
+                }
+
+                successCallback(this.confs, resBeginning, resEnding);
+            })();
         });
     }
 
@@ -158,52 +163,114 @@ export class ConferenceService extends Module {
      * 创建会议。
      * @param {string} subject 会议标题。
      * @param {string} password 会议密码，设置为 {@linkcode null} 时表示不需要密码。
+     * @param {string} summary 会议摘要，设置为 {@linkcode null} 时表示无摘要。
+     * @param {number} scheduleTime 会议计划时间。
+     * @param {number} expireTime 会议结束时间。
+     * @param {Array<Invitation>} invitations 会议邀请列表。
      * @param {function} successCallback
      * @param {function} failureCallback
      */
-    createConference(subject, password, successCallback, failureCallback) {
-        let dataPacket = new Packet(ConferenceAction.CreateConference, {
-            "subject": subject,
-            "password": (null == password) ? "" : password,
-            "founder": this.contact.getSelf().toCompactJSON()
-        });
+    createConference(subject, password, summary, scheduleTime, expireTime, invitations, successCallback, failureCallback) {
+        let invitationArray = [];
+        if (null != invitations) {
+            invitations.forEach((value) => {
+                invitationArray.push(value.toJSON());
+            });
+        }
 
-        this.pipeline.send(ConferenceService.NAME, dataPacket, (pipeline, source, packet) => {
-            if (null == packet) {
-                // TODO
-                if (failureCallback) {
-                    failureCallback(title);
-                }
-                return;
-            }
+        let packetData = {
+            subject: subject,
+            password: (null == password) ? '' : password,
+            summary: (null == summary) ? '' : summary,
+            scheduleTime: scheduleTime,
+            expireTime: expireTime,
+            invitations: invitationArray
+        };
 
-            if (packet.getStateCode() != StateCode.OK) {
-                // TODO
+        let requestPacket = new Packet(ConferenceAction.CreateConference, packetData);
+
+        this.pipeline.send(ConferenceService.NAME, requestPacket, (pipeline, source, packet) => {
+            if (null == packet || packet.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(ConferenceService.NAME, ConferenceServiceState.ServerError, packetData);
                 if (failureCallback) {
-                    failureCallback(title);
+                    failureCallback(error);
                 }
                 return;
             }
 
             if (packet.data.code != ConferenceServiceState.Ok) {
-                // TODO
+                let error = new ModuleError(ConferenceService.NAME, packet.data.code, packetData);
                 if (failureCallback) {
-                    failureCallback(title);
+                    failureCallback(error);
                 }
                 return;
             }
 
+            // 创建会议实例
             let conference = Conference.create(this, packet.data.data);
 
-            if (successCallback) {
-                successCallback(conference);
-            }
+            (async () => {
+                await this.fillConference(conference);
 
-            this.notifyObservers(new ObservableEvent(ConferenceEvent.Created, conference));
+                // 更新列表
+                this.confs.push(conference);
+
+                if (successCallback) {
+                    successCallback(conference);
+                }
+    
+                this.notifyObservers(new ObservableEvent(ConferenceEvent.Created, conference));
+            })();
         });
     }
 
-    updateScheduleTime(conference) {
+    /**
+     * 填充会议数据。
+     * @private
+     * @param {Conference} conference 
+     * @returns {Promise}
+     */
+    fillConference(conference) {
+        let gotFounder = false;
+        let gotPresenter = false;
+        let gotGroup = false;
 
+        return new Promise((resolve, reject) => {
+            let handler = () => {
+                if (gotFounder && gotPresenter && gotGroup) {
+                    resolve();
+                }
+            };
+
+            // 获取创建人
+            this.contact.getContact(conference.founder.getId(), (contact) => {
+                conference.founder = contact;
+                gotFounder = true;
+                handler();
+            }, (error) => {
+                gotFounder = true;
+                handler();
+            });
+
+            // 获取主持人
+            this.contact.getContact(conference.presenter.getId(), (contact) => {
+                conference.presenter = contact;
+                gotPresenter = true;
+                handler();
+            }, (error) => {
+                gotPresenter = true;
+                handler();
+            });
+
+            // 获取群组
+            this.contact.getGroup(conference.room.participantGroupId, (group) => {
+                conference.room.participantGroup = group;
+                gotGroup = true;
+                handler();
+            }, (error) => {
+                gotGroup = true;
+                handler();
+            });
+        });
     }
 }

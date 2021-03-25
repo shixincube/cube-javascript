@@ -233,6 +233,7 @@ export class Contact extends Entity {
         let json = super.toCompactJSON();
         json["id"] = this.id;
         json["name"] = this.name;
+        json["domain"] = this.domain;
         if (null != this.context) {
             json["context"] = (this.context instanceof JSONable) ? this.context.toJSON() : this.context;
         }

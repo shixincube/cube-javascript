@@ -31,7 +31,6 @@ import { OrderMap } from "../util/OrderMap";
 import { ConferenceService } from "./ConferenceService";
 import { Invitation } from "./Invitation";
 import { Room } from "./Room";
-import { Participant } from "./Participant";
 
 /**
  * 会议描述。
@@ -53,28 +52,28 @@ export class Conference extends Entity {
         this.service = service;
 
         /**
+         * 会议号/会议访问码。
+         * @type {string}
+         */
+         this.code = null;
+
+        /**
          * 会议主题。
          * @type {string}
          */
         this.subject = null;
 
         /**
-         * 会议密码。
-         * @type {string}
+         * 会议是否有密码。
+         * @type {boolean}
          */
-        this.password = null;
+        this.existingPwd = false;
 
         /**
          * 会议摘要。
          * @type {string}
          */
         this.summary = null;
-
-        /**
-         * 会议号/会议访问码。
-         * @type {string}
-         */
-        this.code = null;
 
         /**
          * 会议创建人。
@@ -114,7 +113,7 @@ export class Conference extends Entity {
 
         /**
          * 会议邀请列表。
-         * @type {OrderMap<string, Invitation>}
+         * @type {OrderMap<number, Invitation>}
          */
         this.invitees = new OrderMap();
 
@@ -137,6 +136,22 @@ export class Conference extends Entity {
      */
     getId() {
         return this.id;
+    }
+
+    /**
+     * 获取会议的访问码。
+     * @returns {string} 返回会议的访问码。
+     */
+    getCode() {
+        return this.code;
+    }
+
+    /**
+     * 会议是否设置了密码。
+     * @returns {boolean} 是否存在密码。
+     */
+    hasPassword() {
+        return this.existingPwd;
     }
 
     /**
@@ -164,43 +179,29 @@ export class Conference extends Entity {
     }
 
     /**
-     * 设置预约时间。
-     * @param {number} time 
-     */
-    setScheduleTime(time)  {
-        this.appointmentTime =  time;
-        this.service.updateScheduleTime(this);
-    }
-
-    sendInvitation(name, displayName) {
-        this.invitees.put(name, new Invitation(name, displayName));
-    }
-
-    /**
      * @inheritdoc
      */
     toJSON() {
         let json = super.toJSON();
         json.id = this.id;
-        json.subject = this.subject;
-        if (null != this.password) {
-            json.password = this.password;
-        }
-
-        json.founder = this.founder.toCompactJSON();
         json.code = this.code;
+        json.subject = this.subject;
+        json.existingPwd = this.existingPwd;
+        json.summary = this.summary;
+        json.founder = this.founder.toCompactJSON();
+        json.presenter = this.presenter.toCompactJSON();
+        json.creation = this.creation;
+        json.scheduleTime = this.scheduleTime;
+        json.expireTime = this.expireTime;
 
-        if (null != this.presenter) {
-            json.presenter = this.presenter.toCompactJSON();
-        }
+        json.invitees = [];
+        this.invitees.values().forEach((value) => {
+            json.invitees.push(value.toJSON());
+        });
 
-        // let inviteeArray = [];
-        // let invitees = this.invitees.values();
-        // for (let i = 0; i < invitees.length; ++i) {
-        //     let inv = invitees[i];
-        //     inviteeArray.push(inv.toJSON());
-        // }
-        // json.invitees = inviteeArray;
+        json.room = this.room.toJSON();
+
+        json.cancelled = this.cancelled;
 
         return json;
     }
@@ -214,6 +215,7 @@ export class Conference extends Entity {
 
     /**
      * 从 JSON 数据创建 {@link Conference} 会议对象实例。
+     * @private
      * @param {ConferenceService} service 
      * @param {JSON} json 
      * @returns {Conference}
@@ -221,6 +223,25 @@ export class Conference extends Entity {
     static create(service, json) {
         let conference = new Conference(service);
         conference.id = json.id;
+        conference.code = json.code;
+        conference.subject = json.subject;
+        conference.existingPwd = json.existingPwd;
+        conference.summary = summary;
+        conference.founder = Contact.create(json.founder);
+        conference.presenter = Contact.create(json.presenter);
+        conference.creation = json.creation;
+        conference.scheduleTime = json.scheduleTime;
+        conference.expireTime = json.expireTime;
+
+        json.invitees.forEach((value) => {
+            let inv = Invitation.create(value);
+            conference.invitees.put(inv.id, inv);
+        });
+
+        conference.room = Room.create(json.room);
+
+        conference.cancelled = json.cancelled;
+
         return conference;
     }
 }

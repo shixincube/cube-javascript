@@ -43,37 +43,59 @@ export class Room extends Entity {
         super();
 
         /**
-         * 房间的群组。
+         * 最大允许参与人数。
+         * @type {number}
+         */
+        this.maxParticipants = 50;
+
+        /**
+         * 参与人群组。
          * @type {Group}
          * @private
          */
-        this.group = group;
+        this.participantGroup = (undefined !== group) ? group : null;
+
+        /**
+         * @type {number}
+         * @private
+         */
+        this.participantGroupId = (null != this.participantGroup) ? this.participantGroup.getId() : 0;
 
         /**
          * 房间的通讯场。
          * @type {CommField}
          * @private
          */
-        this.commField = commField;
+        this.commField = (undefined !== commField) ? commField : null;
 
         /**
-         * 会议参与者列表。
-         * @type {Array<Participant>}
+         * @type {number}
+         * @private
          */
-         this.participants = [];
+        this.commFieldId = (null != this.commField) ? this.commField.getId() : 0;
     }
 
-    mute(contact, device) {
-
-    }
-
+    /**
+     * @inheritdoc
+     */
     toJSON() {
         let json = super.toJSON();
+        json.maxParticipants = this.maxParticipants;
+        json.participantGroupId = this.participantGroupId;
+        json.commFieldId = this.commFieldId;
         return json;
     }
 
-    toCompactJSON() {
-        let json = super.toCompactJSON();
-        return json;
+    /**
+     * @private
+     * @param {*} json 
+     * @returns {Room}
+     */
+    static create(json) {
+        let room = new Room();
+        room.maxParticipants = json.maxParticipants;
+        room.participantGroupId = json.participantGroupId;
+        room.commFieldId = json.commFieldId;
+        return room;
     }
 }

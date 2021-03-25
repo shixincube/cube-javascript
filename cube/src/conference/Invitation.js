@@ -32,11 +32,19 @@ import { JSONable } from "../util/JSONable";
 export class Invitation extends JSONable {
 
     /**
-     * 构造函数。
+     * @param {number} id 受邀者 ID 。
      * @param {string} invitee 受邀者。
      * @param {string} displayName 受邀者这显示名。
      */
-    constructor(invitee, displayName) {
+    constructor(id, invitee, displayName) {
+        super();
+
+        /**
+         * 受邀者 ID 。
+         * @type {number}
+         */
+        this.id = id;
+
         /**
          * 被邀请者。
          * @type {string}
@@ -48,6 +56,18 @@ export class Invitation extends JSONable {
          * @type {string}
          */
         this.displayName = displayName;
+
+        /**
+         * 是否已接受邀请。
+         * @type {boolean}
+         */
+        this.accepted = false;
+
+        /**
+         * 接受邀请的时间。
+         * @type {number}
+         */
+        this.acceptionTime = 0;
     }
 
     /**
@@ -55,8 +75,23 @@ export class Invitation extends JSONable {
      */
     toJSON() {
         let json = super.toJSON();
+        json.id = this.id;
         json.invitee = this.invitee;
         json.displayName = this.displayName;
+        json.accepted = this.accepted;
+        json.acceptionTime = this.acceptionTime;
         return json;
+    }
+
+    /**
+     * @private
+     * @param {JSON} json 
+     * @returns {Invitation}
+     */
+    static create(json) {
+        let invitation = new Invitation(json.id, json.invitee, json.displayName);
+        invitation.accepted = json.accepted;
+        invitation.acceptionTime = json.acceptionTime;
+        return invitation;
     }
 }

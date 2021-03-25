@@ -62,6 +62,10 @@ body {
     font-size: 14px;
 }
 
+.custom-select-sm {
+    font-size: 12px;
+}
+
 .btn-group-sm > .btn, .btn-sm {
     font-size: 12px;
 }
