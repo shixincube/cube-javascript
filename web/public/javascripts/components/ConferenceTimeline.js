@@ -27,19 +27,17 @@
  (function(g) {
     'use strict';
 
-    var container = null;
-    var timelineEl = null;
-
     var ConferenceTimeline = function(el) {
-        container = el;
-        timelineEl = el.find('.timeline');
+        this.container = el;
+        this.timelineEl = el.find('.timeline');
     }
 
     ConferenceTimeline.prototype.update = function(list) {
-        timelineEl.empty();
-        
+        // 清空时间线元素
+        this.timelineEl.empty();
+
         if (list.length > 0) {
-            container.find('.no-conference').css('display', 'none');
+            this.container.find('.no-conference').css('display', 'none');
 
             var now = Date.now();
 
@@ -47,6 +45,7 @@
                 var conf = list[i];
 
                 var date = new Date(conf.scheduleTime);
+                var expire = new Date(conf.expireTime);
 
                 var iconClass = null;
                 var btnGroup = [];
@@ -108,7 +107,10 @@
                     '<div>',
                         '<i class="fas fa-users ', iconClass, '"></i>',
                         '<div class="timeline-item">',
-                            '<span class="time">', lockIcon, '&nbsp;&nbsp;<i class="fas fa-clock"></i> ', date.getHours(), ':', g.formatNumber(date.getMinutes()), '</span>',
+                            '<span class="time">', lockIcon, '&nbsp;&nbsp;<i class="fas fa-clock"></i> ',
+                                    g.formatNumber(date.getHours()), ':', g.formatNumber(date.getMinutes()), ' - ',
+                                    g.formatNumber(expire.getHours()), ':', g.formatNumber(expire.getMinutes()),
+                            '</span>',
                             '<h3 class="timeline-header">', conf.subject, '</h3>',
                             '<div class="timeline-body">',
                                 '<p>', conf.summary.length == 0 ? '<i class="text-muted" style="font-size:12px;">无会议描述信息</i>' : conf.summary, '</p>',
@@ -121,13 +123,13 @@
                     '</div>'
                 ];
 
-                timelineEl.append($(html.join('')));
+                this.timelineEl.append($(html.join('')));
             }
 
-            timelineEl.append($('<div><i class="fas fa-clock bg-gray"></i></div>'));
+            this.timelineEl.append($('<div><i class="fas fa-clock bg-gray"></i></div>'));
         }
         else {
-            container.find('.no-conference').css('display', 'table');
+            this.container.find('.no-conference').css('display', 'table');
         }
     }
 

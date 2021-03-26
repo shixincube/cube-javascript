@@ -30,6 +30,9 @@
     var cube = null;
 
     var timelineAll = null;
+    var timelineActive = null;
+    var timelineScheme = null;
+    var timelineClosed = null;
 
     var newConferenceDialog = null;
 
@@ -181,6 +184,9 @@
 
     ConferenceController.prototype.init = function() {
         timelineAll = new ConferenceTimeline($('#conf-timeline-all'));
+        timelineActive = new ConferenceTimeline($('#conf-timeline-active'));
+        timelineScheme = new ConferenceTimeline($('#conf-timeline-scheme'));
+        timelineClosed = new ConferenceTimeline($('#conf-timeline-closed'));
 
         // 新建会议按钮
         $('button[data-toggle="new-conference"]').on('click', onNewConference);
@@ -196,10 +202,32 @@
     }
 
     ConferenceController.prototype.ready = function() {
-        var ending = Date.now();
+        var now = Date.now();
+        var ending = now;
         var beginning = ending - (30 * 24 * 60 * 60 * 1000);
         cube.cs.listConferences(beginning, ending, function(list, beginning, ending) {
+
             timelineAll.update(list);
+
+            var activeList = [];
+            var schemeList = [];
+            var closedList = [];
+
+            list.forEach(function(value) {
+                if (now < value.scheduleTime) {
+                    schemeList.push(value);
+                }
+                else if (now >= value.scheduleTime && now <= value.expireTime) {
+                    activeList.push(value);
+                }
+                else if (now > value.expireTime) {
+                    closedList.push(value);
+                }
+            });
+
+            timelineActive.update(activeList);
+            timelineScheme.update(schemeList);
+            timelineClosed.update(closedList);
         }, function(error) {
             console.log(error);
         });
