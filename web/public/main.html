@@ -339,38 +339,6 @@
         </div>
         <!-- Group Details - end -->
 
-        <!-- New Group Dialog - begin -->
-        <div id="new_group_dialog" class="modal fade">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">新建群组</h5>
-                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">群组名称</span>
-                            </div>
-                            <input class="form-control" type="text" placeholder="请在此输入群组名称" data-target="group-name" />
-                        </div>
-                        <div class="form-group">
-                            <label>选择群组成员</label>
-                            <div class="row" data-target="my-contacts">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" type="button" data-dismiss="modal">关闭</button>
-                        <button class="btn btn-primary" type="button" data-target="confirm">确定</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- New Group Dialog - end -->
-
         <!-- Contact List - start -->
         <div id="contact_list_dialog" class="modal fade">
             <div class="modal-dialog">
@@ -595,24 +563,7 @@
                                     <div class="tab-content" id="conf-timeline-tab-content">
                                         <div class="tab-pane text-left fade show active" id="conf-timeline-all" role="tabpanel" aria-labelledby="conf-timeline-all-tab">
                                             <div class="timeline">
-                                                <!--
-                                                <div class="time-label">
-                                                    <span class="bg-red">1月21日</span>
-                                                </div>
-                                                <div>
-                                                    <i class="fas fa-users bg-blue"></i>
-                                                    <div class="timeline-item">
-                                                        <span class="time"><i class="fas fa-clock"></i> 9:00</span>
-                                                        <h3 class="timeline-header"><a href="#">技术部例会</a></h3>
-                                                        <div class="timeline-body">
-                                                        </div>
-                                                        <div class="timeline-footer">
-                                                            <a class="btn btn-primary btn-sm">加入会议</a>
-                                                            <a class="btn btn-danger btn-sm">删除</a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                -->
+                                                <!-- ## -->
                                             </div>
                                             <div class="no-conference">
                                                 <div class="content">
@@ -682,6 +633,9 @@
                                     </li>
                                 </ul>
                                 <div class="card-tools">
+                                    <div class="input-group input-group-sm refresh">
+                                        <button type="button" class="btn btn-sm btn-default" data-target="new-group" title="创建群组"><i class="fas fa-user-plus"></i></button>
+                                    </div>
                                     <div class="input-group input-group-sm refresh">
                                         <button type="button" class="btn btn-sm btn-default" data-target="refresh" title="刷新数据"><i class="fas fa-sync"></i></button>
                                     </div>
@@ -827,6 +781,38 @@
         </div>
     </div>
     <!-- Video Chat - end -->
+
+    <!-- New Group Dialog - begin -->
+    <div id="new_group_dialog" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">新建群组</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">群组名称</span>
+                        </div>
+                        <input class="form-control" type="text" placeholder="请在此输入群组名称" data-target="group-name" />
+                    </div>
+                    <div class="form-group">
+                        <label>选择群组成员</label>
+                        <div class="row" data-target="my-contacts">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">关闭</button>
+                    <button class="btn btn-primary" type="button" data-target="confirm">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- New Group Dialog - end -->
 
     <!-- File Details - begin -->
     <div id="modal_file_details" class="modal fade">

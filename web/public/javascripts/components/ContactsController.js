@@ -44,6 +44,7 @@
     var contactDelayTimer = 0;
     var groupDelayTimer = 0;
 
+    var btnNewGroup = null;
     var btnRefresh = null;
 
     function onTabChanged(e) {
@@ -70,6 +71,11 @@
         contactsTable = new ContactsTable($('div[data-target="contacts-table"]'));
 
         groupsTable = new GroupsTable($('div[data-target="groups-table"]'));
+
+        btnNewGroup = $('.contacts-card').find('button[data-target="new-group"]');
+        btnNewGroup.on('click', function() {
+            g.app.newGroupDialog.show();
+        });
 
         btnRefresh = $('.contacts-card').find('button[data-target="refresh"]');
         btnRefresh.on('click', function() {
