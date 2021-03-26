@@ -337,13 +337,13 @@
         var buf = [
             date.getFullYear(),
             '/',
-            date.getMonth() + 1,
+            formatNumber(date.getMonth() + 1, 2),
             '/',
-            date.getDate(),
+            formatNumber(date.getDate(), 2),
             ' ',
-            date.getHours(),
+            formatNumber(date.getHours(), 2),
             ':',
-            date.getMinutes()
+            formatNumber(date.getMinutes(), 2)
         ];
         return buf.join('');
     }

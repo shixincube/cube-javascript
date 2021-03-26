@@ -179,6 +179,14 @@ export class Conference extends Entity {
     }
 
     /**
+     * 获取被邀请人。
+     * @returns {Array<Invitation>} 返回被邀请人列表。
+     */
+    getInvitees() {
+        return this.invitees.values();
+    }
+
+    /**
      * @inheritdoc
      */
     toJSON() {

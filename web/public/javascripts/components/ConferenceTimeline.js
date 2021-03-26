@@ -36,29 +36,86 @@
     }
 
     ConferenceTimeline.prototype.update = function(list) {
+        timelineEl.empty();
+        
         if (list.length > 0) {
             container.find('.no-conference').css('display', 'none');
+
+            var now = Date.now();
 
             for (var i = 0; i < list.length; ++i) {
                 var conf = list[i];
 
                 var date = new Date(conf.scheduleTime);
 
+                var iconClass = null;
+                var btnGroup = [];
+
+                if (now >= conf.scheduleTime && now <= conf.expireTime) {
+                    // 正在进行的会议
+                    iconClass = 'bg-red';
+                    btnGroup.push('<button class="btn btn-success btn-sm" onclick="javascript:;">进入会议</button>');
+                    if (conf.getFounder().getId() == app.getSelf().getId()) {
+                        // 本人是会议创建人，可结束会议
+                        btnGroup.push('<button class="btn btn-danger btn-sm">结束会议</button>');
+                    }
+                }
+                else if (now > conf.expireTime) {
+                    // 已结束的会议
+                    iconClass = 'bg-green';
+                    btnGroup.push('<button class="btn btn-default btn-sm" onclick="javascript:;">查看会议记录</button>');
+                }
+                else {
+                    // 尚未开始的会议
+                    iconClass = 'bg-blue';
+                    btnGroup.push('<button class="btn btn-success btn-sm" onclick="javascript:;">进入会议</button>');
+                    if (conf.getFounder().getId() == app.getSelf().getId()) {
+                        // 本人是会议创建人，可取消会议
+                        btnGroup.push('<button class="btn btn-danger btn-sm" onclick="javascript:;">取消会议</button>');
+                    }
+                }
+
+                var lockIcon = conf.hasPassword() ? '<i class="fas fa-lock" title="会议已设置密码"></i>' : '<i class="fas fa-unlock" title="会议无密码"></i>';
+
+                var invitees = conf.getInvitees();
+                var htmlInvitee = [];
+                invitees.forEach(function(value) {
+                    var contact = app.queryContact(value.id);
+                    var html = null;
+                    if (null != contact) {
+                        html = [
+                            '<div class="participant" data="', contact.getId(), '">',
+                                '<div class="avatar"><img src="', contact.getContext().avatar, '"></div>',
+                                '<div class="name"><div>', contact.getName(), '</div></div>',
+                            '</div>',
+                        ];
+                    }
+                    else {
+                        html = [
+                            '<div class="participant" data="', value.id, '">',
+                                '<div class="avatar"><img src="', 'images/favicon.png', '"></div>',
+                                '<div class="name"><div>', value.displayName, '</div></div>',
+                            '</div>',
+                        ];
+                    }
+                    htmlInvitee.push(html.join(''));
+                });
+
                 var html = [
                     '<div class="time-label">',
-                        '<span class="bg-red">', (date.getMonth() + 1), '月', date.getDate(), '日</span>',
+                        '<span class="bg-blue">', (date.getMonth() + 1), '月', date.getDate(), '日</span>',
                     '</div>',
                     '<div>',
-                        '<i class="fas fa-users bg-blue"></i>',
+                        '<i class="fas fa-users ', iconClass, '"></i>',
                         '<div class="timeline-item">',
-                            '<span class="time"><i class="fas fa-clock"></i> ', date.getHours(), ':', g.formatNumber(date.getMinutes()), '</span>',
-                            '<h3 class="timeline-header"><a href="javascript:;">', conf.subject, '</a></h3>',
+                            '<span class="time">', lockIcon, '&nbsp;&nbsp;<i class="fas fa-clock"></i> ', date.getHours(), ':', g.formatNumber(date.getMinutes()), '</span>',
+                            '<h3 class="timeline-header">', conf.subject, '</h3>',
                             '<div class="timeline-body">',
-                                '<p>', conf.summary, '</p>',
+                                '<p>', conf.summary.length == 0 ? '<i class="text-muted" style="font-size:12px;">无会议描述信息</i>' : conf.summary, '</p>',
+                                '<div class="invitees">', htmlInvitee.join(''), '</div>',
                             '</div>',
                             '<div class="timeline-footer">',
-                                '<button class="btn btn-primary btn-sm">加入会议</button>',
-                                '<button class="btn btn-danger btn-sm">取消会议</button>',
+                                btnGroup.join(''),
                             '</div>',
                         '</div>',
                     '</div>'
@@ -66,6 +123,8 @@
 
                 timelineEl.append($(html.join('')));
             }
+
+            timelineEl.append($('<div><i class="fas fa-clock bg-gray"></i></div>'));
         }
         else {
             container.find('.no-conference').css('display', 'table');

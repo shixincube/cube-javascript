@@ -164,6 +164,12 @@ body {
     width: 2.5rem;
 }
 
+.timeline > div > .timeline-item > .time {
+    font-size: 14px;
+}
+.timeline-header {
+    color: #495057;
+}
 .timeline-footer .btn {
     margin-right: 8px;
 }
@@ -1063,14 +1069,45 @@ body {
     padding-bottom: 0.75rem;
 }
 
+.conference .main-tab-card {
+    height: calc(100vh - 173px);
+    margin-bottom: 0;
+}
+
 .conference .timeline {
     width: 100%;
+}
+.conference .tab-content {
+    height: calc(100vh - 206px);
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .conference-panel {
     width: 642px;
     margin-left: -321px;
     color: #f8f9fa;
+    overflow: hidden;
+}
+
+.conference .invitees {
+    padding: 0.3rem 0.1rem 0.3rem 0.1rem;
+}
+.conference .timeline-body .participant {
+    display: inline-block;
+    width: 80px;
+    text-align: center;
+    margin: 0.2rem;
+}
+.conference .timeline-body .participant .avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 10%;
+}
+
+.participant .name div {
+    white-space: nowrap;
+    text-overflow: ellipsis;
     overflow: hidden;
 }
 
@@ -1160,7 +1197,7 @@ body {
     vertical-align: top;
     text-align: center;
     width: 70px;
-    margin-right: 0.5rem;
+    margin-right: 0.3rem;
     margin-bottom: 0.5rem;
 }
 .new-conference-dialog .btn-append {
@@ -1183,16 +1220,12 @@ body {
 }
 .new-conference-dialog .participant .badge {
     float: right;
-    position: absolute;
-    top: 0;
-    margin: -4px 0px 0px 10px;
+    position: relative;
+    top: -74px;
+    left: -6px;
 }
 .new-conference-dialog .participant a:hover {
     color: #6c757d;
-}
-
-.conference .tab-content {
-    height: calc(100vh - 259px);
 }
 
 .no-conference {

@@ -158,6 +158,11 @@
         cube.cs.createConference(subject, password, summary, scheduleTime, expireTime, invitationList, function(conference) {
             newConferenceDialog.modal('hide');
             g.dialog.showAlert('会议“<b>' + conference.subject + '</b>”已创建，计划开始时间是<b>' + g.formatFullTime(conference.scheduleTime) + '</b>。');
+
+            // 刷新时间轴
+            setTimeout(function() {
+                app.confCtrl.ready();
+            }, 1000);
         }, function(error) {
             newConferenceDialog.modal('hide');
             g.dialog.showAlert('创建会议失败，请稍后再试！错误码：' + error.code);

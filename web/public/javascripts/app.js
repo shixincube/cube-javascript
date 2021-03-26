@@ -461,15 +461,23 @@
         },
 
         onReady: function() {
-            that.prepare();
-            confCtrl.ready();
+            that.prepare(function() {
+                // 目录排序
+                messageCatalog.refreshOrder();
+
+                // 文件目录准备
+                filesCatalog.prepare();
+
+                // 会议信息加载
+                confCtrl.ready();
+            });
             console.log('Cube WebApp Ready');
         },
 
         /**
          * 进行数据加载和界面信息更新。
          */
-        prepare: function() {
+        prepare: function(callback) {
             var itemMap = {
                 count: 0
             };
@@ -508,15 +516,18 @@
                 });
 
                 promise.then(function() {
+                    var gotGroup = false;
+
                     // 处理完成时的事件
                     var count = cubeContacts.length;
                     var completedCallback = function() {
                         --count;
-                        if (count == 0) {
-                            // 目录排序
+                        if (count == 0 && gotGroup) {
                             setTimeout(function() {
-                                messageCatalog.refreshOrder();
-                            }, 500);
+                                callback();
+                                // 隐藏进度提示
+                                dialog.hideLoading();
+                            }, 100);
                         }
                     }
 
@@ -529,15 +540,17 @@
                     cubeContacts.push(cube.contact.getSelf());
 
                     // 加载群组信息
-                    that.prepareGroups();
+                    that.prepareGroups(function() {
+                        gotGroup = true;
 
-                    // 文件目录准备
-                    setTimeout(function() {
-                        filesCatalog.prepare();
-                    }, 100);
-
-                    // 隐藏进度提示
-                    dialog.hideLoading();
+                        if (count == 0 && gotGroup) {
+                            setTimeout(function() {
+                                callback();
+                                // 隐藏进度提示
+                                dialog.hideLoading();
+                            }, 100);
+                        }
+                    });
                 }).catch(function() {
                     // 隐藏进度提示
                     setTimeout(function() {
@@ -577,14 +590,16 @@
         /**
          * 准备群组数据。
          */
-        prepareGroups: function() {
+        prepareGroups: function(callback) {
             cube.contact.queryGroups(function(groups) {
                 var count = groups.length;
                 var completedCallback = function() {
                     --count;
                     if (count == 0) {
                         // 目录排序
-                        messageCatalog.refreshOrder();
+                        // messageCatalog.refreshOrder();
+                        // 回调
+                        callback();
                     }
                 }
 
