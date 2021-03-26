@@ -6,7 +6,29 @@ const UglifyJS = require("uglify-js");
 const filePath = 'public/javascripts/components/';
 const fileList = [
     'Dialog.js',
-    'FileDetails.js'
+    'FileDetails.js',
+    'SidebarAccountPanel.js',
+    'MessageCatalogue.js',
+    'MessagePanel.js',
+    'MessageSidebar.js',
+    'VoiceCallPanel.js',
+    'VideoChatPanel.js',
+    'ContactDetails.js',
+    'GroupDetails.js',
+    'NewGroupDialog.js',
+    'ContactListDialog.js',
+    'MessagingController.js',
+    'CallController.js',
+    'FilesCatalogue.js',
+    'FilesTable.js',
+    'FilesPanel.js',
+    'FilesController.js',
+    'ContactsTable.js',
+    'GroupsTable.js',
+    'ContactsController.js',
+    'ConferenceTimeline.js',
+    'ConferenceController.js',
+    'SelectContactsDialog.js'
 ];
 
 const output = 'public/javascripts/components-min.js';
