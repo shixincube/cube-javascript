@@ -95,17 +95,14 @@
 
         this.elTitle = this.el.find('.card-title');
         this.elContent = this.el.find('.card-body');
-        this.elInput = this.el.find('textarea');
 
-        if (!activeEditor) {
-            this.elInput.val('');
-            if (!this.elInput[0].hasAttribute('disabled')) {
-                this.elInput.attr('disabled', 'disabled');
-            }
-            $('#message-editor').parent().remove();
-        }
-        else {
-            this.elInput.parent().remove();
+        this.inputEditor = null;
+        this.elInput = null;
+
+        if (activeEditor) {
+            this.el.find('textarea').parent().remove();
+            $('#message-editor').parent().css('display', 'flex');
+
             var editor = new window.wangEditor('#message-editor');
             editor.config.menus = [];
             editor.config.height = 70;
@@ -117,17 +114,16 @@
             }
             editor.create();
             this.inputEditor = editor;
-            this.elInput = null;
         }
+        else {
+            $('#message-editor').parent().remove();
 
-        // 发送按钮 Click 事件
-        this.btnSend = el.find('button[data-target="send"]');
-        this.btnSend.attr('disabled', 'disabled');
-        this.btnSend.on('click', function(event) {
-            that.onSend(event);
-        });
-
-        if (!activeEditor) {
+            this.elInput = this.el.find('textarea');
+            this.elInput.parent().css('display', 'flex');
+            this.elInput.val('');
+            if (!this.elInput[0].hasAttribute('disabled')) {
+                this.elInput.attr('disabled', 'disabled');
+            }
             // 发送框键盘事件
             this.elInput.keypress(function(event) {
                 var e = event || window.event;
@@ -136,6 +132,13 @@
                 }
             });
         }
+
+        // 发送按钮 Click 事件
+        this.btnSend = el.find('button[data-target="send"]');
+        this.btnSend.attr('disabled', 'disabled');
+        this.btnSend.on('click', function(event) {
+            that.onSend(event);
+        });
 
         // 发送文件
         this.btnSendFile = el.find('button[data-target="send-file"]');
