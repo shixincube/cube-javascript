@@ -25,7 +25,10 @@
  */
 
 (function(g) {
-    'use strict'
+    'use strict';
+
+    // 消息输入框是否使用编辑器
+    var activeEditor = false;
 
     var that = null;
 
@@ -93,9 +96,28 @@
         this.elTitle = this.el.find('.card-title');
         this.elContent = this.el.find('.card-body');
         this.elInput = this.el.find('textarea');
-        this.elInput.val('');
-        if (!this.elInput[0].hasAttribute('disabled')) {
-            this.elInput.attr('disabled', 'disabled');
+
+        if (!activeEditor) {
+            this.elInput.val('');
+            if (!this.elInput[0].hasAttribute('disabled')) {
+                this.elInput.attr('disabled', 'disabled');
+            }
+            $('#message-editor').parent().remove();
+        }
+        else {
+            this.elInput.parent().remove();
+            var editor = new window.wangEditor('#message-editor');
+            editor.config.menus = [];
+            editor.config.height = 70;
+            editor.config.placeholder = '';
+            editor.config.fontSizes = { normal: '14px', value: '3' };
+            editor.config.lineHeights = ['1'];
+            editor.config.onchange = function(newHtml) {
+                console.log('html', newHtml);
+            }
+            editor.create();
+            this.inputEditor = editor;
+            this.elInput = null;
         }
 
         // 发送按钮 Click 事件
@@ -104,13 +126,16 @@
         this.btnSend.on('click', function(event) {
             that.onSend(event);
         });
-        // 发送框键盘事件
-        this.elInput.keypress(function(event) {
-            var e = event || window.event;
-            if (e && e.keyCode == 13 && e.ctrlKey) {
-                that.onSend(e);
-            }
-        });
+
+        if (!activeEditor) {
+            // 发送框键盘事件
+            this.elInput.keypress(function(event) {
+                var e = event || window.event;
+                if (e && e.keyCode == 13 && e.ctrlKey) {
+                    that.onSend(e);
+                }
+            });
+        }
 
         // 发送文件
         this.btnSendFile = el.find('button[data-target="send-file"]');
@@ -251,13 +276,16 @@
         }
 
         if (null == this.current) {
-            this.elInput.removeAttr('disabled');
+            if (!activeEditor) {
+                this.elInput.removeAttr('disabled');
+            }
+
             this.btnSend.removeAttr('disabled');
             this.btnSendFile.removeAttr('disabled');
         }
         else {
             // 生成草稿
-            var text = this.elInput.val().trim();
+            var text = activeEditor ? this.inputEditor.txt.text() : this.elInput.val().trim();
             if (text.length > 0) {
                 // 保存草稿
                 if (window.cube().messaging.saveDraft(this.current.entity, new TextMessage(text))) {
@@ -269,7 +297,12 @@
                 window.cube().messaging.deleteDraft(this.current.id);
             }
 
-            this.elInput.val('');
+            if (activeEditor) {
+                this.inputEditor.txt.clear();
+            }
+            else {
+                this.elInput.val('');
+            }
             this.current.el.remove();
         }
 
@@ -308,7 +341,12 @@
         // 加载草稿
         window.cube().messaging.loadDraft(this.current.id, function(draft) {
             g.app.messageCatalog.restoreLastDesc(panel.id);
-            that.elInput.val(draft.getMessage().getText());
+            if (activeEditor) {
+                that.inputEditor.txt.html('<p>' + draft.getMessage().getText() + '</p>');
+            }
+            else {
+                that.elInput.val(draft.getMessage().getText());
+            }
         });
     }
 
@@ -532,12 +570,17 @@
      * @param {*} e 
      */
     MessagePanel.prototype.onSend = function(e) {
-        var text = this.elInput.val();
+        var text = activeEditor ? this.inputEditor.txt.text() : this.elInput.val();
         if (text.length == 0) {
             return;
         }
 
-        this.elInput.val('');
+        if (activeEditor) {
+            this.inputEditor.txt.clear();
+        }
+        else {
+            this.elInput.val('');
+        }
 
         // 触发发送
         var message = g.app.messagingCtrl.fireSend(this.current.entity, text);

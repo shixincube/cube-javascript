@@ -375,6 +375,23 @@ body {
     margin: 8px 0;
 }
 
+#message-editor {
+    font-size: 14px;
+    width: 100%;
+    height: 71px;
+    overflow: hidden;
+    flex: 1 1 0%;
+    min-width: 0;
+    margin-bottom: 0;
+}
+#message-editor .w-e-text-container {
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+}
+#message-editor .w-e-text-container .w-e-text p {
+    margin-bottom: 0.125rem;
+}
+
 .messaging-catalog {
     margin-top: 0.6rem;
     margin-bottom: 0;
