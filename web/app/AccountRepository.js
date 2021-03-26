@@ -320,6 +320,16 @@ class AccountRepository {
         });
     }
 
+    keepAlive() {
+        this.pool.query("SELECT VERSION()", (error, results) => {
+            if (error) {
+                return;
+            }
+
+            console.log('Pool keep-alive - ' + results[0]["VERSION()"]);
+        });
+    }
+
     generateSerialNumber() {
         let sn = Date.now();
         sn += this.randomNumber();

@@ -135,6 +135,10 @@ class CubeAppManager {
             // 更新令牌
             this.accRepo.updateToken(data.id, token, 7 * 24 * 3600 * 1000);
 
+            // 删除账号信息
+            delete data["account"];
+            delete data["password"];
+
             this.addOnlineAccount(data, token);
 
             callback(0, token);
@@ -160,6 +164,10 @@ class CubeAppManager {
                         callback(5, token);
                         return;
                     }
+
+                    // 删除账号信息
+                    delete data["account"];
+                    delete data["password"];
 
                     this.addOnlineAccount(account, token);
                     callback(0, token);
@@ -192,6 +200,10 @@ class CubeAppManager {
                 callback(9, {});
                 return;
             }
+
+            // 删除账号信息
+            delete data["account"];
+            delete data["password"];
 
             callback(0, data);
         });
@@ -229,6 +241,9 @@ class CubeAppManager {
             console.log('Account "' + value + '" offline');
             delete this.onlineAccounts[value];
         });
+
+        // 数据库连接 Keep-Alive
+        this.accRepo.keepAlive();
     }
 
     getBuildInAccounts() {

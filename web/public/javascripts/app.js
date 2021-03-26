@@ -132,7 +132,7 @@
                 $.post('/account/hb', { "token": token }, function(response, status, xhr) {
                     var success = response.success;
                     if (!success) {
-                        window.location.href = 'index.html?ts=' + Date.now();
+                        window.location.href = '/';
                     }
                 }, 'json');
             }
@@ -143,6 +143,9 @@
                 data: { "t": token },
                 success: function(response, status, xhr) {
                     delete response["password"];
+                    // 修改标题
+                    document.title = response.name + ' - 时信魔方';
+                    // 启动
                     app.start(response);
                     heartbeat();
                 },
@@ -217,7 +220,7 @@
          * 停止。
          */
         stop: function() {
-            window.location.href = 'index.html?ts=' + Date.now();
+            window.location.href = '/?x=logout';
         },
 
         /**
@@ -366,7 +369,7 @@
                             // 清空 Cookie
                             document.cookie = '';
 
-                            window.location.href = 'index.html?ts=' + Date.now();
+                            window.location.href = '/?x=logout';
                         }, 'json');
                     };
 
