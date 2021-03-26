@@ -363,6 +363,9 @@
                             // 回到登录界面，停止引擎
                             cube.stop();
 
+                            // 清空 Cookie
+                            document.cookie = '';
+
                             window.location.href = 'index.html?ts=' + Date.now();
                         }, 'json');
                     };
