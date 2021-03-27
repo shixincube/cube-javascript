@@ -383,6 +383,7 @@ body {
     flex: 1 1 0%;
     min-width: 0;
     margin-bottom: 0;
+    background-color: #fdfdfd;
 }
 #message-editor .w-e-toolbar {
     display: none !important;
@@ -396,6 +397,9 @@ body {
 }
 #message-editor .w-e-text-container .w-e-text p {
     margin-bottom: 0.125rem;
+}
+#message-editor .w-e-text-container .w-e-text {
+    outline: none;
 }
 
 .messaging-catalog {

@@ -39,5 +39,17 @@ export const ConferenceAction = {
      * 创建会议。
      * @type {string}
      */
-     CreateConference: 'createConference',
+    CreateConference: 'createConference',
+
+    /**
+     * 接受会议邀请。
+     * @type {string}
+     */
+    AcceptInvitation: 'acceptInvitation',
+
+    /**
+     * 拒绝会议邀请。
+     * @type {string}
+     */
+    DeclineInvitation: 'declineInvitation'
 }

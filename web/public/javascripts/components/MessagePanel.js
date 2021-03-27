@@ -109,8 +109,8 @@
             editor.config.placeholder = '';
             editor.config.fontSizes = { normal: '14px', value: '3' };
             editor.config.lineHeights = ['1'];
-            editor.config.onchange = function(newHtml) {
-                
+            editor.config.onchange = function(html) {
+                that.onEditorChange(html);
             }
             editor.create();
             editor.disable();
@@ -613,6 +613,14 @@
         else {
             g.app.contactDetails.show(entity);
         }
+    }
+
+    /**
+     * 当消息输入框内容变化时回调。
+     * @param {string} html 
+     */
+    MessagePanel.prototype.onEditorChange = function(html) {
+
     }
 
     g.MessagePanel = MessagePanel;
