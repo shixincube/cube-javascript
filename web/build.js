@@ -59,7 +59,7 @@ function merge() {
         fs.appendFileSync(output, data.substr(1190, data.length - 1190));
     }
 
-    console.log('merge ' + fileList.length + ' files');
+    console.log('merge ' + fileList.length + ' files to ' + output);
 }
 
 function main() {

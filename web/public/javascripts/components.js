@@ -805,7 +805,7 @@
     'use strict';
 
     // 消息输入框是否使用编辑器
-    var activeEditor = false;
+    var activeEditor = true;
 
     var that = null;
 
@@ -890,6 +890,7 @@
                 console.log('html', newHtml);
             }
             editor.create();
+            editor.disable();
             this.inputEditor = editor;
         }
         else {
@@ -1056,7 +1057,10 @@
         }
 
         if (null == this.current) {
-            if (!activeEditor) {
+            if (activeEditor) {
+                this.inputEditor.enable();
+            }
+            else {
                 this.elInput.removeAttr('disabled');
             }
 

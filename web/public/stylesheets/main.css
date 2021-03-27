@@ -378,15 +378,21 @@ body {
 #message-editor {
     font-size: 14px;
     width: 100%;
-    height: 71px;
+    height: 70px;
     overflow: hidden;
     flex: 1 1 0%;
     min-width: 0;
     margin-bottom: 0;
 }
+#message-editor .w-e-toolbar {
+    display: none !important;
+}
 #message-editor .w-e-text-container {
-    border: 1px solid #ced4da;
+    border: 1px solid #ced4da !important;
     border-radius: 0.25rem;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    padding-left: 4px;
 }
 #message-editor .w-e-text-container .w-e-text p {
     margin-bottom: 0.125rem;
