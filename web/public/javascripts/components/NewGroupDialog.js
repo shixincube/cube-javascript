@@ -28,7 +28,7 @@
  * 新建群组对话框。
  */
 (function(g) {
-    'use strict'
+    'use strict';
 
     var contacts = null;
 

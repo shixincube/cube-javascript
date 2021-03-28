@@ -2651,7 +2651,7 @@
  * 新建群组对话框。
  */
 (function(g) {
-    'use strict'
+    'use strict';
 
     var contacts = null;
 
@@ -5365,6 +5365,7 @@
     var contactDelayTimer = 0;
     var groupDelayTimer = 0;
 
+    var btnAddContact = null;
     var btnNewGroup = null;
     var btnRefresh = null;
 
@@ -5393,7 +5394,12 @@
 
         groupsTable = new GroupsTable($('div[data-target="groups-table"]'));
 
-        btnNewGroup = $('.contacts-card').find('button[data-target="new-group"]');
+        btnAddContact = $('.contacts-card').find('a[data-target="add-contact"]');
+        btnAddContact.on('click', function() {
+            g.app.searchDialog.show();
+        });
+
+        btnNewGroup = $('.contacts-card').find('a[data-target="new-group"]');
         btnNewGroup.on('click', function() {
             g.app.newGroupDialog.show();
         });
@@ -5519,6 +5525,10 @@
  (function(g) {
     'use strict';
 
+    /**
+     * 会议时间线。
+     * @param {*} el 
+     */
     var ConferenceTimeline = function(el) {
         this.container = el;
         this.timelineEl = el.find('.timeline');
@@ -5569,16 +5579,46 @@
                 var lockIcon = conf.hasPassword() ? '<i class="fas fa-lock" title="会议已设置密码"></i>' : '<i class="fas fa-unlock" title="会议无密码"></i>';
 
                 var invitees = conf.getInvitees();
+                invitees.unshift(conf.getFounder());
                 var htmlInvitee = [];
-                invitees.forEach(function(value) {
+                invitees.forEach(function(value, index) {
                     var contact = app.queryContact(value.id);
+
+                    // 状态
+                    var state = null;
+                    if (index == 0) {
+                        state = [
+                            '<span class="badge badge-info"><i class="fas fa-user-cog"></i></span>'
+                        ];
+                    }
+                    else {
+                        if (value.acceptionTime > 0) {
+                            if (value.accepted) {
+                                state = [
+                                    '<span class="badge badge-success"><i class="fas fa-check-circle"></i></span>'
+                                ];
+                            }
+                            else {
+                                state = [
+                                    '<span class="badge badge-danger"><i class="fas fa-ban"></i></span>'
+                                ];
+                            }
+                        }
+                        else {
+                            state = [
+                                '<span class="badge badge-info"><i class="fas fa-question-circle"></i></span>'
+                            ];
+                        }
+                    }
+
                     var html = null;
                     if (null != contact) {
                         html = [
                             '<div class="participant" data="', contact.getId(), '">',
                                 '<div class="avatar"><img src="', contact.getContext().avatar, '"></div>',
                                 '<div class="name"><div>', contact.getName(), '</div></div>',
-                            '</div>',
+                                state.join(''),
+                            '</div>'
                         ];
                     }
                     else {
@@ -5586,9 +5626,11 @@
                             '<div class="participant" data="', value.id, '">',
                                 '<div class="avatar"><img src="', 'images/favicon.png', '"></div>',
                                 '<div class="name"><div>', value.displayName, '</div></div>',
-                            '</div>',
+                                state.join(''),
+                            '</div>'
                         ];
                     }
+
                     htmlInvitee.push(html.join(''));
                 });
 
@@ -5983,4 +6025,22 @@
 
     g.SelectContactsDialog = SelectContactsDialog;
 
+ })(window);
+
+/**
+ * 搜索对话框。
+ */
+ (function(g) {
+    'use strict';
+
+    var SearchDialog = function() {
+        this.el = $('#search_dialog');
+    }
+
+    SearchDialog.prototype.show = function() {
+        this.el.modal('show');
+    }
+
+    g.SearchDialog = SearchDialog;
+    
  })(window);

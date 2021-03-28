@@ -44,6 +44,7 @@
     var contactDelayTimer = 0;
     var groupDelayTimer = 0;
 
+    var btnAddContact = null;
     var btnNewGroup = null;
     var btnRefresh = null;
 
@@ -72,7 +73,12 @@
 
         groupsTable = new GroupsTable($('div[data-target="groups-table"]'));
 
-        btnNewGroup = $('.contacts-card').find('button[data-target="new-group"]');
+        btnAddContact = $('.contacts-card').find('a[data-target="add-contact"]');
+        btnAddContact.on('click', function() {
+            g.app.searchDialog.show();
+        });
+
+        btnNewGroup = $('.contacts-card').find('a[data-target="new-group"]');
         btnNewGroup.on('click', function() {
             g.app.newGroupDialog.show();
         });

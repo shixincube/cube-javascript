@@ -28,7 +28,8 @@ const fileList = [
     'ContactsController.js',
     'ConferenceTimeline.js',
     'ConferenceController.js',
-    'SelectContactsDialog.js'
+    'SelectContactsDialog.js',
+    'SearchDialog.js'
 ];
 
 const output = 'public/javascripts/components-min.js';

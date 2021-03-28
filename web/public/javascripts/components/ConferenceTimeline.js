@@ -27,6 +27,10 @@
  (function(g) {
     'use strict';
 
+    /**
+     * 会议时间线。
+     * @param {*} el 
+     */
     var ConferenceTimeline = function(el) {
         this.container = el;
         this.timelineEl = el.find('.timeline');
@@ -77,16 +81,46 @@
                 var lockIcon = conf.hasPassword() ? '<i class="fas fa-lock" title="会议已设置密码"></i>' : '<i class="fas fa-unlock" title="会议无密码"></i>';
 
                 var invitees = conf.getInvitees();
+                invitees.unshift(conf.getFounder());
                 var htmlInvitee = [];
-                invitees.forEach(function(value) {
+                invitees.forEach(function(value, index) {
                     var contact = app.queryContact(value.id);
+
+                    // 状态
+                    var state = null;
+                    if (index == 0) {
+                        state = [
+                            '<span class="badge badge-info"><i class="fas fa-user-cog"></i></span>'
+                        ];
+                    }
+                    else {
+                        if (value.acceptionTime > 0) {
+                            if (value.accepted) {
+                                state = [
+                                    '<span class="badge badge-success"><i class="fas fa-check-circle"></i></span>'
+                                ];
+                            }
+                            else {
+                                state = [
+                                    '<span class="badge badge-danger"><i class="fas fa-ban"></i></span>'
+                                ];
+                            }
+                        }
+                        else {
+                            state = [
+                                '<span class="badge badge-info"><i class="fas fa-question-circle"></i></span>'
+                            ];
+                        }
+                    }
+
                     var html = null;
                     if (null != contact) {
                         html = [
                             '<div class="participant" data="', contact.getId(), '">',
                                 '<div class="avatar"><img src="', contact.getContext().avatar, '"></div>',
                                 '<div class="name"><div>', contact.getName(), '</div></div>',
-                            '</div>',
+                                state.join(''),
+                            '</div>'
                         ];
                     }
                     else {
@@ -94,9 +128,11 @@
                             '<div class="participant" data="', value.id, '">',
                                 '<div class="avatar"><img src="', 'images/favicon.png', '"></div>',
                                 '<div class="name"><div>', value.displayName, '</div></div>',
-                            '</div>',
+                                state.join(''),
+                            '</div>'
                         ];
                     }
+
                     htmlInvitee.push(html.join(''));
                 });
 

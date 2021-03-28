@@ -295,6 +295,9 @@
 
             // 选择联系人对话框
             that.selectContactsDialog = new SelectContactsDialog(cube);
+
+            // 搜索对话框
+            that.searchDialog = new SearchDialog();
         },
 
         /**

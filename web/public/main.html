@@ -536,10 +536,14 @@
                                     </li>
                                 </ul>
                                 <div class="card-tools">
-                                    <div class="input-group input-group-sm refresh">
-                                        <button type="button" class="btn btn-sm btn-default" data-target="new-group" title="创建群组"><i class="fas fa-user-plus"></i></button>
+                                    <button id="contact-button-group" type="button" class="btn btn-default btn-sm dropdown-toggle button-group" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fas fa-user-plus"></i>
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="contact-button-group">
+                                        <a class="dropdown-item" data-target="add-contact" href="#">加联系人/群</a>
+                                        <a class="dropdown-item" data-target="new-group" href="#">创建群组</a>
                                     </div>
-                                    <div class="input-group input-group-sm refresh">
+                                    <div class="input-group input-group-sm button">
                                         <button type="button" class="btn btn-sm btn-default" data-target="refresh" title="刷新数据"><i class="fas fa-sync"></i></button>
                                     </div>
                                     <div class="input-group input-group-sm search" style="width: 150px;">
@@ -729,6 +733,38 @@
         </div>
     </div>
     <!-- Contact Details - end -->
+
+    <!-- Search Dialog - begin -->
+    <div id="search_dialog" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">搜索</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        </div>
+                        <input class="form-control" type="text" placeholder="" data-target="search-input" />
+                    </div>
+                    <div class="form-group">
+                        <label>搜索结果</label>
+                        <div class="row" data-target="search-result">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">关闭</button>
+                    <button class="btn btn-primary" type="button" data-target="confirm">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Search Dialog - end -->
 
     <!-- Group Details - begin -->
     <div id="modal_group_details" class="modal fade">

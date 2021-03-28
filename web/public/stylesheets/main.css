@@ -1131,6 +1131,15 @@ body {
     height: 40px;
     border-radius: 10%;
 }
+.conference .timeline-body .participant .name {
+    margin-top: 4px;
+}
+.conference .timeline-body .participant .badge {
+    float: right;
+    position: relative;
+    top: -74px;
+    left: -7px;
+}
 
 .participant .name div {
     white-space: nowrap;
@@ -1162,9 +1171,17 @@ body {
     top: 3px;
     right: 3px;
 }
-.contacts-card .card-tools .refresh {
+.contacts-card .card-tools .button {
     display: inline-block;
     width: 36px;
+}
+.contacts-card .card-tools .button-group {
+    display: inline-block;
+    width: 48px;
+}
+.contacts-card .card-tools .dropdown-item {
+    color: #212529 !important;
+    font-size: 12px;
 }
 .contacts-card .card-tools .search {
     display: inline-flex;
