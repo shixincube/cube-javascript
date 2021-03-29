@@ -31,11 +31,47 @@
     'use strict';
 
     var SearchDialog = function() {
+        var that = this;
         this.el = $('#search_dialog');
+
+        this.overlay = this.el.find('.item-overlay');
+
+        this.input = this.el.find('input[data-target="search-input"]');
+        this.input.val('');
+        this.input.on('input', function() {
+            that.onInputChanged();
+        });
+
+        this.resultEl = this.el.find('div[data-target="search-result"]');
+
+        this.submitTimer = 0;
     }
 
     SearchDialog.prototype.show = function() {
+        this.overlay.css('display', 'none');
+        this.resultEl.empty();
         this.el.modal('show');
+    }
+
+    SearchDialog.prototype.onInputChanged = function() {
+        var that = this;
+        var value = that.input.val().trim();
+        if (value.length == 0) {
+            clearTimeout(that.submitTimer);
+            that.submitTimer = 0;
+            return;
+        }
+
+        if (that.submitTimer > 0) {
+            clearTimeout(that.submitTimer);
+        }
+        that.submitTimer = setTimeout(function() {
+            clearTimeout(that.submitTimer);
+            that.submitTimer = 0;
+
+            value = that.input.val().trim();
+            console.log('Search keyword: ' + value);
+        }, 1000);
     }
 
     g.SearchDialog = SearchDialog;

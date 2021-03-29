@@ -1893,4 +1893,43 @@ export class ContactService extends Module {
             }
         });
     }
+
+    /**
+     * 搜索指定关键字的联系人或群组。
+     * @param {string} keyword 
+     * @param {function} handleSuccess 搜索执行成功回调。参数：({@linkcode result}:{@link ContactSearchResult}) 。
+     * @param {function} handleFailure 搜索执行失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    search(keyword, handleSuccess, handleFailure) {
+        let packet = new Packet(ContactAction.Search, {
+            keyword: keyword.toString()
+        });
+        this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, keyword);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            if (responsePacket.data.code != ContactServiceState.Ok) {
+                let error = new ModuleError(ContactService.NAME, responsePacket.data.code, keyword);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            handleSuccess(responsePacket.data.data);
+        });
+    }
 }
+
+/**
+ * 搜索结果定义。
+ * @typedef {object} ContactSearchResult
+ * @property {string} keyword 检索的关键词。
+ * @property {Array} contactList 联系人列表。
+ * @property {Array} groupList 群组列表。
+ */

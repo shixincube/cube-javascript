@@ -141,5 +141,11 @@ export const ContactAction = {
      * 更新附录。
      * @type {string}
      */
-    UpdateAppendix: 'updateAppendix'
+    UpdateAppendix: 'updateAppendix',
+
+    /**
+     * 搜索联系人或群组。
+     * @type {string}
+     */
+    Search: 'search'
 }
