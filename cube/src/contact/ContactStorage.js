@@ -243,6 +243,7 @@ export class ContactStorage {
                 return;
             }
 
+            let selfId = this.service.getSelf().getId();
             let groups = [];
             let count = 0;
             for (let i = 0; i < result.length; ++i) {
@@ -254,6 +255,24 @@ export class ContactStorage {
                         if (matchingStates.indexOf(json.state) < 0) {
                             continue;
                         }
+                    }
+
+                    let included = false;
+                    if (json.owner.id != selfId) {
+                        // 不是群组所有者
+                        for (let n = 0; n < json.members.length; ++n) {
+                            if (json.members[n].id == selfId) {
+                                included = true;
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        included = true;
+                    }
+
+                    if (!included) {
+                        continue;
                     }
 
                     json.domain = this.domain;

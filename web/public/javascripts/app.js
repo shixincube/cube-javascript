@@ -602,11 +602,15 @@
         prepareGroups: function(callback) {
             cube.contact.queryGroups(function(groups) {
                 var count = groups.length;
+                if (0 == count) {
+                    // 回调
+                    callback();
+                    return;
+                }
+
                 var completedCallback = function() {
                     --count;
                     if (count == 0) {
-                        // 目录排序
-                        // messageCatalog.refreshOrder();
                         // 回调
                         callback();
                     }
