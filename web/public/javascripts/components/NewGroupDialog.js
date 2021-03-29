@@ -92,7 +92,7 @@
                 '<div class="col-6"><div class="form-group"><div class="custom-control custom-checkbox select-group-member">',
                     '<input class="custom-control-input" type="checkbox" id="group_member_', i, '" data="', id, '" />',
                     '<label class="custom-control-label" for="group_member_', i, '">',
-                        '<img src="', avatar, '" />',
+                        '<img src="images/', avatar, '" />',
                         '<span>', name, '</span>',
                     '</label>',
                 '</div></div></div>'

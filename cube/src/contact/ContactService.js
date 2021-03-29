@@ -1921,7 +1921,52 @@ export class ContactService extends Module {
                 return;
             }
 
-            handleSuccess(responsePacket.data.data);
+            let resultData = responsePacket.data.data;
+            let numContacts = resultData.contactList.length;
+            let numGroups = resultData.groupList.length;
+
+            let gotContact = (0 == numContacts);
+            let gotGroup = (0 == numGroups);
+
+            if (gotContact && gotGroup) {
+                handleSuccess(resultData);
+                return;
+            }
+
+            let contactList = [];
+            let groupList = [];
+
+            let handler = () => {
+                if (gotContact && gotGroup) {
+                    resultData.contactList = contactList;
+                    resultData.groupList = groupList;
+                    handleSuccess(resultData);
+                }
+            };
+
+            for (let i = 0; i < numContacts; ++i) {
+                let json = resultData.contactList.shift();
+                this.getContact(json.id, (contact) => {
+                    contactList.push(contact);
+
+                    if (contactList.length == numContacts) {
+                        gotContact = true;
+                        handler();
+                    }
+                });
+            }
+
+            for (let i = 0; i < numGroups; ++i) {
+                let json = resultData.groupList.shift();
+                this.getGroup(json.id, (group) => {
+                    groupList.push(group);
+
+                    if (groupList.length == numGroups) {
+                        gotGroup = true;
+                        handler();
+                    }
+                });
+            }
         });
     }
 }

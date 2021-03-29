@@ -88,7 +88,7 @@
                 var html = [
                     '<div class="participant" data="', value.getId(), '">',
                         '<div class="avatar">',
-                            '<img src="', value.getContext().avatar, '" />',
+                            '<img src="images/', value.getContext().avatar, '" />',
                         '</div>',
                         '<div class="name">',
                             '<div>', value.getPriorityName(), '</div>',

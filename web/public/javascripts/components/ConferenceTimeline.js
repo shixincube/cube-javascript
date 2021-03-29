@@ -117,7 +117,7 @@
                     if (null != contact) {
                         html = [
                             '<div class="participant" data="', contact.getId(), '">',
-                                '<div class="avatar"><img src="', contact.getContext().avatar, '"></div>',
+                                '<div class="avatar"><img src="images/', contact.getContext().avatar, '"></div>',
                                 '<div class="name"><div>', contact.getName(), '</div></div>',
                                 state.join(''),
                             '</div>'

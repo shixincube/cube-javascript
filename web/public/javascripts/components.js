@@ -386,7 +386,7 @@
     };
 
     SidebarAccountPanel.prototype.updateAvatar = function(path) {
-        this.el.find('img[data-target="avatar"]').attr('src', path);
+        this.el.find('img[data-target="avatar"]').attr('src', 'images/' + path);
     }
 
     SidebarAccountPanel.prototype.updateName = function(name) {
@@ -462,7 +462,7 @@
         }
         else if (value instanceof Contact) {
             id = value.getId();
-            thumb = value.getContext().avatar;
+            thumb = 'images/' + value.getContext().avatar;
             if (value.getAppendix().hasRemarkName()) {
                 label = value.getAppendix().getRemarkName();
             }
@@ -474,7 +474,7 @@
         }
         else if (typeof value === 'object') {
             id = value.id;
-            thumb = value.avatar;
+            thumb = 'images/' + value.avatar;
             label = value.name;
             desc = ' ';
             timeBadge = '';
@@ -1304,7 +1304,7 @@
             '</span><span class="direct-chat-timestamp ', tfloat, '">',
                 formatFullTime(time),
             '</span></div>',
-            '<img src="', sender.getContext().avatar, '" class="direct-chat-img">',
+            '<img src="images/', sender.getContext().avatar, '" class="direct-chat-img">',
             '<div data-id="', id, '" data-owner="', right.length > 0, '" class="direct-chat-text">', text, '</div></div>'
         ];
 
@@ -1562,7 +1562,7 @@
                     ' onclick="javascript:app.messageSidebar.fireUpdateMemberRemark(', contact.getId(), ');"><i class="fas fa-edit"></i></button>' ];
                 var html = [
                     '<div class="group-member-cell" data-target="', contact.getId(), '" ondblclick="javascript:app.messagingCtrl.toggle(', contact.getId(), ');">',
-                        '<div class="member-avatar"><img class="img-size-32 img-round-rect" src="', contact.getContext().avatar, '" /></div>',
+                        '<div class="member-avatar"><img class="img-size-32 img-round-rect" src="images/', contact.getContext().avatar, '" /></div>',
                         '<div class="member-name">',
                             group.getAppendix().hasMemberRemark(contact) ? group.getAppendix().getMemberRemark(contact) : contact.getPriorityName(),
                         '</div>',
@@ -1737,7 +1737,7 @@
         console.log('发起语音通话 ' + target.getId());
 
         if (g.app.callCtrl.makeCall(target, false)) {
-            this.elPeerAvatar.attr('src', target.getContext().avatar);
+            this.elPeerAvatar.attr('src', 'images/' + target.getContext().avatar);
             this.elPeerName.text(target.getName());
             this.elInfo.text('正在呼叫...');
 
@@ -1758,7 +1758,7 @@
     VoiceCallPanel.prototype.showAnswerCall = function(caller) {
         console.log('应答语音通话 ' + caller.getId());
 
-        this.elPeerAvatar.attr('src', caller.getContext().avatar);
+        this.elPeerAvatar.attr('src', 'images/' + caller.getContext().avatar);
         this.elPeerName.text(caller.getName());
         this.elInfo.text('正在应答...');
 
@@ -1819,7 +1819,7 @@
         var body = [
             '<div class="toasts-info">\
                 <div class="info-box">\
-                    <span class="info-box-icon"><img src="', contact.getContext().avatar, '" /></span>\
+                    <span class="info-box-icon"><img src="images/', contact.getContext().avatar, '" /></span>\
                     <div class="info-box-content">\
                         <span class="info-box-text">', contact.getName(), '</span>\
                         <span class="info-box-desc">邀请您参与语音通话</span>\
@@ -2228,7 +2228,7 @@
         var body = [
             '<div class="toasts-info">\
                 <div class="info-box">\
-                    <span class="info-box-icon"><img src="', contact.getContext().avatar, '" /></span>\
+                    <span class="info-box-icon"><img src="images/', contact.getContext().avatar, '" /></span>\
                     <div class="info-box-content">\
                         <span class="info-box-text">', contact.getName(), '</span>\
                         <span class="info-box-desc">邀请您参与视频通话</span>\
@@ -2406,7 +2406,7 @@
         var name = contact.getAppendix().hasRemarkName() ? contact.getAppendix().getRemarkName() : contact.getName();
         el.find('.widget-user-username').text(name);
         el.find('.widget-user-desc').text(contact.getName());
-        el.find('.user-avatar').attr('src', contact.getContext().avatar);
+        el.find('.user-avatar').attr('src', 'images/' + contact.getContext().avatar);
         el.find('.user-id').text(contact.getId());
         el.find('.user-region').text(contact.getContext().region);
         el.find('.user-department').text(contact.getContext().department);
@@ -2628,7 +2628,7 @@
             var html = [
                 '<tr>',
                     '<td>', (i + 1), '</td>',
-                    '<td><img class="table-avatar" src="', contact.getContext().avatar, '" /></td>',
+                    '<td><img class="table-avatar" src="images/', contact.getContext().avatar, '" /></td>',
                     '<td>', contact.getPriorityName(), '</td>',
                     '<td>', contact.getId(), '</td>',
                     '<td>', contact.getContext().region, '</td>',
@@ -2715,7 +2715,7 @@
                 '<div class="col-6"><div class="form-group"><div class="custom-control custom-checkbox select-group-member">',
                     '<input class="custom-control-input" type="checkbox" id="group_member_', i, '" data="', id, '" />',
                     '<label class="custom-control-label" for="group_member_', i, '">',
-                        '<img src="', avatar, '" />',
+                        '<img src="images/', avatar, '" />',
                         '<span>', name, '</span>',
                     '</label>',
                 '</div></div></div>'
@@ -2826,7 +2826,7 @@
                             '<label class="custom-control-label" for="list_contact_', contact.getId(), '">', '</label>',
                         '</div>',
                     '</td>',
-                    '<td><img class="table-avatar" src="', contact.getContext().avatar, '" /></td>',
+                    '<td><img class="table-avatar" src="images/', contact.getContext().avatar, '" /></td>',
                     '<td>', contact.getName(), '</td>',
                     '<td>', contact.getId(), '</td>',
                     '<td>', contact.getContext().region, '</td>',
@@ -5098,7 +5098,7 @@
             var html = [
                 '<tr data-target="', i, '">',
                     '<td>', (page - 1) * 10 + (i + 1), '</td>',
-                    '<td><img class="table-avatar" src="', ctx.avatar, '" /></td>',
+                    '<td><img class="table-avatar" src="images/', ctx.avatar, '" /></td>',
                     '<td>', contact.getName(), '</td>',
                     '<td class="text-muted">', appendix.hasRemarkName() ? appendix.getRemarkName() : '', '</td>',
                     '<td>', contact.getId(), '</td>',
@@ -5270,7 +5270,7 @@
                     }
                     var memberAvatar = ctx.avatar;
                     memberHtml.push('<li class="list-inline-item">');
-                    memberHtml.push('<img title="' + value.getPriorityName() + '" class="table-avatar" src="' + memberAvatar + '" />');
+                    memberHtml.push('<img title="' + value.getPriorityName() + '" class="table-avatar" src="images/' + memberAvatar + '" />');
                     memberHtml.push('</li>');
                     
                     --cols;
@@ -5615,7 +5615,7 @@
                     if (null != contact) {
                         html = [
                             '<div class="participant" data="', contact.getId(), '">',
-                                '<div class="avatar"><img src="', contact.getContext().avatar, '"></div>',
+                                '<div class="avatar"><img src="images/', contact.getContext().avatar, '"></div>',
                                 '<div class="name"><div>', contact.getName(), '</div></div>',
                                 state.join(''),
                             '</div>'
@@ -5735,7 +5735,7 @@
                 var html = [
                     '<div class="participant" data="', value.getId(), '">',
                         '<div class="avatar">',
-                            '<img src="', value.getContext().avatar, '" />',
+                            '<img src="images/', value.getContext().avatar, '" />',
                         '</div>',
                         '<div class="name">',
                             '<div>', value.getPriorityName(), '</div>',
@@ -5982,7 +5982,7 @@
                 '<div class="form-group"><div class="custom-control custom-checkbox select-group-member">',
                     '<input class="custom-control-input" type="checkbox" id="contact_', i, '" data="', id, '" ', disabled ? 'disabled="disabled"' : '', ' />',
                     '<label class="custom-control-label" for="contact_', i, '">',
-                        '<img src="', avatar, '" />',
+                        '<img src="images/', avatar, '" />',
                         '<span>', name, '</span>',
                     '</label>',
                 '</div></div>'
@@ -6007,7 +6007,7 @@
                         '<label for="selected_', id, '" class="custom-control-label">&nbsp;</label>',
                     '</div>',
                 '</td>',
-                '<td width="50">', '<img src="', contact.getContext().avatar, '" class="avatar" />', '</td>',
+                '<td width="50">', '<img src="images/', contact.getContext().avatar, '" class="avatar" />', '</td>',
                 '<td>', contact.getPriorityName(), '</td>',
             '</tr>'
         ];
@@ -6062,6 +6062,7 @@
         if (value.length == 0) {
             clearTimeout(that.submitTimer);
             that.submitTimer = 0;
+            that.overlay.css('display', 'none');
             return;
         }
 
@@ -6072,9 +6073,59 @@
             clearTimeout(that.submitTimer);
             that.submitTimer = 0;
 
+            that.overlay.css('display', 'flex');
+            that.resultEl.empty();
+
+            // 搜索
             value = that.input.val().trim();
-            console.log('Search keyword: ' + value);
+            if (value.length == 0) {
+                that.overlay.css('display', 'none');
+            }
+            else {
+                that.search(value);
+            }
+            console.log('Search keyword: "' + value + '"');
         }, 1000);
+    }
+
+    SearchDialog.prototype.search = function(keyword) {
+        var that = this;
+
+        // 搜索联系人或者群组
+        g.cube().contact.search(keyword, function(result) {
+            if (result.contactList.length == 0 && result.groupList.length == 0) {
+                that.resultEl.html('<div class="no-result">没有找到匹配的结果</div>');
+            }
+            else {
+                result.contactList.forEach(function(contact) {
+                    that.appendContact(contact);
+                });
+
+                result.groupList.forEach(function(group) {
+                    that.appendGroup(group);
+                });
+            }
+
+            that.overlay.css('display', 'none');
+        }, function() {
+            that.overlay.css('display', 'none');
+            that.resultEl.html('<div class="no-result">发生错误，请稍候再试</div>');
+        });
+    }
+
+    SearchDialog.prototype.appendContact = function(contact) {
+        var avatar = 'images/' + contact.getContext().avatar;
+        var html = [
+            '<div class="row">',
+                '<div class="col-3">', '', '</div>',
+                '<div class="col-4">', '</div>',
+                '<div class="col-3">', '</div>',
+            '</div>'
+        ];
+    }
+
+    SearchDialog.prototype.appendGroup = function(group) {
+
     }
 
     g.SearchDialog = SearchDialog;

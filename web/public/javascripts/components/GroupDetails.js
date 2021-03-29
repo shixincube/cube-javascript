@@ -228,7 +228,7 @@
             var html = [
                 '<tr>',
                     '<td>', (i + 1), '</td>',
-                    '<td><img class="table-avatar" src="', contact.getContext().avatar, '" /></td>',
+                    '<td><img class="table-avatar" src="images/', contact.getContext().avatar, '" /></td>',
                     '<td>', contact.getPriorityName(), '</td>',
                     '<td>', contact.getId(), '</td>',
                     '<td>', contact.getContext().region, '</td>',

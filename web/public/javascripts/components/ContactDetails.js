@@ -69,7 +69,7 @@
         var name = contact.getAppendix().hasRemarkName() ? contact.getAppendix().getRemarkName() : contact.getName();
         el.find('.widget-user-username').text(name);
         el.find('.widget-user-desc').text(contact.getName());
-        el.find('.user-avatar').attr('src', contact.getContext().avatar);
+        el.find('.user-avatar').attr('src', 'images/' + contact.getContext().avatar);
         el.find('.user-id').text(contact.getId());
         el.find('.user-region').text(contact.getContext().region);
         el.find('.user-department').text(contact.getContext().department);

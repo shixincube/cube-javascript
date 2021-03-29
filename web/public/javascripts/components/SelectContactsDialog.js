@@ -113,7 +113,7 @@
                 '<div class="form-group"><div class="custom-control custom-checkbox select-group-member">',
                     '<input class="custom-control-input" type="checkbox" id="contact_', i, '" data="', id, '" ', disabled ? 'disabled="disabled"' : '', ' />',
                     '<label class="custom-control-label" for="contact_', i, '">',
-                        '<img src="', avatar, '" />',
+                        '<img src="images/', avatar, '" />',
                         '<span>', name, '</span>',
                     '</label>',
                 '</div></div>'
@@ -138,7 +138,7 @@
                         '<label for="selected_', id, '" class="custom-control-label">&nbsp;</label>',
                     '</div>',
                 '</td>',
-                '<td width="50">', '<img src="', contact.getContext().avatar, '" class="avatar" />', '</td>',
+                '<td width="50">', '<img src="images/', contact.getContext().avatar, '" class="avatar" />', '</td>',
                 '<td>', contact.getPriorityName(), '</td>',
             '</tr>'
         ];

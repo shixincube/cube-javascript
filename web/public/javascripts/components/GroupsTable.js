@@ -143,7 +143,7 @@
                     }
                     var memberAvatar = ctx.avatar;
                     memberHtml.push('<li class="list-inline-item">');
-                    memberHtml.push('<img title="' + value.getPriorityName() + '" class="table-avatar" src="' + memberAvatar + '" />');
+                    memberHtml.push('<img title="' + value.getPriorityName() + '" class="table-avatar" src="images/' + memberAvatar + '" />');
                     memberHtml.push('</li>');
                     
                     --cols;

@@ -36,7 +36,7 @@ Request
     "account": "haosiyan",
     "password": "c7af98d321febe62e04d45e8806852e0",
     "nickname": "郝思雁",
-    "avatar": "images/avatar13.png"
+    "avatar": "avatar13.png"
 }
 ```
 
@@ -49,7 +49,7 @@ Respond
         "account": "haosiyan",
         "password": "c7af98d321febe62e04d45e8806852e0",
         "name": "郝思雁",
-        "avatar": "images/avatar13.png",
+        "avatar": "avatar13.png",
         "state": 0,
         "region": "--",
         "department": "--",
@@ -129,7 +129,7 @@ Respond
     "account": "cube3",
     "password": "c7af98d321febe62e04d45e8806852e0",
     "name": "郝思雁",
-    "avatar": "images/avatar03.png",
+    "avatar": "avatar03.png",
     "state": 0,
     "region": "上海",
     "department": "公关部",
@@ -166,7 +166,7 @@ Respond
 {
     "id": 50001003,
     "name": "郝思雁",
-    "avatar": "images/avatar03.png",
+    "avatar": "avatar03.png",
     "state": 0,
     "region": "上海",
     "department": "公关部",
@@ -212,7 +212,7 @@ Respond
 [{
     id: 50001001,
     name: '李国诚',
-    avatar: 'images/avatar01.png',
+    avatar: 'avatar01.png',
     state: 'offline',
     region: '北京',
     department: '产品中心',
@@ -220,7 +220,7 @@ Respond
 }, {
     id: 50001002,
     name: '王沛珊',
-    avatar: 'images/avatar02.png',
+    avatar: 'avatar02.png',
     state: 'offline',
     region: '武汉',
     department: '媒介部',
@@ -228,7 +228,7 @@ Respond
 }, {
     id: 50001003,
     name: '郝思雁',
-    avatar: 'images/avatar03.png',
+    avatar: 'avatar03.png',
     state: 'offline',
     region: '上海',
     department: '公关部',
@@ -236,7 +236,7 @@ Respond
 }, {
     id: 50001004,
     name: '高海光',
-    avatar: 'images/avatar04.png',
+    avatar: 'avatar04.png',
     state: 'offline',
     region: '成都',
     department: '技术部',
@@ -244,7 +244,7 @@ Respond
 }, {
     id: 50001005,
     name: '张明宇',
-    avatar: 'images/avatar05.png',
+    avatar: 'avatar05.png',
     state: 'offline',
     region: '广州',
     department: '设计部',

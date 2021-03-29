@@ -40,7 +40,7 @@
     };
 
     SidebarAccountPanel.prototype.updateAvatar = function(path) {
-        this.el.find('img[data-target="avatar"]').attr('src', path);
+        this.el.find('img[data-target="avatar"]').attr('src', 'images/' + path);
     }
 
     SidebarAccountPanel.prototype.updateName = function(name) {

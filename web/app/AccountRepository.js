@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -133,7 +133,7 @@ class AccountRepository {
             account: 'cube1',
             password: 'c7af98d321febe62e04d45e8806852e0',
             name: '李国诚',
-            avatar: 'images/avatar01.png',
+            avatar: 'avatar01.png',
             state: 0,
             region: '北京',
             department: '产品中心',
@@ -143,7 +143,7 @@ class AccountRepository {
             account: 'cube2',
             password: 'c7af98d321febe62e04d45e8806852e0',
             name: '王沛珊',
-            avatar: 'images/avatar13.png',
+            avatar: 'avatar13.png',
             state: 0,
             region: '武汉',
             department: '媒介部',
@@ -153,7 +153,7 @@ class AccountRepository {
             account: 'cube3',
             password: 'c7af98d321febe62e04d45e8806852e0',
             name: '郝思雁',
-            avatar: 'images/avatar15.png',
+            avatar: 'avatar15.png',
             state: 0,
             region: '上海',
             department: '公关部',
@@ -163,7 +163,7 @@ class AccountRepository {
             account: 'cube4',
             password: 'c7af98d321febe62e04d45e8806852e0',
             name: '高海光',
-            avatar: 'images/avatar09.png',
+            avatar: 'avatar09.png',
             state: 0,
             region: '成都',
             department: '技术部',
@@ -173,7 +173,7 @@ class AccountRepository {
             account: 'cube5',
             password: 'c7af98d321febe62e04d45e8806852e0',
             name: '张明宇',
-            avatar: 'images/avatar12.png',
+            avatar: 'avatar12.png',
             state: 0,
             region: '广州',
             department: '设计部',

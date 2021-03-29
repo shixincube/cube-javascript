@@ -527,7 +527,7 @@
             '</span><span class="direct-chat-timestamp ', tfloat, '">',
                 formatFullTime(time),
             '</span></div>',
-            '<img src="', sender.getContext().avatar, '" class="direct-chat-img">',
+            '<img src="images/', sender.getContext().avatar, '" class="direct-chat-img">',
             '<div data-id="', id, '" data-owner="', right.length > 0, '" class="direct-chat-text">', text, '</div></div>'
         ];
 

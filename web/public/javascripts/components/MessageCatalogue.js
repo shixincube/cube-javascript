@@ -85,7 +85,7 @@
         }
         else if (value instanceof Contact) {
             id = value.getId();
-            thumb = value.getContext().avatar;
+            thumb = 'images/' + value.getContext().avatar;
             if (value.getAppendix().hasRemarkName()) {
                 label = value.getAppendix().getRemarkName();
             }
@@ -97,7 +97,7 @@
         }
         else if (typeof value === 'object') {
             id = value.id;
-            thumb = value.avatar;
+            thumb = 'images/' + value.avatar;
             label = value.name;
             desc = ' ';
             timeBadge = '';

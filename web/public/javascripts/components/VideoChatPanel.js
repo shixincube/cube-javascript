@@ -392,7 +392,7 @@
         var body = [
             '<div class="toasts-info">\
                 <div class="info-box">\
-                    <span class="info-box-icon"><img src="', contact.getContext().avatar, '" /></span>\
+                    <span class="info-box-icon"><img src="images/', contact.getContext().avatar, '" /></span>\
                     <div class="info-box-content">\
                         <span class="info-box-text">', contact.getName(), '</span>\
                         <span class="info-box-desc">邀请您参与视频通话</span>\
