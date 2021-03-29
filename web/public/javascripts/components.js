@@ -2400,17 +2400,35 @@
      * @param {Contact} contact 
      */
     ContactDetails.prototype.show = function(contact) {
-        currentContact = contact;
+        var handler = function(contact) {
+            var el = dialogEl;
+            var name = contact.getAppendix().hasRemarkName() ? contact.getAppendix().getRemarkName() : contact.getName();
+            el.find('.widget-user-username').text(name);
+            el.find('.widget-user-desc').text(contact.getName());
+            el.find('.user-avatar').attr('src', 'images/' + contact.getContext().avatar);
+            el.find('.user-id').text(contact.getId());
+            el.find('.user-region').text(contact.getContext().region);
+            el.find('.user-department').text(contact.getContext().department);
+            el.modal('show');
+        }
 
-        var el = dialogEl;
-        var name = contact.getAppendix().hasRemarkName() ? contact.getAppendix().getRemarkName() : contact.getName();
-        el.find('.widget-user-username').text(name);
-        el.find('.widget-user-desc').text(contact.getName());
-        el.find('.user-avatar').attr('src', 'images/' + contact.getContext().avatar);
-        el.find('.user-id').text(contact.getId());
-        el.find('.user-region').text(contact.getContext().region);
-        el.find('.user-department').text(contact.getContext().department);
-        el.modal('show');
+        if (contact instanceof Contact) {
+            currentContact = contact;
+            handler(currentContact);
+        }
+        else {
+            var contactId = contact;
+            currentContact = g.app.queryContact(contactId);
+            if (null == currentContact) {
+                g.cube().contact.getContact(contactId, function(contact) {
+                    currentContact = contact;
+                    handler(currentContact);
+                });
+            }
+            else {
+                handler(currentContact);
+            }
+        }
     }
 
     /**
@@ -6040,7 +6058,6 @@
         this.overlay = this.el.find('.item-overlay');
 
         this.input = this.el.find('input[data-target="search-input"]');
-        this.input.val('');
         this.input.on('input', function() {
             that.onInputChanged();
         });
@@ -6052,6 +6069,7 @@
 
     SearchDialog.prototype.show = function() {
         this.overlay.css('display', 'none');
+        this.input.val('');
         this.resultEl.empty();
         this.el.modal('show');
     }
@@ -6114,14 +6132,19 @@
     }
 
     SearchDialog.prototype.appendContact = function(contact) {
-        var avatar = 'images/' + contact.getContext().avatar;
+        var avatar = contact.getContext().avatar;
+        var account = contact.getContext().account;
         var html = [
-            '<div class="row">',
-                '<div class="col-3">', '', '</div>',
-                '<div class="col-4">', '</div>',
-                '<div class="col-3">', '</div>',
+            '<div class="row align-items-center">',
+                '<div class="col-2"><img src="images/', avatar, '" class="avatar"></div>',
+                '<div class="col-4"><a href="javascript:app.contactDetails.show(', contact.getId(), ');">', contact.getName(), '</a></div>',
+                '<div class="col-3 text-muted">(', account, ')</div>',
+                '<div class="col-3">',
+                    '<button class="btn btn-sm btn-default">添加联系人</button>',
+                '</div>',
             '</div>'
         ];
+        this.resultEl.append($(html.join('')));
     }
 
     SearchDialog.prototype.appendGroup = function(group) {

@@ -63,17 +63,35 @@
      * @param {Contact} contact 
      */
     ContactDetails.prototype.show = function(contact) {
-        currentContact = contact;
+        var handler = function(contact) {
+            var el = dialogEl;
+            var name = contact.getAppendix().hasRemarkName() ? contact.getAppendix().getRemarkName() : contact.getName();
+            el.find('.widget-user-username').text(name);
+            el.find('.widget-user-desc').text(contact.getName());
+            el.find('.user-avatar').attr('src', 'images/' + contact.getContext().avatar);
+            el.find('.user-id').text(contact.getId());
+            el.find('.user-region').text(contact.getContext().region);
+            el.find('.user-department').text(contact.getContext().department);
+            el.modal('show');
+        }
 
-        var el = dialogEl;
-        var name = contact.getAppendix().hasRemarkName() ? contact.getAppendix().getRemarkName() : contact.getName();
-        el.find('.widget-user-username').text(name);
-        el.find('.widget-user-desc').text(contact.getName());
-        el.find('.user-avatar').attr('src', 'images/' + contact.getContext().avatar);
-        el.find('.user-id').text(contact.getId());
-        el.find('.user-region').text(contact.getContext().region);
-        el.find('.user-department').text(contact.getContext().department);
-        el.modal('show');
+        if (contact instanceof Contact) {
+            currentContact = contact;
+            handler(currentContact);
+        }
+        else {
+            var contactId = contact;
+            currentContact = g.app.queryContact(contactId);
+            if (null == currentContact) {
+                g.cube().contact.getContact(contactId, function(contact) {
+                    currentContact = contact;
+                    handler(currentContact);
+                });
+            }
+            else {
+                handler(currentContact);
+            }
+        }
     }
 
     /**

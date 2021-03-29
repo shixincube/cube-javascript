@@ -84,7 +84,6 @@ class CubeAppManager {
         (async () => {
             let data = await this.accRepo.queryAccountById(accountId);
             if (null != data) {
-                delete data["account"];
                 delete data["password"];
             }
             callback(data);
@@ -95,7 +94,6 @@ class CubeAppManager {
         (async () => {
             let data = await this.accRepo.queryAccountById(id);
             if (null != data) {
-                delete data["account"];
                 delete data["password"];
             }
             callback(data);
@@ -136,7 +134,6 @@ class CubeAppManager {
             this.accRepo.updateToken(data.id, token, 7 * 24 * 3600 * 1000);
 
             // 删除账号信息
-            delete data["account"];
             delete data["password"];
 
             this.addOnlineAccount(data, token);
@@ -166,7 +163,6 @@ class CubeAppManager {
                     }
 
                     // 删除账号信息
-                    delete data["account"];
                     delete data["password"];
 
                     this.addOnlineAccount(account, token);
@@ -202,7 +198,6 @@ class CubeAppManager {
             }
 
             // 删除账号信息
-            delete data["account"];
             delete data["password"];
 
             callback(0, data);
@@ -243,15 +238,12 @@ class CubeAppManager {
         });
 
         // 数据库连接 Keep-Alive
-        this.accRepo.keepAlive();
+        this.accRepo.keepAlive();fre
     }
 
     getBuildInAccounts() {
         let array = this.accRepo.getBuildInAccounts();
         array.forEach((value) => {
-            if (value.account) {
-                delete value["account"];
-            }
             if (value.password) {
                 delete value["password"];
             }

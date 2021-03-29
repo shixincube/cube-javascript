@@ -37,7 +37,6 @@
         this.overlay = this.el.find('.item-overlay');
 
         this.input = this.el.find('input[data-target="search-input"]');
-        this.input.val('');
         this.input.on('input', function() {
             that.onInputChanged();
         });
@@ -49,6 +48,7 @@
 
     SearchDialog.prototype.show = function() {
         this.overlay.css('display', 'none');
+        this.input.val('');
         this.resultEl.empty();
         this.el.modal('show');
     }
@@ -111,14 +111,19 @@
     }
 
     SearchDialog.prototype.appendContact = function(contact) {
-        var avatar = 'images/' + contact.getContext().avatar;
+        var avatar = contact.getContext().avatar;
+        var account = contact.getContext().account;
         var html = [
-            '<div class="row">',
-                '<div class="col-3">', '', '</div>',
-                '<div class="col-4">', '</div>',
-                '<div class="col-3">', '</div>',
+            '<div class="row align-items-center">',
+                '<div class="col-2"><img src="images/', avatar, '" class="avatar"></div>',
+                '<div class="col-4"><a href="javascript:app.contactDetails.show(', contact.getId(), ');">', contact.getName(), '</a></div>',
+                '<div class="col-3 text-muted">(', account, ')</div>',
+                '<div class="col-3">',
+                    '<button class="btn btn-sm btn-default">添加联系人</button>',
+                '</div>',
             '</div>'
         ];
+        this.resultEl.append($(html.join('')));
     }
 
     SearchDialog.prototype.appendGroup = function(group) {

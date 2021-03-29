@@ -276,6 +276,18 @@ body {
     transition: opacity .3s ease-in-out;
 }
 
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 10%;
+}
+
+.avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 10%;
+}
+
 .catalog .item {
     border-bottom: none;
     cursor: default;
@@ -1126,11 +1138,6 @@ body {
     text-align: center;
     margin: 0.2rem;
 }
-.conference .timeline-body .participant .avatar img {
-    width: 40px;
-    height: 40px;
-    border-radius: 10%;
-}
 .conference .timeline-body .participant .name {
     margin-top: 4px;
 }
@@ -1227,11 +1234,6 @@ body {
 .select-contacts-dialog .selected-table {
     border: 1px solid #dee2e6;
 }
-.select-contacts-dialog .avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 10%;
-}
 
 /* 选择联系人 - 结束 */
 
@@ -1256,11 +1258,6 @@ body {
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-}
-.new-conference-dialog .avatar img {
-    width: 40px;
-    height: 40px;
-    border-radius: 10%;
 }
 .new-conference-dialog .participant .badge {
     float: right;
@@ -1291,6 +1288,16 @@ body {
 .search-result {
     height: 400px;
     overflow-y: auto;
+    padding: 0 0.1rem 0 0.1rem;
+}
+.search-result .container {
+    margin-top: 0.5rem;
+}
+.search-result .row {
+    margin-bottom: 1rem;
+}
+.search-result .row .btn-sm {
+    font-size: 12px;
 }
 
 .no-result {
