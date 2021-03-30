@@ -29,6 +29,8 @@
  */
 const CubeLuckyNumbers = {
 
+    
+
     make: function() {
 
     }

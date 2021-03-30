@@ -112,12 +112,14 @@
 
     SearchDialog.prototype.appendContact = function(contact) {
         var avatar = contact.getContext().avatar;
-        var account = contact.getContext().account;
+        // var account = contact.getContext().account;
         var html = [
             '<div class="row align-items-center">',
                 '<div class="col-2"><img src="images/', avatar, '" class="avatar"></div>',
-                '<div class="col-4"><a href="javascript:app.contactDetails.show(', contact.getId(), ');">', contact.getName(), '</a></div>',
-                '<div class="col-3 text-muted">(', account, ')</div>',
+                '<div class="col-7">',
+                    '<span><a href="javascript:app.contactDetails.show(', contact.getId(), ');">', contact.getName(), '</a></span>',
+                    '&nbsp;<span class="text-muted">(', contact.getId(), ')</span>',
+                '</div>',
                 '<div class="col-3">',
                     '<button class="btn btn-sm btn-default">添加联系人</button>',
                 '</div>',
