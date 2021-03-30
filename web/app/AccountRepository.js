@@ -26,6 +26,7 @@
 
 const mysql = require('mysql');
 const config = require('../config');
+const luckyNumbers = require('./CubeLuckyNumbers');
 
 /**
  * 模拟账号数据库。
@@ -207,31 +208,41 @@ class AccountRepository {
     }
 
     createAccount(account, password, nickname, avatar, handlerCallback) {
-        let params = [
-            this.generateSerialNumber(),
-            account,
-            password,
-            nickname,
-            avatar
-        ];
-        this.pool.query("INSERT INTO `account` (id,account,password,name,avatar) VALUE (?,?,?,?,?)", params, (error, result) => {
-            if (error) {
-                handlerCallback(null);
-                return;
+        (async () => {
+            // 生成 ID
+            let id = luckyNumbers.make();
+            let checked = await this.checkId(id);
+            while (!checked) {
+                id = luckyNumbers.make();
+                checked = await this.checkId(id);
             }
 
-            handlerCallback({
-                id: params[0],
-                account: params[1],
-                password: params[2],
-                name: params[3],
-                avatar: params[4],
-                state: 0,
-                region: '--',
-                department: '--',
-                last: 0
+            let params = [
+                id,
+                account,
+                password,
+                nickname,
+                avatar
+            ];
+            this.pool.query("INSERT INTO `account` (id,account,password,name,avatar) VALUE (?,?,?,?,?)", params, (error, result) => {
+                if (error) {
+                    handlerCallback(null);
+                    return;
+                }
+    
+                handlerCallback({
+                    id: params[0],
+                    account: params[1],
+                    password: params[2],
+                    name: params[3],
+                    avatar: params[4],
+                    state: 0,
+                    region: '--',
+                    department: '--',
+                    last: 0
+                });
             });
-        });
+        })();
     }
 
     queryAccount(account, handlerCallback) {
@@ -327,6 +338,24 @@ class AccountRepository {
             }
 
             console.log('Pool keep-alive - ' + results[0]["VERSION()"]);
+        });
+    }
+
+    checkId(id) {
+        return new Promise((resolve, reject) => {
+            this.pool.query("SELECT id FROM `account` WHERE `id`=" + id, (error, results) => {
+                if (error) {
+                    resolve(false);
+                    return;
+                }
+
+                if (results.length == 0) {
+                    resolve(true);
+                }
+                else {
+                    resolve(false);
+                }
+            });
         });
     }
 

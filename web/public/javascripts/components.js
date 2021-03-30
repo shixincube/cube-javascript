@@ -6078,9 +6078,13 @@
         var that = this;
         var value = that.input.val().trim();
         if (value.length == 0) {
-            clearTimeout(that.submitTimer);
-            that.submitTimer = 0;
+            if (that.submitTimer > 0) {
+                clearTimeout(that.submitTimer);
+                that.submitTimer = 0;
+            }
+
             that.overlay.css('display', 'none');
+            that.resultEl.empty();
             return;
         }
 

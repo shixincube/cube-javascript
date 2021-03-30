@@ -29,10 +29,52 @@
  */
 const CubeLuckyNumbers = {
 
-    
+    templates: [
+        'AABBCCDD',
+        'AAABBBCC',
+        'AABBBCCC',
+        'AAABBCCC',
+        'ABABABAB',
+        'ABCDABCD',
+        'AAAABBCC',
+        'AABBBBCC',
+        'AABBCCCC',
+        'ABBBABBB',
+        'AAABAAAB',
+        'AAAAXXXX',
+        'ABABXXXX',
+        'XXXXAAAA',
+        'XXXXABAB',
+        'XXAAAAXX',
+        'XXABABXX',
+        'AXAXAXAX'
+    ],
 
     make: function() {
+        let mod = Math.round(Math.random() * 1000) % this.templates.length;
+        let A = this.rand();
+        let B = this.rand();
+        let C = this.rand();
+        let D = this.rand();
+        let template = this.templates[mod];
+        let result = [];
+        for (let i = 0; i < template.length; ++i) {
+            if (template.charAt(i) == 'A') result.push(A);
+            else if (template.charAt(i) == 'B') result.push(B);
+            else if (template.charAt(i) == 'C') result.push(C);
+            else if (template.charAt(i) == 'D') result.push(D);
+            else result.push(this.rand());
+        }
 
+        while (0 == result[0]) {
+            result[0] = this.rand();
+        }
+
+        return parseInt(result.join(''));
+    },
+
+    rand: function() {
+        return Math.round(Math.random() * 1000) % 10;
     }
 }
 
