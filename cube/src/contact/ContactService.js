@@ -489,6 +489,42 @@ export class ContactService extends Module {
     }
 
     /**
+     * 指定分区是否包含指定联系人。
+     * @param {string} name 分区名。
+     * @param {number} contactId 指定联系人 ID 。
+     * @param {function} handleSuccess 操作成功回调该方法，参数：({@linkcode contained}:{@linkcode boolean}, {@linkcode zoneName}:{@linkcode string}, {@linkcode contactId}:{@linkcode number})。
+     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
+     */
+    containsContactInZone(name, contactId, handleSuccess, handleFailure) {
+        if (contactId instanceof Contact) {
+            contactId = contactId.getId();
+        }
+
+        let packet = new Packet(ContactAction.ContainsContactInZone, {
+            "name": name,
+            "contactId": contactId
+        });
+        this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+                if (responsePacket.data.code == ContactServiceState.Ok) {
+                    let data = responsePacket.data.data;
+                    handleSuccess(data.contained, data.name, data.contactId);
+                }
+                else {
+                    if (handleFailure) {
+                        handleFailure(new ModuleError(ContactService.NAME, responsePacket.data.code, name));
+                    }
+                }
+            }
+            else {
+                if (handleFailure) {
+                    handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.ServerError, name));
+                }
+            }
+        });
+    }
+
+    /**
      * 添加联系人到分区。
      * @param {string} name 分区名。
      * @param {number} contactId 指定联系人 ID 。
@@ -509,7 +545,7 @@ export class ContactService extends Module {
                 }
                 else {
                     if (handleFailure) {
-                        handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.Failure, name));
+                        handleFailure(new ModuleError(ContactService.NAME, responsePacket.data.code, name));
                     }
                 }
             }
@@ -542,7 +578,7 @@ export class ContactService extends Module {
                 }
                 else {
                     if (handleFailure) {
-                        handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.Failure, name));
+                        handleFailure(new ModuleError(ContactService.NAME, responsePacket.data.code, name));
                     }
                 }
             }

@@ -69,19 +69,25 @@ export const ContactAction = {
      * 获取联系人分区。
      * @type {string}
      */
-     GetContactZone: 'getContactZone',
+    GetContactZone: 'getContactZone',
+
+     /**
+      * 联系人是否在分区。
+      * @type {string}
+      */
+    ContainsContactInZone: 'containsContactInZone',
 
      /**
       * 添加联系人到分区。
       * @type {string}
       */
-     AddContactToZone: 'addContactToZone',
+    AddContactToZone: 'addContactToZone',
  
      /**
       * 从分区移除联系人。
       * @type {string}
       */
-     RemoveContactFromZone: 'removeContactFromZone',
+    RemoveContactFromZone: 'removeContactFromZone',
 
     /**
      * 获取指定群组的信息。

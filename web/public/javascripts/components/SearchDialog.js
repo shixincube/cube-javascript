@@ -102,6 +102,8 @@
                     that.appendContact(contact);
                 });
 
+                that.resultEl.append($('<hr/>'))
+
                 result.groupList.forEach(function(group) {
                     that.appendGroup(group);
                 });
@@ -116,24 +118,49 @@
 
     SearchDialog.prototype.appendContact = function(contact) {
         var avatar = contact.getContext().avatar;
-        // var account = contact.getContext().account;
+
         var html = [
-            '<div class="row align-items-center">',
+            '<div class="row align-items-center" data="', contact.getId(), '">',
                 '<div class="col-2"><img src="images/', avatar, '" class="avatar"></div>',
                 '<div class="col-7">',
                     '<span><a href="javascript:app.contactDetails.show(', contact.getId(), ');">', contact.getName(), '</a></span>',
                     '&nbsp;<span class="text-muted">(', contact.getId(), ')</span>',
                 '</div>',
-                '<div class="col-3">',
-                    '<button class="btn btn-sm btn-default">添加联系人</button>',
+                '<div class="col-3" data-target="action">',
                 '</div>',
             '</div>'
         ];
-        this.resultEl.append($(html.join('')));
+        var rowEl = $(html.join(''));
+
+        this.resultEl.append(rowEl);
+
+        g.cube().contact.containsContactInZone(g.app.contactZone, contact, function(contained, zoneName, contactId) {
+            var action = null;
+
+            if (contained) {
+                action = '<span class="text-muted">已添加</span>';
+            }
+            else {
+                action = '<button class="btn btn-sm btn-default" onclick="app.searchDialog.addContactToZone(\''
+                            + zoneName + '\', ' + contactId + ')">添加联系人</button>'
+            }
+
+            rowEl.find('div[data-target="action"]').html(action);
+        });
     }
 
     SearchDialog.prototype.appendGroup = function(group) {
 
+    }
+
+    SearchDialog.prototype.addContactToZone = function(zoneName, contactId) {
+        var that = this;
+        g.app.contactsCtrl.addContactToZone(zoneName, contactId, function(contact) {
+            if (null != contact) {
+                var el = that.resultEl.find('div[data="' + contactId + '"]');
+                el.find('div[data-target="action"]').html('<span class="text-muted">已添加</span>');
+            }
+        });
     }
 
     g.SearchDialog = SearchDialog;

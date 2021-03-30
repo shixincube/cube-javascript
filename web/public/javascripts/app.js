@@ -569,7 +569,7 @@
             };
 
             // 从 Cube 里获取指定的联系人分组
-            cube.contact.getContactZone('contacts', function(zone) {
+            cube.contact.getContactZone(app.contactZone, function(zone) {
                 if (zone.contacts.length == 0) {
                     // 将内置的账号设置为该联系人的通讯录
                     $.get('/account/buildin', function(response, status, xhr) {
@@ -578,7 +578,7 @@
 
                         // 依次添加到 Zone
                         response.forEach(function(value, index) {
-                            cube.contact.addContactToZone('contacts', value.id);
+                            cube.contact.addContactToZone(app.contactZone, value.id);
                         });
                     });
                 }
@@ -635,6 +635,8 @@
 
     app.queryContact = queryContact;
     app.queryGroup = queryGroup;
+
+    app.contactZone = 'contacts';
 
     that = app;
     g.app = app;

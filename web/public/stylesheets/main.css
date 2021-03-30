@@ -1299,6 +1299,9 @@ body {
 .search-result .row .btn-sm {
     font-size: 12px;
 }
+.search-result .text-muted {
+    font-size: 12px;
+}
 
 .no-result {
     font-style: italic;

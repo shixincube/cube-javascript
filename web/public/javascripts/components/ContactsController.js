@@ -164,6 +164,40 @@
                 }
             });
         }
+        else {
+            // TODO 群组操作
+        }
+    }
+
+    /**
+     * 删除联系人。
+     * @param {number} index 
+     */
+    ContactsController.prototype.removeContact = function(index) {
+        var contact = contactsTable.getCurrentContact(index);
+
+    }
+
+    /**
+     * 添加联系到 Zone
+     * @param {string} zoneName
+     * @param {number} contactId 
+     * @param {function} callback
+     */
+    ContactsController.prototype.addContactToZone = function(zoneName, contactId, callback) {
+        cube.contact.addContactToZone(zoneName, contactId, function(zoneName, contactId) {
+            g.app.getContact(contactId, function(contact) {
+                that.addContact(contact);
+                if (callback) {
+                    callback(contact);
+                }
+            });
+        }, function(error) {
+            console.log(error);
+            if (callback) {
+                callback(null);
+            }
+        });
     }
 
     /**

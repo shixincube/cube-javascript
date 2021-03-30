@@ -5080,7 +5080,10 @@
         this.show(newPagination, currentPage);
     }
 
-
+    /**
+     * 生成分页数据。
+     * @param {number} num 
+     */
     ContactsTable.prototype.paging = function(num) {
         var html = [
             '<li class="page-item"><a class="page-link" href="javascript:app.contactsCtrl.prevPage();">«</a></li>'
@@ -5095,6 +5098,11 @@
         pagingEl.html(html.join(''));
     }
 
+    /**
+     * 显示指定页码，并加列表里的联系人数据显示在该页。
+     * @param {number} page 
+     * @param {Array} contacts 
+     */
     ContactsTable.prototype.show = function(page, contacts) {
         if (page == pagination) {
             return;
@@ -5503,6 +5511,40 @@
                 }
             });
         }
+        else {
+            // TODO 群组操作
+        }
+    }
+
+    /**
+     * 删除联系人。
+     * @param {number} index 
+     */
+    ContactsController.prototype.removeContact = function(index) {
+        var contact = contactsTable.getCurrentContact(index);
+
+    }
+
+    /**
+     * 添加联系到 Zone
+     * @param {string} zoneName
+     * @param {number} contactId 
+     * @param {function} callback
+     */
+    ContactsController.prototype.addContactToZone = function(zoneName, contactId, callback) {
+        cube.contact.addContactToZone(zoneName, contactId, function(zoneName, contactId) {
+            g.app.getContact(contactId, function(contact) {
+                that.addContact(contact);
+                if (callback) {
+                    callback(contact);
+                }
+            });
+        }, function(error) {
+            console.log(error);
+            if (callback) {
+                callback(null);
+            }
+        });
     }
 
     /**
@@ -6123,6 +6165,8 @@
                     that.appendContact(contact);
                 });
 
+                that.resultEl.append($('<hr/>'))
+
                 result.groupList.forEach(function(group) {
                     that.appendGroup(group);
                 });
@@ -6137,24 +6181,49 @@
 
     SearchDialog.prototype.appendContact = function(contact) {
         var avatar = contact.getContext().avatar;
-        // var account = contact.getContext().account;
+
         var html = [
-            '<div class="row align-items-center">',
+            '<div class="row align-items-center" data="', contact.getId(), '">',
                 '<div class="col-2"><img src="images/', avatar, '" class="avatar"></div>',
                 '<div class="col-7">',
                     '<span><a href="javascript:app.contactDetails.show(', contact.getId(), ');">', contact.getName(), '</a></span>',
                     '&nbsp;<span class="text-muted">(', contact.getId(), ')</span>',
                 '</div>',
-                '<div class="col-3">',
-                    '<button class="btn btn-sm btn-default">添加联系人</button>',
+                '<div class="col-3" data-target="action">',
                 '</div>',
             '</div>'
         ];
-        this.resultEl.append($(html.join('')));
+        var rowEl = $(html.join(''));
+
+        this.resultEl.append(rowEl);
+
+        g.cube().contact.containsContactInZone(g.app.contactZone, contact, function(contained, zoneName, contactId) {
+            var action = null;
+
+            if (contained) {
+                action = '<span class="text-muted">已添加</span>';
+            }
+            else {
+                action = '<button class="btn btn-sm btn-default" onclick="app.searchDialog.addContactToZone(\''
+                            + zoneName + '\', ' + contactId + ')">添加联系人</button>'
+            }
+
+            rowEl.find('div[data-target="action"]').html(action);
+        });
     }
 
     SearchDialog.prototype.appendGroup = function(group) {
 
+    }
+
+    SearchDialog.prototype.addContactToZone = function(zoneName, contactId) {
+        var that = this;
+        g.app.contactsCtrl.addContactToZone(zoneName, contactId, function(contact) {
+            if (null != contact) {
+                var el = that.resultEl.find('div[data="' + contactId + '"]');
+                el.find('div[data-target="action"]').html('<span class="text-muted">已添加</span>');
+            }
+        });
     }
 
     g.SearchDialog = SearchDialog;

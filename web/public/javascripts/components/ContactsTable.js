@@ -94,7 +94,10 @@
         this.show(newPagination, currentPage);
     }
 
-
+    /**
+     * 生成分页数据。
+     * @param {number} num 
+     */
     ContactsTable.prototype.paging = function(num) {
         var html = [
             '<li class="page-item"><a class="page-link" href="javascript:app.contactsCtrl.prevPage();">«</a></li>'
@@ -109,6 +112,11 @@
         pagingEl.html(html.join(''));
     }
 
+    /**
+     * 显示指定页码，并加列表里的联系人数据显示在该页。
+     * @param {number} page 
+     * @param {Array} contacts 
+     */
     ContactsTable.prototype.show = function(page, contacts) {
         if (page == pagination) {
             return;
