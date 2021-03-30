@@ -43,9 +43,21 @@ export class ContactZone {
         this.name = json.name;
 
         /**
+         * 是否是待处理数据。
+         * @type {boolean}
+         */
+        this.pending = json.pending;
+
+        /**
          * 分区内的联系人 ID 列表。
          * @type {Array<number>}
          */
         this.contacts = json.contacts;
+
+        /**
+         * 添加时的附言列表。
+         * @type {Array<string>}
+         */
+        this.postscripts = json.postscripts;
     }
 }

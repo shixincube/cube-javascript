@@ -145,7 +145,7 @@
                 action = '<span class="text-muted">已添加</span>';
             }
             else {
-                action = '<button class="btn btn-sm btn-default" onclick="app.searchDialog.addContactToZone(\''
+                action = '<button class="btn btn-sm btn-default" onclick="app.searchDialog.fireAddContactToZone(\''
                             + zoneName + '\', ' + contactId + ')">添加联系人</button>'
             }
 
@@ -157,14 +157,18 @@
 
     }
 
-    SearchDialog.prototype.addContactToZone = function(zoneName, contactId) {
+    SearchDialog.prototype.fireAddContactToZone = function(zoneName, contactId) {
         var that = this;
-        g.app.contactsCtrl.addContactToZone(zoneName, contactId, function(contact) {
-            if (null != contact) {
-                var el = that.resultEl.find('div[data="' + contactId + '"]');
-                el.find('div[data-target="action"]').html('<span class="text-muted">已添加</span>');
+        g.dialog.showPrompt('添加联系人', '附言', function(ok, value) {
+            if (ok) {
+                g.app.contactsCtrl.addContactToZone(zoneName, contactId, value, function(contact) {
+                    if (null != contact) {
+                        var el = that.resultEl.find('div[data="' + contactId + '"]');
+                        el.find('div[data-target="action"]').html('<span class="text-muted">已添加</span>');
+                    }
+                });
             }
-        });
+        }, '我是“' + g.app.account.name + '”。');
     }
 
     g.SearchDialog = SearchDialog;

@@ -198,29 +198,6 @@ export class MessagingService extends Module {
 
                 this.serviceReady = true;
             });
-
-            /*this.storage.queryLastMessageTime((value) => {
-                if (value == 0) {
-                    this.lastMessageTime = Date.now() - this.defaultRetrospect;
-                }
-                else {
-                    this.lastMessageTime = value;
-                }
-            });
-            if (this.lastMessageTime > 0) {
-                this.queryRemoteMessage();
-            }
-            else {
-                setTimeout(() => {
-                    if (this.lastMessageTime > 0) {
-                        this.queryRemoteMessage();
-                    }
-                    else {
-                        let now = Date.now();
-                        this.queryRemoteMessage(now - this.defaultRetrospect, now);
-                    }
-                }, 500);
-            }*/
         }
 
         return true;

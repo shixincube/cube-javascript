@@ -220,7 +220,7 @@
          * 停止。
          */
         stop: function() {
-            window.location.href = '/?x=logout';
+            window.location.href = '/?c=logout';
         },
 
         /**
@@ -372,7 +372,7 @@
                             // 清空 Cookie
                             document.cookie = '';
 
-                            window.location.href = '/?x=logout';
+                            window.location.href = '/?c=logout';
                         }, 'json');
                     };
 
@@ -440,10 +440,6 @@
             });
         },
 
-        removeContact: function() {
-            
-        },
-
         /**
          * 获取群组。
          * @param {number} id 
@@ -474,17 +470,25 @@
         },
 
         onReady: function() {
+            // 准备联系人和群组数据
             that.prepare(function() {
-                // 目录排序
-                messageCatalog.refreshOrder();
+                // 准备消息数据
+                that.prepareMessages(function() {
+                    // 隐藏进度提示
+                    dialog.hideLoading();
 
-                // 文件目录准备
-                filesCatalog.prepare();
+                    // 目录排序
+                    messageCatalog.refreshOrder();
 
-                // 会议信息加载
-                confCtrl.ready();
+                    // 文件目录准备
+                    filesCatalog.prepare();
+
+                    // 会议信息加载
+                    confCtrl.ready();
+
+                    console.log('Cube WebApp Ready');
+                });
             });
-            console.log('Cube WebApp Ready');
         },
 
         /**
@@ -538,8 +542,7 @@
                         if (count == 0 && gotGroup) {
                             setTimeout(function() {
                                 callback();
-                                // 隐藏进度提示
-                                dialog.hideLoading();
+                                
                             }, 100);
                         }
                     }
@@ -559,8 +562,6 @@
                         if (count == 0 && gotGroup) {
                             setTimeout(function() {
                                 callback();
-                                // 隐藏进度提示
-                                dialog.hideLoading();
                             }, 100);
                         }
                     });
@@ -582,6 +583,10 @@
 
                         // 依次添加到 Zone
                         response.forEach(function(value, index) {
+                            if (value.id == account.id) {
+                                return;
+                            }
+
                             cube.contact.addContactToZone(app.contactZone, value.id);
                         });
                     });
@@ -634,6 +639,19 @@
                     contactsCtrl.addGroup(group);
                 }
             });
+        },
+
+        /**
+         * 查询最近消息。
+         * @param {function} callback 
+         */
+        prepareMessages: function(callback) {
+            cube.messaging.queryMessage(Date.now(), function(time, result) {
+                for (var i = 0; i < result.length; ++i) {
+                    var message = result[i];
+                }
+            });
+            callback();
         }
     };
 

@@ -97,7 +97,7 @@
             }
         });
 
-        if (document.cookie.indexOf('CubeAppToken') >= 0 && window.location.search.indexOf('x=logout') < 0) {
+        if (document.cookie.indexOf('CubeAppToken') >= 0 && window.location.search.indexOf('c=logout') < 0) {
             // 尝试使用 Cookie 登录
             $('#modal_login').modal('show');
 

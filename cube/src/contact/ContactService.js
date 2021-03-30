@@ -528,17 +528,30 @@ export class ContactService extends Module {
      * 添加联系人到分区。
      * @param {string} name 分区名。
      * @param {number|Contact} contactId 指定联系人 ID 。
+     * @param {string} postscript 指定附言。
      * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode zoneName}:{@linkcode string}, {@linkcode contactId}:{@linkcode number})。
      * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
      */
-    addContactToZone(name, contactId, handleSuccess, handleFailure) {
+    addContactToZone(name, contactId, postscript, handleSuccess, handleFailure) {
         if (contactId instanceof Contact) {
             contactId = contactId.getId();
         }
 
+        if (contactId == this.self.getId()) {
+            if (handleFailure) {
+                handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.IllegalOperation, name));
+            }
+            return;
+        }
+
+        if (undefined === postscript || null == postscript) {
+            postscript = '';
+        }
+
         let packet = new Packet(ContactAction.AddContactToZone, {
             "name": name,
-            "contactId": contactId
+            "contactId": contactId,
+            "postscript": postscript
         });
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
             if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {

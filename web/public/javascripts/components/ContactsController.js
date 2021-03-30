@@ -208,10 +208,11 @@
      * 添加联系到 Zone
      * @param {string} zoneName
      * @param {number} contactId 
+     * @param {string} postscript
      * @param {function} callback
      */
-    ContactsController.prototype.addContactToZone = function(zoneName, contactId, callback) {
-        cube.contact.addContactToZone(zoneName, contactId, function(zoneName, contactId) {
+    ContactsController.prototype.addContactToZone = function(zoneName, contactId, postscript, callback) {
+        cube.contact.addContactToZone(zoneName, contactId, postscript, function(zoneName, contactId) {
             g.app.getContact(contactId, function(contact) {
                 that.addContact(contact);
                 if (callback) {
