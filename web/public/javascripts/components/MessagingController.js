@@ -504,6 +504,15 @@
         g.app.messagePanel.clearPanel(group.getId());
     }
 
+    /**
+     * 从界面上移除联系人。
+     * @param {Group} group 
+     */
+     MessagingController.prototype.removeContact = function(contact) {
+        g.app.messageCatalog.removeItem(contact);
+        g.app.messagePanel.clearPanel(contact.getId());
+    }
+
     g.MessagingController = MessagingController;
 
 })(window);

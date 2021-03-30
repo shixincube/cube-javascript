@@ -89,6 +89,10 @@
         }, 1000);
     }
 
+    /**
+     * 搜索。
+     * @param {string} keyword 
+     */
     SearchDialog.prototype.search = function(keyword) {
         var that = this;
 

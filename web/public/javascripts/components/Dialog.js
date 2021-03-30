@@ -159,7 +159,7 @@
         },
 
         hideConfirm: function(yesOrNo) {
-            this.closeConfirm();
+            this.closeConfirm(yesOrNo);
         },
 
         /**

@@ -63,9 +63,10 @@
     /**
      * 追加菜单项。
      * @param {Contact|Group|object} value 数据值。
+     * @param {boolean} [first] 是否插入到队列首位。
      * @returns {boolean} 返回 {@linkcode true} 表示追加成功。
      */
-    MessageCatalogue.prototype.appendItem = function(value) {
+    MessageCatalogue.prototype.appendItem = function(value, first) {
         var index = this.items.length;
         var id = 0;
         var el = null;
@@ -124,7 +125,12 @@
             time: time
         };
 
-        this.items.push(item);
+        if (first) {
+            this.items.unshift(item);
+        }
+        else {
+            this.items.push(item);
+        }
 
         var html = [
             '<li id="mc_item_', index, '" class="item pl-2 pr-2" data="', id, '">',
@@ -143,7 +149,12 @@
 
         item.el = el;
 
-        this.el.append(el);
+        if (first) {
+            this.el.prepend(el);
+        }
+        else {
+            this.el.append(el);
+        }
 
         // 绑定事件
         this.bindEvent(el);

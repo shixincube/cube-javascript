@@ -440,6 +440,10 @@
             });
         },
 
+        removeContact: function() {
+            
+        },
+
         /**
          * 获取群组。
          * @param {number} id 

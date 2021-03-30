@@ -159,7 +159,7 @@
         },
 
         hideConfirm: function(yesOrNo) {
-            this.closeConfirm();
+            this.closeConfirm(yesOrNo);
         },
 
         /**
@@ -440,9 +440,10 @@
     /**
      * 追加菜单项。
      * @param {Contact|Group|object} value 数据值。
+     * @param {boolean} [first] 是否插入到队列首位。
      * @returns {boolean} 返回 {@linkcode true} 表示追加成功。
      */
-    MessageCatalogue.prototype.appendItem = function(value) {
+    MessageCatalogue.prototype.appendItem = function(value, first) {
         var index = this.items.length;
         var id = 0;
         var el = null;
@@ -501,7 +502,12 @@
             time: time
         };
 
-        this.items.push(item);
+        if (first) {
+            this.items.unshift(item);
+        }
+        else {
+            this.items.push(item);
+        }
 
         var html = [
             '<li id="mc_item_', index, '" class="item pl-2 pr-2" data="', id, '">',
@@ -520,7 +526,12 @@
 
         item.el = el;
 
-        this.el.append(el);
+        if (first) {
+            this.el.prepend(el);
+        }
+        else {
+            this.el.append(el);
+        }
 
         // 绑定事件
         this.bindEvent(el);
@@ -1144,16 +1155,25 @@
             panel.el.remove();
 
             if (this.current == panel) {
+                this.btnVideoCall.attr('disabled', 'disabled');
+                this.btnVoiceCall.attr('disabled', 'disabled');
+                this.btnSendFile.attr('disabled', 'disabled');
+                this.elTitle.text('');
+
+                if (activeEditor) {
+                    this.inputEditor.txt.clear();
+                    this.inputEditor.disable();
+                }
+                else {
+                    this.elInput.val('');
+                    this.elInput.attr('disabled', 'disabled');
+                }
+
                 this.current = null;
             }
 
             delete this.panels[id.toString()];
         }
-
-        this.btnVideoCall.attr('disabled', 'disabled');
-        this.btnVoiceCall.attr('disabled', 'disabled');
-        this.btnSendFile.attr('disabled', 'disabled');
-        this.elTitle.text('');
     }
 
     /**
@@ -3353,6 +3373,15 @@
         g.app.messagePanel.clearPanel(group.getId());
     }
 
+    /**
+     * 从界面上移除联系人。
+     * @param {Group} group 
+     */
+     MessagingController.prototype.removeContact = function(contact) {
+        g.app.messageCatalog.removeItem(contact);
+        g.app.messagePanel.clearPanel(contact.getId());
+    }
+
     g.MessagingController = MessagingController;
 
 })(window);
@@ -5133,6 +5162,7 @@
                     '<td class="text-right">',
                         '<a class="btn btn-primary btn-sm" href="javascript:app.contactsCtrl.goToMessaging(', i, ');"><i class="fas fa-comments"></i> 发消息</a>',
                         '<a class="btn btn-info btn-sm" href="javascript:app.contactsCtrl.editRemark(', i, ');" style="margin-left:8px;"><i class="fas fa-pencil-alt"></i> 备注</a>',
+                        '<a class="btn btn-danger btn-sm" href="javascript:app.contactsCtrl.remove(', i, ');" style="margin-left:8px;"><i class="fas fa-user-minus"></i> 删除</a>',
                     '</td>',
                 '</tr>'
             ];
@@ -5455,6 +5485,22 @@
         }, 1000);
     }
 
+    ContactsController.prototype.removeContact = function(contact) {
+        var deleted = false;
+        for (var i = 0; i < contactList.length; ++i) {
+            var c = contactList[i];
+            if (c.getId() == contact.getId()) {
+                contactList.splice(i, 1);
+                deleted = true;
+                break;
+            }
+        }
+
+        if (deleted) {
+            contactsTable.update(contactList);
+        }
+    }
+
     ContactsController.prototype.addGroup = function(group) {
         groupList.push(group);
 
@@ -5478,6 +5524,9 @@
             return;
         }
 
+        // 向消息目录添加联系人
+        app.messageCatalog.appendItem(entity, true);
+
         // 切换到消息面板
         app.toggle('messaging', 'tab_messaging');
         setTimeout(function() {
@@ -5495,7 +5544,7 @@
             if (undefined === contact) {
                 return;
             }
-    
+
             g.dialog.showPrompt('备注联系人', '请填写联系人“' + contact.getName() + '”的备注：', function(ok, value) {
                 if (ok) {
                     var remark = value.trim();
@@ -5503,7 +5552,7 @@
                         g.dialog.launchToast(g.Toast.Warning, '请正确填写联系人备注');
                         return false;
                     }
-    
+
                     // 更新联系人备注
                     contact.getAppendix().updateRemarkName(remark, function() {
                         contactsTable.modifyRemark(index, remark);
@@ -5520,9 +5569,16 @@
      * 删除联系人。
      * @param {number} index 
      */
-    ContactsController.prototype.removeContact = function(index) {
+    ContactsController.prototype.remove = function(index) {
         var contact = contactsTable.getCurrentContact(index);
-
+        g.dialog.showConfirm('删除联系人', '您确认要从“我的联系人”里删除“<b>' + contact.getPriorityName() + '</b>”？', function(yesOrNo) {
+            if (yesOrNo) {
+                cube.contact.removeContactFromZone(g.app.contactZone, contact.getId(), function(zoneName, contactId) {
+                    that.removeContact(contact);
+                    g.app.messagingCtrl.removeContact(contact);
+                });
+            }
+        });
     }
 
     /**
@@ -6152,6 +6208,10 @@
         }, 1000);
     }
 
+    /**
+     * 搜索。
+     * @param {string} keyword 
+     */
     SearchDialog.prototype.search = function(keyword) {
         var that = this;
 

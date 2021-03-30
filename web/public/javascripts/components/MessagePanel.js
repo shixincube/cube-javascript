@@ -367,16 +367,25 @@
             panel.el.remove();
 
             if (this.current == panel) {
+                this.btnVideoCall.attr('disabled', 'disabled');
+                this.btnVoiceCall.attr('disabled', 'disabled');
+                this.btnSendFile.attr('disabled', 'disabled');
+                this.elTitle.text('');
+
+                if (activeEditor) {
+                    this.inputEditor.txt.clear();
+                    this.inputEditor.disable();
+                }
+                else {
+                    this.elInput.val('');
+                    this.elInput.attr('disabled', 'disabled');
+                }
+
                 this.current = null;
             }
 
             delete this.panels[id.toString()];
         }
-
-        this.btnVideoCall.attr('disabled', 'disabled');
-        this.btnVoiceCall.attr('disabled', 'disabled');
-        this.btnSendFile.attr('disabled', 'disabled');
-        this.elTitle.text('');
     }
 
     /**

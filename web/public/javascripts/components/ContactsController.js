@@ -108,6 +108,22 @@
         }, 1000);
     }
 
+    ContactsController.prototype.removeContact = function(contact) {
+        var deleted = false;
+        for (var i = 0; i < contactList.length; ++i) {
+            var c = contactList[i];
+            if (c.getId() == contact.getId()) {
+                contactList.splice(i, 1);
+                deleted = true;
+                break;
+            }
+        }
+
+        if (deleted) {
+            contactsTable.update(contactList);
+        }
+    }
+
     ContactsController.prototype.addGroup = function(group) {
         groupList.push(group);
 
@@ -131,6 +147,9 @@
             return;
         }
 
+        // 向消息目录添加联系人
+        app.messageCatalog.appendItem(entity, true);
+
         // 切换到消息面板
         app.toggle('messaging', 'tab_messaging');
         setTimeout(function() {
@@ -148,7 +167,7 @@
             if (undefined === contact) {
                 return;
             }
-    
+
             g.dialog.showPrompt('备注联系人', '请填写联系人“' + contact.getName() + '”的备注：', function(ok, value) {
                 if (ok) {
                     var remark = value.trim();
@@ -156,7 +175,7 @@
                         g.dialog.launchToast(g.Toast.Warning, '请正确填写联系人备注');
                         return false;
                     }
-    
+
                     // 更新联系人备注
                     contact.getAppendix().updateRemarkName(remark, function() {
                         contactsTable.modifyRemark(index, remark);
@@ -173,9 +192,16 @@
      * 删除联系人。
      * @param {number} index 
      */
-    ContactsController.prototype.removeContact = function(index) {
+    ContactsController.prototype.remove = function(index) {
         var contact = contactsTable.getCurrentContact(index);
-
+        g.dialog.showConfirm('删除联系人', '您确认要从“我的联系人”里删除“<b>' + contact.getPriorityName() + '</b>”？', function(yesOrNo) {
+            if (yesOrNo) {
+                cube.contact.removeContactFromZone(g.app.contactZone, contact.getId(), function(zoneName, contactId) {
+                    that.removeContact(contact);
+                    g.app.messagingCtrl.removeContact(contact);
+                });
+            }
+        });
     }
 
     /**
