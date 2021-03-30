@@ -5406,6 +5406,200 @@
 
     var that = null;
 
+    var container = null;
+    var tableEl = null;
+    var tbodyEl = null;
+    var pagingEl = null;
+
+    var entityList = [];
+
+    var currentPage = null;
+
+    var pagination = 1;
+    var pageSize = 10;
+    var maxPagination = 0;
+
+    var PendingTable = function(el) {
+        that = this;
+        container = el;
+        tableEl = el.find('.table');
+        tbodyEl = tableEl.find('tbody');
+        pagingEl = el.find('.pagination');
+    }
+
+    PendingTable.prototype.getCurrentContact = function(index) {
+        return currentPage[index];
+    }
+
+    PendingTable.prototype.update = function(groups) {
+        entityList = groups;
+
+        entityList.sort(function(a, b) {
+            return a.getName().localeCompare(b.getName());
+        });
+
+        currentPage = [];
+        for (var i = 0; i < pageSize && i < entityList.length; ++i) {
+            currentPage.push(entityList[i]);
+        }
+        
+        // 分页
+        maxPagination = Math.ceil(entityList.length / pageSize);
+        this.paging(maxPagination);
+
+        // 显示指定页
+        // 第一页
+        pagination = 0;
+        this.show(1, currentPage);
+    }
+
+    PendingTable.prototype.showPage = function(newPagination) {
+        if (pagination == newPagination) {
+            return;
+        }
+
+        if (newPagination < 1 || newPagination > maxPagination) {
+            return;
+        }
+
+        currentPage = [];
+        for (var i = (newPagination - 1) * pageSize; i < entityList.length && currentPage.length < pageSize; ++i) {
+            currentPage.push(entityList[i]);
+        }
+
+        // 更新表格
+        this.show(newPagination, currentPage);
+    }
+
+
+    PendingTable.prototype.paging = function(num) {
+        var html = [
+            '<li class="page-item"><a class="page-link" href="javascript:app.contactsCtrl.prevPage();">«</a></li>'
+        ];
+
+        for (var i = 1; i <= num; ++i) {
+            html.push('<li class="page-item page-' + i + '"><a class="page-link" href="javascript:app.contactsCtrl.showPage(' + i + ');">' + i + '</a></li>');
+        }
+
+        html.push('<li class="page-item"><a class="page-link" href="javascript:app.contactsCtrl.nextPage();">»</a></li>');
+
+        pagingEl.html(html.join(''));
+    }
+
+    PendingTable.prototype.show = function(page, groups) {
+        if (page == pagination) {
+            return;
+        }
+
+        if (pagination > 0) {
+            pagingEl.find('.page-' + pagination).removeClass('active');
+        }
+        pagingEl.find('.page-' + page).addClass('active');
+        // 更新页码
+        pagination = page;
+
+        tbodyEl.empty();
+
+        for (var i = 0; i < groups.length; ++i) {
+            var group = groups[i];
+            var avatar = 'images/group-avatar.png';
+            var appendix = group.getAppendix();
+
+            group.tableSN = i;   // 表格的 SN
+            group.listMembers(function(list, group) {
+                var cols = 4;
+                var count = 8;
+                var memberHtml = [
+                    '<ul class="list-inline">',
+                ];
+                list.some(function(value) {
+                    var ctx = value.getContext();
+                    if (null == ctx) {
+                        value = app.queryContact(value.getId());
+                        ctx = value.getContext();
+                    }
+                    var memberAvatar = ctx.avatar;
+                    memberHtml.push('<li class="list-inline-item">');
+                    memberHtml.push('<img title="' + value.getPriorityName() + '" class="table-avatar" src="images/' + memberAvatar + '" />');
+                    memberHtml.push('</li>');
+                    
+                    --cols;
+                    --count;
+                    if (count == 0) {
+                        return true;
+                    }
+
+                    if (cols == 0) {
+                        memberHtml.push('</ul><ul class="list-inline">');
+                        cols = 4;
+                    }
+                });
+                memberHtml.push('</ul>');
+
+                tbodyEl.find('tr[data-target="' + group.tableSN + '"]').find('.members').html(memberHtml.join(''));
+            });
+
+            var html = [
+                '<tr data-target="', i, '">',
+                    '<td>', (page - 1) * 10 + (i + 1), '</td>',
+                    '<td><img class="table-avatar" src="', avatar, '" /></td>',
+                    '<td>', group.getName(), '</td>',
+                    '<td class="text-muted">', appendix.hasRemark() ? appendix.getRemark() : '', '</td>',
+                    '<td>', group.getId(), '</td>',
+                    '<td>', appendix.getNotice(), '</td>',
+                    '<td class="members">', '</td>',
+                    '<td class="text-right">',
+                        '<a class="btn btn-primary btn-sm" href="javascript:app.contactsCtrl.goToMessaging(', i, ');"><i class="fas fa-comments"></i> 发消息</a>',
+                        '<a class="btn btn-info btn-sm" href="javascript:app.contactsCtrl.editRemark(', i, ');" style="margin-left:8px;"><i class="fas fa-pencil-alt"></i> 备注</a>',
+                    '</td>',
+                '</tr>'
+            ];
+            tbodyEl.append($(html.join('')));
+        }
+    }
+
+    /**
+     * 切换到上一页。
+     */
+     PendingTable.prototype.prevPage = function() {
+        if (pagination == 1) {
+            return;
+        }
+
+        var page = pagination - 1;
+        this.showPage(page);
+    }
+
+    /**
+     * 切换到下一页。
+     */
+     PendingTable.prototype.nextPage = function() {
+        if (pagination == maxPagination) {
+            return;
+        }
+
+        var page = pagination + 1;
+        this.showPage(page);
+    }
+
+    PendingTable.prototype.modifyRemark = function(rowIndex, remark) {
+        this.modifyCell(rowIndex, 3, remark);
+    }
+
+    PendingTable.prototype.modifyCell = function(rowIndex, colIndex, text) {
+        var rowEl = tbodyEl.find('tr[data-target="' + rowIndex + '"]');
+        var cell = rowEl.find('td').eq(colIndex);
+        cell.text(text);
+    }
+
+    g.PendingTable = PendingTable;
+
+ })(window);
+ (function(g) {
+    'use strict';
+
+    var that = null;
+
     var cube = null;
 
     var contactList = [];
@@ -5415,6 +5609,7 @@
 
     var contactsTable = null;
     var groupsTable = null;
+    var pendingTable = null;
 
     var currentTable = null;
 
@@ -5426,11 +5621,14 @@
     var btnRefresh = null;
 
     function onTabChanged(e) {
-        if (e.target.id == 'contacts-tabs-groups-tab') {
+        if (e.target.id == 'contacts-tabs-default-tab') {
+            currentTable = contactsTable;
+        }
+        else if (e.target.id == 'contacts-tabs-groups-tab') {
             currentTable = groupsTable;
         }
         else {
-            currentTable = contactsTable;
+            currentTable = pendingTable;
         }
     }
 
@@ -5449,6 +5647,8 @@
         contactsTable = new ContactsTable($('div[data-target="contacts-table"]'));
 
         groupsTable = new GroupsTable($('div[data-target="groups-table"]'));
+
+        pendingTable = new PendingTable($('div[data-target="pending-table"]'));
 
         btnAddContact = $('.contacts-card').find('a[data-target="add-contact"]');
         btnAddContact.on('click', function() {

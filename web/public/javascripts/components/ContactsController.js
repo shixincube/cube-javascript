@@ -33,27 +33,33 @@
 
     var contactList = [];
     var groupList = [];
+    var pendingList = [];
 
     var tabEl = null;
 
     var contactsTable = null;
     var groupsTable = null;
+    var pendingTable = null;
 
     var currentTable = null;
 
     var contactDelayTimer = 0;
     var groupDelayTimer = 0;
+    var pendingTimer = 0;
 
     var btnAddContact = null;
     var btnNewGroup = null;
     var btnRefresh = null;
 
     function onTabChanged(e) {
-        if (e.target.id == 'contacts-tabs-groups-tab') {
+        if (e.target.id == 'contacts-tabs-default-tab') {
+            currentTable = contactsTable;
+        }
+        else if (e.target.id == 'contacts-tabs-groups-tab') {
             currentTable = groupsTable;
         }
         else {
-            currentTable = contactsTable;
+            currentTable = pendingTable;
         }
     }
 
@@ -72,6 +78,8 @@
         contactsTable = new ContactsTable($('div[data-target="contacts-table"]'));
 
         groupsTable = new GroupsTable($('div[data-target="groups-table"]'));
+
+        pendingTable = new PendingTable($('div[data-target="pending-table"]'));
 
         btnAddContact = $('.contacts-card').find('a[data-target="add-contact"]');
         btnAddContact.on('click', function() {
@@ -137,6 +145,19 @@
         }, 1000);
     }
 
+    ContactsController.prototype.addPending = function(entity) {
+        pendingList.push(entity);
+
+        if (pendingTimer > 0) {
+            clearTimeout(pendingTimer);
+        }
+        pendingTimer = setTimeout(function() {
+            clearTimeout(pendingTimer);
+            pendingTimer = 0;
+            pendingTable.update(pendingList);
+        }, 1000);
+    }
+
     /**
      * 跳转到消息界面。
      * @param {number} index 
@@ -159,7 +180,7 @@
 
     /**
      * 编辑联系人备注。
-     * @param {*} index 
+     * @param {number} index 
      */
     ContactsController.prototype.editRemark = function(index) {
         if (currentTable == contactsTable) {

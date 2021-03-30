@@ -476,7 +476,37 @@ export class ContactService extends Module {
                 }
                 else {
                     if (handleFailure) {
-                        handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.Failure, name));
+                        handleFailure(new ModuleError(ContactService.NAME, responsePacket.data.code, name));
+                    }
+                }
+            }
+            else {
+                if (handleFailure) {
+                    handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.ServerError, name));
+                }
+            }
+        });
+    }
+
+    /**
+     * 获取指定名称的待处理联系人分区。
+     * @param {string} name 分区名。
+     * @param {function} handleSuccess 操作成功回调该方法，参数：({@linkcode contactZone}:{@link ContactZone})。
+     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
+     */
+    getPendingZone(name, handleSuccess, handleFailure) {
+        let packet = new Packet(ContactAction.GetContactZone, {
+            "name": name,
+            "pending": true
+        });
+        this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+                if (responsePacket.data.code == ContactServiceState.Ok) {
+                    handleSuccess(new ContactZone(responsePacket.data.data));
+                }
+                else {
+                    if (handleFailure) {
+                        handleFailure(new ModuleError(ContactService.NAME, responsePacket.data.code, name));
                     }
                 }
             }
