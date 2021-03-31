@@ -129,6 +129,28 @@ router.get('/info', function(req, res, next) {
     }
 });
 
+/* POST /info  */
+router.post('/info', function(req, res, next) {
+    let newName = req.body.name;
+    let newAvatar = req.body.avatar;
+
+    let token = req.cookies['CubeAppToken'];
+    if (token) {
+        let account = req.app.get('manager').getOnlineAccountByToken(token);
+        if (null == account) {
+            res.sendStatus(400);
+            return;
+        }
+
+        req.app.get('manager').modifyAccount(account.id, newName, newAvatar, function(account) {
+            res.json(account);
+        });
+    }
+    else {
+        res.sendStatus(404);
+    }
+});
+
 
 /* POST /hb */
 router.post('/hb', function(req, res, next) {

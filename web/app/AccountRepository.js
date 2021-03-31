@@ -283,6 +283,30 @@ class AccountRepository {
         });
     }
 
+    updateAccount(id, newName, newAvatar) {
+        let nameSql = (newName) ? [ "`name`='", newName, "'" ] : [];
+        let avatarSql = (newAvatar) ? [ "`avatar`='", newAvatar, "'" ] : [];
+
+        if (nameSql.length > 0 && avatarSql.length > 0) {
+            nameSql.push(", ");
+        }
+
+        return new Promise((resolve, reject) => {
+            this.pool.query("UPDATE account SET " + nameSql.join('') + avatarSql.join('') + " WHERE `id`=" + id, (error, result) => {
+                if (error) {
+                    resolve(null);
+                    return;
+                }
+
+                this.queryAccountById(id).then((account) => {
+                    resolve(account);
+                }).catch(() => {
+                    resolve(null);
+                });
+            });
+        });
+    }
+
     queryToken(token, handlerCallback) {
         this.pool.query("SELECT * FROM token WHERE `token`='" + token + "'", (error, results, fields) => {
             if (error || results.length == 0) {

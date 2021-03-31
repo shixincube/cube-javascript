@@ -60,10 +60,10 @@ export const ContactAction = {
     GetContact: 'getContact',
 
     /**
-     * 获取指定列表里的联系人信息。
+     * 修改联系人信息。
      * @type {string}
      */
-    GetContactList: 'getContactList',
+    ModifyContact: 'modifyContact',
 
     /**
      * 获取联系人分区。

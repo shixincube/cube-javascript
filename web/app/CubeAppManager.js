@@ -128,6 +128,42 @@ class CubeAppManager {
         })();
     }
 
+    /**
+     * 
+     * @param {*} id 
+     * @param {*} newName 
+     * @param {*} newAvatar 
+     * @param {*} callback 
+     */
+    modifyAccount(id, newName, newAvatar, callback) {
+        if (undefined === newName && undefined === newAvatar) {
+            this.getAccountById(id, (account) => {
+                callback(account);
+            });
+            return;
+        }
+
+        (async () => {
+            let result = await this.accRepo.updateAccount(id, newName, newAvatar);
+            if (null != result) {
+                let account = this.onlineAccounts[result.account];
+                account.name = result.name;
+                account.avatar = result.avatar;
+                callback(account);
+            }
+            else {
+                this.getAccountById(id, (account) => {
+                    callback(account);
+                });
+            }
+        })();
+    }
+
+    /**
+     * 
+     * @param {*} token 
+     * @returns 
+     */
     getCubeConfig(token) {
         let accountData = this.getOnlineAccountByToken(token);
         if (null == accountData) {

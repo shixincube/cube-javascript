@@ -642,14 +642,21 @@ export class ContactService extends Module {
     }
 
     /**
-     * 更新指定 ID 列表里的联系人信息。
-     * @protected
-     * @deprecated
-     * @param {Array} idList 联系人 ID 列表。
-     * @param {function} [handleSuccess] 操作成功回调该方法。
-     * @param {function} [handleFailure] 操作失败回调该方法。
+     * @private
      */
-    updateContactList(idList, handleSuccess, handleFailure) {
+    mutuals() {
+
+    }
+
+    /**
+     * 修改当前签入联系人的信息。
+     * @param {string} newName 指定新的名称，如果不修改设置为 {@linkcode null} 值。
+     * @param {object} newContext 指定新的上下文，如果不修改设置为 {@linkcode null} 值。
+     * @param {function} [handleSuccess] 操作成功回调该方法。参数：({@linkcode contact}:{@link Contact}) 。
+     * @param {function} [handleFailure] 操作失败回调该方法。参数：({@linkcode error}:{@link ModuleError}) 。
+     * @returns {Promise} 如果不设置任何回调函数，返回 {@linkcode Promise} 实例。
+     */
+    modifyContact(newName, newContext, handleSuccess, handleFailure) {
         if (!this.selfReady) {
             if (handleFailure) {
                 handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.NotAllowed, contactId));
@@ -658,49 +665,53 @@ export class ContactService extends Module {
         }
 
         let promise = new Promise((resolve, reject) => {
-            let packet = new Packet(ContactAction.GetContactList, {
-                "list": idList,
-                "domain": AuthService.DOMAIN
-            });
+            let requestData = {
+                "name": newName,
+                "context": newContext
+            };
+            if (null == newName) {
+                delete requestData["name"];
+            }
+            if (null == newContext) {
+                delete requestData["context"];
+            }
+
+            let packet = new Packet(ContactAction.ModifyContact, requestData);
             this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
                 if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
                     if (responsePacket.data.code == ContactServiceState.Ok) {
-                        let list = responsePacket.data.data;
-                        let contactList = [];
+                        let json = responsePacket.data.data;
 
-                        for (let i = 0; i < list.length; ++i) {
-                            let contact = Contact.create(list[i]);
-                            contactList.push(contact);
+                        let contact = Contact.create(json);
 
-                            // 更新到内存
-                            this.contacts.put(contact.getId(), contact);
+                        // 更新到内存
+                        this.contacts.put(contact.getId(), contact);
 
-                            // 写入存储
-                            this.storage.writeContact(contact);
-                        }
+                        // 写入存储
+                        this.storage.writeContact(contact);
 
-                        resolve(contactList);
+                        resolve(contact);
                     }
                     else {
-                        reject(new ModuleError(ContactService.NAME, responsePacket.data.code, idList));
+                        reject(new ModuleError(ContactService.NAME, responsePacket.data.code, requestData));
                     }
                 }
                 else {
-                    reject(new ModuleError(ContactService.NAME, ContactServiceState.ServerError, idList));
+                    reject(new ModuleError(ContactService.NAME, ContactServiceState.ServerError, requestData));
                 }
             });
         });
 
         if (handleSuccess && handleFailure) {
-            promise.then((contactList) => {
-                handleSuccess(contactList);
+            promise.then((contact) => {
+                handleSuccess(contact);
             }).catch((error) => {
                 handleFailure(error);
             });
         }
         else if (handleSuccess) {
-            promise.then((contactList) => {
-                handleSuccess(contactList);
+            promise.then((contact) => {
+                handleSuccess(contact);
             }).catch(() => {
                 // Nothing
             });

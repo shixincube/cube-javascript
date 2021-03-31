@@ -282,6 +282,8 @@
             // 联系人控制器
             contactsCtrl = new ContactsController(cube);
 
+            that.sidebarAccountPanel = sidebarAccountPanel;
+
             that.messageCatalog = messageCatalog;
             that.messagePanel = messagePanel;
             that.messageSidebar = messageSidebar;
@@ -708,6 +710,7 @@
 
     app.queryContact = queryContact;
     app.queryGroup = queryGroup;
+    app.updateContact = updateContact;
 
     app.contactZone = 'contacts';
 

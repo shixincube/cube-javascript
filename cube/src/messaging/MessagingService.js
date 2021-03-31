@@ -719,6 +719,10 @@ export class MessagingService extends Module {
             for (let i = 0; i < list.length; ++i) {
                 let message = list[i];
                 if (message.isFromGroup()) {
+                    if (message.getSourceGroup().tag != 'public') {
+                        continue;
+                    }
+
                     if (ids.indexOf(message.source) < 0) {
                         ids.push(message.source);
                         messagers.push(message.getSourceGroup());
