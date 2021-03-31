@@ -1158,6 +1158,10 @@ body {
     text-align: center;
     margin: 0.2rem;
 }
+.conference .timeline-body .participant .avatar {
+    width: unset;
+    height: unset;
+}
 .conference .timeline-body .participant .name {
     margin-top: 4px;
 }
