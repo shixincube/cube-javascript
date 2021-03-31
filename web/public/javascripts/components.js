@@ -2433,6 +2433,14 @@
             el.find('.user-id').text(contact.getId());
             el.find('.user-region').text(contact.getContext().region);
             el.find('.user-department').text(contact.getContext().department);
+
+            if (contact.getId() == g.app.getSelf().getId()) {
+                btnEditRemarkName.css('visibility', 'hidden');
+            }
+            else {
+                btnEditRemarkName.css('visibility', 'visible');
+            }
+
             el.modal('show');
         }
 
