@@ -125,6 +125,7 @@
 
         for (var i = 0; i < entities.length; ++i) {
             var entity = entities[i];
+            var avatar = (entity instanceof Group) ? 'images/group-avatar.png' : 'images/' + entity.getContext().avatar;
 
             /*
             var html = [
@@ -144,6 +145,20 @@
             ];
             tbodyEl.append($(html.join('')));
             */
+
+            var html = [
+                '<tr data-target="', i, '">',
+                    '<td>', (page - 1) * 10 + (i + 1), '</td>',
+                    '<td><img class="table-avatar" src="', avatar, '" /></td>',
+                    '<td>', entity.getName(), '</td>',
+                    '<td class="text-muted">', entity.getId(), '</td>',
+                    '<td>', entity.postscript, '</td>',
+                    '<td class="text-right">',
+                        '<a class="btn btn-primary btn-sm" href="javascript:app.contactsCtrl.acceptPendingContact(', i, ');"><i class="fas fa-user-check"></i> 添加联系人</a>',
+                    '</td>',
+                '</tr>'
+            ];
+            tbodyEl.append($(html.join('')));
         }
     }
 

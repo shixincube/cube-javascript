@@ -486,6 +486,9 @@
                     // 会议信息加载
                     confCtrl.ready();
 
+                    // 联系人控制器就绪
+                    contactsCtrl.ready();
+
                     console.log('Cube WebApp Ready');
                 });
             });

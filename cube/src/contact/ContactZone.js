@@ -60,4 +60,18 @@ export class ContactZone {
          */
         this.postscripts = json.postscripts;
     }
+
+    /**
+     * 获取指定联系人的附言。
+     * @param {number} contactId 
+     * @returns {string} 返回指定联系人的附言。
+     */
+    getPostscript(contactId) {
+        let index = this.contacts.indexOf(contactId);
+        if (index >= 0) {
+            return this.postscripts[index];
+        }
+
+        return '';
+    }
 }

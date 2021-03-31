@@ -100,8 +100,39 @@
     }
 
     /**
+     * 初始化待处理列表。
+     * @param {function} [callback]
+     */
+    ContactsController.prototype.ready = function(callback) {
+        pendingList = [];
+
+        cube.contact.getPendingZone(g.app.contactZone, function(zone) {
+            var count = zone.contacts.length;
+
+            zone.contacts.forEach(function(value) {
+                app.getContact(value, function(contact) {
+                    var ps = zone.getPostscript(contact.getId());
+                    contact.postscript = ps;
+                    that.addPending(contact);
+                    --count;
+
+                    if (count == 0 && callback) {
+                        callback();
+                    }
+                });
+            });
+
+            if (count == 0 && callback) {
+                callback();
+            }
+        }, function(error) {
+            console.log(error);
+        });
+    }
+
+    /**
      * 添加联系人数据。
-     * @param {*} contact 
+     * @param {Contact} contact 
      */
     ContactsController.prototype.addContact = function(contact) {
         contactList.push(contact);
@@ -226,7 +257,27 @@
     }
 
     /**
-     * 添加联系到 Zone
+     * 同意添加联系人。
+     * @param {*} index 
+     */
+    ContactsController.prototype.acceptPendingContact = function(index) {
+        var contact = currentTable.getCurrentContact(index);
+        g.dialog.showConfirm('添加联系人', '您确认要添加联系人“<b>' + contact.getName() + '</b>”吗？', function(yesOrNo) {
+            if (yesOrNo) {
+                cube.contact.addContactToZone(g.app.contactZone, contact.getId(), null, function() {
+                    // 将其添加到联系人列表
+                    contactList.push(contact);
+
+                    that.ready(function() {
+                        that.update();
+                    });
+                });
+            }
+        });
+    }
+
+    /**
+     * 添加联系人到指定分区。
      * @param {string} zoneName
      * @param {number} contactId 
      * @param {string} postscript
@@ -277,6 +328,7 @@
     ContactsController.prototype.update = function() {
         contactsTable.update(contactList);
         groupsTable.update(groupList);
+        pendingTable.update(pendingList);
     }
 
     g.ContactsController = ContactsController;

@@ -5431,8 +5431,8 @@
         return currentPage[index];
     }
 
-    PendingTable.prototype.update = function(groups) {
-        entityList = groups;
+    PendingTable.prototype.update = function(entities) {
+        entityList = entities;
 
         entityList.sort(function(a, b) {
             return a.getName().localeCompare(b.getName());
@@ -5486,7 +5486,7 @@
         pagingEl.html(html.join(''));
     }
 
-    PendingTable.prototype.show = function(page, groups) {
+    PendingTable.prototype.show = function(page, entities) {
         if (page == pagination) {
             return;
         }
@@ -5500,57 +5500,38 @@
 
         tbodyEl.empty();
 
-        for (var i = 0; i < groups.length; ++i) {
-            var group = groups[i];
-            var avatar = 'images/group-avatar.png';
-            var appendix = group.getAppendix();
+        for (var i = 0; i < entities.length; ++i) {
+            var entity = entities[i];
+            var avatar = (entity instanceof Group) ? 'images/group-avatar.png' : 'images/' + entity.getContext().avatar;
 
-            group.tableSN = i;   // 表格的 SN
-            group.listMembers(function(list, group) {
-                var cols = 4;
-                var count = 8;
-                var memberHtml = [
-                    '<ul class="list-inline">',
-                ];
-                list.some(function(value) {
-                    var ctx = value.getContext();
-                    if (null == ctx) {
-                        value = app.queryContact(value.getId());
-                        ctx = value.getContext();
-                    }
-                    var memberAvatar = ctx.avatar;
-                    memberHtml.push('<li class="list-inline-item">');
-                    memberHtml.push('<img title="' + value.getPriorityName() + '" class="table-avatar" src="images/' + memberAvatar + '" />');
-                    memberHtml.push('</li>');
-                    
-                    --cols;
-                    --count;
-                    if (count == 0) {
-                        return true;
-                    }
-
-                    if (cols == 0) {
-                        memberHtml.push('</ul><ul class="list-inline">');
-                        cols = 4;
-                    }
-                });
-                memberHtml.push('</ul>');
-
-                tbodyEl.find('tr[data-target="' + group.tableSN + '"]').find('.members').html(memberHtml.join(''));
-            });
-
+            /*
             var html = [
                 '<tr data-target="', i, '">',
                     '<td>', (page - 1) * 10 + (i + 1), '</td>',
                     '<td><img class="table-avatar" src="', avatar, '" /></td>',
-                    '<td>', group.getName(), '</td>',
+                    '<td>', entity.getName(), '</td>',
                     '<td class="text-muted">', appendix.hasRemark() ? appendix.getRemark() : '', '</td>',
-                    '<td>', group.getId(), '</td>',
+                    '<td>', entity.getId(), '</td>',
                     '<td>', appendix.getNotice(), '</td>',
                     '<td class="members">', '</td>',
                     '<td class="text-right">',
                         '<a class="btn btn-primary btn-sm" href="javascript:app.contactsCtrl.goToMessaging(', i, ');"><i class="fas fa-comments"></i> 发消息</a>',
                         '<a class="btn btn-info btn-sm" href="javascript:app.contactsCtrl.editRemark(', i, ');" style="margin-left:8px;"><i class="fas fa-pencil-alt"></i> 备注</a>',
+                    '</td>',
+                '</tr>'
+            ];
+            tbodyEl.append($(html.join('')));
+            */
+
+            var html = [
+                '<tr data-target="', i, '">',
+                    '<td>', (page - 1) * 10 + (i + 1), '</td>',
+                    '<td><img class="table-avatar" src="', avatar, '" /></td>',
+                    '<td>', entity.getName(), '</td>',
+                    '<td class="text-muted">', entity.getId(), '</td>',
+                    '<td>', entity.postscript, '</td>',
+                    '<td class="text-right">',
+                        '<a class="btn btn-primary btn-sm" href="javascript:app.contactsCtrl.acceptPendingContact(', i, ');"><i class="fas fa-user-check"></i> 添加联系人</a>',
                     '</td>',
                 '</tr>'
             ];
@@ -5604,6 +5585,7 @@
 
     var contactList = [];
     var groupList = [];
+    var pendingList = [];
 
     var tabEl = null;
 
@@ -5615,6 +5597,7 @@
 
     var contactDelayTimer = 0;
     var groupDelayTimer = 0;
+    var pendingTimer = 0;
 
     var btnAddContact = null;
     var btnNewGroup = null;
@@ -5669,8 +5652,39 @@
     }
 
     /**
+     * 初始化待处理列表。
+     * @param {function} [callback]
+     */
+    ContactsController.prototype.ready = function(callback) {
+        pendingList = [];
+
+        cube.contact.getPendingZone(g.app.contactZone, function(zone) {
+            var count = zone.contacts.length;
+
+            zone.contacts.forEach(function(value) {
+                app.getContact(value, function(contact) {
+                    var ps = zone.getPostscript(contact.getId());
+                    contact.postscript = ps;
+                    that.addPending(contact);
+                    --count;
+
+                    if (count == 0 && callback) {
+                        callback();
+                    }
+                });
+            });
+
+            if (count == 0 && callback) {
+                callback();
+            }
+        }, function(error) {
+            console.log(error);
+        });
+    }
+
+    /**
      * 添加联系人数据。
-     * @param {*} contact 
+     * @param {Contact} contact 
      */
     ContactsController.prototype.addContact = function(contact) {
         contactList.push(contact);
@@ -5714,6 +5728,19 @@
         }, 1000);
     }
 
+    ContactsController.prototype.addPending = function(entity) {
+        pendingList.push(entity);
+
+        if (pendingTimer > 0) {
+            clearTimeout(pendingTimer);
+        }
+        pendingTimer = setTimeout(function() {
+            clearTimeout(pendingTimer);
+            pendingTimer = 0;
+            pendingTable.update(pendingList);
+        }, 1000);
+    }
+
     /**
      * 跳转到消息界面。
      * @param {number} index 
@@ -5736,7 +5763,7 @@
 
     /**
      * 编辑联系人备注。
-     * @param {*} index 
+     * @param {number} index 
      */
     ContactsController.prototype.editRemark = function(index) {
         if (currentTable == contactsTable) {
@@ -5782,7 +5809,27 @@
     }
 
     /**
-     * 添加联系到 Zone
+     * 同意添加联系人。
+     * @param {*} index 
+     */
+    ContactsController.prototype.acceptPendingContact = function(index) {
+        var contact = currentTable.getCurrentContact(index);
+        g.dialog.showConfirm('添加联系人', '您确认要添加联系人“<b>' + contact.getName() + '</b>”吗？', function(yesOrNo) {
+            if (yesOrNo) {
+                cube.contact.addContactToZone(g.app.contactZone, contact.getId(), null, function() {
+                    // 将其添加到联系人列表
+                    contactList.push(contact);
+
+                    that.ready(function() {
+                        that.update();
+                    });
+                });
+            }
+        });
+    }
+
+    /**
+     * 添加联系人到指定分区。
      * @param {string} zoneName
      * @param {number} contactId 
      * @param {string} postscript
@@ -5833,6 +5880,7 @@
     ContactsController.prototype.update = function() {
         contactsTable.update(contactList);
         groupsTable.update(groupList);
+        pendingTable.update(pendingList);
     }
 
     g.ContactsController = ContactsController;

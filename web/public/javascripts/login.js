@@ -68,7 +68,17 @@
             "remember": remember
         }, function(response, status, xhr) {
             if (response.code == 0) {
-                window.location.href = 'main.html?t=' + response.token;
+                window.location.href = 'main.html';
+            }
+            else if (response.code == 1) {
+                $('#modal_login').modal('hide');
+                $(document).Toasts('create', {
+                    class: 'bg-danger', 
+                    title: '提示',
+                    autohide: true,
+                    delay: 3000,
+                    body: '登录失败，不允许同一个用户同时重复登录'
+                });
             }
             else {
                 $('#modal_login').modal('hide');
@@ -112,6 +122,15 @@
 
                 if (response.code == 0) {
                     window.location.href = 'main.html';
+                }
+                else if (response.code == 1) {
+                    $(document).Toasts('create', {
+                        class: 'bg-danger', 
+                        title: '提示',
+                        autohide: true,
+                        delay: 3000,
+                        body: '登录失败，不允许同一个用户同时重复登录'
+                    });
                 }
             });
         }

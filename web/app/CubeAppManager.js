@@ -28,6 +28,17 @@ const AccountRepository = require('./AccountRepository');
 const stringRandom = require('string-random');
 const config = require('../config');
 
+/*
+ * 状态码：
+ * 0 - 成功
+ * 1 - 重复登录
+ * 5 - 找不到用户
+ * 6 - 无效的令牌
+ * 7 - 找不到令牌
+ * 8 - 密码不一致
+ * 9 - 查询数据错误
+ */
+
 /**
  * 模拟应用程序管理的类。
  */
@@ -72,6 +83,23 @@ class CubeAppManager {
             }
         }
         return null;
+    }
+
+    isOnline(account) {
+        let value = this.onlineAccounts[account];
+        return (undefined !== value && null != value);
+    }
+
+    isOnlineByToken(token) {
+        let online = false;
+        for (let account in this.onlineAccounts) {
+            let data = this.onlineAccounts[account];
+            if (data.token == token) {
+                online = true;
+                break;
+            }
+        }
+        return online;
     }
 
     getAccount(token, accountId, callback) {
@@ -128,6 +156,11 @@ class CubeAppManager {
                 return;
             }
 
+            if (this.isOnline(account)) {
+                callback(1, '');
+                return;
+            }
+
             // 生成 Token
             let token = stringRandom(32, {numbers: false});
             // 更新令牌
@@ -150,9 +183,18 @@ class CubeAppManager {
                 return;
             }
 
+            let current = this.getOnlineAccountByToken(token);
+            if (null != current) {
+                if (current.token != token) {
+                    // Token 不一致不能重复登录
+                    callback(1, token);
+                    return;
+                }
+            }
+
             if (data.expire <= Date.now()) {
                 // Token 无效
-                callback(9, token);
+                callback(6, token);
             }
             else {
                 (async () => {
