@@ -110,6 +110,17 @@
         return null;
     }
 
+    var updateGroup = function(group) {
+        for (var i = 0; i < cubeGroups.length; ++i) {
+            var g = cubeGroups[i];
+            if (g.getId() == group.getId()) {
+                cubeGroups.splice(i, 1);
+                break;
+            }
+        }
+        cubeGroups.push(group);
+    }
+
     var app = {
         /**
          * 启动程序并进行初始化。
@@ -238,7 +249,7 @@
             // 消息主面板
             var messagingEl = $('#messaging');
             // 消息目录
-            messageCatalog = new MessageCatalogue(messagingEl.find('ul[data-target="catalogue"]'));
+            messageCatalog = new MessageCatalogue(messagingEl);
             // 消息面板
             messagePanel = new MessagePanel(messagingEl.find('.messaging-content'));
             // 消息侧边栏
@@ -502,8 +513,9 @@
                 count: 0
             };
 
-            // list - Array<object>
+            // 处理函数
             var process = function(list) {
+                // list - Array<object>
                 list.forEach(function(item) {
                     if (item.id != account.id) {
                         itemMap[item.id.toString()] = item;
@@ -515,7 +527,7 @@
                             contact.setName(account.name);
 
                             // 向消息目录添加联系人
-                            messageCatalog.appendItem(contact);
+                            // messageCatalog.appendItem(contact);
 
                             // 向联系人表格添加联系人
                             contactsCtrl.addContact(contact);
@@ -536,37 +548,38 @@
                 });
 
                 promise.then(function() {
-                    var gotGroup = false;
+                    // var gotGroup = false;
 
                     // 处理完成时的事件
-                    var count = cubeContacts.length;
-                    var completedCallback = function() {
-                        --count;
-                        if (count == 0 && gotGroup) {
-                            setTimeout(function() {
-                                callback();
+                    // var count = cubeContacts.length;
+                    // var completedCallback = function() {
+                    //     --count;
+                    //     if (count == 0 && gotGroup) {
+                    //         setTimeout(function() {
+                    //             callback();
                                 
-                            }, 100);
-                        }
-                    }
+                    //         }, 100);
+                    //     }
+                    // }
 
                     // 消息控制器更新联系人消息
-                    for (var i = 0; i < cubeContacts.length; ++i) {
-                        messagingCtrl.updateContactMessages(cubeContacts[i], completedCallback);
-                    }
+                    // for (var i = 0; i < cubeContacts.length; ++i) {
+                    //     messagingCtrl.updateContactMessages(cubeContacts[i], completedCallback);
+                    // }
 
                     // 添加自己
                     cubeContacts.push(cube.contact.getSelf());
 
                     // 加载群组信息
                     that.prepareGroups(function() {
-                        gotGroup = true;
+                        // gotGroup = true;
+                        // if (count == 0 && gotGroup) {
+                        //     setTimeout(function() {
+                        //         callback();
+                        //     }, 100);
+                        // }
 
-                        if (count == 0 && gotGroup) {
-                            setTimeout(function() {
-                                callback();
-                            }, 100);
-                        }
+                        callback();
                     });
                 }).catch(function() {
                     // 隐藏进度提示
@@ -613,34 +626,36 @@
          */
         prepareGroups: function(callback) {
             cube.contact.queryGroups(function(groups) {
-                var count = groups.length;
-                if (0 == count) {
-                    // 回调
-                    callback();
-                    return;
-                }
+                // var count = groups.length;
+                // if (0 == count) {
+                //     // 回调
+                //     callback();
+                //     return;
+                // }
 
-                var completedCallback = function() {
-                    --count;
-                    if (count == 0) {
-                        // 回调
-                        callback();
-                    }
-                }
+                // var completedCallback = function() {
+                //     --count;
+                //     if (count == 0) {
+                //         // 回调
+                //         callback();
+                //     }
+                // }
 
                 for (var i = 0; i < groups.length; ++i) {
                     var group = groups[i];
                     cubeGroups.push(group);
 
                     // 添加群组
-                    messageCatalog.appendItem(group);
+                    // messageCatalog.appendItem(group);
 
                     // 消息控制器更新群组消息
-                    messagingCtrl.updateGroupMessages(group, completedCallback);
+                    // messagingCtrl.updateGroupMessages(group, completedCallback);
 
                     // 向联系人表格添加群组
                     contactsCtrl.addGroup(group);
                 }
+
+                callback();
             });
         },
 
@@ -649,12 +664,45 @@
          * @param {function} callback 
          */
         prepareMessages: function(callback) {
-            cube.messaging.queryMessage(Date.now(), function(time, result) {
-                for (var i = 0; i < result.length; ++i) {
-                    var message = result[i];
+            var time = Date.now() - g.AMonth;
+            cube.messaging.queryLastMessagers(time, function(time, result) {
+                if (result.length == 0) {
+                    callback();
+                }
+                else {
+                    var count = result.length;
+
+                    function completedCallback() {
+                        --count;
+                        if (count == 0) {
+                            callback();
+                        }
+                    }
+
+                    for (var i = 0; i < result.length; ++i) {
+                        var entity = result[i];
+
+                        if (entity instanceof Group) {
+                            // 更新群组
+                            updateGroup(entity);
+
+                            // 添加群组
+                            messageCatalog.appendItem(entity);
+
+                            // 消息控制器更新群组消息
+                            messagingCtrl.updateGroupMessages(entity, completedCallback);
+                        }
+                        else {
+                            that.getContact(entity.getId(), function(contact) {
+                                // 向消息目录添加联系人
+                                messageCatalog.appendItem(contact);
+                                // 消息控制器更新联系人消息
+                                messagingCtrl.updateContactMessages(contact, completedCallback);
+                            });
+                        }
+                    }
                 }
             });
-            callback();
         }
     };
 

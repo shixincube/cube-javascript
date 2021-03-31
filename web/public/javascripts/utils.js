@@ -30,6 +30,7 @@
     var OneDay = 24 * 60 * 60 * 1000;
     var TwoDays = OneDay + OneDay;
     var AWeek = 7 * OneDay;
+    var AMonth = 30 * OneDay;
 
     var KB = 1024;
     var MB = 1024 * KB;
@@ -37,6 +38,7 @@
     var TB = 1024 * GB;
 
     g.AWeek = AWeek;
+    g.AMonth = AMonth;
 
     var WeekDay = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
 

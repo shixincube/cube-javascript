@@ -83,7 +83,7 @@
             return;
         }
 
-        var time = Date.now() - window.AWeek;
+        var time = Date.now() - g.AWeek;
         var count = 0;
 
         var handler = function(message) {
@@ -141,7 +141,7 @@
      * @param {funciton} completed
      */
     MessagingController.prototype.updateGroupMessages = function(group, completed) {
-        var time = Date.now() - window.AWeek;
+        var time = Date.now() - g.AWeek;
         var count = 0;
         var messageList = null;
         var senderMap = new OrderMap();

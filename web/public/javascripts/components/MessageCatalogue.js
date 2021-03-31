@@ -25,14 +25,15 @@
  */
 
 (function(g) {
-    'use strict'
+    'use strict';
 
     /**
      * 消息目录。
      * @param {jQuery} el 界面元素。
      */
     var MessageCatalogue = function(el) {
-        this.el = el;
+        this.el = el.find('ul[data-target="catalogue"]');
+        this.noMsgEl = el.find('.no-message');
         this.items = [];
         this.lastItem = null;
     }
@@ -112,6 +113,9 @@
         if (null != item) {
             return false;
         }
+
+        // 隐藏无消息提示
+        this.noMsgEl.css('display', 'none');
 
         item = {
             index: index,

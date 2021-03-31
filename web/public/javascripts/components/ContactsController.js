@@ -258,7 +258,7 @@
 
     /**
      * 同意添加联系人。
-     * @param {*} index 
+     * @param {number} index 
      */
     ContactsController.prototype.acceptPendingContact = function(index) {
         var contact = currentTable.getCurrentContact(index);

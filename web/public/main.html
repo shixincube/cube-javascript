@@ -112,6 +112,12 @@
                             <div class="card-body catalog">
                                 <ul class="products-list product-list-in-card" data-target="catalogue"></ul>
                             </div>
+                            <div class="no-message">
+                                <div>
+                                    <p>您最近没有消息记录。</p>
+                                    <button type="button" class="btn btn-default btn-sm" onclick="app.toggle('contacts', 'tab_contacts');">查看联系人</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -733,8 +739,8 @@
                     </div>
                     <div class="form-group mb-2">
                         <label>搜索结果</label>
-                        <div class="item-overlay"><span><i class="fas fa-2x fa-sync-alt fa-spin"></i></span><span class="text">请稍候……</span></div>
                         <div class="search-result">
+                            <div class="item-overlay"><span><i class="fas fa-2x fa-sync-alt fa-spin"></i></span><span class="text">请稍候……</span></div>
                             <div class="container" data-target="search-result">
                                 <!-- ## -->
                             </div>

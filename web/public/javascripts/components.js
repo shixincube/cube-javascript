@@ -402,14 +402,15 @@
 })(window);
 
 (function(g) {
-    'use strict'
+    'use strict';
 
     /**
      * 消息目录。
      * @param {jQuery} el 界面元素。
      */
     var MessageCatalogue = function(el) {
-        this.el = el;
+        this.el = el.find('ul[data-target="catalogue"]');
+        this.noMsgEl = el.find('.no-message');
         this.items = [];
         this.lastItem = null;
     }
@@ -489,6 +490,9 @@
         if (null != item) {
             return false;
         }
+
+        // 隐藏无消息提示
+        this.noMsgEl.css('display', 'none');
 
         item = {
             index: index,
@@ -2952,7 +2956,7 @@
             return;
         }
 
-        var time = Date.now() - window.AWeek;
+        var time = Date.now() - g.AWeek;
         var count = 0;
 
         var handler = function(message) {
@@ -3010,7 +3014,7 @@
      * @param {funciton} completed
      */
     MessagingController.prototype.updateGroupMessages = function(group, completed) {
-        var time = Date.now() - window.AWeek;
+        var time = Date.now() - g.AWeek;
         var count = 0;
         var messageList = null;
         var senderMap = new OrderMap();
@@ -5810,7 +5814,7 @@
 
     /**
      * 同意添加联系人。
-     * @param {*} index 
+     * @param {number} index 
      */
     ContactsController.prototype.acceptPendingContact = function(index) {
         var contact = currentTable.getCurrentContact(index);

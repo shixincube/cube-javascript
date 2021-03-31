@@ -264,9 +264,7 @@ export class MessagingStorage {
         }
 
         (async ()=> {
-            let result = await this.messageStore.select([
-                { key: 'rts', value: beginning, compare: '>' }
-            ]);
+            let result = await this.messageStore.query('rts', beginning, '>');
             let messages = [];
             for (let i = 0; i < result.length; ++i) {
                 result[i].domain = this.domain;

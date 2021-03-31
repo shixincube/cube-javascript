@@ -694,6 +694,53 @@ export class MessagingService extends Module {
     }
 
     /**
+     * 查询最近的消息记录对应的联系人或群组。
+     * @param {number} beginning 指定查询的开始时间戳。
+     * @param {function} handler 数据接收回调。参数：({@linkcode beginning}:number, {@linkcode list}:Array<{@link Contact}|{@link Group}>})。
+     */
+    queryLastMessagers(beginning, handler) {
+        if (!this.contactService.isReady()) {
+            handler(beginning, []);
+            return;
+        }
+
+        let selfId = this.contactService.getSelf().getId();
+        // 从存储里读取消息
+        this.storage.readMessage(beginning, (beginning, result) => {
+            let list = result.sort((a, b) => {
+                if (a.remoteTS < b.remoteTS) return -1;
+                else if (a.remoteTS > b.remoteTS) return 1;
+                else return 0;
+            });
+
+            let ids = [];
+            let messagers = [];
+
+            for (let i = 0; i < list.length; ++i) {
+                let message = list[i];
+                if (message.isFromGroup()) {
+                    if (ids.indexOf(message.source) < 0) {
+                        ids.push(message.source);
+                        messagers.push(message.getSourceGroup());
+                    }
+                }
+                else {
+                    if (message.from != selfId && ids.indexOf(message.from) < 0) {
+                        ids.push(message.from);
+                        messagers.push(message.getSender());
+                    }
+                    if (message.to != selfId && ids.indexOf(message.to) < 0) {
+                        ids.push(message.to);
+                        messagers.push(message.getReceiver());
+                    }
+                }
+            }
+
+            handler(beginning, messagers);
+        });
+    }
+
+    /**
      * 查询指定联系人 ID 相关的所有消息，即包括该联系人发送的消息，也包含该联系人接收的消息s。
      * @param {Contact|number} contactOrId 指定联系人或联系人 ID 。
      * @param {number} beginning 指定查询的起始时间。

@@ -288,6 +288,26 @@ body {
     border-radius: 10%;
 }
 
+.no-message {
+    display: table;
+    height: 100%;
+    float: left;
+    top: 0;
+    left: 0;
+    background: url(../images/bg-no-record.png) no-repeat center;
+    background-size: 150px auto;
+    text-align: center;
+}
+.no-message div {
+    display: table-cell;
+    vertical-align: middle;
+    font-size: 14px;
+    color: #6c757d;
+}
+.no-message p {
+    margin-bottom: 7rem;
+}
+
 .catalog .item {
     border-bottom: none;
     cursor: default;
