@@ -176,6 +176,39 @@ Respond
 
 &nbsp;
 
+## /account/info
+
+修改当前账号数据
+
+> /account/info
+> POST
+
+Request
+```json
+{
+    "name": "来自白垩纪",
+    "avatar": "avatar09.png"
+}
+```
+
+Respond
+```json
+{
+    "id": 50001003,
+    "name": "来自白垩纪",
+    "avatar": "avatar09.png",
+    "state": 0,
+    "region": "上海",
+    "department": "公关部",
+    "last": 0
+}
+```
+
+> 该接口仅能修改当前已登录账号的信息。
+
+
+&nbsp;
+
 ## /account/hb
 
 心跳指令，客户端保持活跃。
