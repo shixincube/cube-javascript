@@ -176,6 +176,22 @@
         }, 1000);
     }
 
+    ContactsController.prototype.removeGroup = function(group) {
+        var deleted = false;
+        for (var i = 0; i < groupList.length; ++i) {
+            var g = groupList[i];
+            if (g.getId() == group.getId()) {
+                groupList.splice(i, 1);
+                deleted = true;
+                break;
+            }
+        }
+
+        if (deleted) {
+            groupsTable.update(groupList);
+        }
+    }
+
     ContactsController.prototype.addPending = function(entity) {
         pendingList.push(entity);
 

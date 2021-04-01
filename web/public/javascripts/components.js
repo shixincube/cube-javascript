@@ -2599,8 +2599,11 @@
 
         g.dialog.showConfirm('解散群组', '您确定要解散“' + lastGroup.getName() + '”群组吗？', function(ok) {
             if (ok) {
-                window.cube().contact.dissolveGroup(lastGroup, function() {
-                    g.app.messagingCtrl.removeGroup(lastGroup);
+                window.cube().contact.dissolveGroup(lastGroup, function(group) {
+                    // 从消息控制器里移除群组
+                    g.app.messagingCtrl.removeGroup(group);
+                    // 从联系人群组界面移除群组
+                    g.app.contactsCtrl.removeGroup(group);
                     g.app.groupDetails.hide();
                 }, function(error) {
                     g.dialog.launchToast(Toast.Error, '解散群组失败: ' + error.code);
@@ -2783,7 +2786,7 @@
             window.cube().contact.createGroup(groupName, members, function(group) {
                 // 添加到消息目录
                 g.app.messageCatalog.appendItem(group);
-                
+
                 // 添加到联系人界面的表格
                 g.app.contactsCtrl.addGroup(group);
 
@@ -5786,6 +5789,22 @@
             groupDelayTimer = 0;
             groupsTable.update(groupList);
         }, 1000);
+    }
+
+    ContactsController.prototype.removeGroup = function(group) {
+        var deleted = false;
+        for (var i = 0; i < groupList.length; ++i) {
+            var g = groupList[i];
+            if (g.getId() == group.getId()) {
+                groupList.splice(i, 1);
+                deleted = true;
+                break;
+            }
+        }
+
+        if (deleted) {
+            groupsTable.update(groupList);
+        }
     }
 
     ContactsController.prototype.addPending = function(entity) {

@@ -67,7 +67,7 @@
             window.cube().contact.createGroup(groupName, members, function(group) {
                 // 添加到消息目录
                 g.app.messageCatalog.appendItem(group);
-                
+
                 // 添加到联系人界面的表格
                 g.app.contactsCtrl.addGroup(group);
 
