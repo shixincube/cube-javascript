@@ -230,8 +230,15 @@ body {
     background-color: rgba(255,255,255,0.2);
 }
 .control-sidebar {
-    width: 300px;
+    width: 400px;
+    font-size: 12px;
+}
+.control-sidebar h5 {
     font-size: 14px;
+}
+.control-sidebar .version {
+    font-size: 14px;
+    font-weight: 600;
 }
 .control-sidebar .card {
     box-shadow: unset;

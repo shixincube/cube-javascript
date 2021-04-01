@@ -172,6 +172,9 @@
 
             // tips
             $('[data-toggle="tooltip"]').tooltip();
+
+            // 事件监听器
+            that.listener = new AppEventListener();
         },
 
         /**
@@ -320,15 +323,8 @@
             // 实例化 Cube 引擎
             cube = window.cube();
 
-            // 监听网络状态
-            cube.on('network', function(event) {
-                if (event.name == 'failed') {
-                    dialog.launchToast(Toast.Error, '网络错误：' + event.error.code);
-                }
-                else if (event.name == 'open') {
-                    dialog.launchToast(Toast.Info, '已连接到服务器');
-                }
-            });
+            // 监听事件
+            that.listener.start(cube);
 
             // 注册消息插件
             cube.messaging.register(new MessageTypePlugin());

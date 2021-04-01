@@ -27,7 +27,7 @@
 /**
  * 搜索对话框。
  */
- (function(g) {
+(function(g) {
     'use strict';
 
     var SearchDialog = function() {
