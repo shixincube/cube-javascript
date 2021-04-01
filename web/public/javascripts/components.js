@@ -907,6 +907,13 @@
             editor.create();
             editor.disable();
             this.inputEditor = editor;
+
+            $('#message-editor').find('.w-e-text').keypress(function(event) {
+                var e = event || window.event;
+                if (e && e.keyCode == 13 && e.ctrlKey) {
+                    that.onSend(e);
+                }
+            });
         }
         else {
             $('#message-editor').parent().remove();
