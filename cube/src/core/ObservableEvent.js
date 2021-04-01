@@ -34,8 +34,21 @@ export class ObservableEvent {
      * @param {object} [data] 事件数据。
      */
     constructor(name, data) {
+        /**
+         * 事件名。
+         * @type {string}
+         */
         this.name = name;
+
+        /**
+         * 事件关联的数据。
+         * @type {object}
+         */
         this.data = (undefined !== data) ? data : null;
+
+        /**
+         * @private
+         */
         this.subject = null;
     }
 

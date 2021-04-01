@@ -279,7 +279,7 @@ export class ContactService extends Module {
         let packet = new Packet(ContactAction.Comeback, this.self.toJSON());
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
             if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
-                if (responsePacket.data.code == 0) {
+                if (responsePacket.data.code == ContactServiceState.Ok) {
                     cell.Logger.d('ContactService', 'Self comeback OK');
                     this.notifyObservers(new ObservableEvent(ContactEvent.Comeback, this.self));
                 }
@@ -881,6 +881,10 @@ export class ContactService extends Module {
             ending = Date.now();
         }
 
+        if (undefined === states) {
+            states = [GroupState.Normal];
+        }
+
         let ret = this.storage.readGroups(beginning, ending, (beginning, ending, result) => {
             let list = result.sort((a, b) => {
                 return this.sortGroup(a, b);
@@ -913,9 +917,9 @@ export class ContactService extends Module {
                     else {
                         resultList.push(group);
                     }
-                }
 
-                this.groups.put(group.getId(), group);
+                    this.groups.put(group.getId(), group);
+                }
             }
 
             if (count == resultList.length) {
@@ -1127,15 +1131,8 @@ export class ContactService extends Module {
 
             // 获取群组附录
             this.getAppendix(newGroup, (appendix, newGroup) => {
-                let cachedGroup = this.groups.get(newGroup.getId());
-                if (null == cachedGroup) {
-                    // 保存到内存
-                    this.groups.put(newGroup.getId(), newGroup);
-
-                    // 保存到存储
-                    this.storage.writeGroup(newGroup);
-                }
-
+                this.groups.put(newGroup.getId(), newGroup);
+                // 回调
                 handleSuccess(newGroup);
             }, (error) => {
                 if (handleFailure) {
@@ -1161,16 +1158,10 @@ export class ContactService extends Module {
         let handler = (group) => {
             if (group.getOwner().equals(this.self)) {
                 // 本终端创建的群
-                let cachedGroup = this.groups.get(group.getId());
-                if (null == cachedGroup) {
-                    // 缓存到内存
-                    this.groups.put(group.getId(), group);
-                    // 保存到存储
-                    this.storage.writeGroup(group);
-                }
-                else {
-                    group = cachedGroup;
-                }
+                // 缓存到内存
+                this.groups.put(group.getId(), group);
+                // 保存到存储
+                this.storage.writeGroup(group);
             }
             else {
                 let members = group.getMembers();
@@ -1247,15 +1238,18 @@ export class ContactService extends Module {
             // 设置上下文
             responsePacket.context = updatedGroup;
 
-            // 更新存储
-            this.storage.writeGroup(updatedGroup);
+            this.getAppendix(updatedGroup, () => {
+                // 更新内存
+                this.groups.put(updatedGroup.getId(), updatedGroup);
 
-            // 更新内存
-            this.groups.put(updatedGroup.getId(), updatedGroup);
-
-            if (handleSuccess) {
-                handleSuccess(updatedGroup);
-            }
+                if (handleSuccess) {
+                    handleSuccess(updatedGroup);
+                }
+            }, (error) => {
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+            });
         });
 
         return true;
@@ -1274,19 +1268,35 @@ export class ContactService extends Module {
 
         let group = (null == context) ? Group.create(this, payload.data) : context;
 
-        if (group.getOwner().equals(this.self)) {
-            // 本终端解散的群
-            group = this.groups.get(group.getId());
-        }
-        else {
-            // 其他终端解散了该群，更新数据
-            this.groups.put(group.getId(), group);
+        (new Promise((resolve, reject) => {
+            if (null == group.appendix) {
+                this.getAppendix(group, () => {
+                    resolve(group);
+                }, (error) => {
+                    reject(error);
+                });
+            }
+            else {
+                resolve(group);
+            }
+        })).then((group) => {
+            if (group.getOwner().equals(this.self)) {
+                // 该联系人解散的群
+                this.groups.put(group.getId(), group);
+                // 写入存储
+                this.storage.writeGroup(group);
+            }
+            else {
+                // 其他联系人解散了该群，更新数据
+                this.groups.put(group.getId(), group);
+                // 写入存储
+                this.storage.writeGroup(group);
+            }
 
-            // 写入存储
-            this.storage.writeGroup(group);
-        }
-
-        this.notifyObservers(new ObservableEvent(ContactEvent.GroupDissolved, group));
+            this.notifyObservers(new ObservableEvent(ContactEvent.GroupDissolved, group));
+        }).catch((error) => {
+            cell.Logger.e('ContactService', '#triggerDissolveGroup() ' + error);
+        });
     }
 
     /**

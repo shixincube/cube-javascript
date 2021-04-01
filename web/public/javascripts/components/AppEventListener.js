@@ -53,22 +53,42 @@
             }
         });
 
-        
+        // 联系人登录相关事件
+        cube.contact.on(ContactEvent.SignIn, function(event) {
+            that.appendLog(event.name, event.data.id);
+        });
+        cube.contact.on(ContactEvent.SignOut, function(event) {
+            that.appendLog(event.name, event.data.id);
+        });
+        cube.contact.on(ContactEvent.Comeback, function(event) {
+            that.appendLog(event.name, event.data.id);
+        });
+
+        // 群组相关事件
+        cube.contact.on(ContactEvent.GroupUpdated, function(event) {
+            that.appendLog(event.name, event.data.name);
+        });
+        cube.contact.on(ContactEvent.GroupCreated, function(event) {
+            that.appendLog(event.name, event.data.name);
+        });
+        cube.contact.on(ContactEvent.GroupDissolved, function(event) {
+            that.appendLog(event.name, event.data.name);
+        });
     }
 
-    AppEventListener.prototype.appendLog = function(event, text) {
+    AppEventListener.prototype.appendLog = function(event, desc) {
         var date = new Date();
 
         var html = [
             '<div class="row">',
-                '<div class="col-2">',
+                '<div class="col-3">',
                     g.formatNumber(date.getHours()), ':', g.formatNumber(date.getMinutes()), ':', g.formatNumber(date.getSeconds()),
                 '</div>',
-                '<div class="col-3"><b>',
+                '<div class="col-4"><b>',
                     event,
                 '</b></div>',
-                '<div class="col-6">',
-                    text,
+                '<div class="col-5">',
+                    desc,
                 '</div>',
             '</div>'
         ];

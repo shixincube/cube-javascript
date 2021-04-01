@@ -783,17 +783,15 @@
      * @param {number} id 双击的目录项的 ID 。
      */
     MessageCatalogue.prototype.onItemDoubleClick = function(id) {
-        var entity = g.app.queryGroup(id);
-        if (entity instanceof Group) {
-            g.app.groupDetails.show(entity);
-            return;
-        }
-
-        entity = g.app.queryContact(id);
-        if (entity instanceof Contact) {
+        var entity = g.app.queryContact(id);
+        if (null != entity) {
             g.app.contactDetails.show(entity);
             return;
         }
+
+        g.cube().contact.getGroup(id, function(group) {
+            g.app.groupDetails.show(group);
+        });
     }
 
     /**
@@ -2783,7 +2781,12 @@
             }
 
             window.cube().contact.createGroup(groupName, members, function(group) {
+                // 添加到消息目录
                 g.app.messageCatalog.appendItem(group);
+                
+                // 添加到联系人界面的表格
+                g.app.contactsCtrl.addGroup(group);
+
                 dialogEl.modal('hide');
             }, function(error) {
                 g.dialog.launchToast(Toast.Error, '创建群组失败: ' + error.code);
@@ -5406,7 +5409,7 @@
                 '<tr data-target="', i, '">',
                     '<td>', (page - 1) * 10 + (i + 1), '</td>',
                     '<td><img class="table-avatar" src="', avatar, '" /></td>',
-                    '<td>', group.getName(), '</td>',
+                    '<td><a href="javascript:app.contactsCtrl.showGroup(', i, ');">', group.getName(), '</a></td>',
                     '<td class="text-muted">', appendix.hasRemark() ? appendix.getRemark() : '', '</td>',
                     '<td>', group.getId(), '</td>',
                     '<td>', appendix.getNotice(), '</td>',
@@ -5796,6 +5799,20 @@
             pendingTimer = 0;
             pendingTable.update(pendingList);
         }, 1000);
+    }
+
+    /**
+     * 显示群组详情。
+     * @param {number} index 
+     * @returns 
+     */
+    ContactsController.prototype.showGroup = function(index) {
+        var entity = currentTable.getCurrentContact(index);
+        if (undefined === entity) {
+            return;
+        }
+
+        g.app.groupDetails.show(entity);
     }
 
     /**
@@ -6645,25 +6662,46 @@
             }
             else if (event.name == 'open') {
                 g.dialog.launchToast(Toast.Info, '已连接到服务器');
-
                 that.appendLog('Network', 'Ready');
             }
         });
+
+        // 联系人登录相关事件
+        cube.contact.on(ContactEvent.SignIn, function(event) {
+            that.appendLog(event.name, event.data.id);
+        });
+        cube.contact.on(ContactEvent.SignOut, function(event) {
+            that.appendLog(event.name, event.data.id);
+        });
+        cube.contact.on(ContactEvent.Comeback, function(event) {
+            that.appendLog(event.name, event.data.id);
+        });
+
+        // 群组相关事件
+        cube.contact.on(ContactEvent.GroupUpdated, function(event) {
+            that.appendLog(event.name, event.data.name);
+        });
+        cube.contact.on(ContactEvent.GroupCreated, function(event) {
+            that.appendLog(event.name, event.data.name);
+        });
+        cube.contact.on(ContactEvent.GroupDissolved, function(event) {
+            that.appendLog(event.name, event.data.name);
+        });
     }
 
-    AppEventListener.prototype.appendLog = function(event, text) {
+    AppEventListener.prototype.appendLog = function(event, desc) {
         var date = new Date();
 
         var html = [
             '<div class="row">',
-                '<div class="col-2">',
+                '<div class="col-3">',
                     g.formatNumber(date.getHours()), ':', g.formatNumber(date.getMinutes()), ':', g.formatNumber(date.getSeconds()),
                 '</div>',
-                '<div class="col-2">',
+                '<div class="col-4"><b>',
                     event,
-                '</div>',
-                '<div class="col-2">',
-                    text,
+                '</b></div>',
+                '<div class="col-5">',
+                    desc,
                 '</div>',
             '</div>'
         ];

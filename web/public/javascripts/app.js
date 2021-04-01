@@ -40,7 +40,7 @@
 
     var cubeContacts = [];
 
-    var cubeGroups = [];
+    // var cubeGroups = [];
 
     var tabId = 'messaging';
     var tabBtnId = 'tab_messaging';
@@ -100,26 +100,26 @@
      * @param {number} id 
      * @returns 
      */
-    var queryGroup = function(id) {
-        for (var i = 0; i < cubeGroups.length; ++i) {
-            var g = cubeGroups[i];
-            if (g.getId() == id) {
-                return g;
-            }
-        }
-        return null;
-    }
+    // var queryGroup = function(id) {
+    //     for (var i = 0; i < cubeGroups.length; ++i) {
+    //         var g = cubeGroups[i];
+    //         if (g.getId() == id) {
+    //             return g;
+    //         }
+    //     }
+    //     return null;
+    // }
 
-    var updateGroup = function(group) {
-        for (var i = 0; i < cubeGroups.length; ++i) {
-            var g = cubeGroups[i];
-            if (g.getId() == group.getId()) {
-                cubeGroups.splice(i, 1);
-                break;
-            }
-        }
-        cubeGroups.push(group);
-    }
+    // var updateGroup = function(group) {
+    //     for (var i = 0; i < cubeGroups.length; ++i) {
+    //         var g = cubeGroups[i];
+    //         if (g.getId() == group.getId()) {
+    //             cubeGroups.splice(i, 1);
+    //             break;
+    //         }
+    //     }
+    //     cubeGroups.push(group);
+    // }
 
     var app = {
         /**
@@ -641,7 +641,7 @@
 
                 for (var i = 0; i < groups.length; ++i) {
                     var group = groups[i];
-                    cubeGroups.push(group);
+                    // cubeGroups.push(group);
 
                     // 添加群组
                     // messageCatalog.appendItem(group);
@@ -681,9 +681,6 @@
                         var entity = result[i];
 
                         if (entity instanceof Group) {
-                            // 更新群组
-                            updateGroup(entity);
-
                             // 添加群组
                             messageCatalog.appendItem(entity);
 
@@ -705,7 +702,6 @@
     };
 
     app.queryContact = queryContact;
-    app.queryGroup = queryGroup;
     app.updateContact = updateContact;
 
     app.contactZone = 'contacts';

@@ -166,7 +166,7 @@
                 '<tr data-target="', i, '">',
                     '<td>', (page - 1) * 10 + (i + 1), '</td>',
                     '<td><img class="table-avatar" src="', avatar, '" /></td>',
-                    '<td>', group.getName(), '</td>',
+                    '<td><a href="javascript:app.contactsCtrl.showGroup(', i, ');">', group.getName(), '</a></td>',
                     '<td class="text-muted">', appendix.hasRemark() ? appendix.getRemark() : '', '</td>',
                     '<td>', group.getId(), '</td>',
                     '<td>', appendix.getNotice(), '</td>',

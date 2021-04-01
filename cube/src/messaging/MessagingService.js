@@ -33,6 +33,7 @@ import { ContactService } from "../contact/ContactService";
 import { ContactEvent } from "../contact/ContactEvent";
 import { Contact } from "../contact/Contact";
 import { Group } from "../contact/Group";
+import { GroupState } from "../contact/GroupState";
 import { Packet } from "../core/Packet";
 import { Message } from "./Message";
 import { MessageState } from "./MessageState";
@@ -719,13 +720,13 @@ export class MessagingService extends Module {
             for (let i = 0; i < list.length; ++i) {
                 let message = list[i];
                 if (message.isFromGroup()) {
-                    if (message.getSourceGroup().tag != 'public') {
+                    if (message.sourecGroup.tag != 'public' || message.sourecGroup.state != GroupState.Normal) {
                         continue;
                     }
 
                     if (ids.indexOf(message.source) < 0) {
                         ids.push(message.source);
-                        messagers.push(message.getSourceGroup());
+                        messagers.push(message.sourecGroup);
                     }
                 }
                 else {

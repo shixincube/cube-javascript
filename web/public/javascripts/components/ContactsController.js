@@ -190,6 +190,20 @@
     }
 
     /**
+     * 显示群组详情。
+     * @param {number} index 
+     * @returns 
+     */
+    ContactsController.prototype.showGroup = function(index) {
+        var entity = currentTable.getCurrentContact(index);
+        if (undefined === entity) {
+            return;
+        }
+
+        g.app.groupDetails.show(entity);
+    }
+
+    /**
      * 跳转到消息界面。
      * @param {number} index 
      */
