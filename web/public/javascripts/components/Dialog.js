@@ -46,6 +46,13 @@
         timer: 3000
     });
 
+    var toastBE = Swal.mixin({
+        toast: true,
+        position: 'bottom-end',
+        showConfirmButton: false,
+        timer: 3000
+    });
+
     var promptCallback = function() {};
 
     var confirmCallback = function() {};
@@ -68,12 +75,21 @@
          * 显示吐司提示。
          * @param {string} type 
          * @param {string} text 
+         * @param {boolean} [rb] 是否右下角
          */
-        launchToast: function(type, text) {
-            toast.fire({
-                icon: type,
-                title: text
-            });
+        launchToast: function(type, text, rb) {
+            if (rb) {
+                toastBE.fire({
+                    icon: type,
+                    title: text
+                });
+            }
+            else {
+                toast.fire({
+                    icon: type,
+                    title: text
+                });
+            }
         },
 
         /**

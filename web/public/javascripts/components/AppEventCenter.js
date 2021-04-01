@@ -45,10 +45,10 @@
         // 监听网络状态
         cube.on('network', function(event) {
             if (event.name == 'failed') {
-                g.dialog.launchToast(Toast.Error, '网络错误：' + event.error.code);
+                g.dialog.launchToast(Toast.Error, '网络错误：' + event.error.code, true);
             }
             else if (event.name == 'open') {
-                g.dialog.launchToast(Toast.Info, '已连接到服务器');
+                g.dialog.launchToast(Toast.Info, '已连接到服务器', true);
                 that.appendLog('Network', 'Ready');
             }
         });
@@ -104,11 +104,13 @@
     }
 
     AppEventCenter.prototype.onGroupCreated = function(group) {
-
+        // 添加到联系人界面的表格
+        g.app.contactsCtrl.addGroup(group);
+        // Toast 提示
     }
 
     AppEventCenter.prototype.onGroupDissolved = function(group) {
-
+        // Toast 提示
     }
 
     g.AppEventCenter = AppEventCenter;
