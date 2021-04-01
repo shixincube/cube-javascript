@@ -154,7 +154,27 @@
     }
 
     SearchDialog.prototype.appendGroup = function(group) {
+        var avatar = 'group-avatar.png';
 
+        var html = [
+            '<div class="row align-items-center" data="', group.getId(), '">',
+                '<div class="col-2"><img src="images/', avatar, '" class="avatar"></div>',
+                '<div class="col-7">',
+                    '<span><a href="javascript:;">', group.getName(), '</a></span>',
+                    '&nbsp;<span class="text-muted">(', group.getId(), ')</span>',
+                '</div>',
+                '<div class="col-3" data-target="action">',
+                '</div>',
+            '</div>'
+        ];
+
+        var rowEl = $(html.join(''));
+
+        this.resultEl.append(rowEl);
+
+        g.cube().contact.getGroup(group.getId(), function(group) {
+
+        });
     }
 
     SearchDialog.prototype.fireAddContactToZone = function(zoneName, contactId) {

@@ -682,15 +682,10 @@ export class ContactService extends Module {
                     if (responsePacket.data.code == ContactServiceState.Ok) {
                         let json = responsePacket.data.data;
 
-                        let contact = Contact.create(json);
+                        this.self.name = json.name;
+                        this.self.context = json.context;
 
-                        // 更新到内存
-                        this.contacts.put(contact.getId(), contact);
-
-                        // 写入存储
-                        this.storage.writeContact(contact);
-
-                        resolve(contact);
+                        resolve(this.self);
                     }
                     else {
                         reject(new ModuleError(ContactService.NAME, responsePacket.data.code, requestData));
@@ -1132,11 +1127,14 @@ export class ContactService extends Module {
 
             // 获取群组附录
             this.getAppendix(newGroup, (appendix, newGroup) => {
-                // 保存到内存
-                this.groups.put(newGroup.getId(), newGroup);
+                let cachedGroup = this.groups.get(newGroup.getId());
+                if (null == cachedGroup) {
+                    // 保存到内存
+                    this.groups.put(newGroup.getId(), newGroup);
 
-                // 保存到存储
-                this.storage.writeGroup(newGroup);
+                    // 保存到存储
+                    this.storage.writeGroup(newGroup);
+                }
 
                 handleSuccess(newGroup);
             }, (error) => {
@@ -1160,10 +1158,7 @@ export class ContactService extends Module {
             return;
         }
 
-        let group = (null == context) ? Group.create(this, payload.data) : context;
-
-        // 获取群组附录
-        this.getAppendix(group, (appendix) => {
+        let handler = (group) => {
             if (group.getOwner().equals(this.self)) {
                 // 本终端创建的群
                 let cachedGroup = this.groups.get(group.getId());
@@ -1194,9 +1189,21 @@ export class ContactService extends Module {
             }
 
             this.notifyObservers(new ObservableEvent(ContactEvent.GroupCreated, group));
-        }, (error) => {
-            cell.Logger.e('ContactService', error.toString());
-        });
+        };
+
+        let group = (null == context) ? Group.create(this, payload.data) : context;
+
+        if (null == group.appendix) {
+            // 获取群组附录
+            this.getAppendix(group, (appendix) => {
+                handler(group);
+            }, (error) => {
+                cell.Logger.e('ContactService', error.toString());
+            });
+        }
+        else {
+            handler(group);
+        }
     }
 
     /**
@@ -2005,7 +2012,7 @@ export class ContactService extends Module {
      */
     search(keyword, handleSuccess, handleFailure) {
         let packet = new Packet(ContactAction.Search, {
-            keyword: keyword.toString()
+            "keyword": keyword.toString()
         });
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
             if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
