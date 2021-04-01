@@ -326,7 +326,7 @@ export class Directory {
      */
     getFile(fileCodeOrId) {
         if (typeof fileCodeOrId === 'string') {
-            return this.files.get(fileCode);
+            return this.files.get(fileCodeOrId);
         }
         else {
             let list = this.files.values();

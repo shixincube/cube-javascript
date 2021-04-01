@@ -360,7 +360,6 @@ export class ContactStorage {
         })();
 
         (async () => {
-            // TODO
             let data = group.getAppendix().toJSON();
             await this.appendixStore.put(data);
         })();

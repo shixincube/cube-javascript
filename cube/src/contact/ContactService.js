@@ -1162,36 +1162,41 @@ export class ContactService extends Module {
 
         let group = (null == context) ? Group.create(this, payload.data) : context;
 
-        if (group.getOwner().equals(this.self)) {
-            // 本终端创建的群
-            let cachedGroup = this.groups.get(group.getId());
-            if (null == cachedGroup) {
-                // 缓存到内存
-                this.groups.put(group.getId(), group);
-                // 保存到存储
-                this.storage.writeGroup(group);
-            }
-            else {
-                group = cachedGroup;
-            }
-        }
-        else {
-            let members = group.getMembers();
-            for (let i = 0; i < members.length; ++i) {
-                let member = members[i];
-                if (member.equals(this.self)) {
-                    members[i] = this.self;
-                    break;
+        // 获取群组附录
+        this.getAppendix(group, (appendix) => {
+            if (group.getOwner().equals(this.self)) {
+                // 本终端创建的群
+                let cachedGroup = this.groups.get(group.getId());
+                if (null == cachedGroup) {
+                    // 缓存到内存
+                    this.groups.put(group.getId(), group);
+                    // 保存到存储
+                    this.storage.writeGroup(group);
+                }
+                else {
+                    group = cachedGroup;
                 }
             }
+            else {
+                let members = group.getMembers();
+                for (let i = 0; i < members.length; ++i) {
+                    let member = members[i];
+                    if (member.equals(this.self)) {
+                        members[i] = this.self;
+                        break;
+                    }
+                }
 
-            // 其他终端创建的群，本终端被邀请进入
-            this.groups.put(group.getId(), group);
-            // 写入存储
-            this.storage.writeGroup(group);
-        }
+                // 其他终端创建的群，本终端被邀请进入
+                this.groups.put(group.getId(), group);
+                // 写入存储
+                this.storage.writeGroup(group);
+            }
 
-        this.notifyObservers(new ObservableEvent(ContactEvent.GroupCreated, group));
+            this.notifyObservers(new ObservableEvent(ContactEvent.GroupCreated, group));
+        }, (error) => {
+            cell.Logger.e('ContactService', error.toString());
+        });
     }
 
     /**
