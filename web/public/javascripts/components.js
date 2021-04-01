@@ -6666,12 +6666,12 @@
     var sidebarLogEl = null;
     var that = null;
 
-    var AppEventListener = function() {
+    var AppEventCenter = function() {
         that = this;
         sidebarLogEl = $('aside.control-sidebar').find('#app-details-log');
     }
 
-    AppEventListener.prototype.start = function(cubeEngine) {
+    AppEventCenter.prototype.start = function(cubeEngine) {
         cube = cubeEngine;
 
         // 监听网络状态
@@ -6702,13 +6702,20 @@
         });
         cube.contact.on(ContactEvent.GroupCreated, function(event) {
             that.appendLog(event.name, event.data.name);
+            that.onGroupCreated(event.data);
         });
         cube.contact.on(ContactEvent.GroupDissolved, function(event) {
             that.appendLog(event.name, event.data.name);
+            that.onGroupDissolved(event.data);
         });
     }
 
-    AppEventListener.prototype.appendLog = function(event, desc) {
+    /**
+     * 添加到日志。
+     * @param {*} event 
+     * @param {*} desc 
+     */
+    AppEventCenter.prototype.appendLog = function(event, desc) {
         var date = new Date();
 
         var html = [
@@ -6728,6 +6735,14 @@
         sidebarLogEl.append($(html.join('')));
     }
 
-    g.AppEventListener = AppEventListener;
+    AppEventCenter.prototype.onGroupCreated = function(group) {
+
+    }
+
+    AppEventCenter.prototype.onGroupDissolved = function(group) {
+
+    }
+
+    g.AppEventCenter = AppEventCenter;
 
 })(window);

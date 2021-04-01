@@ -173,8 +173,8 @@
             // tips
             $('[data-toggle="tooltip"]').tooltip();
 
-            // 事件监听器
-            that.listener = new AppEventListener();
+            // 事件中心
+            that.eventCenter = new AppEventCenter();
         },
 
         /**
@@ -324,7 +324,7 @@
             cube = window.cube();
 
             // 监听事件
-            that.listener.start(cube);
+            that.eventCenter.start(cube);
 
             // 注册消息插件
             cube.messaging.register(new MessageTypePlugin());
