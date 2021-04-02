@@ -2616,10 +2616,7 @@
         g.dialog.showConfirm('解散群组', '您确定要解散“' + lastGroup.getName() + '”群组吗？', function(ok) {
             if (ok) {
                 window.cube().contact.dissolveGroup(lastGroup, function(group) {
-                    // 从消息控制器里移除群组
-                    g.app.messagingCtrl.removeGroup(group);
-                    // 从联系人群组界面移除群组
-                    g.app.contactsCtrl.removeGroup(group);
+                    // [TIP] 这里无需处理数据，在 Event Center 通过接收事件更新数据
                     g.app.groupDetails.hide();
                 }, function(error) {
                     g.dialog.launchToast(Toast.Error, '解散群组失败: ' + error.code);
@@ -2802,10 +2799,7 @@
             window.cube().contact.createGroup(groupName, members, function(group) {
                 // 添加到消息目录
                 g.app.messageCatalog.appendItem(group);
-
-                // 添加到联系人界面的表格
-                g.app.contactsCtrl.addGroup(group);
-
+                
                 dialogEl.modal('hide');
             }, function(error) {
                 g.dialog.launchToast(Toast.Error, '创建群组失败: ' + error.code);
@@ -5682,6 +5676,16 @@
     var btnNewGroup = null;
     var btnRefresh = null;
 
+    function containsGroup(group) {
+        for (var i = 0; i < groupList.length; ++i) {
+            if (groupList[i].getId() == group.getId()) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
     function onTabChanged(e) {
         if (e.target.id == 'contacts-tabs-default-tab') {
             currentTable = contactsTable;
@@ -5794,7 +5798,12 @@
         }
     }
 
-    ContactsController.prototype.addGroup = function(group) {
+    ContactsController.prototype.updateGroup = function(group) {
+        var index = containsGroup(group);
+        if (index >= 0) {
+            groupList.splice(index, 1);
+        }
+
         groupList.push(group);
 
         if (groupDelayTimer > 0) {
@@ -6753,12 +6762,22 @@
 
     AppEventCenter.prototype.onGroupCreated = function(group) {
         // 添加到联系人界面的表格
-        g.app.contactsCtrl.addGroup(group);
+        g.app.contactsCtrl.updateGroup(group);
+
         // Toast 提示
+        g.dialog.launchToast(Toast.Info,
+            '“' + group.getOwner().getName() + '” 创建了群组 “' + group.getName() + '” 。',
+            true);
     }
 
     AppEventCenter.prototype.onGroupDissolved = function(group) {
+        // 从联系人群组界面移除群组
+        g.app.contactsCtrl.removeGroup(group);
+
         // Toast 提示
+        g.dialog.launchToast(Toast.Info,
+            '群组 “' + group.getName() + '” 已解散。',
+            true);
     }
 
     g.AppEventCenter = AppEventCenter;

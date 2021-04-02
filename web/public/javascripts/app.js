@@ -650,7 +650,7 @@
                     // messagingCtrl.updateGroupMessages(group, completedCallback);
 
                     // 向联系人表格添加群组
-                    contactsCtrl.addGroup(group);
+                    contactsCtrl.updateGroup(group);
                 }
 
                 callback();

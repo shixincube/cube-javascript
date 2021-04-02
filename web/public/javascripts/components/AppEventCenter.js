@@ -105,12 +105,22 @@
 
     AppEventCenter.prototype.onGroupCreated = function(group) {
         // 添加到联系人界面的表格
-        g.app.contactsCtrl.addGroup(group);
+        g.app.contactsCtrl.updateGroup(group);
+
         // Toast 提示
+        g.dialog.launchToast(Toast.Info,
+            '“' + group.getOwner().getName() + '” 创建了群组 “' + group.getName() + '” 。',
+            true);
     }
 
     AppEventCenter.prototype.onGroupDissolved = function(group) {
+        // 从联系人群组界面移除群组
+        g.app.contactsCtrl.removeGroup(group);
+
         // Toast 提示
+        g.dialog.launchToast(Toast.Info,
+            '群组 “' + group.getName() + '” 已解散。',
+            true);
     }
 
     g.AppEventCenter = AppEventCenter;

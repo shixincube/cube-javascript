@@ -1354,6 +1354,9 @@ export class ContactService extends Module {
             // 读取数据
             let bundle = GroupBundle.create(this, responsePacket.getPayload().data);
 
+            // 设置附录
+            bundle.group.appendix = group.appendix;
+
             if (bundle.includeSelf) {
                 // [TIP] 更新群组状态，这个状态位需要客户端进行维护
                 bundle.group.state = GroupState.Disabled;
@@ -1463,6 +1466,9 @@ export class ContactService extends Module {
             // 读取数据
             let bundle = GroupBundle.create(this, responsePacket.getPayload().data);
 
+            // 设置附录
+            bundle.group.appendix = group.appendix;
+
             if (bundle.includeSelf) {
                 // [TIP] 更新群组状态，这个状态位需要客户端进行维护
                 bundle.group.state = GroupState.Disabled;
@@ -1502,25 +1508,39 @@ export class ContactService extends Module {
         let bundle = (null == context) ? GroupBundle.create(this, payload.data) : context;
         let group = bundle.group;
 
-        if (bundle.includeSelf) {
-            // 移除
-            this.groups.remove(group.getId());
-            // [TIP] 更新群组状态，这个状态位需要客户端进行维护
-            group.state = GroupState.Disabled;
-        }
-        else {
-            // 更新
-            this.groups.put(group.getId(), group);
-        }
+        (new Promise((resolve, reject) => {
+            if (null == group.appendix) {
+                // 获取附录
+                this.getAppendix(group, () => {
+                    resolve(group);            
+                });
+            }
+            else {
+                resolve(group);
+            }
+        })).then((group) => {
+            if (bundle.includeSelf) {
+                // 移除
+                this.groups.remove(group.getId());
+                // [TIP] 更新群组状态，这个状态位需要客户端进行维护
+                group.state = GroupState.Disabled;
+            }
+            else {
+                // 更新
+                this.groups.put(group.getId(), group);
+            }
 
-        // 更新存储
-        this.storage.writeGroup(group);
+            // 更新存储
+            this.storage.writeGroup(group);
 
-        this.notifyObservers(new ObservableEvent(ContactEvent.GroupMemberRemoved, {
-            group: group,
-            modified: bundle.modified,
-            operator: bundle.operator
-        }));
+            this.notifyObservers(new ObservableEvent(ContactEvent.GroupMemberRemoved, {
+                group: group,
+                modified: bundle.modified,
+                operator: bundle.operator
+            }));
+        }).catch((error) => {
+            // Nothing
+        });
     }
 
     /**
@@ -1625,6 +1645,9 @@ export class ContactService extends Module {
             // 读取数据
             let bundle = GroupBundle.create(this, responsePacket.getPayload().data);
 
+            // 设置附录
+            bundle.group.appendix = group.appendix;
+
             // 更新实例
             let modified = bundle.modified;
             for (let i = 0; i < modified.length; ++i) {
@@ -1657,24 +1680,37 @@ export class ContactService extends Module {
         let bundle = (null == context) ? GroupBundle.create(this, payload.data) : context;
         let group = bundle.group;
 
-        // 更新
-        this.groups.put(group.getId(), group);
+        (new Promise((resolve, reject) => {
+            if (null == group.appendix) {
+                this.getAppendix(group, () => {
+                    resolve(group);
+                });
+            }
+            else {
+                resolve(group);
+            }
+        })).then((group) => {
+            // 更新
+            this.groups.put(group.getId(), group);
 
-        // 更新存储
-        this.storage.writeGroup(group);
+            // 更新存储
+            this.storage.writeGroup(group);
 
-        // [TIP] 新加入的人有自己则通知更新事件
-        if (bundle.includeSelf) {
-            // 回调群更新
-            this.notifyObservers(new ObservableEvent(ContactEvent.GroupUpdated, group));
-        }
-        else {
-            this.notifyObservers(new ObservableEvent(ContactEvent.GroupMemberAdded, {
-                group: group,
-                modified: bundle.modified,
-                operator: bundle.operator
-            }));
-        }
+            // [TIP] 新加入的人有自己则通知更新事件
+            if (bundle.includeSelf) {
+                // 回调群更新
+                this.notifyObservers(new ObservableEvent(ContactEvent.GroupUpdated, group));
+            }
+            else {
+                this.notifyObservers(new ObservableEvent(ContactEvent.GroupMemberAdded, {
+                    group: group,
+                    modified: bundle.modified,
+                    operator: bundle.operator
+                }));
+            }
+        }).catch((error) => {
+            // Nothing
+        });
     }
 
     /**
@@ -1737,6 +1773,9 @@ export class ContactService extends Module {
 
             let modifiedGroup = Group.create(this, responsePacket.getPayload().data);
 
+            // 设置附录
+            modifiedGroup.appendix = group.appendix;
+
             group.owner = modifiedGroup.owner;
             group.name = modifiedGroup.name;
             group.context = modifiedGroup.context;
@@ -1766,11 +1805,26 @@ export class ContactService extends Module {
 
         let group = (null == context) ? Group.create(this, payload.data) : context;
 
-        this.groups.put(group.getId(), group);
+        (new Promise((resolve, reject) => {
+            if (null == group.appendix) {
+                this.getAppendix(group, () => {
+                    resolve(group);
+                });
+            }
+            else {
+                resolve(group);
+            }
+        })).then((group) => {
+            // 更新缓存
+            this.groups.put(group.getId(), group);
 
-        this.storage.writeGroup(group);
+            // 更新存储
+            this.storage.writeGroup(group);
 
-        this.notifyObservers(new ObservableEvent(ContactEvent.GroupUpdated, group));
+            this.notifyObservers(new ObservableEvent(ContactEvent.GroupUpdated, group));
+        }).catch((error) => {
+            // Nothig
+        });
     }
 
     /**
@@ -1821,13 +1875,17 @@ export class ContactService extends Module {
             }
 
             let bundle = GroupBundle.create(this, responsePacket.getPayload().data);
-            // 设置上下文
-            responsePacket.context = bundle;
+
+            // 设置附录
+            bundle.group.appendix = group.appendix;
 
             let modifiedMember = bundle.modified[0];
 
             group.lastActiveTime = bundle.group.lastActiveTime;
             group._replaceMember(modifiedMember);
+
+            // 设置上下文
+            responsePacket.context = bundle;
 
             if (handleSuccess) {
                 handleSuccess(group, modifiedMember);
@@ -1853,23 +1911,36 @@ export class ContactService extends Module {
         let modifiedGroup = bundle.group;
         let member = bundle.modified[0];
 
-        let current = this.groups.get(modifiedGroup.getId());
-        if (null != current) {
-            current.lastActiveTime = modifiedGroup.lastActiveTime;
-            current._replaceMember(member);
+        (new Promise((resolve, reject) => {
+            if (null == modifiedGroup.appendix) {
+                this.getAppendix(modifiedGroup, () => {
+                    resolve(modifiedGroup);
+                });
+            }
+            else {
+                resolve(modifiedGroup);
+            }
+        })).then((group) => {
+            let current = this.groups.get(modifiedGroup.getId());
+            if (null != current) {
+                current.lastActiveTime = modifiedGroup.lastActiveTime;
+                current._replaceMember(member);
 
-            this.storage.writeGroup(current);
-        }
-        else {
-            this.storage.readGroup(group.getId(), (groupId, group) => {
-                if (null != group) {
-                    group.lastActiveTime = modifiedGroup.lastActiveTime;
-                    group._replaceMember(member);
+                this.storage.writeGroup(current);
+            }
+            else {
+                this.storage.readGroup(group.getId(), (groupId, group) => {
+                    if (null != group) {
+                        group.lastActiveTime = modifiedGroup.lastActiveTime;
+                        group._replaceMember(member);
 
-                    this.storage.writeGroup(group);
-                }
-            });
-        }
+                        this.storage.writeGroup(group);
+                    }
+                });
+            }
+        }).catch((error) => {
+            // Nothing
+        });
     }
 
     /**

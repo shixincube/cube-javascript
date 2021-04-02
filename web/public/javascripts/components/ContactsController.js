@@ -51,6 +51,16 @@
     var btnNewGroup = null;
     var btnRefresh = null;
 
+    function containsGroup(group) {
+        for (var i = 0; i < groupList.length; ++i) {
+            if (groupList[i].getId() == group.getId()) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
     function onTabChanged(e) {
         if (e.target.id == 'contacts-tabs-default-tab') {
             currentTable = contactsTable;
@@ -163,7 +173,12 @@
         }
     }
 
-    ContactsController.prototype.addGroup = function(group) {
+    ContactsController.prototype.updateGroup = function(group) {
+        var index = containsGroup(group);
+        if (index >= 0) {
+            groupList.splice(index, 1);
+        }
+
         groupList.push(group);
 
         if (groupDelayTimer > 0) {

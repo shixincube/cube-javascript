@@ -107,10 +107,7 @@
         g.dialog.showConfirm('解散群组', '您确定要解散“' + lastGroup.getName() + '”群组吗？', function(ok) {
             if (ok) {
                 window.cube().contact.dissolveGroup(lastGroup, function(group) {
-                    // 从消息控制器里移除群组
-                    g.app.messagingCtrl.removeGroup(group);
-                    // 从联系人群组界面移除群组
-                    g.app.contactsCtrl.removeGroup(group);
+                    // [TIP] 这里无需处理数据，在 Event Center 通过接收事件更新数据
                     g.app.groupDetails.hide();
                 }, function(error) {
                     g.dialog.launchToast(Toast.Error, '解散群组失败: ' + error.code);
