@@ -249,8 +249,20 @@
 
         // 切换到消息面板
         app.toggle('messaging', 'tab_messaging');
+
+        // 获取消息
         setTimeout(function() {
-            app.messagingCtrl.toggle(entity.getId());
+            // 更新消息
+            if (entity instanceof Group) {
+                app.messagingCtrl.updateGroupMessages(entity, function() {
+                    app.messagingCtrl.toggle(entity.getId());
+                });
+            }
+            else {
+                app.messagingCtrl.updateContactMessages(entity, function() {
+                    app.messagingCtrl.toggle(entity.getId());
+                });
+            }
         }, 100);
     }
 

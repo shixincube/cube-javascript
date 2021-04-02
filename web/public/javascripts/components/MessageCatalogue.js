@@ -35,14 +35,14 @@
         this.el = el.find('ul[data-target="catalogue"]');
         this.noMsgEl = el.find('.no-message');
         this.items = [];
-        this.lastItem = null;
+        this.currentItem = null;
     }
 
     /**
      * @returns {object} 返回当前激活的目录项。
      */
     MessageCatalogue.prototype.getActiveItem = function() {
-        return this.lastItem;
+        return this.currentItem;
     }
 
     /**
@@ -198,6 +198,10 @@
         if (this.items.length == 0) {
             // 显示无消息列表
             this.noMsgEl.css('display', 'table');
+        }
+
+        if (null != this.currentItem && itemId == this.currentItem.id) {
+            this.currentItem = null;
         }
 
         if (null == item) {
@@ -372,20 +376,19 @@
      * @param {number} id 
      */
     MessageCatalogue.prototype.activeItem = function(id) {
-        if (null != this.lastItem) {
-            if (this.lastItem.id == id) {
+        if (null != this.currentItem) {
+            if (this.currentItem.id == id) {
                 // 同一个 item 元素
                 return;
             }
 
-            this.lastItem.el.removeClass('catalog-active');
+            this.currentItem.el.removeClass('catalog-active');
         }
 
         var current = this.getItem(id);
-
         current.el.addClass('catalog-active');
 
-        this.lastItem = current;
+        this.currentItem = current;
     }
 
     /**
@@ -393,23 +396,23 @@
      * @param {number} id 被点击的目录项 ID 。
      */
     MessageCatalogue.prototype.onItemClick = function(id) {
-        if (null != this.lastItem) {
-            if (this.lastItem.id == id) {
+        if (null != this.currentItem) {
+            if (this.currentItem.id == id) {
                 // 同一个 item 元素
                 return;
             }
 
-            this.lastItem.el.removeClass('catalog-active');
+            this.currentItem.el.removeClass('catalog-active');
         }
 
         var current = this.getItem(id);
 
         current.el.addClass('catalog-active');
 
-        this.lastItem = current;
+        this.currentItem = current;
 
         // 切换消息面板
-        g.app.messagingCtrl.toggle(this.lastItem.id);
+        g.app.messagingCtrl.toggle(this.currentItem.id);
     }
 
     /**
