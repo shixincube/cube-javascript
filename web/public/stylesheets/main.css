@@ -322,6 +322,18 @@ body {
 .catalog .item:hover {
     background-color: #ececec;
 }
+.catalog .item-close {
+    position: absolute;
+    float: left;
+    right: 10px;
+    margin-top: -14px;
+    font-size: 12px;
+    visibility: hidden;
+}
+.catalog .item-close .badge:hover {
+    background-color: #dc3545 !important;
+    color: #fefefe !important;
+}
 
 .catalog-active {
     background-color: #007bff !important;

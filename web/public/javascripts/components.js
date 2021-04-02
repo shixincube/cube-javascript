@@ -467,14 +467,14 @@
         var thumb = 'images/group-avatar.png';
         var label = null;
         var desc = null;
-        var lastDesc = '';
+        var lastDesc = '　';
         var timeBadge = null;
         var time = 0;
 
         if (value instanceof Group) {
             id = value.getId();
             label = value.getName();
-            desc = ' ';
+            desc = '　';
             timeBadge = formatShortTime(value.getLastActiveTime());
             time = value.getLastActiveTime();
         }
@@ -487,14 +487,14 @@
             else {
                 label = value.getContext().name;
             }
-            desc = ' ';
+            desc = '　';
             timeBadge = '';
         }
         else if (typeof value === 'object') {
             id = value.id;
             thumb = 'images/' + value.avatar;
             label = value.name;
-            desc = ' ';
+            desc = '　';
             timeBadge = '';
         }
 
@@ -539,6 +539,9 @@
                         '<span class="badge badge-light float-right last-time">', timeBadge, '</span>',
                     '</span>',
                     '<span class="product-description">', desc, '</span>',
+                    '<div class="item-close">',
+                        '<a href="javascript:;" onclick="app.messageCatalog.onItemClose(', id, ');"><span class="badge badge-light"><i class="fas fa-times"></i></span></a>',
+                    '</div>',
                 '</div>',
             '</li>'];
 
@@ -583,6 +586,11 @@
                 this.items.splice(i, 1);
                 break;
             }
+        }
+
+        if (this.items.length == 0) {
+            // 显示无消息列表
+            this.noMsgEl.css('display', 'table');
         }
 
         if (null == item) {
@@ -665,6 +673,9 @@
 
             el.find('.product-description').text(item.desc);
         }
+        else {
+            el.find('.product-description').text('　');
+        }
 
         // 更新时间
         if (null != time) {
@@ -711,7 +722,7 @@
 
         item.el.find('.product-description').text(item.lastDesc);
         item.desc = item.lastDesc;
-        item.lastDesc = '';
+        item.lastDesc = '　';
     }
 
     MessageCatalogue.prototype.updateBadge = function(id, badge) {
@@ -810,6 +821,28 @@
         });
     }
 
+    MessageCatalogue.prototype.onItemMouseover = function(id) {
+        var current = this.getItem(id);
+        current.el.find('.item-close').css('visibility', 'visible');
+    }
+
+    MessageCatalogue.prototype.onItemMouseout = function(id) {
+        var current = this.getItem(id);
+        current.el.find('.item-close').css('visibility', 'hidden');
+    }
+
+    MessageCatalogue.prototype.onItemClose = function(id) {
+        var entity = g.app.queryContact(id);
+        if (null != entity) {
+            g.app.messagingCtrl.removeContact(entity);
+            return;
+        }
+
+        g.cube().contact.getGroup(id, function(group) {
+            g.app.messagingCtrl.removeGroup(group);
+        });
+    }
+
     /**
      * @private
      * @param {*} el 
@@ -823,6 +856,14 @@
         el.on('dblclick', function(e) {
             var itemId = parseInt($(this).attr('data'));
             that.onItemDoubleClick(itemId);
+        });
+        el.on('mouseover', function(e) {
+            var itemId = parseInt($(this).attr('data'));
+            that.onItemMouseover(itemId);
+        });
+        el.on('mouseout', function(e) {
+            var itemId = parseInt($(this).attr('data'));
+            that.onItemMouseout(itemId);
         });
     }
 
@@ -3465,6 +3506,7 @@
     MessagingController.prototype.removeGroup = function(group) {
         g.app.messageCatalog.removeItem(group);
         g.app.messagePanel.clearPanel(group.getId());
+        this.hideSidebar();
     }
 
     /**

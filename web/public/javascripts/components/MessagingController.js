@@ -509,6 +509,7 @@
     MessagingController.prototype.removeGroup = function(group) {
         g.app.messageCatalog.removeItem(group);
         g.app.messagePanel.clearPanel(group.getId());
+        this.hideSidebar();
     }
 
     /**
