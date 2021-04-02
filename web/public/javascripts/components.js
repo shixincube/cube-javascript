@@ -1062,6 +1062,8 @@
 
         if (null != this.current) {
             if (this.current.id == id) {
+                this.current.entity = entity;
+
                 if (panel.groupable) {
                     this.elTitle.text(entity.getName());
                 }
@@ -1402,6 +1404,18 @@
         var text = activeEditor ? this.inputEditor.txt.text() : this.elInput.val();
         if (text.length == 0) {
             return;
+        }
+
+        if (this.current.entity instanceof Group) {
+            var state = this.current.entity.getState();
+            if (state == GroupState.Dismissed) {
+                this.appendNote(this.current.entity, '群组已解散');
+                return;
+            }
+            else if (state == GroupState.Disabled) {
+                this.appendNote(this.current.entity, '群组已删除');
+                return;
+            }
         }
 
         if (activeEditor) {
@@ -3190,6 +3204,13 @@
      * @returns {Message} 返回消息对象实例。
      */
     MessagingController.prototype.fireSend = function(target, content) {
+        // 验证目标
+        if (target instanceof Group) {
+            if (target.getState() != GroupState.Normal) {
+                return null;
+            }
+        }
+
         var message = null;
 
         if (typeof content === 'string') {
@@ -6773,6 +6794,9 @@
     AppEventCenter.prototype.onGroupDissolved = function(group) {
         // 从联系人群组界面移除群组
         g.app.contactsCtrl.removeGroup(group);
+
+        // 更新消息面板
+        g.app.messagePanel.updatePanel(group.getId(), group);
 
         // Toast 提示
         g.dialog.launchToast(Toast.Info,

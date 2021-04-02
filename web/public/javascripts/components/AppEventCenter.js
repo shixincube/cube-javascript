@@ -117,6 +117,9 @@
         // 从联系人群组界面移除群组
         g.app.contactsCtrl.removeGroup(group);
 
+        // 更新消息面板
+        g.app.messagePanel.updatePanel(group.getId(), group);
+
         // Toast 提示
         g.dialog.launchToast(Toast.Info,
             '群组 “' + group.getName() + '” 已解散。',

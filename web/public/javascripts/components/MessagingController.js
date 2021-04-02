@@ -248,6 +248,13 @@
      * @returns {Message} 返回消息对象实例。
      */
     MessagingController.prototype.fireSend = function(target, content) {
+        // 验证目标
+        if (target instanceof Group) {
+            if (target.getState() != GroupState.Normal) {
+                return null;
+            }
+        }
+
         var message = null;
 
         if (typeof content === 'string') {

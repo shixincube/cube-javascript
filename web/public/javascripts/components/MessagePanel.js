@@ -256,6 +256,8 @@
 
         if (null != this.current) {
             if (this.current.id == id) {
+                this.current.entity = entity;
+
                 if (panel.groupable) {
                     this.elTitle.text(entity.getName());
                 }
@@ -596,6 +598,18 @@
         var text = activeEditor ? this.inputEditor.txt.text() : this.elInput.val();
         if (text.length == 0) {
             return;
+        }
+
+        if (this.current.entity instanceof Group) {
+            var state = this.current.entity.getState();
+            if (state == GroupState.Dismissed) {
+                this.appendNote(this.current.entity, '群组已解散');
+                return;
+            }
+            else if (state == GroupState.Disabled) {
+                this.appendNote(this.current.entity, '群组已删除');
+                return;
+            }
         }
 
         if (activeEditor) {
