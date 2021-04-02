@@ -322,6 +322,24 @@ body {
 .catalog .item:hover {
     background-color: #ececec;
 }
+.catalog .item-img {
+    float: left;
+    height: 50px;
+    width: 50px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 50px 50px;
+    border-radius: 10%;
+}
+.catalog .item-img img {
+    height: 50px;
+    width: 50px;
+    border-radius: 10%;
+}
+.catalog .item-img div {
+    height: 50px;
+    width: 50px;
+}
 .catalog .item-close {
     position: absolute;
     float: left;
@@ -333,6 +351,10 @@ body {
 .catalog .item-close .badge:hover {
     background-color: #dc3545 !important;
     color: #fefefe !important;
+}
+
+.catalog .item-top {
+
 }
 
 .catalog-active {

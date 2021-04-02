@@ -138,8 +138,9 @@
 
         var html = [
             '<li id="mc_item_', index, '" class="item pl-2 pr-2" data="', id, '">',
-                '<div class="product-img"><img class="img-size-50 img-round-rect" src="', thumb ,'"/>',
-                    '<span class="badge badge-danger unread-badge"></span>', '</div>',
+                '<div class="item-img" style="background-image:url(', thumb, ');"><div></div>',
+                    '<span class="badge badge-danger unread-badge"></span>',
+                '</div>',
                 '<div class="product-info ellipsis">',
                     '<span class="product-title ellipsis">',
                         '<span class="title">', label, '</span>',
