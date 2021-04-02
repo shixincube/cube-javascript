@@ -67,6 +67,13 @@ export class GroupAppendix extends JSONable {
         this.remark = null;
 
         /**
+         * 当前联系人对应该群的上下文。
+         * @private
+         * @type {object}
+         */
+        this.context = null;
+
+        /**
          * 群组的公告。
          * @private
          * @type {string}
@@ -155,7 +162,7 @@ export class GroupAppendix extends JSONable {
     setMemberRemarks(array) {
         for (let i = 0; i < array.length; ++i) {
             let mr = array[i];
-            this.memberRemarkMap.put(mr.id, mr.remark);
+            this.memberRemarkMap.put(mr.id, mr.name);
         }
     }
 
@@ -247,7 +254,7 @@ export class GroupAppendix extends JSONable {
             "groupId": this.owner.getId(),
             "memberRemark": {
                 "id": (member instanceof Contact) ? member.getId() : parseInt(member),
-                "remark": remark
+                "name": remark
             }
         });
 
@@ -283,17 +290,21 @@ export class GroupAppendix extends JSONable {
      toJSON() {
         let json = super.toJSON();
         json.id = this.owner.getId();
+
+        json.notice = this.notice;
         
         if (null != this.remark) {
             json.remark = this.remark;
         }
 
-        json.notice = this.notice;
+        if (null != this.context) {
+            json.context = this.context;
+        }
 
         json.memberRemarks = [];
         this.memberRemarkMap.keySet().forEach((key) => {
             let value = this.memberRemarkMap.get(key);
-            json.memberRemarks.push({ id: key, remark: value });
+            json.memberRemarks.push({ id: key, name: value });
         });
 
         return json;
@@ -315,13 +326,21 @@ export class GroupAppendix extends JSONable {
      */
     static create(service, owner, json) {
         let appendix = new GroupAppendix(service, owner);
+
+        appendix.notice = json.notice;
+
+        json.memberRemarks.forEach((value) => {
+            appendix.memberRemarkMap.put(value.id, value.name);
+        });
+
         if (json.remark) {
             appendix.remark = json.remark;
         }
-        appendix.notice = json.notice;
-        json.memberRemarks.forEach((value) => {
-            appendix.memberRemarkMap.put(value.id, value.remark);
-        });
+        
+        if (json.context) {
+            appendix.context = json.context;
+        }
+        
         return appendix;
     }
 }
