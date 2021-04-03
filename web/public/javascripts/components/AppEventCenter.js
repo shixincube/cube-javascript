@@ -109,7 +109,8 @@
 
         // Toast 提示
         g.dialog.launchToast(Toast.Info,
-            '“' + group.getOwner().getName() + '” 创建了群组 “' + group.getName() + '” 。',
+            group.isOwner() ? '群组“' + group.getName() + '”已创建。' : 
+                '“' + group.getOwner().getName() + '”邀请你加入群组“' + group.getName() + '” 。',
             true);
     }
 

@@ -524,9 +524,6 @@
                             contact.setContext(account);
                             contact.setName(account.name);
 
-                            // 向消息目录添加联系人
-                            // messageCatalog.appendItem(contact);
-
                             // 向联系人表格添加联系人
                             contactsCtrl.addContact(contact);
 
@@ -546,37 +543,11 @@
                 });
 
                 promise.then(function() {
-                    // var gotGroup = false;
-
-                    // 处理完成时的事件
-                    // var count = cubeContacts.length;
-                    // var completedCallback = function() {
-                    //     --count;
-                    //     if (count == 0 && gotGroup) {
-                    //         setTimeout(function() {
-                    //             callback();
-                                
-                    //         }, 100);
-                    //     }
-                    // }
-
-                    // 消息控制器更新联系人消息
-                    // for (var i = 0; i < cubeContacts.length; ++i) {
-                    //     messagingCtrl.updateContactMessages(cubeContacts[i], completedCallback);
-                    // }
-
                     // 添加自己
                     cubeContacts.push(cube.contact.getSelf());
 
                     // 加载群组信息
                     that.prepareGroups(function() {
-                        // gotGroup = true;
-                        // if (count == 0 && gotGroup) {
-                        //     setTimeout(function() {
-                        //         callback();
-                        //     }, 100);
-                        // }
-
                         callback();
                     });
                 }).catch(function() {
@@ -624,32 +595,8 @@
          */
         prepareGroups: function(callback) {
             cube.contact.queryGroups(function(groups) {
-                // var count = groups.length;
-                // if (0 == count) {
-                //     // 回调
-                //     callback();
-                //     return;
-                // }
-
-                // var completedCallback = function() {
-                //     --count;
-                //     if (count == 0) {
-                //         // 回调
-                //         callback();
-                //     }
-                // }
-
                 for (var i = 0; i < groups.length; ++i) {
                     var group = groups[i];
-                    // cubeGroups.push(group);
-
-                    // 添加群组
-                    // messageCatalog.appendItem(group);
-
-                    // 消息控制器更新群组消息
-                    // messagingCtrl.updateGroupMessages(group, completedCallback);
-
-                    // 向联系人表格添加群组
                     contactsCtrl.updateGroup(group);
                 }
 
@@ -691,6 +638,7 @@
                             that.getContact(entity.getId(), function(contact) {
                                 // 向消息目录添加联系人
                                 messageCatalog.appendItem(contact);
+
                                 // 消息控制器更新联系人消息
                                 messagingCtrl.updateContactMessages(contact, completedCallback);
                             });
