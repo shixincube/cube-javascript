@@ -377,17 +377,22 @@ export class ContactStorage {
         return true;
     }
 
-    readTop(handler) {
+    /**
+     * 读取置顶列表。
+     * @param {funciton} handler 
+     * @returns 
+     */
+    readTopList(handler) {
         if (null == this.db) {
             return false;
         }
 
         (async ()=> {
             let result = await this.topStore.all();
-            if (result.length > 0) {
+            if (null != result && result.length > 0) {
                 let list = [];
                 result.forEach((value) => {
-                    list.push(value.id)
+                    list.push(value)
                 });
                 handler(list);
             }
@@ -395,5 +400,58 @@ export class ContactStorage {
                 handler([]);
             }
         })();
+
+        return true;
+    }
+
+    /**
+     * 添加数据到置顶列表。
+     * @param {number} topId 
+     * @param {string} type 
+     * @returns 
+     */
+    writeTopList(topId, type) {
+        if (null == this.db) {
+            return false;
+        }
+
+        (async ()=> {
+            await this.topStore.put({ "id": topId, "type": type });
+        })();
+
+        return true;
+    }
+
+    /**
+     * 删除置顶数据。
+     * @param {number} topId 
+     * @returns 
+     */
+    deleteTopList(topId) {
+        if (null == this.db) {
+            return false;
+        }
+
+        (async ()=> {
+            await this.topStore.delete(topId);
+        })();
+
+        return true;
+    }
+
+    /**
+     * 清空置顶列表。
+     * @returns 
+     */
+    emptyTopList() {
+        if (null == this.db) {
+            return false;
+        }
+
+        (async ()=> {
+            await this.topStore.clear();
+        })();
+
+        return true;
     }
 }

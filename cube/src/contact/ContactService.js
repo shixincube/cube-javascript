@@ -298,12 +298,6 @@ export class ContactService extends Module {
             return;
         }
 
-        // 更新群组
-        let now = Date.now();
-        this.listGroups(now - this.defaultRetrospect, now, (groupList) => {
-            cell.Logger.i('ContactService', 'List groups number: ' + groupList.length);
-        });
-
         let data = payload.data;
 
         if (null == this.self) {
@@ -311,6 +305,15 @@ export class ContactService extends Module {
         }
 
         cell.Logger.d('ContactService', 'Trigger SignIn: ' + this.self.getId());
+
+        // 更新群组
+        let now = Date.now();
+        this.listGroups(now - this.defaultRetrospect, now, (groupList) => {
+            cell.Logger.d('ContactService', 'List groups number: ' + groupList.length);
+        });
+
+        // 更新置顶列表
+        this.listTopList();
 
         this.self.name = data["name"];
         let devices = data["devices"];
@@ -2081,6 +2084,140 @@ export class ContactService extends Module {
         }, (error) => {
             if (handleFailure) {
                 handleFailure(error);
+            }
+        });
+    }
+
+    /**
+     * 从服务器更新置顶列表数据。
+     * @protected
+     * @param {function} [handleSuccess] 
+     * @param {function} [handleFailure] 
+     */
+    listTopList(handleSuccess, handleFailure) {
+        let packet = new Packet(ContactAction.TopList, {
+            "action": "get"
+        });
+        this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, 'get');
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            if (responsePacket.data.code != ContactServiceState.Ok) {
+                let error = new ModuleError(ContactService.NAME, responsePacket.data.code, 'get');
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            // 清空旧数据
+            this.storage.emptyTopList();
+
+            let list = responsePacket.data.data.list;
+            for (let i = 0; i < list.length; ++i) {
+                let value = list[i];
+                this.storage.writeTopList(value.id, value.type);
+            }
+
+            if (handleSuccess) {
+                handleSuccess(list);
+            }
+        });
+    }
+
+    /**
+     * 查询置顶数据。
+     * @param {function} handleSuccess 
+     * @param {function} handleFailure 
+     */
+    queryTopList(handleSuccess, handleFailure) {
+        if (!this.storage.readTopList((list) => {
+            handleSuccess(list);
+        })) {
+            if (handleFailure) {
+                handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.IllegalOperation, null));
+            }
+        }
+    }
+
+    /**
+     * 添加指定的置顶数据。
+     * @param {*} contactOrGroup 
+     * @param {*} handleSuccess 
+     * @param {*} handleFailure 
+     */
+    addTopList(contactOrGroup, handleSuccess, handleFailure) {
+        let packet = new Packet(ContactAction.TopList, {
+            "action": "add",
+            "topId": contactOrGroup.getId(),
+            "type": (contactOrGroup instanceof Group) ? "group" : "contact"
+        });
+        this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, contactOrGroup);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            if (responsePacket.data.code != ContactServiceState.Ok) {
+                let error = new ModuleError(ContactService.NAME, responsePacket.data.code, contactOrGroup);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            let data = responsePacket.data.data;
+            // 更新到存储
+            this.storage.writeTopList(data.topId, data.type);
+
+            if (handleSuccess) {
+                handleSuccess(contactOrGroup);
+            }
+        });
+    }
+
+    /**
+     * 移除指定的置顶数据。
+     * @param {*} contactOrGroup 
+     * @param {*} handleSuccess 
+     * @param {*} handleFailure 
+     */
+    removeTopList(contactOrGroup, handleSuccess, handleFailure) {
+        let packet = new Packet(ContactAction.TopList, {
+            "action": "remove",
+            "topId": contactOrGroup.getId()
+        });
+        this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, contactOrGroup);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            if (responsePacket.data.code != ContactServiceState.Ok) {
+                let error = new ModuleError(ContactService.NAME, responsePacket.data.code, contactOrGroup);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            let data = responsePacket.data.data;
+            // 更新到存储
+            this.storage.deleteTopList(data.topId);
+
+            if (handleSuccess) {
+                handleSuccess(contactOrGroup);
             }
         });
     }

@@ -360,6 +360,11 @@
      * 刷新当前目录项顺序，按照时间倒序进行排序。
      */
     MessageCatalogue.prototype.refreshOrder = function() {
+        // 获取置顶数据
+        g.cube().contact.queryTopList(function(list) {
+
+        });
+
         this.items.sort(function(a, b) {
             return b.time - a.time;
         });
