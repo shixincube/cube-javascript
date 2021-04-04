@@ -74,7 +74,7 @@ export class CellTalkListener extends cell.TalkListener {
      */
     onContacted(speaker) {
         cell.Logger.d('CellTalkListener', 'onContacted');
-        this.pipeline.triggerState('open');
+        this.pipeline.triggerState('connected');
     }
 
     /**
@@ -82,7 +82,7 @@ export class CellTalkListener extends cell.TalkListener {
      */
     onQuitted(speaker) {
         cell.Logger.d('CellTalkListener', 'onQuitted');
-        this.pipeline.triggerState('close');
+        this.pipeline.triggerState('disconnected');
     }
 
     /**
