@@ -139,9 +139,6 @@ export class ContactService extends Module {
             return false;
         }
 
-        // 开启存储器
-        this.storage.open(AuthService.DOMAIN);
-
         this.inspector.start();
 
         this.pipeline.addListener(ContactService.NAME, this.pipelineListener);
@@ -209,6 +206,9 @@ export class ContactService extends Module {
         else {
             this.self = new Self(parseInt(self));
         }
+
+        // 开启存储器
+        this.storage.open(this.self.id, AuthService.DOMAIN);
 
         if (undefined !== name) {
             this.self.setName(name);

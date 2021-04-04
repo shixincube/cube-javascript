@@ -6783,7 +6783,7 @@
             if (event.name == 'failed') {
                 g.dialog.launchToast(Toast.Error, '网络错误：' + event.error.code, true);
             }
-            else if (event.name == 'open') {
+            else if (event.name == 'connected') {
                 g.dialog.launchToast(Toast.Info, '已连接到服务器', true);
                 that.appendLog('Network', 'Ready');
             }

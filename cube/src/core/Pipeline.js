@@ -230,7 +230,7 @@ export class Pipeline {
         }
         list = list.concat(this.stateListenerList);
 
-        if (state === 'open') {
+        if (state === 'connected') {
             for (let i = 0; i < list.length; ++i) {
                 let listener = list[i];
                 if (typeof listener === 'function') {
@@ -256,7 +256,7 @@ export class Pipeline {
                 }
             }
         }
-        else if (state === 'close') {
+        else if (state === 'disconnected') {
             for (let i = 0; i < list.length; ++i) {
                 let listener = list[i];
                 if (typeof listener === 'function') {

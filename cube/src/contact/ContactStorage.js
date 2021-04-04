@@ -75,9 +75,10 @@ export class ContactStorage {
 
     /**
      * 打开存储器连接数据库连接。
+     * @param {number} id 指定当前账号 ID 。
      * @param {string} domain 指定操作的域。
      */
-    open(domain) {
+    open(id, domain) {
         if (null != this.db) {
             return;
         }
@@ -88,7 +89,7 @@ export class ContactStorage {
 
         // 数据库配置
         let options = {
-            name: 'CubeContact-' + domain,
+            name: 'CubeContact-' + domain + '-' + id,
             version: 1,
             stores: [{
                 name: 'group',
@@ -127,6 +128,14 @@ export class ContactStorage {
                     unique: true
                 }]
             }, {
+                name: 'top',
+                keyPath: 'id',
+                indexes: [{
+                    name: 'id',
+                    keyPath: 'id',
+                    unique: true
+                }]
+            }, {
                 name: 'config',
                 keyPath: 'item',
                 indexes: [{
@@ -145,6 +154,7 @@ export class ContactStorage {
         this.groupStore = this.db.use('group');
         this.contactStore = this.db.use('contact');
         this.appendixStore = this.db.use('appendix');
+        this.topStore = this.db.use('top');
     }
 
     /**
@@ -365,5 +375,25 @@ export class ContactStorage {
         })();
 
         return true;
+    }
+
+    readTop(handler) {
+        if (null == this.db) {
+            return false;
+        }
+
+        (async ()=> {
+            let result = await this.topStore.all();
+            if (result.length > 0) {
+                let list = [];
+                result.forEach((value) => {
+                    list.push(value.id)
+                });
+                handler(list);
+            }
+            else {
+                handler([]);
+            }
+        })();
     }
 }

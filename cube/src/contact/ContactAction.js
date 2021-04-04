@@ -150,6 +150,12 @@ export const ContactAction = {
     UpdateAppendix: 'updateAppendix',
 
     /**
+     * 置顶操作。
+     * @type {string}
+     */
+    TopList: 'topList',
+
+    /**
      * 搜索联系人或群组。
      * @type {string}
      */
