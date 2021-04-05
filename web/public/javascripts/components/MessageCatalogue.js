@@ -35,6 +35,7 @@
         this.el = el.find('ul[data-target="catalogue"]');
         this.noMsgEl = el.find('.no-message');
         this.items = [];
+        this.topItems = [];
         this.currentItem = null;
     }
 
