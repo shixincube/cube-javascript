@@ -27,6 +27,15 @@
 (function(g) {
     'use strict';
 
+    function sortItem(a, b) {
+        if (b.time == 0 && a.time == 0) {
+            return b.label.localeCompare(a.label);
+        }
+        else {
+            return b.time - a.time;
+        }
+    }
+
     /**
      * 消息目录。
      * @param {jQuery} el 界面元素。
@@ -122,12 +131,14 @@
             index: index,
             id: id,
             el: el,
+            entity: value,
             thumb: thumb,
             label: label,
             desc: desc,
             lastDesc: lastDesc,
             timeBadge: timeBadge,
-            time: time
+            time: time,
+            top: false
         };
 
         if (first) {
@@ -139,8 +150,14 @@
 
         var html = [
             '<li id="mc_item_', index, '" class="item pl-2 pr-2" data="', id, '">',
-                '<div class="item-img" style="background-image:url(', thumb, ');"><div></div>',
+                '<div class="item-img" style="background-image:url(', thumb, ');">',
+                    '<div class="item-top"><div class="top-action" onclick="app.messageCatalog.topItem(', id, ');">',
+                        '<i class="fas fa-sort-up"></i><div>置顶</div>',
+                    '</div></div>',
                     '<span class="badge badge-danger unread-badge"></span>',
+                    '<div class="top-wrapper">',
+                        '<div class="top text-primary"><i class="fas fa-caret-up"></i></div>',
+                    '</div>',
                 '</div>',
                 '<div class="product-info ellipsis">',
                     '<span class="product-title ellipsis">',
@@ -311,6 +328,77 @@
         return true;
     }
 
+    /**
+     * 置顶目录项。
+     * @param {*} id 
+     */
+    MessageCatalogue.prototype.topItem = function(id) {
+        var item = this.getItem(id);
+        if (null == item) {
+            return;
+        }
+
+        var that = this;
+
+        if (item.top) {
+            g.cube().contact.removeTopList(item.entity, function() {
+                item.top = false;
+                item.el.find('.top-action').html('<i class="fas fa-sort-up"></i><div>置顶</div>');
+                item.el.find('.top-wrapper').css('visibility', 'hidden');
+
+                var index = that.topItems.indexOf(item);
+                that.topItems.splice(index, 1);
+
+                that.items.sort(sortItem);
+
+                var noTopList = [];
+                for (var i = 0; i < that.items.length; ++i) {
+                    var data = that.items[i];
+                    if (that.topItems.indexOf(data) >= 0) {
+                        continue;
+                    }
+                    noTopList.push(data);
+                }
+
+                index = noTopList.indexOf(item);
+                if (index == 0 && noTopList.length > 1) {
+                    item.el.remove();
+                    noTopList[index + 1].el.before(item.el);
+                    that.bindEvent(item.el);
+                }
+                else {
+                    item.el.remove();
+                    noTopList[index - 1].el.after(item.el);
+                    that.bindEvent(item.el);
+                }
+            });
+        }
+        else {
+            g.cube().contact.addTopList(item.entity, function() {
+                // 重新排序
+                item.top = true;
+                item.el.find('.top-action').html('<i class="fas fa-sort"></i>');
+                item.el.find('.top-wrapper').css('visibility', 'visible');
+
+                that.topItems.push(item);
+                that.topItems.sort(sortItem);
+                var index = that.topItems.indexOf(item);
+                if (index == 0) {
+                    item.el.remove();
+                    that.el.prepend(item.el);
+                    that.bindEvent(item.el);
+                }
+                else {
+                    item.el.remove();
+                    that.topItems[index - 1].el.after(item.el);
+                    that.bindEvent(item.el);
+                }
+            });
+        }
+    }
+
+
+
     MessageCatalogue.prototype.restoreLastDesc = function(target) {
         var id = 0;
 
@@ -361,20 +449,46 @@
      * 刷新当前目录项顺序，按照时间倒序进行排序。
      */
     MessageCatalogue.prototype.refreshOrder = function() {
-        // 获取置顶数据
-        g.cube().contact.queryTopList(function(list) {
-
-        });
-
-        this.items.sort(function(a, b) {
-            return b.time - a.time;
-        });
-
-        this.el.empty();
         var that = this;
-        this.items.forEach(function(item) {
-            that.el.append(item.el);
-            that.bindEvent(item.el);
+
+        // 获取置顶数据
+        that.topItems = [];
+        g.cube().contact.queryTopList(function(list) {
+            // 获取置顶的 ID
+            for (var i = 0; i < list.length; ++i) {
+                var item = that.getItem(list[i].id);
+                if (null != item) {
+                    that.topItems.push(item);
+                    item.top = true;
+                }
+            }
+
+            // 对所有数据进行排序
+            that.items.sort(sortItem);
+
+            // 对 top 列表进行排序
+            that.topItems.sort(sortItem);
+
+            // 按照 top items 列表的倒序，依次把数据插入到 items 列表头部
+            var tmpList = that.topItems.concat();
+            while (tmpList.length > 0) {
+                var last = tmpList.pop();
+                for (var i = 0; i < that.items.length; ++i) {
+                    if (last.id == that.items[i].id) {
+                        that.items.splice(i, 1);
+                        break;
+                    }
+                }
+                that.items.unshift(last);
+                last.el.find('.top-action').html('<i class="fas fa-sort"></i>');
+                last.el.find('.top-wrapper').css('visibility', 'visible');
+            }
+
+            that.el.empty();
+            that.items.forEach(function(item) {
+                that.el.append(item.el);
+                that.bindEvent(item.el);
+            });
         });
     }
 

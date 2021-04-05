@@ -2147,9 +2147,9 @@ export class ContactService extends Module {
 
     /**
      * 添加指定的置顶数据。
-     * @param {*} contactOrGroup 
-     * @param {*} handleSuccess 
-     * @param {*} handleFailure 
+     * @param {Contact|Group} contactOrGroup 
+     * @param {function} handleSuccess 
+     * @param {function} handleFailure 
      */
     addTopList(contactOrGroup, handleSuccess, handleFailure) {
         let packet = new Packet(ContactAction.TopList, {
@@ -2186,9 +2186,9 @@ export class ContactService extends Module {
 
     /**
      * 移除指定的置顶数据。
-     * @param {*} contactOrGroup 
-     * @param {*} handleSuccess 
-     * @param {*} handleFailure 
+     * @param {Contact|Group} contactOrGroup 
+     * @param {function} handleSuccess 
+     * @param {function} handleFailure 
      */
     removeTopList(contactOrGroup, handleSuccess, handleFailure) {
         let packet = new Packet(ContactAction.TopList, {
