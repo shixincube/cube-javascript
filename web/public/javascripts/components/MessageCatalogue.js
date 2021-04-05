@@ -366,7 +366,7 @@
                     noTopList[index + 1].el.before(item.el);
                     that.bindEvent(item.el);
                 }
-                else {
+                else if (index > 0) {
                     item.el.remove();
                     noTopList[index - 1].el.after(item.el);
                     that.bindEvent(item.el);
