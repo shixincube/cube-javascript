@@ -141,13 +141,6 @@
             top: false
         };
 
-        if (first) {
-            this.items.unshift(item);
-        }
-        else {
-            this.items.push(item);
-        }
-
         var html = [
             '<li id="mc_item_', index, '" class="item pl-2 pr-2" data="', id, '">',
                 '<div class="item-img" style="background-image:url(', thumb, ');">',
@@ -176,10 +169,22 @@
         item.el = el;
 
         if (first) {
-            this.el.prepend(el);
+            for (var i = 0; i < this.items.length; ++i) {
+                var curItem = this.items[i];
+                var itemIndex = this.topItems.indexOf(curItem);
+                if (itemIndex >= 0) {
+                    continue;
+                }
+
+                curItem.el.before(el);
+                break;
+            }
+
+            this.items.unshift(item);
         }
         else {
             this.el.append(el);
+            this.items.push(item);
         }
 
         // 绑定事件
