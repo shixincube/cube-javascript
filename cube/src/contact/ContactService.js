@@ -2132,8 +2132,8 @@ export class ContactService extends Module {
 
     /**
      * 查询置顶数据。
-     * @param {function} handleSuccess 
-     * @param {function} handleFailure 
+     * @param {function} handleSuccess 查询成功回调。参数：({@linkcode list}:{@linkcode Array}) 。
+     * @param {function} [handleFailure] 查询失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
     queryTopList(handleSuccess, handleFailure) {
         if (!this.storage.readTopList((list) => {
@@ -2147,9 +2147,9 @@ export class ContactService extends Module {
 
     /**
      * 添加指定的置顶数据。
-     * @param {Contact|Group} contactOrGroup 
-     * @param {function} handleSuccess 
-     * @param {function} handleFailure 
+     * @param {Contact|Group} contactOrGroup 指定置顶的联系人或群组。
+     * @param {function} [handleSuccess] 成功回调，参数：({@linkcode entity}:{@link Contact}|{@link Group}) 。
+     * @param {function} [handleFailure] 失败回调，参数：({@linkcode error}:{@link ModuleError}) 。
      */
     addTopList(contactOrGroup, handleSuccess, handleFailure) {
         let packet = new Packet(ContactAction.TopList, {
@@ -2186,9 +2186,9 @@ export class ContactService extends Module {
 
     /**
      * 移除指定的置顶数据。
-     * @param {Contact|Group} contactOrGroup 
-     * @param {function} handleSuccess 
-     * @param {function} handleFailure 
+     * @param {Contact|Group} contactOrGroup 指定移除置顶的联系人或群组。
+     * @param {function} [handleSuccess] 成功回调，参数：({@linkcode entity}:{@link Contact}|{@link Group}) 。
+     * @param {function} [handleFailure] 失败回调，参数：({@linkcode error}:{@link ModuleError}) 。
      */
     removeTopList(contactOrGroup, handleSuccess, handleFailure) {
         let packet = new Packet(ContactAction.TopList, {

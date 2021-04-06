@@ -379,8 +379,8 @@ export class ContactStorage {
 
     /**
      * 读取置顶列表。
-     * @param {funciton} handler 
-     * @returns 
+     * @param {function} handler 
+     * @returns {boolean}
      */
     readTopList(handler) {
         if (null == this.db) {
@@ -408,7 +408,7 @@ export class ContactStorage {
      * 添加数据到置顶列表。
      * @param {number} topId 
      * @param {string} type 
-     * @returns 
+     * @returns {boolean}
      */
     writeTopList(topId, type) {
         if (null == this.db) {
@@ -425,7 +425,7 @@ export class ContactStorage {
     /**
      * 删除置顶数据。
      * @param {number} topId 
-     * @returns 
+     * @returns {boolean}
      */
     deleteTopList(topId) {
         if (null == this.db) {
@@ -441,7 +441,7 @@ export class ContactStorage {
 
     /**
      * 清空置顶列表。
-     * @returns 
+     * @returns {boolean}
      */
     emptyTopList() {
         if (null == this.db) {
