@@ -654,7 +654,7 @@
 
         var item = this.getItem(id);
         if (null == item) {
-            if (!this.appendItem(target)) {
+            if (!this.appendItem(target, true)) {
                 return false;
             }
 
@@ -716,9 +716,42 @@
             el.find('.title').text(label);
         }
 
-        el.remove();
-        // 将节点添加到首位
-        this.el.prepend(el);
+        // 将 item 插入到最前
+        for (var i = 0; i < this.items.length; ++i) {
+            if (this.items[i] == item) {
+                this.items.splice(i, 1);
+                break;
+            }
+        }
+        this.items.unshift(item);
+
+        // 排序
+        if (item.top) {
+            for (var i = 0; i < this.topItems.length; ++i) {
+                if (this.topItems[i] == item) {
+                    this.topItems.splice(i, 1);
+                    break;
+                }
+            }
+            this.topItems.unshift(item);
+
+            // 移除
+            el.remove();
+            // 将节点添加到首位
+            this.el.prepend(el);
+        }
+        else {
+            // 移除
+            el.remove();
+
+            for (var i = 1; i < this.items.length; ++i) {
+                if (!this.items[i].top) {
+                    // 添加到前面
+                    this.items[i].el.before(el);
+                    break;
+                }
+            }
+        }
 
         // 绑定事件
         this.bindEvent(el);
@@ -1632,7 +1665,7 @@
         // if (content.endsWith('</p>')) {
         //     content = content.substr(0, content.length - 4) + '<br/></p>';
         // }
-        // console.log(content);
+        console.log(html);
         // this.inputEditor.txt.html(content + '<br/>');
     }
 
@@ -1656,7 +1689,7 @@
 
     MessagePanel.prototype.makeAtPanel = function(group) {
         var list = group.getMembers();
-        var num = 2;
+        var num = list.length - 1;
 
         this.atElList = [];
         this.atPanel.empty();
@@ -1684,8 +1717,12 @@
             top -= 170;
         }
 
-        for (var i = 0; i < num; ++i) {
+        for (var i = 0; i < list.length; ++i) {
             var member = list[i];
+            if (member.getId() == g.app.account.id) {
+                // 排除自己
+                continue;
+            }
 
             g.app.getContact(member.getId(), function(contact) {
                 // 修改群成员数据
@@ -1725,7 +1762,7 @@
 
         var id = parseInt(that.atPanel.find('.active').attr('data'));
         var member = that.current.entity.getMemberById(id);
-        var atContent = '<p class="at" data="' + id + '">@' + that.current.entity.getMemberName(member) + '</p>';
+        var atContent = '<p class="at-wrapper" data="' + id + '"><span class="at">@' + that.current.entity.getMemberName(member) + '</span></p>';
         that.inputEditor.txt.append('&nbsp;');
         that.inputEditor.txt.append(atContent);
         that.inputEditor.txt.append('&nbsp;');

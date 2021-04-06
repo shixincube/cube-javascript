@@ -506,8 +506,41 @@ body {
 #message-editor .w-e-text-container .w-e-text {
     outline: none;
 }
-.w-e-text .at {
+.w-e-text .at-wrapper {
     color: #007bff;
+}
+.w-e-text .at-wrapper .at {
+    color: #007bff;
+    background-color: #fefefe;
+    border-radius: 0.2rem;
+    text-transform: none;
+    user-select: none;
+}
+.w-e-text .at-wrapper .at:hover {
+    color: #006fe6;
+    background-color: #f1f1f1;
+}
+.w-e-text .at-wrapper button {
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    user-select: none;
+    padding: 0 2px 0px 2px;
+    border-color: #ddd;
+    border-style: none;
+    border-radius: 0.2rem;
+    background-color: #f1f1f1;
+    color: #007bff;
+    border-width: 1px;
+    box-shadow: none;
+    text-transform: none;
+    cursor: default;
+    /* border: 1px solid transparent; */
+}
+.w-e-text .at-wrapper button:hover {
+    text-decoration: none;
+    color: #3c99fd;
+    background-color: #e9ecef;
 }
 .w-e-text span, .w-e-text p {
     display: inline-block;

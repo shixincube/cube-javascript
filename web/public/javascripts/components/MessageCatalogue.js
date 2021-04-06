@@ -261,7 +261,7 @@
 
         var item = this.getItem(id);
         if (null == item) {
-            if (!this.appendItem(target)) {
+            if (!this.appendItem(target, true)) {
                 return false;
             }
 
@@ -323,9 +323,42 @@
             el.find('.title').text(label);
         }
 
-        el.remove();
-        // 将节点添加到首位
-        this.el.prepend(el);
+        // 将 item 插入到最前
+        for (var i = 0; i < this.items.length; ++i) {
+            if (this.items[i] == item) {
+                this.items.splice(i, 1);
+                break;
+            }
+        }
+        this.items.unshift(item);
+
+        // 排序
+        if (item.top) {
+            for (var i = 0; i < this.topItems.length; ++i) {
+                if (this.topItems[i] == item) {
+                    this.topItems.splice(i, 1);
+                    break;
+                }
+            }
+            this.topItems.unshift(item);
+
+            // 移除
+            el.remove();
+            // 将节点添加到首位
+            this.el.prepend(el);
+        }
+        else {
+            // 移除
+            el.remove();
+
+            for (var i = 1; i < this.items.length; ++i) {
+                if (!this.items[i].top) {
+                    // 添加到前面
+                    this.items[i].el.before(el);
+                    break;
+                }
+            }
+        }
 
         // 绑定事件
         this.bindEvent(el);

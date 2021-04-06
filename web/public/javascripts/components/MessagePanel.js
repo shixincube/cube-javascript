@@ -102,6 +102,7 @@
         this.atPanel = this.el.find('.at-someone');
         this.atPanel.blur(function(e) { that.onAtPanelBlur(e); });
         this.atElList = [];
+        this.atContentList = [];
 
         if (activeEditor) {
             this.el.find('textarea').parent().remove();
@@ -391,6 +392,8 @@
                     this.elInput.attr('disabled', 'disabled');
                 }
 
+                this.atContentList = [];
+
                 this.current = null;
             }
 
@@ -625,6 +628,11 @@
         if (null == message) {
             g.dialog.launchToast(Toast.Error, '发送消息失败');
         }
+
+        // 清理 @ 内容
+        if (this.atContentList.length > 0) {
+            this.atContentList.splice(0, this.atContentList.length);
+        }
     }
 
     /**
@@ -656,7 +664,7 @@
         // if (content.endsWith('</p>')) {
         //     content = content.substr(0, content.length - 4) + '<br/></p>';
         // }
-        // console.log(content);
+        console.log(html);
         // this.inputEditor.txt.html(content + '<br/>');
     }
 
@@ -680,7 +688,7 @@
 
     MessagePanel.prototype.makeAtPanel = function(group) {
         var list = group.getMembers();
-        var num = 2;
+        var num = list.length - 1;
 
         this.atElList = [];
         this.atPanel.empty();
@@ -708,8 +716,12 @@
             top -= 170;
         }
 
-        for (var i = 0; i < num; ++i) {
+        for (var i = 0; i < list.length; ++i) {
             var member = list[i];
+            if (member.getId() == g.app.account.id) {
+                // 排除自己
+                continue;
+            }
 
             g.app.getContact(member.getId(), function(contact) {
                 // 修改群成员数据
@@ -749,7 +761,10 @@
 
         var id = parseInt(that.atPanel.find('.active').attr('data'));
         var member = that.current.entity.getMemberById(id);
-        var atContent = '<p class="at" data="' + id + '">@' + that.current.entity.getMemberName(member) + '</p>';
+        var atContent = '<p class="at-wrapper" data="' + id + '"><span class="at">@' + that.current.entity.getMemberName(member) + '</span></p>';
+        
+        this.atContentList.push(atContent);
+
         that.inputEditor.txt.append('&nbsp;');
         that.inputEditor.txt.append(atContent);
         that.inputEditor.txt.append('&nbsp;');
