@@ -99,6 +99,10 @@
         this.inputEditor = null;
         this.elInput = null;
 
+        this.atPanel = this.el.find('.at-someone');
+        this.atPanel.blur(function(e) { that.onAtPanelBlur(e); });
+        this.atElList = [];
+
         if (activeEditor) {
             this.el.find('textarea').parent().remove();
             $('#message-editor').parent().css('display', 'flex');
@@ -117,10 +121,7 @@
             this.inputEditor = editor;
 
             $('#message-editor').find('.w-e-text').keypress(function(event) {
-                var e = event || window.event;
-                if (e && e.keyCode == 13 && e.ctrlKey) {
-                    that.onSend(e);
-                }
+                that.onEditorKeypress(event);
             });
         }
         else {
@@ -650,7 +651,238 @@
      * @param {string} html 
      */
     MessagePanel.prototype.onEditorChange = function(html) {
+        // var text = html.replace(/<[^<>]+>/g, "");
+        // var content = html.replaceAll('<br/>', '');
+        // if (content.endsWith('</p>')) {
+        //     content = content.substr(0, content.length - 4) + '<br/></p>';
+        // }
+        // console.log(content);
+        // this.inputEditor.txt.html(content + '<br/>');
+    }
 
+    MessagePanel.prototype.onEditorKeypress = function(event) {
+        var e = event || window.event;
+        if (e && e.keyCode == 13 && e.ctrlKey) {
+            that.onSend(e);
+            return;
+        }
+
+        // @ - 64
+        if (64 == e.keyCode && this.current.groupable) {
+            // 群组的 @ 功能
+            this.makeAtPanel(this.current.entity);
+
+            this.atPanel.css('display', 'block');
+            this.atPanel.focus();
+            g.app.onKeyUp(that.onAtPanelKeyUp);
+        }
+    }
+
+    MessagePanel.prototype.makeAtPanel = function(group) {
+        var list = group.getMembers();
+        var num = 2;
+
+        this.atElList = [];
+        this.atPanel.empty();
+
+        var dom = null;
+        var parentId = $('#message-editor').find('.w-e-text').attr('id');
+        var cursor = getCurrentCursorPosition(parentId);
+        var dom = cursor.node;
+
+        if (dom == null) {
+            return;
+        }
+
+        var left = parseInt(dom.offsetLeft) + parseInt(dom.offsetParent.offsetLeft);
+        var top = parseInt(dom.offsetTop) + parseInt(dom.offsetParent.offsetTop);
+
+        left += (cursor.charCount * 10);
+
+        if (num <= 5) {
+            this.atPanel.css('height', ((num * 32) + 2) + 'px');
+            top -= ((num * 32) + 4);
+        }
+        else {
+            this.atPanel.css('height', '162px');
+            top -= 170;
+        }
+
+        for (var i = 0; i < num; ++i) {
+            var member = list[i];
+
+            g.app.getContact(member.getId(), function(contact) {
+                // 修改群成员数据
+                group.modifyMember(contact);
+
+                var name = group.getMemberName(contact);
+                var html = [
+                    '<div class="row align-items-center" data="', contact.getId(), '">',
+                        '<div class="col-2 avatar"><img src="images/', contact.getContext().avatar, '" /></div>',
+                        '<div class="col-10">', name, '</div>',
+                    '</div>'
+                ];
+
+                var el = $(html.join(''));
+                el.on('click', function() {
+                    that.onAtRowClick($(this));
+                });
+                that.atElList.push(el);
+
+                if (that.atElList.length == 1) {
+                    that.atElList[0].addClass('active');
+                }
+
+                that.atPanel.append(el);
+            });
+        }
+
+        // 位置
+        this.atPanel.css('left', left + 'px');
+        this.atPanel.css('top', top + 'px');
+    }
+
+    MessagePanel.prototype.selectAtItem = function() {
+        if (!that.current.groupable) {
+            return;
+        }
+
+        var id = parseInt(that.atPanel.find('.active').attr('data'));
+        var member = that.current.entity.getMemberById(id);
+        var atContent = '<p class="at" data="' + id + '">@' + that.current.entity.getMemberName(member) + '</p>';
+        that.inputEditor.txt.append('&nbsp;');
+        that.inputEditor.txt.append(atContent);
+        that.inputEditor.txt.append('&nbsp;');
+        that.atPanel.blur();
+    }
+
+    MessagePanel.prototype.onAtRowClick = function(target) {
+        var index = 0;
+        for (var i = 0; i < that.atElList.length; ++i) {
+            var el = that.atElList[i];
+            if (el.hasClass('active')) {
+                index = i;
+                break;
+            }
+        }
+
+        var cur = that.atElList[index];
+        cur.removeClass('active');
+        target.addClass('active');
+
+        that.selectAtItem();
+    }
+
+    MessagePanel.prototype.onAtPanelBlur = function(event) {
+        g.app.unKeyUp(that.onAtPanelKeyUp);
+        that.atElList = [];
+        that.atPanel.css('display', 'none');
+    }
+
+    MessagePanel.prototype.onAtPanelKeyUp = function(event) {
+        if (event.keyCode == 13) {
+            that.selectAtItem();
+            return;
+        }
+        else if (event.keyCode == 27) {
+            that.atPanel.blur();
+            return;
+        }
+
+        // Up - 38, Down - 40
+
+        if (event.keyCode == 40 || event.keyCode == 38) {
+            var index = 0;
+            for (var i = 0; i < that.atElList.length; ++i) {
+                var el = that.atElList[i];
+                if (el.hasClass('active')) {
+                    index = i;
+                    break;
+                }
+            }
+
+            var cur = that.atElList[index];
+
+            if (event.keyCode == 40) {
+                cur.removeClass('active');
+                if (index >= that.atElList.length - 1) {
+                    index = 0;
+                }
+                else {
+                    index += 1;
+                }
+                that.atElList[index].addClass('active');
+            }
+            else if (event.keyCode == 38) {
+                cur.removeClass('active');
+                if (index == 0) {
+                    index = that.atElList.length - 1;
+                }
+                else {
+                    index -= 1;
+                }
+                that.atElList[index].addClass('active');
+            }
+        }
+    }
+
+
+    function isChildOf(node, parentId) {
+        while (node !== null) {
+            if (node.id === parentId) {
+                return true;
+            }
+            node = node.parentNode;
+        }
+
+        return false;
+    }
+
+    function getCurrentCursorPosition(parentId) {
+        var selection = window.getSelection(),
+            charCount = -1,
+            node = null;
+
+        if (selection.focusNode) {
+            if (isChildOf(selection.focusNode, parentId)) {
+                node = selection.focusNode; 
+                charCount = selection.focusOffset;
+    
+                while (node) {
+                    if (node.id === parentId) {
+                        break;
+                    }
+    
+                    if (node.previousSibling) {
+                        node = node.previousSibling;
+                        charCount += node.textContent.length;
+                    }
+                    else {
+                         node = node.parentNode;
+                         if (node === null) {
+                             break
+                         }
+                    }
+                }
+            }
+        }
+        return { "node": node, "charCount": charCount };
+    }
+
+    // 获取元素的纵坐标 
+    function getTop(e) {
+        var offset = e.offsetTop;
+        if (e.offsetParent != null)
+            offset += getTop(e.offsetParent);
+        return offset;
+    }
+
+    // 获取元素的横坐标 
+    function getLeft(e) {
+        var offset = e.offsetLeft;
+        if (e.offsetParent != null)
+            offset += getLeft(e.offsetParent);
+        return offset;
     }
 
     g.MessagePanel = MessagePanel;

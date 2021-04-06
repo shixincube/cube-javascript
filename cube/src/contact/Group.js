@@ -224,6 +224,35 @@ export class Group extends Contact {
     }
 
     /**
+     * 获取成员名称。以优先显示方式进行显示。
+     * @param {Contact} member 
+     * @returns {string} 返回优先的成员名称。
+     */
+    getMemberName(member) {
+        if (this.appendix.hasMemberRemark(member)) {
+            return this.appendix.getMemberRemark(member);
+        }
+        else {
+            return member.getPriorityName();
+        }
+    }
+
+    /**
+     * 获取指定 ID 的成员。
+     * @param {number} memberId 指定成员 ID 。
+     * @returns {Contact} 返回指定 ID 成员的实例。
+     */
+    getMemberById(memberId) {
+        for (let i = 0; i < this.memberList.length; ++i) {
+            let member = this.memberList[i];
+            if (member.id == memberId) {
+                return member;
+            }
+        }
+        return null;
+    }
+
+    /**
      * 获取群成员数量。
      * @returns {number} 返回群成员数量。
      */
@@ -237,6 +266,16 @@ export class Group extends Contact {
      */
     getMembers() {
         return this.memberList.concat();
+    }
+
+    /**
+     * 修改群组成员数据。该方法仅改变本地数据。
+     * @param {number} member 成员的联系人实例。
+     */
+    modifyMember(member) {
+        let cur = this.getMemberById(member.getId());
+        cur.context = member.context;
+        cur.name = member.name;
     }
 
     /**

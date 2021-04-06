@@ -506,6 +506,13 @@ body {
 #message-editor .w-e-text-container .w-e-text {
     outline: none;
 }
+.w-e-text .at {
+    color: #007bff;
+}
+.w-e-text span, .w-e-text p {
+    display: inline-block;
+}
+
 
 .messaging-catalog {
     margin-top: 0.6rem;
@@ -545,6 +552,44 @@ body {
 }
 .messaging-content .week-day {
     font-size: 12px;
+}
+
+.messaging-content .at-someone {
+    display: none;
+    position: absolute;
+    float: left;
+    width: 220px;
+    height: 162px;
+    background-color: #f8f9fa;
+    color: #343a40;
+    font-size: 12px;
+    margin-bottom: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    outline: none;
+    z-index: 999;
+}
+.at-someone .row {
+    height: 30px;
+    padding: 2px 2px 2px 0px;
+    margin: 2px 0px 2px 0px;
+}
+.at-someone .row:hover {
+    background-color: #3c99fd;
+    color: #fefefe;
+}
+.at-someone .active {
+    background-color: #007bff;
+    color: #ffffff;
+}
+.at-someone .avatar {
+    width: unset;
+    height: unset;
+}
+.at-someone .avatar img {
+    width: 26px;
+    height: 26px;
+    border-radius: 10%;
 }
 
 /* 消息界面侧边栏 - 开始 */

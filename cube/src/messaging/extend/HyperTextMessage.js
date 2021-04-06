@@ -24,24 +24,48 @@
  * SOFTWARE.
  */
 
-import { MessageTypePlugin } from "./messaging/extend/MessageTypePlugin";
-import { TextMessage } from "./messaging/extend/TextMessage";
-import { ImageMessage } from "./messaging/extend/ImageMessage";
-import { FileMessage } from "./messaging/extend/FileMessage";
-import { CallRecordMessage } from "./messaging/extend/CallRecordMessage";
-import { HyperTextMessage } from "./messaging/extend/HyperTextMessage";
+import { Message } from "../Message";
+import { TypeableMessage } from "./TypeableMessage";
 
 /**
- * 导入扩展程序。
+ * 超文本消息。
  */
-(function (global) {
-    // 提供全局的接口类
+export class HyperTextMessage extends TypeableMessage {
 
-    global.MessageTypePlugin = MessageTypePlugin;
-    global.TextMessage = TextMessage;
-    global.ImageMessage = ImageMessage;
-    global.FileMessage = FileMessage;
-    global.CallRecordMessage = CallRecordMessage;
-    global.HyperTextMessage = HyperTextMessage;
+    /**
+     * @param {string|Message} param 文本消息的文本参数。
+     */
+    constructor(param) {
+        super(param);
 
-})(undefined === window.CubeNamespace ? window : window.CubeNamespace);
+        if (typeof param === 'string') {
+            this.payload = { "type" : "hypertext", "content" : param };
+        }
+        else if (undefined === param || null == param) {
+            this.payload = { "type" : "hypertext" };
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    getSummary() {
+        return this.getText();
+    }
+
+    /**
+     * 设置文本内容。
+     * @param {string} text 指定文本内容。
+     */
+    setText(text) {
+        this.payload.content = text;
+    }
+
+    /**
+     * 获取文本内容。
+     * @returns {string} 返回文本内容。
+     */
+    getText() {
+        return this.payload.content;
+    }
+}

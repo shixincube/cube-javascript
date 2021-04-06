@@ -95,31 +95,14 @@
         cubeContacts.push(contact);
     }
 
-    /**
-     * 从内存里查询群组。
-     * @param {number} id 
-     * @returns 
-     */
-    // var queryGroup = function(id) {
-    //     for (var i = 0; i < cubeGroups.length; ++i) {
-    //         var g = cubeGroups[i];
-    //         if (g.getId() == id) {
-    //             return g;
-    //         }
-    //     }
-    //     return null;
-    // }
+    var onKeyUpFunList = [];
 
-    // var updateGroup = function(group) {
-    //     for (var i = 0; i < cubeGroups.length; ++i) {
-    //         var g = cubeGroups[i];
-    //         if (g.getId() == group.getId()) {
-    //             cubeGroups.splice(i, 1);
-    //             break;
-    //         }
-    //     }
-    //     cubeGroups.push(group);
-    // }
+    function onKeyUp(event) {
+        var e = event || window.event;
+        for (var i = 0; i < onKeyUpFunList.length; ++i) {
+            onKeyUpFunList[i](e);
+        }
+    }
 
     var app = {
         /**
@@ -241,6 +224,8 @@
          * 初始化 UI 。
          */
         prepareUI: function() {
+            $(document).keyup(onKeyUp);
+
             // 侧边账号栏
             sidebarAccountPanel = new SidebarAccountPanel($('.account-panel'));
             sidebarAccountPanel.updateAvatar(account.avatar);
@@ -314,6 +299,21 @@
 
             // 搜索对话框
             that.searchDialog = new SearchDialog();
+        },
+
+        onKeyUp: function(callback) {
+            var index = onKeyUpFunList.indexOf(callback);
+            if (index >= 0) {
+                return;
+            }
+            onKeyUpFunList.push(callback);
+        },
+
+        unKeyUp: function(callback) {
+            var index = onKeyUpFunList.indexOf(callback);
+            if (index >= 0) {
+                onKeyUpFunList.splice(index, 1);
+            }
         },
 
         /**

@@ -29,6 +29,7 @@ import { TextMessage } from "./TextMessage";
 import { ImageMessage } from "./ImageMessage";
 import { FileMessage } from "./FileMessage";
 import { CallRecordMessage } from "./CallRecordMessage";
+import { HyperTextMessage } from "./HyperTextMessage";
 
 /**
  * 消息类型插件。
@@ -50,6 +51,9 @@ export class MessageTypePlugin extends MessagePlugin {
         if (undefined !== payload.type) {
             if (payload.type == 'text') {
                 return new TextMessage(message);
+            }
+            else if (payload.type == 'hypertext') {
+                return new HyperTextMessage(message);
             }
             else if (payload.type == 'file') {
                 return new FileMessage(message);
