@@ -191,6 +191,11 @@
      */
     MessageSidebar.prototype.updateContact = function(contact) {
         currentContact = contact;
+
+        contactSidebarEl.find('input[data-target="contact-name"]').val(contact.getName());
+
+        contactSidebarEl.find('input[data-target="contact-remark"]').val(
+            contact.getAppendix().hasRemarkName() ? contact.getAppendix().getRemarkName() : '');
     }
 
     /**
@@ -200,13 +205,13 @@
     MessageSidebar.prototype.updateGroup = function(group) {
         currentGroup = group;
 
-        sidebarEl.find('input[data-target="group-name"]').val(group.getName());
+        groupSidebarEl.find('input[data-target="group-name"]').val(group.getName());
 
         if (!currentGroup.isOwner()) {
-            sidebarEl.find('.group-notice-btn-group').css('display', 'none');
+            groupSidebarEl.find('.group-notice-btn-group').css('display', 'none');
         }
         else {
-            sidebarEl.find('.group-notice-btn-group').css('display', 'block');
+            groupSidebarEl.find('.group-notice-btn-group').css('display', 'block');
         }
 
         // 读取群组的附录，从附录里读取群组的备注
