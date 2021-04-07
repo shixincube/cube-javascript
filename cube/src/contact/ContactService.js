@@ -1035,18 +1035,27 @@ export class ContactService extends Module {
 
                 // 更新本次请求的清单
                 this.listGroupsContext.list.push(group);
+
+                if (this.listGroupsContext.list.length == total) {
+                    clearTimeout(this.listGroupsContext.timer);
+                    this.listGroupsContext.timer = 0;
+        
+                    this.listGroupsContext.handler(this.listGroupsContext.list);
+                    this.listGroupsContext = null;
+                }
             }, (error) => {
                 cell.Logger.e('ContactService', '#triggerListGroups() - #getAppendix(): ' + error);
                 // 更新本次请求的清单
                 this.listGroupsContext.list.push(error.data);
+
+                if (this.listGroupsContext.list.length == total) {
+                    clearTimeout(this.listGroupsContext.timer);
+                    this.listGroupsContext.timer = 0;
+
+                    this.listGroupsContext.handler(this.listGroupsContext.list);
+                    this.listGroupsContext = null;
+                }
             });
-        }
-
-        if (this.listGroupsContext.list.length == total) {
-            clearTimeout(this.listGroupsContext.timer);
-
-            this.listGroupsContext.handler(this.listGroupsContext.list);
-            this.listGroupsContext = null;
         }
     }
 

@@ -477,7 +477,6 @@ body {
     background-color: #fefefe;
     border-radius: 0.125rem;
     padding: 0px 2px 0px 2px;
-    user-select: none;
 }
 
 .direct-chat-messages .right > .at {

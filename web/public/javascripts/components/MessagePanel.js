@@ -803,7 +803,7 @@
         var left = parseInt(dom.offsetLeft) + parseInt(dom.offsetParent.offsetLeft);
         var top = parseInt(dom.offsetTop) + parseInt(dom.offsetParent.offsetTop);
 
-        left += (calcCursorPosition(cursor.charCount) * 7);
+        left += calcCursorPosition(cursor.charCount)[0];
 
         if (num <= 5) {
             this.atPanel.css('height', ((num * 32) + 2) + 'px');
@@ -1017,16 +1017,30 @@
         var length = 0;
         var string = that.lastInput.replaceAll('&nbsp;', ' ');
 
+        var offset = 0;
+
         for (var i = 0; i < string.length && i < count; ++i) {
             var c = string.charCodeAt(i);
-            if (c > 127 || c == 94 || c == 64) {
+            if (c > 127 || c == 94) {
                 length += 2;
+                offset += 15;
             }
             else {
                 length += 1;
+                if ((c >= 105 && c <= 108) || c == 114 || c == 116) {
+                    offset += 5;
+                }
+                else if (c >= 64 && c <= 90) {
+                    // @符号和大写字母
+                    offset += 11;
+                }
+                else {
+                    offset += 9;
+                }
             }
         }
-        return length;
+
+        return [ offset, length ];
     }
 
     function filterFormatText(input) {
