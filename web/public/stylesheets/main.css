@@ -571,9 +571,9 @@ body {
 .messaging-catalog .catalog .unread-badge {
     position: absolute;
     float: right;
-    left: 45px;
-    margin-top: -5px;
-    font-size: 11px;
+    left: 47px;
+    margin-top: -55px;
+    font-size: 10px;
 }
 .catalog .products-list .product-info {
     margin-left: 65px;

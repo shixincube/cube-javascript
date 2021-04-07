@@ -399,12 +399,20 @@
         // 判断消息是否来自群组
         if (message.isFromGroup()) {
             // 更新消息面板
-            g.app.messagePanel.appendMessage(message.getSourceGroup(), message.getSender(), message);
+            if (g.app.messagePanel.hasPanel(message.getSourceGroup())) {
+                g.app.messagePanel.appendMessage(message.getSourceGroup(), message.getSender(), message);
+            }
+            else {
+                that.updateGroupMessages(message.getSourceGroup());
+            }
 
             // 更新消息目录
-            g.app.messageCatalog.updateItem(message.getSource(), message, message.getRemoteTimestamp());
+            var result = g.app.messageCatalog.updateItem(message.getSourceGroup(), message, message.getRemoteTimestamp());
+            if (!result) {
+                console.debug('#onNewMessage - update catalog item failed');
+            }
 
-            that.updateUnread(group.getId(), message);
+            that.updateUnread(message.getSource(), message);
         }
         else {
             // 消息来自联系人
@@ -412,7 +420,13 @@
             if (g.app.account.id == message.getFrom()) {
                 // 从“我”的其他终端发送的消息
                 // 更新消息面板
-                g.app.messagePanel.appendMessage(message.getReceiver(), message.getSender(), message);
+                if (g.app.messagePanel.hasPanel(message.getReceiver())) {
+                    g.app.messagePanel.appendMessage(message.getReceiver(), message.getSender(), message);
+                }
+                else {
+                    that.updateContactMessages(message.getReceiver());
+                }
+
                 // 更新消息目录
                 g.app.messageCatalog.updateItem(message.getTo(), message, message.getRemoteTimestamp());
 
@@ -420,7 +434,13 @@
             }
             else {
                 // 更新消息面板
-                g.app.messagePanel.appendMessage(message.getSender(), message.getSender(), message);
+                if (g.app.messagePanel.hasPanel(message.getSender())) {
+                    g.app.messagePanel.appendMessage(message.getSender(), message.getSender(), message);
+                }
+                else {
+                    that.updateContactMessages(message.getSender());
+                }
+
                 // 更新消息目录
                 g.app.messageCatalog.updateItem(message.getFrom(), message, message.getRemoteTimestamp());
 

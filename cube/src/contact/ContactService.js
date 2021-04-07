@@ -752,9 +752,8 @@ export class ContactService extends Module {
             // 从存储库读取
             this.storage.readGroup(id, (id, group) => {
                 if (null != group) {
+                    // 设置群组的附录
                     this.getAppendix(group, (appendix) => {
-                        // 设置群组的附录
-                        group.appendix = appendix;
                         resolve(group);
                     }, (error) => {
                         reject(error);
@@ -774,9 +773,6 @@ export class ContactService extends Module {
                             let group = Group.create(this, responsePacket.data.data);
                             // 获取附录
                             this.getAppendix(group, (appendix, group) => {
-                                // 设置附录
-                                group.appendix = appendix;
-
                                 // 写入缓存
                                 this.groups.put(group.getId(), group);
 
@@ -1970,7 +1966,7 @@ export class ContactService extends Module {
                     contactOrGroup.appendix = appendix;
                 }
                 if (handleSuccess) {
-                    handleSuccess(appendix);
+                    handleSuccess(appendix, contactOrGroup);
                 }
                 return;
             }
@@ -1986,7 +1982,7 @@ export class ContactService extends Module {
                     contactOrGroup.appendix = appendix;
                 }
                 if (handleSuccess) {
-                    handleSuccess(appendix);
+                    handleSuccess(appendix, contactOrGroup);
                 }
                 return;
             }

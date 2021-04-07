@@ -231,6 +231,7 @@
     }
 
     /**
+     * 获取当前操作的面板。
      * @returns {object} 返回当前面板。
      */
     MessagePanel.prototype.getCurrentPanel = function() {
@@ -238,11 +239,26 @@
     }
 
     /**
+     * 获取指定 ID 实体的面板。
      * @param {number} id 指定面板 ID 。
      * @returns {object}
      */
     MessagePanel.prototype.getPanel = function(id) {
         return this.panels[id.toString()];
+    }
+
+    /**
+     * 是否包含该目标的面板。
+     * @param {number|Contact|Group} idOrEntity 
+     * @returns {boolean}
+     */
+    MessagePanel.prototype.hasPanel = function(idOrEntity) {
+        if (typeof idOrEntity === 'number') {
+            return (undefined !== this.panels[idOrEntity.toString()]);
+        }
+        else {
+            return (undefined !== this.panels[idOrEntity.getId().toString()]);
+        }
     }
 
     /**
