@@ -1192,15 +1192,19 @@
             g.app.messagingCtrl.openVoiceCall(that.current.entity);
         });
 
+        // 新建群组
+        el.find('button[data-target="new-group"]').on('click', function(e) {
+            that.onNewGroupClick(e);
+        });
+
         // 详情按钮
         el.find('button[data-target="details"]').on('click', function(e) {
             that.onDetailsClick(e);
         });
 
-        // 新建群组
-        this.btnNewGroup = el.find('button[data-target="new-group"]');
-        this.btnNewGroup.on('click', function(e) {
-            g.app.newGroupDialog.show();
+        // 折叠辅助信息
+        el.find('button[data-target="collapse"]').on('click', function(e) {
+            that.onCollapseClick(e);
         });
 
         // 初始化上下文菜单
@@ -1709,7 +1713,15 @@
     }
 
     /**
-     * 当触发点击详情是回调。
+     * 点击“创建群组”。
+     * @param {*} e 
+     */
+    MessagePanel.prototype.onNewGroupClick = function(e) {
+        g.app.newGroupDialog.show();
+    }
+
+    /**
+     * 点击“详情”。
      * @param {*} e 
      */
     MessagePanel.prototype.onDetailsClick = function(e) {
@@ -1725,6 +1737,18 @@
         else {
             g.app.contactDetails.show(entity);
         }
+    }
+
+    /**
+     * 点击“折叠”。
+     * @param {*} e 
+     */
+    MessagePanel.prototype.onCollapseClick = function(e) {
+        if (null == this.current) {
+            return;
+        }
+        
+        g.app.messagingCtrl.toggleSidebar();
     }
 
     /**
@@ -2285,10 +2309,43 @@
     }
 
     /**
-     * 使用群组数据更新数据。
+     * 更新数据。
+     * @param {Group|Contact} entity 
+     */
+    MessageSidebar.prototype.update = function(entity) {
+        if (entity instanceof Group) {
+            this.updateGroup(entity);
+            if (groupSidebarEl.hasClass('no-display')) {
+                groupSidebarEl.removeClass('no-display');
+            }
+            if (!contactSidebarEl.hasClass('no-display')) {
+                contactSidebarEl.addClass('no-display');
+            }
+        }
+        else {
+            this.updateContact(entity);
+            if (contactSidebarEl.hasClass('no-display')) {
+                contactSidebarEl.removeClass('no-display');
+            }
+            if (!groupSidebarEl.hasClass('no-display')) {
+                groupSidebarEl.addClass('no-display');
+            }
+        }
+    }
+
+    /**
+     * 更新联系人数据。
+     * @param {Contact} contact 
+     */
+    MessageSidebar.prototype.updateContact = function(contact) {
+        currentContact = contact;
+    }
+
+    /**
+     * 更新群组数据。
      * @param {Group} group 
      */
-    MessageSidebar.prototype.update = function(group) {
+    MessageSidebar.prototype.updateGroup = function(group) {
         currentGroup = group;
 
         sidebarEl.find('input[data-target="group-name"]').val(group.getName());
@@ -3689,6 +3746,9 @@
     var colContent = null;
     var colSidebar = null;
 
+    var groupSidebar = true;
+    var contactSidebar = true;
+
     /**
      * 消息模块的控制器。
      * @param {Cube} cubeEngine 
@@ -3951,15 +4011,54 @@
 
         g.app.getGroup(id, function(group) {
             if (null == group) {
-                g.app.getContact(id, handle);
-                that.hideSidebar();
+                g.app.getContact(id, function(contact) {
+                    handle(contact);
+                    g.app.messageSidebar.update(contact);
+                    if (contactSidebar) {
+                        that.showSidebar();
+                    }
+                    else {
+                        that.hideSidebar();
+                    }
+                });
             }
             else {
                 handle(group);
                 g.app.messageSidebar.update(group);
-                that.showSidebar();
+                if (groupSidebar) {
+                    that.showSidebar();
+                }
+                else {
+                    that.hideSidebar();
+                }
             }
         });
+    }
+
+    /**
+     * 开关侧边栏。
+     */
+    MessagingController.prototype.toggleSidebar = function() {
+        if (colSidebar.hasClass('no-display')) {
+            this.showSidebar();
+
+            if (g.app.messagePanel.getCurrentPanel().groupable) {
+                groupSidebar = true;
+            }
+            else {
+                contactSidebar = true;
+            }
+        }
+        else {
+            this.hideSidebar();
+
+            if (g.app.messagePanel.getCurrentPanel().groupable) {
+                groupSidebar = false;
+            }
+            else {
+                contactSidebar = false;
+            }
+        }
     }
 
     /**

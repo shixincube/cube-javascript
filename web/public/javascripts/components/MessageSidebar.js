@@ -161,10 +161,43 @@
     }
 
     /**
-     * 使用群组数据更新数据。
+     * 更新数据。
+     * @param {Group|Contact} entity 
+     */
+    MessageSidebar.prototype.update = function(entity) {
+        if (entity instanceof Group) {
+            this.updateGroup(entity);
+            if (groupSidebarEl.hasClass('no-display')) {
+                groupSidebarEl.removeClass('no-display');
+            }
+            if (!contactSidebarEl.hasClass('no-display')) {
+                contactSidebarEl.addClass('no-display');
+            }
+        }
+        else {
+            this.updateContact(entity);
+            if (contactSidebarEl.hasClass('no-display')) {
+                contactSidebarEl.removeClass('no-display');
+            }
+            if (!groupSidebarEl.hasClass('no-display')) {
+                groupSidebarEl.addClass('no-display');
+            }
+        }
+    }
+
+    /**
+     * 更新联系人数据。
+     * @param {Contact} contact 
+     */
+    MessageSidebar.prototype.updateContact = function(contact) {
+        currentContact = contact;
+    }
+
+    /**
+     * 更新群组数据。
      * @param {Group} group 
      */
-    MessageSidebar.prototype.update = function(group) {
+    MessageSidebar.prototype.updateGroup = function(group) {
         currentGroup = group;
 
         sidebarEl.find('input[data-target="group-name"]').val(group.getName());

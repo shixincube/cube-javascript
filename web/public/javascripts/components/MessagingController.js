@@ -37,6 +37,9 @@
     var colContent = null;
     var colSidebar = null;
 
+    var groupSidebar = true;
+    var contactSidebar = true;
+
     /**
      * 消息模块的控制器。
      * @param {Cube} cubeEngine 
@@ -299,15 +302,54 @@
 
         g.app.getGroup(id, function(group) {
             if (null == group) {
-                g.app.getContact(id, handle);
-                that.hideSidebar();
+                g.app.getContact(id, function(contact) {
+                    handle(contact);
+                    g.app.messageSidebar.update(contact);
+                    if (contactSidebar) {
+                        that.showSidebar();
+                    }
+                    else {
+                        that.hideSidebar();
+                    }
+                });
             }
             else {
                 handle(group);
                 g.app.messageSidebar.update(group);
-                that.showSidebar();
+                if (groupSidebar) {
+                    that.showSidebar();
+                }
+                else {
+                    that.hideSidebar();
+                }
             }
         });
+    }
+
+    /**
+     * 开关侧边栏。
+     */
+    MessagingController.prototype.toggleSidebar = function() {
+        if (colSidebar.hasClass('no-display')) {
+            this.showSidebar();
+
+            if (g.app.messagePanel.getCurrentPanel().groupable) {
+                groupSidebar = true;
+            }
+            else {
+                contactSidebar = true;
+            }
+        }
+        else {
+            this.hideSidebar();
+
+            if (g.app.messagePanel.getCurrentPanel().groupable) {
+                groupSidebar = false;
+            }
+            else {
+                contactSidebar = false;
+            }
+        }
     }
 
     /**

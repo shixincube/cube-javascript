@@ -180,15 +180,19 @@
             g.app.messagingCtrl.openVoiceCall(that.current.entity);
         });
 
+        // 新建群组
+        el.find('button[data-target="new-group"]').on('click', function(e) {
+            that.onNewGroupClick(e);
+        });
+
         // 详情按钮
         el.find('button[data-target="details"]').on('click', function(e) {
             that.onDetailsClick(e);
         });
 
-        // 新建群组
-        this.btnNewGroup = el.find('button[data-target="new-group"]');
-        this.btnNewGroup.on('click', function(e) {
-            g.app.newGroupDialog.show();
+        // 折叠辅助信息
+        el.find('button[data-target="collapse"]').on('click', function(e) {
+            that.onCollapseClick(e);
         });
 
         // 初始化上下文菜单
@@ -697,7 +701,15 @@
     }
 
     /**
-     * 当触发点击详情是回调。
+     * 点击“创建群组”。
+     * @param {*} e 
+     */
+    MessagePanel.prototype.onNewGroupClick = function(e) {
+        g.app.newGroupDialog.show();
+    }
+
+    /**
+     * 点击“详情”。
      * @param {*} e 
      */
     MessagePanel.prototype.onDetailsClick = function(e) {
@@ -713,6 +725,18 @@
         else {
             g.app.contactDetails.show(entity);
         }
+    }
+
+    /**
+     * 点击“折叠”。
+     * @param {*} e 
+     */
+    MessagePanel.prototype.onCollapseClick = function(e) {
+        if (null == this.current) {
+            return;
+        }
+        
+        g.app.messagingCtrl.toggleSidebar();
     }
 
     /**
