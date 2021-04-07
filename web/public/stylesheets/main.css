@@ -472,6 +472,19 @@ body {
     font-size: 14px;
 }
 
+.direct-chat-messages .at {
+    color: #007bff;
+    background-color: #fefefe;
+    border-radius: 0.125rem;
+    padding: 0px 2px 0px 2px;
+    user-select: none;
+}
+
+.direct-chat-messages .right > .at {
+    color: #007bff;
+    background-color: #fefefe;
+}
+
 .direct-chat-messages .note {
     width: 100%;
     font-size: 12px;

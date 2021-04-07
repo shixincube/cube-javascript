@@ -182,8 +182,8 @@ export class Module extends Subject {
     }
 
     /**
-     * @private
      * 按照顺序依次加载依赖文件。
+     * @private
      */
     _loadDepsByOrder() {
         if (this.depsLoadMap.isEmpty()) {

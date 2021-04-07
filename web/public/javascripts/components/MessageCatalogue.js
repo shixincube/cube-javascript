@@ -248,10 +248,10 @@
         if (typeof target === 'number') {
             id = target;
         }
-        else if (target instanceof Contact) {
+        else if (target instanceof Group) {
             id = target.getId();
         }
-        else if (target instanceof Group) {
+        else if (target instanceof Contact) {
             id = target.getId();
         }
         else {
@@ -277,6 +277,9 @@
                 item.desc = desc;
             }
             else if (desc instanceof TextMessage) {
+                item.desc = desc.getSummary();
+            }
+            else if (desc instanceof HyperTextMessage) {
                 item.desc = desc.getSummary();
             }
             else if (desc instanceof ImageMessage) {

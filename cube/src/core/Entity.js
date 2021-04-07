@@ -58,7 +58,7 @@ export class Entity extends JSONable {
          * 实体的有效期。
          * @type {number}
          */
-        this.expiry = this.timestamp + (lifespan !== undefined) ? lifespan : 10 * 60 * 1000;
+        this.expiry = this.timestamp + (lifespan !== undefined && typeof lifespan === 'number') ? lifespan : 10 * 60 * 1000;
 
         /**
          * 关联的上下文信息。

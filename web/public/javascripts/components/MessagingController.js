@@ -258,7 +258,7 @@
         var message = null;
 
         if (typeof content === 'string') {
-            message = new TextMessage(content);
+            message = new HyperTextMessage(content);// new TextMessage(content);
         }
         else if (content instanceof File) {
             var type = content.type;

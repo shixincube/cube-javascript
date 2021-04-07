@@ -314,7 +314,7 @@
             // 生成草稿
             var text = activeEditor ? this.inputEditor.txt.text() : this.elInput.val().trim();
             if (text.length > 0) {
-                // 保存草稿
+                // 保存草稿 TODO
                 if (window.cube().messaging.saveDraft(this.current.entity, new TextMessage(text))) {
                     g.app.messageCatalog.updateItem(this.current.id, '[草稿] ' + text, null, null);
                 }
@@ -489,6 +489,19 @@
         if (message instanceof TextMessage) {
             text = message.getText();
         }
+        else if (message instanceof HyperTextMessage) {
+            // text = message.getPlaintext();
+            text = [];
+            message.getFormattedContents().forEach(function(value) {
+                if (value.format == 'text') {
+                    text.push(value.content);
+                }
+                else if (value.format == 'at') {
+                    text.push('&nbsp;<span class="at">@' + value.content.name + '</span>&nbsp;');
+                }
+            });
+            text = text.join('');
+        }
         else if (message instanceof ImageMessage || message instanceof FileMessage) {
             attachment = message.getAttachment();
         }
@@ -614,6 +627,25 @@
         if (text.length == 0) {
             return;
         }
+
+        // 解析输入内容
+        var formatText = [];
+        for (var i = 0; i < this.formatContents.length; ++i) {
+            var c = this.formatContents[i];
+            if (c.format == 'txt') {
+                formatText.push(filterFormatText(c.data));
+            }
+            else if (c.format == 'at') {
+                formatText.push('[@');
+                formatText.push(c.name);
+                formatText.push('#');
+                formatText.push(c.data.getId());
+                formatText.push(']');
+            }
+        }
+
+        // 格式化的内容
+        text = formatText.join('');
 
         if (this.current.entity instanceof Group) {
             var state = this.current.entity.getState();
@@ -953,7 +985,7 @@
         for (var i = 0; i < tmp.length; ++i) {
             var c = tmp[i].trim();
             if (c.length == 0) {
-                content.push('&nbsp;');
+                content.push(' ');
                 continue;
             }
             content.push(c);
@@ -966,7 +998,7 @@
             if (c.charAt(0) == '@') {
                 var at = that.atMap.get(c.substr(1, c.length));
                 if (null != at) {
-                    formatContents.push({ "format": "at", "data": at });
+                    formatContents.push({ "format": "at", "data": at, "name": c.substr(1, c.length) });
                 }
                 else {
                     formatContents.push({ "format": "txt", "data": c });
@@ -995,6 +1027,20 @@
             }
         }
         return length;
+    }
+
+    function filterFormatText(input) {
+        var output = [];
+        for (var i = 0; i < input.length; ++i) {
+            var c = input.charAt(i);
+            if (c == '[' || c == ']') {
+                // 转义
+                output.push('\\');
+            }
+
+            output.push(c);
+        }
+        return output.join('');
     }
 
     // 获取当前输入框光标位置
