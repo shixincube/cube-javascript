@@ -1112,6 +1112,13 @@
         this.atPanel.blur(function(e) { that.onAtPanelBlur(e); });
         this.atElList = [];
 
+        // 格式化内容
+        this.formatContents = [];
+        // 最近一次内容记录
+        this.lastInput = '';
+        // AT 记录
+        this.atMap = new OrderMap();
+
         if (activeEditor) {
             this.el.find('textarea').parent().remove();
             $('#message-editor').parent().css('display', 'flex');
@@ -1131,6 +1138,9 @@
 
             $('#message-editor').find('.w-e-text').keypress(function(event) {
                 that.onEditorKeypress(event);
+            });
+            $('#message-editor').find('.w-e-text').keydown(function(event) {
+                return that.onEditorKeydown(event);
             });
         }
         else {
@@ -1400,6 +1410,10 @@
                     this.elInput.attr('disabled', 'disabled');
                 }
 
+                this.formatContents = [];
+                this.lastInput = '';
+                this.atMap.clear();
+
                 this.current = null;
             }
 
@@ -1634,6 +1648,13 @@
         if (null == message) {
             g.dialog.launchToast(Toast.Error, '发送消息失败');
         }
+
+        // 清理格式化内容
+        if (this.formatContents.length > 0) {
+            this.formatContents.splice(0, this.formatContents.length);
+        }
+        this.lastInput = '';
+        this.atMap.clear();
     }
 
     /**
@@ -1660,15 +1681,47 @@
      * @param {string} html 
      */
     MessagePanel.prototype.onEditorChange = function(html) {
-        // var text = html.replace(/<[^<>]+>/g, "");
-        // var content = html.replaceAll('<br/>', '');
-        // if (content.endsWith('</p>')) {
-        //     content = content.substr(0, content.length - 4) + '<br/></p>';
-        // }
-        console.log(html);
-        // this.inputEditor.txt.html(content + '<br/>');
+        var text = html.replace(/<[^<>]+>/g, "");
+        if (this.lastInput == text) {
+            return;
+        }
+
+        if (text.length == 0 || text == ' ' || text == '&nbsp;') {
+            this.formatContents.splice(0, this.formatContents.length);
+            this.lastInput = text;
+            return;
+        }
+
+        var result = calcInputText(this.lastInput, text);
+        if (result.deleted) {
+            var formatContents = result.contents;
+            var content = [];
+            for (var i = 0; i < formatContents.length; ++i) {
+                var c = formatContents[i];
+                if (c.format == "txt") {
+                    content.push('<p>' + c.data + '</p>');
+                }
+                else if (c.format == "at") {
+                    var member = c.data;
+                    var atContent = '&nbsp;<p class="at-wrapper" data="' + member.getId() + '"><span class="at">@' + that.current.entity.getMemberName(member) + '</span></p>&nbsp;';
+                    content.push(atContent);
+                }
+            }
+            setTimeout(function() {
+                that.inputEditor.txt.html(content.join(''));
+            }, 10);
+        }
+
+        this.formatContents = result.contents;
+
+        this.lastInput = text;
     }
 
+    /**
+     * 当编辑框触发 Key Press 事件时回调。
+     * @param {*} event 
+     * @returns 
+     */
     MessagePanel.prototype.onEditorKeypress = function(event) {
         var e = event || window.event;
         if (e && e.keyCode == 13 && e.ctrlKey) {
@@ -1687,6 +1740,27 @@
         }
     }
 
+    /**
+     * 当编辑框触发 Key Down 事件时回调。
+     * @param {*} event 
+     * @returns 
+     */
+    MessagePanel.prototype.onEditorKeydown = function(event) {
+        var e = event || window.event;
+        // 退格键 - 8，删除键 - 46
+        // if (e.keyCode == 8 || e.keyCode == 46) {
+        //     // var text = this.inputEditor.txt.text();
+        //     e.preventDefault();
+        //     return false;
+        // }
+        return true;
+    }
+
+    /**
+     * 动态生成 AT 面板。
+     * @param {Group} group 
+     * @returns 
+     */
     MessagePanel.prototype.makeAtPanel = function(group) {
         var list = group.getMembers();
         var num = list.length - 1;
@@ -1706,7 +1780,7 @@
         var left = parseInt(dom.offsetLeft) + parseInt(dom.offsetParent.offsetLeft);
         var top = parseInt(dom.offsetTop) + parseInt(dom.offsetParent.offsetTop);
 
-        left += (cursor.charCount * 10);
+        left += (calcCursorPosition(cursor.charCount) * 7);
 
         if (num <= 5) {
             this.atPanel.css('height', ((num * 32) + 2) + 'px');
@@ -1755,6 +1829,9 @@
         this.atPanel.css('top', top + 'px');
     }
 
+    /**
+     * 选择当前指定的 AT 项。
+     */
     MessagePanel.prototype.selectAtItem = function() {
         if (!that.current.groupable) {
             return;
@@ -1763,6 +1840,9 @@
         var id = parseInt(that.atPanel.find('.active').attr('data'));
         var member = that.current.entity.getMemberById(id);
         var atContent = '<p class="at-wrapper" data="' + id + '"><span class="at">@' + that.current.entity.getMemberName(member) + '</span></p>';
+
+        this.atMap.put(that.current.entity.getMemberName(member), member);
+
         that.inputEditor.txt.append('&nbsp;');
         that.inputEditor.txt.append(atContent);
         that.inputEditor.txt.append('&nbsp;');
@@ -1798,7 +1878,9 @@
             return;
         }
         else if (event.keyCode == 27) {
+            // ESC - 27
             that.atPanel.blur();
+            that.inputEditor.txt.append('@');
             return;
         }
 
@@ -1840,17 +1922,91 @@
     }
 
 
-    function isChildOf(node, parentId) {
-        while (node !== null) {
-            if (node.id === parentId) {
-                return true;
+    // 通过对文本的匹配
+    function calcInputText(lastText, newestText) {
+        var lastContents = parseContent(lastText);
+        var newestContents = parseContent(newestText);
+
+        var deleted = false;
+
+        // 判断上一次的内容里是否少了 AT 格式的内容
+        for (var i = 0; i < lastContents.length; ++i) {
+            var last = lastContents[i];
+            if (last.format == "at") {
+                var found = false;
+                for (var n = 0; n < newestContents.length; ++n) {
+                    var newest = newestContents[n];
+                    if (newest.format == "at") {
+                        if (newest.data.id == last.data.id) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!found) {
+                    // 没有找到
+                    lastContents.splice(i, 1);
+                    --i;
+                    deleted = true;
+                }
             }
-            node = node.parentNode;
         }
 
-        return false;
+        return { "deleted": deleted, "contents" : deleted ? lastContents : newestContents };
     }
 
+    function parseContent(text) {
+        var content = [];
+        var tmp = text.split('&nbsp;');
+        for (var i = 0; i < tmp.length; ++i) {
+            var c = tmp[i].trim();
+            if (c.length == 0) {
+                content.push('&nbsp;');
+                continue;
+            }
+            content.push(c);
+        }
+
+        var formatContents = [];
+
+        for (var i = 0; i < content.length; ++i) {
+            var c = content[i];
+            if (c.charAt(0) == '@') {
+                var at = that.atMap.get(c.substr(1, c.length));
+                if (null != at) {
+                    formatContents.push({ "format": "at", "data": at });
+                }
+                else {
+                    formatContents.push({ "format": "txt", "data": c });
+                }
+            }
+            else {
+                formatContents.push({ "format": "txt", "data": c });
+            }
+        }
+
+        return formatContents;
+    }
+
+    // 计算当前光标位置
+    function calcCursorPosition(count) {
+        var length = 0;
+        var string = that.lastInput.replaceAll('&nbsp;', ' ');
+
+        for (var i = 0; i < string.length && i < count; ++i) {
+            var c = string.charCodeAt(i);
+            if (c > 127 || c == 94 || c == 64) {
+                length += 2;
+            }
+            else {
+                length += 1;
+            }
+        }
+        return length;
+    }
+
+    // 获取当前输入框光标位置
     function getCurrentCursorPosition(parentId) {
         var selection = window.getSelection(),
             charCount = -1,
@@ -1880,6 +2036,17 @@
             }
         }
         return { "node": node, "charCount": charCount };
+    }
+
+    function isChildOf(node, parentId) {
+        while (node !== null) {
+            if (node.id === parentId) {
+                return true;
+            }
+            node = node.parentNode;
+        }
+
+        return false;
     }
 
     // 获取元素的纵坐标 
