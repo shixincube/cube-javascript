@@ -170,8 +170,8 @@
                     </div>
 
                     <!-- Sidebar -->
-                    <div id="col_messaging_sidebar" class="col-md-3 col-sm-4 no-display">
-                        <div class="card card-primary card-outline card-outline-tabs messaging-sidebar">
+                    <div id="col_messaging_sidebar" class="col-md-3 col-sm-4 messaging-sidebar no-display">
+                        <div class="card card-primary card-outline card-outline-tabs for-group">
                             <div class="card-header p-0 border-bottom-0">
                                 <ul class="nav nav-tabs" id="sidebar-tab" role="tablist">
                                     <li class="nav-item">
@@ -186,17 +186,17 @@
                                     </li>
                                     -->
                                 </ul>
-                            </div>
+                            </div><!-- /.card-header -->
                             <div class="card-body">
                                 <div class="tab-content" id="sidebar-tab-content">
                                     <div class="tab-pane fade show active" id="sidebar-profile" role="tabpanel" aria-labelledby="sidebar-profile-tab">
                                         <div class="form">
                                             <div class="form-group">
-                                                <label for="group_name">群组名称</label>
+                                                <label for="group-name">群组名称</label>
                                                 <input type="text" class="form-control" value="群组名称" data-target="group-name" disabled="disabled" />
                                             </div>
                                             <div class="form-group">
-                                                <label for="group_name">群组备注 <span>（仅自己可见）</span></label>
+                                                <label for="group-remark">群组备注 <span>（仅自己可见）</span></label>
                                                 <div class="input-group input-group-sm">
                                                     <input type="text" class="form-control" value="" data-target="group-remark" disabled="disabled" />
                                                     <div class="input-group-append">
@@ -205,7 +205,7 @@
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <label for="group_name">群组公告</label>
+                                                <label for="group-notice">群组公告</label>
                                                 <div class="input-group input-group-sm">
                                                     <textarea class="form-control" rows="5" disabled="disabled" data-target="group-notice"></textarea>
                                                 </div>
@@ -220,7 +220,7 @@
                                                 <button type="button" class="btn btn-default btn-sm">更多群成员</button>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div><!-- /.tab-pane -->
                                     <div class="tab-pane fade" id="sidebar-image" role="tabpanel" aria-labelledby="sidebar-image-tab">
                                         <div class="image-file-list">
                                             <div class="file-cell">
@@ -233,13 +233,68 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div><!-- /.tab-pane -->
                                     <div class="tab-pane fade" id="sidebar-doc" role="tabpanel" aria-labelledby="sidebar-doc-tab">
                                         <div></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                                    </div><!-- /.tab-pane -->
+                                </div><!-- /.tab-content -->
+                            </div><!-- /.card-body -->
+                        </div><!-- /.card -->
+                        <div class="card card-primary card-outline card-outline-tabs for-contact no-display">
+                            <div class="card-header p-0 border-bottom-0">
+                                <ul class="nav nav-tabs" id="sidebar-contact-tab" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" id="sidebar-contact-profile-tab" data-toggle="tab" href="#sidebar-contact-profile" role="tab" aria-controls="sidebar-contact-profile" aria-selected="true">资料</a>
+                                    </li>
+                                    <!--
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="sidebar-contact-image-tab" data-toggle="tab" href="#sidebar-contact-image" role="tab" aria-controls="sidebar-contact-image" aria-selected="false">图片</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="sidebar-contact-doc-tab" data-toggle="tab" href="#sidebar-contact-doc" role="tab" aria-controls="sidebar-contact-doc" aria-selected="false">文档</a>
+                                    </li>
+                                    -->
+                                </ul>
+                            </div><!-- /.card-header -->
+                            <div class="card-body">
+                                <div class="tab-content" id="sidebar-contact-tab-content">
+                                    <div class="tab-pane fade show active" id="sidebar-contact-profile" role="tabpanel" aria-labelledby="sidebar-contact-profile-tab">
+                                        <div class="form">
+                                            <div class="form-group">
+                                                <label for="contact-name">名称</label>
+                                                <input type="text" class="form-control" value="名称" data-target="contact-name" disabled="disabled" />
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="contact-remark">备注名</label>
+                                                <div class="input-group input-group-sm">
+                                                    <input type="text" class="form-control" value="" data-target="contact-remark" disabled="disabled" />
+                                                    <div class="input-group-append">
+                                                        <button type="button" class="btn btn-default btn-flat" data-target="remark" title="修改备注名"><i class="fas fa-edit"></i></button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <hr style="width:100%;" />
+                                    </div><!-- /.tab-pane -->
+                                    <div class="tab-pane fade" id="sidebar-contact-image" role="tabpanel" aria-labelledby="sidebar-contact-image-tab">
+                                        <div class="image-file-list">
+                                            <div class="file-cell">
+                                                <div class="file-type">
+                                                    <div class="file-thumb"></div>
+                                                </div>
+                                                <div class="file-info">
+                                                    <div data-target="date">2021年1月3日</div>
+                                                    <div data-target="size">902 KB</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div><!-- /.tab-pane -->
+                                    <div class="tab-pane fade" id="sidebar-contact-doc" role="tabpanel" aria-labelledby="sidebar-contact-doc-tab">
+                                        <div></div>
+                                    </div><!-- /.tab-pane -->
+                                </div><!-- /.tab-content -->
+                            </div><!-- /.card-body -->
+                        </div><!-- /.card -->
                     </div>
                 </div>
             </div>

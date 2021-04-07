@@ -640,10 +640,12 @@ body {
 /* 消息界面侧边栏 - 开始 */
 
 .messaging-sidebar {
+    font-size: 12px;
+}
+.messaging-sidebar .card {
     margin-top: 0.6rem;
     margin-bottom: 0rem;
     height: calc(100vh - 124px);
-    font-size: 12px;
 }
 .messaging-sidebar .card-header {
     font-size: 14px;

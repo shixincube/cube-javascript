@@ -2157,9 +2157,13 @@
     var currentGroupRemark = null;
     var currentGroupNotice = null;
 
-    var sidebarEl = null;
+    var currentContact = null;
 
-    var imageFileListEl = null;
+    var sidebarEl = null;
+    var groupSidebarEl = null;
+    var contactSidebarEl = null;
+
+    // var imageFileListEl = null;
 
     var inputGroupRemark = null;
     var btnGroupRemark = null;
@@ -2252,25 +2256,32 @@
         g.app.messageSidebar.recoverMemberName(memberId, thisEl.parent(), newText);
     }
 
+
+    /**
+     * 消息面板侧边栏。
+     */
     var MessageSidebar = function(el) {
         that = this;
 
         sidebarEl = el;
-        imageFileListEl = sidebarEl.find('.image-file-list');
+        groupSidebarEl = sidebarEl.find('.for-group');
+        contactSidebarEl = sidebarEl.find('.for-contact');
 
-        inputGroupRemark= sidebarEl.find('input[data-target="group-remark"]');
+        // imageFileListEl = sidebarEl.find('.image-file-list');
+
+        inputGroupRemark= groupSidebarEl.find('input[data-target="group-remark"]');
         inputGroupRemark.attr('disabled', 'disabled');
         inputGroupRemark.blur(onGroupRemarkBlur);
 
-        btnGroupRemark = sidebarEl.find('button[data-target="remark"]');
+        btnGroupRemark = groupSidebarEl.find('button[data-target="remark"]');
         btnGroupRemark.click(onGroupRemarkButtonClick);
 
-        textGroupNotice = sidebarEl.find('textarea[data-target="group-notice"]');
+        textGroupNotice = groupSidebarEl.find('textarea[data-target="group-notice"]');
         textGroupNotice.attr('disabled', 'disabled');
         textGroupNotice.blur(onNoticeBlur);
-        sidebarEl.find('button[data-target="notice"]').click(onNoticeButtonClick);
+        groupSidebarEl.find('button[data-target="notice"]').click(onNoticeButtonClick);
 
-        memberListEl = sidebarEl.find('.group-member-list');
+        memberListEl = groupSidebarEl.find('.group-member-list');
     }
 
     /**
@@ -4045,7 +4056,6 @@
             }
             else {
                 that.updateGroupMessages(message.getSourceGroup());
-                // g.app.messagePanel.appendMessage(message.getSourceGroup(), message.getSender(), message);
             }
 
             // 更新消息目录
