@@ -760,7 +760,7 @@
             item.lastDesc = item.desc;
 
             if (typeof desc === 'string') {
-                item.desc = desc;
+                item.desc = desc.length == 0 ? '　' : desc;
             }
             else if (desc instanceof TextMessage) {
                 item.desc = desc.getSummary();
@@ -797,9 +797,9 @@
 
             el.find('.product-description').text(item.desc);
         }
-        else {
-            el.find('.product-description').text('　');
-        }
+        // else {
+        //     el.find('.product-description').text(item.desc);
+        // }
 
         // 更新时间
         if (null != time) {
@@ -3567,14 +3567,12 @@
     var btnDissolve = null;
 
     var fireModify = function() {
-        g.dialog.showPrompt('修改群组名称', '请输入新的群组名', function(ok, text) {
+        g.dialog.showPrompt('修改群名称', '请输入新的群组名', function(ok, text) {
             if (ok) {
                 if (text.length >= 3) {
                     g.app.messagingCtrl.modifyGroupName(lastGroup, text, function(group) {
                         // 修改对话框里的群组名
                         elGroupName.text(group.getName());
-                        // 更新消息界面
-                        g.app.messagingCtrl.updateGroup(group);
                     });
                 }
                 else {
@@ -4188,6 +4186,7 @@
         g.app.messagePanel.updatePanel(contact.getId(), contact);
         g.app.messageCatalog.updateItem(contact, null, null,
             contact.getAppendix().hasRemarkName() ? contact.getAppendix().getRemarkName() : contact.getName());
+        g.app.messageSidebar.update(group);
     }
 
     /**
@@ -4197,6 +4196,7 @@
     MessagingController.prototype.updateGroup = function(group) {
         g.app.messagePanel.updatePanel(group.getId(), group);
         g.app.messageCatalog.updateItem(group, null, null, group.getName());
+        g.app.messageSidebar.update(group);
     }
 
     /**
@@ -7838,6 +7838,7 @@
         // 群组相关事件
         cube.contact.on(ContactEvent.GroupUpdated, function(event) {
             that.appendLog(event.name, event.data.name);
+            that.onGroupUpdated(event.data);
         });
         cube.contact.on(ContactEvent.GroupCreated, function(event) {
             that.appendLog(event.name, event.data.name);
@@ -7878,6 +7879,13 @@
         ];
 
         sidebarLogEl.append($(html.join('')));
+    }
+
+    AppEventCenter.prototype.onGroupUpdated = function(group) {
+        // 更新消息界面
+        g.app.messagingCtrl.updateGroup(group);
+        // 更新联系人界面
+        g.app.contactsCtrl.updateGroup(group);
     }
 
     AppEventCenter.prototype.onGroupCreated = function(group) {

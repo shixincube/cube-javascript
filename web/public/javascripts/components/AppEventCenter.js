@@ -67,6 +67,7 @@
         // 群组相关事件
         cube.contact.on(ContactEvent.GroupUpdated, function(event) {
             that.appendLog(event.name, event.data.name);
+            that.onGroupUpdated(event.data);
         });
         cube.contact.on(ContactEvent.GroupCreated, function(event) {
             that.appendLog(event.name, event.data.name);
@@ -107,6 +108,13 @@
         ];
 
         sidebarLogEl.append($(html.join('')));
+    }
+
+    AppEventCenter.prototype.onGroupUpdated = function(group) {
+        // 更新消息界面
+        g.app.messagingCtrl.updateGroup(group);
+        // 更新联系人界面
+        g.app.contactsCtrl.updateGroup(group);
     }
 
     AppEventCenter.prototype.onGroupCreated = function(group) {

@@ -38,14 +38,12 @@
     var btnDissolve = null;
 
     var fireModify = function() {
-        g.dialog.showPrompt('修改群组名称', '请输入新的群组名', function(ok, text) {
+        g.dialog.showPrompt('修改群名称', '请输入新的群组名', function(ok, text) {
             if (ok) {
                 if (text.length >= 3) {
                     g.app.messagingCtrl.modifyGroupName(lastGroup, text, function(group) {
                         // 修改对话框里的群组名
                         elGroupName.text(group.getName());
-                        // 更新消息界面
-                        g.app.messagingCtrl.updateGroup(group);
                     });
                 }
                 else {

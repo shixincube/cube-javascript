@@ -274,7 +274,7 @@
             item.lastDesc = item.desc;
 
             if (typeof desc === 'string') {
-                item.desc = desc;
+                item.desc = desc.length == 0 ? '　' : desc;
             }
             else if (desc instanceof TextMessage) {
                 item.desc = desc.getSummary();
@@ -310,9 +310,6 @@
             }
 
             el.find('.product-description').text(item.desc);
-        }
-        else {
-            el.find('.product-description').text('　');
         }
 
         // 更新时间

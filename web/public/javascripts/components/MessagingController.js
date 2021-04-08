@@ -217,6 +217,7 @@
         g.app.messagePanel.updatePanel(contact.getId(), contact);
         g.app.messageCatalog.updateItem(contact, null, null,
             contact.getAppendix().hasRemarkName() ? contact.getAppendix().getRemarkName() : contact.getName());
+        g.app.messageSidebar.update(group);
     }
 
     /**
@@ -226,6 +227,7 @@
     MessagingController.prototype.updateGroup = function(group) {
         g.app.messagePanel.updatePanel(group.getId(), group);
         g.app.messageCatalog.updateItem(group, null, null, group.getName());
+        g.app.messageSidebar.update(group);
     }
 
     /**
