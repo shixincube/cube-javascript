@@ -34,6 +34,7 @@
     var currentGroupNotice = null;
 
     var currentContact = null;
+    var currentContactRemark = null;
 
     var sidebarEl = null;
     var groupSidebarEl = null;
@@ -47,6 +48,9 @@
     var textGroupNotice = null;
 
     var memberListEl = null;
+
+    var inputContactRemark = null;
+    var btnContactRemark = null;
 
     function onGroupRemarkButtonClick() {
         if (inputGroupRemark.prop('disabled')) {
@@ -133,6 +137,33 @@
     }
 
 
+    function onContactRemarkButtonClick() {
+        if (inputContactRemark.prop('disabled')) {
+            currentContactRemark = inputContactRemark.val().trim();
+            inputContactRemark.removeAttr('disabled');
+            inputContactRemark.focus();
+        }
+        else {
+            var text = inputContactRemark.val().trim();
+            inputContactRemark.attr('disabled', 'disabled');
+            if (currentContactRemark == text) {
+                return;
+            }
+
+            window.cube().contact.remarkContactName(currentContact, text, function() {
+                dialog.launchToast(Toast.Success, '已备注联系人');
+            }, function(error) {
+                dialog.launchToast(Toast.Error, '修改联系人备注失败：' + error.code);
+                inputContactRemark.val(currentContactRemark);
+            });
+        }
+    }
+
+    function onContactRemarkBlur() {
+        onContactRemarkButtonClick();
+    }
+
+
     /**
      * 消息面板侧边栏。
      */
@@ -144,6 +175,8 @@
         contactSidebarEl = sidebarEl.find('.for-contact');
 
         // imageFileListEl = sidebarEl.find('.image-file-list');
+
+        // 群组界面
 
         inputGroupRemark= groupSidebarEl.find('input[data-target="group-remark"]');
         inputGroupRemark.attr('disabled', 'disabled');
@@ -158,6 +191,15 @@
         groupSidebarEl.find('button[data-target="notice"]').click(onNoticeButtonClick);
 
         memberListEl = groupSidebarEl.find('.group-member-list');
+
+        // 联系人界面
+
+        inputContactRemark = contactSidebarEl.find('input[data-target="contact-remark"]');
+        inputContactRemark.attr('disabled', 'disabled');
+        inputContactRemark.blur(onContactRemarkBlur);
+
+        btnContactRemark = contactSidebarEl.find('button[data-target="remark"]');
+        btnContactRemark.click(onContactRemarkButtonClick);
     }
 
     /**
@@ -194,8 +236,7 @@
 
         contactSidebarEl.find('input[data-target="contact-name"]').val(contact.getName());
 
-        contactSidebarEl.find('input[data-target="contact-remark"]').val(
-            contact.getAppendix().hasRemarkName() ? contact.getAppendix().getRemarkName() : '');
+        inputContactRemark.val(contact.getAppendix().hasRemarkName() ? contact.getAppendix().getRemarkName() : '');
     }
 
     /**
