@@ -328,6 +328,52 @@
 
 })(window);
 
+
+/**
+ * 主面板。
+ */
+(function(g) {
+    'use strict';
+
+    var that = null;
+
+    var MainPanel = function() {
+        that = this;
+
+        var body = $('body');
+        var pushmenu = body.find('a[data-widget="pushmenu"]');
+        pushmenu.on('click', function() {
+            that.toggleMainSidebar();
+        });
+    }
+
+    MainPanel.prototype.prepare = function() {
+        // 加载侧边栏是否展开配置
+        var value = g.app.loadConfig('sidebarCollapse');
+        if (null != value && undefined !== value) {
+            var body = $('body');
+            if (value) {
+                if (!body.hasClass('sidebar-collapse')) {
+                    body.addClass('sidebar-collapse');
+                }
+            }
+            else {
+                body.removeClass('sidebar-collapse');
+            }
+        }
+    }
+
+    MainPanel.prototype.toggleMainSidebar = function() {
+        var body = $('body');
+        // 需要取 false 值
+        var collapse = !body.hasClass('sidebar-collapse');
+        g.app.saveConfig('sidebarCollapse', collapse);
+    }
+
+    g.MainPanel = MainPanel;
+
+})(window);
+
 (function(g) {
     'use strict'
 
@@ -1530,7 +1576,6 @@
             text = message.getText();
         }
         else if (message instanceof HyperTextMessage) {
-            // text = message.getPlaintext();
             text = [];
             message.getFormattedContents().forEach(function(value) {
                 if (value.format == 'text') {

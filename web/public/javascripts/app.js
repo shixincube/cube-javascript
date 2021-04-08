@@ -104,6 +104,9 @@
         }
     }
 
+    /**
+     * 应用程序入口。
+     */
     var app = {
         /**
          * 启动程序并进行初始化。
@@ -161,38 +164,6 @@
         },
 
         /**
-         * 切换主界面。
-         * @param {string} id 
-         * @param {string} btnId
-         */
-        toggle: function(id, btnId) {
-            if (tabId == id) {
-                return;
-            }
-
-            $('#' + tabId).addClass('content-wrapper-hidden');
-            $('#' + id).removeClass('content-wrapper-hidden');
-            tabId = id;
-
-            $('#' + tabBtnId).removeClass('active');
-            $('#' + btnId).addClass('active');
-            tabBtnId = btnId;
-
-            if (id == 'messaging') {
-                $('.main-title').text('消息');
-            }
-            else if (id == 'files') {
-                $('.main-title').text('文件');
-            }
-            else if (id == 'conference') {
-                $('.main-title').text('会议');
-            }
-            else if (id == 'contacts') {
-                $('.main-title').text('联系人');
-            }
-        },
-
-        /**
          * 启动。
          * @param {object} current 
          */
@@ -218,102 +189,6 @@
          */
         stop: function() {
             window.location.href = '/?c=logout';
-        },
-
-        /**
-         * 初始化 UI 。
-         */
-        prepareUI: function() {
-            $(document).keyup(onKeyUp);
-
-            // 侧边账号栏
-            sidebarAccountPanel = new SidebarAccountPanel($('.account-panel'));
-            sidebarAccountPanel.updateAvatar(account.avatar);
-            sidebarAccountPanel.updateName(account.name);
-            sidebarAccountPanel.showDetail = function() {
-                contactDetails.show(cube.contact.getSelf());
-            };
-
-            // 消息主面板
-            var messagingEl = $('#messaging');
-            // 消息目录
-            messageCatalog = new MessageCatalogue(messagingEl);
-            // 消息面板
-            messagePanel = new MessagePanel(messagingEl.find('.messaging-content'));
-            // 消息侧边栏
-            messageSidebar = new MessageSidebar(messagingEl.find('.messaging-sidebar'));
-
-            voiceCallPanel = new VoiceCallPanel($('#voice_call'));
-            videoChatPanel = new VideoChatPanel($('#video_chat'));
-            contactDetails = new ContactDetails($('#modal_contact_details'));
-            groupDetails = new GroupDetails($('#modal_group_details'));
-            newGroupDialog = new NewGroupDialog($('#new_group_dialog'));
-            contactListDialog = new ContactListDialog($('#contact_list_dialog'));
-
-            fileDetails = new FileDetails($('#modal_file_details'));
-
-            // 文件
-            var filesEl = $('#files');
-            // 文件目录
-            filesCatalog = new FilesCatalogue(filesEl.find('.file-catalog'), filesEl.find('.file-trans-list'));
-            // 文件面板
-            filesPanel = new FilesPanel(filesEl.find('.files-panel'));
-
-            // 消息控制器
-            messagingCtrl = new MessagingController(cube);
-            // 通话控制器
-            callCtrl = new CallController(cube);
-            // 文件控制器
-            filesCtrl = new FilesController(cube);
-            // 会议控制器
-            confCtrl = new ConferenceController(cube);
-            // 联系人控制器
-            contactsCtrl = new ContactsController(cube);
-
-            that.sidebarAccountPanel = sidebarAccountPanel;
-
-            that.messageCatalog = messageCatalog;
-            that.messagePanel = messagePanel;
-            that.messageSidebar = messageSidebar;
-
-            that.voiceCallPanel = voiceCallPanel;
-            that.videoChatPanel = videoChatPanel;
-            that.contactDetails = contactDetails;
-            that.groupDetails = groupDetails;
-            that.newGroupDialog = newGroupDialog;
-            that.contactListDialog = contactListDialog;
-
-            that.fileDetails = fileDetails;
-
-            that.filesCatalog = filesCatalog;
-            that.filesPanel = filesPanel;
-
-            that.messagingCtrl = messagingCtrl;
-            that.callCtrl = callCtrl;
-            that.filesCtrl = filesCtrl;
-            that.confCtrl = confCtrl;
-            that.contactsCtrl = contactsCtrl;
-
-            // 选择联系人对话框
-            that.selectContactsDialog = new SelectContactsDialog(cube);
-
-            // 搜索对话框
-            that.searchDialog = new SearchDialog();
-        },
-
-        onKeyUp: function(callback) {
-            var index = onKeyUpFunList.indexOf(callback);
-            if (index >= 0) {
-                return;
-            }
-            onKeyUpFunList.push(callback);
-        },
-
-        unKeyUp: function(callback) {
-            var index = onKeyUpFunList.indexOf(callback);
-            if (index >= 0) {
-                onKeyUpFunList.splice(index, 1);
-            }
         },
 
         /**
@@ -395,6 +270,173 @@
                     }, 4000);
                 }
             });
+        },
+
+        /**
+         * 初始化 UI 。
+         */
+        prepareUI: function() {
+            // 全局 Key Up 事件
+            $(document).keyup(onKeyUp);
+
+            // 主面板
+            that.mainPanel = new MainPanel();
+            that.mainPanel.prepare();
+
+            // 侧边账号栏
+            sidebarAccountPanel = new SidebarAccountPanel($('.account-panel'));
+            sidebarAccountPanel.updateAvatar(account.avatar);
+            sidebarAccountPanel.updateName(account.name);
+            sidebarAccountPanel.showDetail = function() {
+                contactDetails.show(cube.contact.getSelf());
+            };
+
+            // 消息主面板
+            var messagingEl = $('#messaging');
+            // 消息目录
+            messageCatalog = new MessageCatalogue(messagingEl);
+            // 消息面板
+            messagePanel = new MessagePanel(messagingEl.find('.messaging-content'));
+            // 消息侧边栏
+            messageSidebar = new MessageSidebar(messagingEl.find('.messaging-sidebar'));
+
+            voiceCallPanel = new VoiceCallPanel($('#voice_call'));
+            videoChatPanel = new VideoChatPanel($('#video_chat'));
+            contactDetails = new ContactDetails($('#modal_contact_details'));
+            groupDetails = new GroupDetails($('#modal_group_details'));
+            newGroupDialog = new NewGroupDialog($('#new_group_dialog'));
+            contactListDialog = new ContactListDialog($('#contact_list_dialog'));
+
+            fileDetails = new FileDetails($('#modal_file_details'));
+
+            // 文件
+            var filesEl = $('#files');
+            // 文件目录
+            filesCatalog = new FilesCatalogue(filesEl.find('.file-catalog'), filesEl.find('.file-trans-list'));
+            // 文件面板
+            filesPanel = new FilesPanel(filesEl.find('.files-panel'));
+
+            // 消息控制器
+            messagingCtrl = new MessagingController(cube);
+            // 通话控制器
+            callCtrl = new CallController(cube);
+            // 文件控制器
+            filesCtrl = new FilesController(cube);
+            // 会议控制器
+            confCtrl = new ConferenceController(cube);
+            // 联系人控制器
+            contactsCtrl = new ContactsController(cube);
+
+            that.sidebarAccountPanel = sidebarAccountPanel;
+
+            that.messageCatalog = messageCatalog;
+            that.messagePanel = messagePanel;
+            that.messageSidebar = messageSidebar;
+
+            that.voiceCallPanel = voiceCallPanel;
+            that.videoChatPanel = videoChatPanel;
+            that.contactDetails = contactDetails;
+            that.groupDetails = groupDetails;
+            that.newGroupDialog = newGroupDialog;
+            that.contactListDialog = contactListDialog;
+
+            that.fileDetails = fileDetails;
+
+            that.filesCatalog = filesCatalog;
+            that.filesPanel = filesPanel;
+
+            that.messagingCtrl = messagingCtrl;
+            that.callCtrl = callCtrl;
+            that.filesCtrl = filesCtrl;
+            that.confCtrl = confCtrl;
+            that.contactsCtrl = contactsCtrl;
+
+            // 选择联系人对话框
+            that.selectContactsDialog = new SelectContactsDialog(cube);
+
+            // 搜索对话框
+            that.searchDialog = new SearchDialog();
+        },
+
+        /**
+         * 切换主界面。
+         * @param {string} id 
+         * @param {string} btnId
+         */
+        toggle: function(id, btnId) {
+            if (tabId == id) {
+                return;
+            }
+
+            $('#' + tabId).addClass('content-wrapper-hidden');
+            $('#' + id).removeClass('content-wrapper-hidden');
+            tabId = id;
+
+            $('#' + tabBtnId).removeClass('active');
+            $('#' + btnId).addClass('active');
+            tabBtnId = btnId;
+
+            if (id == 'messaging') {
+                $('.main-title').text('消息');
+            }
+            else if (id == 'files') {
+                $('.main-title').text('文件');
+            }
+            else if (id == 'conference') {
+                $('.main-title').text('会议');
+            }
+            else if (id == 'contacts') {
+                $('.main-title').text('联系人');
+            }
+        },
+
+        /**
+         * 加载指定配置信息。
+         * @param {string} name 
+         * @returns 
+         */
+        loadConfig: function(name) {
+            var value = window.localStorage.getItem('CubeAppConfig');
+            if (value && value.length > 3) {
+                var data = JSON.parse(value);
+                return data[name];
+            }
+
+            return null;
+        },
+
+        /**
+         * 保存配置信息。
+         * @param {string} name 
+         * @param {object} config 
+         */
+        saveConfig: function(name, config) {
+            var value = window.localStorage.getItem('CubeAppConfig');
+            if (value && value.length > 3) {
+                var data = JSON.parse(value);
+                data[name] = config;
+                window.localStorage.setItem('CubeAppConfig', JSON.stringify(data));
+            }
+            else {
+                var data = {};
+                data[name] = config;
+                window.localStorage.setItem('CubeAppConfig', JSON.stringify(data));
+            }
+        },
+
+        onKeyUp: function(callback) {
+            var index = onKeyUpFunList.indexOf(callback);
+            if (index >= 0) {
+                return;
+            }
+            onKeyUpFunList.push(callback);
+        },
+
+        unKeyUp: function(callback) {
+            var index = onKeyUpFunList.indexOf(callback);
+            if (index >= 0) {
+                onKeyUpFunList.splice(index, 1);
+            }
         },
 
         /**

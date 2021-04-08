@@ -518,7 +518,6 @@
             text = message.getText();
         }
         else if (message instanceof HyperTextMessage) {
-            // text = message.getPlaintext();
             text = [];
             message.getFormattedContents().forEach(function(value) {
                 if (value.format == 'text') {

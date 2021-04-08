@@ -6,6 +6,7 @@ const UglifyJS = require("uglify-js");
 const filePath = 'public/javascripts/components/';
 const fileList = [
     'Dialog.js',
+    'MainPanel.js',
     'FileDetails.js',
     'SidebarAccountPanel.js',
     'MessageCatalogue.js',
