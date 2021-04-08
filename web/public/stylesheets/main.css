@@ -749,6 +749,11 @@ body {
     padding: 4px 0px 0px 0px;
 }
 
+.messaging-sidebar .tab-content .label {
+    font-weight: 700;
+    font-size: 12px;
+    color: #6c757d;
+}
 
 /* 消息界面侧边栏 - 结束 */
 

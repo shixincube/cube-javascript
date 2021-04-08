@@ -274,6 +274,10 @@ export class Group extends Contact {
      */
     modifyMember(member) {
         let cur = this.getMemberById(member.getId());
+        if (null == cur) {
+            return;
+        }
+        
         cur.context = member.context;
         cur.name = member.name;
     }

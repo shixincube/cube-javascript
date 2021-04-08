@@ -531,40 +531,6 @@
     }
 
     /**
-     * 移除群组成员。
-     * @param {number} groupId 
-     * @param {number} memberId 
-     * @param {funciton} handle 
-     */
-    MessagingController.prototype.removeGroupMember = function(groupId, memberId, handle) {
-        var group = getGroup(groupId);
-        var member = getContact(memberId);
-        var memName = null;
-        if (null != member) {
-            memName = member.getName();
-        }
-        else {
-            memName = memberId;
-        }
-
-        g.dialog.showConfirm('移除群成员', '您确定要把“' + memName + '”移除群组吗？', function(ok) {
-            if (ok) {
-                group.removeMembers([ memberId ], function(group, list, operator) {
-                    g.dialog.launchToast(Toast.Success, '已移除成员“' + memName + '”');
-                    if (handle) {
-                        handle(group, list, operator);
-                    }
-
-                    // 刷新对话框
-                    g.app.groupDetails.refresh();
-                }, function(error) {
-                    g.dialog.launchToast(Toast.Warning, '移除群成员失败: ' + error.code);
-                });
-            }
-        });
-    }
-
-    /**
      * 从界面上移除群组。
      * @param {Group} group 
      */

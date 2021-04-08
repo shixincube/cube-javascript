@@ -93,7 +93,7 @@
         var date = new Date();
 
         var html = [
-            '<div class="row">',
+            '<div class="row align-items-center">',
                 '<div class="col-3">',
                     g.formatNumber(date.getHours()), ':', g.formatNumber(date.getMinutes()), ':', g.formatNumber(date.getSeconds()),
                 '</div>',

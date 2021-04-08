@@ -127,7 +127,6 @@
         }
         else {
             var contactId = contact;
-            // currentContact = g.app.queryContact(contactId);
 
             g.app.getContact(contactId, function(contact) {
                 currentContact = contact;

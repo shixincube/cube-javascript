@@ -1512,8 +1512,15 @@ export class ContactService extends Module {
             return;
         }
 
+        let response = (null != context);
+
+        if (response) {
+            // 如果是应答，则直接返回
+            return;
+        }
+
         // 读取群信息
-        let bundle = (null == context) ? GroupBundle.create(this, payload.data) : context;
+        let bundle = response ? context : GroupBundle.create(this, payload.data);
         let group = bundle.group;
 
         (new Promise((resolve, reject) => {
@@ -1684,8 +1691,15 @@ export class ContactService extends Module {
             return;
         }
 
+        let response = (null != context);
+
+        if (response) {
+            // 如果是应答，则直接返回
+            return;
+        }
+
         // 读取群信息
-        let bundle = (null == context) ? GroupBundle.create(this, payload.data) : context;
+        let bundle = response ? context : GroupBundle.create(this, payload.data);
         let group = bundle.group;
 
         (new Promise((resolve, reject) => {

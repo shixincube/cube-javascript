@@ -52,7 +52,7 @@
     var inputContactRemark = null;
     var btnContactRemark = null;
 
-    function onGroupRemarkButtonClick() {
+    function onGroupRemarkClick() {
         if (inputGroupRemark.prop('disabled')) {
             currentGroupRemark = inputGroupRemark.val().trim();
             inputGroupRemark.removeAttr('disabled');
@@ -75,10 +75,10 @@
     }
 
     function onGroupRemarkBlur() {
-        onGroupRemarkButtonClick();
+        onGroupRemarkClick();
     }
 
-    function onNoticeButtonClick() {
+    function onNoticeClick() {
         if (textGroupNotice.prop('disabled')) {
             currentGroupNotice = textGroupNotice.val().trim();
             textGroupNotice.removeAttr('disabled');
@@ -102,7 +102,7 @@
     }
 
     function onNoticeBlur() {
-        onNoticeButtonClick();
+        onNoticeClick();
     }
 
     function onMemberNameKeyup(event) {
@@ -136,8 +136,66 @@
         g.app.messageSidebar.recoverMemberName(memberId, thisEl.parent(), newText);
     }
 
+    function onAddMemberClick(e) {
+        var list = g.app.contactsCtrl.getContacts();
+        var members = currentGroup.getMembers();
+        var result = [];
+        var contains = false;
+        for (var i = 0; i < list.length; ++i) {
+            var contact = list[i];
+            contains = false;
+            for (var j = 0; j < members.length; ++j) {
+                var member = members[j];
+                if (member.id == contact.id) {
+                    contains = true;
+                    break;
+                }
+            }
 
-    function onContactRemarkButtonClick() {
+            if (!contains) {
+                result.push(contact);
+            }
+        }
+
+        g.app.contactListDialog.show(result, [], function(list) {
+            if (list.length > 0) {
+                currentGroup.addMembers(list, function(group) {
+                    that.updateGroup(group);
+                }, function(error) {
+                    g.dialog.launchToast(Toast.Error, '邀请入群操作失败 - ' + error.code);
+                });
+            }
+        }, '邀请入群');
+    }
+
+    function onRemoveMemberClick(e) {
+        if (!currentGroup.isOwner()) {
+            g.dialog.launchToast(Toast.Info, '您不能移除该群组成员。');
+            return;
+        }
+
+        var members = currentGroup.getMembers().concat();
+        for (var i = 0; i < members.length; ++i) {
+            var member = members[i];
+            if (member.id == g.app.account.id) {
+                members.splice(i, 1);
+                break;
+            }
+        }
+
+        g.app.contactListDialog.show(members, [], function(list) {
+            if (list.length > 0) {
+                currentGroup.removeMembers(list, function(group) {
+                    that.updateGroup(group);
+                }, function(error) {
+                    g.dialog.launchToast(Toast.Error, '移除成员操作失败 - ' + error.code);
+                });
+            }
+        }, '移除成员');
+    }
+
+
+    function onContactRemarkClick() {
         if (inputContactRemark.prop('disabled')) {
             currentContactRemark = inputContactRemark.val().trim();
             inputContactRemark.removeAttr('disabled');
@@ -160,7 +218,7 @@
     }
 
     function onContactRemarkBlur() {
-        onContactRemarkButtonClick();
+        onContactRemarkClick();
     }
 
 
@@ -183,13 +241,15 @@
         inputGroupRemark.blur(onGroupRemarkBlur);
 
         btnGroupRemark = groupSidebarEl.find('button[data-target="remark"]');
-        btnGroupRemark.click(onGroupRemarkButtonClick);
+        btnGroupRemark.click(onGroupRemarkClick);
 
         textGroupNotice = groupSidebarEl.find('textarea[data-target="group-notice"]');
         textGroupNotice.attr('disabled', 'disabled');
         textGroupNotice.blur(onNoticeBlur);
-        groupSidebarEl.find('button[data-target="notice"]').click(onNoticeButtonClick);
+        groupSidebarEl.find('button[data-target="notice"]').click(onNoticeClick);
 
+        groupSidebarEl.find('button[data-target="add-member"]').click(onAddMemberClick);
+        groupSidebarEl.find('button[data-target="remove-member"]').click(onRemoveMemberClick);
         memberListEl = groupSidebarEl.find('.group-member-list');
 
         // 联系人界面
@@ -199,7 +259,7 @@
         inputContactRemark.blur(onContactRemarkBlur);
 
         btnContactRemark = contactSidebarEl.find('button[data-target="remark"]');
-        btnContactRemark.click(onContactRemarkButtonClick);
+        btnContactRemark.click(onContactRemarkClick);
     }
 
     /**
@@ -271,6 +331,9 @@
 
         group.getMembers().forEach(function(element) {
             g.app.getContact(element.getId(), function(contact) {
+                // 更新本地数据
+                group.modifyMember(contact);
+
                 var operate = [ '<button class="btn btn-sm btn-default btn-flat"' ,
                     ' onclick="javascript:app.messageSidebar.fireUpdateMemberRemark(', contact.getId(), ');"><i class="fas fa-edit"></i></button>' ];
                 var html = [

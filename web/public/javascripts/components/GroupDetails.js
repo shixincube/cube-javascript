@@ -199,7 +199,7 @@
         var removeable = group.isOwner();
 
         var clickEvent = [
-            'app.messagingCtrl.removeGroupMember(', 
+            'app.contactsCtrl.removeGroupMember(', 
                 'parseInt($(this).attr(\'data-group\')),',
                 'parseInt($(this).attr(\'data-member\'))',
             ');'

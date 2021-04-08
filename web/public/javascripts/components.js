@@ -2295,7 +2295,7 @@
     var inputContactRemark = null;
     var btnContactRemark = null;
 
-    function onGroupRemarkButtonClick() {
+    function onGroupRemarkClick() {
         if (inputGroupRemark.prop('disabled')) {
             currentGroupRemark = inputGroupRemark.val().trim();
             inputGroupRemark.removeAttr('disabled');
@@ -2318,10 +2318,10 @@
     }
 
     function onGroupRemarkBlur() {
-        onGroupRemarkButtonClick();
+        onGroupRemarkClick();
     }
 
-    function onNoticeButtonClick() {
+    function onNoticeClick() {
         if (textGroupNotice.prop('disabled')) {
             currentGroupNotice = textGroupNotice.val().trim();
             textGroupNotice.removeAttr('disabled');
@@ -2345,7 +2345,7 @@
     }
 
     function onNoticeBlur() {
-        onNoticeButtonClick();
+        onNoticeClick();
     }
 
     function onMemberNameKeyup(event) {
@@ -2379,8 +2379,66 @@
         g.app.messageSidebar.recoverMemberName(memberId, thisEl.parent(), newText);
     }
 
+    function onAddMemberClick(e) {
+        var list = g.app.contactsCtrl.getContacts();
+        var members = currentGroup.getMembers();
+        var result = [];
+        var contains = false;
+        for (var i = 0; i < list.length; ++i) {
+            var contact = list[i];
+            contains = false;
+            for (var j = 0; j < members.length; ++j) {
+                var member = members[j];
+                if (member.id == contact.id) {
+                    contains = true;
+                    break;
+                }
+            }
 
-    function onContactRemarkButtonClick() {
+            if (!contains) {
+                result.push(contact);
+            }
+        }
+
+        g.app.contactListDialog.show(result, [], function(list) {
+            if (list.length > 0) {
+                currentGroup.addMembers(list, function(group) {
+                    that.updateGroup(group);
+                }, function(error) {
+                    g.dialog.launchToast(Toast.Error, '邀请入群操作失败 - ' + error.code);
+                });
+            }
+        }, '邀请入群');
+    }
+
+    function onRemoveMemberClick(e) {
+        if (!currentGroup.isOwner()) {
+            g.dialog.launchToast(Toast.Info, '您不能移除该群组成员。');
+            return;
+        }
+
+        var members = currentGroup.getMembers().concat();
+        for (var i = 0; i < members.length; ++i) {
+            var member = members[i];
+            if (member.id == g.app.account.id) {
+                members.splice(i, 1);
+                break;
+            }
+        }
+
+        g.app.contactListDialog.show(members, [], function(list) {
+            if (list.length > 0) {
+                currentGroup.removeMembers(list, function(group) {
+                    that.updateGroup(group);
+                }, function(error) {
+                    g.dialog.launchToast(Toast.Error, '移除成员操作失败 - ' + error.code);
+                });
+            }
+        }, '移除成员');
+    }
+
+
+    function onContactRemarkClick() {
         if (inputContactRemark.prop('disabled')) {
             currentContactRemark = inputContactRemark.val().trim();
             inputContactRemark.removeAttr('disabled');
@@ -2403,7 +2461,7 @@
     }
 
     function onContactRemarkBlur() {
-        onContactRemarkButtonClick();
+        onContactRemarkClick();
     }
 
 
@@ -2426,13 +2484,15 @@
         inputGroupRemark.blur(onGroupRemarkBlur);
 
         btnGroupRemark = groupSidebarEl.find('button[data-target="remark"]');
-        btnGroupRemark.click(onGroupRemarkButtonClick);
+        btnGroupRemark.click(onGroupRemarkClick);
 
         textGroupNotice = groupSidebarEl.find('textarea[data-target="group-notice"]');
         textGroupNotice.attr('disabled', 'disabled');
         textGroupNotice.blur(onNoticeBlur);
-        groupSidebarEl.find('button[data-target="notice"]').click(onNoticeButtonClick);
+        groupSidebarEl.find('button[data-target="notice"]').click(onNoticeClick);
 
+        groupSidebarEl.find('button[data-target="add-member"]').click(onAddMemberClick);
+        groupSidebarEl.find('button[data-target="remove-member"]').click(onRemoveMemberClick);
         memberListEl = groupSidebarEl.find('.group-member-list');
 
         // 联系人界面
@@ -2442,7 +2502,7 @@
         inputContactRemark.blur(onContactRemarkBlur);
 
         btnContactRemark = contactSidebarEl.find('button[data-target="remark"]');
-        btnContactRemark.click(onContactRemarkButtonClick);
+        btnContactRemark.click(onContactRemarkClick);
     }
 
     /**
@@ -2514,6 +2574,9 @@
 
         group.getMembers().forEach(function(element) {
             g.app.getContact(element.getId(), function(contact) {
+                // 更新本地数据
+                group.modifyMember(contact);
+
                 var operate = [ '<button class="btn btn-sm btn-default btn-flat"' ,
                     ' onclick="javascript:app.messageSidebar.fireUpdateMemberRemark(', contact.getId(), ');"><i class="fas fa-edit"></i></button>' ];
                 var html = [
@@ -3420,7 +3483,6 @@
         }
         else {
             var contactId = contact;
-            // currentContact = g.app.queryContact(contactId);
 
             g.app.getContact(contactId, function(contact) {
                 currentContact = contact;
@@ -3619,7 +3681,7 @@
         var removeable = group.isOwner();
 
         var clickEvent = [
-            'app.messagingCtrl.removeGroupMember(', 
+            'app.contactsCtrl.removeGroupMember(', 
                 'parseInt($(this).attr(\'data-group\')),',
                 'parseInt($(this).attr(\'data-member\'))',
             ');'
@@ -3754,7 +3816,7 @@
 })(window);
 
 (function(g) {
-    'use strict'
+    'use strict';
 
     var dialogEl = null;
 
@@ -3820,11 +3882,20 @@
      * 显示联系人列表对话框。
      * @param {Array} list 联系人列表。
      * @param {Array} selectedList 已经被选中的联系人列表。
-     * @param {function} confirmHandle 确认事件回调。
+     * @param {function} confirmHandle 确认事件回调。参数：({@linkcode list}:{@linkcode Array}) 。
+     * @param {string} [title] 对话框标题。
+     * @param {boolean} [checked] 是否勾选已选中的联系人。
      */
-    ContactListDialog.prototype.show = function(list, selectedList, confirmHandle) {
+    ContactListDialog.prototype.show = function(list, selectedList, confirmHandle, title, checked) {
         currentList = list;
         preselected = selectedList;
+
+        if (title) {
+            dialogEl.find('.modal-title').text(title);
+        }
+        else {
+            dialogEl.find('.modal-title').text('联系人列表');
+        }
 
         if (confirmHandle) {
             confirmCallback = confirmHandle;
@@ -4380,40 +4451,6 @@
             }
         }, function(error) {
             g.dialog.launchToast(Toast.Warning, '修改群名称失败: ' + error.code);
-        });
-    }
-
-    /**
-     * 移除群组成员。
-     * @param {number} groupId 
-     * @param {number} memberId 
-     * @param {funciton} handle 
-     */
-    MessagingController.prototype.removeGroupMember = function(groupId, memberId, handle) {
-        var group = getGroup(groupId);
-        var member = getContact(memberId);
-        var memName = null;
-        if (null != member) {
-            memName = member.getName();
-        }
-        else {
-            memName = memberId;
-        }
-
-        g.dialog.showConfirm('移除群成员', '您确定要把“' + memName + '”移除群组吗？', function(ok) {
-            if (ok) {
-                group.removeMembers([ memberId ], function(group, list, operator) {
-                    g.dialog.launchToast(Toast.Success, '已移除成员“' + memName + '”');
-                    if (handle) {
-                        handle(group, list, operator);
-                    }
-
-                    // 刷新对话框
-                    g.app.groupDetails.refresh();
-                }, function(error) {
-                    g.dialog.launchToast(Toast.Warning, '移除群成员失败: ' + error.code);
-                });
-            }
         });
     }
 
@@ -6747,6 +6784,14 @@
     }
 
     /**
+     * 返回联系人列表。
+     * @returns {Array}
+     */
+    ContactsController.prototype.getContacts = function() {
+        return contactList;
+    }
+
+    /**
      * 添加联系人数据。
      * @param {Contact} contact 
      */
@@ -6992,6 +7037,35 @@
         contactsTable.update(contactList);
         groupsTable.update(groupList);
         pendingTable.update(pendingList);
+    }
+
+    /**
+     * 移除群组成员。
+     * @param {number} groupId 
+     * @param {number} memberId 
+     * @param {funciton} handle 
+     */
+    ContactsController.prototype.removeGroupMember = function(groupId, memberId, handle) {
+        cube.contact.getGroup(groupId, function(group) {
+            g.app.getContact(memberId, function(member) {
+                var memName = member.getName();
+                g.dialog.showConfirm('移除群成员', '您确定要把“' + memName + '”移除群组吗？', function(ok) {
+                    if (ok) {
+                        group.removeMembers([ memberId ], function(group, list, operator) {
+                            g.dialog.launchToast(Toast.Success, '已移除成员“' + memName + '”');
+                            if (handle) {
+                                handle(group, list, operator);
+                            }
+
+                            // 刷新对话框
+                            g.app.groupDetails.refresh();
+                        }, function(error) {
+                            g.dialog.launchToast(Toast.Warning, '移除群成员失败: ' + error.code);
+                        });
+                    }
+                });
+            });
+        });
     }
 
     g.ContactsController = ContactsController;
@@ -7743,7 +7817,7 @@
         var date = new Date();
 
         var html = [
-            '<div class="row">',
+            '<div class="row align-items-center">',
                 '<div class="col-3">',
                     g.formatNumber(date.getHours()), ':', g.formatNumber(date.getMinutes()), ':', g.formatNumber(date.getSeconds()),
                 '</div>',

@@ -25,7 +25,7 @@
  */
 
 (function(g) {
-    'use strict'
+    'use strict';
 
     var dialogEl = null;
 
@@ -91,11 +91,20 @@
      * 显示联系人列表对话框。
      * @param {Array} list 联系人列表。
      * @param {Array} selectedList 已经被选中的联系人列表。
-     * @param {function} confirmHandle 确认事件回调。
+     * @param {function} confirmHandle 确认事件回调。参数：({@linkcode list}:{@linkcode Array}) 。
+     * @param {string} [title] 对话框标题。
+     * @param {boolean} [checked] 是否勾选已选中的联系人。
      */
-    ContactListDialog.prototype.show = function(list, selectedList, confirmHandle) {
+    ContactListDialog.prototype.show = function(list, selectedList, confirmHandle, title, checked) {
         currentList = list;
         preselected = selectedList;
+
+        if (title) {
+            dialogEl.find('.modal-title').text(title);
+        }
+        else {
+            dialogEl.find('.modal-title').text('联系人列表');
+        }
 
         if (confirmHandle) {
             confirmCallback = confirmHandle;
