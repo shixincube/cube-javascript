@@ -42,9 +42,6 @@
 
     // var cubeGroups = [];
 
-    var tabId = 'messaging';
-    var tabBtnId = 'tab_messaging';
-
     var sidebarAccountPanel = null;
 
     var messageCatalog = null;
@@ -121,7 +118,7 @@
             var tab = g.getQueryString('tab');
             if (null != tab) {
                 setTimeout(function() {
-                    g.app.toggle(tab, 'tab_' + tab);
+                    g.app.toggle(tab);
                 }, 100);
             }
 
@@ -361,33 +358,9 @@
         /**
          * 切换主界面。
          * @param {string} id 
-         * @param {string} btnId
          */
-        toggle: function(id, btnId) {
-            if (tabId == id) {
-                return;
-            }
-
-            $('#' + tabId).addClass('content-wrapper-hidden');
-            $('#' + id).removeClass('content-wrapper-hidden');
-            tabId = id;
-
-            $('#' + tabBtnId).removeClass('active');
-            $('#' + btnId).addClass('active');
-            tabBtnId = btnId;
-
-            if (id == 'messaging') {
-                $('.main-title').text('消息');
-            }
-            else if (id == 'files') {
-                $('.main-title').text('文件');
-            }
-            else if (id == 'conference') {
-                $('.main-title').text('会议');
-            }
-            else if (id == 'contacts') {
-                $('.main-title').text('联系人');
-            }
+        toggle: function(id) {
+            that.mainPanel.toggle(id);
         },
 
         /**

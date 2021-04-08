@@ -337,13 +337,39 @@
 
     var that = null;
 
+    var tabId = 'messaging';
+    var tabBtnId = 'tab_messaging';
+
+    var pushMenu = null;
+    var collapseSidebar = false;
+    var mouseoutTimer = 0;
+
     var MainPanel = function() {
         that = this;
 
         var body = $('body');
-        var pushmenu = body.find('a[data-widget="pushmenu"]');
-        pushmenu.on('click', function() {
-            that.toggleMainSidebar();
+        pushMenu = body.find('a[data-widget="pushmenu"]');
+
+        $(document).on('shown.lte.pushmenu', function() {
+            collapseSidebar = false;
+            g.app.saveConfig('sidebarCollapse', collapseSidebar);
+        });
+        $(document).on('collapsed.lte.pushmenu', function() {
+            collapseSidebar = true;
+            g.app.saveConfig('sidebarCollapse', collapseSidebar);
+        });
+
+        $('.main-sidebar').on('mouseout', function() {
+            if (collapseSidebar) {
+                if (mouseoutTimer > 0) {
+                    return;
+                }
+                mouseoutTimer = setTimeout(function() {
+                    clearTimeout(mouseoutTimer);
+                    mouseoutTimer = 0;
+                    $('.main-sidebar').removeClass('sidebar-focused');
+                }, 100);
+            }
         });
     }
 
@@ -351,23 +377,44 @@
         // 加载侧边栏是否展开配置
         var value = g.app.loadConfig('sidebarCollapse');
         if (null != value && undefined !== value) {
-            var body = $('body');
-            if (value) {
-                if (!body.hasClass('sidebar-collapse')) {
-                    body.addClass('sidebar-collapse');
-                }
-            }
-            else {
-                body.removeClass('sidebar-collapse');
+            collapseSidebar = value;
+            if (collapseSidebar) {
+                pushMenu.PushMenu('collapse');
             }
         }
     }
 
-    MainPanel.prototype.toggleMainSidebar = function() {
-        var body = $('body');
-        // 需要取 false 值
-        var collapse = !body.hasClass('sidebar-collapse');
-        g.app.saveConfig('sidebarCollapse', collapse);
+    /**
+     * 切换主界面。
+     * @param {string} id 
+     */
+    MainPanel.prototype.toggle = function(id) {
+        if (tabId == id) {
+            return;
+        }
+
+        var btnId = 'tab_' + id;
+
+        $('#' + tabId).addClass('content-wrapper-hidden');
+        $('#' + id).removeClass('content-wrapper-hidden');
+        tabId = id;
+
+        $('#' + tabBtnId).removeClass('active');
+        $('#' + btnId).addClass('active');
+        tabBtnId = btnId;
+
+        if (id == 'messaging') {
+            $('.main-title').text('消息');
+        }
+        else if (id == 'files') {
+            $('.main-title').text('文件');
+        }
+        else if (id == 'conference') {
+            $('.main-title').text('会议');
+        }
+        else if (id == 'contacts') {
+            $('.main-title').text('联系人');
+        }
     }
 
     g.MainPanel = MainPanel;
@@ -6899,7 +6946,7 @@
         app.messageCatalog.appendItem(entity, true);
 
         // 切换到消息面板
-        app.toggle('messaging', 'tab_messaging');
+        app.toggle('messaging');
 
         // 获取消息
         setTimeout(function() {

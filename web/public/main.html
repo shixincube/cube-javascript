@@ -70,25 +70,25 @@
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                     <li class="nav-item">
-                        <a id="tab_messaging" class="nav-link active" href="javascript:app.toggle('messaging', 'tab_messaging');">
+                        <a id="tab_messaging" class="nav-link active" href="javascript:app.toggle('messaging');">
                             <i class="nav-icon fas fa-comments"></i>
                             <p>消息 <span class="right badge badge-danger"></span></p>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a id="tab_files" class="nav-link" href="javascript:app.toggle('files', 'tab_files');">
+                        <a id="tab_files" class="nav-link" href="javascript:app.toggle('files');">
                             <i class="nav-icon fas fa-folder"></i>
                             <p>文件 <span class="right badge badge-danger"></span></p>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a id="tab_conference" class="nav-link" href="javascript:app.toggle('conference', 'tab_conference');">
+                        <a id="tab_conference" class="nav-link" href="javascript:app.toggle('conference');">
                             <i class="nav-icon fas fa-users"></i>
                             <p>会议 <span class="right badge badge-danger"></span></p>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a id="tab_contacts" class="nav-link" href="javascript:app.toggle('contacts', 'tab_contacts');">
+                        <a id="tab_contacts" class="nav-link" href="javascript:app.toggle('contacts');">
                             <i class="nav-icon fas fa-address-book"></i>
                             <p>联系人 <span class="right badge badge-danger"></span></p>
                         </a>
@@ -115,7 +115,7 @@
                             <div class="no-message">
                                 <div>
                                     <p>您最近没有消息记录。</p>
-                                    <button type="button" class="btn btn-default btn-sm" onclick="app.toggle('contacts', 'tab_contacts');">查看联系人</button>
+                                    <button type="button" class="btn btn-default btn-sm" onclick="app.toggle('contacts');">查看联系人</button>
                                 </div>
                             </div>
                         </div>
@@ -841,7 +841,7 @@
             <div class="modal-content">
                 <div class="card card-widget widget-user details-card">
                     <div class="widget-user-header text-white bg-primary" style="background:url('images/bg-group.png') top center;">
-                        <h3 class="widget-user-username text-right">群组详情</h3>
+                        <h3 class="widget-user-username">群组详情</h3>
                         <div class="operation">
                             <div class="input-group">
                                 <button class="btn btn-info btn-xs dropdown-toggle" type="button" data-toggle="dropdown">&nbsp;&nbsp;更多操作&nbsp;&nbsp;

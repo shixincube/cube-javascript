@@ -256,7 +256,7 @@
         app.messageCatalog.appendItem(entity, true);
 
         // 切换到消息面板
-        app.toggle('messaging', 'tab_messaging');
+        app.toggle('messaging');
 
         // 获取消息
         setTimeout(function() {
