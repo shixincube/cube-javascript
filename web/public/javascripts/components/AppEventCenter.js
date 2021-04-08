@@ -83,6 +83,11 @@
         cube.contact.on(ContactEvent.GroupMemberRemoved, function(event) {
             that.appendLog(event.name, event.data.group.getName());
         });
+
+        // 消息相关事件
+        cube.messaging.on(MessagingEvent.Notify, function(event) {
+
+        });
     }
 
     /**

@@ -646,15 +646,10 @@
     }
 
     /**
-     * 当触发发送消息事件时回调。
-     * @param {*} e 
+     * 格式化文本内容。
+     * @returns {string}
      */
-    MessagePanel.prototype.onSend = function(e) {
-        var text = activeEditor ? this.inputEditor.txt.text() : this.elInput.val();
-        if (text.length == 0) {
-            return;
-        }
-
+    MessagePanel.prototype.formatText = function() {
         // 解析输入内容
         var formatText = [];
         for (var i = 0; i < this.formatContents.length; ++i) {
@@ -670,9 +665,37 @@
                 formatText.push(']');
             }
         }
+        return formatText.join('');
+    }
+
+    /**
+     * 当触发发送消息事件时回调。
+     * @param {*} e 
+     */
+    MessagePanel.prototype.onSend = function(e) {
+        var text = activeEditor ? this.inputEditor.txt.text() : this.elInput.val();
+        if (text.length == 0) {
+            return;
+        }
+
+        // 解析输入内容
+        // var formatText = [];
+        // for (var i = 0; i < this.formatContents.length; ++i) {
+        //     var c = this.formatContents[i];
+        //     if (c.format == 'txt') {
+        //         formatText.push(filterFormatText(c.data));
+        //     }
+        //     else if (c.format == 'at') {
+        //         formatText.push('[@');
+        //         formatText.push(c.name);
+        //         formatText.push('#');
+        //         formatText.push(c.data.getId());
+        //         formatText.push(']');
+        //     }
+        // }
 
         // 格式化的内容
-        text = formatText.join('');
+        text = this.formatText();
 
         if (this.current.entity instanceof Group) {
             var state = this.current.entity.getState();
