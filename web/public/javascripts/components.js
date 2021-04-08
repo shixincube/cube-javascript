@@ -1134,17 +1134,25 @@
             editor.config.lineHeights = ['1'];
             editor.config.onchange = function(html) {
                 that.onEditorChange(html);
-            }
+            };
+            editor.config.pasteTextHandle = function(pasteStr) {
+                return that.handlePasteText(pasteStr);
+            };
             editor.create();
             editor.disable();
             this.inputEditor = editor;
 
-            $('#message-editor').find('.w-e-text').keypress(function(event) {
+            var weEl = $('#message-editor').find('.w-e-text');
+            weEl.keypress(function(event) {
                 that.onEditorKeypress(event);
             });
-            $('#message-editor').find('.w-e-text').keydown(function(event) {
-                return that.onEditorKeydown(event);
-            });
+            this.weEl = weEl;
+            // weEl[0].addEventListener('paste', function(event) {
+            //     return that.onEditorPaste(event);
+            // });
+            // weEl.on('paste', function(event) {
+            //     return that.onEditorPaste(event.originalEvent);
+            // });
         }
         else {
             $('#message-editor').parent().remove();
@@ -1793,6 +1801,15 @@
     }
 
     /**
+     * 处理粘贴内容。
+     * @param {string} paste 
+     * @returns {string}
+     */
+    MessagePanel.prototype.handlePasteText = function(paste) {
+        return paste.replace(/<[^<>]+>/g, "");;
+    }
+
+    /**
      * 当编辑框触发 Key Press 事件时回调。
      * @param {*} event 
      * @returns 
@@ -1815,6 +1832,30 @@
         }
     }
 
+    /*
+    MessagePanel.prototype.onEditorPaste = function(event) {
+        var clipboardData = (event.clipboardData || window.clipboardData);
+        var paste = clipboardData.getData('text');
+        if (null == paste || paste.length == 0) {
+            return false;
+        }
+
+        const selection = window.getSelection();
+        if (!selection.rangeCount) {
+            return false;
+        }
+
+        selection.deleteFromDocument();
+        var range = selection.getRangeAt(0);
+        // 删除选中文本
+        range.deleteContents();
+        // 插入文本
+        range.insertNode(document.createTextNode(paste));
+
+        event.preventDefault();
+        return false;
+    }*/
+
     /**
      * 当编辑框触发 Key Down 事件时回调。
      * @param {*} event 
@@ -1828,7 +1869,6 @@
         //     e.preventDefault();
         //     return false;
         // }
-        return true;
     }
 
     /**
@@ -1852,10 +1892,20 @@
             return;
         }
 
+        var width = parseInt(dom.clientWidth || dom.offsetWidth || dom.style.width|| dom.scrollWidth);
+
         var left = parseInt(dom.offsetLeft) + parseInt(dom.offsetParent.offsetLeft);
         var top = parseInt(dom.offsetTop) + parseInt(dom.offsetParent.offsetTop);
 
+        // 计算位置
         left += calcCursorPosition(cursor.charCount)[0];
+        var offset = 12;
+        if (left + offset >= width) {
+            var d = Math.floor((left + offset) / width);
+            var mod = (left + offset) % width;
+            top += (d * 21);
+            left = mod + offset;
+        }
 
         if (num <= 5) {
             this.atPanel.css('height', ((num * 32) + 2) + 'px');
@@ -2075,24 +2125,24 @@
             var c = string.charCodeAt(i);
             if (c > 127 || c == 94) {
                 length += 2;
-                offset += 15;
+                offset += 14;
             }
             else {
                 length += 1;
                 if ((c >= 105 && c <= 108) || c == 114 || c == 116) {
-                    offset += 5;
+                    offset += 4;
                 }
                 else if (c >= 64 && c <= 90) {
                     // @符号和大写字母
-                    offset += 11;
+                    offset += 10;
                 }
                 else {
-                    offset += 9;
+                    offset += 8;
                 }
             }
         }
 
-        return [ offset, length ];
+        return [ Math.round(offset), length ];
     }
 
     function filterFormatText(input) {
