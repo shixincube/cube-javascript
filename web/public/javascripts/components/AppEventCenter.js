@@ -76,6 +76,12 @@
             that.appendLog(event.name, event.data.name);
             that.onGroupDissolved(event.data);
         });
+        cube.contact.on(ContactEvent.GroupMemberAdded, function(event) {
+            that.appendLog(event.name, event.data.group.getName());
+        });
+        cube.contact.on(ContactEvent.GroupMemberRemoved, function(event) {
+            that.appendLog(event.name, event.data.group.getName());
+        });
     }
 
     /**

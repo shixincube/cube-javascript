@@ -256,12 +256,15 @@
         }
 
         // 读取群组的附录，从附录里读取群组的备注
-        window.cube().contact.getAppendix(group, function(appendix) {
-            inputGroupRemark.val(appendix.getRemark());
-            textGroupNotice.val(appendix.getNotice());
-        }, function(error) {
-            console.log(error.toString());
-        });
+        // window.cube().contact.getAppendix(group, function(appendix) {
+        //     inputGroupRemark.val(appendix.getRemark());
+        //     textGroupNotice.val(appendix.getNotice());
+        // }, function(error) {
+        //     console.log(error.toString());
+        // });
+
+        inputGroupRemark.val(group.getAppendix().getRemark());
+        textGroupNotice.val(group.getAppendix().getNotice());
 
         // 加载成员列表
         memberListEl.empty();
@@ -271,7 +274,7 @@
                 var operate = [ '<button class="btn btn-sm btn-default btn-flat"' ,
                     ' onclick="javascript:app.messageSidebar.fireUpdateMemberRemark(', contact.getId(), ');"><i class="fas fa-edit"></i></button>' ];
                 var html = [
-                    '<div class="group-member-cell" data-target="', contact.getId(), '" ondblclick="javascript:app.messagingCtrl.toggle(', contact.getId(), ');">',
+                    '<div class="group-member-cell" data-target="', contact.getId(), '" ondblclick="javascript:app.contactDetails.show(', contact.getId(), ');">',
                         '<div class="member-avatar"><img class="img-size-32 img-round-rect" src="images/', contact.getContext().avatar, '" /></div>',
                         '<div class="member-name">',
                             group.getAppendix().hasMemberRemark(contact) ? group.getAppendix().getMemberRemark(contact) : contact.getPriorityName(),
@@ -287,7 +290,7 @@
         });
 
         // 检索群组的图片
-        window.cube().fs.getRoot(group, function(root) {
+        /*window.cube().fs.getRoot(group, function(root) {
             root.searchFile({
                 "type": ['jpg', 'png', 'gif', 'bmp'],
                 "begin": 0,
@@ -302,7 +305,7 @@
             });
         }, function(error) {
             console.log('MessageSidebar #getRoot() : ' + error.code);
-        });
+        });*/
     }
 
     MessageSidebar.prototype.appendImage = function(fileLabel) {

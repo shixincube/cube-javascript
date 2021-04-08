@@ -95,7 +95,7 @@
 
     /**
      * 显示对话框。
-     * @param {Contact} contact 
+     * @param {Contact|number} contact 
      */
     ContactDetails.prototype.show = function(contact) {
         var handler = function(contact) {
@@ -127,16 +127,16 @@
         }
         else {
             var contactId = contact;
-            currentContact = g.app.queryContact(contactId);
-            if (null == currentContact) {
-                g.cube().contact.getContact(contactId, function(contact) {
-                    currentContact = contact;
-                    handler(currentContact);
-                });
-            }
-            else {
+            // currentContact = g.app.queryContact(contactId);
+
+            g.app.getContact(contactId, function(contact) {
+                currentContact = contact;
+                if (null == currentContact) {
+                    return;
+                }
+
                 handler(currentContact);
-            }
+            });
         }
     }
 
