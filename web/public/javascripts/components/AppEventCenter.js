@@ -86,10 +86,28 @@
 
         // 消息相关事件
         cube.messaging.on(MessagingEvent.Notify, function(event) {
-            that.appendLog(event.name, event.data.getFrom());
+            var log = [
+                event.data.getType(), ' - ',
+                event.data.getSender().getName(), ' -> ',
+                event.data.isFromGroup() ? event.data.getSourceGroup().getName() : event.data.getReceiver().getName()
+            ];
+            that.appendLog(event.name, log.join(''));
         });
         cube.messaging.on(MessagingEvent.Sent, function(event) {
-            that.appendLog(event.name, event.data.getTo());
+            var log = [
+                event.data.getType(), ' - ',
+                event.data.getSender().getName(), ' -> ',
+                event.data.isFromGroup() ? event.data.getSourceGroup().getName() : event.data.getReceiver().getName()
+            ];
+            that.appendLog(event.name, log.join(''));
+        });
+        cube.messaging.on(MessagingEvent.Recall, function(event) {
+            var log = [
+                event.data.getType(), ' - ',
+                event.data.getSender().getName(), ' -> ',
+                event.data.isFromGroup() ? event.data.getSourceGroup().getName() : event.data.getReceiver().getName()
+            ];
+            that.appendLog(event.name, log.join(''));
         });
     }
 
