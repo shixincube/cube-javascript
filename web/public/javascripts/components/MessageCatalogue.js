@@ -309,7 +309,7 @@
                 return false;
             }
 
-            el.find('.product-description').text(item.desc);
+            el.find('.product-description').html(item.desc);
         }
 
         // 更新时间
@@ -435,9 +435,7 @@
         }
     }
 
-
-
-    MessageCatalogue.prototype.restoreLastDesc = function(target) {
+    MessageCatalogue.prototype.restoreDesc = function(target, desc) {
         var id = 0;
 
         if (typeof target === 'number') {
@@ -459,9 +457,8 @@
             return;
         }
 
-        item.el.find('.product-description').text(item.lastDesc);
-        item.desc = item.lastDesc;
-        item.lastDesc = '　';
+        item.el.find('.product-description').html(desc);
+        item.desc = desc;
     }
 
     MessageCatalogue.prototype.updateBadge = function(id, badge) {

@@ -795,7 +795,7 @@
                 return false;
             }
 
-            el.find('.product-description').text(item.desc);
+            el.find('.product-description').html(item.desc);
         }
 
         // 更新时间
@@ -921,9 +921,7 @@
         }
     }
 
-
-
-    MessageCatalogue.prototype.restoreLastDesc = function(target) {
+    MessageCatalogue.prototype.restoreDesc = function(target, desc) {
         var id = 0;
 
         if (typeof target === 'number') {
@@ -945,9 +943,8 @@
             return;
         }
 
-        item.el.find('.product-description').text(item.lastDesc);
-        item.desc = item.lastDesc;
-        item.lastDesc = '　';
+        item.el.find('.product-description').html(desc);
+        item.desc = desc;
     }
 
     MessageCatalogue.prototype.updateBadge = function(id, badge) {
@@ -1442,11 +1439,20 @@
         }
         else {
             // 生成草稿
-            var text = activeEditor ? this.inputEditor.txt.text() : this.elInput.val().trim();
+            var text = activeEditor ? this.inputEditor.txt.text().trim() : this.elInput.val().trim();
+            if (text.startsWith('&nbsp;')) {
+                text = text.substring(6, text.length);
+            }
+            if (text.endsWith('&nbsp;')) {
+                text = text.substring(0, text.length - 6);
+            }
+
             if (text.length > 0) {
-                // 保存草稿 TODO
-                if (window.cube().messaging.saveDraft(this.current.entity, new TextMessage(text))) {
-                    g.app.messageCatalog.updateItem(this.current.id, '[草稿] ' + text, null, null);
+                // 保存草稿
+                var formatText = this.serializeHyperText();
+                var htMessage = new HyperTextMessage(formatText);
+                if (window.cube().messaging.saveDraft(this.current.entity, htMessage)) {
+                    g.app.messageCatalog.updateItem(this.current.id, '<span class="text-danger">[草稿] ' + htMessage.getSummary() + '</span>', null, null);
                 }
             }
             else {
@@ -1497,12 +1503,25 @@
 
         // 加载草稿
         window.cube().messaging.loadDraft(this.current.id, function(draft) {
-            g.app.messageCatalog.restoreLastDesc(panel.id);
-            if (activeEditor) {
-                that.inputEditor.txt.html('<p>' + draft.getMessage().getText() + '</p>');
+            // 更新目录
+            // 最后一条消息
+            if (panel.groupable) {
+                window.cube().messaging.queryLastMessageWithGroup(panel.entity.getId(), function(message) {
+                    g.app.messageCatalog.restoreDesc(panel.id, message.getSummary());
+                });
             }
             else {
-                that.elInput.val(draft.getMessage().getText());
+                window.cube().messaging.queryLastMessageWithContact(panel.entity.getId(), function(message) {
+                    g.app.messageCatalog.restoreDesc(panel.id, message.getSummary());
+                });
+            }
+
+            if (activeEditor) {
+                var input = that.deserializeHyperText(draft.getMessage(), true);
+                that.inputEditor.txt.append(input);
+            }
+            else {
+                that.elInput.val(draft.getMessage().getPlaintext());
             }
         });
     }
@@ -1620,16 +1639,7 @@
             text = message.getText();
         }
         else if (message instanceof HyperTextMessage) {
-            text = [];
-            message.getFormattedContents().forEach(function(value) {
-                if (value.format == 'text') {
-                    text.push(value.content);
-                }
-                else if (value.format == 'at') {
-                    text.push('&nbsp;<span class="at">@' + value.content.name + '</span>&nbsp;');
-                }
-            });
-            text = text.join('');
+            text = this.deserializeHyperText(message);
         }
         else if (message instanceof ImageMessage || message instanceof FileMessage) {
             attachment = message.getAttachment();
@@ -1712,6 +1722,9 @@
         // 滚动条控制
         var offset = parseInt(this.elContent.prop('scrollHeight'));
         this.elContent.scrollTop(offset);
+
+        // 加载草稿
+        this.loadDraft(panel);
     }
 
     /**
@@ -1748,10 +1761,22 @@
     }
 
     /**
-     * 格式化文本内容。
+     * 加载面板草稿。
+     * @param {*} panel 
+     */
+    MessagePanel.prototype.loadDraft = function(panel) {
+        // 加载草稿
+        window.cube().messaging.loadDraft(panel.id, function(draft) {
+            // 更新目录
+            g.app.messageCatalog.restoreDesc(panel.id, '<span class="text-danger">[草稿] ' + draft.getMessage().getSummary() + '</span>');
+        });
+    }
+
+    /**
+     * 将当前输入的格式化数据转为超文本。
      * @returns {string}
      */
-    MessagePanel.prototype.formatText = function() {
+    MessagePanel.prototype.serializeHyperText = function() {
         // 解析输入内容
         var formatText = [];
         for (var i = 0; i < this.formatContents.length; ++i) {
@@ -1771,6 +1796,53 @@
     }
 
     /**
+     * 将超文本格式转为 HTML 格式。
+     * @param {HyperTextMessage} message 
+     * @param {boolean} forInput 是否转为输入编辑器支持的模式。
+     */
+    MessagePanel.prototype.deserializeHyperText = function(message, forInput) {
+        var html = [];
+
+        if (forInput) {
+            var list = message.getFormattedContents();
+            for (var i = 0, len = list.length - 1; i < len; ++i) {
+                var value = list[i];
+                if (value.format == 'text') {
+                    html.push('<p>');
+                    html.push(value.content);
+                    html.push('</p>');
+                }
+                else if (value.format == 'at') {
+                    html.push('&nbsp;<p class="at-wrapper"><span class="at">@' + value.content.name + '</span></p>&nbsp;');
+                }
+            }
+
+            // 处理最后一个
+            var last = list[list.length - 1];
+            if (last.format == 'text') {
+                html.push('<p>');
+                html.push(last.content);
+                html.push('<br></p>');
+            }
+            else if (valastlue.format == 'at') {
+                html.push('&nbsp;<p class="at-wrapper"><span class="at">@' + last.content.name + '</span></p>&nbsp;<p><br></p>');
+            }
+        }
+        else {
+            message.getFormattedContents().forEach(function(value) {
+                if (value.format == 'text') {
+                    html.push(value.content);
+                }
+                else if (value.format == 'at') {
+                    html.push('&nbsp;<span class="at">@' + value.content.name + '</span>&nbsp;');
+                }
+            });
+        }
+
+        return html.join('');
+    }
+
+    /**
      * 当触发发送消息事件时回调。
      * @param {*} e 
      */
@@ -1780,24 +1852,8 @@
             return;
         }
 
-        // 解析输入内容
-        // var formatText = [];
-        // for (var i = 0; i < this.formatContents.length; ++i) {
-        //     var c = this.formatContents[i];
-        //     if (c.format == 'txt') {
-        //         formatText.push(filterFormatText(c.data));
-        //     }
-        //     else if (c.format == 'at') {
-        //         formatText.push('[@');
-        //         formatText.push(c.name);
-        //         formatText.push('#');
-        //         formatText.push(c.data.getId());
-        //         formatText.push(']');
-        //     }
-        // }
-
         // 格式化的内容
-        text = this.formatText();
+        text = this.serializeHyperText();
 
         if (this.current.entity instanceof Group) {
             var state = this.current.entity.getState();
@@ -1876,6 +1932,14 @@
      * @param {string} html 
      */
     MessagePanel.prototype.onEditorChange = function(html) {
+        if (html.length == 0) {
+            this.formatContents.splice(0, this.formatContents.length);
+            this.lastInput = '';
+            // 删除草稿
+            window.cube().messaging.deleteDraft(this.current.id);
+            return;
+        }
+
         var text = html.replace(/<[^<>]+>/g, "");
         if (this.lastInput == text) {
             return;
@@ -1883,7 +1947,9 @@
 
         if (text.length == 0 || text == ' ' || text == '&nbsp;') {
             this.formatContents.splice(0, this.formatContents.length);
-            this.lastInput = text;
+            this.lastInput = '';
+            // 删除草稿
+            window.cube().messaging.deleteDraft(this.current.id);
             return;
         }
 
@@ -1898,7 +1964,7 @@
                 }
                 else if (c.format == "at") {
                     var member = c.data;
-                    var atContent = '&nbsp;<p class="at-wrapper" data="' + member.getId() + '"><span class="at">@' + that.current.entity.getMemberName(member) + '</span></p>&nbsp;';
+                    var atContent = '&nbsp;<p class="at-wrapper"><span class="at">@' + that.current.entity.getMemberName(member) + '</span></p>&nbsp;';
                     content.push(atContent);
                 }
             }
