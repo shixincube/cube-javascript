@@ -175,6 +175,11 @@
         }
 
         var members = currentGroup.getMembers().concat();
+        if (members.length == 2) {
+            g.dialog.launchToast(Toast.Warning, '群里仅有两名成员，没有可移除的成员。');
+            return;
+        }
+
         for (var i = 0; i < members.length; ++i) {
             var member = members[i];
             if (member.id == g.app.account.id) {

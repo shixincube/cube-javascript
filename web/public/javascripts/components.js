@@ -1386,6 +1386,7 @@
                 el: el,
                 entity: entity,
                 messageIds: [],
+                messageTimes: [],
                 unreadCount: 0,
                 groupable: (entity instanceof Group)
             };
@@ -1420,6 +1421,7 @@
                 el: el,
                 entity: entity,
                 messageIds: [],
+                messageTimes: [],
                 unreadCount: 0,
                 groupable: (entity instanceof Group)
             };
@@ -1577,6 +1579,7 @@
         var index = panel.messageIds.indexOf(id);
         if (index >= 0) {
             panel.messageIds.splice(index, 1);
+            panel.messageTimes.splice(index, 1);
         }
 
         var panelEl = panel.el;
@@ -1601,6 +1604,7 @@
                 el: el,
                 entity: target,
                 messageIds: [],
+                messageTimes: [],
                 unreadCount: 0,
                 groupable: (target instanceof Group)
             };
@@ -1614,8 +1618,40 @@
         if (index >= 0) {
             return;
         }
-        // 更新消息 ID 列表
-        panel.messageIds.push(id);
+
+        if (panel.messageIds.length == 0) {
+            panel.messageTimes.push(time);
+            panel.messageIds.push(id);
+        }
+        else {
+            // 根据消息时间戳判断消息顺序
+            for (var i = 0, len = panel.messageTimes.length; i < len; ++i) {
+                var cur = panel.messageTimes[i];
+                if (time <= cur) {
+                    panel.messageTimes.splice(i, 0, time);
+                    panel.messageIds.splice(i, 0, id);
+                    break;
+                }
+
+                var next = (i + 1) < len ? panel.messageTimes[i + 1] : null;
+                if (null != next) {
+                    if (time < next) {
+                        panel.messageTimes.splice(i + 1, 0, time);
+                        panel.messageIds.splice(i + 1, 0, id);
+                        break;
+                    }
+                }
+                else {
+                    panel.messageTimes.push(time);
+                    panel.messageIds.push(id);
+                }
+            }
+        }
+
+        // 更新索引
+        index = panel.messageIds.indexOf(id);
+        var prevId = (index - 1) >= 0 ? panel.messageIds[index - 1] : 0;
+        var nextId = (index + 1) < panel.messageIds.length ? panel.messageIds[index + 1] : 0;
 
         // 更新未读数量
         if (!message.isRead()) {
@@ -1717,7 +1753,17 @@
         ];
 
         var parentEl = panel.el;
-        parentEl.append($(html.join('')));
+        if (index == 0) {
+            parentEl.append($(html.join('')));
+        }
+        else {
+            if (prevId > 0) {
+                parentEl.find('#' + prevId).after($(html.join('')));
+            }
+            else if (nextId > 0) {
+                parentEl.find('#' + nextId).before($(html.join('')));
+            }
+        }
 
         // 滚动条控制
         var offset = parseInt(this.elContent.prop('scrollHeight'));
@@ -1743,6 +1789,7 @@
                 el: el,
                 entity: target,
                 messageIds: [],
+                messageTimes: [],
                 groupable: (target instanceof Group)
             };
             this.panels[panelId.toString()] = panel;
@@ -2142,13 +2189,11 @@
 
         var id = parseInt(that.atPanel.find('.active').attr('data'));
         var member = that.current.entity.getMemberById(id);
-        var atContent = '<p class="at-wrapper" data="' + id + '"><span class="at">@' + that.current.entity.getMemberName(member) + '</span></p>';
 
         this.atMap.put(that.current.entity.getMemberName(member), member);
 
-        that.inputEditor.txt.append('&nbsp;');
+        var atContent = '&nbsp;<p class="at-wrapper"><span class="at">@' + that.current.entity.getMemberName(member) + '</span></p>&nbsp;';
         that.inputEditor.txt.append(atContent);
-        that.inputEditor.txt.append('&nbsp;');
         that.atPanel.blur();
     }
 
@@ -2551,6 +2596,11 @@
         }
 
         var members = currentGroup.getMembers().concat();
+        if (members.length == 2) {
+            g.dialog.launchToast(Toast.Warning, '群里仅有两名成员，没有可移除的成员。');
+            return;
+        }
+
         for (var i = 0; i < members.length; ++i) {
             var member = members[i];
             if (member.id == g.app.account.id) {
@@ -4080,8 +4130,7 @@
 })(window);
 
 (function(g) {
-    'use strict';
-
+    
     var that = null;
 
     var cube = null;
@@ -7943,7 +7992,10 @@
 
         // 消息相关事件
         cube.messaging.on(MessagingEvent.Notify, function(event) {
-
+            that.appendLog(event.name, event.data.getFrom());
+        });
+        cube.messaging.on(MessagingEvent.Sent, function(event) {
+            that.appendLog(event.name, event.data.getTo());
         });
     }
 

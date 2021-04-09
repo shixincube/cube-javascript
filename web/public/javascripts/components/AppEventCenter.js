@@ -86,7 +86,10 @@
 
         // 消息相关事件
         cube.messaging.on(MessagingEvent.Notify, function(event) {
-
+            that.appendLog(event.name, event.data.getFrom());
+        });
+        cube.messaging.on(MessagingEvent.Sent, function(event) {
+            that.appendLog(event.name, event.data.getTo());
         });
     }
 
