@@ -167,7 +167,7 @@
         });
 
         // 表情符号
-        this.emojiPanel = new EmojiPanel();
+        this.emojiPanel = new EmojiPanel(that.onEmojiClick);
         this.btnEmoji = el.find('button[data-target="emoji"]');
         this.btnEmoji.attr('disabled', 'disabled');
         this.btnEmoji.on('mouseover', function() {
@@ -800,6 +800,20 @@
         }
 
         return html.join('');
+    }
+
+    /**
+     * 在表情符号面板点击了表情符号。
+     * @param {*} emoji 
+     */
+    MessagePanel.prototype.onEmojiClick = function(emoji) {
+        var emojiHtml = String.fromCodePoint('0x' + emoji.code);
+        if (activeEditor) {
+            that.inputEditor.txt.append('&nbps;<p class="emoji">' + emojiHtml + '</p>&nbps;');
+        }
+        else {
+            // TODO
+        }
     }
 
     /**

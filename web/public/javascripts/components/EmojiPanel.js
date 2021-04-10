@@ -31,6 +31,8 @@
     var panelEl = null;
     var hideTimer = 0;
 
+    var clickEmojiHandler = null;
+
     function mouseover() {
         if (hideTimer > 0) {
             clearTimeout(hideTimer);
@@ -57,14 +59,26 @@
         el.next().css('display', 'none');
     }
 
-    var EmojiPanel = function() {
+    function emojiClick() {
+        var el = $(this);
+        clickEmojiHandler({
+            "code": el.text().codePointAt(0).toString(16),
+            "desc": el.next().text()
+        });
+    }
+
+    var EmojiPanel = function(clickHandler) {
         that = this;
+
+        clickEmojiHandler = clickHandler;
+
         panelEl = $('.emoji-panel');
         panelEl.on('mouseover', mouseover);
         panelEl.on('mouseout', mouseout);
 
         panelEl.find('.emoji').on('mouseover', emojiMouseover);
         panelEl.find('.emoji').on('mouseout', emojiMouseout);
+        panelEl.find('.emoji').click(emojiClick);
     }
 
     EmojiPanel.prototype.show = function(anchorEl) {

@@ -554,6 +554,9 @@ body {
     color: #3c99fd;
     background-color: #e9ecef;
 }
+.w-e-text .emoji {
+    font-size: 14px;
+}
 .w-e-text span, .w-e-text p {
     display: inline-block;
 }
@@ -1583,7 +1586,7 @@ body {
     font-size: 12px;
     text-align: center;
     border: 1px solid rgba(0,0,0,.125);
-    border-radius: .25rem;
+    border-radius: .15rem;
     width: 42px;
     padding: 2px 2px 2px 2px;
     margin-left: -5px;

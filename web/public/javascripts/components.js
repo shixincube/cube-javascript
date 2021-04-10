@@ -428,6 +428,8 @@
     var panelEl = null;
     var hideTimer = 0;
 
+    var clickEmojiHandler = null;
+
     function mouseover() {
         if (hideTimer > 0) {
             clearTimeout(hideTimer);
@@ -454,14 +456,26 @@
         el.next().css('display', 'none');
     }
 
-    var EmojiPanel = function() {
+    function emojiClick() {
+        var el = $(this);
+        clickEmojiHandler({
+            "code": el.text().codePointAt(0).toString(16),
+            "desc": el.next().text()
+        });
+    }
+
+    var EmojiPanel = function(clickHandler) {
         that = this;
+
+        clickEmojiHandler = clickHandler;
+
         panelEl = $('.emoji-panel');
         panelEl.on('mouseover', mouseover);
         panelEl.on('mouseout', mouseout);
 
         panelEl.find('.emoji').on('mouseover', emojiMouseover);
         panelEl.find('.emoji').on('mouseout', emojiMouseout);
+        panelEl.find('.emoji').click(emojiClick);
     }
 
     EmojiPanel.prototype.show = function(anchorEl) {
@@ -1328,7 +1342,7 @@
         });
 
         // 表情符号
-        this.emojiPanel = new EmojiPanel();
+        this.emojiPanel = new EmojiPanel(that.onEmojiClick);
         this.btnEmoji = el.find('button[data-target="emoji"]');
         this.btnEmoji.attr('disabled', 'disabled');
         this.btnEmoji.on('mouseover', function() {
@@ -1961,6 +1975,20 @@
         }
 
         return html.join('');
+    }
+
+    /**
+     * 在表情符号面板点击了表情符号。
+     * @param {*} emoji 
+     */
+    MessagePanel.prototype.onEmojiClick = function(emoji) {
+        var emojiHtml = String.fromCodePoint('0x' + emoji.code);
+        if (activeEditor) {
+            that.inputEditor.txt.append('<p class="emoji">' + emojiHtml + '</p>');
+        }
+        else {
+            // TODO
+        }
     }
 
     /**
