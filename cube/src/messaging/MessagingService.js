@@ -1281,28 +1281,56 @@ export class MessagingService extends Module {
         }
 
         let message = Message.create(payload.data);
-        (async ()=> {
-            let result = await this.fillMessage(message);
-            if (result instanceof ModuleError) {
-                cell.Logger.e(MessagingService.NAME, result.toString());
+
+        // 从本地查询消息
+        this.storage.readMessageById(message.getId(), (local) => {
+            if (null == local) {
+                (async ()=> {
+                    let result = await this.fillMessage(message);
+                    if (result instanceof ModuleError) {
+                        cell.Logger.e(MessagingService.NAME, result.toString());
+                    }
+
+                    message.state = MessageState.Recalled;
+
+                    // 更新消息内容
+                    this.storage.updateMessage(message);
+
+                    cell.Logger.d('MessagingService', 'Recall message: ' + message.getId());
+
+                    // 标注 Token
+                    if (null != message.attachment) {
+                        message.attachment.token = this.getAuthToken().code;
+                    }
+
+                    // 使用插件
+                    let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+                    message = hook.apply(message);
+
+                    this.notifyObservers(new ObservableEvent(MessagingEvent.Recall, message));
+                })();
             }
+            else {
+                // 更新状态
+                local.state = MessageState.Recalled;
 
-            // 更新消息内容
-            this.storage.updateMessage(message);
+                // 更新消息内容
+                this.storage.updateMessage(local);
 
-            cell.Logger.d('MessagingService', 'Recall message: ' + message.getId());
+                cell.Logger.d('MessagingService', 'Recall message: ' + local.getId());
 
-            // 标注 Token
-            if (null != message.attachment) {
-                message.attachment.token = this.getAuthToken().code;
+                // 标注 Token
+                if (null != local.attachment) {
+                    local.attachment.token = this.getAuthToken().code;
+                }
+
+                // 使用插件实例化
+                let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+                local = hook.apply(local);
+
+                this.notifyObservers(new ObservableEvent(MessagingEvent.Recall, local));
             }
-
-            // 使用插件
-            let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
-            message = hook.apply(message);
-
-            this.notifyObservers(new ObservableEvent(MessagingEvent.Recall, message));
-        })();
+        });
     }
 
     /**

@@ -563,8 +563,6 @@
 
         // 更新索引
         index = panel.messageIds.indexOf(id);
-        var prevId = (index - 1) >= 0 ? panel.messageIds[index - 1] : 0;
-        var nextId = (index + 1) < panel.messageIds.length ? panel.messageIds[index + 1] : 0;
 
         // 更新未读数量
         if (!message.isRead()) {
@@ -669,7 +667,12 @@
         if (index == 0) {
             parentEl.append($(html.join('')));
         }
+        else if (index == panel.messageIds.length - 1) {
+            parentEl.append($(html.join('')));
+        }
         else {
+            var prevId = (index - 1) >= 0 ? panel.messageIds[index - 1] : 0;
+            var nextId = (index + 1) < panel.messageIds.length ? panel.messageIds[index + 1] : 0;
             if (prevId > 0) {
                 parentEl.find('#' + prevId).after($(html.join('')));
             }
@@ -809,7 +812,7 @@
     MessagePanel.prototype.onEmojiClick = function(emoji) {
         var emojiHtml = String.fromCodePoint('0x' + emoji.code);
         if (activeEditor) {
-            that.inputEditor.txt.append('&nbps;<p class="emoji">' + emojiHtml + '</p>&nbps;');
+            that.inputEditor.cmd.do('insertHTML', '&nbsp;<p class="emoji">' + emojiHtml + '</p>&nbsp;');
         }
         else {
             // TODO
@@ -976,7 +979,7 @@
                 }
                 else if (c.format == "at") {
                     var member = c.data;
-                    var atContent = '&nbsp;<p class="at-wrapper"><span class="at">@' + that.current.entity.getMemberName(member) + '</span></p>&nbsp;';
+                    var atContent = '<p>&nbsp;</p><p class="at-wrapper"><span class="at">@' + that.current.entity.getMemberName(member) + '</span></p>&nbsp;';
                     content.push(atContent);
                 }
             }
@@ -1157,8 +1160,8 @@
 
         this.atMap.put(that.current.entity.getMemberName(member), member);
 
-        var atContent = '&nbsp;<p class="at-wrapper"><span class="at">@' + that.current.entity.getMemberName(member) + '</span></p>&nbsp;';
-        that.inputEditor.txt.append(atContent);
+        var atContent = '<p>&nbsp;</p><p class="at-wrapper"><span class="at">@' + that.current.entity.getMemberName(member) + '</span><br></p>&nbsp;';
+        that.inputEditor.cmd.do('insertHTML', atContent);
         that.atPanel.blur();
     }
 

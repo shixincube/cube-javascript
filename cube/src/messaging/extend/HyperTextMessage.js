@@ -30,7 +30,7 @@ import { TypeableMessage } from "./TypeableMessage";
 /**
  * 格式化的内容。
  * @typedef {object} FormattedContent
- * @property {string} format 内容的格式：{@linkcode text} ， {@linkcode at} 。
+ * @property {string} format 内容的格式：{@linkcode text}，{@linkcode at}，{@linkcode emoji} 。
  * @property {object|string} content 内容。
  */
 
@@ -114,6 +114,9 @@ export class HyperTextMessage extends TypeableMessage {
      * @param {*} input
      */
     parse(input) {
+        // AT Format: [@ name # id ]
+        // Emoji Format: [EMOJI desc # code ]
+        
         let content = [];
 
         let phaseAt = false;
@@ -201,6 +204,7 @@ export class HyperTextMessage extends TypeableMessage {
      * @returns {object}
      */
     parseAt(atString) {
+        // Format: [@ name # id ]
         let string = atString.join('');
         let index = string.lastIndexOf('#');
         let result = {

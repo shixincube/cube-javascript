@@ -79,9 +79,11 @@
         });
         cube.contact.on(ContactEvent.GroupMemberAdded, function(event) {
             that.appendLog(event.name, event.data.group.getName());
+            that.onGroupMemberAdded(event.data.group);
         });
         cube.contact.on(ContactEvent.GroupMemberRemoved, function(event) {
             that.appendLog(event.name, event.data.group.getName());
+            that.onGroupMemberRemoved(event.data.group);
         });
 
         // 消息相关事件
@@ -102,12 +104,13 @@
             that.appendLog(event.name, log.join(''));
         });
         cube.messaging.on(MessagingEvent.Recall, function(event) {
-            var log = [
-                event.data.getType(), ' - ',
-                event.data.getSender().getName(), ' -> ',
-                event.data.isFromGroup() ? event.data.getSourceGroup().getName() : event.data.getReceiver().getName()
-            ];
-            that.appendLog(event.name, log.join(''));
+            console.log(event.data);
+            // var log = [
+            //     event.data.getType(), ' - ',
+            //     event.data.getSender().getName(), ' -> ',
+            //     event.data.isFromGroup() ? event.data.getSourceGroup().getName() : event.data.getReceiver().getName()
+            // ];
+            // that.appendLog(event.name, log.join(''));
         });
     }
 
@@ -165,6 +168,14 @@
         g.dialog.launchToast(Toast.Info,
             '群组 “' + group.getName() + '” 已解散。',
             true);
+    }
+
+    AppEventCenter.prototype.onGroupMemberAdded = function(group) {
+        g.app.messagePanel.updatePanel(group.getId(), group);
+    }
+
+    AppEventCenter.prototype.onGroupMemberRemoved = function(group) {
+        g.app.messagePanel.updatePanel(group.getId(), group);
     }
 
     g.AppEventCenter = AppEventCenter;

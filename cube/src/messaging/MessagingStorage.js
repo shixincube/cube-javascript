@@ -289,17 +289,17 @@ export class MessagingStorage {
                 messages.push(message);
             }
 
-            let result = null;
+            let resultList = null;
 
             if (messages.length > limit) {
                 let start = messages.length - limit;
-                result = messages.slice(start);
+                resultList = messages.slice(start);
             }
             else {
-                result = messages;
+                resultList = messages;
             }
 
-            handler(beginning, result);
+            handler(beginning, resultList);
         })();
         return true;
     }
