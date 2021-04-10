@@ -25,7 +25,6 @@
  */
 
 (function(g) {
-    'use strict';
 
     // 消息输入框是否使用编辑器
     var activeEditor = true;
@@ -165,6 +164,17 @@
         this.btnSend.attr('disabled', 'disabled');
         this.btnSend.on('click', function(event) {
             that.onSend(event);
+        });
+
+        // 表情符号
+        this.emojiPanel = new EmojiPanel();
+        this.btnEmoji = el.find('button[data-target="emoji"]');
+        this.btnEmoji.attr('disabled', 'disabled');
+        this.btnEmoji.on('mouseover', function() {
+            if (null == that.current) {
+                return;
+            }
+            that.emojiPanel.show(that.btnEmoji);
         });
 
         // 发送文件
@@ -337,6 +347,7 @@
                 this.elInput.removeAttr('disabled');
             }
 
+            this.btnEmoji.removeAttr('disabled');
             this.btnSend.removeAttr('disabled');
             this.btnSendFile.removeAttr('disabled');
         }
@@ -439,6 +450,7 @@
             panel.el.remove();
 
             if (this.current == panel) {
+                this.btnEmoji.attr('disabled', 'disabled');
                 this.btnVideoCall.attr('disabled', 'disabled');
                 this.btnVoiceCall.attr('disabled', 'disabled');
                 this.btnSendFile.attr('disabled', 'disabled');
@@ -841,7 +853,45 @@
      * @param {*} e 
      */
     MessagePanel.prototype.onNewGroupClick = function(e) {
-        g.app.newGroupDialog.show();
+        if (null == this.current) {
+            return;
+        }
+
+        if (this.current.groupable) {
+            var currentGroup = this.current.entity;
+            var list = g.app.contactsCtrl.getContacts();
+            var members = currentGroup.getMembers();
+            var result = [];
+            var contains = false;
+            for (var i = 0; i < list.length; ++i) {
+                var contact = list[i];
+                contains = false;
+                for (var j = 0; j < members.length; ++j) {
+                    var member = members[j];
+                    if (member.id == contact.id) {
+                        contains = true;
+                        break;
+                    }
+                }
+
+                if (!contains) {
+                    result.push(contact);
+                }
+            }
+
+            g.app.contactListDialog.show(result, [], function(list) {
+                if (list.length > 0) {
+                    currentGroup.addMembers(list, function(group) {
+                        g.app.messageSidebar.update(group);
+                    }, function(error) {
+                        g.dialog.launchToast(Toast.Error, '邀请入群操作失败 - ' + error.code);
+                    });
+                }
+            }, '邀请入群');
+        }
+        else {
+            g.app.newGroupDialog.show([this.current.entity.getId()]);
+        }
     }
 
     /**
@@ -1324,22 +1374,6 @@
         }
 
         return false;
-    }
-
-    // 获取元素的纵坐标 
-    function getTop(e) {
-        var offset = e.offsetTop;
-        if (e.offsetParent != null)
-            offset += getTop(e.offsetParent);
-        return offset;
-    }
-
-    // 获取元素的横坐标 
-    function getLeft(e) {
-        var offset = e.offsetLeft;
-        if (e.offsetParent != null)
-            offset += getLeft(e.offsetParent);
-        return offset;
     }
 
     g.MessagePanel = MessagePanel;

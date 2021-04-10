@@ -787,9 +787,14 @@ body {
 }
 
 .btn-shortcut {
-    margin-left: 6px;
+    padding: 0.1rem 0rem;
+    margin-right: 6px;
     max-width: 34px;
     width: 34px;
+    font-size: 16px !important;
+}
+.btn-shortcut-emoji {
+    font-size: 18px !important;
 }
 
 .select-file {
@@ -1547,3 +1552,51 @@ body {
         border-color: #ced4da;
     }
 }
+
+/* Emoji 面板 - 开始 */
+
+.emoji-panel {
+    display: none;
+    position: absolute;
+    float: left;
+    box-shadow: 0 0 1px rgba(0,0,0,.125),0 1px 3px rgba(0,0,0,.2);
+    background-color: #ffffff;
+}
+.emoji-panel .emoji {
+    text-align: center;
+    border-radius: .25rem;
+    font-size: 24px;
+    width: 32px;
+    height: 32px;
+    user-select: none;
+}
+.emoji-panel .emoji:hover {
+    background-color: #007bff;
+    /* border: 1px solid #f8f9fa; */
+}
+.emoji-panel .emoji-desc {
+    display: none;
+    position: absolute;
+    float: left;
+    color: #6c757d;
+    background-color: #ffffff;
+    font-size: 12px;
+    text-align: center;
+    border: 1px solid rgba(0,0,0,.125);
+    border-radius: .25rem;
+    width: 42px;
+    padding: 2px 2px 2px 2px;
+    margin-left: -5px;
+}
+.emoji-panel .table {
+    margin-bottom: 0.25rem;
+    margin-top: 0.25rem;
+}
+
+.emoji-panel .table td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 0px;
+}
+
+/* Emoji 面板 - 结束 */

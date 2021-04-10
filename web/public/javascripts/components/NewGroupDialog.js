@@ -67,7 +67,7 @@
             window.cube().contact.createGroup(groupName, members, function(group) {
                 // 添加到消息目录
                 g.app.messageCatalog.appendItem(group);
-                
+
                 dialogEl.modal('hide');
             }, function(error) {
                 g.dialog.launchToast(Toast.Error, '创建群组失败: ' + error.code);
@@ -77,8 +77,9 @@
 
     /**
      * 显示对话框。
+     * @param {Array} selectedList
      */
-    NewGroupDialog.prototype.show = function() {
+    NewGroupDialog.prototype.show = function(selectedList) {
         contacts = g.app.getMyContacts();
 
         elGroupName.val('');
@@ -90,9 +91,11 @@
             var avatar = contact.getContext().avatar;
             var name = contact.getPriorityName();
 
+            var checked = undefined !== selectedList && selectedList.indexOf(id) >= 0;
+
             var html = [
                 '<div class="col-6"><div class="form-group"><div class="custom-control custom-checkbox select-group-member">',
-                    '<input class="custom-control-input" type="checkbox" id="group_member_', i, '" data="', id, '" />',
+                    '<input class="custom-control-input" type="checkbox"', checked ? ' checked="checked"' : '', ' id="group_member_', i, '" data="', id, '" />',
                     '<label class="custom-control-label" for="group_member_', i, '">',
                         '<img src="images/', avatar, '" />',
                         '<span>', name, '</span>',

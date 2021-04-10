@@ -349,4 +349,20 @@
         ];
         return buf.join('');
     }
+
+    // 获取元素的纵坐标 
+    g.getElementTop = function(e) {
+        var offset = e.offsetTop;
+        if (e.offsetParent != null)
+            offset += g.getElementTop(e.offsetParent);
+        return parseInt(offset);
+    }
+
+    // 获取元素的横坐标 
+    g.getElementLeft = function (e) {
+        var offset = e.offsetLeft;
+        if (e.offsetParent != null)
+            offset += g.getElementLeft(e.offsetParent);
+        return parseInt(offset);
+    }
 })(window);

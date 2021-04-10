@@ -624,6 +624,15 @@
          * @param {function} callback 
          */
         prepareMessages: function(callback) {
+            // 读取最近列表记录
+            var recentList = that.loadConfig('recentList');
+            if (recentList) {
+
+            }
+            else {
+                
+            }
+
             var time = Date.now() - g.AMonth;
             cube.messaging.queryLastMessagers(time, function(time, result) {
                 if (result.length == 0) {

@@ -422,6 +422,68 @@
 })(window);
 
 (function(g) {
+
+    var that = null;
+
+    var panelEl = null;
+    var hideTimer = 0;
+
+    function mouseover() {
+        if (hideTimer > 0) {
+            clearTimeout(hideTimer);
+            hideTimer = 0;
+        }
+    }
+
+    function mouseout() {
+        if (hideTimer > 0) {
+            return;
+        }
+
+        hideTimer = setTimeout(function() {
+            that.hide();
+        }, 500);
+    }
+
+    function emojiMouseover() {
+        var el = $(this);
+        el.next().css('display', 'block');
+    }
+    function emojiMouseout() {
+        var el = $(this);
+        el.next().css('display', 'none');
+    }
+
+    var EmojiPanel = function() {
+        that = this;
+        panelEl = $('.emoji-panel');
+        panelEl.on('mouseover', mouseover);
+        panelEl.on('mouseout', mouseout);
+
+        panelEl.find('.emoji').on('mouseover', emojiMouseover);
+        panelEl.find('.emoji').on('mouseout', emojiMouseout);
+    }
+
+    EmojiPanel.prototype.show = function(anchorEl) {
+        var left = g.getElementLeft(anchorEl[0]);
+        var top = g.getElementTop(anchorEl[0]);
+
+        top -= 64 + 232;
+
+        panelEl.css('left', left + 'px');
+        panelEl.css('top', top + 'px');
+        panelEl.css('display', 'block');
+    }
+
+    EmojiPanel.prototype.hide = function() {
+        panelEl.css('display', 'none');
+    }
+
+    g.EmojiPanel = EmojiPanel;
+
+})(window);
+
+(function(g) {
     'use strict'
 
     var dialogEl = null;
@@ -1124,7 +1186,6 @@
 })(window);
 
 (function(g) {
-    'use strict';
 
     // 消息输入框是否使用编辑器
     var activeEditor = true;
@@ -1264,6 +1325,17 @@
         this.btnSend.attr('disabled', 'disabled');
         this.btnSend.on('click', function(event) {
             that.onSend(event);
+        });
+
+        // 表情符号
+        this.emojiPanel = new EmojiPanel();
+        this.btnEmoji = el.find('button[data-target="emoji"]');
+        this.btnEmoji.attr('disabled', 'disabled');
+        this.btnEmoji.on('mouseover', function() {
+            if (null == that.current) {
+                return;
+            }
+            that.emojiPanel.show(that.btnEmoji);
         });
 
         // 发送文件
@@ -1436,6 +1508,7 @@
                 this.elInput.removeAttr('disabled');
             }
 
+            this.btnEmoji.removeAttr('disabled');
             this.btnSend.removeAttr('disabled');
             this.btnSendFile.removeAttr('disabled');
         }
@@ -1538,6 +1611,7 @@
             panel.el.remove();
 
             if (this.current == panel) {
+                this.btnEmoji.attr('disabled', 'disabled');
                 this.btnVideoCall.attr('disabled', 'disabled');
                 this.btnVoiceCall.attr('disabled', 'disabled');
                 this.btnSendFile.attr('disabled', 'disabled');
@@ -1940,7 +2014,45 @@
      * @param {*} e 
      */
     MessagePanel.prototype.onNewGroupClick = function(e) {
-        g.app.newGroupDialog.show();
+        if (null == this.current) {
+            return;
+        }
+
+        if (this.current.groupable) {
+            var currentGroup = this.current.entity;
+            var list = g.app.contactsCtrl.getContacts();
+            var members = currentGroup.getMembers();
+            var result = [];
+            var contains = false;
+            for (var i = 0; i < list.length; ++i) {
+                var contact = list[i];
+                contains = false;
+                for (var j = 0; j < members.length; ++j) {
+                    var member = members[j];
+                    if (member.id == contact.id) {
+                        contains = true;
+                        break;
+                    }
+                }
+
+                if (!contains) {
+                    result.push(contact);
+                }
+            }
+
+            g.app.contactListDialog.show(result, [], function(list) {
+                if (list.length > 0) {
+                    currentGroup.addMembers(list, function(group) {
+                        g.app.messageSidebar.update(group);
+                    }, function(error) {
+                        g.dialog.launchToast(Toast.Error, '邀请入群操作失败 - ' + error.code);
+                    });
+                }
+            }, '邀请入群');
+        }
+        else {
+            g.app.newGroupDialog.show([this.current.entity.getId()]);
+        }
     }
 
     /**
@@ -2423,22 +2535,6 @@
         }
 
         return false;
-    }
-
-    // 获取元素的纵坐标 
-    function getTop(e) {
-        var offset = e.offsetTop;
-        if (e.offsetParent != null)
-            offset += getTop(e.offsetParent);
-        return offset;
-    }
-
-    // 获取元素的横坐标 
-    function getLeft(e) {
-        var offset = e.offsetLeft;
-        if (e.offsetParent != null)
-            offset += getLeft(e.offsetParent);
-        return offset;
     }
 
     g.MessagePanel = MessagePanel;
@@ -3953,7 +4049,7 @@
             window.cube().contact.createGroup(groupName, members, function(group) {
                 // 添加到消息目录
                 g.app.messageCatalog.appendItem(group);
-                
+
                 dialogEl.modal('hide');
             }, function(error) {
                 g.dialog.launchToast(Toast.Error, '创建群组失败: ' + error.code);
@@ -3963,8 +4059,9 @@
 
     /**
      * 显示对话框。
+     * @param {Array} selectedList
      */
-    NewGroupDialog.prototype.show = function() {
+    NewGroupDialog.prototype.show = function(selectedList) {
         contacts = g.app.getMyContacts();
 
         elGroupName.val('');
@@ -3976,9 +4073,11 @@
             var avatar = contact.getContext().avatar;
             var name = contact.getPriorityName();
 
+            var checked = undefined !== selectedList && selectedList.indexOf(id) >= 0;
+
             var html = [
                 '<div class="col-6"><div class="form-group"><div class="custom-control custom-checkbox select-group-member">',
-                    '<input class="custom-control-input" type="checkbox" id="group_member_', i, '" data="', id, '" />',
+                    '<input class="custom-control-input" type="checkbox"', checked ? ' checked="checked"' : '', ' id="group_member_', i, '" data="', id, '" />',
                     '<label class="custom-control-label" for="group_member_', i, '">',
                         '<img src="images/', avatar, '" />',
                         '<span>', name, '</span>',

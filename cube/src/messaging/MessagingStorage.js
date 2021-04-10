@@ -256,11 +256,16 @@ export class MessagingStorage {
      * 读取指定时间之后的所有消息。
      * @param {number} beginning 指定读取的起始时间戳。
      * @param {function} handler 指定查询结果回调函数，函数参数：({@linkcode beginning}:number, {@linkcode result}:Array<{@link Message}>) 。
+     * @param {number} [limit=100] 指定查询结果的数量上限。
      * @returns {boolean} 返回是否执行了读取操作。
      */
-    readMessage(beginning, handler) {
+    readMessage(beginning, handler, limit) {
         if (null == this.db) {
             return false;
+        }
+
+        if (undefined === limit) {
+            limit = 100;
         }
 
         (async ()=> {
@@ -283,7 +288,18 @@ export class MessagingStorage {
                 // 有效的消息
                 messages.push(message);
             }
-            handler(beginning, messages);
+
+            let result = null;
+
+            if (messages.length > limit) {
+                let start = messages.length - limit;
+                result = messages.slice(start);
+            }
+            else {
+                result = messages;
+            }
+
+            handler(beginning, result);
         })();
         return true;
     }

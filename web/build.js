@@ -7,6 +7,7 @@ const filePath = 'public/javascripts/components/';
 const fileList = [
     'Dialog.js',
     'MainPanel.js',
+    'EmojiPanel.js',
     'FileDetails.js',
     'SidebarAccountPanel.js',
     'MessageCatalogue.js',
