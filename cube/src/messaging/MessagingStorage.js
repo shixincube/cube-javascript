@@ -129,6 +129,18 @@ export class MessagingStorage {
                     unique: true
                 }]
             }, {
+                name: 'recent_messager',
+                keyPath: 'id',
+                indexes: [{
+                    name: 'id',
+                    keyPath: 'id',
+                    unique: true
+                }, {
+                    name: 'time',
+                    keyPath: 'time',
+                    unique: false
+                }]
+            }, {
                 name: 'config',
                 keyPath: 'item',
                 indexes: [{
@@ -147,6 +159,7 @@ export class MessagingStorage {
         this.configStore = this.db.use('config');
         this.messageStore = this.db.use('message');
         this.draftStore = this.db.use('draft');
+        this.recentMessagerStore = this.db.use('recent_messager');
     }
 
     /**
@@ -165,21 +178,93 @@ export class MessagingStorage {
 
     /**
      * 更新最近一条消息的时间戳。
-     * @param {number} timestamp 时间戳。
+     * @param {Message} message 消息实例。
+     * @param {boolean} updateLastTime 是否更新最近消息时间。
      * @returns {boolean} 返回是否执行了更新操作。
      */
-    updateLastMessageTime(timestamp) {
+    updateLastMessage(message, updateLastTime) {
         if (null == this.db) {
             return false;
         }
 
+        if (updateLastTime) {
+            (async () => {
+                let timestamp = message.getRemoteTimestamp();
+                let data = {
+                    "item": "lastMessageTime",
+                    "value": timestamp
+                };
+                await this.configStore.put(data);
+            })();
+        }
+
         (async () => {
-            let data = {
-                "item": "lastMessageTime",
-                "value": timestamp
-            };
-            await this.configStore.put(data);
+            let messagerId = 0;
+            let group = false;
+            if (message.isFromGroup()) {
+                // 群组的消息
+                messagerId = message.getSource();
+                group = true;
+            }
+            else {
+                if (this.service.isSender(message)) {
+                    messagerId = message.getTo();
+                }
+                else {
+                    messagerId = message.getFrom();
+                }
+            }
+
+            let cur = await this.recentMessagerStore.get(messagerId);
+            if (null != cur && cur.length > 0) {
+                let time = cur[0].time;
+                if (message.remoteTS > time) {
+                    // 指定消息的时间戳更大，更新数据
+                    await this.recentMessagerStore.put({
+                        "id": messagerId,
+                        "time": message.remoteTS,
+                        "group": group,
+                        "message": message.toJSON()
+                    });
+                }
+            }
+            else {
+                // 没有记录
+                await this.recentMessagerStore.put({
+                    "id": messagerId,
+                    "time": message.remoteTS,
+                    "group": group,
+                    "message": message.toJSON()
+                });
+            }
         })();
+
+        return true;
+    }
+
+    /**
+     * 最近记录的相关消息联系人和群组。
+     * @param {function} handler 
+     * @returns {boolean} 是否执行了查询操作。
+     */
+    queryRecentMessagers(handler) {
+        if (null == this.db) {
+            return false;
+        }
+
+        (async ()=> {
+            let result = await this.recentMessagerStore.all();
+            if (null != result) {
+                // 降序排序
+                result.sort((a, b) => {
+                    if (a.time < b.time) return -1;
+                    else if (a.time > b.time) return 1;
+                    else return 0;
+                });
+            }
+            handler(result);
+        })();
+
         return true;
     }
 

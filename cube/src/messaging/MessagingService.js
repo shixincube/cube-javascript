@@ -696,17 +696,45 @@ export class MessagingService extends Module {
 
     /**
      * 查询最近的消息记录对应的联系人或群组。
-     * @param {number} beginning 指定查询的开始时间戳。
      * @param {function} handler 数据接收回调。参数：({@linkcode beginning}:number, {@linkcode list}:Array<{@link Contact}|{@link Group}>})。
+     * @param {number} [beginning] 指定查询的开始时间戳。
      */
-    queryLastMessagers(beginning, handler) {
+    queryRecentMessagers(handler, beginning) {
         if (!this.contactService.isReady()) {
-            handler(beginning, []);
+            handler([], beginning);
             return;
         }
 
+        this.storage.queryRecentMessagers((list) => {
+            (async ()=> {
+                let messagers = [];
+
+                for (let i = 0; i < list.length; ++i) {
+                    let data = list[i];
+                    try {
+                        if (data.group) {
+                            let group = await this.contactService.getGroup(data.id);
+                            if (group.tag != 'public' || group.state != GroupState.Normal) {
+                                continue;
+                            }
+
+                            messagers.push(group);
+                        }
+                        else {
+                            let contact = await this.contactService.getContact(data.id);
+                            messagers.push(contact);
+                        }
+                    } catch (e) {
+                        // Nothing
+                    }
+                }
+
+                handler(messagers);
+            })();
+        });
+
+        /* 从存储里读取消息，于 2021-4-11 弃用该方案
         let selfId = this.contactService.getSelf().getId();
-        // 从存储里读取消息
         this.storage.readMessage(beginning, (beginning, result) => {
             let list = result.sort((a, b) => {
                 if (a.remoteTS < b.remoteTS) return -1;
@@ -742,7 +770,7 @@ export class MessagingService extends Module {
             }
 
             handler(beginning, messagers);
-        });
+        });*/
     }
 
     /**
@@ -1165,7 +1193,7 @@ export class MessagingService extends Module {
             message = result;
 
             // 使用服务器的时间戳设置为最新消息时间
-            this.refreshLastMessageTime(message.getRemoteTimestamp());
+            this.refreshLastMessageTime(message);
 
             let promise = new Promise((resolve, reject) => {
                 // 如果是群组消息，更新群组的活跃时间
@@ -1346,13 +1374,17 @@ export class MessagingService extends Module {
     /**
      * 刷新最近一条消息时间戳。
      * @private
-     * @param {number} value 新的时间戳。
+     * @param {Message} message 最新的消息。
      */
-    refreshLastMessageTime(value) {
-        if (value > this.lastMessageTime) {
-            this.lastMessageTime = value;
-            this.storage.updateLastMessageTime(value);
+    refreshLastMessageTime(message) {
+        let updateLastTime = false;
+
+        if (message.getRemoteTimestamp() > this.lastMessageTime) {
+            this.lastMessageTime = message.getRemoteTimestamp();
+            updateLastTime = true;
         }
+
+        this.storage.updateLastMessage(message, updateLastTime);
     }
 
     /**
@@ -1384,7 +1416,9 @@ export class MessagingService extends Module {
 
                             // 更新时间戳
                             respMessage.remoteTS = responsePacket.data.data.rts;
-                            this.refreshLastMessageTime(respMessage.remoteTS);
+
+                            // 更新最近消息时间
+                            this.refreshLastMessageTime(respMessage);
 
                             if (responsePacket.data.code == 0) {
                                 respMessage.state = MessageState.Sent;
@@ -1484,7 +1518,7 @@ export class MessagingService extends Module {
 
                 // 更新时间戳
                 message.remoteTS = respMessage.remoteTS;
-                this.refreshLastMessageTime(message.remoteTS);
+                this.refreshLastMessageTime(message);
 
                 // 更新存储
                 this.storage.updateMessage(message);

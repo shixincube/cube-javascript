@@ -367,8 +367,9 @@ export class ContactService extends Module {
     /**
      * 获取指定 ID 的联系人信息。
      * @param {number} contactId 指定联系人 ID 。
-     * @param {function} handleSuccess 成功获取到数据回调该方法，参数：({@linkcode contact}:{@link Contact}) ，(联系人实例)。
+     * @param {function} [handleSuccess] 成功获取到数据回调该方法，参数：({@linkcode contact}:{@link Contact}) ，(联系人实例)。
      * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError}) ，(故障信息))。
+     * @returns {Promise} 当参数 {@linkcode handleSuccess} 和 {@linkcode handleFailure} 均不设置时，返回 {@linkcode Promise} 。
      */
     getContact(contactId, handleSuccess, handleFailure) {
         if (!this.selfReady) {
@@ -722,8 +723,9 @@ export class ContactService extends Module {
     /**
      * 获取指定 ID 的群组信息。
      * @param {number} id 指定群组 ID 。
-     * @param {function} handleSuccess 成功获取到数据回调该方法，参数：({@linkcode group}:{@link Group})，(群组实例)。
+     * @param {function} [handleSuccess] 成功获取到数据回调该方法，参数：({@linkcode group}:{@link Group})，(群组实例)。
      * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError}) 。
+     * @returns {Promise} 当 {@linkcode handleSuccess} 和 {@linkcode handleFailure} 参数都不设置时，返回 {@linkcode Promise} 。
      */
     getGroup(id, handleSuccess, handleFailure) {
         if (typeof id === 'string') {
