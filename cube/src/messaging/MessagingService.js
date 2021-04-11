@@ -729,7 +729,7 @@ export class MessagingService extends Module {
                     }
                 }
 
-                handler(messagers);
+                handler(messagers, beginning);
             })();
         });
 

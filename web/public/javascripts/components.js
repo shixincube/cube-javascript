@@ -1281,8 +1281,6 @@
         this.formatContents = [];
         // 最近一次内容记录
         this.lastInput = '';
-        // AT 记录
-        this.atMap = new OrderMap();
 
         if (activeEditor) {
             this.el.find('textarea').parent().remove();
@@ -1642,7 +1640,6 @@
 
                 this.formatContents = [];
                 this.lastInput = '';
-                this.atMap.clear();
 
                 this.current = null;
             }
@@ -1922,14 +1919,20 @@
             if (c.format == 'txt') {
                 formatText.push(filterFormatText(c.data));
             }
+            else if (c.format == 'emoji') {
+                var array = [
+                    '[E', c.desc, '#', c.data, ']'
+                ];
+                formatText.push(array.join(''));
+            }
             else if (c.format == 'at') {
-                formatText.push('[@');
-                formatText.push(c.name);
-                formatText.push('#');
-                formatText.push(c.data.getId());
-                formatText.push(']');
+                var array = [
+                    '[@', c.name, '#', c.data, ']'
+                ];
+                formatText.push(array.join(''));
             }
         }
+
         return formatText.join('');
     }
 
@@ -1950,26 +1953,42 @@
                     html.push(value.content);
                     html.push('</p>');
                 }
+                else if (value.format == 'emoji') {
+                    var emoji = String.fromCodePoint('0x' + value.content.code);
+                    html.push('<p>&nbsp;</p><p class="emoji" desc="');
+                    html.push(value.content.desc);
+                    html.push('">');
+                    html.push(emoji);
+                    html.push('</p><p>&nbsp;</p>');
+                }
                 else if (value.format == 'at') {
-                    html.push('&nbsp;<p class="at-wrapper"><span class="at">@' + value.content.name + '</span></p>&nbsp;');
+                    html.push('<p>&nbsp;</p><p class="at-wrapper"><span class="at">@');
+                    html.push(value.content.name);
+                    html.push('</span></p><p>&nbsp;</p>');
                 }
             }
 
             // 处理最后一个
             var last = list[list.length - 1];
             if (last.format == 'text') {
-                html.push('<p>');
-                html.push(last.content);
-                html.push('<br></p>');
+                html.push('<p>' + last.content + '<br></p>');
             }
-            else if (valastlue.format == 'at') {
-                html.push('&nbsp;<p class="at-wrapper"><span class="at">@' + last.content.name + '</span></p>&nbsp;<p><br></p>');
+            else if (last.format == 'emoji') {
+                var emoji = String.fromCodePoint('0x' + last.content.code);
+                html.push('<p>&nbsp;</p><p class="emoji" desc="' + last.content.desc + '">' + emoji + '</p><p><br></p>');
+            }
+            else if (last.format == 'at') {
+                html.push('<p>&nbsp;</p><p class="at-wrapper"><span class="at">@' + last.content.name + '</span></p><p><br></p>');
             }
         }
         else {
             message.getFormattedContents().forEach(function(value) {
                 if (value.format == 'text') {
                     html.push(value.content);
+                }
+                else if (value.format == 'emoji') {
+                    var emoji = String.fromCodePoint('0x' + value.content.code);
+                    html.push('&nbsp;<span class="emoji">' + emoji + '</span>&nbsp;');
                 }
                 else if (value.format == 'at') {
                     html.push('&nbsp;<span class="at">@' + value.content.name + '</span>&nbsp;');
@@ -1987,7 +2006,7 @@
     MessagePanel.prototype.onEmojiClick = function(emoji) {
         var emojiHtml = String.fromCodePoint('0x' + emoji.code);
         if (activeEditor) {
-            that.inputEditor.cmd.do('insertHTML', '&nbsp;<p class="emoji">' + emojiHtml + '</p>&nbsp;');
+            that.inputEditor.cmd.do('insertHTML', '<p>&nbsp;</p><p class="emoji" desc="' + emoji.desc + '">' + emojiHtml + '</p><p>&nbsp;</p>');
         }
         else {
             // TODO
@@ -2037,7 +2056,6 @@
             this.formatContents.splice(0, this.formatContents.length);
         }
         this.lastInput = '';
-        this.atMap.clear();
     }
 
     /**
@@ -2130,11 +2148,11 @@
             return;
         }
 
-        var text = html.replace(/<[^<>]+>/g, "");
-        if (this.lastInput == text) {
+        if (this.lastInput == html) {
             return;
         }
 
+        var text = html.replace(/<[^<>]+>/g, "");
         if (text.length == 0 || text == ' ' || text == '&nbsp;') {
             this.formatContents.splice(0, this.formatContents.length);
             this.lastInput = '';
@@ -2143,18 +2161,23 @@
             return;
         }
 
-        var result = calcInputText(this.lastInput, text);
+        var result = calcInput(this.lastInput, html);
+
         if (result.deleted) {
-            var formatContents = result.contents;
+            // 有格式化整体内容被删除
+            var formatContents = result.newestContents;
             var content = [];
             for (var i = 0; i < formatContents.length; ++i) {
                 var c = formatContents[i];
                 if (c.format == "txt") {
                     content.push('<p>' + c.data + '</p>');
                 }
+                else if (c.format == "emoji") {
+                    var emoji = String.fromCodePoint('0x' + c.data);
+                    content.push('<p>&nbsp;</p><p class="emoji" desc="' + c.desc + '">' + emoji + '</p><p>&nbsp;</p>');
+                }
                 else if (c.format == "at") {
-                    var member = c.data;
-                    var atContent = '<p>&nbsp;</p><p class="at-wrapper"><span class="at">@' + that.current.entity.getMemberName(member) + '</span></p>&nbsp;';
+                    var atContent = '<p>&nbsp;</p><p class="at-wrapper" data="' + c.data + '"><span class="at">@' + c.name + '</span></p><p>&nbsp;</p>';
                     content.push(atContent);
                 }
             }
@@ -2163,9 +2186,9 @@
             }, 10);
         }
 
-        this.formatContents = result.contents;
+        this.formatContents = result.newestContents;
 
-        this.lastInput = text;
+        this.lastInput = html;
     }
 
     /**
@@ -2222,13 +2245,7 @@
 
         event.preventDefault();
         return false;
-    }*/
-
-    /**
-     * 当编辑框触发 Key Down 事件时回调。
-     * @param {*} event 
-     * @returns 
-     */
+    }
     MessagePanel.prototype.onEditorKeydown = function(event) {
         var e = event || window.event;
         // 退格键 - 8，删除键 - 46
@@ -2237,7 +2254,7 @@
         //     e.preventDefault();
         //     return false;
         // }
-    }
+    }*/
 
     /**
      * 动态生成 AT 面板。
@@ -2333,9 +2350,7 @@
         var id = parseInt(that.atPanel.find('.active').attr('data'));
         var member = that.current.entity.getMemberById(id);
 
-        this.atMap.put(that.current.entity.getMemberName(member), member);
-
-        var atContent = '<p>&nbsp;</p><p class="at-wrapper"><span class="at">@' + that.current.entity.getMemberName(member) + '</span><br></p>&nbsp;';
+        var atContent = '<p>&nbsp;</p><p class="at-wrapper" data="' + id + '"><span class="at">@' + that.current.entity.getMemberName(member) + '</span></p><p>&nbsp;</p>';
         that.inputEditor.cmd.do('insertHTML', atContent);
         that.atPanel.blur();
     }
@@ -2412,70 +2427,89 @@
         }
     }
 
-
-    // 通过对文本的匹配
-    function calcInputText(lastText, newestText) {
-        var lastContents = parseContent(lastText);
-        var newestContents = parseContent(newestText);
+    function calcInput(lastHtml, newestHtml) {
+        var lastContents = parseContent(lastHtml);
+        var newestContents = parseContent(newestHtml);
 
         var deleted = false;
 
         // 判断上一次的内容里是否少了 AT 格式的内容
-        for (var i = 0; i < lastContents.length; ++i) {
+        for (var i = 0; i < lastContents.length && i < newestContents.length; ++i) {
             var last = lastContents[i];
-            if (last.format == "at") {
-                var found = false;
-                for (var n = 0; n < newestContents.length; ++n) {
-                    var newest = newestContents[n];
-                    if (newest.format == "at") {
-                        if (newest.data.id == last.data.id) {
-                            found = true;
-                            break;
-                        }
+            var newest = newestContents[i];
+
+            if (last.format == "at" && newest.format == "at") {
+                if (last.name != newest.name) {
+                    deleted = true;
+                    newestContents.splice(i, 1);
+                    break;
+                }
+            }
+        }
+
+        return { "deleted": deleted, "newestContents": newestContents, "lastContents": lastContents };
+    }
+
+    function parseContent(html) {
+        var formatContents = [];
+
+        var htmlEl = $('<div>' + html + '</div>');
+        var pEl = htmlEl.find('p');
+
+        var skipNextBlank = false;
+
+        pEl.each(function() {
+            var el = $(this);
+            if (el.hasClass('emoji')) {
+                // 移除上一个空格
+                if (formatContents.length > 0 && formatContents[formatContents.length - 1].data.charCodeAt(0) == 160) {
+                    formatContents.pop();
+                }
+
+                var c = el.text();
+                if (c.length == 0) {
+                    return;
+                }
+
+                var emoji = c.codePointAt(0).toString(16);
+                var desc = el.attr('desc');
+                formatContents.push({ "format": "emoji", "data": emoji, "desc": desc });
+
+                skipNextBlank = true;
+            }
+            else if (el.hasClass('at-wrapper')) {
+                // 移除上一个空格
+                if (formatContents.length > 0 && formatContents[formatContents.length - 1].data.charCodeAt(0) == 160) {
+                    formatContents.pop();
+                }
+
+                var c = el.text();
+                formatContents.push({ "format": "at", "data": parseInt(el.attr('data')), "name": c.substring(1) });
+
+                skipNextBlank = true;
+            }
+            else {
+                if (skipNextBlank) {
+                    skipNextBlank = false;
+                    var c = el.text();
+                    if (c.charCodeAt(0) == 160 && c.length == 1) {
+                        return;
+                    }
+
+                    c = c.substring(1);
+                    if (c.length > 0) {
+                        formatContents.push({ "format": "txt", "data": c });
+                        return;
                     }
                 }
 
-                if (!found) {
-                    // 没有找到
-                    lastContents.splice(i, 1);
-                    --i;
-                    deleted = true;
+                if (el.text().length == 0) {
+                    return;
                 }
-            }
-        }
 
-        return { "deleted": deleted, "contents" : deleted ? lastContents : newestContents };
-    }
-
-    function parseContent(text) {
-        var content = [];
-        var tmp = text.split('&nbsp;');
-        for (var i = 0; i < tmp.length; ++i) {
-            var c = tmp[i].trim();
-            if (c.length == 0) {
-                content.push(' ');
-                continue;
+                formatContents.push({ "format": "txt", "data": el.text() });
             }
-            content.push(c);
-        }
-
-        var formatContents = [];
-
-        for (var i = 0; i < content.length; ++i) {
-            var c = content[i];
-            if (c.charAt(0) == '@') {
-                var at = that.atMap.get(c.substr(1, c.length));
-                if (null != at) {
-                    formatContents.push({ "format": "at", "data": at, "name": c.substr(1, c.length) });
-                }
-                else {
-                    formatContents.push({ "format": "txt", "data": c });
-                }
-            }
-            else {
-                formatContents.push({ "format": "txt", "data": c });
-            }
-        }
+        });
 
         return formatContents;
     }
@@ -2483,7 +2517,8 @@
     // 计算当前光标位置
     function calcCursorPosition(count) {
         var length = 0;
-        var string = that.lastInput.replaceAll('&nbsp;', ' ');
+        var plain = that.lastInput.replace(/<[^<>]+>/g, "");
+        var string = plain.replaceAll('&nbsp;', ' ');
 
         var offset = 0;
 

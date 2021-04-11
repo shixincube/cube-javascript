@@ -511,6 +511,7 @@ body {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
     padding-left: 4px;
+    margin-top: 1px;
 }
 #message-editor .w-e-text-container .w-e-text p {
     margin-bottom: 0.125rem;

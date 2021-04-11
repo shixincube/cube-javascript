@@ -115,29 +115,40 @@ export class HyperTextMessage extends TypeableMessage {
      */
     parse(input) {
         // AT Format: [@ name # id ]
-        // Emoji Format: [EMOJI desc # code ]
+        // Emoji Format: [E desc # code ]
         
         let content = [];
 
+        let phaseEmoji = false;
         let phaseAt = false;
-        let atString = [];
+        let string = [];
 
         for (let i = 0; i < input.length; ++i) {
             let c = input.charAt(i);
             if (c == '\\') {
                 // 转义
                 c = input.charAt(++i);
-                if (!phaseAt) {
+                if (!phaseEmoji && !phaseAt) {
                     content.push(c);
                 }
                 else {
-                    atString.push(c);
+                    string.push(c);
                 }
             }
             else if (c == '[') {
                 let next = input.charAt(i + 1);
-                if (next == '@') {
+                if (next == 'E') {
+                    // 记录文本数据
+                    this.formattedContents.push({
+                        "format": "text",
+                        "content": content.join('')
+                    });
+                    content.splice(0, content.length);
 
+                    phaseEmoji = true;
+                    ++i;
+                }
+                else if (next == '@') {
                     // 记录文本数据
                     this.formattedContents.push({
                         "format": "text",
@@ -150,10 +161,20 @@ export class HyperTextMessage extends TypeableMessage {
                 }
             }
             else if (c == ']') {
-                if (phaseAt) {
+                if (phaseEmoji) {
+                    phaseEmoji = false;
+                    let emojiResult = this.parseEmoji(string);
+                    string.splice(0, string.length);
+
+                    this.formattedContents.push({
+                        "format": "emoji",
+                        "content": emojiResult
+                    });
+                }
+                else if (phaseAt) {
                     phaseAt = false;
-                    let atResult = this.parseAt(atString);
-                    atString.splice(0, atString.length);
+                    let atResult = this.parseAt(string);
+                    string.splice(0, string.length);
 
                     this.formattedContents.push({
                         "format": "at",
@@ -162,11 +183,11 @@ export class HyperTextMessage extends TypeableMessage {
                 }
             }
             else {
-                if (!phaseAt) {
+                if (!phaseEmoji && !phaseAt) {
                     content.push(c);
                 }
                 else {
-                    atString.push(c);
+                    string.push(c);
                 }
             }
         }
@@ -181,11 +202,15 @@ export class HyperTextMessage extends TypeableMessage {
 
         // 生成平滑文本
         content.splice(0, content.length);
-
         for (let i = 0; i < this.formattedContents.length; ++i) {
             let format = this.formattedContents[i];
             if (format.format == 'text') {
                 content.push(format.content);
+            }
+            else if (format.format == 'emoji') {
+                content.push('[');
+                content.push(format.content.desc);
+                content.push(']');
             }
             else if (format.format == 'at') {
                 content.push(' @');
@@ -198,14 +223,30 @@ export class HyperTextMessage extends TypeableMessage {
     }
 
     /**
-     * 分析 AT 格式。
-     * @private
-     * @param {string} atString 
+     * 分析 Emoji 格式。
+     * @param {Array} array 
      * @returns {object}
      */
-    parseAt(atString) {
+    parseEmoji(array) {
+        // Format: [E desc # code ]
+        let string = array.join('');
+        let index = string.lastIndexOf('#');
+        let result = {
+            "desc": string.substring(0, index),
+            "code": string.substring(index + 1)
+        };
+        return result;
+    }
+
+    /**
+     * 分析 AT 格式。
+     * @private
+     * @param {Array} array 
+     * @returns {object}
+     */
+    parseAt(array) {
         // Format: [@ name # id ]
-        let string = atString.join('');
+        let string = array.join('');
         let index = string.lastIndexOf('#');
         let result = {
             "name": string.substring(0, index),
