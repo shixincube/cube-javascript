@@ -426,7 +426,10 @@
     var that = null;
 
     var panelEl = null;
+    var recentTrEl = null;
     var hideTimer = 0;
+
+    var recentList = null;
 
     var clickEmojiHandler = null;
 
@@ -458,10 +461,15 @@
 
     function emojiClick() {
         var el = $(this);
-        clickEmojiHandler({
+        var data = {
             "code": el.text().codePointAt(0).toString(16),
             "desc": el.next().text()
-        });
+        };
+        clickEmojiHandler(data);
+
+        if (!el.hasClass('recent-emoji')) {
+            that.appendRecent(data);
+        }
     }
 
     var EmojiPanel = function(clickHandler) {
@@ -476,6 +484,12 @@
         panelEl.find('.emoji').on('mouseover', emojiMouseover);
         panelEl.find('.emoji').on('mouseout', emojiMouseout);
         panelEl.find('.emoji').click(emojiClick);
+
+        recentTrEl = panelEl.find('.recent');
+
+        setTimeout(function() {
+            that.loadRecent();
+        }, 1000);
     }
 
     EmojiPanel.prototype.show = function(anchorEl) {
@@ -494,17 +508,51 @@
     }
 
     EmojiPanel.prototype.loadRecent = function() {
-        var config = g.app.load.loadConfig('recentEmoji');
-        if (null == config) {
+        recentList = g.app.loadConfig('recentEmoji');
+        if (null == recentList) {
+            recentList = [];
             return;
         }
 
-        var tr = panelEl.find('.recent');
-        
+        for (var i = 0; i < recentList.length; ++i) {
+            var value = recentList[i];
+            var el = recentTrEl.find('.recent-' + i);
+            el.find('.emoji').html('&#x' + value.code + ';');
+            el.find('.emoji-desc').html(value.desc);
+            el.css('visibility', 'visible');
+        }
     }
 
-    EmojiPanel.prototype.appendRecent = function() {
+    EmojiPanel.prototype.appendRecent = function(data) {
+        // 不能添加重复的表情
+        for (var i = 0; i < recentList.length; ++i) {
+            var r = recentList[i];
+            if (r.code == data.code) {
+                return;
+            }
+        }
 
+        recentList.unshift(data);
+        if (recentList.length > 10) {
+            recentList.pop();
+        }
+
+        for (var i = 0; i < recentList.length; ++i) {
+            var value = recentList[i];
+            var el = recentTrEl.find('.recent-' + i);
+            el.find('.emoji').html('&#x' + value.code + ';');
+            el.find('.emoji-desc').html(value.desc);
+            el.css('visibility', 'visible');
+        }
+
+        for (var i = recentList.length; i < 10; ++i) {
+            var el = recentTrEl.find('.recent-' + i);
+            el.find('.emoji').html('&nbsp;');
+            el.find('.emoji-desc').html('&nbsp;');
+            el.css('visibility', 'hidden');
+        }
+
+        g.app.saveConfig('recentEmoji', recentList);
     }
 
     g.EmojiPanel = EmojiPanel;

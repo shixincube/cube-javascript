@@ -514,7 +514,7 @@ body {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
     padding-left: 4px;
-    margin-top: 1px;
+    /* margin-top: 1px; */
 }
 #message-editor .w-e-text-container .w-e-text p {
     margin-bottom: 0.125rem;
@@ -1605,13 +1605,14 @@ body {
     vertical-align: middle;
     padding: 0px;
 }
-.emoji-panel .recent {
-    background-color: #efefef;
+.emoji-panel .recent td {
+    visibility: hidden;
 }
 .emoji-panel .recent .emoji {
-    visibility: hidden;
-    border-radius: 0;
     background-color: rgb(159, 165, 171, .125);
+}
+.emoji-panel .recent .emoji:hover {
+    background-color: #007bff;
 }
 
 /* Emoji 面板 - 结束 */
