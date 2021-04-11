@@ -471,6 +471,9 @@ body {
 .direct-chat-text {
     font-size: 14px;
 }
+.direct-chat-text .emoji {
+    font-size: 16px;
+}
 
 .direct-chat-messages .at {
     color: #007bff;
@@ -1564,7 +1567,7 @@ body {
     position: absolute;
     float: left;
     box-shadow: 0 0 1px rgba(0,0,0,.125),0 1px 3px rgba(0,0,0,.2);
-    background-color: #ffffff;
+    background-color: #fefefe;
 }
 .emoji-panel .emoji {
     text-align: center;
@@ -1601,6 +1604,14 @@ body {
     text-align: center;
     vertical-align: middle;
     padding: 0px;
+}
+.emoji-panel .recent {
+    background-color: #efefef;
+}
+.emoji-panel .recent .emoji {
+    visibility: hidden;
+    border-radius: 0;
+    background-color: rgb(159, 165, 171, .125);
 }
 
 /* Emoji 面板 - 结束 */

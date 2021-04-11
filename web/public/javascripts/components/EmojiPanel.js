@@ -85,7 +85,7 @@
         var left = g.getElementLeft(anchorEl[0]);
         var top = g.getElementTop(anchorEl[0]);
 
-        top -= 64 + 232;
+        top -= 64 + 42 + 232;
 
         panelEl.css('left', left + 'px');
         panelEl.css('top', top + 'px');
@@ -94,6 +94,20 @@
 
     EmojiPanel.prototype.hide = function() {
         panelEl.css('display', 'none');
+    }
+
+    EmojiPanel.prototype.loadRecent = function() {
+        var config = g.app.load.loadConfig('recentEmoji');
+        if (null == config) {
+            return;
+        }
+
+        var tr = panelEl.find('.recent');
+        
+    }
+
+    EmojiPanel.prototype.appendRecent = function() {
+
     }
 
     g.EmojiPanel = EmojiPanel;

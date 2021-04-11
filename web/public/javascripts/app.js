@@ -366,13 +366,13 @@
         /**
          * 加载指定配置信息。
          * @param {string} name 
-         * @returns 
+         * @returns {object}
          */
         loadConfig: function(name) {
             var value = window.localStorage.getItem('CubeAppConfig');
             if (value && value.length > 3) {
                 var data = JSON.parse(value);
-                return data[name];
+                return undefined !== data[name] ? data[name] : null;
             }
 
             return null;
