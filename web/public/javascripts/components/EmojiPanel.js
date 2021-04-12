@@ -127,11 +127,12 @@
     }
 
     EmojiPanel.prototype.appendRecent = function(data) {
-        // 不能添加重复的表情
+        // 不能添加重复的表情，删除已存在的表情
         for (var i = 0; i < recentList.length; ++i) {
             var r = recentList[i];
             if (r.code == data.code) {
-                return;
+                recentList.splice(i, 1);
+                break;
             }
         }
 
