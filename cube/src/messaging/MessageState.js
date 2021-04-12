@@ -72,6 +72,12 @@ export const MessageState = {
     Deleted: 40,
 
     /**
+     * 被阻止。
+     * @type {number}
+     */
+    Blocked: 50,
+
+    /**
      * 消息出现故障。
      * @type {number}
      */

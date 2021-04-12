@@ -40,7 +40,6 @@ import { MessageState } from "./MessageState";
 import { MessagingAction } from "./MessagingAction";
 import { MessagingPipelineListener } from "./MessagingPipelineListener";
 import { MessagingEvent } from "./MessagingEvent";
-import { MessagingCode } from "./MessagingCode";
 import { MessagingServiceState } from "./MessagingServiceState";
 import { MessagingStorage } from "./MessagingStorage";
 import { FileStorage } from "../filestorage/FileStorage";
@@ -1028,7 +1027,7 @@ export class MessagingService extends Module {
      */
     loadDraft(target, handleSuccess, handleFailure) {
         if (!this.serviceReady) {
-            let error = new ModuleError(MessagingService.NAME, MessagingCode.Failure, target);
+            let error = new ModuleError(MessagingService.NAME, MessagingServiceState.Failure, target);
             if (handleFailure) {
                 handleFailure(error);
             }
@@ -1045,7 +1044,7 @@ export class MessagingService extends Module {
 
         this.storage.readDraft(id, (draft) => {
             if (null == draft) {
-                let error = new ModuleError(MessagingService.NAME, MessagingCode.StorageNoData, target);
+                let error = new ModuleError(MessagingService.NAME, MessagingServiceState.StorageNoData, target);
                 if (handleFailure) {
                     handleFailure(error);
                 }
@@ -1408,20 +1407,21 @@ export class MessagingService extends Module {
                     let packet = new Packet(MessagingAction.Push, message.toJSON());
                     this.pipeline.send(MessagingService.NAME, packet, (pipeline, source, responsePacket) => {
                         if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
-                            let respMessage = this.sendingMap.remove(responsePacket.data.data.id);
+                            var responseData = responsePacket.data.data;
+                            let respMessage = this.sendingMap.remove(responseData.id);
                             if (null == respMessage) {
-                                cell.Logger.e('MessagingService', 'Can NOT find message in cache: ' + responsePacket.data.data.id);
+                                cell.Logger.e('MessagingService', 'Can NOT find message in cache: ' + responseData.id);
                                 return;
                             }
 
                             // 更新时间戳
-                            respMessage.remoteTS = responsePacket.data.data.rts;
+                            respMessage.remoteTS = responseData.rts;
 
                             // 更新最近消息时间
                             this.refreshLastMessageTime(respMessage);
 
-                            if (responsePacket.data.code == 0) {
-                                respMessage.state = MessageState.Sent;
+                            if (responsePacket.data.code == MessagingServiceState.Ok) {
+                                respMessage.state = responseData.state;
 
                                 let event = new ObservableEvent(MessagingEvent.Sent, respMessage);
                                 this.notifyObservers(event);
@@ -1446,7 +1446,7 @@ export class MessagingService extends Module {
 
                             message.state = MessageState.Fault;
 
-                            let error = new ModuleError(MessagingService.NAME, MessagingCode.NetFault, message);
+                            let error = new ModuleError(MessagingService.NAME, MessagingServiceState.ServerFault, message);
                             this.notifyObservers(new ObservableEvent(MessagingEvent.Fault, error));
                         }
                     });

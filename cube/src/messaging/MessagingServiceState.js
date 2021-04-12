@@ -66,6 +66,12 @@ export const MessagingServiceState = {
     NoContact: 16,
 
     /**
+     * 被对方阻止。
+     * @type {number}
+     */
+    BeBlocked: 18,
+
+    /**
      * 数据结构错误。
      * @type {number}
      */
@@ -88,6 +94,18 @@ export const MessagingServiceState = {
      * @type {number}
      */
     DataTimeout: 104,
+
+    /**
+     * 服务器故障。
+     * @type {number}
+     */
+    ServerFault: 105,
+
+    /**
+     * 存储里没有读取到数据。
+     * @type {number}
+     */
+    StorageNoData: 106,
 
     /**
      * 未知的状态。
