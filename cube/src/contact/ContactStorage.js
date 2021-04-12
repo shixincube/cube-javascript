@@ -155,6 +155,7 @@ export class ContactStorage {
         this.contactStore = this.db.use('contact');
         this.appendixStore = this.db.use('appendix');
         this.topStore = this.db.use('top');
+        this.configStore = this.db.use('config');
     }
 
     /**
@@ -450,6 +451,50 @@ export class ContactStorage {
 
         (async ()=> {
             await this.topStore.clear();
+        })();
+
+        return true;
+    }
+
+    /**
+     * 读取阻止联系人的列表。
+     * @param {function} handler 
+     * @returns 
+     */
+    readBlockList(handler) {
+        if (null == this.db) {
+            return false;
+        }
+
+        (async () => {
+            let result = await this.configStore.get('blockList');
+            if (null != result && result.length > 0) {
+                handler(result[0].list);
+            }
+            else {
+                handler([]);
+            }
+        })();
+
+        return true;
+    }
+
+    /**
+     * 写入阻止联系人的列表。
+     * @param {Array<number>} list 
+     * @returns 
+     */
+    writeBlockList(list) {
+        if (null == this.db) {
+            return false;
+        }
+
+        (async () => {
+            let data = {
+                "item": "blockList",
+                "list": list
+            };
+            await this.configStore.put(data);
         })();
 
         return true;

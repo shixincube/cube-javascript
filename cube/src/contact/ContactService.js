@@ -312,6 +312,9 @@ export class ContactService extends Module {
             cell.Logger.d('ContactService', 'List groups number: ' + groupList.length);
         });
 
+        // 更新阻止列表
+        this.listBlockList();
+
         // 更新置顶列表
         this.listTopList();
 
@@ -2105,6 +2108,119 @@ export class ContactService extends Module {
         }, (error) => {
             if (handleFailure) {
                 handleFailure(error);
+            }
+        });
+    }
+
+    /**
+     * @private
+     * @param {*} handleSuccess 
+     * @param {*} handleFailure 
+     */
+    listBlockList(handleSuccess, handleFailure) {
+        let packet = new Packet(ContactAction.BlockList, {
+            "action": "get"
+        });
+        this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, 'get');
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            if (responsePacket.data.code != ContactServiceState.Ok) {
+                let error = new ModuleError(ContactService.NAME, responsePacket.data.code, 'get');
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            let list = responsePacket.data.data.list;
+
+            // 更新列表
+            this.storage.writeBlockList(list);
+
+            if (handleSuccess) {
+                handleSuccess(list);
+            }
+        });
+    }
+
+    queryBlockList(handleSuccess, handleFailure) {
+        if (!this.storage.readBlockList((list) => {
+            handleSuccess(list);
+        })) {
+            if (handleFailure) {
+                handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.IllegalOperation, null));
+            }
+        }
+    }
+
+    addBlockList(contact, handleSuccess, handleFailure) {
+        let contactId = (contact instanceof Contact) ? contact.getId() : contact;
+        let packet = new Packet(ContactAction.BlockList, {
+            "action": "add",
+            "blockId": contactId
+        });
+        this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, contactId);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            if (responsePacket.data.code != ContactServiceState.Ok) {
+                let error = new ModuleError(ContactService.NAME, responsePacket.data.code, contactId);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            let data = responsePacket.data.data;
+            // 更新到存储
+            this.storage.writeBlockList(data.list);
+
+            if (handleSuccess) {
+                handleSuccess(contactId, data.list);
+            }
+        });
+    }
+
+    removeBlockList(contact, handleSuccess, handleFailure) {
+        let contactId = (contact instanceof Contact) ? contact.getId() : contact;
+        let packet = new Packet(ContactAction.BlockList, {
+            "action": "remove",
+            "blockId": contactId
+        });
+        this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, contactId);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            if (responsePacket.data.code != ContactServiceState.Ok) {
+                let error = new ModuleError(ContactService.NAME, responsePacket.data.code, contactId);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            let data = responsePacket.data.data;
+            // 更新到存储
+            this.storage.writeBlockList(data.list);
+
+            if (handleSuccess) {
+                handleSuccess(contactId, data.list);
             }
         });
     }

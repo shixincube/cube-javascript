@@ -83,6 +83,7 @@
         panelEl = $('.emoji-panel');
         panelEl.on('mouseover', mouseover);
         panelEl.on('mouseout', mouseout);
+        panelEl.blur(blur);
 
         panelEl.find('.emoji').on('mouseover', emojiMouseover);
         panelEl.find('.emoji').on('mouseout', emojiMouseout);
@@ -104,10 +105,26 @@
         panelEl.css('left', left + 'px');
         panelEl.css('top', top + 'px');
         panelEl.css('display', 'block');
+
+        if (hideTimer > 0) {
+            clearTimeout(hideTimer);
+            hideTimer = 0;
+        }
     }
 
     EmojiPanel.prototype.hide = function() {
         panelEl.css('display', 'none');
+    }
+
+    EmojiPanel.prototype.tryHide = function() {
+        if (hideTimer > 0) {
+            clearTimeout(hideTimer);
+            hideTimer = 0;
+        }
+
+        hideTimer = setTimeout(function() {
+            that.hide();
+        }, 500);
     }
 
     EmojiPanel.prototype.loadRecent = function() {

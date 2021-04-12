@@ -174,6 +174,12 @@
             }
             that.emojiPanel.show(that.btnEmoji);
         });
+        this.btnEmoji.on('mouseout', function() {
+            if (null == that.current) {
+                return;
+            }
+            that.emojiPanel.tryHide();
+        });
 
         // 发送文件
         this.btnSendFile = el.find('button[data-target="send-file"]');

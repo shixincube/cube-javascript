@@ -150,6 +150,12 @@ export const ContactAction = {
     UpdateAppendix: 'updateAppendix',
 
     /**
+     * 联系人的阻止列表操作。
+     * @type {string}
+     */
+    BlockList: 'blockList',
+
+    /**
      * 置顶操作。
      * @type {string}
      */

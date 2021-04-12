@@ -1421,6 +1421,7 @@ export class MessagingService extends Module {
                             this.refreshLastMessageTime(respMessage);
 
                             if (responsePacket.data.code == MessagingServiceState.Ok) {
+                                // 更新状态
                                 respMessage.state = responseData.state;
 
                                 let event = new ObservableEvent(MessagingEvent.Sent, respMessage);
