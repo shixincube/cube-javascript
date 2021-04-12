@@ -295,6 +295,29 @@ body {
     border-radius: 10%;
 }
 
+.no-record {
+    display: table;
+    position: absolute;
+    width: 100%;
+    height: calc(100vh - 220px);
+    float: left;
+    top: 43px;
+    left: 0;
+    background: url(../images/bg-no-record.png) no-repeat center;
+    background-size: 150px auto;
+    text-align: center;
+}
+.no-record div {
+    display: table-cell;
+    vertical-align: middle;
+    font-size: 14px;
+    color: #6c757d;
+}
+.no-record div p {
+    padding-top: 120px;
+    margin-bottom: 0;
+}
+
 .no-message {
     display: table;
     height: 100%;

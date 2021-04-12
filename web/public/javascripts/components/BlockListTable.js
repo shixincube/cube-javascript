@@ -61,9 +61,11 @@
         if (blockList.length == 0) {
             tbodyEl.empty();
             pagingEl.css('visibility', 'hidden');
+            container.find('.no-record').css('display', 'table');
             return;
         }
 
+        container.find('.no-record').css('display', 'none');
         pagingEl.css('visibility', 'visible');
 
         blockIdList = blockList;

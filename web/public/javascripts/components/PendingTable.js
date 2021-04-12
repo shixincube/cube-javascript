@@ -54,6 +54,16 @@
     }
 
     PendingTable.prototype.update = function(entities) {
+        if (entities.length == 0) {
+            tbodyEl.empty();
+            pagingEl.css('visibility', 'hidden');
+            container.find('.no-record').css('display', 'table');
+            return;
+        }
+
+        container.find('.no-record').css('display', 'none');
+        pagingEl.css('visibility', 'visible');
+
         entityList = entities;
 
         entityList.sort(function(a, b) {

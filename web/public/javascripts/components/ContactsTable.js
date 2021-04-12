@@ -54,6 +54,16 @@
     }
 
     ContactsTable.prototype.update = function(contacts) {
+        if (contacts.length == 0) {
+            tbodyEl.empty();
+            pagingEl.css('visibility', 'hidden');
+            container.find('.no-record').css('display', 'table');
+            return;
+        }
+
+        container.find('.no-record').css('display', 'none');
+        pagingEl.css('visibility', 'visible');
+
         contactList = contacts;
 
         contactList.sort(function(a, b) {

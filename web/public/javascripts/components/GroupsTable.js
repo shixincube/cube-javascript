@@ -54,6 +54,16 @@
     }
 
     GroupsTable.prototype.update = function(groups) {
+        if (groups.length == 0) {
+            tbodyEl.empty();
+            pagingEl.css('visibility', 'hidden');
+            container.find('.no-record').css('display', 'table');
+            return;
+        }
+
+        container.find('.no-record').css('display', 'none');
+        pagingEl.css('visibility', 'visible');
+
         groupList = groups;
 
         groupList.sort(function(a, b) {
