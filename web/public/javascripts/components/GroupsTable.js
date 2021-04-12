@@ -25,7 +25,6 @@
  */
 
  (function(g) {
-    'use strict';
 
     var that = null;
 
@@ -218,3 +217,4 @@
     g.GroupsTable = GroupsTable;
 
  })(window);
+ 

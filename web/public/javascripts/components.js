@@ -6564,7 +6564,6 @@
 })(window);
 
  (function(g) {
-    'use strict';
 
     var that = null;
 
@@ -6687,6 +6686,7 @@
                         '<a class="btn btn-primary btn-sm" href="javascript:app.contactsCtrl.goToMessaging(', i, ');"><i class="fas fa-comments"></i> 发消息</a>',
                         '<a class="btn btn-info btn-sm" href="javascript:app.contactsCtrl.editRemark(', i, ');" style="margin-left:8px;"><i class="fas fa-pencil-alt"></i> 备注</a>',
                         '<a class="btn btn-danger btn-sm" href="javascript:app.contactsCtrl.remove(', i, ');" style="margin-left:8px;"><i class="fas fa-user-minus"></i> 删除</a>',
+                        '<a class="btn btn-secondary btn-sm" href="javascript:app.contactsCtrl.blockContact(', i, ');" style="margin-left:8px;"><i class="fas fa-user-slash"></i> 黑名单</a>',
                     '</td>',
                 '</tr>'
             ];
@@ -6731,8 +6731,8 @@
     g.ContactsTable = ContactsTable;
 
  })(window);
+ 
  (function(g) {
-    'use strict';
 
     var that = null;
 
@@ -6925,8 +6925,8 @@
     g.GroupsTable = GroupsTable;
 
  })(window);
+ 
  (function(g) {
-    'use strict';
 
     var that = null;
 
@@ -7028,25 +7028,6 @@
             var entity = entities[i];
             var avatar = (entity instanceof Group) ? 'images/group-avatar.png' : 'images/' + entity.getContext().avatar;
 
-            /*
-            var html = [
-                '<tr data-target="', i, '">',
-                    '<td>', (page - 1) * 10 + (i + 1), '</td>',
-                    '<td><img class="table-avatar" src="', avatar, '" /></td>',
-                    '<td>', entity.getName(), '</td>',
-                    '<td class="text-muted">', appendix.hasRemark() ? appendix.getRemark() : '', '</td>',
-                    '<td>', entity.getId(), '</td>',
-                    '<td>', appendix.getNotice(), '</td>',
-                    '<td class="members">', '</td>',
-                    '<td class="text-right">',
-                        '<a class="btn btn-primary btn-sm" href="javascript:app.contactsCtrl.goToMessaging(', i, ');"><i class="fas fa-comments"></i> 发消息</a>',
-                        '<a class="btn btn-info btn-sm" href="javascript:app.contactsCtrl.editRemark(', i, ');" style="margin-left:8px;"><i class="fas fa-pencil-alt"></i> 备注</a>',
-                    '</td>',
-                '</tr>'
-            ];
-            tbodyEl.append($(html.join('')));
-            */
-
             var html = [
                 '<tr data-target="', i, '">',
                     '<td>', (page - 1) * 10 + (i + 1), '</td>',
@@ -7100,6 +7081,210 @@
     g.PendingTable = PendingTable;
 
  })(window);
+ 
+/**
+ * 阻止清单表格。
+ */
+(function(g) {
+
+    var that;
+
+    var container;
+    var tableEl = null;
+    var tbodyEl = null;
+    var pagingEl = null;
+
+    var currentPage = null;
+
+    var pagination = 1;
+    var pageSize = 10;
+    var maxPagination = 0;
+
+    var blockIdList = null;
+    var contactList = null;
+
+    var BlockListTable = function(el) {
+        that = this;
+        container = el;
+        tableEl = el.find('.table');
+        tbodyEl = tableEl.find('tbody');
+        pagingEl = el.find('.pagination');
+    }
+
+    BlockListTable.prototype.getCurrentContact = function(index) {
+        return currentPage[index];
+    }
+
+    BlockListTable.prototype.update = function(blockList) {
+        if (blockList.length == 0) {
+            tbodyEl.empty();
+            pagingEl.css('visibility', 'hidden');
+            return;
+        }
+
+        pagingEl.css('visibility', 'visible');
+
+        blockIdList = blockList;
+        blockIdList.reverse();
+
+        contactList = [];
+        for (var i = 0; i < blockIdList.length; ++i) {
+            contactList.push(null);
+        }
+
+        var count = 0;
+        var limit = Math.min(blockIdList.length, pageSize);
+
+        for (var i = 0; i < blockIdList.length && i < pageSize; ++i) {
+            var id = blockIdList[i];
+            // 获取联系人数据
+            g.app.getContact(id, function(contact) {
+                // 计数
+                ++count;
+
+                var index = blockIdList.indexOf(contact.getId());
+                contactList[index] = contact;
+
+                if (count == limit) {
+                    that.handleUpdate();
+                }
+            });
+        }
+    }
+
+    BlockListTable.prototype.handleUpdate = function() {
+        currentPage = [];
+        for (var i = 0; i < pageSize && i < contactList.length; ++i) {
+            currentPage.push(contactList[i]);
+        }
+
+        // 分页
+        maxPagination = Math.ceil(blockIdList.length / pageSize);
+        this.paging(maxPagination);
+
+        // 显示指定页
+        // 第一页
+        pagination = 0;
+        this.show(1, currentPage);
+    }
+
+    BlockListTable.prototype.showPage = function(newPagination) {
+        if (pagination == newPagination) {
+            return;
+        }
+
+        if (newPagination < 1 || newPagination > maxPagination) {
+            return;
+        }
+
+        var curIndexList = [];
+        for (var i = (newPagination - 1) * pageSize; i < blockIdList.length && curIndexList.length < pageSize; ++i) {
+            curIndexList.push(i);
+        }
+
+        var handle = function() {
+            if (curIndexList.length == currentPage.length) {
+                // 更新表格
+                that.show(newPagination, currentPage);
+            }
+        }
+
+        currentPage = [];
+
+        // 判断当前索引处是否有数据
+        for (var i = 0; i < curIndexList.length; ++i) {
+            var index = curIndexList[i];
+            var contact = contactList[index];
+            if (null == contact) {
+                var id = blockIdList[index];
+                g.app.getContact(id, function(contact) {
+                    currentPage.push(contact);
+                    handle();
+                });
+            }
+            else {
+                currentPage.push(contact);
+            }
+
+            handle();
+        }
+    }
+
+    BlockListTable.prototype.paging = function(num) {
+        var html = [
+            '<li class="page-item"><a class="page-link" href="javascript:app.contactsCtrl.prevPage();">«</a></li>'
+        ];
+
+        for (var i = 1; i <= num; ++i) {
+            html.push('<li class="page-item page-' + i + '"><a class="page-link" href="javascript:app.contactsCtrl.showPage(' + i + ');">' + i + '</a></li>');
+        }
+
+        html.push('<li class="page-item"><a class="page-link" href="javascript:app.contactsCtrl.nextPage();">»</a></li>');
+
+        pagingEl.html(html.join(''));
+    }
+
+    BlockListTable.prototype.show = function(page, entities) {
+        if (page == pagination) {
+            return;
+        }
+
+        if (pagination > 0) {
+            pagingEl.find('.page-' + pagination).removeClass('active');
+        }
+        pagingEl.find('.page-' + page).addClass('active');
+        // 更新页码
+        pagination = page;
+
+        tbodyEl.empty();
+
+        for (var i = 0; i < entities.length; ++i) {
+            var entity = entities[i];
+            var avatar = 'images/' + entity.getContext().avatar;
+
+            var html = [
+                '<tr data-target="', i, '">',
+                    '<td>', (page - 1) * 10 + (i + 1), '</td>',
+                    '<td><img class="table-avatar" src="', avatar, '" /></td>',
+                    '<td>', entity.getName(), '</td>',
+                    '<td>', entity.getId(), '</td>',
+                    '<td class="text-right">',
+                        '<a class="btn btn-danger btn-sm" href="javascript:app.contactsCtrl.unblockContact(', i, ');"><i class="fas fa-user-times"></i> 解除阻止</a>',
+                    '</td>',
+                '</tr>'
+            ];
+            tbodyEl.append($(html.join('')));
+        }
+    }
+
+    /**
+     * 切换到上一页。
+     */
+    BlockListTable.prototype.prevPage = function() {
+        if (pagination == 1) {
+            return;
+        }
+
+        var page = pagination - 1;
+        this.showPage(page);
+    }
+
+    /**
+     * 切换到下一页。
+     */
+    BlockListTable.prototype.nextPage = function() {
+        if (pagination == maxPagination) {
+            return;
+        }
+
+        var page = pagination + 1;
+        this.showPage(page);
+    }
+
+    g.BlockListTable = BlockListTable;
+
+})(window);
+
  (function(g) {
     'use strict';
 
@@ -7116,6 +7301,7 @@
     var contactsTable = null;
     var groupsTable = null;
     var pendingTable = null;
+    var blockTable = null;
 
     var currentTable = null;
 
@@ -7144,8 +7330,11 @@
         else if (e.target.id == 'contacts-tabs-groups-tab') {
             currentTable = groupsTable;
         }
-        else {
+        else if (e.target.id == 'contacts-tabs-pending-tab') {
             currentTable = pendingTable;
+        }
+        else {
+            currentTable = blockTable;
         }
     }
 
@@ -7166,6 +7355,8 @@
         groupsTable = new GroupsTable($('div[data-target="groups-table"]'));
 
         pendingTable = new PendingTable($('div[data-target="pending-table"]'));
+
+        blockTable = new BlockListTable($('div[data-target="block-table"]'));
 
         btnAddContact = $('.contacts-card').find('a[data-target="add-contact"]');
         btnAddContact.on('click', function() {
@@ -7213,6 +7404,11 @@
             }
         }, function(error) {
             console.log(error);
+        });
+
+        // 更新阻止清单
+        cube.contact.queryBlockList(function(list) {
+            blockTable.update(list);
         });
     }
 
@@ -7398,6 +7594,24 @@
     }
 
     /**
+     * 加入黑名单。
+     * @param {number} index 
+     */
+    ContactsController.prototype.blockContact = function(index) {
+        var contact = contactsTable.getCurrentContact(index);
+        g.dialog.showConfirm('阻止联系人', '您确认要将“<b>' + contact.getPriorityName() + '</b>”加入“黑名单”吗？', function(yesOrNo) {
+            if (yesOrNo) {
+                cube.contact.addBlockList(contact.getId(), function(id, blockList) {
+                    // 从数据中删除
+                    that.removeContact(contact);
+                    // 更新黑名单
+                    blockTable.update(blockList);
+                });
+            }
+        });
+    }
+
+    /**
      * 同意添加联系人。
      * @param {number} index 
      */
@@ -7422,7 +7636,7 @@
      * @param {string} zoneName
      * @param {number} contactId 
      * @param {string} postscript
-     * @param {function} callback
+     * @param {function} [callback]
      */
     ContactsController.prototype.addContactToZone = function(zoneName, contactId, postscript, callback) {
         cube.contact.addContactToZone(zoneName, contactId, postscript, function(zoneName, contactId) {
@@ -7436,6 +7650,24 @@
             console.log(error);
             if (callback) {
                 callback(null);
+            }
+        });
+    }
+
+    /**
+     * 从黑名单列表里解除联系人。
+     * @param {number} index
+     */
+    ContactsController.prototype.unblockContact = function(index) {
+        var contact = blockTable.getCurrentContact(index);
+        g.dialog.showConfirm('解除阻止', '您确认要将“<b>' + contact.getPriorityName() + '</b>”移出“黑名单”并添加为“我的联系人”吗？', function(yesOrNo) {
+            if (yesOrNo) {
+                cube.contact.removeBlockList(contact, function(id, blockList) {
+                    // 更新黑名单
+                    blockTable.update(blockList);
+                    // 添加到 Zone
+                    that.addContactToZone(g.app.contactZone, id, '');
+                });
             }
         });
     }
@@ -8185,7 +8417,6 @@
  * 事件监听器。
  */
 (function(g) {
-    'use strict';
 
     var cube = null;
     var sidebarLogEl = null;

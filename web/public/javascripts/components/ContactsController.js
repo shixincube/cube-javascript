@@ -40,6 +40,7 @@
     var contactsTable = null;
     var groupsTable = null;
     var pendingTable = null;
+    var blockTable = null;
 
     var currentTable = null;
 
@@ -68,8 +69,11 @@
         else if (e.target.id == 'contacts-tabs-groups-tab') {
             currentTable = groupsTable;
         }
-        else {
+        else if (e.target.id == 'contacts-tabs-pending-tab') {
             currentTable = pendingTable;
+        }
+        else {
+            currentTable = blockTable;
         }
     }
 
@@ -90,6 +94,8 @@
         groupsTable = new GroupsTable($('div[data-target="groups-table"]'));
 
         pendingTable = new PendingTable($('div[data-target="pending-table"]'));
+
+        blockTable = new BlockListTable($('div[data-target="block-table"]'));
 
         btnAddContact = $('.contacts-card').find('a[data-target="add-contact"]');
         btnAddContact.on('click', function() {
@@ -137,6 +143,11 @@
             }
         }, function(error) {
             console.log(error);
+        });
+
+        // 更新阻止清单
+        cube.contact.queryBlockList(function(list) {
+            blockTable.update(list);
         });
     }
 
@@ -322,6 +333,24 @@
     }
 
     /**
+     * 加入黑名单。
+     * @param {number} index 
+     */
+    ContactsController.prototype.blockContact = function(index) {
+        var contact = contactsTable.getCurrentContact(index);
+        g.dialog.showConfirm('阻止联系人', '您确认要将“<b>' + contact.getPriorityName() + '</b>”加入“黑名单”吗？', function(yesOrNo) {
+            if (yesOrNo) {
+                cube.contact.addBlockList(contact.getId(), function(id, blockList) {
+                    // 从数据中删除
+                    that.removeContact(contact);
+                    // 更新黑名单
+                    blockTable.update(blockList);
+                });
+            }
+        });
+    }
+
+    /**
      * 同意添加联系人。
      * @param {number} index 
      */
@@ -346,7 +375,7 @@
      * @param {string} zoneName
      * @param {number} contactId 
      * @param {string} postscript
-     * @param {function} callback
+     * @param {function} [callback]
      */
     ContactsController.prototype.addContactToZone = function(zoneName, contactId, postscript, callback) {
         cube.contact.addContactToZone(zoneName, contactId, postscript, function(zoneName, contactId) {
@@ -360,6 +389,24 @@
             console.log(error);
             if (callback) {
                 callback(null);
+            }
+        });
+    }
+
+    /**
+     * 从黑名单列表里解除联系人。
+     * @param {number} index
+     */
+    ContactsController.prototype.unblockContact = function(index) {
+        var contact = blockTable.getCurrentContact(index);
+        g.dialog.showConfirm('解除阻止', '您确认要将“<b>' + contact.getPriorityName() + '</b>”移出“黑名单”并添加为“我的联系人”吗？', function(yesOrNo) {
+            if (yesOrNo) {
+                cube.contact.removeBlockList(contact, function(id, blockList) {
+                    // 更新黑名单
+                    blockTable.update(blockList);
+                    // 添加到 Zone
+                    that.addContactToZone(g.app.contactZone, id, '');
+                });
             }
         });
     }

@@ -28,6 +28,7 @@ const fileList = [
     'ContactsTable.js',
     'GroupsTable.js',
     'PendingTable.js',
+    'BlockListTable.js',
     'ContactsController.js',
     'ConferenceTimeline.js',
     'ConferenceController.js',

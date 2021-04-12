@@ -2113,9 +2113,10 @@ export class ContactService extends Module {
     }
 
     /**
+     * 从服务更新阻止清单列表。
      * @private
-     * @param {*} handleSuccess 
-     * @param {*} handleFailure 
+     * @param {function} [handleSuccess] 
+     * @param {function} [handleFailure] 
      */
     listBlockList(handleSuccess, handleFailure) {
         let packet = new Packet(ContactAction.BlockList, {
@@ -2149,6 +2150,11 @@ export class ContactService extends Module {
         });
     }
 
+    /**
+     * 查询当前联系人的阻止清单。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode list}:{@linkcode Array})。 被阻止的联系人的 ID 列表。
+     * @param {function} [handleFailure] 失败回调，参数：({@linkcode error}:{@link ModuleError}) 。
+     */
     queryBlockList(handleSuccess, handleFailure) {
         if (!this.storage.readBlockList((list) => {
             handleSuccess(list);
@@ -2159,8 +2165,18 @@ export class ContactService extends Module {
         }
     }
 
+    /**
+     * 将指定联系人添加到阻止清单。
+     * @param {Contact|number} contact 指定联系人或联系人 ID 。
+     * @param {function} [handleSuccess] 成功回调。参数：({@linkcode id}:{@linkcode number}, {@linkcode blockList}:{@linkcode Array})。
+     * @param {function} [handleFailure] 失败回调，参数：({@linkcode error}:{@link ModuleError}) 。
+     */
     addBlockList(contact, handleSuccess, handleFailure) {
         let contactId = (contact instanceof Contact) ? contact.getId() : contact;
+        if (contactId == this.self.getId()) {
+            return;
+        }
+
         let packet = new Packet(ContactAction.BlockList, {
             "action": "add",
             "blockId": contactId
@@ -2192,6 +2208,12 @@ export class ContactService extends Module {
         });
     }
 
+    /**
+     * 从阻止清单移除联系人。
+     * @param {Contact|number} contact 指定联系人或联系人 ID 。
+     * @param {function} [handleSuccess] 成功回调。参数：({@linkcode id}:{@linkcode number}, {@linkcode blockList}:{@linkcode Array})。
+     * @param {function} [handleFailure] 失败回调，参数：({@linkcode error}:{@link ModuleError}) 。
+     */
     removeBlockList(contact, handleSuccess, handleFailure) {
         let contactId = (contact instanceof Contact) ? contact.getId() : contact;
         let packet = new Packet(ContactAction.BlockList, {

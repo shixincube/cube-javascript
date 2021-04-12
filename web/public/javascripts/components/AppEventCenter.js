@@ -28,7 +28,6 @@
  * 事件监听器。
  */
 (function(g) {
-    'use strict';
 
     var cube = null;
     var sidebarLogEl = null;

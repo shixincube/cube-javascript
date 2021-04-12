@@ -25,7 +25,6 @@
  */
 
  (function(g) {
-    'use strict';
 
     var that = null;
 
@@ -127,25 +126,6 @@
             var entity = entities[i];
             var avatar = (entity instanceof Group) ? 'images/group-avatar.png' : 'images/' + entity.getContext().avatar;
 
-            /*
-            var html = [
-                '<tr data-target="', i, '">',
-                    '<td>', (page - 1) * 10 + (i + 1), '</td>',
-                    '<td><img class="table-avatar" src="', avatar, '" /></td>',
-                    '<td>', entity.getName(), '</td>',
-                    '<td class="text-muted">', appendix.hasRemark() ? appendix.getRemark() : '', '</td>',
-                    '<td>', entity.getId(), '</td>',
-                    '<td>', appendix.getNotice(), '</td>',
-                    '<td class="members">', '</td>',
-                    '<td class="text-right">',
-                        '<a class="btn btn-primary btn-sm" href="javascript:app.contactsCtrl.goToMessaging(', i, ');"><i class="fas fa-comments"></i> 发消息</a>',
-                        '<a class="btn btn-info btn-sm" href="javascript:app.contactsCtrl.editRemark(', i, ');" style="margin-left:8px;"><i class="fas fa-pencil-alt"></i> 备注</a>',
-                    '</td>',
-                '</tr>'
-            ];
-            tbodyEl.append($(html.join('')));
-            */
-
             var html = [
                 '<tr data-target="', i, '">',
                     '<td>', (page - 1) * 10 + (i + 1), '</td>',
@@ -199,3 +179,4 @@
     g.PendingTable = PendingTable;
 
  })(window);
+ 
