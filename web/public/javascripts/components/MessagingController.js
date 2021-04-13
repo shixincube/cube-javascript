@@ -489,7 +489,9 @@
                 g.app.messagePanel.appendMessage(message.getSourceGroup(), message.getSender(), message);
             }
             else {
-                that.updateGroupMessages(message.getSourceGroup());
+                that.updateGroupMessages(message.getSourceGroup(), function() {
+                    g.app.messagePanel.appendMessage(message.getSourceGroup(), message.getSender(), message);
+                });
             }
 
             // 更新消息目录
@@ -510,11 +512,13 @@
                     g.app.messagePanel.appendMessage(message.getReceiver(), message.getSender(), message);
                 }
                 else {
-                    that.updateContactMessages(message.getReceiver());
+                    that.updateContactMessages(message.getReceiver(), function() {
+                        g.app.messagePanel.appendMessage(message.getReceiver(), message.getSender(), message);
+                    });
                 }
 
                 // 更新消息目录
-                g.app.messageCatalog.updateItem(message.getTo(), message, message.getRemoteTimestamp());
+                g.app.messageCatalog.updateItem(message.getReceiver(), message, message.getRemoteTimestamp());
 
                 that.updateUnread(message.getTo(), message);
             }
@@ -524,11 +528,13 @@
                     g.app.messagePanel.appendMessage(message.getSender(), message.getSender(), message);
                 }
                 else {
-                    that.updateContactMessages(message.getSender());
+                    that.updateContactMessages(message.getSender(), function() {
+                        g.app.messagePanel.appendMessage(message.getSender(), message.getSender(), message);
+                    });
                 }
 
                 // 更新消息目录
-                g.app.messageCatalog.updateItem(message.getFrom(), message, message.getRemoteTimestamp());
+                g.app.messageCatalog.updateItem(message.getSender(), message, message.getRemoteTimestamp());
 
                 that.updateUnread(message.getFrom(), message);
             }

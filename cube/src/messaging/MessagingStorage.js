@@ -301,21 +301,22 @@ export class MessagingStorage {
             return false;
         }
 
-        let cur = message;
         (async ()=> {
             let contained = true;
-            let value = await this.messageStore.get(cur.getId());
+            let value = await this.messageStore.get(message.getId());
             if (undefined !== value && null != value) {
-                if (value.owner == 0) {
-                    contained = false;
-                }
+                // if (value.owner == 0) {
+                //     contained = false;
+                // }
+                contained = true;
             }
             else {
                 contained = false;
             }
 
-            handler(cur, contained);
+            handler(message, contained);
         })();
+
         return true;
     }
 
