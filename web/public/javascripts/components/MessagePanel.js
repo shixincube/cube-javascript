@@ -572,16 +572,6 @@
             panel.unreadCount += 1;
         }
 
-        var right = '';
-        var nfloat = 'float-left';
-        var tfloat = 'float-right';
-
-        if (sender.getId() == g.app.getSelf().getId()) {
-            right = 'right';
-            nfloat = 'float-right';
-            tfloat = 'float-left';
-        }
-
         var text = null;
         var attachment = null;
 
@@ -617,6 +607,16 @@
         }
         else {
             return;
+        }
+
+        var right = '';
+        var nfloat = 'float-left';
+        var tfloat = 'float-right';
+
+        if (sender.getId() == g.app.getSelf().getId()) {
+            right = 'right';
+            nfloat = 'float-right';
+            tfloat = 'float-left';
         }
 
         if (null != attachment) {

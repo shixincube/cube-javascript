@@ -30,6 +30,7 @@ import { ImageMessage } from "./ImageMessage";
 import { FileMessage } from "./FileMessage";
 import { CallRecordMessage } from "./CallRecordMessage";
 import { HyperTextMessage } from "./HyperTextMessage";
+import { LocalNoteMessage } from "./LocalNoteMessage";
 
 /**
  * 消息类型插件。
@@ -63,6 +64,9 @@ export class MessageTypePlugin extends MessagePlugin {
             }
             else if (payload.type == 'call') {
                 return new CallRecordMessage(message);
+            }
+            else if (payload.type == 'localnote') {
+                return new LocalNoteMessage(message);
             }
         }
 

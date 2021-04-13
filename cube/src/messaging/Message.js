@@ -155,6 +155,15 @@ export class Message extends Entity {
          * @see MessageState
          */
         this.state = cloning ? payload.state : MessageState.Unknown;
+
+        /**
+         * 消息作用域。
+         * 0 - 无限制
+         * 1 - 仅作用于发件人
+         * @private
+         * @type {number}
+         */
+        this.scope = cloning ? payload.scope : 0;
     }
 
     /**
@@ -263,6 +272,13 @@ export class Message extends Entity {
     }
 
     /**
+     * 标记消息仅作用于发件人的设备。
+     */
+    markOnlyOwner() {
+        this.scope = 1;
+    }
+
+    /**
      * 消息是否是已读状态。
      * @returns {boolean} 如果消息是已读状态返回 {@linkcode true} 。
      */
@@ -334,6 +350,7 @@ export class Message extends Entity {
         this.localTS = src.localTS;
         this.remoteTS = src.remoteTS;
         this.state = src.state;
+        this.scope = src.scope;
         this.payload = src.payload;
         this.attachment = src.attachment;
     }
@@ -352,6 +369,7 @@ export class Message extends Entity {
         json["lts"] = this.localTS;
         json["rts"] = this.remoteTS;
         json["state"] = this.state;
+        json["scope"] = this.scope;
         json["payload"] = this.payload;
 
         if (null != this.attachment) {
@@ -377,6 +395,7 @@ export class Message extends Entity {
         message.localTS = json.lts;
         message.remoteTS = json.rts;
         message.state = json.state;
+        message.scope = json.scope;
 
         if (json.payload !== undefined) {
             message.payload = json.payload;

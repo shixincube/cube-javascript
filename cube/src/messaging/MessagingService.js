@@ -427,10 +427,6 @@ export class MessagingService extends Module {
         return msg;
     }
 
-    markLocal(message) {
-
-    }
-
     /**
      * 标记消息已读。
      * @param {Message|number} message 指定消息实例或者消息 ID 。
@@ -664,7 +660,7 @@ export class MessagingService extends Module {
      * @param {function} handler 查询结果回调函数，函数参数：({@linkcode time}:number, {@linkcode result}:Array<{@link Message}>) 。
      * @returns {boolean} 如果成功执行查询返回 {@linkcode true} 。
      */
-    queryMessage(time, handler) {
+    queryMessages(time, handler) {
         if (!this.started) {
             this.start();
         }
@@ -1570,6 +1566,9 @@ export class MessagingService extends Module {
             this.sendingMap.remove(message.getId());
 
             message.state = MessageState.Fault;
+
+            // 更新存储
+            this.storage.updateMessage(message);
 
             let error = new ModuleError(MessagingService.NAME, MessagingServiceState.ServerFault, message);
             this.notifyObservers(new ObservableEvent(MessagingEvent.Fault, error));

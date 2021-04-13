@@ -30,6 +30,7 @@ import { ImageMessage } from "./messaging/extend/ImageMessage";
 import { FileMessage } from "./messaging/extend/FileMessage";
 import { CallRecordMessage } from "./messaging/extend/CallRecordMessage";
 import { HyperTextMessage } from "./messaging/extend/HyperTextMessage";
+import { LocalNoteMessage } from "./messaging/extend/LocalNoteMessage";
 
 /**
  * 导入扩展程序。
@@ -43,5 +44,6 @@ import { HyperTextMessage } from "./messaging/extend/HyperTextMessage";
     global.FileMessage = FileMessage;
     global.CallRecordMessage = CallRecordMessage;
     global.HyperTextMessage = HyperTextMessage;
+    global.LocalNoteMessage = LocalNoteMessage;
 
 })(undefined === window.CubeNamespace ? window : window.CubeNamespace);

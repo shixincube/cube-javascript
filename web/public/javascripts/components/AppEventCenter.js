@@ -120,8 +120,6 @@
                 event.data.isFromGroup() ? event.data.getSourceGroup().getName() : event.data.getReceiver().getName()
             ];
             that.appendLog(event.name, log.join(''));
-
-            that.onMessageSendBlocked(event.data);
         });
         // 消息被接收端阻止
         cube.messaging.on(MessagingEvent.ReceiveBlocked, function(event) {
@@ -131,8 +129,6 @@
                 event.data.isFromGroup() ? event.data.getSourceGroup().getName() : event.data.getReceiver().getName()
             ];
             that.appendLog(event.name, log.join(''));
-
-            that.onMessageReceiveBlocked(event.data);
         });
     }
 
@@ -198,15 +194,6 @@
 
     AppEventCenter.prototype.onGroupMemberRemoved = function(group) {
         g.app.messagePanel.updatePanel(group.getId(), group);
-    }
-
-    AppEventCenter.prototype.onMessageSendBlocked = function(message) {
-        g.app.messagePanel.appendNote(message.getTo(),
-            '<span class="text-danger">“' + message.getReceiver().getName() + '”在你的黑名单里，不能发送消息给他！</span>');
-    }
-
-    AppEventCenter.prototype.onMessageReceiveBlocked = function(message) {
-
     }
 
     g.AppEventCenter = AppEventCenter;

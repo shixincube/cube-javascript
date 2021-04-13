@@ -811,15 +811,20 @@
         item.el = el;
 
         if (first) {
-            for (var i = 0; i < this.items.length; ++i) {
-                var curItem = this.items[i];
-                var itemIndex = this.topItems.indexOf(curItem);
-                if (itemIndex >= 0) {
-                    continue;
+            if (this.items.length == 0) {
+                this.el.append(el);
+            }
+            else {
+                for (var i = 0; i < this.items.length; ++i) {
+                    var curItem = this.items[i];
+                    var itemIndex = this.topItems.indexOf(curItem);
+                    if (itemIndex >= 0) {
+                        continue;
+                    }
+    
+                    curItem.el.before(el);
+                    break;
                 }
-
-                curItem.el.before(el);
-                break;
             }
 
             this.items.unshift(item);
@@ -993,11 +998,22 @@
             // 移除
             el.remove();
 
-            for (var i = 1; i < this.items.length; ++i) {
-                if (!this.items[i].top) {
-                    // 添加到前面
-                    this.items[i].el.before(el);
-                    break;
+            if (this.items.length == 1) {
+                this.el.append(el);
+            }
+            else {
+                var insert = false;
+                for (var i = 1; i < this.items.length; ++i) {
+                    if (!this.items[i].top) {
+                        // 添加到前面
+                        insert = true;
+                        this.items[i].el.before(el);
+                        break;
+                    }
+                }
+
+                if (!insert) {
+                    this.el.append(el);
                 }
             }
         }
@@ -1827,16 +1843,6 @@
             panel.unreadCount += 1;
         }
 
-        var right = '';
-        var nfloat = 'float-left';
-        var tfloat = 'float-right';
-
-        if (sender.getId() == g.app.getSelf().getId()) {
-            right = 'right';
-            nfloat = 'float-right';
-            tfloat = 'float-left';
-        }
-
         var text = null;
         var attachment = null;
 
@@ -1872,6 +1878,16 @@
         }
         else {
             return;
+        }
+
+        var right = '';
+        var nfloat = 'float-left';
+        var tfloat = 'float-right';
+
+        if (sender.getId() == g.app.getSelf().getId()) {
+            right = 'right';
+            nfloat = 'float-right';
+            tfloat = 'float-left';
         }
 
         if (null != attachment) {
@@ -4447,6 +4463,23 @@
         g.app.messagePanel.changeMessageState(event.data);
     }
 
+    function onMessageSendBlocked(event) {
+        var message = event.data;
+        g.app.messagePanel.changeMessageState(message);
+        g.app.messagePanel.appendNote(message.getTo(),
+            '<span class="text-danger">“' + message.getReceiver().getName() + '”在你的黑名单里，不能发送消息给他！</span>');
+    }
+
+    function onMessageReceiveBlocked(event) {
+
+    }
+
+    function onMessageFault(event) {
+        var error = event.data;
+        var message = error.data;
+    }
+
+
     /**
      * 消息模块的控制器。
      * @param {Cube} cubeEngine 
@@ -4469,10 +4502,16 @@
 
         // 监听接收消息事件
         cube.messaging.on(MessagingEvent.Notify, function(event) {
-            var message = event.data;
             // 触发 UI 事件
-            that.onNewMessage(message);
+            that.onNewMessage(event.data);
         });
+
+        // 消息被阻止
+        cube.messaging.on(MessagingEvent.SendBlocked, onMessageSendBlocked);
+        cube.messaging.on(MessagingEvent.ReceiveBlocked, onMessageReceiveBlocked);
+
+        // 发生故障
+        cube.messaging.on(MessagingEvent.Fault, onMessageFault);
     }
 
     /**
@@ -8586,8 +8625,6 @@
                 event.data.isFromGroup() ? event.data.getSourceGroup().getName() : event.data.getReceiver().getName()
             ];
             that.appendLog(event.name, log.join(''));
-
-            that.onMessageSendBlocked(event.data);
         });
         // 消息被接收端阻止
         cube.messaging.on(MessagingEvent.ReceiveBlocked, function(event) {
@@ -8597,8 +8634,6 @@
                 event.data.isFromGroup() ? event.data.getSourceGroup().getName() : event.data.getReceiver().getName()
             ];
             that.appendLog(event.name, log.join(''));
-
-            that.onMessageReceiveBlocked(event.data);
         });
     }
 
@@ -8664,15 +8699,6 @@
 
     AppEventCenter.prototype.onGroupMemberRemoved = function(group) {
         g.app.messagePanel.updatePanel(group.getId(), group);
-    }
-
-    AppEventCenter.prototype.onMessageSendBlocked = function(message) {
-        g.app.messagePanel.appendNote(message.getTo(),
-            '<span class="text-danger">“' + message.getReceiver().getName() + '”在你的黑名单里，不能发送消息给他！</span>');
-    }
-
-    AppEventCenter.prototype.onMessageReceiveBlocked = function(message) {
-
     }
 
     g.AppEventCenter = AppEventCenter;

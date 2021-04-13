@@ -54,6 +54,24 @@
         g.app.messagePanel.changeMessageState(event.data);
     }
 
+    function onMessageSendBlocked(event) {
+        var message = event.data;
+        g.app.messagePanel.changeMessageState(message);
+        // TODO xjw
+        g.app.messagePanel.appendNote(message.getTo(),
+            '<span class="text-danger">“' + message.getReceiver().getName() + '”在你的黑名单里，不能发送消息给他！</span>');
+    }
+
+    function onMessageReceiveBlocked(event) {
+
+    }
+
+    function onMessageFault(event) {
+        var error = event.data;
+        var message = error.data;
+    }
+
+
     /**
      * 消息模块的控制器。
      * @param {Cube} cubeEngine 
@@ -76,10 +94,16 @@
 
         // 监听接收消息事件
         cube.messaging.on(MessagingEvent.Notify, function(event) {
-            var message = event.data;
             // 触发 UI 事件
-            that.onNewMessage(message);
+            that.onNewMessage(event.data);
         });
+
+        // 消息被阻止
+        cube.messaging.on(MessagingEvent.SendBlocked, onMessageSendBlocked);
+        cube.messaging.on(MessagingEvent.ReceiveBlocked, onMessageReceiveBlocked);
+
+        // 发生故障
+        cube.messaging.on(MessagingEvent.Fault, onMessageFault);
     }
 
     /**
@@ -402,7 +426,9 @@
      */
     MessagingController.prototype.recallMessage = function(entity, id) {
         cube.messaging.recallMessage(id, function(message) {
+            // TODO xjw
             g.app.messagePanel.appendNote(entity, '消息已撤回 ' + g.formatFullTime(Date.now()));
+
             g.app.messagePanel.removeMessage(entity, message);
         }, function(error) {
             g.dialog.launchToast(Toast.Error,

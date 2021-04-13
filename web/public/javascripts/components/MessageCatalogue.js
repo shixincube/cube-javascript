@@ -169,15 +169,20 @@
         item.el = el;
 
         if (first) {
-            for (var i = 0; i < this.items.length; ++i) {
-                var curItem = this.items[i];
-                var itemIndex = this.topItems.indexOf(curItem);
-                if (itemIndex >= 0) {
-                    continue;
+            if (this.items.length == 0) {
+                this.el.append(el);
+            }
+            else {
+                for (var i = 0; i < this.items.length; ++i) {
+                    var curItem = this.items[i];
+                    var itemIndex = this.topItems.indexOf(curItem);
+                    if (itemIndex >= 0) {
+                        continue;
+                    }
+    
+                    curItem.el.before(el);
+                    break;
                 }
-
-                curItem.el.before(el);
-                break;
             }
 
             this.items.unshift(item);
@@ -351,11 +356,22 @@
             // 移除
             el.remove();
 
-            for (var i = 1; i < this.items.length; ++i) {
-                if (!this.items[i].top) {
-                    // 添加到前面
-                    this.items[i].el.before(el);
-                    break;
+            if (this.items.length == 1) {
+                this.el.append(el);
+            }
+            else {
+                var insert = false;
+                for (var i = 1; i < this.items.length; ++i) {
+                    if (!this.items[i].top) {
+                        // 添加到前面
+                        insert = true;
+                        this.items[i].el.before(el);
+                        break;
+                    }
+                }
+
+                if (!insert) {
+                    this.el.append(el);
                 }
             }
         }
