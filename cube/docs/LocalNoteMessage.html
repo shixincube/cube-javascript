@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>CubeEngine - Cube for Javascript</title>
+    <title>LocalNoteMessage - Cube for Javascript</title>
     
     <meta name="description" content="Cube Javascript" />
     
@@ -46,7 +46,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">CubeEngine</h1>
+    <h1 class="page-title">LocalNoteMessage</h1>
     
 
     
@@ -59,10 +59,10 @@
 <header>
     
         <h2>
-        CubeEngine
+        LocalNoteMessage
         </h2>
         
-            <div class="class-description usertext"><p>Cube Engine 入口类。</p></div>
+            <div class="class-description usertext"><p>本地笔记消息。</p></div>
         
     
 </header>
@@ -77,7 +77,7 @@
     <h2>Constructor</h2>
     
 
-    <h4 class="name" id="CubeEngine"><span class="type-signature"></span>new CubeEngine<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="LocalNoteMessage"><span class="type-signature"></span>new LocalNoteMessage<span class="signature">(param)</span><span class="type-signature"></span></h4>
 
     
 
@@ -131,6 +131,58 @@
 
 
 
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>param</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type"><a href="Message.html">Message</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>笔记文本内容。</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -162,7 +214,7 @@
         <h3 class="subsection-title">Classes</h3>
 
         <dl>
-            <dt><a href="CubeEngine.html">CubeEngine</a></dt>
+            <dt><a href="LocalNoteMessage.html">LocalNoteMessage</a></dt>
             <dd></dd>
         </dl>
     
@@ -183,7 +235,85 @@
 
     
 
-    <h4 class="name" id="start"><span class="type-signature"></span>start<span class="signature">(config, handleSuccess<span class="signature-attributes">opt</span>, handleFailure<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getSummary"><span class="type-signature"></span>getSummary<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="setText"><span class="type-signature"></span>setText<span class="signature">(text)</span><span class="type-signature"></span></h4>
 
     
 
@@ -230,564 +360,7 @@
 
 
 <div class="description usertext">
-    <p>启动引擎。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>config</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="global.html#KernelConfig">KernelConfig</a></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>配置信息。</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>handleSuccess</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>启动成功回调。</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>handleFailure</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>启动失败回调。</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="stop"><span class="type-signature"></span>stop<span class="signature">()</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>关闭引擎。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="suspend"><span class="type-signature"></span>suspend<span class="signature">()</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>挂起引擎工作。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="resume"><span class="type-signature"></span>resume<span class="signature">()</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>恢复引擎工作。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="getMainPipeline"><span class="type-signature"></span>getMainPipeline<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="Pipeline.html">Pipeline</a>}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>获取主通道实例。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>返回主通道实例。</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="Pipeline.html">Pipeline</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="getModule"><span class="type-signature"></span>getModule<span class="signature">(moduleName)</span><span class="type-signature"> &rarr; {<a href="Module.html">Module</a>}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>获取指定名称的模块。</p>
+    <p>设置笔记文本内容。</p>
 </div>
 
 
@@ -825,7 +398,7 @@
 
         <tr>
             
-                <td class="name"><code>moduleName</code></td>
+                <td class="name"><code>text</code></td>
             
 
             <td class="type">
@@ -841,7 +414,7 @@
 
             
 
-            <td class="description last"><p>指定模块名称。</p></td>
+            <td class="description last"><p>指定笔记文本内容。</p></td>
         </tr>
 
     
@@ -863,28 +436,6 @@
 
 
 
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>返回指定名称的模块。</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="Module.html">Module</a></span>
-
-
-    </dd>
-</dl>
-
-    
 
 
 
@@ -893,7 +444,7 @@
 
     
 
-    <h4 class="name" id="getContactService"><span class="type-signature"></span>getContactService<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="ContactService.html">ContactService</a>}</span></h4>
+    <h4 class="name" id="getText"><span class="type-signature"></span>getText<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
 
     
 
@@ -940,7 +491,7 @@
 
 
 <div class="description usertext">
-    <p>获取联系人服务。</p>
+    <p>获取笔记文本内容。</p>
 </div>
 
 
@@ -971,7 +522,7 @@
 
         
 <div class="param-desc">
-    <p>返回联系人模块。</p>
+    <p>返回笔记文本内容。</p>
 </div>
 
 
@@ -982,707 +533,13 @@
     </dt>
     <dd>
         
-<span class="param-type"><a href="ContactService.html">ContactService</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="getFileStorage"><span class="type-signature"></span>getFileStorage<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="FileStorage.html">FileStorage</a>}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>获取文件存储服务。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>返回文件存储模块。</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="FileStorage.html">FileStorage</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="getMessagingService"><span class="type-signature"></span>getMessagingService<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="MessagingService.html">MessagingService</a>}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>获取消息服务。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>返回消息模块。</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="MessagingService.html">MessagingService</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="getFileProcessor"><span class="type-signature"></span>getFileProcessor<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="FileProcessor.html">FileProcessor</a>}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>获取文件处理服务。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>返回文件处理模块。</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="FileProcessor.html">FileProcessor</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="getMultipointComm"><span class="type-signature"></span>getMultipointComm<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="MultipointComm.html">MultipointComm</a>}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>获取多方通讯服务。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>返回多方通讯模块。</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="MultipointComm.html">MultipointComm</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="getConferenceService"><span class="type-signature"></span>getConferenceService<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="ConferenceService.html">ConferenceService</a>}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>获取会议服务。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>返回会议服务模块。</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="ConferenceService.html">ConferenceService</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="launchFileSelector"><span class="type-signature"></span>launchFileSelector<span class="signature">(handle, accept<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>启动文件选择器。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>handle</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>文件选择回调函数。</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>accept</code></td>
-            
-
-            <td class="type">
-            
-                
 <span class="param-type">string</span>
 
 
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>input 标签的 accept 属性值。</p></td>
-        </tr>
+    </dd>
+</dl>
 
     
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1691,7 +548,7 @@
 
     
 
-    <h4 class="name" id="addLogHandler"><span class="type-signature"></span>addLogHandler<span class="signature">(handler)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setLevel"><span class="type-signature"></span>setLevel<span class="signature">(level)</span><span class="type-signature"></span></h4>
 
     
 
@@ -1738,7 +595,7 @@
 
 
 <div class="description usertext">
-    <p>添加日志监听器。</p>
+    <p>设置笔记等级。</p>
 </div>
 
 
@@ -1776,13 +633,13 @@
 
         <tr>
             
-                <td class="name"><code>handler</code></td>
+                <td class="name"><code>level</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="LogHandler.html">LogHandler</a></span>
+<span class="param-type">number</span>
 
 
             
@@ -1792,7 +649,7 @@
 
             
 
-            <td class="description last"><p>日志监听器。</p></td>
+            <td class="description last"><p>指定笔记等级。</p></td>
         </tr>
 
     
@@ -1822,7 +679,7 @@
 
     
 
-    <h4 class="name" id="removeLogHandler"><span class="type-signature"></span>removeLogHandler<span class="signature">(handler)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="getLevel"><span class="type-signature"></span>getLevel<span class="signature">()</span><span class="type-signature"> &rarr; {number}</span></h4>
 
     
 
@@ -1869,7 +726,7 @@
 
 
 <div class="description usertext">
-    <p>移除日志监听器。</p>
+    <p>获取笔记等级。</p>
 </div>
 
 
@@ -1882,69 +739,42 @@
 
 
 
-    <h5>Parameters:</h5>
-    
 
-<table class="params">
-    <thead>
-    <tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
         
-        <th>Name</th>
+<div class="param-desc">
+    <p>返回笔记等级。</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
         
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>handler</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="LogHandler.html">LogHandler</a></span>
+<span class="param-type">number</span>
 
 
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>日志监听器。</p></td>
-        </tr>
+    </dd>
+</dl>
 
     
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

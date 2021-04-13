@@ -434,8 +434,9 @@ export class MessagingService extends Module {
     }
 
     /**
-     * 
-     * @param {Message} message 
+     * 标记指定的消息为本地的自作用域消息。
+     * 该方法会触发 {@linkcode MessagingEvent.MarkOnlyOwner} 事件。
+     * @param {Message} message 指定消息。
      */
     markLocalOnlyOwner(destination, message) {
         if (!this.started) {
@@ -811,6 +812,37 @@ export class MessagingService extends Module {
 
             handler(beginning, messagers);
         });*/
+    }
+
+    /**
+     * 删除指定的最近消息列表里的联系人或群组。
+     * @param {Group|Contact|number} messager 指定需要移除的联系人或者群组。
+     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode messagerId}:{@link number}) 。
+     * @param {function} [handleFailure] 操作错误回调该方法，参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    deleteRecentMessager(messager, handleSuccess, handleFailure) {
+        if (!this.started) {
+            this.start();
+        }
+
+        let id = 0;
+        if (typeof messager === 'number') {
+            id = messager;
+        }
+        else if (messager instanceof Group) {
+            id = messager.getId();
+        }
+        else if (messager instanceof Contact) {
+            id = messager.getId();
+        }
+        else {
+            if (handleFailure) {
+                handleFailure(new ModuleError(MessagingService.NAME, MessagingServiceState.Failure, messager));
+            }
+            return;
+        }
+
+        this.storage.deleteRecentMessager(id, handleSuccess);
     }
 
     /**

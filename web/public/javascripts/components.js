@@ -4503,7 +4503,7 @@
     }
 
     /**
-     * MarkOnlyOwner
+     * Mark Only Owner
      * @param {*} event 
      */
     function onMarkOnlyOwner(event) {
@@ -4520,17 +4520,23 @@
         g.app.messagePanel.changeMessageState(message);
 
         // 全局笔记
-        var note = new LocalNoteMessage('“' + message.getReceiver().getName() + '”在你的黑名单里，不能发送消息给他！');
+        var note = new LocalNoteMessage('“' + message.getReceiver().getName() + '”在你的“黑名单”里，不能向他发送消息！');
         note.setLevel(3);
         cube.messaging.markLocalOnlyOwner(message.getReceiver(), note);
     }
 
     /**
-     * ReceiveBlocked
+     * Receive Blocked
      * @param {*} event 
      */
     function onMessageReceiveBlocked(event) {
+        var message = event.data;
+        g.app.messagePanel.changeMessageState(message);
 
+        // 全局笔记
+        var note = new LocalNoteMessage('你在“' + message.getReceiver().getName() + '”的“黑名单”里，对方拒收你的消息！');
+        note.setLevel(3);
+        cube.messaging.markLocalOnlyOwner(message.getReceiver(), note);
     }
 
     /**
@@ -5049,6 +5055,9 @@
         g.app.messageCatalog.removeItem(group);
         g.app.messagePanel.clearPanel(group.getId());
         this.hideSidebar();
+
+        // 从列表里删除
+        cube.messaging.deleteRecentMessager(group);
     }
 
     /**
@@ -5059,6 +5068,9 @@
         g.app.messageCatalog.removeItem(contact);
         g.app.messagePanel.clearPanel(contact.getId());
         this.hideSidebar();
+
+        // 从列表里删除
+        cube.messaging.deleteRecentMessager(contact);
     }
 
     g.MessagingController = MessagingController;

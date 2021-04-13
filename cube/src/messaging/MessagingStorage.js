@@ -244,7 +244,7 @@ export class MessagingStorage {
 
     /**
      * 最近记录的相关消息联系人和群组。
-     * @param {function} handler 
+     * @param {function} handler 查询结果回调函数，参数：({@linkcode list}:{@linkcode Array}) 。
      * @returns {boolean} 是否执行了查询操作。
      */
     queryRecentMessagers(handler) {
@@ -263,6 +263,27 @@ export class MessagingStorage {
                 });
             }
             handler(result);
+        })();
+
+        return true;
+    }
+
+    /**
+     * 从最近消息列表里删除指定的联系人或群组。
+     * @param {number} id 指定 ID 。
+     * @param {function} [handler] 操作结束的回调函数。参数：({@linkcode id}:{@linkcode number}) 。
+     * @returns {boolean} 是否执行了操作。
+     */
+    deleteRecentMessager(id, handler) {
+        if (null == this.db) {
+            return false;
+        }
+
+        (async ()=> {
+            await this.recentMessagerStore.delete(id);
+            if (handler) {
+                handler(id);
+            }
         })();
 
         return true;
