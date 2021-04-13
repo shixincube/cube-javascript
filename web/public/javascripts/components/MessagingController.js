@@ -39,6 +39,10 @@
     var groupSidebar = true;
     var contactSidebar = true;
 
+    function onMessageNotify(event) {
+        that.onNewMessage(event.data);
+    }
+
     function onMessageSending(event) {
         var message = event.data;
         g.app.messagePanel.appendMessage(g.app.messagePanel.current.entity, g.app.getSelf(), message);
@@ -54,12 +58,18 @@
         g.app.messagePanel.changeMessageState(event.data);
     }
 
+    function onMarkOnlyOwner(event) {
+        var message = event.data;
+        g.app.messagePanel.appendMessage(message.getReceiver(), g.app.getSelf(), message);
+    }
+
     function onMessageSendBlocked(event) {
         var message = event.data;
         g.app.messagePanel.changeMessageState(message);
-        // TODO xjw
-        g.app.messagePanel.appendNote(message.getTo(),
-            '<span class="text-danger">“' + message.getReceiver().getName() + '”在你的黑名单里，不能发送消息给他！</span>');
+
+        // 全局笔记
+        var note = new LocalNoteMessage('“' + message.getReceiver().getName() + '”在你的黑名单里，不能发送消息给他！');
+        note.setLevel(3);
     }
 
     function onMessageReceiveBlocked(event) {
@@ -93,10 +103,9 @@
         cube.messaging.on(MessagingEvent.Sent, onMessageSent);
 
         // 监听接收消息事件
-        cube.messaging.on(MessagingEvent.Notify, function(event) {
-            // 触发 UI 事件
-            that.onNewMessage(event.data);
-        });
+        cube.messaging.on(MessagingEvent.Notify, onMessageNotify);
+
+        cube.messaging.on(MessagingEvent.MarkOnlyOwner, onMarkOnlyOwner);
 
         // 消息被阻止
         cube.messaging.on(MessagingEvent.SendBlocked, onMessageSendBlocked);
@@ -542,7 +551,7 @@
         }
         else {
             panel = g.app.messagePanel.getPanel(id);
-            if (panel.unreadCount > 0) {
+            if (undefined !== panel && panel.unreadCount > 0) {
                 g.app.messageCatalog.updateBadge(id, panel.unreadCount);
             }
         }
@@ -582,6 +591,7 @@
      MessagingController.prototype.removeContact = function(contact) {
         g.app.messageCatalog.removeItem(contact);
         g.app.messagePanel.clearPanel(contact.getId());
+        this.hideSidebar();
     }
 
     g.MessagingController = MessagingController;

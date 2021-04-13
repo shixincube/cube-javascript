@@ -346,7 +346,10 @@ export class MessagingService extends Module {
                 this.storage.writeMessage(msg);
 
                 // 事件通知
-                this.notifyObservers(new ObservableEvent(MessagingEvent.Sending, msg));
+                if (msg.scope == 0) {
+                    this.notifyObservers(new ObservableEvent(MessagingEvent.Sending, msg));
+                }
+
                 resolve(msg);
             });
             promise.then((msg) => {
@@ -415,7 +418,10 @@ export class MessagingService extends Module {
                 this.storage.writeMessage(msg);
 
                 // 事件通知
-                this.notifyObservers(new ObservableEvent(MessagingEvent.Sending, msg));
+                if (msg.scope == 0) {
+                    this.notifyObservers(new ObservableEvent(MessagingEvent.Sending, msg));
+                }
+
                 resolve(msg);
             });
             promise.then((msg) => {
@@ -425,6 +431,14 @@ export class MessagingService extends Module {
         })();
 
         return msg;
+    }
+
+    /**
+     * 
+     * @param {*} message 
+     */
+    markLocalOnlyOwner(message) {
+        
     }
 
     /**
@@ -1530,7 +1544,12 @@ export class MessagingService extends Module {
                     respMessage.setAttachment(recopy.attachment);
                 }
 
-                this.notifyObservers(new ObservableEvent(MessagingEvent.Sent, respMessage));
+                if (respMessage.scope == 0) {
+                    this.notifyObservers(new ObservableEvent(MessagingEvent.Sent, respMessage));
+                }
+                else {
+                    this.notifyObservers(new ObservableEvent(MessagingEvent.MarkOnlyOwner, respMessage));
+                }
             }
             else if (responsePacket.data.code == MessagingServiceState.BeBlocked) {
                 // 更新状态

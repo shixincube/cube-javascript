@@ -1721,7 +1721,7 @@
      */
     MessagePanel.prototype.clearPanel = function(id) {
         var panel = this.panels[id.toString()];
-        if (undefined != panel) {
+        if (undefined !== panel) {
             panel.el.remove();
 
             if (this.current == panel) {
@@ -1843,6 +1843,7 @@
             panel.unreadCount += 1;
         }
 
+        var html = null;
         var text = null;
         var attachment = null;
 
@@ -1854,43 +1855,6 @@
         }
         else if (message instanceof ImageMessage || message instanceof FileMessage) {
             attachment = message.getAttachment();
-        }
-        else if (message instanceof CallRecordMessage) {
-            var icon = message.getConstraint().video ? '<i class="fas fa-video"></i>' : '<i class="fas fa-phone"></i>';
-            var answerTime = message.getAnswerTime();
-            var desc = null;
-            if (answerTime > 0) {
-                desc = '通话时长 ' + g.formatClockTick(parseInt(message.getDuration() / 1000));
-            }
-            else {
-                if (message.isCaller(g.app.getSelf().getId())) {
-                    desc = '对方未接听';
-                }
-                else {
-                    desc = '未接听';
-                }
-            }
-
-            text = [
-                '<div>', icon, '&nbsp;&nbsp;<span style="font-size:14px;">', desc, '</span></div>'
-            ];
-            text = text.join('');
-        }
-        else {
-            return;
-        }
-
-        var right = '';
-        var nfloat = 'float-left';
-        var tfloat = 'float-right';
-
-        if (sender.getId() == g.app.getSelf().getId()) {
-            right = 'right';
-            nfloat = 'float-right';
-            tfloat = 'float-left';
-        }
-
-        if (null != attachment) {
             var action = null;
             var fileDesc = null;
 
@@ -1927,29 +1891,84 @@
 
             text = fileDesc.join('');
         }
-
-        var stateDesc = [];
-        if (right.length > 0) {
-            if (message.getState() == MessageState.Sending) {
-                stateDesc.push('<div class="direct-chat-state"><i class="fas fa-spinner sending"></i></div>');
+        else if (message instanceof CallRecordMessage) {
+            var icon = message.getConstraint().video ? '<i class="fas fa-video"></i>' : '<i class="fas fa-phone"></i>';
+            var answerTime = message.getAnswerTime();
+            var desc = null;
+            if (answerTime > 0) {
+                desc = '通话时长 ' + g.formatClockTick(parseInt(message.getDuration() / 1000));
             }
-            else if (message.getState() == MessageState.SendBlocked || message.getState() == MessageState.ReceiveBlocked) {
-                stateDesc.push('<div class="direct-chat-state"><i class="fas fa-exclamation-circle fault"></i></div>');
+            else {
+                if (message.isCaller(g.app.getSelf().getId())) {
+                    desc = '对方未接听';
+                }
+                else {
+                    desc = '未接听';
+                }
+            }
+
+            text = [
+                '<div>', icon, '&nbsp;&nbsp;<span style="font-size:14px;">', desc, '</span></div>'
+            ];
+            text = text.join('');
+        }
+        else if (message instanceof LocalNoteMessage) {
+            var note = message.getText();
+            var level = message.getLevel();
+            if (1 == level) {
+                html = [
+                    '<div id="', message.getId(), '" class="note">', note, '</div>'
+                ];
+            }
+            else if (2 == level) {
+                html = [
+                    '<div id="', message.getId(), '" class="note"><span class="text-warning">', note, '</span></div>'
+                ];
+            }
+            else {
+                html = [
+                    '<div id="', message.getId(), '" class="note"><span class="text-danger">', note, '</span></div>'
+                ];
             }
         }
+        else {
+            return;
+        }
 
-        var html = ['<div id="', id, '" class="direct-chat-msg ', right, '"><div class="direct-chat-infos clearfix">',
-            '<span class="direct-chat-name ', nfloat, panel.groupable ? '' : ' no-display', '">',
-                sender.getPriorityName(),
-            '</span><span class="direct-chat-timestamp ', tfloat, '">',
-                formatFullTime(time),
-            '</span></div>',
-            // 头像
-            '<img src="images/', sender.getContext().avatar, '" class="direct-chat-img">',
-            // 状态
-            stateDesc.join(''),
-            '<div data-id="', id, '" data-owner="', right.length > 0, '" class="direct-chat-text">', text, '</div></div>'
-        ];
+        if (null == html) {
+            var right = '';
+            var nfloat = 'float-left';
+            var tfloat = 'float-right';
+    
+            if (sender.getId() == g.app.getSelf().getId()) {
+                right = 'right';
+                nfloat = 'float-right';
+                tfloat = 'float-left';
+            }
+    
+            var stateDesc = [];
+            if (right.length > 0) {
+                if (message.getState() == MessageState.Sending) {
+                    stateDesc.push('<div class="direct-chat-state"><i class="fas fa-spinner sending"></i></div>');
+                }
+                else if (message.getState() == MessageState.SendBlocked || message.getState() == MessageState.ReceiveBlocked) {
+                    stateDesc.push('<div class="direct-chat-state"><i class="fas fa-exclamation-circle fault"></i></div>');
+                }
+            }
+    
+            html = ['<div id="', id, '" class="direct-chat-msg ', right, '"><div class="direct-chat-infos clearfix">',
+                '<span class="direct-chat-name ', nfloat, panel.groupable ? '' : ' no-display', '">',
+                    sender.getPriorityName(),
+                '</span><span class="direct-chat-timestamp ', tfloat, '">',
+                    formatFullTime(time),
+                '</span></div>',
+                // 头像
+                '<img src="images/', sender.getContext().avatar, '" class="direct-chat-img">',
+                // 状态
+                stateDesc.join(''),
+                '<div data-id="', id, '" data-owner="', right.length > 0, '" class="direct-chat-text">', text, '</div></div>'
+            ];
+        }
 
         var parentEl = panel.el;
         if (index == 0) {
@@ -2283,7 +2302,9 @@
             this.formatContents.splice(0, this.formatContents.length);
             this.lastInput = '';
             // 删除草稿
-            window.cube().messaging.deleteDraft(this.current.id);
+            if (null != this.current) {
+                window.cube().messaging.deleteDraft(this.current.id);
+            }
             return;
         }
 
@@ -2296,7 +2317,9 @@
             this.formatContents.splice(0, this.formatContents.length);
             this.lastInput = '';
             // 删除草稿
-            window.cube().messaging.deleteDraft(this.current.id);
+            if (null != this.current) {
+                window.cube().messaging.deleteDraft(this.current.id);
+            }
             return;
         }
 
@@ -4448,6 +4471,10 @@
     var groupSidebar = true;
     var contactSidebar = true;
 
+    function onMessageNotify(event) {
+        that.onNewMessage(event.data);
+    }
+
     function onMessageSending(event) {
         var message = event.data;
         g.app.messagePanel.appendMessage(g.app.messagePanel.current.entity, g.app.getSelf(), message);
@@ -4463,11 +4490,18 @@
         g.app.messagePanel.changeMessageState(event.data);
     }
 
+    function onMarkOnlyOwner(event) {
+        var message = event.data;
+        g.app.messagePanel.appendMessage(message.getReceiver(), g.app.getSelf(), message);
+    }
+
     function onMessageSendBlocked(event) {
         var message = event.data;
         g.app.messagePanel.changeMessageState(message);
-        g.app.messagePanel.appendNote(message.getTo(),
-            '<span class="text-danger">“' + message.getReceiver().getName() + '”在你的黑名单里，不能发送消息给他！</span>');
+
+        // 全局笔记
+        var note = new LocalNoteMessage('“' + message.getReceiver().getName() + '”在你的黑名单里，不能发送消息给他！');
+        note.setLevel(3);
     }
 
     function onMessageReceiveBlocked(event) {
@@ -4501,10 +4535,9 @@
         cube.messaging.on(MessagingEvent.Sent, onMessageSent);
 
         // 监听接收消息事件
-        cube.messaging.on(MessagingEvent.Notify, function(event) {
-            // 触发 UI 事件
-            that.onNewMessage(event.data);
-        });
+        cube.messaging.on(MessagingEvent.Notify, onMessageNotify);
+
+        cube.messaging.on(MessagingEvent.MarkOnlyOwner, onMarkOnlyOwner);
 
         // 消息被阻止
         cube.messaging.on(MessagingEvent.SendBlocked, onMessageSendBlocked);
@@ -4834,7 +4867,9 @@
      */
     MessagingController.prototype.recallMessage = function(entity, id) {
         cube.messaging.recallMessage(id, function(message) {
+            // TODO xjw
             g.app.messagePanel.appendNote(entity, '消息已撤回 ' + g.formatFullTime(Date.now()));
+
             g.app.messagePanel.removeMessage(entity, message);
         }, function(error) {
             g.dialog.launchToast(Toast.Error,
@@ -4899,7 +4934,7 @@
         }
         else {
             // 消息来自联系人
-
+alert('xjw');
             if (g.app.account.id == message.getFrom()) {
                 // 从“我”的其他终端发送的消息
                 // 更新消息面板
@@ -4948,7 +4983,7 @@
         }
         else {
             panel = g.app.messagePanel.getPanel(id);
-            if (panel.unreadCount > 0) {
+            if (undefined !== panel && panel.unreadCount > 0) {
                 g.app.messageCatalog.updateBadge(id, panel.unreadCount);
             }
         }
@@ -4988,6 +5023,7 @@
      MessagingController.prototype.removeContact = function(contact) {
         g.app.messageCatalog.removeItem(contact);
         g.app.messagePanel.clearPanel(contact.getId());
+        this.hideSidebar();
     }
 
     g.MessagingController = MessagingController;

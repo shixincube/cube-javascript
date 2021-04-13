@@ -72,6 +72,12 @@ export const MessagingEvent = {
     Read: 'Read',
 
     /**
+     * 消息被发送到服务器成功标记为仅作用于自己设备。
+     * @type {string}
+     */
+    MarkOnlyOwner: 'MarkOnlyOwner',
+
+    /**
      * 消息被阻止发送。
      * @type {string}
      */

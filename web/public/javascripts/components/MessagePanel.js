@@ -450,7 +450,7 @@
      */
     MessagePanel.prototype.clearPanel = function(id) {
         var panel = this.panels[id.toString()];
-        if (undefined != panel) {
+        if (undefined !== panel) {
             panel.el.remove();
 
             if (this.current == panel) {
@@ -572,6 +572,7 @@
             panel.unreadCount += 1;
         }
 
+        var html = null;
         var text = null;
         var attachment = null;
 
@@ -583,43 +584,6 @@
         }
         else if (message instanceof ImageMessage || message instanceof FileMessage) {
             attachment = message.getAttachment();
-        }
-        else if (message instanceof CallRecordMessage) {
-            var icon = message.getConstraint().video ? '<i class="fas fa-video"></i>' : '<i class="fas fa-phone"></i>';
-            var answerTime = message.getAnswerTime();
-            var desc = null;
-            if (answerTime > 0) {
-                desc = '通话时长 ' + g.formatClockTick(parseInt(message.getDuration() / 1000));
-            }
-            else {
-                if (message.isCaller(g.app.getSelf().getId())) {
-                    desc = '对方未接听';
-                }
-                else {
-                    desc = '未接听';
-                }
-            }
-
-            text = [
-                '<div>', icon, '&nbsp;&nbsp;<span style="font-size:14px;">', desc, '</span></div>'
-            ];
-            text = text.join('');
-        }
-        else {
-            return;
-        }
-
-        var right = '';
-        var nfloat = 'float-left';
-        var tfloat = 'float-right';
-
-        if (sender.getId() == g.app.getSelf().getId()) {
-            right = 'right';
-            nfloat = 'float-right';
-            tfloat = 'float-left';
-        }
-
-        if (null != attachment) {
             var action = null;
             var fileDesc = null;
 
@@ -656,29 +620,84 @@
 
             text = fileDesc.join('');
         }
-
-        var stateDesc = [];
-        if (right.length > 0) {
-            if (message.getState() == MessageState.Sending) {
-                stateDesc.push('<div class="direct-chat-state"><i class="fas fa-spinner sending"></i></div>');
+        else if (message instanceof CallRecordMessage) {
+            var icon = message.getConstraint().video ? '<i class="fas fa-video"></i>' : '<i class="fas fa-phone"></i>';
+            var answerTime = message.getAnswerTime();
+            var desc = null;
+            if (answerTime > 0) {
+                desc = '通话时长 ' + g.formatClockTick(parseInt(message.getDuration() / 1000));
             }
-            else if (message.getState() == MessageState.SendBlocked || message.getState() == MessageState.ReceiveBlocked) {
-                stateDesc.push('<div class="direct-chat-state"><i class="fas fa-exclamation-circle fault"></i></div>');
+            else {
+                if (message.isCaller(g.app.getSelf().getId())) {
+                    desc = '对方未接听';
+                }
+                else {
+                    desc = '未接听';
+                }
+            }
+
+            text = [
+                '<div>', icon, '&nbsp;&nbsp;<span style="font-size:14px;">', desc, '</span></div>'
+            ];
+            text = text.join('');
+        }
+        else if (message instanceof LocalNoteMessage) {
+            var note = message.getText();
+            var level = message.getLevel();
+            if (1 == level) {
+                html = [
+                    '<div id="', message.getId(), '" class="note">', note, '</div>'
+                ];
+            }
+            else if (2 == level) {
+                html = [
+                    '<div id="', message.getId(), '" class="note"><span class="text-warning">', note, '</span></div>'
+                ];
+            }
+            else {
+                html = [
+                    '<div id="', message.getId(), '" class="note"><span class="text-danger">', note, '</span></div>'
+                ];
             }
         }
+        else {
+            return;
+        }
 
-        var html = ['<div id="', id, '" class="direct-chat-msg ', right, '"><div class="direct-chat-infos clearfix">',
-            '<span class="direct-chat-name ', nfloat, panel.groupable ? '' : ' no-display', '">',
-                sender.getPriorityName(),
-            '</span><span class="direct-chat-timestamp ', tfloat, '">',
-                formatFullTime(time),
-            '</span></div>',
-            // 头像
-            '<img src="images/', sender.getContext().avatar, '" class="direct-chat-img">',
-            // 状态
-            stateDesc.join(''),
-            '<div data-id="', id, '" data-owner="', right.length > 0, '" class="direct-chat-text">', text, '</div></div>'
-        ];
+        if (null == html) {
+            var right = '';
+            var nfloat = 'float-left';
+            var tfloat = 'float-right';
+    
+            if (sender.getId() == g.app.getSelf().getId()) {
+                right = 'right';
+                nfloat = 'float-right';
+                tfloat = 'float-left';
+            }
+    
+            var stateDesc = [];
+            if (right.length > 0) {
+                if (message.getState() == MessageState.Sending) {
+                    stateDesc.push('<div class="direct-chat-state"><i class="fas fa-spinner sending"></i></div>');
+                }
+                else if (message.getState() == MessageState.SendBlocked || message.getState() == MessageState.ReceiveBlocked) {
+                    stateDesc.push('<div class="direct-chat-state"><i class="fas fa-exclamation-circle fault"></i></div>');
+                }
+            }
+    
+            html = ['<div id="', id, '" class="direct-chat-msg ', right, '"><div class="direct-chat-infos clearfix">',
+                '<span class="direct-chat-name ', nfloat, panel.groupable ? '' : ' no-display', '">',
+                    sender.getPriorityName(),
+                '</span><span class="direct-chat-timestamp ', tfloat, '">',
+                    formatFullTime(time),
+                '</span></div>',
+                // 头像
+                '<img src="images/', sender.getContext().avatar, '" class="direct-chat-img">',
+                // 状态
+                stateDesc.join(''),
+                '<div data-id="', id, '" data-owner="', right.length > 0, '" class="direct-chat-text">', text, '</div></div>'
+            ];
+        }
 
         var parentEl = panel.el;
         if (index == 0) {
@@ -1012,7 +1031,9 @@
             this.formatContents.splice(0, this.formatContents.length);
             this.lastInput = '';
             // 删除草稿
-            window.cube().messaging.deleteDraft(this.current.id);
+            if (null != this.current) {
+                window.cube().messaging.deleteDraft(this.current.id);
+            }
             return;
         }
 
@@ -1025,7 +1046,9 @@
             this.formatContents.splice(0, this.formatContents.length);
             this.lastInput = '';
             // 删除草稿
-            window.cube().messaging.deleteDraft(this.current.id);
+            if (null != this.current) {
+                window.cube().messaging.deleteDraft(this.current.id);
+            }
             return;
         }
 
