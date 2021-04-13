@@ -4471,10 +4471,18 @@
     var groupSidebar = true;
     var contactSidebar = true;
 
+    /**
+     * Notify Event
+     * @param {*} event 
+     */
     function onMessageNotify(event) {
         that.onNewMessage(event.data);
     }
 
+    /**
+     * Sending
+     * @param {*} event 
+     */
     function onMessageSending(event) {
         var message = event.data;
         g.app.messagePanel.appendMessage(g.app.messagePanel.current.entity, g.app.getSelf(), message);
@@ -4486,15 +4494,27 @@
         }
     }
 
+    /**
+     * Sent
+     * @param {*} event 
+     */
     function onMessageSent(event) {
         g.app.messagePanel.changeMessageState(event.data);
     }
 
+    /**
+     * MarkOnlyOwner
+     * @param {*} event 
+     */
     function onMarkOnlyOwner(event) {
         var message = event.data;
         g.app.messagePanel.appendMessage(message.getReceiver(), g.app.getSelf(), message);
     }
 
+    /**
+     * Send Blocked
+     * @param {*} event 
+     */
     function onMessageSendBlocked(event) {
         var message = event.data;
         g.app.messagePanel.changeMessageState(message);
@@ -4502,12 +4522,21 @@
         // 全局笔记
         var note = new LocalNoteMessage('“' + message.getReceiver().getName() + '”在你的黑名单里，不能发送消息给他！');
         note.setLevel(3);
+        cube.messaging.markLocalOnlyOwner(message.getReceiver(), note);
     }
 
+    /**
+     * ReceiveBlocked
+     * @param {*} event 
+     */
     function onMessageReceiveBlocked(event) {
 
     }
 
+    /**
+     * Fault
+     * @param {*} event 
+     */
     function onMessageFault(event) {
         var error = event.data;
         var message = error.data;

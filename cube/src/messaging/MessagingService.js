@@ -435,10 +435,34 @@ export class MessagingService extends Module {
 
     /**
      * 
-     * @param {*} message 
+     * @param {Message} message 
      */
-    markLocalOnlyOwner(message) {
-        
+    markLocalOnlyOwner(destination, message) {
+        if (!this.started) {
+            this.start();
+        }
+
+        // 标记 scope 为 1
+        message.scope = 1;
+
+        let self = this.contactService.getSelf();
+
+        message.from = self.getId();
+        message.to = destination.getId();
+        message.localTS = Date.now();
+        message.remoteTS = message.localTS + 1;
+        message.owner = self.getId();
+        message.state = MessageState.Read;
+
+        (async () => {
+            // 写入数据
+            this.storage.writeMessage(message);
+
+            // 填充数据
+            await this.fillMessage(message);
+
+            this.notifyObservers(new ObservableEvent(MessagingEvent.MarkOnlyOwner, message));
+        })();
     }
 
     /**
