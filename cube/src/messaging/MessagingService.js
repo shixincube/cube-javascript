@@ -395,6 +395,9 @@ export class MessagingService extends Module {
             return null;
         }
 
+        // 更新状态
+        msg.state = MessageState.Sending;
+
         msg.from = self.getId();
         msg.source = source;
         msg.localTS = Date.now();
@@ -422,6 +425,10 @@ export class MessagingService extends Module {
         })();
 
         return msg;
+    }
+
+    markLocal(message) {
+
     }
 
     /**
@@ -1426,8 +1433,7 @@ export class MessagingService extends Module {
             // 正在发送文件
             message.attachment.anchor = fileAnchor;
 
-            let event = new ObservableEvent(MessagingEvent.Sending, message);
-            this.notifyObservers(event);
+            this.notifyObservers(new ObservableEvent(MessagingEvent.Processing, message));
         }, (fileAnchor) => {
             // 文件发送完成
 

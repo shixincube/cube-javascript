@@ -39,6 +39,21 @@
     var groupSidebar = true;
     var contactSidebar = true;
 
+    function onMessageSending(event) {
+        var message = event.data;
+        g.app.messagePanel.appendMessage(g.app.messagePanel.current.entity, g.app.getSelf(), message);
+        if (message.isFromGroup()) {
+            g.app.messageCatalog.updateItem(message.getSource(), message, message.getRemoteTimestamp());
+        }
+        else {
+            g.app.messageCatalog.updateItem(message.getTo(), message, message.getRemoteTimestamp());
+        }
+    }
+
+    function onMessageSent(event) {
+        g.app.messagePanel.changeMessageState(event.data);
+    }
+
     /**
      * 消息模块的控制器。
      * @param {Cube} cubeEngine 
@@ -54,17 +69,10 @@
             colSidebar.addClass('no-display');
         }
 
+        // 监听消息正在发送事件
+        cube.messaging.on(MessagingEvent.Sending, onMessageSending);
         // 监听消息已发送事件
-        cube.messaging.on(MessagingEvent.Sent, function(event) {
-            var message = event.data;
-            g.app.messagePanel.appendMessage(g.app.messagePanel.current.entity, g.app.getSelf(), message);
-            if (message.isFromGroup()) {
-                g.app.messageCatalog.updateItem(message.getSource(), message, message.getRemoteTimestamp());
-            }
-            else {
-                g.app.messageCatalog.updateItem(message.getTo(), message, message.getRemoteTimestamp());
-            }
-        });
+        cube.messaging.on(MessagingEvent.Sent, onMessageSent);
 
         // 监听接收消息事件
         cube.messaging.on(MessagingEvent.Notify, function(event) {

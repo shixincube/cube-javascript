@@ -48,6 +48,12 @@ export const MessagingEvent = {
     Sending: 'Sending',
 
     /**
+     * 消息数据处理中。
+     * @type {string}
+     */
+    Processing: 'Processing',
+
+    /**
      * 消息被撤回。
      * @type {string}
      */

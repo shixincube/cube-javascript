@@ -1912,13 +1912,26 @@
             text = fileDesc.join('');
         }
 
+        var stateDesc = [];
+        if (right.length > 0) {
+            if (message.getState() == MessageState.Sending) {
+                stateDesc.push('<div class="direct-chat-state"><i class="fas fa-spinner sending"></i></div>');
+            }
+            else if (message.getState() == MessageState.SendBlocked || message.getState() == MessageState.ReceiveBlocked) {
+                stateDesc.push('<div class="direct-chat-state"><i class="fas fa-exclamation-circle fault"></i></div>');
+            }
+        }
+
         var html = ['<div id="', id, '" class="direct-chat-msg ', right, '"><div class="direct-chat-infos clearfix">',
             '<span class="direct-chat-name ', nfloat, panel.groupable ? '' : ' no-display', '">',
                 sender.getPriorityName(),
             '</span><span class="direct-chat-timestamp ', tfloat, '">',
                 formatFullTime(time),
             '</span></div>',
+            // 头像
             '<img src="images/', sender.getContext().avatar, '" class="direct-chat-img">',
+            // 状态
+            stateDesc.join(''),
             '<div data-id="', id, '" data-owner="', right.length > 0, '" class="direct-chat-text">', text, '</div></div>'
         ];
 
@@ -1949,12 +1962,29 @@
     }
 
     /**
+     * 变更消息状态。
+     * @param {Message} message 
+     */
+    MessagePanel.prototype.changeMessageState = function(message) {
+        var el = this.elContent.find('#' + message.getId()).find('.direct-chat-state');
+        if (message.getState() == MessageState.Sent) {
+            el.html('');
+        }
+        else if (message.getState() == MessageState.SendBlocked || message.getState() == MessageState.ReceiveBlocked) {
+            el.html('<i class="fas fa-exclamation-circle fault"></i>');
+        }
+        else if (message.getState() == MessageState.Sending) {
+            el.html('<i class="fas fa-spinner sending"></i>');
+        }
+    }
+
+    /**
      * 插入注解内容到消息面板。
-     * @param {Contact|Group} target 面板对应的数据实体。
+     * @param {Contact|Group|number} target 面板对应的数据实体。
      * @param {string} note 注解内容。
      */
     MessagePanel.prototype.appendNote = function(target, note) {
-        var panelId = target.getId();
+        var panelId = (typeof target === 'number') ? target : target.getId();
 
         var panel = this.panels[panelId.toString()];
         if (undefined === panel) {
@@ -4402,6 +4432,21 @@
     var groupSidebar = true;
     var contactSidebar = true;
 
+    function onMessageSending(event) {
+        var message = event.data;
+        g.app.messagePanel.appendMessage(g.app.messagePanel.current.entity, g.app.getSelf(), message);
+        if (message.isFromGroup()) {
+            g.app.messageCatalog.updateItem(message.getSource(), message, message.getRemoteTimestamp());
+        }
+        else {
+            g.app.messageCatalog.updateItem(message.getTo(), message, message.getRemoteTimestamp());
+        }
+    }
+
+    function onMessageSent(event) {
+        g.app.messagePanel.changeMessageState(event.data);
+    }
+
     /**
      * 消息模块的控制器。
      * @param {Cube} cubeEngine 
@@ -4417,17 +4462,10 @@
             colSidebar.addClass('no-display');
         }
 
+        // 监听消息正在发送事件
+        cube.messaging.on(MessagingEvent.Sending, onMessageSending);
         // 监听消息已发送事件
-        cube.messaging.on(MessagingEvent.Sent, function(event) {
-            var message = event.data;
-            g.app.messagePanel.appendMessage(g.app.messagePanel.current.entity, g.app.getSelf(), message);
-            if (message.isFromGroup()) {
-                g.app.messageCatalog.updateItem(message.getSource(), message, message.getRemoteTimestamp());
-            }
-            else {
-                g.app.messageCatalog.updateItem(message.getTo(), message, message.getRemoteTimestamp());
-            }
-        });
+        cube.messaging.on(MessagingEvent.Sent, onMessageSent);
 
         // 监听接收消息事件
         cube.messaging.on(MessagingEvent.Notify, function(event) {
@@ -8492,6 +8530,7 @@
         });
 
         // 群组相关事件
+        // 群组数据更新
         cube.contact.on(ContactEvent.GroupUpdated, function(event) {
             that.appendLog(event.name, event.data.name);
             that.onGroupUpdated(event.data);
@@ -8538,6 +8577,28 @@
             //     event.data.isFromGroup() ? event.data.getSourceGroup().getName() : event.data.getReceiver().getName()
             // ];
             // that.appendLog(event.name, log.join(''));
+        });
+        // 消息被发送端阻止
+        cube.messaging.on(MessagingEvent.SendBlocked, function(event) {
+            var log = [
+                event.data.getType(), ' - ',
+                event.data.getSender().getName(), ' -> ',
+                event.data.isFromGroup() ? event.data.getSourceGroup().getName() : event.data.getReceiver().getName()
+            ];
+            that.appendLog(event.name, log.join(''));
+
+            that.onMessageSendBlocked(event.data);
+        });
+        // 消息被接收端阻止
+        cube.messaging.on(MessagingEvent.ReceiveBlocked, function(event) {
+            var log = [
+                event.data.getType(), ' - ',
+                event.data.getSender().getName(), ' -> ',
+                event.data.isFromGroup() ? event.data.getSourceGroup().getName() : event.data.getReceiver().getName()
+            ];
+            that.appendLog(event.name, log.join(''));
+
+            that.onMessageReceiveBlocked(event.data);
         });
     }
 
@@ -8603,6 +8664,15 @@
 
     AppEventCenter.prototype.onGroupMemberRemoved = function(group) {
         g.app.messagePanel.updatePanel(group.getId(), group);
+    }
+
+    AppEventCenter.prototype.onMessageSendBlocked = function(message) {
+        g.app.messagePanel.appendNote(message.getTo(),
+            '<span class="text-danger">“' + message.getReceiver().getName() + '”在你的黑名单里，不能发送消息给他！</span>');
+    }
+
+    AppEventCenter.prototype.onMessageReceiveBlocked = function(message) {
+
     }
 
     g.AppEventCenter = AppEventCenter;

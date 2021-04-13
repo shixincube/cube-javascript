@@ -488,12 +488,24 @@ body {
     padding-left: 20px;
     padding-right: 20px;
 }
+
 .direct-chat-timestamp {
     font-size: 12px;
+    margin-right: 30px;
 }
+.right .direct-chat-timestamp {
+    font-size: 12px;
+    margin-left: 30px;
+}
+
 .direct-chat-text {
     font-size: 14px;
+    margin-right: 30px;
 }
+.right .direct-chat-text {
+    margin-left: 30px;
+}
+
 .direct-chat-text .emoji {
     font-size: 16px;
 }
@@ -516,6 +528,37 @@ body {
     color: #6c757d;
     text-align: center;
     margin: 8px 0;
+}
+
+.right .direct-chat-state {
+    float: left;
+    margin-left: 4px;
+    margin-top: 8px;
+}
+.direct-chat-state {
+    float: right;
+}
+.direct-chat-state .sending {
+    animation : rotate 3s linear infinite;
+    color: #6c757d;
+}
+.direct-chat-state .fault {
+    color: #dc3545;
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+        -webkit-transform:rotate(0deg);
+    }
+    50% {
+        transform: rotate(180deg);
+        -webkit-transform:rotate(180deg);
+    }
+    100%{
+        transform: rotate(360deg);
+        -webkit-transform:rotate(360deg);
+    }
 }
 
 #message-editor {
