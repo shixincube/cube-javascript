@@ -460,11 +460,6 @@
         else {
             // 消息来自联系人
 
-            // 判断消息状态，如果是 Blocked 状态说明消息被对方阻止
-            if (message.getState() == MessageState.Blocked) {
-                return;
-            }
-
             if (g.app.account.id == message.getFrom()) {
                 // 从“我”的其他终端发送的消息
                 // 更新消息面板

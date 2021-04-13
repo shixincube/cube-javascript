@@ -36,6 +36,12 @@ export const MessagingServiceState = {
     Ok: 0,
 
     /**
+     * 无效参数。
+     * @type {number}
+     */
+    InvalidParameter: 5,
+
+    /**
      * 遇到故障。
      * @type {number}
      */
@@ -48,34 +54,52 @@ export const MessagingServiceState = {
     InvalidDomain: 11,
 
     /**
+     * 数据结构错误。
+     * @type {number}
+     */
+    DataStructureError: 12,
+
+    /**
      * 没有域信息。
      * @type {number}
      */
-    NoDomain: 12,
+    NoDomain: 13,
 
     /**
      * 没有设备信息。
      * @type {number}
      */
-    NoDevice: 15,
+    NoDevice: 14,
 
     /**
      * 没有找到联系人。
      * @type {number}
      */
-    NoContact: 16,
+    NoContact: 15,
+
+    /**
+     * 没有找到群组。
+     * @type {number}
+     */
+    NoGroup: 16,
+
+    /**
+     * 附件错误。
+     * @type {number}
+     */
+    AttachmentError: 17,
+
+    /**
+     * 群组错误。
+     * @type {number}
+     */
+    GroupError: 18,
 
     /**
      * 被对方阻止。
      * @type {number}
      */
-    BeBlocked: 18,
-
-    /**
-     * 数据结构错误。
-     * @type {number}
-     */
-    DataStructureError: 20,
+    BeBlocked: 30,
 
     /**
      * 禁止操作。

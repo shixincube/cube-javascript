@@ -1406,50 +1406,7 @@ export class MessagingService extends Module {
                     // 发送到服务器
                     let packet = new Packet(MessagingAction.Push, message.toJSON());
                     this.pipeline.send(MessagingService.NAME, packet, (pipeline, source, responsePacket) => {
-                        if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
-                            var responseData = responsePacket.data.data;
-                            let respMessage = this.sendingMap.remove(responseData.id);
-                            if (null == respMessage) {
-                                cell.Logger.e('MessagingService', 'Can NOT find message in cache: ' + responseData.id);
-                                return;
-                            }
-
-                            // 更新时间戳
-                            respMessage.remoteTS = responseData.rts;
-
-                            // 更新最近消息时间
-                            this.refreshLastMessageTime(respMessage);
-
-                            if (responsePacket.data.code == MessagingServiceState.Ok) {
-                                // 更新状态
-                                respMessage.state = responseData.state;
-
-                                let event = new ObservableEvent(MessagingEvent.Sent, respMessage);
-                                this.notifyObservers(event);
-                            }
-                            else {
-                                cell.Logger.w('MessagingService', 'Sent failed: ' + responsePacket.data.code);
-
-                                respMessage.state = MessageState.Fault;
-
-                                // 进行事件通知
-                                let error = new ModuleError(MessagingService.NAME, responsePacket.data.code, respMessage);
-                                this.notifyObservers(new ObservableEvent(MessagingEvent.Fault, error));
-                            }
-
-                            // 更新存储
-                            this.storage.updateMessage(respMessage);
-                        }
-                        else {
-                            cell.Logger.e('MessagingService', 'Pipeline error : ' + MessagingAction.Push + ' - ' + responsePacket.getStateCode());
-
-                            this.sendingMap.remove(message.getId());
-
-                            message.state = MessageState.Fault;
-
-                            let error = new ModuleError(MessagingService.NAME, MessagingServiceState.ServerFault, message);
-                            this.notifyObservers(new ObservableEvent(MessagingEvent.Fault, error));
-                        }
+                        this._processPushResult(message, responsePacket);
                     });
                 }
             }
@@ -1480,7 +1437,10 @@ export class MessagingService extends Module {
             // 发送到服务器
             let packet = new Packet(MessagingAction.Push, message.toJSON());
             this.pipeline.send(MessagingService.NAME, packet, (pipeline, source, responsePacket) => {
-                if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+                // 处理服务返回的数据
+                this._processPushResult(message, responsePacket);
+
+                /*if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
                     // 错误处理
                     this.sendingMap.remove(message.getId());
                     message.state = MessageState.Fault;
@@ -1526,10 +1486,88 @@ export class MessagingService extends Module {
 
                 let event = new ObservableEvent(MessagingEvent.Sent, message);
                 this.notifyObservers(event);
+                */
             });
         }, (fileAnchor) => {
             // TODO 错误处理
         });
+    }
+
+    /**
+     * @private
+     * @param {Message} message 
+     * @param {Packet} responsePacket 
+     */
+    _processPushResult(message, responsePacket) {
+        if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+            // 返回的数据
+            var responseData = responsePacket.data.data;
+
+            // 获取当前应答消息的实例
+            let respMessage = this.sendingMap.remove(responseData.id);
+
+            if (null == respMessage) {
+                cell.Logger.e('MessagingService', 'Can NOT find message in cache: ' + responseData.id);
+                return;
+            }
+
+            // 更新时间戳
+            respMessage.remoteTS = responseData.rts;
+
+            // 更新最近消息时间
+            this.refreshLastMessageTime(respMessage);
+
+            if (responsePacket.data.code == MessagingServiceState.Ok) {
+                // 更新状态
+                respMessage.state = responseData.state;
+
+                // 更新附件
+                if (responseData.attachment) {
+                    let recopy = Message.create(responseData);
+                    recopy.attachment.token = this.getAuthToken().code;
+                    respMessage.setAttachment(recopy.attachment);
+                }
+
+                this.notifyObservers(new ObservableEvent(MessagingEvent.Sent, respMessage));
+            }
+            else if (responsePacket.data.code == MessagingServiceState.BeBlocked) {
+                // 更新状态
+                respMessage.state = responseData.state;
+
+                if (responseData.state == MessageState.SendBlocked) {
+                    this.notifyObservers(new ObservableEvent(MessagingEvent.SendBlocked, respMessage));
+                }
+                else if (responseData.state == MessageState.ReceiveBlocked) {
+                    this.notifyObservers(new ObservableEvent(MessagingEvent.ReceiveBlocked, respMessage));
+                }
+                else {
+                    this.notifyObservers(new ObservableEvent(MessagingEvent.Fault, respMessage));
+                }
+            }
+            else {
+                cell.Logger.w('MessagingService', 'Sent failed: ' + responsePacket.data.code);
+
+                // 更新状态
+                respMessage.state = responseData.state;
+
+                // 进行事件通知
+                let error = new ModuleError(MessagingService.NAME, responsePacket.data.code, respMessage);
+                this.notifyObservers(new ObservableEvent(MessagingEvent.Fault, error));
+            }
+
+            // 更新存储
+            this.storage.updateMessage(respMessage);
+        }
+        else {
+            cell.Logger.e('MessagingService', 'Pipeline error : ' + MessagingAction.Push + ' - ' + responsePacket.getStateCode());
+
+            this.sendingMap.remove(message.getId());
+
+            message.state = MessageState.Fault;
+
+            let error = new ModuleError(MessagingService.NAME, MessagingServiceState.ServerFault, message);
+            this.notifyObservers(new ObservableEvent(MessagingEvent.Fault, error));
+        }
     }
 
     /**

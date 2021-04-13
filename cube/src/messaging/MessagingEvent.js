@@ -66,6 +66,18 @@ export const MessagingEvent = {
     Read: 'Read',
 
     /**
+     * 消息被阻止发送。
+     * @type {string}
+     */
+    SendBlocked: 'SendBlocked',
+
+    /**
+     * 消息被阻止接收。
+     * @type {string}
+     */
+    ReceiveBlocked: 'ReceiveBlocked',
+
+    /**
      * 消息处理故障。
      * @type {string}
      */
