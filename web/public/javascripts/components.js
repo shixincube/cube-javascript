@@ -1884,8 +1884,9 @@
                 fileDesc = ['<table class="file-label" border="0" cellspacing="4" cellpodding="0">',
                     '<tr>',
                         '<td>',
-                            '<img class="thumb" src="', attachment.getDefaultThumbURL(), '" onclick="', action.join(''), '" ',
-                                'alt="', attachment.getFileName(), '"', ' />',
+                            '<img class="thumb" src="', attachment.getDefaultThumbURL(), '" onclick="', action.join(''), '"',
+                                ' onload="app.messagePanel.refreshScroll()"',
+                                ' alt="', attachment.getFileName(), '"', ' />',
                         '</td>',
                     '</tr>',
                 '</table>'];
@@ -1976,6 +1977,12 @@
         var parentEl = panel.el;
         parentEl.append($(html.join('')));
 
+        // 滚动条控制
+        var offset = parseInt(this.elContent.prop('scrollHeight'));
+        this.elContent.scrollTop(offset);
+    }
+
+    MessagePanel.prototype.refreshScroll = function() {
         // 滚动条控制
         var offset = parseInt(this.elContent.prop('scrollHeight'));
         this.elContent.scrollTop(offset);
@@ -4815,11 +4822,6 @@
         }
         else {
             // 消息来自联系人
-
-            // 判断消息状态，如果是 Blocked 状态说明消息被对方阻止
-            if (message.getState() == MessageState.Blocked) {
-                return;
-            }
 
             if (g.app.account.id == message.getFrom()) {
                 // 从“我”的其他终端发送的消息

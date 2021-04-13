@@ -629,8 +629,9 @@
                 fileDesc = ['<table class="file-label" border="0" cellspacing="4" cellpodding="0">',
                     '<tr>',
                         '<td>',
-                            '<img class="thumb" src="', attachment.getDefaultThumbURL(), '" onclick="', action.join(''), '" ',
-                                'alt="', attachment.getFileName(), '"', ' />',
+                            '<img class="thumb" src="', attachment.getDefaultThumbURL(), '" onclick="', action.join(''), '"',
+                                ' onload="app.messagePanel.refreshScroll()"',
+                                ' alt="', attachment.getFileName(), '"', ' />',
                         '</td>',
                     '</tr>',
                 '</table>'];
@@ -721,6 +722,12 @@
         var parentEl = panel.el;
         parentEl.append($(html.join('')));
 
+        // 滚动条控制
+        var offset = parseInt(this.elContent.prop('scrollHeight'));
+        this.elContent.scrollTop(offset);
+    }
+
+    MessagePanel.prototype.refreshScroll = function() {
         // 滚动条控制
         var offset = parseInt(this.elContent.prop('scrollHeight'));
         this.elContent.scrollTop(offset);
