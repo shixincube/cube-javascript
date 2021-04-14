@@ -310,11 +310,11 @@ body {
 .no-record div {
     display: table-cell;
     vertical-align: middle;
-    font-size: 14px;
+    font-size: 12px;
     color: #6c757d;
 }
 .no-record div p {
-    padding-top: 120px;
+    padding-top: 140px;
     margin-bottom: 0;
 }
 

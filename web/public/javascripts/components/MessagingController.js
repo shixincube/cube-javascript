@@ -30,7 +30,7 @@
 
     var cube = null;
 
-    var queryNum = 5;
+    var queryNum = 10;
 
     var elSelectFile = null;
 
@@ -503,6 +503,8 @@
     MessagingController.prototype.prependMore = function(id) {
         var panel = g.app.messagePanel.getPanel(id);
         var timestamp = (panel.messageTimes.length == 0) ? Date.now() : panel.messageTimes[0] - 1;
+
+        // 计数
         var count = queryNum;
 
         if (panel.groupable) {
@@ -517,6 +519,10 @@
                 else {
                     return true;
                 }
+            }, function() {
+                if (count == queryNum) {
+                    g.dialog.launchToast(Toast.Info, '没有更多消息了');
+                }
             });
         }
         else {
@@ -530,6 +536,10 @@
                 }
                 else {
                     return true;
+                }
+            }, function() {
+                if (count == queryNum) {
+                    g.dialog.launchToast(Toast.Info, '没有更多消息了');
                 }
             });
         }
@@ -615,25 +625,26 @@
         }
     }
 
+    /**
+     * 更新未读消息状态。
+     * @param {number} id 
+     * @param {Message} message 
+     */
     MessagingController.prototype.updateUnread = function(id, message) {
-        var panel = g.app.messagePanel.getCurrentPanel();
-        if (null == panel) {
-            return;
-        }
-
         if (message.isRead()) {
             return;
         }
 
-        if (panel.id == id) {
+        var panel = g.app.messagePanel.getCurrentPanel();
+        if (null != panel && panel.id == id) {
             // 将新消息标记为已读
             cube.messaging.markRead(message);
+            return;
         }
-        else {
-            panel = g.app.messagePanel.getPanel(id);
-            if (undefined !== panel && panel.unreadCount > 0) {
-                g.app.messageCatalog.updateBadge(id, panel.unreadCount);
-            }
+
+        panel = g.app.messagePanel.getPanel(id);
+        if (undefined !== panel && panel.unreadCount > 0) {
+            g.app.messageCatalog.updateBadge(id, panel.unreadCount);
         }
     }
 
