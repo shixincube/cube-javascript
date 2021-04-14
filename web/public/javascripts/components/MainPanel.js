@@ -142,7 +142,18 @@
      * 
      */
     MainPanel.prototype.playWaitingTone = function() {
+        audioWaitingTone.volume = 1.0;
 
+        if (audioWaitingTone.paused) {
+            audioWaitingTone.play();
+        }
+    }
+
+    /**
+     * 
+     */
+    MainPanel.prototype.stopWaitingTone = function() {
+        audioWaitingTone.pause();
     }
 
     g.MainPanel = MainPanel;
