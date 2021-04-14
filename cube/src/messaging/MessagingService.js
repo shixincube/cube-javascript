@@ -746,32 +746,39 @@ export class MessagingService extends Module {
             return;
         }
 
-        this.storage.queryRecentMessagers((list) => {
-            (async ()=> {
-                let messagers = [];
+        let messagers = [];
 
-                for (let i = 0; i < list.length; ++i) {
-                    let data = list[i];
-                    try {
-                        if (data.group) {
-                            let group = await this.contactService.getGroup(data.id);
-                            if (group.tag != 'public' || group.state != GroupState.Normal) {
-                                continue;
-                            }
-
-                            messagers.push(group);
-                        }
-                        else {
-                            let contact = await this.contactService.getContact(data.id);
-                            messagers.push(contact);
-                        }
-                    } catch (e) {
-                        // Nothing
-                    }
-                }
-
+        let process = (list) => {
+            if (list.length == 0) {
                 handler(messagers, beginning);
-            })();
+                return;
+            }
+
+            let data = list.shift();
+
+            if (data.group) {
+                (async ()=> {
+                    let group = await this.contactService.getGroup(data.id);
+                    if (group.tag != 'public' || group.state != GroupState.Normal) {
+                        process(list);
+                        return;
+                    }
+
+                    messagers.push(group);
+                    process(list);
+                })();
+            }
+            else {
+                (async ()=> {
+                    let contact = await this.contactService.getContact(data.id);
+                    messagers.push(contact);
+                    process(list);
+                })();
+            }
+        };
+
+        this.storage.queryRecentMessagers((list) => {
+            process(list);
         });
 
         /* 从存储里读取消息，于 2021-4-11 弃用该方案
@@ -1027,6 +1034,29 @@ export class MessagingService extends Module {
      */
     queryRecentMessagesWithContact(contactOrId, limit, handler) {
         let contactId = (typeof contactOrId === 'number') ? contactOrId : contactOrId.id;
+
+        let process = (list)=> {
+            let result = [];
+
+            (async ()=> {
+                for (let i = 0; i < list.length; ++i) {
+                    let message = list[i];
+
+                    await this.fillMessage(message);
+
+                    // Hook 实例化
+                    let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+                    let newMessage = hook.apply(message);
+
+                    result.push(newMessage);
+
+                    if (result.length == list.length) {
+                        handler(contactId, result);
+                    }
+                }
+            })();
+        };
+
         let list = [];
 
         this.storage.iterateContactMessage(contactId, Date.now(), (message) => {
@@ -1037,17 +1067,16 @@ export class MessagingService extends Module {
                     else if (a.remoteTS > b.remoteTS) return 1;
                     else return 0;
                 });
-                handler(contactId, result);
+
+                setTimeout(function() {
+                    process(result);
+                }, 1);
 
                 return true;
             }
 
-            // Hook 实例化
-            let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
-            let newMessage = hook.apply(message);
-
             // 添加到列表
-            list.push(newMessage);
+            list.push(message);
 
             if (list.length >= limit) {
                 return false;
@@ -1065,6 +1094,29 @@ export class MessagingService extends Module {
      */
     queryRecentMessagesWithGroup(groupOrId, limit, handler) {
         let groupId = (typeof groupOrId === 'number') ? groupOrId : groupOrId.id;
+
+        let process = (list)=> {
+            let result = [];
+
+            (async ()=> {
+                for (let i = 0; i < list.length; ++i) {
+                    let message = list[i];
+
+                    await this.fillMessage(message);
+
+                    // Hook 实例化
+                    let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+                    let newMessage = hook.apply(message);
+
+                    result.push(newMessage);
+
+                    if (result.length == list.length) {
+                        handler(groupId, result);
+                    }
+                }
+            })();
+        };
+
         let list = [];
 
         this.storage.iterateGroupMessage(groupId, Date.now(), (message) => {
@@ -1075,17 +1127,16 @@ export class MessagingService extends Module {
                     else if (a.remoteTS > b.remoteTS) return 1;
                     else return 0;
                 });
-                handler(groupId, result);
+
+                setTimeout(function() {
+                    process(result);
+                }, 1);
 
                 return true;
             }
 
-            // Hook 实例化
-            let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
-            let newMessage = hook.apply(message);
-
             // 添加到列表
-            list.push(newMessage);
+            list.push(message);
 
             if (list.length >= limit) {
                 return false;
@@ -1105,7 +1156,8 @@ export class MessagingService extends Module {
      */
     reverseIterateMessageWithContact(contactOrId, timestamp, handleTouch, handleDone) {
         let contactId = (typeof contactOrId === 'number') ? contactOrId : contactOrId.id;
-        this.storage.iterateContactMessage(contactId, timestamp, (message) => {
+
+        this.storage.iterateContactMessage(contactId, timestamp, (message, resume, stop) => {
             if (null == message) {
                 // 结束
                 if (handleDone) {
@@ -1114,11 +1166,20 @@ export class MessagingService extends Module {
                 return true;
             }
 
-            // Hook 实例化
-            let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
-            let newMessage = hook.apply(message);
+            (async ()=> {
+                await this.fillMessage(message);
 
-            return handleTouch(contactId, newMessage);
+                // Hook 实例化
+                let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+                let newMessage = hook.apply(message);
+
+                if (handleTouch(contactId, newMessage)) {
+                    resume();
+                }
+                else {
+                    stop();
+                }
+            })();
         }, true);
     }
 
@@ -1132,7 +1193,7 @@ export class MessagingService extends Module {
      */
     reverseIterateMessageWithGroup(groupOrId, timestamp, handleTouch, handleDone) {
         let groupId = (typeof groupOrId === 'number') ? groupOrId : groupOrId.id;
-        this.storage.iterateGroupMessage(groupId, timestamp, (message) => {
+        this.storage.iterateGroupMessage(groupId, timestamp, (message, resume, stop) => {
             if (null == message) {
                 // 结束
                 if (handleDone) {
@@ -1141,11 +1202,20 @@ export class MessagingService extends Module {
                 return true;
             }
 
-            // Hook 实例化
-            let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
-            let newMessage = hook.apply(message);
+            (async ()=> {
+                await this.fillMessage(message);
 
-            return handleTouch(groupId, newMessage);
+                // Hook 实例化
+                let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+                let newMessage = hook.apply(message);
+
+                if (handleTouch(groupId, newMessage)) {
+                    resume();
+                }
+                else {
+                    stop();
+                }
+            })();
         }, true);
     }
 

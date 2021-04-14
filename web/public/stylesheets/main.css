@@ -29,6 +29,17 @@ body {
     overflow: hidden;
 }
 
+.sounds-tag {
+    position: absolute;
+    float: left;
+    top: 0;
+    left: 0;
+    visibility: hidden;
+    width: 10px;
+    height: 10px;
+    z-index: -1000;
+}
+
 .btn {
     font-size: 14px;
 }

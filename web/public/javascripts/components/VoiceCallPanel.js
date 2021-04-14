@@ -28,7 +28,6 @@
  * 语音通话面板。
  */
 (function(g) {
-    'use strict'
 
     var that = null;
 
@@ -41,10 +40,11 @@
      * 语音通话面板。
      * @param {jQuery} el 
      */
-    var VoiceCallPanel = function(el) {
+    var VoiceCallPanel = function() {
         that = this;
 
-        this.el = el;
+        var el = $('#voice_call');
+        this.panelEl = el;
 
         this.elPeerAvatar = el.find('img[data-target="avatar"]');
         this.elPeerName = el.find('span[data-target="name"]');
@@ -122,7 +122,7 @@
             this.elPeerName.text(target.getName());
             this.elInfo.text('正在呼叫...');
 
-            this.el.modal({
+            this.panelEl.modal({
                 keyboard: false,
                 backdrop: false
             });
@@ -143,7 +143,7 @@
         this.elPeerName.text(caller.getName());
         this.elInfo.text('正在应答...');
 
-        this.el.modal({
+        this.panelEl.modal({
             keyboard: false,
             backdrop: false
         });
@@ -153,7 +153,7 @@
      * 关闭面板。
      */
     VoiceCallPanel.prototype.close = function() {
-        this.el.modal('hide');
+        this.panelEl.modal('hide');
     }
 
     /**
@@ -221,6 +221,9 @@
             class: 'voice-new-call',
             body: body.join('')
         });
+
+        // 播放振铃音效
+        g.app.mainPanel.playCallRing();
     }
 
     /**
@@ -228,6 +231,9 @@
      */
     VoiceCallPanel.prototype.closeNewCallToast = function() {
         $('#toastsContainerBottomRight').find('.voice-new-call').remove();
+
+        // 停止振铃音效
+        g.app.mainPanel.stopCallRing();
     }
 
     /**

@@ -670,6 +670,17 @@ export class MessagingStorage {
             return false;
         }
 
+        let resumeFunc = null;
+        let stopFunc = null;
+
+        let resumeCallback = () => {
+            resumeFunc();
+        };
+
+        let stopCallback = () => {
+            stopFunc();
+        };
+
         (async ()=> {
             await this.messageStore.iterate((cursor, next, stop) => {
                 let data = cursor.value;
@@ -702,15 +713,23 @@ export class MessagingStorage {
                     // 找到对应的联系人
                     data.domain = this.domain;
                     let message = Message.create(data);
-                    (async ()=> {
-                        await this.service.fillMessage(message);
-                        if (iterator(message)) {
+
+                    // 回调迭代器
+                    let ret = iterator(message, resumeCallback, stopCallback);
+
+                    if (undefined === ret) {
+                        // 没有返回值，等待回调
+                        resumeFunc = next;
+                        stopFunc = stop;
+                    }
+                    else {
+                        if (ret) {
                             next();
                         }
                         else {
                             stop();
                         }
-                    })();
+                    }
                 }
                 else {
                     next();
@@ -738,6 +757,17 @@ export class MessagingStorage {
         if (null == this.db) {
             return false;
         }
+
+        let resumeFunc = null;
+        let stopFunc = null;
+
+        let resumeCallback = () => {
+            resumeFunc();
+        };
+
+        let stopCallback = () => {
+            stopFunc();
+        };
 
         (async ()=> {
             await this.messageStore.iterate((cursor, next, stop) => {
@@ -769,15 +799,23 @@ export class MessagingStorage {
 
                 data.domain = this.domain;
                 let message = Message.create(data);
-                (async ()=> {
-                    await this.service.fillMessage(message);
-                    if (iterator(message)) {
+
+                // 回调迭代器
+                let ret = iterator(message, resumeCallback, stopCallback);
+
+                if (undefined === ret) {
+                    // 没有返回值，等待回调
+                    resumeFunc = next;
+                    stopFunc = stop;
+                }
+                else {
+                    if (ret) {
                         next();
                     }
                     else {
                         stop();
                     }
-                })();
+                }
             }, {
                 writable: false,
                 direction: reverse ? 'prev' : 'next'

@@ -25,8 +25,7 @@
  */
 
 (function(g) {
-    'use strict'
-
+    
     var cube = null;
 
     var that = null;

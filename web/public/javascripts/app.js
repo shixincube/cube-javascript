@@ -297,7 +297,7 @@
             // 消息侧边栏
             messageSidebar = new MessageSidebar(messagingEl.find('.messaging-sidebar'));
 
-            voiceCallPanel = new VoiceCallPanel($('#voice_call'));
+            voiceCallPanel = new VoiceCallPanel();
             videoChatPanel = new VideoChatPanel($('#video_chat'));
             contactDetails = new ContactDetails($('#modal_contact_details'));
             groupDetails = new GroupDetails($('#modal_group_details'));

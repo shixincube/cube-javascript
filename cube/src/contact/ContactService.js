@@ -403,7 +403,6 @@ export class ContactService extends Module {
 
                         // 获取附录
                         this.getAppendix(contact, (appendix) => {
-                            contact.appendix = appendix;
                             resolve(contact);
                         }, (error) => {
                             reject(error);
@@ -740,9 +739,8 @@ export class ContactService extends Module {
             let group = this.groups.get(id);
             if (null != group) {
                 if (null == group.getAppendix()) {
+                    // 设置群组的附录
                     this.getAppendix(group, (appendix) => {
-                        // 设置群组的附录
-                        group.appendix = appendix;
                         resolve(group);
                     }, (error) => {
                         reject(error);

@@ -40,6 +40,9 @@
     var collapseSidebar = false;
     var mouseoutTimer = 0;
 
+    var audioCallRing = null;
+    var audioWaitingTone = null;
+
     var MainPanel = function() {
         that = this;
 
@@ -78,6 +81,10 @@
                 pushMenu.PushMenu('collapse');
             }
         }
+
+        // 查找 audio
+        audioCallRing = $('audio[data-target="call-ring"]')[0];
+        audioWaitingTone = $('audio[data-target="waiting-tone"]')[0];
     }
 
     /**
@@ -111,6 +118,31 @@
         else if (id == 'contacts') {
             $('.main-title').text('联系人');
         }
+    }
+
+    /**
+     * 
+     */
+    MainPanel.prototype.playCallRing = function() {
+        audioCallRing.volume = 1.0;
+
+        if (audioCallRing.paused) {
+            audioCallRing.play();
+        }
+    }
+
+    /**
+     * 
+     */
+    MainPanel.prototype.stopCallRing = function() {
+        audioCallRing.pause();
+    }
+
+    /**
+     * 
+     */
+    MainPanel.prototype.playWaitingTone = function() {
+
     }
 
     g.MainPanel = MainPanel;
