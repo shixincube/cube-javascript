@@ -55,7 +55,7 @@
      */
     function onMessageSending(event) {
         var message = event.data;
-        g.app.messagePanel.appendMessage(g.app.messagePanel.current.entity, g.app.getSelf(), message);
+        g.app.messagePanel.appendMessage(g.app.messagePanel.current.entity, g.app.getSelf(), message, true);
         if (message.isFromGroup()) {
             g.app.messageCatalog.updateItem(message.getSource(), message, message.getRemoteTimestamp());
         }
@@ -78,7 +78,7 @@
      */
     function onMarkOnlyOwner(event) {
         var message = event.data;
-        g.app.messagePanel.appendMessage(message.getReceiver(), g.app.getSelf(), message);
+        g.app.messagePanel.appendMessage(message.getReceiver(), g.app.getSelf(), message, true);
     }
 
     /**
@@ -163,16 +163,15 @@
             return;
         }
 
-        // var time = Date.now() - g.AWeek;
         var count = 0;
 
         var handler = function(message) {
             // 判断自己是否是该消息的发件人
             if (cube.messaging.isSender(message)) {
-                g.app.messagePanel.appendMessage(message.getReceiver(), message.getSender(), message);
+                g.app.messagePanel.appendMessage(message.getReceiver(), message.getSender(), message, true);
             }
             else {
-                g.app.messagePanel.appendMessage(message.getSender(), message.getSender(), message);
+                g.app.messagePanel.appendMessage(message.getSender(), message.getSender(), message, true);
             }
 
             --count;
@@ -181,7 +180,6 @@
             }
         }
 
-        // cube.messaging.queryMessagesWithContact(contact, time, function(id, time, list) {
         cube.messaging.queryRecentMessagesWithContact(contact, queryNum, function(id, list) {
             count = list.length;
 
@@ -222,7 +220,6 @@
      * @param {funciton} completed
      */
     MessagingController.prototype.updateGroupMessages = function(group, completed) {
-        var time = Date.now() - g.AWeek;
         var count = 0;
         var messageList = null;
         var senderMap = new OrderMap();
@@ -237,7 +234,7 @@
                     messageList.forEach(function(msg) {
                         var sender = senderMap.get(msg.getId());
                         // 添加到消息面板
-                        g.app.messagePanel.appendMessage(group, sender, msg);
+                        g.app.messagePanel.appendMessage(group, sender, msg, true);
                     });
 
                     messageList = null;
@@ -251,7 +248,6 @@
             });
         }
 
-        // cube.messaging.queryMessagesWithGroup(group, time, function(groupId, time, list) {
         cube.messaging.queryRecentMessagesWithGroup(group, queryNum, function(groupId, list) {
             count = list.length;
 
@@ -502,10 +498,41 @@
 
     /**
      * 在消息面板前插入指定 ID 面板的之前消息。
-     * @param {number} id 
+     * @param {number} id 目标面板 ID 。
      */
     MessagingController.prototype.prependMore = function(id) {
+        var panel = g.app.messagePanel.getPanel(id);
+        var timestamp = (panel.messageTimes.length == 0) ? Date.now() : panel.messageTimes[0] - 1;
+        var count = queryNum;
 
+        if (panel.groupable) {
+            cube.messaging.reverseIterateMessageWithGroup(id, timestamp, function(groupId, message) {
+                // 添加消息
+                g.app.messagePanel.appendMessage(panel.entity, message.getSender(), message);
+
+                --count;
+                if (count == 0) {
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            });
+        }
+        else {
+            cube.messaging.reverseIterateMessageWithContact(id, timestamp, function(contactId, message) {
+                // 添加消息
+                g.app.messagePanel.appendMessage(panel.entity, message.getSender(), message);
+
+                --count;
+                if (count == 0) {
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            });
+        }
     }
 
     /**

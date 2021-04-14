@@ -1012,7 +1012,7 @@ export class MessagingService extends Module {
                 message.attachment.token = this.getAuthToken().code;
             }
 
-            // 使用插件
+            // Hook 实例化
             let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
             let result = hook.apply(message);
             handler(result);
@@ -1042,7 +1042,7 @@ export class MessagingService extends Module {
                 return true;
             }
 
-            // 使用插件
+            // Hook 实例化
             let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
             let newMessage = hook.apply(message);
 
@@ -1080,7 +1080,7 @@ export class MessagingService extends Module {
                 return true;
             }
 
-            // 使用插件
+            // Hook 实例化
             let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
             let newMessage = hook.apply(message);
 
@@ -1096,11 +1096,12 @@ export class MessagingService extends Module {
     }
 
     /**
-     * 
-     * @param {*} contactOrId 
-     * @param {*} timestamp 
-     * @param {*} handleTouch 
-     * @param {*} handleDone 
+     * 按照时间戳反向遍历指定联系人的消息。
+     * 遍历数据时当 {@linkcode handleTouch} 返回 {@linkcode true} 时表示继续遍历下一条消息，返回 {@linkcode false} 表示停止遍历。
+     * @param {number|Contact} contactOrId 联系人或联系人 ID 。
+     * @param {number} timestamp 起始时间戳。
+     * @param {function} handleTouch 当遍历到数据时回调该函数。参数：({@linkcode id}:{@linkcode number}, {@linkcode message}:{@link Message}) 。
+     * @param {function} handleDone 当遍历结束时回调该函数。
      */
     reverseIterateMessageWithContact(contactOrId, timestamp, handleTouch, handleDone) {
         let contactId = (typeof contactOrId === 'number') ? contactOrId : contactOrId.id;
@@ -1113,7 +1114,38 @@ export class MessagingService extends Module {
                 return true;
             }
 
-            return handleTouch(message);
+            // Hook 实例化
+            let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+            let newMessage = hook.apply(message);
+
+            return handleTouch(contactId, newMessage);
+        }, true);
+    }
+
+    /**
+     * 按照时间戳反向遍历指定群组的消息。
+     * 遍历数据时当 {@linkcode handleTouch} 返回 {@linkcode true} 时表示继续遍历下一条消息，返回 {@linkcode false} 表示停止遍历。
+     * @param {number|Contact} contactOrId 群组或群组 ID 。
+     * @param {number} timestamp 起始时间戳。
+     * @param {function} handleTouch 当遍历到数据时回调该函数。参数：({@linkcode id}:{@linkcode number}, {@linkcode message}:{@link Message}) 。
+     * @param {function} handleDone 当遍历结束时回调该函数。
+     */
+    reverseIterateMessageWithGroup(groupOrId, timestamp, handleTouch, handleDone) {
+        let groupId = (typeof groupOrId === 'number') ? groupOrId : groupOrId.id;
+        this.storage.iterateGroupMessage(groupId, timestamp, (message) => {
+            if (null == message) {
+                // 结束
+                if (handleDone) {
+                    handleDone();
+                }
+                return true;
+            }
+
+            // Hook 实例化
+            let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+            let newMessage = hook.apply(message);
+
+            return handleTouch(groupId, newMessage);
         }, true);
     }
 

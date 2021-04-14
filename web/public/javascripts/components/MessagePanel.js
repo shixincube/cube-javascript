@@ -295,7 +295,7 @@
     MessagePanel.prototype.updatePanel = function(id, entity) {
         var panel = this.panels[id.toString()];
         if (undefined === panel) {
-            var el = $('<div class="direct-chat-messages"></div>');
+            var el = $('<div class="direct-chat-messages"><div class="more-messages"><a href="javascript:app.messagingCtrl.prependMore(' + id + ');">查看更多消息</a></div></div>');
             panel = {
                 id: id,
                 el: el,
@@ -330,7 +330,7 @@
     MessagePanel.prototype.changePanel = function(id, entity) {
         var panel = this.panels[id.toString()];
         if (undefined === panel) {
-            var el = $('<div class="direct-chat-messages"></div>');
+            var el = $('<div class="direct-chat-messages"><div class="more-messages"><a href="javascript:app.messagingCtrl.prependMore(' + id + ');">查看更多消息</a></div></div>');
             panel = {
                 id: id,
                 el: el,
@@ -508,8 +508,9 @@
      * @param {Contact|Group} target 面板对应的数据实体。
      * @param {Contact} sender 消息发送者。
      * @param {Message} message 消息。
+     * @param {boolean} [scrollBottom] 是否滚动到底部。不设置该参数则不滚动。
      */
-    MessagePanel.prototype.appendMessage = function(target, sender, message) {
+    MessagePanel.prototype.appendMessage = function(target, sender, message, scrollBottom) {
         var panelId = target.getId();
 
         var panel = this.panels[panelId.toString()];
@@ -532,6 +533,7 @@
 
         var index = panel.messageIds.indexOf(id);
         if (index >= 0) {
+            // console.log('消息已添加 ' + panelId + ' - ' + id);
             return;
         }
 
@@ -560,6 +562,7 @@
                 else {
                     panel.messageTimes.push(time);
                     panel.messageIds.push(id);
+                    break;
                 }
             }
         }
@@ -701,7 +704,7 @@
 
         var parentEl = panel.el;
         if (index == 0) {
-            parentEl.append($(html.join('')));
+            parentEl.find('.more-messages').after($(html.join('')));
         }
         else if (index == panel.messageIds.length - 1) {
             parentEl.append($(html.join('')));
@@ -717,9 +720,17 @@
             }
         }
 
-        // 滚动条控制
-        var offset = parseInt(this.elContent.prop('scrollHeight'));
-        this.elContent.scrollTop(offset);
+        if (undefined !== scrollBottom) {
+            if (scrollBottom) {
+                // 滚动到底部
+                var offset = parseInt(this.elContent.prop('scrollHeight'));
+                this.elContent.scrollTop(offset);
+            }
+            else {
+                // 滚动到顶部
+                this.elContent.scrollTop(0);
+            }
+        }
 
         // 加载草稿
         this.loadDraft(panel);
@@ -752,7 +763,7 @@
 
         var panel = this.panels[panelId.toString()];
         if (undefined === panel) {
-            var el = $('<div class="direct-chat-messages"></div>');
+            var el = $('<div class="direct-chat-messages"><div class="more-messages"><a href="javascript:app.messagingCtrl.prependMore(' + panelId + ');">查看更多消息</a></div></div>');
             panel = {
                 id: panelId,
                 el: el,
