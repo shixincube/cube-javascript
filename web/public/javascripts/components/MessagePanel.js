@@ -514,7 +514,7 @@
 
         var panel = this.panels[panelId.toString()];
         if (undefined === panel) {
-            var el = $('<div class="direct-chat-messages"></div>');
+            var el = $('<div class="direct-chat-messages"><div class="more-messages"><a href="javascript:app.messagingCtrl.prependMore(' + panelId + ');">查看更多消息</a></div></div>');
             panel = {
                 id: panelId,
                 el: el,

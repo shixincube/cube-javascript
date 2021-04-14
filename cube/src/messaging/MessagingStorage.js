@@ -359,6 +359,10 @@ export class MessagingStorage {
         return true;
     }
 
+    reverseReadMessages() {
+
+    }
+
     /**
      * 读取指定时间之后的所有消息。
      * @param {number} beginning 指定读取的起始时间戳。
@@ -366,7 +370,7 @@ export class MessagingStorage {
      * @param {number} [limit=100] 指定查询结果的数量上限。
      * @returns {boolean} 返回是否执行了读取操作。
      */
-    readMessage(beginning, handler, limit) {
+    readMessages(beginning, handler, limit) {
         if (null == this.db) {
             return false;
         }
@@ -539,7 +543,7 @@ export class MessagingStorage {
             let result = null;
 
             await this.messageStore.iterate((cursor, next, stop) => {
-                var obj = cursor.value;
+                let obj = cursor.value;
                 if ((obj.from == contactId || obj.to == contactId) && (obj.source == 0)
                     && (obj.state == MessageState.Read || obj.state == MessageState.Sent)) {
                     obj.domain = this.domain;
@@ -583,7 +587,7 @@ export class MessagingStorage {
             let result = null;
 
             await this.messageStore.iterate((cursor, next, stop) => {
-                var obj = cursor.value;
+                let obj = cursor.value;
                 if ((obj.source == groupId) && (obj.state == MessageState.Read || obj.state == MessageState.Sent)) {
                     obj.domain = this.domain;
                     let message = Message.create(obj);
@@ -625,7 +629,7 @@ export class MessagingStorage {
             let result = null;
 
             await this.messageStore.iterate((cursor, next, stop) => {
-                var obj = cursor.value;
+                let obj = cursor.value;
                 if (obj.state == MessageState.Read || obj.state == MessageState.Sent) {
                     obj.domain = this.domain;
                     let message = Message.create(obj);
@@ -648,6 +652,138 @@ export class MessagingStorage {
             }
 
             handler(result);
+        })();
+
+        return true;
+    }
+
+    /**
+     * 迭代相关联系人消息。
+     * @param {number} contactId 指定联系人 ID 。
+     * @param {number} timestamp 指定起始时间戳。
+     * @param {function} iterator 指定迭代器。
+     * @param {boolean} reverse 是否反向迭代。
+     * @returns {boolean}
+     */
+    iterateContactMessage(contactId, timestamp, iterator, reverse) {
+        if (null == this.db) {
+            return false;
+        }
+
+        (async ()=> {
+            await this.messageStore.iterate((cursor, next, stop) => {
+                let data = cursor.value;
+                if (data.source > 0) {
+                    next();
+                    return;
+                }
+
+                if (data.state == MessageState.Deleted || data.state == MessageState.Recalled) {
+                    // 跳过已删除和已撤回的消息
+                    next();
+                    return;
+                }
+
+                if (reverse) {
+                    // 反向
+                    if (data.rts > timestamp) {
+                        next();
+                        return;
+                    }
+                }
+                else {
+                    if (data.rts < timestamp) {
+                        next();
+                        return;
+                    }
+                }
+
+                if (data.from == contactId || data.to == contactId) {
+                    // 找到对应的联系人
+                    data.domain = this.domain;
+                    let message = Message.create(data);
+                    (async ()=> {
+                        await this.service.fillMessage(message);
+                        if (iterator(message)) {
+                            next();
+                        }
+                        else {
+                            stop();
+                        }
+                    })();
+                }
+                else {
+                    next();
+                }
+            }, {
+                writable: false,
+                direction: reverse ? 'prev' : 'next'
+            });
+
+            iterator(null);
+        })();
+
+        return true;
+    }
+
+    /**
+     * 迭代相关群组消息。
+     * @param {number} contactId 指定群组 ID 。
+     * @param {number} timestamp 指定起始时间戳。
+     * @param {function} iterator 指定迭代器。
+     * @param {boolean} reverse 是否反向迭代。
+     * @returns {boolean}
+     */
+    iterateGroupMessage(groupId, timestamp, iterator, reverse) {
+        if (null == this.db) {
+            return false;
+        }
+
+        (async ()=> {
+            await this.messageStore.iterate((cursor, next, stop) => {
+                let data = cursor.value;
+                if (data.source != groupId) {
+                    next();
+                    return;
+                }
+
+                if (data.state == MessageState.Deleted || data.state == MessageState.Recalled) {
+                    // 跳过已删除和已撤回的消息
+                    next();
+                    return;
+                }
+
+                if (reverse) {
+                    // 反向
+                    if (data.rts > timestamp) {
+                        next();
+                        return;
+                    }
+                }
+                else {
+                    if (data.rts < timestamp) {
+                        next();
+                        return;
+                    }
+                }
+
+                data.domain = this.domain;
+                let message = Message.create(data);
+                (async ()=> {
+                    await this.service.fillMessage(message);
+                    if (iterator(message)) {
+                        next();
+                    }
+                    else {
+                        stop();
+                    }
+                })();
+            }, {
+                writable: false,
+                direction: reverse ? 'prev' : 'next'
+            });
+
+            iterator(null);
         })();
 
         return true;

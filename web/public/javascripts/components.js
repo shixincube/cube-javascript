@@ -1785,7 +1785,7 @@
 
         var panel = this.panels[panelId.toString()];
         if (undefined === panel) {
-            var el = $('<div class="direct-chat-messages"></div>');
+            var el = $('<div class="direct-chat-messages"><div class="more-messages"><a href="javascript:app.messagingCtrl.prependMore(' + panelId + ');">查看更多消息</a></div></div>');
             panel = {
                 id: panelId,
                 el: el,
@@ -4462,6 +4462,8 @@
 
     var cube = null;
 
+    var queryNum = 5;
+
     var elSelectFile = null;
 
     var colCatalog = null;
@@ -4534,7 +4536,7 @@
         g.app.messagePanel.changeMessageState(message);
 
         // 全局笔记
-        var note = new LocalNoteMessage('你在“' + message.getReceiver().getName() + '”的“黑名单”里，对方拒收你的消息！');
+        var note = new LocalNoteMessage('“' + message.getReceiver().getName() + '”已拒收你的消息！');
         note.setLevel(3);
         cube.messaging.markLocalOnlyOwner(message.getReceiver(), note);
     }
@@ -4593,7 +4595,7 @@
             return;
         }
 
-        var time = Date.now() - g.AWeek;
+        // var time = Date.now() - g.AWeek;
         var count = 0;
 
         var handler = function(message) {
@@ -4611,7 +4613,8 @@
             }
         }
 
-        cube.messaging.queryMessageWithContact(contact, time, function(id, time, list) {
+        // cube.messaging.queryMessagesWithContact(contact, time, function(id, time, list) {
+        cube.messaging.queryRecentMessagesWithContact(contact, queryNum, function(id, list) {
             count = list.length;
 
             if (count == 0) {
@@ -4680,7 +4683,8 @@
             });
         }
 
-        cube.messaging.queryMessageWithGroup(group, time, function(groupId, time, list) {
+        // cube.messaging.queryMessagesWithGroup(group, time, function(groupId, time, list) {
+        cube.messaging.queryRecentMessagesWithGroup(group, queryNum, function(groupId, list) {
             count = list.length;
 
             if (count == 0) {
@@ -4926,6 +4930,14 @@
             g.dialog.launchToast(Toast.Error, '删除消息失败');
             console.log('删除消息失败 - ' + error);
         });
+    }
+
+    /**
+     * 在消息面板前插入指定 ID 面板的之前消息。
+     * @param {number} id 
+     */
+    MessagingController.prototype.prependMore = function(id) {
+
     }
 
     /**

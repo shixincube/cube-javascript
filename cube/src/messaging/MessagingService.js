@@ -704,7 +704,7 @@ export class MessagingService extends Module {
             this.start();
         }
 
-        let ret = this.storage.readMessage(time, (beginning, result) => {
+        let ret = this.storage.readMessages(time, (beginning, result) => {
             let list = result.sort((a, b) => {
                 if (a.remoteTS < b.remoteTS) return -1;
                 else if (a.remoteTS > b.remoteTS) return 1;
@@ -776,7 +776,7 @@ export class MessagingService extends Module {
 
         /* 从存储里读取消息，于 2021-4-11 弃用该方案
         let selfId = this.contactService.getSelf().getId();
-        this.storage.readMessage(beginning, (beginning, result) => {
+        this.storage.readMessages(beginning, (beginning, result) => {
             let list = result.sort((a, b) => {
                 if (a.remoteTS < b.remoteTS) return -1;
                 else if (a.remoteTS > b.remoteTS) return 1;
@@ -852,7 +852,7 @@ export class MessagingService extends Module {
      * @param {function} handler 查询结果回调函数，函数参数：({@linkcode contactId}:number, {@linkcode beginning}:number, {@linkcode result}:Array<{@link Message}>) 。
      * @returns {boolean} 如果成功执行查询返回 {@linkcode true} 。
      */
-    queryMessageWithContact(contactOrId, beginning, handler) {
+    queryMessagesWithContact(contactOrId, beginning, handler) {
         if (!this.started) {
             this.start();
         }
@@ -903,7 +903,7 @@ export class MessagingService extends Module {
      * @param {function} handler 查询结果回调函数，函数参数：({@linkcode groupId}:number, {@linkcode beginning}:number, {@linkcode result}:Array<{@link Message}>) 。
      * @returns {boolean} 如果成功执行查询返回 {@linkcode true} 。
      */
-    queryMessageWithGroup(groupOrId, beginning, handler) {
+    queryMessagesWithGroup(groupOrId, beginning, handler) {
         if (!this.started) {
             this.start();
         }
@@ -1017,6 +1017,104 @@ export class MessagingService extends Module {
             let result = hook.apply(message);
             handler(result);
         });
+    }
+
+    /**
+     * 查询最近的指定的联系人消息。返回的消息列表为时间戳正序。
+     * @param {Contact|number} contactOrId 联系人或联系人 ID 。
+     * @param {number} limit 查询的最大消息数量限制。
+     * @param {function} handler 查询结果回调。参数：({@linkcode contactId}:{@linkcode number}, {@linkcode list}:{@linkcode Array<Message>}) 。
+     */
+    queryRecentMessagesWithContact(contactOrId, limit, handler) {
+        let contactId = (typeof contactOrId === 'number') ? contactOrId : contactOrId.id;
+        let list = [];
+
+        this.storage.iterateContactMessage(contactId, Date.now(), (message) => {
+            if (null == message) {
+                // 按照时间戳正序排序
+                let result = list.sort((a, b) => {
+                    if (a.remoteTS < b.remoteTS) return -1;
+                    else if (a.remoteTS > b.remoteTS) return 1;
+                    else return 0;
+                });
+                handler(contactId, result);
+
+                return true;
+            }
+
+            // 使用插件
+            let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+            let newMessage = hook.apply(message);
+
+            // 添加到列表
+            list.push(newMessage);
+
+            if (list.length >= limit) {
+                return false;
+            }
+
+            return true;
+        }, true);
+    }
+
+    /**
+     * 查询最近的指定的群组消息。返回的消息列表为时间戳正序。
+     * @param {Group|number} groupOrId 群组或群组 ID 。
+     * @param {number} limit 查询的最大消息数量限制。
+     * @param {function} handler 查询结果回调。参数：({@linkcode groupId}:{@linkcode number}, {@linkcode list}:{@linkcode Array<Message>}) 。
+     */
+    queryRecentMessagesWithGroup(groupOrId, limit, handler) {
+        let groupId = (typeof groupOrId === 'number') ? groupOrId : groupOrId.id;
+        let list = [];
+
+        this.storage.iterateGroupMessage(groupId, Date.now(), (message) => {
+            if (null == message) {
+                // 按照时间戳正序排序
+                let result = list.sort((a, b) => {
+                    if (a.remoteTS < b.remoteTS) return -1;
+                    else if (a.remoteTS > b.remoteTS) return 1;
+                    else return 0;
+                });
+                handler(groupId, result);
+
+                return true;
+            }
+
+            // 使用插件
+            let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+            let newMessage = hook.apply(message);
+
+            // 添加到列表
+            list.push(newMessage);
+
+            if (list.length >= limit) {
+                return false;
+            }
+
+            return true;
+        }, true);
+    }
+
+    /**
+     * 
+     * @param {*} contactOrId 
+     * @param {*} timestamp 
+     * @param {*} handleTouch 
+     * @param {*} handleDone 
+     */
+    reverseIterateMessageWithContact(contactOrId, timestamp, handleTouch, handleDone) {
+        let contactId = (typeof contactOrId === 'number') ? contactOrId : contactOrId.id;
+        this.storage.iterateContactMessage(contactId, timestamp, (message) => {
+            if (null == message) {
+                // 结束
+                if (handleDone) {
+                    handleDone();
+                }
+                return true;
+            }
+
+            return handleTouch(message);
+        }, true);
     }
 
     /**
