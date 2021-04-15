@@ -55,10 +55,18 @@ export class ContactAppendix {
         this.owner = owner;
 
         /**
+         * 该联系人针对当前签入联系人的备注名。
          * @private
          * @type {string}
          */
         this.remarkName = '';
+
+        /**
+         * 该联系人的赋值数据。
+         * @private
+         * @type {object}
+         */
+        this.assignedData = null;
     }
 
     /**
@@ -118,5 +126,63 @@ export class ContactAppendix {
                 handleSuccess(this);
             }
         });
+    }
+
+    getAssignedData(key) {
+        if (null == this.assignedData) {
+            return null;
+        }
+
+        return this.assignedData[key];
+    }
+
+    /**
+     * 
+     * @param {string} key 
+     * @param {JSON} value 
+     * @param {function} [handleSuccess] 成功回调。参数：({@linkcode appendix}:{@link ContactAppendix}) 。
+     * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     * @returns {boolean}
+     */
+    setAssignedData(key, value, handleSuccess, handleFailure) {
+        if (this.service.self.id != this.owner.id || typeof value != 'object') {
+            return false;
+        }
+
+        if (null == this.assignedData) {
+            this.assignedData = {};
+        }
+
+        // 赋值
+        this.assignedData[key] = value;
+
+        let request = new Packet(ContactAction.UpdateAppendix, {
+            "contactId": this.owner.getId(),
+            "assignedData": this.assignedData
+        });
+
+        this.service.pipeline.send(ContactService.NAME, request, (pipeline, source, packet) => {
+            if (null == packet || packet.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, this);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            if (packet.getPayload().code != ContactServiceState.Ok) {
+                let error = new ModuleError(ContactService.NAME, packet.getPayload().code, this);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            if (handleSuccess) {
+                handleSuccess(this);
+            }
+        });
+
+        return true;
     }
 }

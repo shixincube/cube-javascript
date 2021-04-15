@@ -129,6 +129,18 @@ export const MultipointCommState = {
     CallBye: 33,
 
     /**
+     * 被主叫阻止。
+     * @type {number}
+     */
+    BeCallerBlocked: 41,
+
+    /**
+     * 被被叫阻止。
+     * @type {number}
+     */
+    BeCalleeBlocked: 42,
+
+    /**
      * 终端未初始化。
      * @type {number}
      */

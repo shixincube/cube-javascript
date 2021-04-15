@@ -330,7 +330,7 @@ export class ContactService extends Module {
 
         // 获取附录
         this.getAppendix(this.self, (appendix) => {
-            this.self.appendix = appendix;
+            console.log(appendix);
 
             // 更新状态
             this.selfReady = true;
@@ -2042,7 +2042,13 @@ export class ContactService extends Module {
                 }
 
                 let contactAppendix = new ContactAppendix(this, owner);
+                // 备注名
                 contactAppendix.remarkName = data.remarkName;
+
+                // 赋值数据
+                if (data.assignedData) {
+                    contactAppendix.assignedData = data.assignedData;
+                }
 
                 // 设置附录
                 owner.appendix = contactAppendix;
