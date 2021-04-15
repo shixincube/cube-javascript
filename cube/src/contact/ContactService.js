@@ -330,8 +330,6 @@ export class ContactService extends Module {
 
         // 获取附录
         this.getAppendix(this.self, (appendix) => {
-            console.log(appendix);
-
             // 更新状态
             this.selfReady = true;
 

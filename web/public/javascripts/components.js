@@ -446,7 +446,18 @@
      * 
      */
     MainPanel.prototype.playWaitingTone = function() {
+        audioWaitingTone.volume = 1.0;
 
+        if (audioWaitingTone.paused) {
+            audioWaitingTone.play();
+        }
+    }
+
+    /**
+     * 
+     */
+    MainPanel.prototype.stopWaitingTone = function() {
+        audioWaitingTone.pause();
     }
 
     g.MainPanel = MainPanel;
@@ -2830,15 +2841,17 @@
 
     // var imageFileListEl = null;
 
+    // 群组相关
     var inputGroupRemark = null;
     var btnGroupRemark = null;
-
     var textGroupNotice = null;
-
     var memberListEl = null;
+    var switchGroupNoNoticing = null;
 
+    // 联系人相关
     var inputContactRemark = null;
     var btnContactRemark = null;
+    var switchContactNoNoticing = null;
 
     function onGroupRemarkClick() {
         if (inputGroupRemark.prop('disabled')) {
@@ -3014,6 +3027,41 @@
         onContactRemarkClick();
     }
 
+    function onSwitchGroupNoNoticing(event, state) {
+
+    }
+
+    function onSwitchContactNoNoticing(event, state) {
+        // 通过附录来管理消息免打扰
+        var appendix = g.cube().contact.getSelf().getAppendix();
+        var data = appendix.getAssignedData('NoNoticing');
+        if (null == data) {
+            data = {
+                'contacts': [],
+                'groups': []
+            };
+        }
+        var list = data.contacts;
+        var index = list.indexOf(currentContact.getId());
+
+        if (state) {
+            if (index >= 0) {
+                return;
+            }
+
+            list.push(currentContact.getId());
+            appendix.setAssignedData('NoNoticing', data);
+        }
+        else {
+            if (index < 0) {
+                return;
+            }
+
+            list.splice(index, 1);
+            appendix.setAssignedData('NoNoticing', data);
+        }
+    }
+
 
     /**
      * 消息面板侧边栏。
@@ -3045,6 +3093,14 @@
         groupSidebarEl.find('button[data-target="remove-member"]').click(onRemoveMemberClick);
         memberListEl = groupSidebarEl.find('.group-member-list');
 
+        switchGroupNoNoticing = groupSidebarEl.find('input[data-target="no-noticing-switch"]');
+        switchGroupNoNoticing.bootstrapSwitch({
+            onText: '打开',  
+	        offText: '关闭',
+            size: 'small',
+            onSwitchChange: onSwitchGroupNoNoticing
+        });
+
         // 联系人界面
 
         inputContactRemark = contactSidebarEl.find('input[data-target="contact-remark"]');
@@ -3053,6 +3109,15 @@
 
         btnContactRemark = contactSidebarEl.find('button[data-target="remark"]');
         btnContactRemark.click(onContactRemarkClick);
+
+        // 联系人消息免打扰
+        switchContactNoNoticing = contactSidebarEl.find('input[data-target="no-noticing-switch"]');
+        switchContactNoNoticing.bootstrapSwitch({
+            onText: '打开',  
+	        offText: '关闭',
+            size: 'small',
+            onSwitchChange: onSwitchContactNoNoticing
+        });
     }
 
     /**
@@ -3090,6 +3155,19 @@
         contactSidebarEl.find('input[data-target="contact-name"]').val(contact.getName());
 
         inputContactRemark.val(contact.getAppendix().hasRemarkName() ? contact.getAppendix().getRemarkName() : '');
+
+        // 配置信息
+        var appendix = g.app.getSelf().getAppendix();
+        var noNoticing = appendix.getAssignedData('NoNoticing');
+        if (null != noNoticing) {
+            var contacts = noNoticing.contacts;
+            if (contacts.indexOf(contact.getId()) >= 0) {
+                switchContactNoNoticing.bootstrapSwitch('state', true);
+            }
+            else {
+                switchContactNoNoticing.bootstrapSwitch('state', false);
+            }
+        }
     }
 
     /**

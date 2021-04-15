@@ -183,6 +183,9 @@
                                     <li class="nav-item">
                                         <a class="nav-link active" id="sidebar-profile-tab" data-toggle="tab" href="#sidebar-profile" role="tab" aria-controls="sidebar-profile" aria-selected="true">群组</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="sidebar-setting-tab" data-toggle="tab" href="#sidebar-setting" role="tab" aria-controls="sidebar-setting" aria-selected="false">设置</a>
+                                    </li>
                                     <!--
                                     <li class="nav-item">
                                         <a class="nav-link" id="sidebar-image-tab" data-toggle="tab" href="#sidebar-image" role="tab" aria-controls="sidebar-image" aria-selected="false">图片</a>
@@ -234,6 +237,12 @@
                                             <div class="group-member-more">
                                                 <button type="button" class="btn btn-default btn-sm">更多群成员</button>
                                             </div>
+                                        </div>
+                                    </div><!-- /.tab-pane -->
+                                    <div class="tab-pane fade" id="sidebar-setting" role="tabpanel" aria-labelledby="sidebar-setting-tab">
+                                        <div class="row align-items-center mb-2">
+                                            <div class="col-5 config-label">消息免打扰</div>
+                                            <div class="col-7 text-right"><input type="checkbox" name="no-noticing" data-target="no-noticing-switch"></div>
                                         </div>
                                     </div><!-- /.tab-pane -->
                                     <div class="tab-pane fade" id="sidebar-image" role="tabpanel" aria-labelledby="sidebar-image-tab">
@@ -290,6 +299,10 @@
                                             </div>
                                         </div>
                                         <hr style="width:100%;" />
+                                        <div class="row align-items-center mb-2">
+                                            <div class="col-5 config-label">消息免打扰</div>
+                                            <div class="col-7 text-right"><input type="checkbox" name="no-noticing" data-target="no-noticing-switch"></div>
+                                        </div>
                                     </div><!-- /.tab-pane -->
                                     <div class="tab-pane fade" id="sidebar-contact-image" role="tabpanel" aria-labelledby="sidebar-contact-image-tab">
                                         <div class="image-file-list">
@@ -1457,6 +1470,7 @@
 <script type="text/javascript" src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script type="text/javascript" src="plugins/sweetalert2/sweetalert2.min.js"></script>
 <script type="text/javascript" src="plugins/bootstrap-select/bootstrap-select.min.js"></script>
+<script type="text/javascript" src="plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
 <script type="text/javascript" src="plugins/moment/moment.min.js"></script>
 <script type="text/javascript" src="plugins/moment/locale/zh-cn.js"></script>
 <script type="text/javascript" src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>

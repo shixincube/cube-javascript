@@ -128,21 +128,27 @@ export class ContactAppendix {
         });
     }
 
+    /**
+     * 获取指定键的已赋值数据。
+     * @param {string} key 指定数据的键。
+     * @returns {JSON} 如果没有找到对应的数据，返回 {@linkcode null} 值。
+     */
     getAssignedData(key) {
         if (null == this.assignedData) {
             return null;
         }
 
-        return this.assignedData[key];
+        let value = this.assignedData[key];
+        return (undefined === value) ? null : value;
     }
 
     /**
-     * 
-     * @param {string} key 
-     * @param {JSON} value 
+     * 设置指定键的值，参数 {@linkcode value} 必须是 JSON 对象。
+     * @param {string} key 指定数据键。
+     * @param {JSON} value 指定符合 JSON 格式的值。
      * @param {function} [handleSuccess] 成功回调。参数：({@linkcode appendix}:{@link ContactAppendix}) 。
      * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
-     * @returns {boolean}
+     * @returns {boolean} 如果设置的数据格式错误返回 {@linkcode false} 。
      */
     setAssignedData(key, value, handleSuccess, handleFailure) {
         if (this.service.self.id != this.owner.id || typeof value != 'object') {
@@ -158,7 +164,8 @@ export class ContactAppendix {
 
         let request = new Packet(ContactAction.UpdateAppendix, {
             "contactId": this.owner.getId(),
-            "assignedData": this.assignedData
+            "assignedKey": key,
+            "assignedValue": value
         });
 
         this.service.pipeline.send(ContactService.NAME, request, (pipeline, source, packet) => {

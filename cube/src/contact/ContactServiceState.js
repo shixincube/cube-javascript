@@ -42,6 +42,12 @@ export const ContactServiceState = {
     InvalidParameter: 5,
 
     /**
+     * 数据结构错误。
+     * @type {number}
+     */
+    DataStructureError: 8,
+
+    /**
      * 遇到故障。
      * @type {number}
      */
