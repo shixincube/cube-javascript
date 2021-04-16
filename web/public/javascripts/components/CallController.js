@@ -30,6 +30,9 @@
 
     var that = null;
 
+    var selectMediaDeviceEl = null;
+    var selectMediaDeviceCallback = null;
+
     var working = false;
 
     var voiceCall = false;
@@ -205,16 +208,57 @@
     }
 
     /**
+     * 显示选择设备对话框。
+     * @param {Array} list 
+     * @param {function} callback 
+     */
+    CallController.prototype.showSelectMediaDevice = function(list, callback) {
+        // 记录 Callback
+        selectMediaDeviceCallback = callback;
+
+        if (null == selectMediaDeviceEl) {
+            var el = $('#select_media_device');
+
+            el.find('button[data-target="cancel"]').click(function() {
+                selectMediaDeviceCallback(false);
+            });
+
+            el.find('button[data-target="confirm"]').click(function() {
+                var data = selectMediaDeviceEl.find('input:radio[name="DeviceRadio"]:checked').attr('data');
+                selectMediaDeviceCallback(true, parseInt(data));
+            });
+
+            selectMediaDeviceEl = el;
+        }
+
+        selectMediaDeviceEl.find('.custom-radio').css('display', 'none');
+
+        for (var i = 0; i < list.length; ++i) {
+            var value = list[i];
+            var item = selectMediaDeviceEl.find('div[data-target="radio-' + i + '"]');
+            item.find('label').text(value.label);
+            item.css('display', 'block');
+        }
+
+        selectMediaDeviceEl.modal('show');
+    }
+
+    /**
      * 发起通话请求。
      * @param {Contact} target 
      * @param {boolean} videoEnabled 
+     * @param {MediaDeviceDescription} [audioDevice]
+     * @param {MediaDeviceDescription} [videoDevice]
      */
-    CallController.prototype.makeCall = function(target, videoEnabled) {
+    CallController.prototype.makeCall = function(target, videoEnabled, audioDevice, videoDevice) {
         if (working) {
             return false;
         }
 
         working = true;
+
+        // 媒体约束
+        var mediaConstraint = new MediaConstraint(videoEnabled, true);
 
         if (videoEnabled) {
             voiceCall = false;
@@ -231,8 +275,6 @@
             cube.mpComm.setLocalVideoElement(g.app.voiceCallPanel.localVideo);
         }
 
-        // 媒体约束
-        var mediaConstraint = new MediaConstraint(videoEnabled, true);
         // 发起通话
         return cube.mpComm.makeCall(target, mediaConstraint);
     }
