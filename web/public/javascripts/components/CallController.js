@@ -174,6 +174,12 @@
                 g.dialog.launchToast(Toast.Warning, '未能获得摄像头/麦克风使用权限');
             }
         }
+        else if (error.code == CallState.BeCallerBlocked) {
+            // 对方在自己的黑名单里
+        }
+        else if (error.code == CallState.BeCalleeBlocked) {
+            // 自己在对方的黑名单里
+        }
         else {
             g.dialog.launchToast(Toast.Warning, '通话失败，故障码：' + error.code);
         }

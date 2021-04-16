@@ -459,6 +459,11 @@ video {
     font-size: 14px;
     font-weight: normal !important;
 }
+.product-title .last-time {
+    position: absolute;
+    margin-top: 4px;
+    right: 9px;
+}
 .product-description {
     font-size: 12px;
     padding-top: 4px;
@@ -538,6 +543,10 @@ video {
 .direct-chat-text .emoji {
     font-size: 16px;
 }
+.direct-chat-text-anim {
+    animation: expansion 0.5s ease-out;
+    -webkit-animation: expansion 0.5s ease-out;
+}
 
 .direct-chat-messages .at {
     color: #007bff;
@@ -583,18 +592,31 @@ video {
     color: #dc3545;
 }
 
+/* 放大消息内容动画 */
+@keyframes expansion {
+    0% {
+        transform: scaleY(0.1);
+        -webkit-transform: scaleY(0.1);
+    }
+    100% {
+        transform: scaleY(1);
+        -webkit-transform: scaleY(1);
+    }
+}
+
+/* 360 旋转动画 */
 @keyframes rotate {
     0% {
         transform: rotate(0deg);
-        -webkit-transform:rotate(0deg);
+        -webkit-transform: rotate(0deg);
     }
     50% {
         transform: rotate(180deg);
-        -webkit-transform:rotate(180deg);
+        -webkit-transform: rotate(180deg);
     }
     100%{
         transform: rotate(360deg);
-        -webkit-transform:rotate(360deg);
+        -webkit-transform: rotate(360deg);
     }
 }
 

@@ -1437,11 +1437,7 @@
             editor.config.pasteTextHandle = function(pasteStr) {
                 return that.handlePasteText(pasteStr);
             };
-            try {
-                editor.create();
-            } catch (e) {
-                // Nothing
-            }
+            editor.create();
             editor.disable();
             this.inputEditor = editor;
 
@@ -1827,8 +1823,10 @@
      * @param {Contact} sender 消息发送者。
      * @param {Message} message 消息。
      * @param {boolean} [scrollBottom] 是否滚动到底部。不设置该参数则不滚动。
+     * @param {boolean} [animation] 是否使用动画效果。
+     * @returns {jQuery} 返回添加到消息面板里的新节点。
      */
-    MessagePanel.prototype.appendMessage = function(target, sender, message, scrollBottom) {
+    MessagePanel.prototype.appendMessage = function(target, sender, message, scrollBottom, animation) {
         var panelId = target.getId();
 
         var panel = this.panels[panelId.toString()];
@@ -1852,7 +1850,7 @@
         var index = panel.messageIds.indexOf(id);
         if (index >= 0) {
             // console.log('消息已添加 ' + panelId + ' - ' + id);
-            return;
+            return null;
         }
 
         if (panel.messageIds.length == 0) {
@@ -1982,7 +1980,7 @@
             }
         }
         else {
-            return;
+            return null;
         }
 
         if (null == html) {
@@ -2005,7 +2003,13 @@
                     stateDesc.push('<div class="direct-chat-state"><i class="fas fa-exclamation-circle fault"></i></div>');
                 }
             }
-    
+
+            // 动画效果
+            var animationClass = '';
+            if (undefined !== animation && animation) {
+                animationClass = 'direct-chat-text-anim';
+            }
+
             html = ['<div id="', id, '" class="direct-chat-msg ', right, '"><div class="direct-chat-infos clearfix">',
                 '<span class="direct-chat-name ', nfloat, panel.groupable ? '' : ' no-display', '">',
                     sender.getPriorityName(),
@@ -2016,25 +2020,27 @@
                 '<img src="images/', sender.getContext().avatar, '" class="direct-chat-img">',
                 // 状态
                 stateDesc.join(''),
-                '<div data-id="', id, '" data-owner="', right.length > 0, '" class="direct-chat-text">', text, '</div></div>'
+                '<div data-id="', id, '" data-owner="', right.length > 0, '" class="direct-chat-text ', animationClass, '">', text, '</div></div>'
             ];
         }
 
+        var newEl = $(html.join(''));
+
         var parentEl = panel.el;
         if (index == 0) {
-            parentEl.find('.more-messages').after($(html.join('')));
+            parentEl.find('.more-messages').after(newEl);
         }
         else if (index == panel.messageIds.length - 1) {
-            parentEl.append($(html.join('')));
+            parentEl.append(newEl);
         }
         else {
             var prevId = (index - 1) >= 0 ? panel.messageIds[index - 1] : 0;
             var nextId = (index + 1) < panel.messageIds.length ? panel.messageIds[index + 1] : 0;
             if (prevId > 0) {
-                parentEl.find('#' + prevId).after($(html.join('')));
+                parentEl.find('#' + prevId).after(newEl);
             }
             else if (nextId > 0) {
-                parentEl.find('#' + nextId).before($(html.join('')));
+                parentEl.find('#' + nextId).before(newEl);
             }
         }
 
@@ -2052,6 +2058,8 @@
 
         // 加载草稿
         this.loadDraft(panel);
+
+        return newEl;
     }
 
     /**
@@ -4711,7 +4719,10 @@
      */
     function onMessageSending(event) {
         var message = event.data;
-        g.app.messagePanel.appendMessage(g.app.messagePanel.current.entity, g.app.getSelf(), message, true);
+
+        // 使用动画效果
+        g.app.messagePanel.appendMessage(g.app.messagePanel.current.entity, g.app.getSelf(), message, true, true);
+
         if (message.isFromGroup()) {
             g.app.messageCatalog.updateItem(message.getSource(), message, message.getRemoteTimestamp());
         }
@@ -5166,7 +5177,7 @@
         if (panel.groupable) {
             cube.messaging.reverseIterateMessageWithGroup(id, timestamp, function(groupId, message) {
                 // 添加消息
-                g.app.messagePanel.appendMessage(panel.entity, message.getSender(), message);
+                g.app.messagePanel.appendMessage(panel.entity, message.getSender(), message, false);
 
                 --count;
                 if (count == 0) {
@@ -5184,7 +5195,7 @@
         else {
             cube.messaging.reverseIterateMessageWithContact(id, timestamp, function(contactId, message) {
                 // 添加消息
-                g.app.messagePanel.appendMessage(panel.entity, message.getSender(), message);
+                g.app.messagePanel.appendMessage(panel.entity, message.getSender(), message, false);
 
                 --count;
                 if (count == 0) {
@@ -5230,7 +5241,7 @@
             }
             else {
                 that.updateGroupMessages(message.getSourceGroup(), function() {
-                    g.app.messagePanel.appendMessage(message.getSourceGroup(), message.getSender(), message);
+                    g.app.messagePanel.appendMessage(message.getSourceGroup(), message.getSender(), message, false);
                 });
             }
 
@@ -5253,7 +5264,7 @@
                 }
                 else {
                     that.updateContactMessages(message.getReceiver(), function() {
-                        g.app.messagePanel.appendMessage(message.getReceiver(), message.getSender(), message);
+                        g.app.messagePanel.appendMessage(message.getReceiver(), message.getSender(), message, false);
                     });
                 }
 
@@ -5265,11 +5276,11 @@
             else {
                 // 更新消息面板
                 if (g.app.messagePanel.hasPanel(message.getSender())) {
-                    g.app.messagePanel.appendMessage(message.getSender(), message.getSender(), message);
+                    g.app.messagePanel.appendMessage(message.getSender(), message.getSender(), message, false);
                 }
                 else {
                     that.updateContactMessages(message.getSender(), function() {
-                        g.app.messagePanel.appendMessage(message.getSender(), message.getSender(), message);
+                        g.app.messagePanel.appendMessage(message.getSender(), message.getSender(), message, false);
                     });
                 }
 
@@ -5500,6 +5511,12 @@
             else {
                 g.dialog.launchToast(Toast.Warning, '未能获得摄像头/麦克风使用权限');
             }
+        }
+        else if (error.code == CallState.BeCallerBlocked) {
+            // 对方在自己的黑名单里
+        }
+        else if (error.code == CallState.BeCalleeBlocked) {
+            // 自己在对方的黑名单里
         }
         else {
             g.dialog.launchToast(Toast.Warning, '通话失败，故障码：' + error.code);

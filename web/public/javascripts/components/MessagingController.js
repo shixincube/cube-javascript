@@ -55,7 +55,10 @@
      */
     function onMessageSending(event) {
         var message = event.data;
-        g.app.messagePanel.appendMessage(g.app.messagePanel.current.entity, g.app.getSelf(), message, true);
+
+        // 使用动画效果
+        g.app.messagePanel.appendMessage(g.app.messagePanel.current.entity, g.app.getSelf(), message, true, true);
+
         if (message.isFromGroup()) {
             g.app.messageCatalog.updateItem(message.getSource(), message, message.getRemoteTimestamp());
         }
@@ -510,7 +513,7 @@
         if (panel.groupable) {
             cube.messaging.reverseIterateMessageWithGroup(id, timestamp, function(groupId, message) {
                 // 添加消息
-                g.app.messagePanel.appendMessage(panel.entity, message.getSender(), message);
+                g.app.messagePanel.appendMessage(panel.entity, message.getSender(), message, false);
 
                 --count;
                 if (count == 0) {
@@ -528,7 +531,7 @@
         else {
             cube.messaging.reverseIterateMessageWithContact(id, timestamp, function(contactId, message) {
                 // 添加消息
-                g.app.messagePanel.appendMessage(panel.entity, message.getSender(), message);
+                g.app.messagePanel.appendMessage(panel.entity, message.getSender(), message, false);
 
                 --count;
                 if (count == 0) {
@@ -574,7 +577,7 @@
             }
             else {
                 that.updateGroupMessages(message.getSourceGroup(), function() {
-                    g.app.messagePanel.appendMessage(message.getSourceGroup(), message.getSender(), message);
+                    g.app.messagePanel.appendMessage(message.getSourceGroup(), message.getSender(), message, false);
                 });
             }
 
@@ -597,7 +600,7 @@
                 }
                 else {
                     that.updateContactMessages(message.getReceiver(), function() {
-                        g.app.messagePanel.appendMessage(message.getReceiver(), message.getSender(), message);
+                        g.app.messagePanel.appendMessage(message.getReceiver(), message.getSender(), message, false);
                     });
                 }
 
@@ -609,11 +612,11 @@
             else {
                 // 更新消息面板
                 if (g.app.messagePanel.hasPanel(message.getSender())) {
-                    g.app.messagePanel.appendMessage(message.getSender(), message.getSender(), message);
+                    g.app.messagePanel.appendMessage(message.getSender(), message.getSender(), message, false);
                 }
                 else {
                     that.updateContactMessages(message.getSender(), function() {
-                        g.app.messagePanel.appendMessage(message.getSender(), message.getSender(), message);
+                        g.app.messagePanel.appendMessage(message.getSender(), message.getSender(), message, false);
                     });
                 }
 
