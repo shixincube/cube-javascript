@@ -3931,6 +3931,11 @@
      */
     VideoChatPanel.prototype.close = function() {
         this.panelEl.modal('hide');
+
+        // 停止播放等待音
+        g.app.mainPanel.stopWaitingTone();
+        // 停止播放振铃
+        g.app.mainPanel.stopCallRing();
     }
 
     /**
@@ -3950,6 +3955,9 @@
         wfaTimer = setInterval(function() {
             that.callTip.text('正在呼叫“' + callee.getName() + '”：' + (++time) + ' 秒...');
         }, 1000);
+
+        // 播放等待音
+        g.app.mainPanel.playWaitingTone();
     }
 
     /**
@@ -4007,6 +4015,9 @@
             class: 'video-new-call',
             body: body.join('')
         });
+
+        // 播放振铃音效
+        g.app.mainPanel.playCallRing();
     }
 
     /**
