@@ -808,25 +808,63 @@
                 </div>
                 <div class="modal-body">
                     <div class="form ml-2">
-                        <div class="form-group mb-0">
-                            <div class="custom-control custom-radio mb-2" data-target="radio-0">
-                                <input class="custom-control-input" type="radio" id="device-0" name="DeviceRadio" data="0" checked="checked">
-                                <label for="device-0" class="custom-control-label">设备1</label>
+                        <div class="form-group mb-0" data-target="audio">
+                            <div class="custom-control custom-radio mb-2" data-target="audio-0">
+                                <input class="custom-control-input" type="radio" id="audio-0" name="AudioDevice" data="0" checked="checked">
+                                <label for="audio-0" class="custom-control-label">设备1</label>
                             </div>
-                            <div class="custom-control custom-radio mb-2" data-target="radio-1">
-                                <input class="custom-control-input" type="radio" id="device-1" name="DeviceRadio" data="1">
-                                <label for="device-1" class="custom-control-label">设备2</label>
+                            <div class="custom-control custom-radio mb-2" data-target="audio-1">
+                                <input class="custom-control-input" type="radio" id="audio-1" name="AudioDevice" data="1">
+                                <label for="audio-1" class="custom-control-label">设备2</label>
                             </div>
-                            <div class="custom-control custom-radio mb-2" data-target="radio-2">
-                                <input class="custom-control-input" type="radio" id="device-0" name="DeviceRadio" data="2">
-                                <label for="device-2" class="custom-control-label">设备3</label>
+                            <div class="custom-control custom-radio mb-2" data-target="audio-2">
+                                <input class="custom-control-input" type="radio" id="audio-2" name="AudioDevice" data="2">
+                                <label for="audio-2" class="custom-control-label">设备3</label>
                             </div>
-                            <div class="custom-control custom-radio" data-target="radio-3">
-                                <input class="custom-control-input" type="radio" id="device-3" name="DeviceRadio" data="3">
-                                <label for="device-3" class="custom-control-label">设备4</label>
+                            <div class="custom-control custom-radio" data-target="audio-3">
+                                <input class="custom-control-input" type="radio" id="audio-3" name="AudioDevice" data="3">
+                                <label for="audio-3" class="custom-control-label">设备4</label>
                             </div>
                         </div>
-                    </div>
+                        <div class="form-group row mb-0 select-media-video" data-target="video">
+                            <div class="col-6 mb-4">
+                                <div class="video">
+                                    <video data-target="vidoe-0" autoplay></video>
+                                </div>
+                                <div class="custom-control custom-radio mt-2" data-target="video-0">
+                                    <input class="custom-control-input" type="radio" id="video-0" name="VideoDevice" data="0" checked="checked">
+                                    <label for="video-0" class="custom-control-label">设备1</label>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-4">
+                                <div class="video">
+                                    <video data-target="vidoe-1" autoplay></video>
+                                </div>
+                                <div class="custom-control custom-radio mt-2" data-target="video-1">
+                                    <input class="custom-control-input" type="radio" id="video-1" name="VideoDevice" data="1">
+                                    <label for="video-1" class="custom-control-label">设备2</label>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="video">
+                                    <video data-target="vidoe-2" autoplay></video>
+                                </div>
+                                <div class="custom-control custom-radio mt-2" data-target="video-2">
+                                    <input class="custom-control-input" type="radio" id="video-2" name="VideoDevice" data="2">
+                                    <label for="video-2" class="custom-control-label">设备3</label>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="video">
+                                    <video data-target="vidoe-3" autoplay></video>
+                                </div>
+                                <div class="custom-control custom-radio mt-2" data-target="video-3">
+                                    <input class="custom-control-input" type="radio" id="video-3" name="VideoDevice" data="3">
+                                    <label for="video-3" class="custom-control-label">设备4</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- /.form -->
                 </div>
                 <div class="modal-footer justify-content-between">
                     <button class="btn btn-danger" type="button" data-dismiss="modal" data-target="cancel">取消通话</button>

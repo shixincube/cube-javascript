@@ -67,18 +67,18 @@ export class MediaDeviceDescription {
     }
 
     /**
-     * 返回是否是视频设备。
+     * 返回是否是视频输入设备。
      * @returns {boolean} 返回是否是视频设备。
      */
-    isVideo() {
-        return this.kind.toLowerCase().startsWith('video');
+    isVideoInput() {
+        return this.kind.toLowerCase() == 'videoinput';
     }
 
     /**
-     * 返回是否是音频设备。
+     * 返回是否是音频输入设备。
      * @returns {boolean} 返回是否是音频设备。
      */
-    isAudio() {
-        return this.kind.toLowerCase().startsWith('audio');
+    isAudioInput() {
+        return this.kind.toLowerCase() == 'audioinput';
     }
 }

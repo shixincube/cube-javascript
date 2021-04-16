@@ -123,7 +123,11 @@
             editor.config.pasteTextHandle = function(pasteStr) {
                 return that.handlePasteText(pasteStr);
             };
-            editor.create();
+            try {
+                editor.create();
+            } catch (e) {
+                // Nothing
+            }
             editor.disable();
             this.inputEditor = editor;
 

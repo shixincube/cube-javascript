@@ -137,14 +137,14 @@
 
         g.cube().mpComm.listMediaDevices(function(list) {
             if (list.length == 0) {
-                g.dialog.showAlert('没有找到可被使用的麦克风设备，请您确认是否正确连接了麦克风设备。');
+                g.dialog.showAlert('没有找到可用的麦克风设备，请您确认是否正确连接了麦克风设备。');
                 return;
             }
 
             // 多个设备时进行选择
             var result = [];
             for (var i = 0; i < list.length; ++i) {
-                if (list[i].isAudio()) {
+                if (list[i].isAudioInput()) {
                     result.push(list[i]);
                 }
             }

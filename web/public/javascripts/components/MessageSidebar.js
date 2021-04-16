@@ -288,7 +288,7 @@
             onText: '已开启',  
 	        offText: '已关闭',
             size: 'small',
-            handleWith: 45,
+            handleWith: 50,
             labelWidth: 15,
             onSwitchChange: onSwitchGroupNoNoticing
         });
@@ -308,7 +308,7 @@
             onText: '已开启',  
 	        offText: '已关闭',
             size: 'small',
-            handleWith: 45,
+            handleWith: 50,
             labelWidth: 15,
             onSwitchChange: onSwitchContactNoNoticing
         });

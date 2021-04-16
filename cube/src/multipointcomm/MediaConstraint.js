@@ -94,7 +94,7 @@ export class MediaConstraint extends JSONable {
      * @param {MediaDeviceDescription} mediaDeviceDescription 
      */
     setAudioDevice(mediaDeviceDescription) {
-        if (!mediaDeviceDescription.isAudio()) {
+        if (!mediaDeviceDescription.isAudioInput()) {
             return false;
         }
 

@@ -298,7 +298,7 @@
             messageSidebar = new MessageSidebar(messagingEl.find('.messaging-sidebar'));
 
             voiceCallPanel = new VoiceCallPanel();
-            videoChatPanel = new VideoChatPanel($('#video_chat'));
+            videoChatPanel = new VideoChatPanel();
             contactDetails = new ContactDetails($('#modal_contact_details'));
             groupDetails = new GroupDetails($('#modal_group_details'));
             newGroupDialog = new NewGroupDialog($('#new_group_dialog'));

@@ -65,7 +65,7 @@ function checkDevice() {
     MediaDeviceTool.enumDevices(function(devices) {
         var html = [];
         devices.forEach(function(desc) {
-            if (desc.isVideo()) {
+            if (desc.isVideoInput()) {
                 videoDevices[desc.getDeviceId()] = desc;
 
                 var c = ['<option id="', desc.getDeviceId(), '">', desc.getLabel(), '</option>'];

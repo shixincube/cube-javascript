@@ -1437,7 +1437,11 @@
             editor.config.pasteTextHandle = function(pasteStr) {
                 return that.handlePasteText(pasteStr);
             };
-            editor.create();
+            try {
+                editor.create();
+            } catch (e) {
+                // Nothing
+            }
             editor.disable();
             this.inputEditor = editor;
 
@@ -3087,7 +3091,7 @@
             onText: '已开启',  
 	        offText: '已关闭',
             size: 'small',
-            handleWith: 45,
+            handleWith: 50,
             labelWidth: 15,
             onSwitchChange: onSwitchGroupNoNoticing
         });
@@ -3107,7 +3111,7 @@
             onText: '已开启',  
 	        offText: '已关闭',
             size: 'small',
-            handleWith: 45,
+            handleWith: 50,
             labelWidth: 15,
             onSwitchChange: onSwitchContactNoNoticing
         });
@@ -3400,15 +3404,16 @@
         };
 
         g.cube().mpComm.listMediaDevices(function(list) {
-            if (list.length > 0) {
-                g.dialog.showAlert('没有找到可被使用的麦克风设备，请您确认是否正确连接了麦克风设备。');
+            if (list.length == 0) {
+                g.dialog.showAlert('没有找到可用的麦克风设备，请您确认是否正确连接了麦克风设备。');
                 return;
             }
 
             // 多个设备时进行选择
             var result = [];
             for (var i = 0; i < list.length; ++i) {
-                if (list[i].isAudio()) {
+                console.log(list[i]);
+                if (list[i].isAudioInput()) {
                     result.push(list[i]);
                 }
             }
@@ -3598,8 +3603,10 @@
      * @param {jQuery} el 
      */
     var VideoChatPanel = function(el) {
-        this.el = el;
         that = this;
+
+        var el = $('#video_chat');
+        this.panelEl = el;
 
         // 监听窗口大小变化
         window.addEventListener('resize', this.onResize, false);
@@ -3729,11 +3736,11 @@
      * 窗口恢复。
      */
     VideoChatPanel.prototype.restore = function() {
-        var content = this.el.find('.modal-content');
-        var footer = this.el.find('.modal-footer');
+        var content = this.panelEl.find('.modal-content');
+        var footer = this.panelEl.find('.modal-footer');
 
         if (sizeState == 0) {
-            this.el.removeClass('video-chat-panel-mini');
+            this.panelEl.removeClass('video-chat-panel-mini');
             content.removeClass('modal-content-mini');
             remoteContainer.removeClass('video-mini');
             localContainer.removeClass('video-mini');
@@ -3749,12 +3756,12 @@
                 resizeTimer = 0;
             }
 
-            this.el.css('left', lastX);
-            this.el.css('top', lastY);
-            this.el.css('width', '');
-            this.el.css('height', '');
+            this.panelEl.css('left', lastX);
+            this.panelEl.css('top', lastY);
+            this.panelEl.css('width', '');
+            this.panelEl.css('height', '');
 
-            var dialog = this.el.find('.modal-dialog');
+            var dialog = this.panelEl.find('.modal-dialog');
             dialog.css('width', '');
             dialog.css('height', '');
             content.css('width', '');
@@ -3771,7 +3778,7 @@
             btnRes.css('display', 'none');
 
             // 恢复拖放
-            this.el.draggable({
+            this.panelEl.draggable({
                 handle: '.modal-header',
                 containment: 'document',
                 disabled: false
@@ -3793,10 +3800,10 @@
 
         sizeState = 0;
 
-        var content = this.el.find('.modal-content');
-        var footer = this.el.find('.modal-footer');
+        var content = this.panelEl.find('.modal-content');
+        var footer = this.panelEl.find('.modal-footer');
 
-        this.el.addClass('video-chat-panel-mini');
+        this.panelEl.addClass('video-chat-panel-mini');
         content.addClass('modal-content-mini');
         remoteContainer.addClass('video-mini');
         localContainer.addClass('video-mini');
@@ -3825,7 +3832,7 @@
         btnMax.css('display', 'none');
         btnRes.css('display', 'block');
 
-        this.el.draggable({ disabled: true });
+        this.panelEl.draggable({ disabled: true });
     }
 
     /**
@@ -3835,18 +3842,55 @@
     VideoChatPanel.prototype.showMakeCall = function(target) {
         console.log('发起视频连线 ' + target.getId());
 
-        if (g.app.callCtrl.makeCall(target, true)) {
-            this.elRemoteLabel.text(target.getName());
-            this.elLocalLabel.text('我');
+        var videoDevice = null;
 
-            this.el.modal({
-                keyboard: false,
-                backdrop: false
-            });
+        var handler = function() {
+            if (g.app.callCtrl.makeCall(target, true, videoDevice)) {
+                that.elRemoteLabel.text(target.getName());
+                that.elLocalLabel.text('我');
+
+                that.panelEl.modal({
+                    keyboard: false,
+                    backdrop: false
+                });
+            }
+            else {
+                g.dialog.launchToast(Toast.Warning, '您当前正在通话中');
+            }
         }
-        else {
-            g.dialog.launchToast(Toast.Warning, '您当前正在通话中');
-        }
+
+        g.cube().mpComm.listMediaDevices(function(list) {
+            if (list.length == 0) {
+                g.dialog.showAlert('没有找到可用的摄像机设备，请您确认是否正确连接了摄像机设备。');
+                return;
+            }
+
+            // 多个设备时进行选择
+            var result = [];
+            for (var i = 0; i < list.length; ++i) {
+                if (list[i].isVideoInput()) {
+                    result.push(list[i]);
+                }
+            }
+
+            if (result.length > 1) {
+                g.app.callCtrl.showSelectMediaDevice(result, function(selected, selectedIndex) {
+                    if (selected) {
+                        // 设置设备
+                        videoDevice = result[selectedIndex];
+                        alert(videoDevice.label);
+                        // handler();
+                    }
+                    else {
+                        // 取消通话
+                        return;
+                    }
+                });
+            }
+            else {
+                handler();
+            }
+        });
     }
 
     /**
@@ -3859,7 +3903,7 @@
         this.elRemoteLabel.text(caller.getName());
         this.elLocalLabel.text('我');
 
-        this.el.modal({
+        this.panelEl.modal({
             keyboard: false,
             backdrop: false
         });
@@ -3869,7 +3913,7 @@
      * 关闭窗口。
      */
     VideoChatPanel.prototype.close = function() {
-        this.el.modal('hide');
+        this.panelEl.modal('hide');
     }
 
     /**
@@ -4021,17 +4065,17 @@
         var w = parseInt(document.body.clientWidth);
         var h = g.dialog.getFullHeight();
 
-        lastX = this.el.css('left');
-        lastY = this.el.css('top');
+        lastX = this.panelEl.css('left');
+        lastY = this.panelEl.css('top');
 
-        this.el.css('left', '322px');
-        this.el.css('top', '-1px');
-        this.el.css('width', w + 'px');
-        this.el.css('height', h + 'px');
+        this.panelEl.css('left', '322px');
+        this.panelEl.css('top', '-1px');
+        this.panelEl.css('width', w + 'px');
+        this.panelEl.css('height', h + 'px');
 
-        var dialog = this.el.find('.modal-dialog');
-        var content = this.el.find('.modal-content');
-        var footer = this.el.find('.modal-footer');
+        var dialog = this.panelEl.find('.modal-dialog');
+        var content = this.panelEl.find('.modal-content');
+        var footer = this.panelEl.find('.modal-footer');
 
         w = w - 2;
         h = h - 2;
@@ -5306,6 +5350,7 @@
 
     var selectMediaDeviceEl = null;
     var selectMediaDeviceCallback = null;
+    var selectVideoDevice = false;
 
     var working = false;
 
@@ -5489,6 +5534,12 @@
     CallController.prototype.showSelectMediaDevice = function(list, callback) {
         // 记录 Callback
         selectMediaDeviceCallback = callback;
+        if (list[0].isVideoInput()) {
+            selectVideoDevice = true;
+        }
+        else {
+            selectVideoDevice = false;
+        }
 
         if (null == selectMediaDeviceEl) {
             var el = $('#select_media_device');
@@ -5498,20 +5549,42 @@
             });
 
             el.find('button[data-target="confirm"]').click(function() {
-                var data = selectMediaDeviceEl.find('input:radio[name="DeviceRadio"]:checked').attr('data');
+                var queryString = selectVideoDevice ? 'input:radio[name="VideoDevice"]:checked' : 'input:radio[name="AudioDevice"]:checked';
+                var data = selectMediaDeviceEl.find(queryString).attr('data');
                 selectMediaDeviceCallback(true, parseInt(data));
             });
 
             selectMediaDeviceEl = el;
         }
 
-        selectMediaDeviceEl.find('.custom-radio').css('display', 'none');
+        if (selectVideoDevice) {
+            // 调整大小
+            var el = selectMediaDeviceEl.find('.modal-dialog');
+            if (!el.hasClass('modal-lg')) {
+                el.addClass('modal-lg');
+            }
+            // 隐藏音频设备选择
+            selectMediaDeviceEl.find('div[data-target="audio"]').css('display', 'none');
 
-        for (var i = 0; i < list.length; ++i) {
-            var value = list[i];
-            var item = selectMediaDeviceEl.find('div[data-target="radio-' + i + '"]');
-            item.find('label').text(value.label);
-            item.css('display', 'block');
+            var videoEl = selectMediaDeviceEl.find('div[data-target="video"]');
+            videoEl.css('display', 'flex');
+        }
+        else {
+            // 调整大小
+            selectMediaDeviceEl.find('.modal-dialog').removeClass('modal-lg');
+            // 隐藏视频选择
+            selectMediaDeviceEl.find('div[data-target="video"]').css('display', 'none');
+
+            var audioEl = selectMediaDeviceEl.find('div[data-target="audio"]');
+            audioEl.css('display', 'block');
+            audioEl.find('.custom-radio').css('display', 'none');
+
+            for (var i = 0; i < list.length; ++i) {
+                var value = list[i];
+                var item = audioEl.find('div[data-target="audio-' + i + '"]');
+                item.find('label').text(value.label);
+                item.css('display', 'block');
+            }
         }
 
         selectMediaDeviceEl.modal('show');
@@ -5521,15 +5594,17 @@
      * 发起通话请求。
      * @param {Contact} target 
      * @param {boolean} videoEnabled 
-     * @param {MediaDeviceDescription} [audioDevice]
-     * @param {MediaDeviceDescription} [videoDevice]
+     * @param {MediaDeviceDescription} [device]
      */
-    CallController.prototype.makeCall = function(target, videoEnabled, audioDevice, videoDevice) {
+    CallController.prototype.makeCall = function(target, videoEnabled, device) {
         if (working) {
             return false;
         }
 
         working = true;
+
+        // 媒体约束
+        var mediaConstraint = new MediaConstraint(videoEnabled, true);
 
         if (videoEnabled) {
             voiceCall = false;
@@ -5544,10 +5619,12 @@
             // 设置媒体容器
             cube.mpComm.setRemoteVideoElement(g.app.voiceCallPanel.remoteVideo);
             cube.mpComm.setLocalVideoElement(g.app.voiceCallPanel.localVideo);
+
+            if (device) {
+                mediaConstraint.setAudioDevice(device);
+            }
         }
 
-        // 媒体约束
-        var mediaConstraint = new MediaConstraint(videoEnabled, true);
         // 发起通话
         return cube.mpComm.makeCall(target, mediaConstraint);
     }

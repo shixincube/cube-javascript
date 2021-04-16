@@ -241,7 +241,18 @@ export class MultipointComm extends Module {
      * @param {function} handler 结果回调函数。参数：({@linkcode list}:{@linkcode Array< MediaDeviceDescription >}) 。
      */
     listMediaDevices(handler) {
-        MediaDeviceTool.enumDevices(handler);
+        let list = [];
+        MediaDeviceTool.enumDevices(function(result) {
+            for (let i = 0; i < result.length; ++i) {
+                if (result[i].deviceId == 'default') {
+                    continue;
+                }
+
+                list.push(result[i]);
+            }
+
+            handler(list);
+        });
     }
 
     /**
