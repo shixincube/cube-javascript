@@ -3028,37 +3028,26 @@
     }
 
     function onSwitchGroupNoNoticing(event, state) {
+        // 通过附录来管理消息免打扰
+        var appendix = g.cube().contact.getSelf().getAppendix();
 
+        if (state) {
+            appendix.addNoNoticeGroup(currentGroup.getId());
+        }
+        else {
+            appendix.removeNoNoticeGroup(currentGroup.getId());
+        }
     }
 
     function onSwitchContactNoNoticing(event, state) {
         // 通过附录来管理消息免打扰
         var appendix = g.cube().contact.getSelf().getAppendix();
-        var data = appendix.getAssignedData('NoNoticing');
-        if (null == data) {
-            data = {
-                'contacts': [],
-                'groups': []
-            };
-        }
-        var list = data.contacts;
-        var index = list.indexOf(currentContact.getId());
 
         if (state) {
-            if (index >= 0) {
-                return;
-            }
-
-            list.push(currentContact.getId());
-            appendix.setAssignedData('NoNoticing', data);
+            appendix.addNoNoticeContact(currentContact.getId());
         }
         else {
-            if (index < 0) {
-                return;
-            }
-
-            list.splice(index, 1);
-            appendix.setAssignedData('NoNoticing', data);
+            appendix.removeNoNoticeContact(currentContact.getId());
         }
     }
 
@@ -3095,9 +3084,11 @@
 
         switchGroupNoNoticing = groupSidebarEl.find('input[data-target="no-noticing-switch"]');
         switchGroupNoNoticing.bootstrapSwitch({
-            onText: '打开',  
-	        offText: '关闭',
+            onText: '已开启',  
+	        offText: '已关闭',
             size: 'small',
+            handleWith: 45,
+            labelWidth: 15,
             onSwitchChange: onSwitchGroupNoNoticing
         });
 
@@ -3113,9 +3104,11 @@
         // 联系人消息免打扰
         switchContactNoNoticing = contactSidebarEl.find('input[data-target="no-noticing-switch"]');
         switchContactNoNoticing.bootstrapSwitch({
-            onText: '打开',  
-	        offText: '关闭',
+            onText: '已开启',  
+	        offText: '已关闭',
             size: 'small',
+            handleWith: 45,
+            labelWidth: 15,
             onSwitchChange: onSwitchContactNoNoticing
         });
     }
@@ -3158,15 +3151,11 @@
 
         // 配置信息
         var appendix = g.app.getSelf().getAppendix();
-        var noNoticing = appendix.getAssignedData('NoNoticing');
-        if (null != noNoticing) {
-            var contacts = noNoticing.contacts;
-            if (contacts.indexOf(contact.getId()) >= 0) {
-                switchContactNoNoticing.bootstrapSwitch('state', true);
-            }
-            else {
-                switchContactNoNoticing.bootstrapSwitch('state', false);
-            }
+        if (appendix.isNoNoticeContact(contact)) {
+            switchContactNoNoticing.bootstrapSwitch('state', true);
+        }
+        else {
+            switchContactNoNoticing.bootstrapSwitch('state', false);
         }
     }
 
@@ -3222,6 +3211,15 @@
                 memberListEl.append($(html.join('')));
             });
         });
+
+        // 配置信息
+        var appendix = g.app.getSelf().getAppendix();
+        if (appendix.isNoNoticeGroup(group)) {
+            switchContactNoNoticing.bootstrapSwitch('state', true);
+        }
+        else {
+            switchContactNoNoticing.bootstrapSwitch('state', false);
+        }
 
         // 检索群组的图片
         /*window.cube().fs.getRoot(group, function(root) {

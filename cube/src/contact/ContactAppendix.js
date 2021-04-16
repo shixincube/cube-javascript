@@ -62,6 +62,20 @@ export class ContactAppendix {
         this.remarkName = '';
 
         /**
+         * 不对当前联系人进行提示的联系人。
+         * @private
+         * @type {Array}
+         */
+        this.noNoticeContacts = [];
+
+        /**
+         * 不对当前联系人进行提示的群组。
+         * @private
+         * @type {Array}
+         */
+        this.noNoticeGroups = [];
+
+        /**
          * 该联系人的赋值数据。
          * @private
          * @type {object}
@@ -129,6 +143,136 @@ export class ContactAppendix {
     }
 
     /**
+     * 指定联系人是否是不提醒的联系人。
+     * @param {Contact|number} contactOrId 指定联系人或联系人 ID 。
+     * @returns {boolean} 如果联系人不被提醒返回 {@linkcode true} 。
+     */
+    isNoNoticeContact(contactOrId) {
+        let id = typeof contactOrId === 'number' ? contactOrId : contactOrId.getId();
+        return (this.noNoticeContacts.indexOf(id) >= 0);
+    }
+
+    /**
+     * 添加不提醒的联系人。
+     * @param {Contact|number} contactOrId 指定联系人或联系人 ID 。
+     * @param {function} [handleSuccess] 成功回调。参数：({@linkcode appendix}:{@link ContactAppendix}) 。
+     * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     * @returns {boolean} 添加成功返回 {@linkcode true} 。
+     */
+    addNoNoticeContact(contactOrId, handleSuccess, handleFailure) {
+        let id = typeof contactOrId === 'number' ? contactOrId : contactOrId.getId();
+
+        if (this.noNoticeContacts.indexOf(id) >= 0) {
+            return false;
+        }
+
+        // 更新
+        this.noNoticeContacts.push(id);
+
+        let request = new Packet(ContactAction.UpdateAppendix, {
+            "contactId": this.owner.getId(),
+            "addNoNoticeContact": id
+        });
+
+        this._update(request, handleSuccess, handleFailure);
+
+        return true;
+    }
+
+    /**
+     * 删除不提醒的联系人。
+     * @param {Contact|number} contactOrId 指定联系人或联系人 ID 。
+     * @param {function} [handleSuccess] 成功回调。参数：({@linkcode appendix}:{@link ContactAppendix}) 。
+     * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     * @returns {boolean} 删除成功返回 {@linkcode true} 。
+     */
+    removeNoNoticeContact(contactOrId, handleSuccess, handleFailure) {
+        let id = typeof contactOrId === 'number' ? contactOrId : contactOrId.getId();
+
+        let index = this.noNoticeContacts.indexOf(id);
+        if (index < 0) {
+            return false;
+        }
+
+        // 更新
+        this.noNoticeContacts.splice(index, 1);
+
+        let request = new Packet(ContactAction.UpdateAppendix, {
+            "contactId": this.owner.getId(),
+            "removeNoNoticeContact": id
+        });
+
+        this._update(request, handleSuccess, handleFailure);
+
+        return true;
+    }
+
+    /**
+     * 指定群组是否是不提醒的群组。
+     * @param {number} groupOrId 指定群组或群组 ID 。
+     * @returns {boolean} 如果群组不被提醒返回 {@linkcode true} 。
+     */
+    isNoNoticeGroup(groupOrId) {
+        let id = typeof groupOrId === 'number' ? groupOrId : groupOrId.getId();
+        return (this.noNoticeGroups.indexOf(id) >= 0);
+    }
+
+    /**
+     * 添加不提醒的群组。
+     * @param {Group|number} groupOrId 指定群组或群组 ID 。
+     * @param {function} [handleSuccess] 成功回调。参数：({@linkcode appendix}:{@link ContactAppendix}) 。
+     * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     * @returns {boolean} 添加成功返回 {@linkcode true} 。
+     */
+    addNoNoticeGroup(groupOrId, handleSuccess, handleFailure) {
+        let id = typeof groupOrId === 'number' ? groupOrId : groupOrId.getId();
+
+        if (this.noNoticeGroups.indexOf(id) >= 0) {
+            return false;
+        }
+
+        // 更新
+        this.noNoticeGroups.push(id);
+
+        let request = new Packet(ContactAction.UpdateAppendix, {
+            "contactId": this.owner.getId(),
+            "addNoNoticeGroup": id
+        });
+
+        this._update(request, handleSuccess, handleFailure);
+
+        return true;
+    }
+
+    /**
+     * 删除不提醒的群组。
+     * @param {Group|number} groupOrId 指定群组或群组 ID 。
+     * @param {function} [handleSuccess] 成功回调。参数：({@linkcode appendix}:{@link ContactAppendix}) 。
+     * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     * @returns {boolean} 删除成功返回 {@linkcode true} 。
+     */
+    removeNoNoticeGroup(groupOrId, handleSuccess, handleFailure) {
+        let id = typeof groupOrId === 'number' ? groupOrId : groupOrId.getId();
+
+        let index = this.noNoticeGroups.indexOf(id);
+        if (index < 0) {
+            return false;
+        }
+
+        // 更新
+        this.noNoticeGroups.splice(index, 1);
+
+        let request = new Packet(ContactAction.UpdateAppendix, {
+            "contactId": this.owner.getId(),
+            "removeNoNoticeGroup": id
+        });
+
+        this._update(request, handleSuccess, handleFailure);
+
+        return true;
+    }
+
+    /**
      * 获取指定键的已赋值数据。
      * @param {string} key 指定数据的键。
      * @returns {JSON} 如果没有找到对应的数据，返回 {@linkcode null} 值。
@@ -168,7 +312,18 @@ export class ContactAppendix {
             "assignedValue": value
         });
 
-        this.service.pipeline.send(ContactService.NAME, request, (pipeline, source, packet) => {
+        this._update(request, handleSuccess, handleFailure);
+
+        return true;
+    }
+
+    /**
+     * @private
+     * @param {function} handleSuccess 
+     * @param {function} handleFailure 
+     */
+    _update(requestPacket, handleSuccess, handleFailure) {
+        this.service.pipeline.send(ContactService.NAME, requestPacket, (pipeline, source, packet) => {
             if (null == packet || packet.getStateCode() != StateCode.OK) {
                 let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, this);
                 if (handleFailure) {
@@ -189,7 +344,5 @@ export class ContactAppendix {
                 handleSuccess(this);
             }
         });
-
-        return true;
     }
 }

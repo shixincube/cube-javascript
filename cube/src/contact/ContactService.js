@@ -2043,6 +2043,16 @@ export class ContactService extends Module {
                 // 备注名
                 contactAppendix.remarkName = data.remarkName;
 
+                // 无提醒联系人
+                if (data.noNoticeContacts) {
+                    contactAppendix.noNoticeContacts = data.noNoticeContacts;
+                }
+
+                // 无提醒群组
+                if (data.noNoticeGroups) {
+                    contactAppendix.noNoticeGroups = data.noNoticeGroups;
+                }
+
                 // 赋值数据
                 if (data.assignedData) {
                     contactAppendix.assignedData = data.assignedData;
