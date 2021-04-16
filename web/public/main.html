@@ -799,6 +799,38 @@
     </div>
     <!-- Video Chat - end -->
 
+    <!-- Group Voice Call - begin -->
+    <div id="group_voice_call" class="modal fade modeless voice-call-panel">
+        <div class="modal-dialog modal-lg modal-dialog-modeless">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">群通话</h6>
+                </div>
+                <div class="modal-body">
+                    <div class="info-box">
+                        <span class="info-box-icon"><img src="" data-target="avatar" /></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text" data-target="name">&nbsp;</span>
+                            <span class="info-box-desc" data-target="info">&nbsp;</span>
+                        </div>
+                    </div>
+                    <div class="media-container">
+                        <video data-target="remote" autoplay="autoplay"></video>
+                        <video data-target="local" autoplay="autoplay"></video>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <div class="media-btn-group">
+                        <button class="btn btn-primary media-btn-microphone" type="button" title="操作麦克风" data-target="microphone"><i class="ci ci-btn ci-microphone-opened"></i></button>
+                        <button class="btn btn-primary media-btn-volume" type="button" title="操作扬声器" data-target="volume"><i class="ci ci-btn ci-volume-unmuted"></i></button>
+                    </div>
+                    <button class="btn btn-danger hangup-btn" type="button" title="挂断通话" data-target="hangup"><i class="ci ci-hangup"></i> 挂断</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Group Voice Call - end -->
+
     <!-- Select Media Device - begin -->
     <div id="select_media_device" class="modal fade" data-backdrop="static">
         <div class="modal-dialog">
