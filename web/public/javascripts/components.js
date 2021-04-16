@@ -3421,7 +3421,7 @@
                 g.app.callCtrl.showSelectMediaDevice(result, function(selected, selectedIndex) {
                     if (selected) {
                         if (selectedIndex >= result.length) {
-                            alert('数据错误');
+                            g.dialog.showAlert('选择的设备数据错误');
                             return;
                         }
 
@@ -3881,14 +3881,14 @@
                 g.app.callCtrl.showSelectMediaDevice(result, function(selected, selectedIndex) {
                     if (selected) {
                         if (selectedIndex >= result.length) {
-                            alert('数据错误');
+                            g.dialog.showAlert('选择的设备数据错误');
                             return;
                         }
 
                         // 设置设备
                         videoDevice = result[selectedIndex];
-                        alert(videoDevice.label);
-                        // handler();
+                        // g.dialog.showAlert(videoDevice.label);
+                        handler();
                     }
                     else {
                         // 取消通话
@@ -5597,7 +5597,8 @@
                 var item = videoEl.find('div[data-target="video-' + i + '"]');
                 item.find('label').text(value.label);
 
-                MediaDeviceTool.loadVideoDeviceStream(item.find('video')[0], value, function(videoEl, deviceDesc, stream) {
+                // 将摄像机数据加载到视频标签
+                MediaDeviceTool.loadVideoDeviceStream(item.find('video')[0], value, false, function(videoEl, deviceDesc, stream) {
                     selectVideoData.push({
                         videoEl: videoEl,
                         device: deviceDesc,
@@ -5654,6 +5655,10 @@
             // 设置媒体容器
             cube.mpComm.setRemoteVideoElement(g.app.videoChatPanel.remoteVideo);
             cube.mpComm.setLocalVideoElement(g.app.videoChatPanel.localVideo);
+
+            if (device) {
+                mediaConstraint.setVideoDevice(device);
+            }
         }
         else {
             voiceCall = true;

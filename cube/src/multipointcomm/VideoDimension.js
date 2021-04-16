@@ -37,7 +37,8 @@ export const VideoDimension = {
         width: 320,
         height: 240,
         constraints: {
-            video: { width: {exact: 320}, height: {exact: 240} }
+            width: { exact: 320 },
+            height: { exact: 240 }
         }
     },
 
@@ -49,7 +50,8 @@ export const VideoDimension = {
         width: 640,
         height: 480,
         constraints: {
-            video: { width: {exact: 640}, height: {exact: 480} }
+            width: { exact: 640 },
+            height: { exact: 480 }
         }
     },
 
@@ -61,7 +63,8 @@ export const VideoDimension = {
         width: 800,
         height: 600,
         constraints: {
-            video: { width: {exact: 800}, height: {exact: 600} }
+            width: { exact: 800 },
+            height: { exact: 600 }
         }
     },
 
@@ -73,7 +76,8 @@ export const VideoDimension = {
         width: 1280,
         height: 720,
         constraints: {
-            video: { width: {exact: 1280}, height: {exact: 720} }
+            width: { exact: 1280 },
+            height: { exact: 720 }
         }
     },
 
@@ -85,7 +89,8 @@ export const VideoDimension = {
         width: 1920,
         height: 1080,
         constraints: {
-            video: { width: {exact: 1920}, height: {exact: 1080} }
+            width: { exact: 1920 },
+            height: { exact: 1080 }
         }
     },
 
@@ -97,7 +102,8 @@ export const VideoDimension = {
         width: 4096,
         height: 2160,
         constraints: {
-            video: { width: {exact: 4096}, height: {exact: 2160} }
+            width: { exact: 4096 },
+            height: { exact: 2160 }
         }
     },
 
@@ -109,7 +115,8 @@ export const VideoDimension = {
         width: 7680,
         height: 4320,
         constraints: {
-            video: { width: {exact: 7680}, height: {exact: 4320} }
+            width: { exact: 7680 },
+            height: { exact: 4320 }
         }
     }
 }

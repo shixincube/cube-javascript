@@ -339,14 +339,14 @@
                 g.app.callCtrl.showSelectMediaDevice(result, function(selected, selectedIndex) {
                     if (selected) {
                         if (selectedIndex >= result.length) {
-                            alert('数据错误');
+                            g.dialog.showAlert('选择的设备数据错误');
                             return;
                         }
 
                         // 设置设备
                         videoDevice = result[selectedIndex];
-                        alert(videoDevice.label);
-                        // handler();
+                        // g.dialog.showAlert(videoDevice.label);
+                        handler();
                     }
                     else {
                         // 取消通话

@@ -328,6 +328,10 @@
             // 设置媒体容器
             cube.mpComm.setRemoteVideoElement(g.app.videoChatPanel.remoteVideo);
             cube.mpComm.setLocalVideoElement(g.app.videoChatPanel.localVideo);
+
+            if (device) {
+                mediaConstraint.setVideoDevice(device);
+            }
         }
         else {
             voiceCall = true;

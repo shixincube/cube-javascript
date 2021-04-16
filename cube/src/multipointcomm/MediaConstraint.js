@@ -91,7 +91,8 @@ export class MediaConstraint extends JSONable {
 
     /**
      * 设置音频设备。
-     * @param {MediaDeviceDescription} mediaDeviceDescription 
+     * @param {MediaDeviceDescription} mediaDeviceDescription 设备的描述数据。
+     * @returns {boolean} 设置成功返回 {@linkcode true} 。
      */
     setAudioDevice(mediaDeviceDescription) {
         if (!mediaDeviceDescription.isAudioInput()) {
@@ -99,6 +100,20 @@ export class MediaConstraint extends JSONable {
         }
 
         this.audioDevice = mediaDeviceDescription;
+        return true;
+    }
+
+    /**
+     * 设置视频设备。
+     * @param {MediaDeviceDescription} mediaDeviceDescription 设备的描述数据。
+     * @returns {boolean} 设置成功返回 {@linkcode true} 。
+     */
+    setVideoDevice(mediaDeviceDescription) {
+        if (!mediaDeviceDescription.isVideoInput()) {
+            return false;
+        }
+
+        this.videoDevice = mediaDeviceDescription;
         return true;
     }
 
@@ -124,7 +139,13 @@ export class MediaConstraint extends JSONable {
         }
 
         if (this.videoEnabled) {
+            // 获取视频画幅约束
             json.video = this.dimension.constraints;
+
+            if (null != this.videoDevice) {
+                json.video.deviceId = this.videoDevice.deviceId;
+                json.video.groupId = this.videoDevice.groupId;
+            }
         }
         else {
             json.video = false;
