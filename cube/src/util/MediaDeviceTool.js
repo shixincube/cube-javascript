@@ -66,6 +66,32 @@ export class MediaDeviceTool {
     }
 
     /**
+     * 加载指定设备的媒体流到指定的视频标签显示。
+     * @param {HTMLElement} videoEl 指定视频的 DOM 元素。
+     * @param {MediaDeviceDescription} deviceDesc 指定媒体设备描述。
+     * @param {boolean} enableAudio 是否启用设备的音频通道。
+     * @param {function} successCallback 加载数据成功回调。参数：({@linkcode videoEl}:{@linkcode HTMLElement}, {@linkcode deviceDesc}:{@linkcode MediaDeviceDescription}, {@linkcode stream}:{@linkcode MediaStream}) 。
+     * @param {function} failureCallback 加载数据失败回调。参数：({@linkcode error}:{@linkcode Error}) 。
+     */
+    static loadVideoDeviceStream(videoEl, deviceDesc, enableAudio, successCallback, failureCallback) {
+        let constraints = {
+            audio: enableAudio,
+            video: {
+                deviceId: deviceDesc.deviceId,
+                groupId: deviceDesc.groupId
+            }
+        };
+
+        MediaDeviceTool.getUserMedia(constraints, (stream) => {
+            MediaDeviceTool.bindVideoStream(videoEl, stream, () => {
+                successCallback(videoEl, deviceDesc, stream);
+            });
+        }, (error) => {
+            failureCallback(error);
+        })
+    }
+
+    /**
      * 将视频标签和流进行绑定。
      * @param {HTMLElement} videoEl 
      * @param {MediaStream} stream 

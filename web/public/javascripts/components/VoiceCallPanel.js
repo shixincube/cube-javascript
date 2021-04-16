@@ -152,6 +152,11 @@
             if (result.length > 1) {
                 g.app.callCtrl.showSelectMediaDevice(result, function(selected, selectedIndex) {
                     if (selected) {
+                        if (selectedIndex >= result.length) {
+                            alert('数据错误');
+                            return;
+                        }
+
                         // 设置设备
                         audioDevice = result[selectedIndex];
                         handler();

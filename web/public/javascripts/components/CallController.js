@@ -33,6 +33,7 @@
     var selectMediaDeviceEl = null;
     var selectMediaDeviceCallback = null;
     var selectVideoDevice = false;
+    var selectVideoData = [];
 
     var working = false;
 
@@ -236,6 +237,17 @@
                 selectMediaDeviceCallback(true, parseInt(data));
             });
 
+            el.on('hide.bs.modal', function() {
+                if (selectVideoData.length > 0) {
+                    for (var i = 0; i < selectVideoData.length; ++i) {
+                        var value = selectVideoData[i];
+                        // 停止采集流
+                        MediaDeviceTool.stopStream(value.stream, value.videoEl);
+                    }
+                    selectVideoData.splice(0, selectVideoData.length);
+                }
+            });
+
             selectMediaDeviceEl = el;
         }
 
@@ -250,8 +262,27 @@
 
             var videoEl = selectMediaDeviceEl.find('div[data-target="video"]');
             videoEl.css('display', 'flex');
+            // 隐藏选项
+            videoEl.find('.col-6').css('display', 'none');
 
-            
+            for (var i = 0; i < list.length; ++i) {
+                var value = list[i];
+                var item = videoEl.find('div[data-target="video-' + i + '"]');
+                item.find('label').text(value.label);
+
+                // 将摄像机数据加载到视频标签
+                MediaDeviceTool.loadVideoDeviceStream(item.find('video')[0], value, false, function(videoEl, deviceDesc, stream) {
+                    selectVideoData.push({
+                        videoEl: videoEl,
+                        device: deviceDesc,
+                        stream: stream,
+                    });
+                }, function(error) {
+                    console.log(error);
+                });
+
+                item.css('display', 'block');
+            }
         }
         else {
             // 调整大小
@@ -261,6 +292,7 @@
 
             var audioEl = selectMediaDeviceEl.find('div[data-target="audio"]');
             audioEl.css('display', 'block');
+            // 隐藏选项
             audioEl.find('.custom-radio').css('display', 'none');
 
             for (var i = 0; i < list.length; ++i) {
