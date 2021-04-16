@@ -117,19 +117,55 @@
     VoiceCallPanel.prototype.showMakeCall = function(target) {
         console.log('发起语音通话 ' + target.getId());
 
-        if (g.app.callCtrl.makeCall(target, false)) {
-            this.elPeerAvatar.attr('src', 'images/' + target.getContext().avatar);
-            this.elPeerName.text(target.getName());
-            this.elInfo.text('正在呼叫...');
+        var audioDevice = null;
 
-            this.panelEl.modal({
-                keyboard: false,
-                backdrop: false
-            });
-        }
-        else {
-            g.dialog.launchToast(Toast.Warning, '您当前正在通话中');
-        }
+        var handler = function() {
+            if (g.app.callCtrl.makeCall(target, false, audioDevice)) {
+                that.elPeerAvatar.attr('src', 'images/' + target.getContext().avatar);
+                that.elPeerName.text(target.getName());
+                that.elInfo.text('正在呼叫...');
+
+                that.panelEl.modal({
+                    keyboard: false,
+                    backdrop: false
+                });
+            }
+            else {
+                g.dialog.launchToast(Toast.Warning, '您当前正在通话中');
+            }
+        };
+
+        g.cube().mpComm.listMediaDevices(function(list) {
+            if (list.length == 0) {
+                g.dialog.showAlert('没有找到可被使用的麦克风设备，请您确认是否正确连接了麦克风设备。');
+                return;
+            }
+
+            // 多个设备时进行选择
+            var result = [];
+            for (var i = 0; i < list.length; ++i) {
+                if (list[i].isAudio()) {
+                    result.push(list[i]);
+                }
+            }
+
+            if (result.length > 1) {
+                g.app.callCtrl.showSelectMediaDevice(result, function(selected, selectedIndex) {
+                    if (selected) {
+                        // 设置设备
+                        audioDevice = result[selectedIndex];
+                        handler();
+                    }
+                    else {
+                        // 取消通话
+                        return;
+                    }
+                });
+            }
+            else {
+                handler();
+            }
+        });
     }
 
     /**
@@ -154,6 +190,10 @@
      */
     VoiceCallPanel.prototype.close = function() {
         this.panelEl.modal('hide');
+        // 停止播放等待音
+        g.app.mainPanel.stopWaitingTone();
+        // 停止播放振铃
+        g.app.mainPanel.stopCallRing();
     }
 
     /**
@@ -169,6 +209,9 @@
         wfaTimer = setInterval(function() {
             that.elInfo.text('等待应答，已等待 ' + (++time) + ' 秒...');
         }, 1000);
+
+        // 播放等待音
+        g.app.mainPanel.playWaitingTone();
     }
 
     /**
@@ -190,6 +233,9 @@
         callingTimer = setInterval(function() {
             that.elInfo.text(g.formatClockTick(++callingElapsed));
         }, 1000);
+
+        // 停止播放等待音
+        g.app.mainPanel.stopWaitingTone();
     }
 
     /**

@@ -24,8 +24,9 @@
  * SOFTWARE.
  */
 
-import { VideoDimension } from "./VideoDimension";
 import { JSONable } from "../util/JSONable";
+import { VideoDimension } from "./VideoDimension";
+import { MediaDeviceDescription } from "../util/MediaDeviceDescription";
 
 /**
  * 媒体约束。
@@ -46,12 +47,29 @@ export class MediaConstraint extends JSONable {
         this.videoEnabled = videoEnabled;
 
         /**
+         * 视频设备。
+         * @type {MediaDeviceDescription}
+         */
+        this.videoDevice = null;
+
+        /**
          * 是否使用音频流通道。
          * @type {boolean}
          */
         this.audioEnabled = audioEnabled;
 
+        /**
+         * 音频设备。
+         * @type {MediaDeviceDescription}
+         */
+        this.audioDevice = null;
 
+        /**
+         * 视频画幅尺寸。
+         * @private
+         * @type {JSON}
+         * @see VideoDimension
+         */
         this.dimension = VideoDimension.VGA;
     }
 
@@ -72,12 +90,39 @@ export class MediaConstraint extends JSONable {
     }
 
     /**
+     * 设置音频设备。
+     * @param {MediaDeviceDescription} mediaDeviceDescription 
+     */
+    setAudioDevice(mediaDeviceDescription) {
+        if (!mediaDeviceDescription.isAudio()) {
+            return false;
+        }
+
+        this.audioDevice = mediaDeviceDescription;
+        return true;
+    }
+
+    /**
      * 获取媒体约束描述。
      * @returns {JSON} 返回约束的 JSON 格式。
      */
     getConstraints() {
         let json = {};
-        json.audio = this.audioEnabled;
+        if (this.audioEnabled) {
+            if (null == this.audioDevice) {
+                json.audio = this.audioEnabled;
+            }
+            else {
+                json.audio = {
+                    deviceId: this.audioDevice.deviceId,
+                    groupId: this.audioDevice.groupId
+                };
+            }
+        }
+        else {
+            json.audio = this.audioEnabled;
+        }
+
         if (this.videoEnabled) {
             json.video = this.dimension.constraints;
         }

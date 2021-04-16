@@ -44,6 +44,7 @@ import { Signaling } from "./Signaling";
 import { ModuleError } from "../core/error/ModuleError";
 import { CallRecord } from "./CallRecord";
 import { CommFieldEndpoint } from "./CommFieldEndpoint";
+import { MediaDeviceTool } from "../util/MediaDeviceTool";
 
 /**
  * 多方通信服务。
@@ -233,6 +234,14 @@ export class MultipointComm extends Module {
      */
     setRemoteVideoElement(element) {
         this.videoElem.remote = element;
+    }
+
+    /**
+     * 列举当前系统可用的所有媒体设备。
+     * @param {function} handler 结果回调函数。参数：({@linkcode list}:{@linkcode Array< MediaDeviceDescription >}) 。
+     */
+    listMediaDevices(handler) {
+        MediaDeviceTool.enumDevices(handler);
     }
 
     /**

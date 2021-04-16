@@ -3381,19 +3381,55 @@
     VoiceCallPanel.prototype.showMakeCall = function(target) {
         console.log('发起语音通话 ' + target.getId());
 
-        if (g.app.callCtrl.makeCall(target, false)) {
-            this.elPeerAvatar.attr('src', 'images/' + target.getContext().avatar);
-            this.elPeerName.text(target.getName());
-            this.elInfo.text('正在呼叫...');
+        var audioDevice = null;
 
-            this.panelEl.modal({
-                keyboard: false,
-                backdrop: false
-            });
-        }
-        else {
-            g.dialog.launchToast(Toast.Warning, '您当前正在通话中');
-        }
+        var handler = function() {
+            if (g.app.callCtrl.makeCall(target, false, audioDevice)) {
+                that.elPeerAvatar.attr('src', 'images/' + target.getContext().avatar);
+                that.elPeerName.text(target.getName());
+                that.elInfo.text('正在呼叫...');
+
+                that.panelEl.modal({
+                    keyboard: false,
+                    backdrop: false
+                });
+            }
+            else {
+                g.dialog.launchToast(Toast.Warning, '您当前正在通话中');
+            }
+        };
+
+        g.cube().mpComm.listMediaDevices(function(list) {
+            if (list.length > 0) {
+                g.dialog.showAlert('没有找到可被使用的麦克风设备，请您确认是否正确连接了麦克风设备。');
+                return;
+            }
+
+            // 多个设备时进行选择
+            var result = [];
+            for (var i = 0; i < list.length; ++i) {
+                if (list[i].isAudio()) {
+                    result.push(list[i]);
+                }
+            }
+
+            if (result.length > 1) {
+                g.app.callCtrl.showSelectMediaDevice(result, function(selected, selectedIndex) {
+                    if (selected) {
+                        // 设置设备
+                        audioDevice = result[selectedIndex];
+                        handler();
+                    }
+                    else {
+                        // 取消通话
+                        return;
+                    }
+                });
+            }
+            else {
+                handler();
+            }
+        });
     }
 
     /**
@@ -3418,6 +3454,10 @@
      */
     VoiceCallPanel.prototype.close = function() {
         this.panelEl.modal('hide');
+        // 停止播放等待音
+        g.app.mainPanel.stopWaitingTone();
+        // 停止播放振铃
+        g.app.mainPanel.stopCallRing();
     }
 
     /**
@@ -3433,6 +3473,9 @@
         wfaTimer = setInterval(function() {
             that.elInfo.text('等待应答，已等待 ' + (++time) + ' 秒...');
         }, 1000);
+
+        // 播放等待音
+        g.app.mainPanel.playWaitingTone();
     }
 
     /**
@@ -3454,6 +3497,9 @@
         callingTimer = setInterval(function() {
             that.elInfo.text(g.formatClockTick(++callingElapsed));
         }, 1000);
+
+        // 停止播放等待音
+        g.app.mainPanel.stopWaitingTone();
     }
 
     /**
@@ -5258,6 +5304,9 @@
 
     var that = null;
 
+    var selectMediaDeviceEl = null;
+    var selectMediaDeviceCallback = null;
+
     var working = false;
 
     var voiceCall = false;
@@ -5433,11 +5482,49 @@
     }
 
     /**
+     * 显示选择设备对话框。
+     * @param {Array} list 
+     * @param {function} callback 
+     */
+    CallController.prototype.showSelectMediaDevice = function(list, callback) {
+        // 记录 Callback
+        selectMediaDeviceCallback = callback;
+
+        if (null == selectMediaDeviceEl) {
+            var el = $('#select_media_device');
+
+            el.find('button[data-target="cancel"]').click(function() {
+                selectMediaDeviceCallback(false);
+            });
+
+            el.find('button[data-target="confirm"]').click(function() {
+                var data = selectMediaDeviceEl.find('input:radio[name="DeviceRadio"]:checked').attr('data');
+                selectMediaDeviceCallback(true, parseInt(data));
+            });
+
+            selectMediaDeviceEl = el;
+        }
+
+        selectMediaDeviceEl.find('.custom-radio').css('display', 'none');
+
+        for (var i = 0; i < list.length; ++i) {
+            var value = list[i];
+            var item = selectMediaDeviceEl.find('div[data-target="radio-' + i + '"]');
+            item.find('label').text(value.label);
+            item.css('display', 'block');
+        }
+
+        selectMediaDeviceEl.modal('show');
+    }
+
+    /**
      * 发起通话请求。
      * @param {Contact} target 
      * @param {boolean} videoEnabled 
+     * @param {MediaDeviceDescription} [audioDevice]
+     * @param {MediaDeviceDescription} [videoDevice]
      */
-    CallController.prototype.makeCall = function(target, videoEnabled) {
+    CallController.prototype.makeCall = function(target, videoEnabled, audioDevice, videoDevice) {
         if (working) {
             return false;
         }
