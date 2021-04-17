@@ -547,6 +547,10 @@
         }
     }
 
+    CallController.prototype.makeGroupCall = function(target, inviteeList) {
+
+    }
+
     g.CallController = CallController;
 
 })(window);

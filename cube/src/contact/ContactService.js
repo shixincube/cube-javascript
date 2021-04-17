@@ -388,6 +388,15 @@ export class ContactService extends Module {
             id = contactId.getId();
         }
 
+        if (undefined !== handleSuccess) {
+            // 从缓存读取
+            let contact = this.contacts.get(id);
+            if (null != contact) {
+                handleSuccess(contact);
+                return;
+            }
+        }
+
         let promise = new Promise((resolve, reject) => {
             // 从缓存读取
             let contact = this.contacts.get(id);

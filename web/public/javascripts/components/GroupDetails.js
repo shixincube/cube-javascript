@@ -25,7 +25,6 @@
  */
 
 (function(g) {
-    'use strict'
 
     var lastGroup = null;
     var lastTimestamp = 0;

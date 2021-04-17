@@ -43,17 +43,81 @@
         btnHangup.click(function() {
             that.terminate();
         });
+
+        panelEl.draggable({
+            handle: ".modal-header"
+        });
     }
 
     VoiceGroupCallPanel.prototype.showMakeCall = function(group) {
-        panelEl.modal({
-            keyboard: false,
-            backdrop: false
+        var members = [];
+
+        group.getMembers().forEach(function(element) {
+            if (element.getId() == g.app.getSelf().getId()) {
+                return;
+            }
+
+            g.app.getContact(element.getId(), function(contact) {
+                members.push(contact);
+
+                if (members.length == group.numMembers() - 1) {
+                    // 显示联系人列表对话框，以便选择邀请通话的联系人。
+                    g.app.contactListDialog.show(members, [], function(result) {
+                        result.unshift(g.app.getSelf().getId());
+
+                        // 界面布局
+                        that.layout(result);
+
+                        panelEl.modal({
+                            keyboard: false,
+                            backdrop: false
+                        });
+                    }, '群通话', '请选择要邀请通话的群组成员');
+                }
+            });
         });
     }
 
     VoiceGroupCallPanel.prototype.terminate = function() {
         panelEl.modal('hide');
+    }
+
+    /**
+     * @private
+     * @param {Array} list 
+     */
+    VoiceGroupCallPanel.prototype.layout = function(list) {
+        var layoutEl = panelEl.find('.layout');
+        var num = list.length;
+        var col = 'col-3';
+
+        var html = [];
+
+        var handler = function() {
+            layoutEl.empty();
+            layoutEl.append($(html.join('')));
+        };
+
+        for (var i = 0; i < num; ++i) {
+            var cid = list[i];
+            g.app.getContact(cid, function(contact) {
+                var chtml = [
+                    '<div class="', col, '">',
+                        '<div class="avatar">',
+                            '<img src="images/', contact.getContext().avatar, '" />',
+                        '</div>',
+                        '<div class="name">',
+                            '<div>', contact.getName(), '</div>',
+                        '</div>',
+                    '</div>'
+                ];
+                html.push(chtml.join(''));
+
+                if (html.length == num) {
+                    handler();
+                }
+            });
+        }
     }
 
     g.VoiceGroupCallPanel = VoiceGroupCallPanel;

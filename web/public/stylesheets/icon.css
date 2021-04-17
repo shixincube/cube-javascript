@@ -124,13 +124,23 @@
 }
 
 .ci-answer {
-    vertical-align: bottom;
     width: 22px;
     height: 16px;
+    vertical-align: bottom;
     background-image: url(../images/icon/answer@2x.png);
     background-repeat: no-repeat;
     background-position: center;
     background-size: 16px 16px;
+}
+
+.ci-invite-participant {
+    width: 22px;
+    height: 22px;
+    vertical-align: baseline;
+    background-image: url(../images/icon/invite-participant@2x.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 20px 20px;
 }
 
 .ci-file-directory {
