@@ -336,6 +336,20 @@
     }
 
     /**
+     * 发起群组通话
+     * @param {Group} group 
+     * @param {boolean} video 
+     */
+    CallController.prototype.launchGroupCall = function(group, video) {
+        if (video) {
+            g.app.videoGroupChatPanel.showMakeCall(group);
+        }
+        else {
+            g.app.voiceGroupCallPanel.showMakeCall(group);
+        }
+    }
+
+    /**
      * 发起通话请求。
      * @param {Contact} target 
      * @param {boolean} videoEnabled 

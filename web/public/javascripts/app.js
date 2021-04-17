@@ -297,8 +297,6 @@
             // 消息侧边栏
             messageSidebar = new MessageSidebar(messagingEl.find('.messaging-sidebar'));
 
-            voiceCallPanel = new VoiceCallPanel();
-            videoChatPanel = new VideoChatPanel();
             contactDetails = new ContactDetails($('#modal_contact_details'));
             groupDetails = new GroupDetails($('#modal_group_details'));
             newGroupDialog = new NewGroupDialog($('#new_group_dialog'));
@@ -330,8 +328,11 @@
             that.messagePanel = messagePanel;
             that.messageSidebar = messageSidebar;
 
-            that.voiceCallPanel = voiceCallPanel;
-            that.videoChatPanel = videoChatPanel;
+            that.voiceCallPanel = new VoiceCallPanel();
+            that.videoChatPanel = new VideoChatPanel();
+            that.voiceGroupCallPanel = new VoiceGroupCallPanel();
+            that.videoGroupChatPanel = new VideoGroupChatPanel();
+
             that.contactDetails = contactDetails;
             that.groupDetails = groupDetails;
             that.newGroupDialog = newGroupDialog;

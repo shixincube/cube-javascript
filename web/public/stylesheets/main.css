@@ -1367,13 +1367,6 @@ video {
     margin-left: -181px;
     color: #f8f9fa;
 }
-.voice-call-panel h6 {
-    font-size: 16px;
-    font-weight: bold;
-}
-.voice-call-panel .close {
-    font-size: 18px;
-}
 .voice-call-panel .info-box {
     font-size: 14px;
     background-color: #343a40;
@@ -1386,7 +1379,33 @@ video {
     height: 50px;
     border-radius: 10%;
 }
-.voice-call-panel .media-container {
+.voice-call-panel .modal-dialog {
+    width: 360px;
+}
+.voice-call-panel .modal-content {
+    width: 360px;
+}
+
+.voice-group-panel {
+    width: 482px;
+    margin-left: -241px;
+    color: #f8f9fa;
+}
+.voice-group-panel .modal-dialog {
+    width: 480px;
+}
+.voice-group-panel .modal-content {
+    width: 480px;
+}
+
+.voice-call-panel .close, .voice-group-panel .close {
+    font-size: 18px;
+}
+.voice-call-panel h6, .voice-group-panel h6 {
+    font-size: 14px;
+    font-weight: bold;
+}
+.voice-call-panel .media-container, .voice-group-panel .media-container {
     position: absolute;
     float: left;
     visibility: hidden;
@@ -1395,35 +1414,31 @@ video {
     height: 10px;
     overflow: hidden;
 }
-.voice-call-panel .media-container video {
+.voice-call-panel .media-container video, .voice-group-panel .media-container video {
     width: 1px;
     height: 1px;
 }
-.voice-call-panel .modal-dialog {
-    width: 360px;
-}
-.voice-call-panel .modal-content {
-    width: 360px;
+.voice-call-panel .modal-content, .voice-group-panel .modal-content {
     background-color: #343a40;
     box-shadow: none;
 }
-.voice-call-panel .modal-header {
+.voice-call-panel .modal-header, .voice-group-panel .modal-header {
     padding: 10px 16px 10px 16px;
     border-bottom: 1px solid #545a60;
     cursor: move;
 }
-.voice-call-panel .modal-body {
+.voice-call-panel .modal-body, .voice-group-panel .modal-body {
     padding: 0;
 }
-.voice-call-panel .modal-body .info-box-desc {
+.voice-call-panel .modal-body .info-box-desc, .voice-group-panel .modal-body .info-box-desc {
     color: #adb5bd;
     font-family: 'Courier New', Courier, monospace;
 }
-.voice-call-panel .modal-footer {
+.voice-call-panel .modal-footer, .voice-group-panel .modal-footer {
     padding: 10px 16px 10px 16px;
     border-top: 1px solid #545a60;
 }
-.voice-call-panel .modal-footer button {
+.voice-call-panel .modal-footer button, .voice-group-panel .modal-footer button {
     font-size: 14px;
 }
 

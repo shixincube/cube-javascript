@@ -354,6 +354,8 @@
             this.btnEmoji.removeAttr('disabled');
             this.btnSend.removeAttr('disabled');
             this.btnSendFile.removeAttr('disabled');
+            this.btnVideoCall.removeAttr('disabled');
+            this.btnVoiceCall.removeAttr('disabled');
         }
         else {
             // 生成草稿
@@ -394,19 +396,16 @@
         panel.unreadCount = 0;
 
         if (panel.groupable) {
-            if (!this.btnVideoCall[0].hasAttribute('disabled')) {
-                this.btnVideoCall.attr('disabled', 'disabled');
-            }
-            if (!this.btnVoiceCall[0].hasAttribute('disabled')) {
-                this.btnVoiceCall.attr('disabled', 'disabled');
-            }
+            // if (!this.btnVideoCall[0].hasAttribute('disabled')) {
+            //     this.btnVideoCall.attr('disabled', 'disabled');
+            // }
+            // if (!this.btnVoiceCall[0].hasAttribute('disabled')) {
+            //     this.btnVoiceCall.attr('disabled', 'disabled');
+            // }
 
             this.elTitle.text(entity.getName());
         }
         else {
-            this.btnVideoCall.removeAttr('disabled');
-            this.btnVoiceCall.removeAttr('disabled');
-
             this.elTitle.text(entity.getAppendix().hasRemarkName() ?
                 entity.getAppendix().getRemarkName() : entity.getName());
         }

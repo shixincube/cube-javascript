@@ -15,6 +15,8 @@ const fileList = [
     'MessageSidebar.js',
     'VoiceCallPanel.js',
     'VideoChatPanel.js',
+    'VoiceGroupCallPanel.js',
+    'VideoGroupChatPanel.js',
     'ContactDetails.js',
     'GroupDetails.js',
     'NewGroupDialog.js',

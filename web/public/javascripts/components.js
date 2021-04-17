@@ -1668,6 +1668,8 @@
             this.btnEmoji.removeAttr('disabled');
             this.btnSend.removeAttr('disabled');
             this.btnSendFile.removeAttr('disabled');
+            this.btnVideoCall.removeAttr('disabled');
+            this.btnVoiceCall.removeAttr('disabled');
         }
         else {
             // 生成草稿
@@ -1708,19 +1710,16 @@
         panel.unreadCount = 0;
 
         if (panel.groupable) {
-            if (!this.btnVideoCall[0].hasAttribute('disabled')) {
-                this.btnVideoCall.attr('disabled', 'disabled');
-            }
-            if (!this.btnVoiceCall[0].hasAttribute('disabled')) {
-                this.btnVoiceCall.attr('disabled', 'disabled');
-            }
+            // if (!this.btnVideoCall[0].hasAttribute('disabled')) {
+            //     this.btnVideoCall.attr('disabled', 'disabled');
+            // }
+            // if (!this.btnVoiceCall[0].hasAttribute('disabled')) {
+            //     this.btnVoiceCall.attr('disabled', 'disabled');
+            // }
 
             this.elTitle.text(entity.getName());
         }
         else {
-            this.btnVideoCall.removeAttr('disabled');
-            this.btnVoiceCall.removeAttr('disabled');
-
             this.elTitle.text(entity.getAppendix().hasRemarkName() ?
                 entity.getAppendix().getRemarkName() : entity.getName());
         }
@@ -4130,6 +4129,79 @@
 
 })(window);
 
+/**
+ * 群组语音面板。
+ */
+(function(g) {
+
+    var that = null;
+
+    var panelEl = null;
+
+    var btnHangup = null;
+
+    var VoiceGroupCallPanel = function() {
+        that = this;
+        panelEl = $('#group_voice_call');
+
+        btnHangup = panelEl.find('button[data-target="hangup"]');
+        btnHangup.click(function() {
+            that.terminate();
+        });
+    }
+
+    VoiceGroupCallPanel.prototype.showMakeCall = function(group) {
+        panelEl.modal({
+            keyboard: false,
+            backdrop: false
+        });
+    }
+
+    VoiceGroupCallPanel.prototype.terminate = function() {
+        panelEl.modal('hide');
+    }
+
+    g.VoiceGroupCallPanel = VoiceGroupCallPanel;
+
+})(window);
+
+/**
+ * 群组视频面板。
+ */
+(function(g) {
+
+    var that = null;
+
+    var panelEl = null;
+
+    var btnHangup = null;
+
+    var VideoGroupChatPanel = function() {
+        that = this;
+
+        panelEl = $('#group_video_chat');
+
+        btnHangup = panelEl.find('button[data-target="hangup"]');
+        btnHangup.click(function() {
+            that.terminate();
+        });
+    }
+
+    VideoGroupChatPanel.prototype.showMakeCall = function(group) {
+        panelEl.modal({
+            keyboard: false,
+            backdrop: false
+        });
+    }
+
+    VideoGroupChatPanel.prototype.terminate = function() {
+        panelEl.modal('hide');
+    }
+
+    g.VideoGroupChatPanel = VideoGroupChatPanel;
+
+})(window);
+
 (function(g) {
     'use strict';
 
@@ -5225,18 +5297,28 @@
 
     /**
      * 打开语音通话界面。
-     * @param {Contact} target 通话对象。
+     * @param {Contact|Group} target 通话对象。
      */
     MessagingController.prototype.openVoiceCall = function(target) {
-        g.app.callCtrl.callContact(target);
+        if (target instanceof Group) {
+            g.app.callCtrl.launchGroupCall(target);
+        }
+        else {
+            g.app.callCtrl.callContact(target);
+        }
     }
 
     /**
      * 打开视频通话界面。
-     * @param {Contact} target 通话对象。
+     * @param {Contact|Group} target 通话对象。
      */
     MessagingController.prototype.openVideoChat = function(target) {
-        g.app.callCtrl.callContact(target, true);
+        if (target instanceof Group) {
+            g.app.callCtrl.launchGroupCall(target, true);
+        }
+        else {
+            g.app.callCtrl.callContact(target, true);
+        }
     }
 
     /**
@@ -5682,6 +5764,20 @@
                 g.app.voiceCallPanel.showMakeCall(contact);
             }
         });
+    }
+
+    /**
+     * 发起群组通话
+     * @param {Group} group 
+     * @param {boolean} video 
+     */
+    CallController.prototype.launchGroupCall = function(group, video) {
+        if (video) {
+            g.app.videoGroupChatPanel.showMakeCall(group);
+        }
+        else {
+            g.app.voiceGroupCallPanel.showMakeCall(group);
+        }
     }
 
     /**

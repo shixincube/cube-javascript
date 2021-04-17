@@ -550,18 +550,28 @@
 
     /**
      * 打开语音通话界面。
-     * @param {Contact} target 通话对象。
+     * @param {Contact|Group} target 通话对象。
      */
     MessagingController.prototype.openVoiceCall = function(target) {
-        g.app.callCtrl.callContact(target);
+        if (target instanceof Group) {
+            g.app.callCtrl.launchGroupCall(target);
+        }
+        else {
+            g.app.callCtrl.callContact(target);
+        }
     }
 
     /**
      * 打开视频通话界面。
-     * @param {Contact} target 通话对象。
+     * @param {Contact|Group} target 通话对象。
      */
     MessagingController.prototype.openVideoChat = function(target) {
-        g.app.callCtrl.callContact(target, true);
+        if (target instanceof Group) {
+            g.app.callCtrl.launchGroupCall(target, true);
+        }
+        else {
+            g.app.callCtrl.callContact(target, true);
+        }
     }
 
     /**
