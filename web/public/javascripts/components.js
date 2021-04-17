@@ -5228,7 +5228,7 @@
      * @param {Contact} target 通话对象。
      */
     MessagingController.prototype.openVoiceCall = function(target) {
-        g.app.voiceCallPanel.showMakeCall(target);
+        g.app.callCtrl.callContact(target);
     }
 
     /**
@@ -5236,7 +5236,7 @@
      * @param {Contact} target 通话对象。
      */
     MessagingController.prototype.openVideoChat = function(target) {
-        g.app.videoChatPanel.showMakeCall(target);
+        g.app.callCtrl.callContact(target, true);
     }
 
     /**
@@ -5661,6 +5661,27 @@
         }
 
         selectMediaDeviceEl.modal('show');
+    }
+
+    /**
+     * 邀请指定联系人通话。
+     * @param {Contact} contact 
+     * @param {boolean} [video] 
+     */
+    CallController.prototype.callContact = function(contact, video) {
+        cube.contact.queryBlockList(function(list) {
+            if (list.indexOf(contact.getId()) >= 0) {
+                g.dialog.showAlert('你已经把“' + contact.getName() + '”添加到黑名单里，不能邀请他通话！');
+                return;
+            }
+
+            if (video) {
+                g.app.videoChatPanel.showMakeCall(contact);
+            }
+            else {
+                g.app.voiceCallPanel.showMakeCall(contact);
+            }
+        });
     }
 
     /**

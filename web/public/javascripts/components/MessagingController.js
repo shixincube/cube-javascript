@@ -553,7 +553,7 @@
      * @param {Contact} target 通话对象。
      */
     MessagingController.prototype.openVoiceCall = function(target) {
-        g.app.voiceCallPanel.showMakeCall(target);
+        g.app.callCtrl.callContact(target);
     }
 
     /**
@@ -561,7 +561,7 @@
      * @param {Contact} target 通话对象。
      */
     MessagingController.prototype.openVideoChat = function(target) {
-        g.app.videoChatPanel.showMakeCall(target);
+        g.app.callCtrl.callContact(target, true);
     }
 
     /**
