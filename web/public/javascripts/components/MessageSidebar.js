@@ -167,7 +167,7 @@
                     g.dialog.launchToast(Toast.Error, '邀请入群操作失败 - ' + error.code);
                 });
             }
-        }, '邀请入群');
+        }, '邀请入群', '请选择您要邀请入群的联系人');
     }
 
     function onRemoveMemberClick(e) {
@@ -198,7 +198,7 @@
                     g.dialog.launchToast(Toast.Error, '移除成员操作失败 - ' + error.code);
                 });
             }
-        }, '移除成员');
+        }, '移除成员', '请选择您要从群组移除的联系人');
     }
 
 

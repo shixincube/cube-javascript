@@ -24,8 +24,10 @@
  * SOFTWARE.
  */
 
- (function(g) {
-    'use strict';
+/**
+ * 用于选择联系人的对话框。
+ */
+(function(g) {
 
     var that = null;
 
@@ -93,6 +95,11 @@
         el.find('button[data-target="confirm"]').on('click', onConfirmClick);
     }
 
+    /**
+     * 
+     * @param {*} handlerCallback 
+     * @param {*} disabledList 
+     */
     SelectContactsDialog.prototype.show = function(handlerCallback, disabledList) {
         callback = handlerCallback;
         confirmed = false;

@@ -1006,7 +1006,7 @@
                         g.dialog.launchToast(Toast.Error, '邀请入群操作失败 - ' + error.code);
                     });
                 }
-            }, '邀请入群');
+            }, '邀请入群', '请选择您要邀请入群的联系人');
         }
         else {
             g.app.newGroupDialog.show([this.current.entity.getId()]);

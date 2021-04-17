@@ -48,12 +48,9 @@
     var messagePanel = null;
     var messageSidebar = null;
 
-    var voiceCallPanel = null;
-    var videoChatPanel = null;
     var contactDetails = null;
     var groupDetails = null;
     var newGroupDialog = null;
-    var contactListDialog = null;
 
     var fileDetails = null;
 
@@ -300,7 +297,6 @@
             contactDetails = new ContactDetails($('#modal_contact_details'));
             groupDetails = new GroupDetails($('#modal_group_details'));
             newGroupDialog = new NewGroupDialog($('#new_group_dialog'));
-            contactListDialog = new ContactListDialog($('#contact_list_dialog'));
 
             fileDetails = new FileDetails($('#modal_file_details'));
 
@@ -336,7 +332,7 @@
             that.contactDetails = contactDetails;
             that.groupDetails = groupDetails;
             that.newGroupDialog = newGroupDialog;
-            that.contactListDialog = contactListDialog;
+            that.contactListDialog = new ContactListDialog();
 
             that.fileDetails = fileDetails;
 

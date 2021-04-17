@@ -2320,7 +2320,7 @@
                         g.dialog.launchToast(Toast.Error, '邀请入群操作失败 - ' + error.code);
                     });
                 }
-            }, '邀请入群');
+            }, '邀请入群', '请选择您要邀请入群的联系人');
         }
         else {
             g.app.newGroupDialog.show([this.current.entity.getId()]);
@@ -2977,7 +2977,7 @@
                     g.dialog.launchToast(Toast.Error, '邀请入群操作失败 - ' + error.code);
                 });
             }
-        }, '邀请入群');
+        }, '邀请入群', '请选择您要邀请入群的联系人');
     }
 
     function onRemoveMemberClick(e) {
@@ -3008,7 +3008,7 @@
                     g.dialog.launchToast(Toast.Error, '移除成员操作失败 - ' + error.code);
                 });
             }
-        }, '移除成员');
+        }, '移除成员', '请选择您要从群组移除的联系人');
     }
 
 
@@ -4692,11 +4692,10 @@
 
     /**
      * 联系人列表对话框。
-     * @param {jQuery} el 
      */
-    var ContactListDialog = function(el) {
-        dialogEl = el;
-        btnConfirm = el.find('button[data-target="confirm"]');
+    var ContactListDialog = function() {
+        dialogEl = $('#contact_list_dialog');
+        btnConfirm = dialogEl.find('button[data-target="confirm"]');
 
         btnConfirm.click(fireConfirm);
     }
@@ -4707,9 +4706,9 @@
      * @param {Array} selectedList 已经被选中的联系人列表。
      * @param {function} confirmHandle 确认事件回调。参数：({@linkcode list}:{@linkcode Array}) 。
      * @param {string} [title] 对话框标题。
-     * @param {boolean} [checked] 是否勾选已选中的联系人。
+     * @param {string} [prompt] 提示内容。
      */
-    ContactListDialog.prototype.show = function(list, selectedList, confirmHandle, title, checked) {
+    ContactListDialog.prototype.show = function(list, selectedList, confirmHandle, title, prompt) {
         currentList = list;
         preselected = selectedList;
 
@@ -4718,6 +4717,13 @@
         }
         else {
             dialogEl.find('.modal-title').text('联系人列表');
+        }
+
+        if (prompt) {
+            dialogEl.find('.tip').text(prompt);
+        }
+        else {
+            dialogEl.find('.tip').text('请选择联系人');
         }
 
         if (confirmHandle) {
@@ -8839,8 +8845,10 @@
 
  })(window);
 
- (function(g) {
-    'use strict';
+/**
+ * 用于选择联系人的对话框。
+ */
+(function(g) {
 
     var that = null;
 
@@ -8908,6 +8916,11 @@
         el.find('button[data-target="confirm"]').on('click', onConfirmClick);
     }
 
+    /**
+     * 
+     * @param {*} handlerCallback 
+     * @param {*} disabledList 
+     */
     SelectContactsDialog.prototype.show = function(handlerCallback, disabledList) {
         callback = handlerCallback;
         confirmed = false;
