@@ -4138,11 +4138,24 @@
 
     var panelEl = null;
 
+    var btnMin = null;
+    var btnRestore = null;
     var btnHangup = null;
 
     var VoiceGroupCallPanel = function() {
         that = this;
         panelEl = $('#group_voice_call');
+
+        btnMin = panelEl.find('button[data-target="minimize"]');
+        btnMin.click(function() {
+            that.minimize();
+        });
+
+        btnRestore = panelEl.find('button[data-target="restore"]');
+        btnRestore.click(function() {
+            that.restore();
+        });
+        btnRestore.css('display', 'none');
 
         btnHangup = panelEl.find('button[data-target="hangup"]');
         btnHangup.click(function() {
@@ -4171,7 +4184,7 @@
                         result.unshift(g.app.getSelf().getId());
 
                         // 界面布局
-                        that.layout(result);
+                        that.resetLayout(result);
 
                         panelEl.modal({
                             keyboard: false,
@@ -4183,15 +4196,23 @@
         });
     }
 
+    VoiceGroupCallPanel.prototype.minimize = function() {
+
+    }
+
+    VoiceGroupCallPanel.prototype.restore = function() {
+
+    }
+
     VoiceGroupCallPanel.prototype.terminate = function() {
         panelEl.modal('hide');
     }
 
     /**
      * @private
-     * @param {*} list 
+     * @param {Array} list 
      */
-    VoiceGroupCallPanel.prototype.layout = function(list) {
+    VoiceGroupCallPanel.prototype.resetLayout = function(list) {
         var layoutEl = panelEl.find('.layout');
         var num = list.length;
         var col = 'col-3';

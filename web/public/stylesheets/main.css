@@ -1253,16 +1253,29 @@ video {
     margin-left: -121px;
 }
 .video-chat-panel h6 {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: bold;
 }
 .video-chat-panel .title-button-group {
     display: flex;
-    padding-top: 6px;
+}
+.video-chat-panel .title-button-group .title-button {
+    margin-left: 4px;
 }
 .video-chat-panel .title-button {
-    font-size: 12px;
-    color: #fefefe;
+    width: 22px;
+    height: 22px;
+    font-size: 14px;
+    color: #f8f9fa;
+    background-color: transparent;
+    border: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    font-weight: 700;
+    line-height: 1;
+    text-shadow: 0 1px 0 #343a40;
+    opacity: .8;
 }
 .video-chat-panel .modal-dialog {
     width: 642px;
@@ -1400,6 +1413,27 @@ video {
 .voice-group-panel .modal-content {
     width: 510px;
 }
+.voice-group-panel .title-button-group {
+    display: flex;
+}
+.voice-group-panel .title-button-group .title-button {
+    margin-left: 4px;
+}
+.voice-group-panel .title-button {
+    width: 22px;
+    height: 22px;
+    font-size: 14px;
+    color: #f8f9fa;
+    background-color: transparent;
+    border: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    font-weight: 700;
+    line-height: 1;
+    text-shadow: 0 1px 0 #343a40;
+    opacity: .8;
+}
 .voice-group-panel .layout {
     background-color: #343a40;
     padding: 10px;
@@ -1430,9 +1464,9 @@ video {
     text-shadow: #000 1px 0 0, #000 0 1px 0, #000 -1px 0 0, #000 0 -1px 0;
 }
 
-.voice-call-panel .close, .voice-group-panel .close {
-    font-size: 18px;
-}
+/* .voice-call-panel .close, .voice-group-panel .close {
+    font-size: 12px;
+} */
 .voice-call-panel h6, .voice-group-panel h6 {
     font-size: 14px;
     font-weight: bold;
