@@ -37,6 +37,8 @@
     var btnRestore = null;
     var btnHangup = null;
 
+    var minimized = false;
+
     var VoiceGroupCallPanel = function() {
         that = this;
         panelEl = $('#group_voice_call');
@@ -50,7 +52,6 @@
         btnRestore.click(function() {
             that.restore();
         });
-        btnRestore.css('display', 'none');
 
         btnHangup = panelEl.find('button[data-target="hangup"]');
         btnHangup.click(function() {
@@ -81,6 +82,9 @@
                         // 界面布局
                         that.resetLayout(result);
 
+                        panelEl.find('.voice-group-default .modal-title').text('群通话 - ' + group.getName());
+                        panelEl.find('.voice-group-minisize .modal-title').text(group.getName());
+
                         panelEl.modal({
                             keyboard: false,
                             backdrop: false
@@ -92,11 +96,27 @@
     }
 
     VoiceGroupCallPanel.prototype.minimize = function() {
+        if (minimized) {
+            return;
+        }
 
+        minimized = true;
+
+        panelEl.addClass('voice-group-panel-mini');
+        panelEl.find('.voice-group-default').css('display', 'none');
+        panelEl.find('.voice-group-minisize').css('display', 'block');
     }
 
     VoiceGroupCallPanel.prototype.restore = function() {
+        if (!minimized) {
+            return;
+        }
 
+        minimized = false;
+
+        panelEl.removeClass('voice-group-panel-mini');
+        panelEl.find('.voice-group-default').css('display', 'block');
+        panelEl.find('.voice-group-minisize').css('display', 'none');
     }
 
     VoiceGroupCallPanel.prototype.terminate = function() {

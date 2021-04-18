@@ -1407,12 +1407,16 @@ video {
     margin-left: -256px;
     color: #f8f9fa;
 }
+.voice-group-panel-mini {
+    width: 200px;
+    margin-left: -100px;
+}
 .voice-group-panel .modal-dialog {
     width: 510px;
 }
-.voice-group-panel .modal-content {
+/* .voice-group-panel .modal-content {
     width: 510px;
-}
+} */
 .voice-group-panel .title-button-group {
     display: flex;
 }
@@ -1462,6 +1466,20 @@ video {
     color: #fff;
     text-align: center;
     text-shadow: #000 1px 0 0, #000 0 1px 0, #000 -1px 0 0, #000 0 -1px 0;
+}
+
+.voice-group-minisize {
+    display: none;
+    width: 200px !important;
+    color: #f8f9fa;
+}
+.voice-group-minisize .modal-footer {
+    font-size: 14px;
+}
+.voice-group-minisize .duration, .voice-group-minisize .number-of-member {
+    color: #fff;
+    font-weight: 700;
+    font-family: 'Courier New', Courier, monospace;
 }
 
 /* .voice-call-panel .close, .voice-group-panel .close {

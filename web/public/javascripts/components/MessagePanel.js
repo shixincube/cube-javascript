@@ -625,7 +625,7 @@
             text = fileDesc.join('');
         }
         else if (message instanceof CallRecordMessage) {
-            var icon = message.getConstraint().video ? '<i class="fas fa-video"></i>' : '<i class="fas fa-phone"></i>';
+            var icon = message.getConstraint().video ? '<i class="fas fa-video"></i>' : '<i class="fas fa-phone-alt"></i>';
             var answerTime = message.getAnswerTime();
             var desc = null;
             if (answerTime > 0) {

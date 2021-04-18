@@ -152,7 +152,7 @@
                                             <i class="fas fa-video"></i>
                                         </button>
                                         <button type="button" class="btn btn-sm btn-default btn-shortcut" data-toggle="tooltip" data-placement="bottom" title="语音通话" data-target="voice-call" disabled>
-                                            <i class="fas fa-phone"></i>
+                                            <i class="fas fa-phone-alt"></i>
                                         </button>
                                     </div>
                                     <div class="input-group" style="display:none;">
@@ -801,16 +801,13 @@
 
     <!-- Group Voice Call - begin -->
     <div id="group_voice_call" class="modal fade modeless voice-group-panel">
-        <div class="modal-dialog modal-dialog-modeless">
+        <div class="modal-dialog modal-dialog-modeless voice-group-default">
             <div class="modal-content">
                 <div class="modal-header">
                     <h6 class="modal-title">群通话</h6>
                     <div class="title-button-group">
                         <button class="title-button" type="button" data-target="minimize">
                             <i class="fas fa-window-minimize"></i>
-                        </button>
-                        <button class="title-button" type="button" data-target="restore">
-                            <i class="fas fa-window-restore"></i>
                         </button>
                     </div>
                 </div>
@@ -834,7 +831,31 @@
                     <button class="btn btn-danger hangup-btn" type="button" title="挂断通话" data-target="hangup"><i class="ci ci-hangup"></i> 挂断</button>
                 </div>
             </div>
-        </div>
+        </div><!-- /.modal-dialog -->
+
+        <div class="modal-dialog modal-dialog-modeless voice-group-minisize">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">群通话</h6>
+                    <div class="title-button-group">
+                        <button class="title-button" type="button" data-target="restore">
+                            <i class="fas fa-window-restore"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <div>
+                        <span><i class="fas fa-phone-alt"></i></span>
+                        <span class="duration">00:00</span>
+                    </div>
+                    <div>
+                        <span><i class="fas fa-user-alt"></i> <span class="number-of-member">1</span></span>
+                    </div>
+                </div>
+            </div>
+        </div><!-- /.modal-dialog -->
     </div>
     <!-- Group Voice Call - end -->
 

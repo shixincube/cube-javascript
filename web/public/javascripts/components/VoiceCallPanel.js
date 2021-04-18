@@ -284,7 +284,7 @@
         $(document).Toasts('create', {
             title: '语音通话邀请',
             position: 'bottomRight',
-            icon: 'fas fa-phone',
+            icon: 'fas fa-phone-alt',
             close: false,
             class: 'voice-new-call',
             body: body.join('')
