@@ -469,6 +469,24 @@
     }
 
     /**
+     * 是否开启了摄像机。
+     * @returns {boolean}
+     */
+    CallController.prototype.isCameraOpened = function() {
+        var field = g.cube().mpComm.getActiveField();
+        if (null == field) {
+            return false;
+        }
+
+        var rtcDevice = field.getRTCDevice();
+        if (null == rtcDevice) {
+            return false;
+        }
+
+        return rtcDevice.outboundVideoEnabled();
+    }
+
+    /**
      * 开关摄像机设备。
      */
     CallController.prototype.toggleCamera = function() {
@@ -537,10 +555,10 @@
     }
 
     /**
-     * 扬声器是否已开启。
+     * 扬声器是否未静音。
      * @returns {boolean}
      */
-    CallController.prototype.isLoudspeakerOpened = function() {
+    CallController.prototype.isUnmuted = function() {
         var field = g.cube().mpComm.getActiveField();
         if (null == field) {
             return false;

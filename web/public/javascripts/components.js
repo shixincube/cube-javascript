@@ -3520,7 +3520,7 @@
             that.btnMic.html('<i class="ci ci-btn ci-microphone-closed"></i>');
         }
 
-        if (g.app.callCtrl.isLoudspeakerOpened()) {
+        if (g.app.callCtrl.isUnmuted()) {
             that.btnVol.html('<i class="ci ci-btn ci-volume-unmuted"></i>');
         }
         else {
@@ -3697,37 +3697,31 @@
         this.btnCam.on('click', function() {
             if (g.app.callCtrl.toggleCamera()) {
                 // 摄像头已启用
-                that.btnCam.empty();
-                that.btnCam.append($('<i class="ci ci-btn ci-camera-opened"></i>'));
+                that.btnCam.html('<i class="ci ci-btn ci-camera-opened"></i>');
             }
             else {
                 // 摄像头已停用
-                that.btnCam.empty();
-                that.btnCam.append($('<i class="ci ci-btn ci-camera-closed"></i>'));
+                that.btnCam.html('<i class="ci ci-btn ci-camera-closed"></i>');
             }
         });
         this.btnMic.on('click', function() {
             if (g.app.callCtrl.toggleMicrophone()) {
                 // 麦克风未静音
-                that.btnMic.empty();
-                that.btnMic.append($('<i class="ci ci-btn ci-microphone-opened"></i>'));
+                that.btnMic.html('<i class="ci ci-btn ci-microphone-opened"></i>');
             }
             else {
                 // 麦克风已静音
-                that.btnMic.empty();
-                that.btnMic.append($('<i class="ci ci-btn ci-microphone-closed"></i>'));
+                that.btnMic.html('<i class="ci ci-btn ci-microphone-closed"></i>');
             }
         });
         this.btnVol.on('click', function() {
             if (g.app.callCtrl.toggleLoudspeaker()) {
                 // 扬声器未静音
-                that.btnVol.empty();
-                that.btnVol.append($('<i class="ci ci-btn ci-volume-unmuted"></i>'));
+                that.btnVol.html('<i class="ci ci-btn ci-volume-unmuted"></i>');
             }
             else {
                 // 扬声器已静音
-                that.btnVol.empty();
-                that.btnVol.append($('<i class="ci ci-btn ci-volume-muted"></i>'));
+                that.btnVol.html('<i class="ci ci-btn ci-volume-muted"></i>');
             }
         });
 
@@ -3936,6 +3930,10 @@
         this.elRemoteLabel.text(caller.getName());
         this.elLocalLabel.text('我');
 
+        that.btnCam.removeAttr('disabled');
+        that.btnMic.removeAttr('disabled');
+        that.btnVol.removeAttr('disabled');
+
         this.panelEl.modal({
             keyboard: false,
             backdrop: false
@@ -3974,6 +3972,10 @@
 
         // 播放等待音
         g.app.mainPanel.playWaitingTone();
+
+        that.btnCam.removeAttr('disabled');
+        that.btnMic.removeAttr('disabled');
+        that.btnVol.removeAttr('disabled');
     }
 
     /**
@@ -3993,13 +3995,31 @@
 
         remoteVideo.style.visibility = 'visible';
 
-        this.btnCam.removeAttr('disabled');
-        this.btnMic.removeAttr('disabled');
-        this.btnVol.removeAttr('disabled');
-
         callingTimer = setInterval(function() {
             that.headerTip.text(g.formatClockTick(++callingElapsed));
         }, 1000);
+
+        // 更新按钮状态
+        if (g.app.callCtrl.isCameraOpened()) {
+            that.btnCam.html('<i class="ci ci-btn ci-camera-opened"></i>');
+        }
+        else {
+            that.btnCam.html('<i class="ci ci-btn ci-camera-closed"></i>');
+        }
+
+        if (g.app.callCtrl.isMicrophoneOpened()) {
+            that.btnMic.html('<i class="ci ci-btn ci-microphone-opened"></i>');
+        }
+        else {
+            that.btnMic.html('<i class="ci ci-btn ci-microphone-closed"></i>');
+        }
+
+        if (g.app.callCtrl.isUnmuted()) {
+            that.btnVol.html('<i class="ci ci-btn ci-volume-unmuted"></i>');
+        }
+        else {
+            that.btnVol.html('<i class="ci ci-btn ci-volume-muted"></i>');
+        }
     }
 
     /**
@@ -6007,6 +6027,24 @@
     }
 
     /**
+     * 是否开启了摄像机。
+     * @returns {boolean}
+     */
+    CallController.prototype.isCameraOpened = function() {
+        var field = g.cube().mpComm.getActiveField();
+        if (null == field) {
+            return false;
+        }
+
+        var rtcDevice = field.getRTCDevice();
+        if (null == rtcDevice) {
+            return false;
+        }
+
+        return rtcDevice.outboundVideoEnabled();
+    }
+
+    /**
      * 开关摄像机设备。
      */
     CallController.prototype.toggleCamera = function() {
@@ -6075,10 +6113,10 @@
     }
 
     /**
-     * 扬声器是否已开启。
+     * 扬声器是否未静音。
      * @returns {boolean}
      */
-    CallController.prototype.isLoudspeakerOpened = function() {
+    CallController.prototype.isUnmuted = function() {
         var field = g.cube().mpComm.getActiveField();
         if (null == field) {
             return false;

@@ -245,7 +245,7 @@
             that.btnMic.html('<i class="ci ci-btn ci-microphone-closed"></i>');
         }
 
-        if (g.app.callCtrl.isLoudspeakerOpened()) {
+        if (g.app.callCtrl.isUnmuted()) {
             that.btnVol.html('<i class="ci ci-btn ci-volume-unmuted"></i>');
         }
         else {

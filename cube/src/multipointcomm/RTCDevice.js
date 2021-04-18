@@ -135,6 +135,7 @@ export class RTCDevice {
             "in" : {
                 video: true,
                 audio: true,
+                volume: 1.0
             },
             "out" : {
                 video: true,
@@ -322,6 +323,7 @@ export class RTCDevice {
      * @param {number} value 音量值，从 0.0 (静音) 到 1.0 (最大声)。
      */
     setVolume(value) {
+        this.streamState.in.volume = value;
         if (null != this.remoteVideoElem) {
             this.remoteVideoElem.volume = value;
         }
@@ -335,7 +337,7 @@ export class RTCDevice {
         if (null != this.remoteVideoElem) {
             return this.remoteVideoElem.volume;
         }
-        return 0;
+        return this.streamState.in.volume;
     }
 
     /**
@@ -716,6 +718,7 @@ export class RTCDevice {
         setTimeout(() => {
             if (null != this.inboundStream) {
                 this.syncStreamState(this.inboundStream, this.streamState.in);
+                this.remoteVideoElem.volume = this.streamState.in.volume;
             }
         }, 33);
     }
