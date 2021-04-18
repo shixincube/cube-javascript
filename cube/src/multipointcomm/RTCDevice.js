@@ -126,6 +126,21 @@ export class RTCDevice {
          * @type {Array<DeviceSpanner>}
          */
         this.spanners = [];
+
+        /**
+         * 出入栈流的状态记录。
+         * @type {object}
+         */
+        this.streamState = {
+            "in" : {
+                video: true,
+                audio: true,
+            },
+            "out" : {
+                video: true,
+                audio: true
+            }
+        };
     }
 
     /**
@@ -149,7 +164,12 @@ export class RTCDevice {
      * @returns {boolean} 返回出站视频是否已启用。
      */
     outboundVideoEnabled() {
-        return this.streamEnabled(this.outboundStream, 'video');
+        if (null == this.this.outboundStream) {
+            return this.streamState.out.video;
+        }
+
+        this.streamState.out.video = this.streamEnabled(this.outboundStream, 'video');
+        return this.streamState.out.video;
     }
 
     /**
@@ -157,7 +177,12 @@ export class RTCDevice {
      * @returns {boolean} 返回出站音频是否已启用。
      */
     outboundAudioEnabled() {
-        return this.streamEnabled(this.outboundStream, 'audio');
+        if (null == this.outboundStream) {
+            return this.streamState.out.audio;
+        }
+
+        this.streamState.out.audio = this.streamEnabled(this.outboundStream, 'audio');
+        return this.streamState.out.audio;
     }
 
     /**
@@ -165,7 +190,12 @@ export class RTCDevice {
      * @returns {boolean} 返回入站视频是否已启用。
      */
     inboundVideoEnabled() {
-        return this.streamEnabled(this.inboundStream, 'video');
+        if (null == this.inboundStream) {
+            return this.streamState.in.video;
+        }
+
+        this.streamState.in.video = this.streamEnabled(this.inboundStream, 'video');
+        return this.streamState.in.video;
     }
 
     /**
@@ -173,7 +203,12 @@ export class RTCDevice {
      * @returns {boolean} 返回入站音频是否已启用。
      */
     inboundAudioEnabled() {
-        return this.streamEnabled(this.inboundStream, 'audio');
+        if (null == this.inboundStream) {
+            return this.streamState.in.audio;
+        }
+
+        this.streamState.in.audio = this.streamEnabled(this.inboundStream, 'audio');
+        return this.streamState.in.audio;
     }
 
     /**
@@ -194,6 +229,8 @@ export class RTCDevice {
                 ret = track.enabled;
                 return true;
             }
+
+            return false;
         });
         return ret;
     }
@@ -204,6 +241,7 @@ export class RTCDevice {
      * @returns {boolean} 返回设置是否有效。
      */
     enableOutboundVideo(enabled) {
+        this.streamState.out.video = enabled;
         return this.enableStream(this.outboundStream, 'video', enabled);
     }
 
@@ -213,6 +251,7 @@ export class RTCDevice {
      * @returns {boolean} 返回设置是否有效。
      */
     enableOutboundAudio(enabled) {
+        this.streamState.out.audio = enabled;
         return this.enableStream(this.outboundStream, 'audio', enabled);
     }
 
@@ -222,6 +261,7 @@ export class RTCDevice {
      * @returns {boolean} 返回设置是否有效。
      */
     enableInboundVideo(enabled) {
+        this.streamState.in.video = enabled;
         return this.enableStream(this.inboundStream, 'video', enabled);
     }
 
@@ -231,6 +271,7 @@ export class RTCDevice {
      * @returns {boolean} 返回设置是否有效。
      */
     enableInboundAudio(enabled) {
+        this.streamState.in.audio = enabled;
         return this.enableStream(this.inboundStream, 'audio', enabled);
     }
 
@@ -254,8 +295,26 @@ export class RTCDevice {
                 ret = true;
                 return true;
             }
+
+            return false;
         });
         return ret;
+    }
+
+    /**
+     * @private
+     * @param {MediaStream} stream 
+     * @param {JSON} state 
+     */
+    syncStreamState(stream, state) {
+        stream.getTracks().forEach((track) => {
+            if (track.kind == 'audio') {
+                track.enabled = state.audio;
+            }
+            else if (track.kind == 'video') {
+                track.enabled = state.video;
+            }
+        });
     }
 
     /**
@@ -564,10 +623,17 @@ export class RTCDevice {
                 cell.Logger.e('RTCDevice', 'Ice Candidate error: ' + error);
             });
 
-            cell.Logger.d('RTCDevice', '#doReady add candidate: ' + candidate.sdpMid);
+            cell.Logger.d('RTCDevice', '#doReady() add candidate: ' + candidate.sdpMid);
         }
 
         this.candidates.splice(0, this.candidates.length);
+
+        // 同步流状态
+        setTimeout(() => {
+            if (null != this.outboundStream) {
+                this.syncStreamState(this.outboundStream, this.streamState.out);
+            }
+        }, 33);
     }
 
     /**
@@ -645,6 +711,13 @@ export class RTCDevice {
 
             this.inboundStream.addTrack(event.track);
         }
+
+        // 同步流状态
+        setTimeout(() => {
+            if (null != this.inboundStream) {
+                this.syncStreamState(this.inboundStream, this.streamState.in);
+            }
+        }, 33);
     }
 
     /**

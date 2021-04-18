@@ -3333,13 +3333,11 @@
         this.btnMic.on('click', function() {
             if (g.app.callCtrl.toggleMicrophone()) {
                 // 麦克风未静音
-                that.btnMic.empty();
-                that.btnMic.append($('<i class="ci ci-btn ci-microphone-opened"></i>'));
+                that.btnMic.html('<i class="ci ci-btn ci-microphone-opened"></i>');
             }
             else {
                 // 麦克风已静音
-                that.btnMic.empty();
-                that.btnMic.append($('<i class="ci ci-btn ci-microphone-closed"></i>'));
+                that.btnMic.html('<i class="ci ci-btn ci-microphone-closed"></i>');
             }
         });
 
@@ -3348,13 +3346,11 @@
         this.btnVol.on('click', function() {
             if (g.app.callCtrl.toggleLoudspeaker()) {
                 // 扬声器未静音
-                that.btnVol.empty();
-                that.btnVol.append($('<i class="ci ci-btn ci-volume-unmuted"></i>'));
+                that.btnVol.html('<i class="ci ci-btn ci-volume-unmuted"></i>');
             }
             else {
                 // 扬声器已静音
-                that.btnVol.empty();
-                that.btnVol.append($('<i class="ci ci-btn ci-volume-muted"></i>'));
+                that.btnVol.html('<i class="ci ci-btn ci-volume-muted"></i>');
             }
         });
 
@@ -3459,6 +3455,9 @@
         this.elPeerName.text(caller.getName());
         this.elInfo.text('正在应答...');
 
+        this.btnMic.removeAttr('disabled');
+        this.btnVol.removeAttr('disabled');
+
         this.panelEl.modal({
             keyboard: false,
             backdrop: false
@@ -3474,6 +3473,9 @@
         g.app.mainPanel.stopWaitingTone();
         // 停止播放振铃
         g.app.mainPanel.stopCallRing();
+
+        this.btnMic.attr('disabled', 'disabled');
+        this.btnVol.attr('disabled', 'disabled');
     }
 
     /**
@@ -3492,6 +3494,9 @@
 
         // 播放等待音
         g.app.mainPanel.playWaitingTone();
+
+        that.btnMic.removeAttr('disabled');
+        that.btnVol.removeAttr('disabled');
     }
 
     /**
@@ -3507,8 +3512,20 @@
             return;
         }
 
-        this.btnMic.removeAttr('disabled');
-        this.btnVol.removeAttr('disabled');
+        // 更新按钮状态
+        if (g.app.callCtrl.isMicrophoneOpened()) {
+            that.btnMic.html('<i class="ci ci-btn ci-microphone-opened"></i>');
+        }
+        else {
+            that.btnMic.html('<i class="ci ci-btn ci-microphone-closed"></i>');
+        }
+
+        if (g.app.callCtrl.isLoudspeakerOpened()) {
+            that.btnVol.html('<i class="ci ci-btn ci-volume-unmuted"></i>');
+        }
+        else {
+            that.btnVol.html('<i class="ci ci-btn ci-volume-muted"></i>');
+        }
 
         callingTimer = setInterval(function() {
             that.elInfo.text(g.formatClockTick(++callingElapsed));
@@ -6015,6 +6032,24 @@
     }
 
     /**
+     * 麦克风是否已开启。
+     * @returns {boolean}
+     */
+    CallController.prototype.isMicrophoneOpened = function() {
+        var field = g.cube().mpComm.getActiveField();
+        if (null == field) {
+            return false;
+        }
+
+        var rtcDevice = field.getRTCDevice();
+        if (null == rtcDevice) {
+            return false;
+        }
+
+        return rtcDevice.outboundAudioEnabled();
+    }
+
+    /**
      * 开关麦克风设备。
      */
     CallController.prototype.toggleMicrophone = function() {
@@ -6037,6 +6072,25 @@
             rtcDevice.enableOutboundAudio(true);
         }
         return rtcDevice.outboundAudioEnabled();
+    }
+
+    /**
+     * 扬声器是否已开启。
+     * @returns {boolean}
+     */
+    CallController.prototype.isLoudspeakerOpened = function() {
+        var field = g.cube().mpComm.getActiveField();
+        if (null == field) {
+            return false;
+        }
+
+        var rtcDevice = field.getRTCDevice();
+        if (null == rtcDevice) {
+            return false;
+        }
+
+        var vol = rtcDevice.getVolume();
+        return (vol > 0);
     }
 
     /**

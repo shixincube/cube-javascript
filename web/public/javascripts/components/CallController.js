@@ -494,6 +494,24 @@
     }
 
     /**
+     * 麦克风是否已开启。
+     * @returns {boolean}
+     */
+    CallController.prototype.isMicrophoneOpened = function() {
+        var field = g.cube().mpComm.getActiveField();
+        if (null == field) {
+            return false;
+        }
+
+        var rtcDevice = field.getRTCDevice();
+        if (null == rtcDevice) {
+            return false;
+        }
+
+        return rtcDevice.outboundAudioEnabled();
+    }
+
+    /**
      * 开关麦克风设备。
      */
     CallController.prototype.toggleMicrophone = function() {
@@ -516,6 +534,25 @@
             rtcDevice.enableOutboundAudio(true);
         }
         return rtcDevice.outboundAudioEnabled();
+    }
+
+    /**
+     * 扬声器是否已开启。
+     * @returns {boolean}
+     */
+    CallController.prototype.isLoudspeakerOpened = function() {
+        var field = g.cube().mpComm.getActiveField();
+        if (null == field) {
+            return false;
+        }
+
+        var rtcDevice = field.getRTCDevice();
+        if (null == rtcDevice) {
+            return false;
+        }
+
+        var vol = rtcDevice.getVolume();
+        return (vol > 0);
     }
 
     /**
