@@ -38,6 +38,7 @@
     var working = false;
 
     var voiceCall = false;
+    var groupCall = false;
 
     var volume = 0.7;
 
@@ -320,6 +321,8 @@
      * @param {boolean} [video] 
      */
     CallController.prototype.callContact = function(contact, video) {
+        groupCall = false;
+
         cube.contact.queryBlockList(function(list) {
             if (list.indexOf(contact.getId()) >= 0) {
                 g.dialog.showAlert('你已经把“' + contact.getName() + '”添加到黑名单里，不能邀请他通话！');
@@ -341,6 +344,13 @@
      * @param {boolean} video 
      */
     CallController.prototype.launchGroupCall = function(group, video) {
+        if (group.getState() != GroupState.Normal) {
+            g.dialog.showAlert('群组“' + group.getName() + '”已不存在！');
+            return;
+        }
+
+        groupCall = true;
+
         if (video) {
             g.app.videoGroupChatPanel.showMakeCall(group);
         }
