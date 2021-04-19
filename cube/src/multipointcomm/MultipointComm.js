@@ -285,6 +285,10 @@ export class MultipointComm extends Module {
         return rtcDevice;
     }
 
+    createCommField() {
+
+    }
+
     /**
      * 呼叫指定场域或者联系人。
      * @param {CommField|Contact} target 指定通话对象。指定 {@link CommField} 表示呼入通讯场，指定 {@link Contact} 表示呼叫联系人。
@@ -660,8 +664,8 @@ export class MultipointComm extends Module {
             // 创建 RTC 设备
             let rtcDevice = this.createRTCDevice(this.videoElem.local, this.videoElem.remote);
 
-            // 1. 先申请进入
-            this.privateField.applyEnter(rtcDevice.getContact(), rtcDevice.getDevice(), (contact, device) => {
+            // 1. 先申请加入
+            this.privateField.applyJoin(rtcDevice.getContact(), rtcDevice.getDevice(), (contact, device) => {
                 // 记录
                 this.activeCall.calleeMediaConstraint = mediaConstraint;
 

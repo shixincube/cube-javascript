@@ -70,9 +70,9 @@ export const MultipointCommAction = {
     ApplyCall: 'applyCall',
 
     /**
-     * 申请进入场域。
+     * 申请加入场域。
      */
-    ApplyEnter: 'applyEnter',
+    ApplyJoin: 'applyJoin',
 
     /**
      * 申请终止呼叫。

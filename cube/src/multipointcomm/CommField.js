@@ -341,8 +341,8 @@ export class CommField extends Entity {
      * @param {function} successCallback 
      * @param {function} failureCallback 
      */
-    applyEnter(contact, device, successCallback, failureCallback) {
-        let packet = new Packet(MultipointCommAction.ApplyEnter, {
+    applyJoin(contact, device, successCallback, failureCallback) {
+        let packet = new Packet(MultipointCommAction.ApplyJoin, {
             field: this.toCompactJSON(),
             contact: contact.toCompactJSON(),
             device: device.toCompactJSON()
