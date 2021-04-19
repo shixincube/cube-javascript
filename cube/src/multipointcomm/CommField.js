@@ -83,22 +83,22 @@ export class CommField extends Entity {
         this.rtcDevices = [];
 
         /**
-         * 出站流的 RTC 终端。
+         * 终端列表。
+         * @type {Array<CommFieldEndpoint>}
+         */
+         this.endpoints = [];
+
+        /**
+         * 出站流的 RTC 终端。仅适用于私有域。
          * @type {RTCDevice}
          */
         this.outboundRTC = null;
 
         /**
-         * 入站流的 RTC 终端。
+         * 入站流的 RTC 终端。仅适用于私有域。
          * @type {RTCDevice}
          */
         this.inboundRTC = null;
-
-        /**
-         * 终端列表。
-         * @type {Array<CommFieldEndpoint>}
-         */
-        this.endpoints = [];
 
         /**
          * 私域的设备，仅适用于私有域。

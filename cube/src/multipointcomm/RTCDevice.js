@@ -42,8 +42,9 @@ export class RTCDevice {
     /**
      * @param {Contact} contact 联系人。
      * @param {Device} device 对应的设备。
+     * @param {string} [mode] 模式：'recvonly' ， 'sendonly' ，'sendrecv' 。
      */
-    constructor(contact, device) {
+    constructor(contact, device, mode) {
         /**
          * @type {number}
          */
@@ -58,6 +59,11 @@ export class RTCDevice {
          * @type {Device}
          */
         this.device = device;
+
+        /**
+         * @type {string}
+         */
+        this.mode = (undefined === mode) ? 'sendrecv' : mode;
 
         /**
          * @type {CommFieldEndpoint}

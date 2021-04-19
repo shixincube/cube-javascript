@@ -285,8 +285,15 @@ export class MultipointComm extends Module {
         return rtcDevice;
     }
 
-    createCommField() {
-
+    /**
+     * 创建多方场域。
+     * @param {Array< Contact >} contacts 
+     * @returns {CommField}
+     */
+    createCommField(contacts) {
+        let commField = new CommField(cell.Utils.generateSerialNumber(), self, this.pipeline);
+        
+        return commField;
     }
 
     /**
