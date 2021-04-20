@@ -25,6 +25,7 @@
  */
 
 import cell from "@lib/cell-lib";
+import { AbstractContact } from "./AbstractContact";
 import { Contact } from "./Contact";
 import { ContactService } from "./ContactService";
 import { GroupState } from "./GroupState";
@@ -36,9 +37,8 @@ import { GroupAppendix } from "./GroupAppendix";
 
 /**
  * 群组类。包含了多个联系人的集合。
- * @extends Contact
  */
-export class Group extends Contact {
+export class Group extends AbstractContact {
 
     /**
      * @param {ContactService} service 联系人服务。
@@ -388,7 +388,7 @@ export class Group extends Contact {
      */
     toJSON() {
         let json = super.toJSON();
-        delete json.devices;
+
         json.owner = this.owner.toCompactJSON();
         json.tag = this.tag;
         json.creation = this.creationTime;
@@ -398,6 +398,7 @@ export class Group extends Contact {
         for (let i = 0; i < this.memberList.length; ++i) {
             json.members.push(this.memberList[i].toCompactJSON());
         }
+        
         return json;
     }
 

@@ -66,6 +66,17 @@
     VoiceGroupCallPanel.prototype.showMakeCall = function(group) {
         var members = [];
 
+        var audioDevice = null;
+
+        var handler = function() {
+            if (g.app.callCtrl.makeCall(group, false, audioDevice)) {
+                
+            }
+            else {
+                g.dialog.launchToast(Toast.Warning, '您当前正在通话中');
+            }
+        }
+
         group.getMembers().forEach(function(element) {
             if (element.getId() == g.app.getSelf().getId()) {
                 return;
@@ -89,6 +100,10 @@
                             keyboard: false,
                             backdrop: false
                         });
+
+                        // 进行呼叫
+                        handler();
+
                     }, '群通话', '请选择要邀请通话的群组成员');
                 }
             });

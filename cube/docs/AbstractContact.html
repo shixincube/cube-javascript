@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>GroupAppendix - Cube for Javascript</title>
+    <title>AbstractContact - Cube for Javascript</title>
     
     <meta name="description" content="Cube Javascript" />
     
@@ -46,7 +46,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">GroupAppendix</h1>
+    <h1 class="page-title">AbstractContact</h1>
     
 
     
@@ -59,10 +59,10 @@
 <header>
     
         <h2>
-        GroupAppendix
+        AbstractContact
         </h2>
         
-            <div class="class-description usertext"><p>群组附录。</p></div>
+            <div class="class-description usertext"><p>抽象联系人。</p></div>
         
     
 </header>
@@ -77,7 +77,7 @@
     <h2>Constructor</h2>
     
 
-    <h4 class="name" id="GroupAppendix"><span class="type-signature"></span>new GroupAppendix<span class="signature">(service, owner)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="AbstractContact"><span class="type-signature"></span>new AbstractContact<span class="signature">(id, name<span class="signature-attributes">opt</span>, domain<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
 
     
 
@@ -146,6 +146,8 @@
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -158,46 +160,100 @@
 
         <tr>
             
-                <td class="name"><code>service</code></td>
+                <td class="name"><code>id</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="ContactService.html">ContactService</a></span>
+<span class="param-type">number</span>
+|
+
+<span class="param-type">string</span>
 
 
             
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>指定联系人 ID 。</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>owner</code></td>
+                <td class="name"><code>name</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="Group.html">Group</a></span>
+<span class="param-type">string</span>
 
 
             
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>指定联系人名称。</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>domain</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>指定联系人所在的域。</p></td>
         </tr>
 
     
@@ -234,7 +290,7 @@
         <h3 class="subsection-title">Classes</h3>
 
         <dl>
-            <dt><a href="GroupAppendix.html">GroupAppendix</a></dt>
+            <dt><a href="AbstractContact.html">AbstractContact</a></dt>
             <dd></dd>
         </dl>
     
@@ -246,6 +302,68 @@
     
 
     
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id="Lifespan"><span class="type-signature"></span>Lifespan<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>联系人实体的有效期。</p>
+</div>
+
+
+
+
+
+
+
+
+        
+    
 
     
         <h3 class="subsection-title">Methods</h3>
@@ -255,7 +373,7 @@
 
     
 
-    <h4 class="name" id="hasRemark"><span class="type-signature"></span>hasRemark<span class="signature">()</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    <h4 class="name" id="getId"><span class="type-signature"></span>getId<span class="signature">()</span><span class="type-signature"> &rarr; {number}</span></h4>
 
     
 
@@ -302,7 +420,7 @@
 
 
 <div class="description usertext">
-    <p>是否设置了群的备注。</p>
+    <p>获取联系人 ID 。</p>
 </div>
 
 
@@ -333,7 +451,7 @@
 
         
 <div class="param-desc">
-    <p>如果设置了备注名返回 <code>true</code> 。</p>
+    <p>返回联系人 ID 。</p>
 </div>
 
 
@@ -344,339 +462,79 @@
     </dt>
     <dd>
         
-<span class="param-type">boolean</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="getRemark"><span class="type-signature"></span>getRemark<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>获取群的备注信息。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>返回群的备注信息。</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">string</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="getNotice"><span class="type-signature"></span>getNotice<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>获取群的公告。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>返回群的公告。</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">string</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="getMemberRemark"><span class="type-signature"></span>getMemberRemark<span class="signature">(member)</span><span class="type-signature"> &rarr; {string}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>获取群组成员的备注。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>member</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="Contact.html">Contact</a></span>
-|
-
 <span class="param-type">number</span>
 
 
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>指定群成员或者成员 ID 。</p></td>
-        </tr>
+    </dd>
+</dl>
 
     
-    </tbody>
-</table>
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getDomain"><span class="type-signature"></span>getDomain<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>获取联系人所在域。</p>
+</div>
+
+
+
+
+
+
+
+
+
 
 
 
@@ -697,7 +555,7 @@
 
         
 <div class="param-desc">
-    <p>返回群组成员的备注。</p>
+    <p>返回联系人所在域。</p>
 </div>
 
 
@@ -723,7 +581,7 @@
 
     
 
-    <h4 class="name" id="hasMemberRemark"><span class="type-signature"></span>hasMemberRemark<span class="signature">(member)</span><span class="type-signature"> &rarr; {boolea}</span></h4>
+    <h4 class="name" id="setName"><span class="type-signature"></span>setName<span class="signature">(name)</span><span class="type-signature"></span></h4>
 
     
 
@@ -770,7 +628,7 @@
 
 
 <div class="description usertext">
-    <p>是否备注了指定成员。</p>
+    <p>设置联系人名称。</p>
 </div>
 
 
@@ -808,16 +666,13 @@
 
         <tr>
             
-                <td class="name"><code>member</code></td>
+                <td class="name"><code>name</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="Contact.html">Contact</a></span>
-|
-
-<span class="param-type">number</span>
+<span class="param-type">string</span>
 
 
             
@@ -827,12 +682,94 @@
 
             
 
-            <td class="description last"><p>指定群成员或者成员 ID 。</p></td>
+            <td class="description last"><p>指定联系人名称。</p></td>
         </tr>
 
     
     </tbody>
 </table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getName"><span class="type-signature"></span>getName<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>获取联系人名称。</p>
+</div>
+
+
+
+
+
+
+
+
+
 
 
 
@@ -853,7 +790,7 @@
 
         
 <div class="param-desc">
-    <p>如果有该成员的备注，返回 <code>true</code> 。</p>
+    <p>返回联系人名称。</p>
 </div>
 
 
@@ -864,668 +801,13 @@
     </dt>
     <dd>
         
-<span class="param-type">boolea</span>
+<span class="param-type">string</span>
 
 
     </dd>
 </dl>
 
     
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="updateRemark"><span class="type-signature"></span>updateRemark<span class="signature">(content, handleSuccess<span class="signature-attributes">opt</span>, handleFailure<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>更新备注信息。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>content</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>新的备注信息。</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>handleSuccess</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>成功回调。参数：(<code>appendix</code>:<a href="GroupAppendix.html">GroupAppendix</a>) 。</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>handleFailure</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>失败回调。参数：(<code>error</code>:<a href="ModuleError.html">ModuleError</a>) 。</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="updateNotice"><span class="type-signature"></span>updateNotice<span class="signature">(notice, handleSuccess<span class="signature-attributes">opt</span>, handleFailure<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>更新公告信息。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>notice</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>新的群组公告。</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>handleSuccess</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>成功回调。参数：(<code>appendix</code>:<a href="GroupAppendix.html">GroupAppendix</a>) 。</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>handleFailure</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>失败回调。参数：(<code>error</code>:<a href="ModuleError.html">ModuleError</a>) 。</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="updateMemberRemark"><span class="type-signature"></span>updateMemberRemark<span class="signature">(member, remark, handleSuccess<span class="signature-attributes">opt</span>, handleFailure<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>更新群组成员备注。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>member</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="Contact.html">Contact</a></span>
-|
-
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>指定群成员。</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>remark</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>指定群成员的备注。</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>handleSuccess</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>成功回调。参数：(<code>appendix</code>:<a href="GroupAppendix.html">GroupAppendix</a>) 。</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>handleFailure</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>失败回调。参数：(<code>error</code>:<a href="ModuleError.html">ModuleError</a>) 。</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1612,85 +894,7 @@
 
     
 
-    <h4 class="name" id="toCompactJSON"><span class="type-signature"></span>toCompactJSON<span class="signature">()</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id=".create"><span class="type-signature">(static) </span>create<span class="signature">(service, owner, json)</span><span class="type-signature"> &rarr; {<a href="GroupAppendix.html">GroupAppendix</a>}</span></h4>
+    <h4 class="name" id="toCompactJSON"><span class="type-signature"></span>toCompactJSON<span class="signature">()</span><span class="type-signature"> &rarr; {JSON}</span></h4>
 
     
 
@@ -1737,7 +941,7 @@
 
 
 <div class="description usertext">
-    <p>创建群组附录实例。</p>
+    <p>将对象序列化为数据内容紧凑的 JSON 格式。</p>
 </div>
 
 
@@ -1748,101 +952,6 @@
 
 
 
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>service</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="ContactService.html">ContactService</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>owner</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="Group.html">Group</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>json</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">JSON</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -1862,6 +971,10 @@
 <h5>Returns:</h5>
 
         
+<div class="param-desc">
+    <p>返回紧凑结构的 JSON 数据，数据里只包含基础的联系人数据。</p>
+</div>
+
 
 
 <dl class="param-type">
@@ -1870,7 +983,7 @@
     </dt>
     <dd>
         
-<span class="param-type"><a href="GroupAppendix.html">GroupAppendix</a></span>
+<span class="param-type">JSON</span>
 
 
     </dd>

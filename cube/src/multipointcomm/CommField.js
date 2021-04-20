@@ -578,10 +578,17 @@ export class CommField extends Entity {
         json.id = this.id;
         json.domain = this.founder.getDomain();
         json.founder = this.founder.toCompactJSON();
+
         json.endpoints = [];
         for (let i = 0; i < this.endpoints.length; ++i) {
             json.endpoints.push(this.endpoints[i].toJSON());
         }
+
+        json.invitees = [];
+        for (let i = 0; i < this.invitees.length; ++i) {
+            json.invitees.push(this.invitees[i].toCompactJSON());
+        }
+
         return json;
     }
 

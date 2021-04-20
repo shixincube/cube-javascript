@@ -4208,6 +4208,17 @@
     VoiceGroupCallPanel.prototype.showMakeCall = function(group) {
         var members = [];
 
+        var audioDevice = null;
+
+        var handler = function() {
+            if (g.app.callCtrl.makeCall(group, false, audioDevice)) {
+                
+            }
+            else {
+                g.dialog.launchToast(Toast.Warning, '您当前正在通话中');
+            }
+        }
+
         group.getMembers().forEach(function(element) {
             if (element.getId() == g.app.getSelf().getId()) {
                 return;
@@ -4231,6 +4242,10 @@
                             keyboard: false,
                             backdrop: false
                         });
+
+                        // 进行呼叫
+                        handler();
+
                     }, '群通话', '请选择要邀请通话的群组成员');
                 }
             });
@@ -5939,45 +5954,52 @@
 
     /**
      * 发起通话请求。
-     * @param {Contact} target 
+     * @param {Contact|Group} target 
      * @param {boolean} videoEnabled 
-     * @param {MediaDeviceDescription} [device]
+     * @param {MediaDeviceDescription} device
+     * @param {function} [callback]
      */
-    CallController.prototype.makeCall = function(target, videoEnabled, device) {
+    CallController.prototype.makeCall = function(target, videoEnabled, device, callback) {
         if (working) {
             return false;
         }
 
         working = true;
+        voiceCall = !videoEnabled;
 
         // 媒体约束
         var mediaConstraint = new MediaConstraint(videoEnabled, true);
 
-        if (videoEnabled) {
-            voiceCall = false;
+        if (target instanceof Contact) {
+            if (videoEnabled) {
+                // 设置媒体容器
+                cube.mpComm.setRemoteVideoElement(g.app.videoChatPanel.remoteVideo);
+                cube.mpComm.setLocalVideoElement(g.app.videoChatPanel.localVideo);
 
-            // 设置媒体容器
-            cube.mpComm.setRemoteVideoElement(g.app.videoChatPanel.remoteVideo);
-            cube.mpComm.setLocalVideoElement(g.app.videoChatPanel.localVideo);
-
-            if (device) {
-                mediaConstraint.setVideoDevice(device);
+                if (device) {
+                    mediaConstraint.setVideoDevice(device);
+                }
             }
+            else {
+                // 设置媒体容器
+                cube.mpComm.setRemoteVideoElement(g.app.voiceCallPanel.remoteVideo);
+                cube.mpComm.setLocalVideoElement(g.app.voiceCallPanel.localVideo);
+
+                if (device) {
+                    mediaConstraint.setAudioDevice(device);
+                }
+            }
+
+            // 发起通话
+            return cube.mpComm.makeCall(target, mediaConstraint, callback);
+        }
+        else if (target instanceof Group) {
+            // 发起通话
+            return cube.mpComm.makeCall(target, mediaConstraint, callback);
         }
         else {
-            voiceCall = true;
-
-            // 设置媒体容器
-            cube.mpComm.setRemoteVideoElement(g.app.voiceCallPanel.remoteVideo);
-            cube.mpComm.setLocalVideoElement(g.app.voiceCallPanel.localVideo);
-
-            if (device) {
-                mediaConstraint.setAudioDevice(device);
-            }
+            return false;
         }
-
-        // 发起通话
-        return cube.mpComm.makeCall(target, mediaConstraint);
     }
 
     /**

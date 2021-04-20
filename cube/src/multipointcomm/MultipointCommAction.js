@@ -31,51 +31,67 @@ export const MultipointCommAction = {
 
     /**
      * 信令 Offer 。
+     * @type {string}
      */
     Offer: 'offer',
 
     /**
      * 信令 Answer 。
+     * @type {string}
      */
     Answer: 'answer',
 
     /**
      * 信令 Bye 。
+     * @type {string}
      */
     Bye: 'bye',
 
     /**
      * 信令 Follow 。
+     * @type {string}
      */
     Follow: 'follow',
 
     /**
      * 信令 Revoke 。
+     * @type {string}
      */
     Revoke: 'revoke',
 
     /**
      * 信令忙 Busy 。
+     * @type {string}
      */
     Busy: 'busy',
 
     /**
      * ICE 候选字收发。
+     * @type {string}
      */
     Candidate: 'candidate',
+
+    /**
+     * 创建通讯场域。
+     * @type {string}
+     */
+    CreateField: 'createField',
     
     /**
      * 申请主叫对方。
+     * @type {string}
      */
     ApplyCall: 'applyCall',
 
     /**
      * 申请加入场域。
+     * @type {string}
      */
     ApplyJoin: 'applyJoin',
 
     /**
      * 申请终止呼叫。
+     * @type {string}
      */
     ApplyTerminate: 'applyTerminate'
 }

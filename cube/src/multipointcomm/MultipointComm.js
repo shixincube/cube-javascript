@@ -46,6 +46,7 @@ import { CallRecord } from "./CallRecord";
 import { CommFieldEndpoint } from "./CommFieldEndpoint";
 import { MediaDeviceTool } from "../util/MediaDeviceTool";
 import { Device } from "../contact/Device";
+import { Group } from "../contact/Group";
 
 /**
  * 多方通信服务。
@@ -279,6 +280,8 @@ export class MultipointComm extends Module {
         let rtcDevice = new RTCDevice(contact, device, mode);
 
         if (localVideoElem) {
+            localVideoElem.muted = true;
+            localVideoElem.volume = 0;
             rtcDevice.localVideoElem = localVideoElem;
         }
 
@@ -291,17 +294,40 @@ export class MultipointComm extends Module {
 
     /**
      * 创建多方场域。
-     * @param {Array<Contact>} [contacts] 
-     * @returns {CommField}
+     * @param {Array<Contact>} contacts 
+     * @param {function} successCallback 
+     * @param {function} failureCallback 
      */
-    createCommField(contacts) {
+    createCommField(contacts, successCallback, failureCallback) {
         let commField = new CommField(cell.Utils.generateSerialNumber(), this.cs.getSelf(), this.pipeline);
 
         if (contacts) {
             commField.invitees = contacts;
         }
 
-        return commField;
+        // 向服务器申请创建场域
+        let requestPacekt = new Packet(MultipointCommAction.CreateField, commField.toJSON());
+        this.pipeline.send(MultipointComm.NAME, requestPacekt, (pipeline, source, packet) => {
+            if (null != packet && packet.getStateCode() == StateCode.OK) {
+                if (packet.data.code == MultipointCommState.Ok) {
+                    if (successCallback) {
+                        successCallback(commField);
+                    }
+                }
+                else {
+                    let error = new ModuleError(MultipointComm.NAME, packet.data.code, commField);
+                    if (failureCallback) {
+                        failureCallback(error);
+                    }
+                }
+            }
+            else {
+                let error = new ModuleError(MultipointComm.NAME, MultipointCommState.ServerFault, commField);
+                if (failureCallback) {
+                    failureCallback(error);
+                }
+            }
+        });
     }
 
     /**
@@ -429,6 +455,9 @@ export class MultipointComm extends Module {
             }, (error) => {
                 failureHandler(error);
             });
+        }
+        else if (target instanceof Group) {
+            
         }
         else if (target instanceof CommField) {
             if (null != this.activeCall) {

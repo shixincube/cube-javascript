@@ -67,13 +67,6 @@ export class GroupAppendix extends JSONable {
         this.remark = null;
 
         /**
-         * 当前联系人对应该群的上下文。
-         * @private
-         * @type {object}
-         */
-        this.context = null;
-
-        /**
          * 群组的公告。
          * @private
          * @type {string}
@@ -85,6 +78,20 @@ export class GroupAppendix extends JSONable {
          * @type {OrderMap}
          */
         this.memberRemarkMap = new OrderMap();
+
+        /**
+         * 当前联系人对该群组的标记上下文。
+         * @private
+         * @type {JSON}
+         */
+        this.context = null;
+
+        /**
+         * 当前关联的通讯域 ID 。
+         * @private
+         * @type {number}
+         */
+        this.commFieldId = 0;
     }
 
     /**
@@ -297,15 +304,17 @@ export class GroupAppendix extends JSONable {
             json.remark = this.remark;
         }
 
-        if (null != this.context) {
-            json.context = this.context;
-        }
-
         json.memberRemarks = [];
         this.memberRemarkMap.keySet().forEach((key) => {
             let value = this.memberRemarkMap.get(key);
             json.memberRemarks.push({ id: key, name: value });
         });
+
+        if (null != this.context) {
+            json.context = this.context;
+        }
+
+        json.commFieldId = this.commFieldId;
 
         return json;
     }
@@ -336,11 +345,15 @@ export class GroupAppendix extends JSONable {
         if (json.remark) {
             appendix.remark = json.remark;
         }
-        
+
         if (json.context) {
             appendix.context = json.context;
         }
-        
+
+        if (undefined !== json.commFieldId) {
+            appendix.commFieldId = json.commFieldId;
+        }
+
         return appendix;
     }
 }

@@ -24,51 +24,22 @@
  * SOFTWARE.
  */
 
-import { AuthService } from "../auth/AuthService";
-import { Entity } from "../core/Entity";
+import { AbstractContact } from "./AbstractContact";
 import { ContactAppendix } from "./ContactAppendix";
 import { Device } from "./Device";
 
 /**
  * 联系人。
- * @extends Entity
  */
-export class Contact extends Entity {
+export class Contact extends AbstractContact {
 
     /**
-     * 联系人实体的有效期。
-     */
-    static Lifespan = 10 * 60 * 1000;
-
-    /**
-     * 构造函数。
      * @param {number|string} id 指定联系人 ID 。
      * @param {string} [name] 指定联系人名称。
      * @param {string} [domain] 指定联系人所在的域。
      */
     constructor(id, name, domain) {
-        super(Contact.Lifespan);
-
-        /**
-         * 联系人 ID 。
-         * @private
-         * @type {number}
-         */
-        this.id = (typeof id === 'string') ? parseInt(id) : id;
-
-        /**
-         * 联系人名称。
-         * @private
-         * @type {string}
-         */
-        this.name = (undefined === name) ? 'Cube-' + id : name;
-
-        /**
-         * 联系人所在域。
-         * @private
-         * @type {string}
-         */
-        this.domain = (undefined === domain) ? AuthService.DOMAIN : domain;
+        super(id, name, domain);
 
         /**
          * 当前有效的设备列表。
@@ -83,38 +54,6 @@ export class Contact extends Entity {
          * @type {ContactAppendix}
          */
         this.appendix = null;
-    }
-
-    /**
-     * 获取联系人 ID 。
-     * @returns {number} 返回联系人 ID 。
-     */
-    getId() {
-        return this.id;
-    }
-
-    /**
-     * 获取联系人所在域。
-     * @returns {string} 返回联系人所在域。
-     */
-    getDomain() {
-        return this.domain;
-    }
-
-    /**
-     * 设置联系人名称。
-     * @param {string} name 指定联系人名称。
-     */
-    setName(name) {
-        this.name = name;
-    }
-
-    /**
-     * 获取联系人名称。
-     * @returns {string} 返回联系人名称。
-     */
-    getName() {
-        return this.name;
     }
 
     /**
@@ -208,19 +147,12 @@ export class Contact extends Entity {
      */
     toJSON() {
         let json = super.toJSON();
-        json["id"] = this.id;
-        json["name"] = this.name;
-        json["domain"] = this.domain;
 
         let devArray = [];
         for (let i = 0; i < this.devices.length; ++i) {
             devArray.push(this.devices[i].toJSON());
         }
         json["devices"] = devArray;
-
-        if (null != this.context) {
-            json["context"] = (this.context instanceof JSONable) ? this.context.toJSON() : this.context;
-        }
 
         return json;
     }
@@ -230,14 +162,7 @@ export class Contact extends Entity {
      * @returns {JSON} 返回紧凑结构的 JSON 数据，数据里只包含基础的联系人数据。
      */
     toCompactJSON() {
-        let json = super.toCompactJSON();
-        json["id"] = this.id;
-        json["name"] = this.name;
-        json["domain"] = this.domain;
-        if (null != this.context) {
-            json["context"] = (this.context instanceof JSONable) ? this.context.toJSON() : this.context;
-        }
-        return json;
+        return super.toCompactJSON();
     }
 
     /**
