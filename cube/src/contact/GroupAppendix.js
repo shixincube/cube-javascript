@@ -292,7 +292,7 @@ export class GroupAppendix extends JSONable {
     }
 
     updateCommId(id) {
-
+        // TODO XJW
     }
 
     /**

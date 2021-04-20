@@ -4210,9 +4210,16 @@
 
         var audioDevice = null;
 
-        var handler = function() {
+        var handler = function(group, idList) {
             if (g.app.callCtrl.makeCall(group, false, audioDevice)) {
-                
+                panelEl.find('.voice-group-default .modal-title').text('群通话 - ' + group.getName());
+                panelEl.find('.voice-group-minisize .modal-title').text(group.getName());
+
+                // 显示窗口
+                panelEl.modal({
+                    keyboard: false,
+                    backdrop: false
+                });
             }
             else {
                 g.dialog.launchToast(Toast.Warning, '您当前正在通话中');
@@ -4235,16 +4242,9 @@
                         // 界面布局
                         that.resetLayout(result);
 
-                        panelEl.find('.voice-group-default .modal-title').text('群通话 - ' + group.getName());
-                        panelEl.find('.voice-group-minisize .modal-title').text(group.getName());
-
-                        panelEl.modal({
-                            keyboard: false,
-                            backdrop: false
-                        });
-
                         // 进行呼叫
-                        handler();
+                        result.shift();
+                        handler(group, result);
 
                     }, '群通话', '请选择要邀请通话的群组成员');
                 }
@@ -4895,7 +4895,7 @@
             var contact = list[i];
             var selected = (null != findContact(contact, selectedList));
             var row = [
-                '<tr>',
+                '<tr onclick="app.contactListDialog.toggleChecked(', contact.getId(), ')">',
                     '<td>',
                         '<div class="custom-control custom-checkbox">',
                             '<input class="custom-control-input" type="checkbox" data="', contact.getId(), '" id="list_contact_', contact.getId(), '"',
@@ -4927,6 +4927,16 @@
     ContactListDialog.prototype.hide = function() {
         dialogEl.modal('hide');
         confirmCallback = null;
+    }
+
+    ContactListDialog.prototype.toggleChecked = function(id) {
+        var el = dialogEl.find('input[data="' + id +'"]');
+        if (el.prop('checked')) {
+            el.prop('checked', false);
+        }
+        else {
+            el.prop('checked', true);
+        }
     }
 
     g.ContactListDialog = ContactListDialog;

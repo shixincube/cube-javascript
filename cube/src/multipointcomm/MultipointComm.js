@@ -297,7 +297,7 @@ export class MultipointComm extends Module {
      * 创建多方场域。
      * @param {function} successCallback 
      * @param {function} failureCallback 
-     * @param {Array<Contact>} contacts 
+     * @param {Array<Contact>} [contacts] 
      */
     createCommField(successCallback, failureCallback, contacts) {
         let commField = new CommField(cell.Utils.generateSerialNumber(), this.cs.getSelf(), this.pipeline);
@@ -468,7 +468,9 @@ export class MultipointComm extends Module {
             });
         }
         else if (target instanceof Group) {
-            let cfid = target.getAppendix().commFieldId;
+            // 发起群组内的通话
+
+            let cfid = target.getAppendix().commId;
             if (0 == cfid) {
                 // 创建新场域
                 this.createCommField((commField) => {
@@ -522,12 +524,12 @@ export class MultipointComm extends Module {
             let self = this.cs.getSelf();
             let rtcDevice = this.createRTCDevice(self, self.getDevice(), 'sendonly');
 
-            // 1. 申请呼入
-            target.applyCall(self, (commField, proposer) => {
+            // 1. 申请通话
+            // target.applyCall(self, (commField, proposer) => {
 
-            }, (error) => {
+            // }, (error) => {
                 
-            });
+            // });
         }
         else {
             return false;
