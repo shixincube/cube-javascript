@@ -150,13 +150,13 @@ export class CommField extends Entity {
     }
 
     /**
-     * 启动为主叫。
+     * 启动为 Offer 。
      * @param {RTCDevice} device RTC 设备。
      * @param {MediaConstraint} mediaConstraint 媒体约束。
      * @param {function} successCallback 成功回调。
      * @param {function} failureCallback 失败回调。
      */
-    launchCaller(device, mediaConstraint, successCallback, failureCallback) {
+    launchOffer(device, mediaConstraint, successCallback, failureCallback) {
         this.rtcDevices.push(device);
 
         device.onIceCandidate = (candidate) => {
@@ -184,14 +184,14 @@ export class CommField extends Entity {
     }
 
     /**
-     * 启动为被叫。
+     * 启动为 Answer 。
      * @param {RTCDevice} device RTC 设备。
      * @param {string} offerDescription
      * @param {MediaConstraint} mediaConstraint 
      * @param {function} successCallback 
      * @param {function} failureCallback 
      */
-    launchCallee(device, offerDescription, mediaConstraint, successCallback, failureCallback) {
+    launchAnswer(device, offerDescription, mediaConstraint, successCallback, failureCallback) {
         this.rtcDevices.push(device);
 
         device.onIceCandidate = (candidate) => {
@@ -224,7 +224,7 @@ export class CommField extends Entity {
      * @param {RTCDevice} device 
      * @param {function} successCallback 
      * @param {function} failureCallback 
-     */
+     *
     launchFollow(target, device, successCallback, failureCallback) {
         device.target = target;
 
@@ -252,7 +252,7 @@ export class CommField extends Entity {
         }, (error) => {
             failureCallback(error);
         });
-    }
+    }*/
 
     /**
      * 申请通话场域。

@@ -68,9 +68,16 @@
 
         var audioDevice = null;
 
-        var handler = function() {
+        var handler = function(group, idList) {
             if (g.app.callCtrl.makeCall(group, false, audioDevice)) {
-                
+                panelEl.find('.voice-group-default .modal-title').text('群通话 - ' + group.getName());
+                panelEl.find('.voice-group-minisize .modal-title').text(group.getName());
+
+                // 显示窗口
+                panelEl.modal({
+                    keyboard: false,
+                    backdrop: false
+                });
             }
             else {
                 g.dialog.launchToast(Toast.Warning, '您当前正在通话中');
@@ -93,16 +100,9 @@
                         // 界面布局
                         that.resetLayout(result);
 
-                        panelEl.find('.voice-group-default .modal-title').text('群通话 - ' + group.getName());
-                        panelEl.find('.voice-group-minisize .modal-title').text(group.getName());
-
-                        panelEl.modal({
-                            keyboard: false,
-                            backdrop: false
-                        });
-
                         // 进行呼叫
-                        handler();
+                        result.shift();
+                        handler(group, result);
 
                     }, '群通话', '请选择要邀请通话的群组成员');
                 }

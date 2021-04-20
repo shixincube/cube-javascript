@@ -195,6 +195,12 @@ export const MultipointCommState = {
     RemoteDescriptionFault: 126,
 
     /**
+     * 群组状态错误。
+     * @type {number}
+     */
+    GroupStateError: 130,
+
+    /**
      * 服务器故障。
      * @type {number}
      */

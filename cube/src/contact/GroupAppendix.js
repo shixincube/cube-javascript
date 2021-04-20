@@ -87,11 +87,11 @@ export class GroupAppendix extends JSONable {
         this.context = null;
 
         /**
-         * 当前关联的通讯域 ID 。
+         * 当前关联的通讯 ID 。
          * @private
          * @type {number}
          */
-        this.commFieldId = 0;
+        this.commId = 0;
     }
 
     /**
@@ -291,6 +291,10 @@ export class GroupAppendix extends JSONable {
         });
     }
 
+    updateCommId(id) {
+
+    }
+
     /**
      * @inheritdoc
      */
@@ -314,7 +318,7 @@ export class GroupAppendix extends JSONable {
             json.context = this.context;
         }
 
-        json.commFieldId = this.commFieldId;
+        json.commId = this.commId;
 
         return json;
     }
@@ -350,8 +354,8 @@ export class GroupAppendix extends JSONable {
             appendix.context = json.context;
         }
 
-        if (undefined !== json.commFieldId) {
-            appendix.commFieldId = json.commFieldId;
+        if (undefined !== json.commId) {
+            appendix.commId = json.commId;
         }
 
         return appendix;

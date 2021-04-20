@@ -28,6 +28,9 @@ import cell from "@lib/cell-lib";
 import { Module } from "../core/Module";
 import { ContactEvent } from "../contact/ContactEvent";
 import { Contact } from "../contact/Contact";
+import { Device } from "../contact/Device";
+import { Group } from "../contact/Group";
+import { GroupAppendix } from "../contact/GroupAppendix";
 import { ContactService } from "../contact/ContactService";
 import { Packet } from "../core/Packet";
 import { StateCode } from "../core/StateCode";
@@ -45,8 +48,6 @@ import { ModuleError } from "../core/error/ModuleError";
 import { CallRecord } from "./CallRecord";
 import { CommFieldEndpoint } from "./CommFieldEndpoint";
 import { MediaDeviceTool } from "../util/MediaDeviceTool";
-import { Device } from "../contact/Device";
-import { Group } from "../contact/Group";
 
 /**
  * 多方通信服务。
@@ -294,11 +295,11 @@ export class MultipointComm extends Module {
 
     /**
      * 创建多方场域。
-     * @param {Array<Contact>} contacts 
      * @param {function} successCallback 
      * @param {function} failureCallback 
+     * @param {Array<Contact>} contacts 
      */
-    createCommField(contacts, successCallback, failureCallback) {
+    createCommField(successCallback, failureCallback, contacts) {
         let commField = new CommField(cell.Utils.generateSerialNumber(), this.cs.getSelf(), this.pipeline);
 
         if (contacts) {
@@ -331,8 +332,18 @@ export class MultipointComm extends Module {
     }
 
     /**
+     * 
+     * @param {number} id 
+     * @param {function} successCallback 
+     * @param {function} failureCallback 
+     */
+    getCommField(id, successCallback, failureCallback) {
+
+    }
+
+    /**
      * 呼叫指定场域或者联系人。
-     * @param {CommField|Contact} target 指定通话对象。指定 {@link CommField} 表示呼入通讯场，指定 {@link Contact} 表示呼叫联系人。
+     * @param {CommField|Contact|Group} target 指定通话对象。指定 {@link CommField} 表示呼入通讯场，指定 {@link Contact} 表示呼叫联系人，指定 {@link Group} 表示呼叫群组。
      * @param {MediaConstraint} mediaConstraint 指定通话的媒体约束。
      * @param {function} [successCallback] 成功回调函数，函数参数：({@linkcode callRecord}:{@link CallRecord}) 。
      * @param {function} [failureCallback] 失败回调函数，函数参数：({@linkcode error}:{@link ModuleError}) 。
@@ -451,27 +462,46 @@ export class MultipointComm extends Module {
 
                 // 2. 启动 RTC 节点，发起 Offer
                 rtcDevice.enableICE(this.iceServers);
-                this.privateField.launchCaller(rtcDevice, mediaConstraint, successHandler, failureHandler);
+                this.privateField.launchOffer(rtcDevice, mediaConstraint, successHandler, failureHandler);
             }, (error) => {
                 failureHandler(error);
             });
         }
         else if (target instanceof Group) {
-            
+            let cfid = target.getAppendix().commFieldId;
+            if (0 == cfid) {
+                // 创建新场域
+                this.createCommField((commField) => {
+                    // 更新群组的 CommFiled ID
+                    target.getAppendix().updateCommId(commField.getId());
+
+                    // 发起呼叫
+                    setTimeout(() => {
+                        if (!this.makeCall(commField, mediaConstraint, successCallback, failureCallback)) {
+                            failureHandler(new ModuleError(MultipointComm.NAME, MultipointCommState.GroupStateError, target));
+                        }
+                    }, 1);
+                }, (error) => {
+                    failureHandler(error);
+                });
+            }
+            else {
+                // 获取场域
+                this.getCommField(cfid, (commField) => {
+                    // 发起呼叫
+                    setTimeout(() => {
+                        if (!this.makeCall(commField, mediaConstraint, successCallback, failureCallback)) {
+                            failureHandler(new ModuleError(MultipointComm.NAME, MultipointCommState.GroupStateError, target));
+                        }
+                    }, 1);
+                }, (error) => {
+                    failureHandler(error);
+                });
+            }
         }
         else if (target instanceof CommField) {
             if (null != this.activeCall) {
                 if (this.activeCall.field.getId() != target.getId()) {
-                    return false;
-                }
-
-                if (null != this.activeCall.field.outboundRTC) {
-                    // 正在通话中
-                    let error = new ModuleError(MultipointComm.NAME, MultipointCommState.CallerBusy, target);
-                    if (failureCallback) {
-                        failureCallback(error);
-                    }
-                    this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
                     return false;
                 }
             }
@@ -489,7 +519,6 @@ export class MultipointComm extends Module {
                 this.notifyObservers(new ObservableEvent(MultipointCommEvent.InProgress, target));
             });
 
-            // xjw
             let self = this.cs.getSelf();
             let rtcDevice = this.createRTCDevice(self, self.getDevice(), 'sendonly');
 
@@ -499,10 +528,6 @@ export class MultipointComm extends Module {
             }, (error) => {
                 
             });
-
-            // 发布本地流到 Comm Field
-            // target.launchCaller(rtcDevice, mediaConstraint, successHandler, failureHandler);
-            // target.outboundRTC = rtcDevice;
         }
         else {
             return false;
@@ -517,7 +542,7 @@ export class MultipointComm extends Module {
      * @param {function} [successCallback] 成功回调函数，函数参数：({@linkcode callRecord}:{@link CallRecord}) 。
      * @param {function} [failureCallback] 失败回调函数，函数参数：({@linkcode error}:{@link ModuleError}) 。
      * @returns {boolean} 返回是否允许执行该操作。
-     */
+     *
     followCall(target, successCallback, failureCallback) {
         if (null == this.privateField) {
             // 联系人模块没有完成签入操作
@@ -589,7 +614,7 @@ export class MultipointComm extends Module {
             let rtcDevice = this.createRTCDevice();
 
             // 获取 Comm Field 的混码流
-            target.launchCaller(rtcDevice, null, successHandler, failureHandler);
+            target.launchOffer(rtcDevice, null, successHandler, failureHandler);
             target.inboundRTC = rtcDevice;
         }
         else if (target instanceof CommFieldEndpoint) {
@@ -622,7 +647,7 @@ export class MultipointComm extends Module {
         }
 
         return true;
-    }
+    }*/
 
     /**
      * 应答呼叫。
@@ -730,7 +755,7 @@ export class MultipointComm extends Module {
 
                 // 2. 启动 RTC 节点，发起 Answer
                 rtcDevice.enableICE(this.iceServers);
-                this.privateField.launchCallee(rtcDevice,
+                this.privateField.launchAnswer(rtcDevice,
                     this.offerSignaling.sessionDescription, mediaConstraint, successHandler, failureHandler);
             }, (error) => {
                 failureHandler(error);
@@ -742,7 +767,7 @@ export class MultipointComm extends Module {
             let rtcDevice = this.createRTCDevice();
 
             // 应答 Comm Field
-            target.launchCallee(rtcDevice,
+            target.launchAnswer(rtcDevice,
                 this.offerSignaling.sessionDescription, mediaConstraint, successHandler, failureHandler);
         }
         else {
