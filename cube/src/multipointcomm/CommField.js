@@ -261,32 +261,21 @@ export class CommField extends Entity {
      * @param {function} failureCallback 
      */
     applyCall(proposer, successCallback, failureCallback) {
-        let packet = null;
-        if (this.isPrivate()) {
-            packet = new Packet(MultipointCommAction.ApplyCall, {
-                field: this.toCompactJSON(),
-                proposer: proposer.toCompactJSON(),
-                target: this.callee.toCompactJSON()
-            });
-        }
-        else {
-            packet = new Packet(MultipointCommAction.ApplyCall, {
-                field: this.toCompactJSON(),
-                proposer: proposer.toCompactJSON()
-            });
-        }
+        let packet = new Packet(MultipointCommAction.ApplyCall, {
+            field: this.toCompactJSON(),
+            proposer: proposer.toCompactJSON()
+        });
 
         this.pipeline.send(MultipointComm.NAME, packet, (pipeline, source, responsePacket) => {
             if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
                 if (responsePacket.data.code == MultipointCommState.Ok) {
                     let responseData = responsePacket.data.data;
-                    successCallback(this, proposer, this.callee);
+                    successCallback(this, proposer);
                 }
                 else {
                     let error = new ModuleError(MultipointComm.NAME, responsePacket.data.code, {
                         field: this,
-                        proposer: proposer,
-                        target: this.callee
+                        proposer: proposer
                     });
                     failureCallback(error);
                 }
@@ -295,8 +284,7 @@ export class CommField extends Entity {
                 let error = new ModuleError(MultipointComm.NAME,
                     (null != responsePacket) ? responsePacket.getStateCode() : MultipointCommState.ServerFault, {
                     field: this,
-                    proposer: proposer,
-                    target: this.callee
+                    proposer: proposer
                 });
                 failureCallback(error);
             }
@@ -600,6 +588,15 @@ export class CommField extends Entity {
         json.id = this.id;
         json.domain = this.founder.getDomain();
         json.founder = this.founder.toCompactJSON();
+
+        if (null != this.caller) {
+            json.caller = this.caller.toCompactJSON();
+        }
+
+        if (null != this.callee) {
+            json.callee = this.callee.toCompactJSON();
+        }
+
         return json;
     }
 

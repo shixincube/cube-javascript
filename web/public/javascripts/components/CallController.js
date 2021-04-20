@@ -177,11 +177,11 @@
         }
         else if (error.code == CallState.BeCallerBlocked) {
             // 对方在自己的黑名单里
-            g.dialog.showAlert('你已经把“' + error.data.target.getName() + '”添加到黑名单里，不能邀请他通话！');
+            g.dialog.showAlert('你已经把“' + error.data.field.callee.getName() + '”添加到黑名单里，不能邀请他通话！');
         }
         else if (error.code == CallState.BeCalleeBlocked) {
             // 自己在对方的黑名单里
-            g.dialog.showAlert('“' + error.data.target.getName() + '”已经阻止了你的通话邀请！');
+            g.dialog.showAlert('“' + error.data.field.callee.getName() + '”已经阻止了你的通话邀请！');
         }
         else {
             g.dialog.launchToast(Toast.Warning, '通话失败，故障码：' + error.code);

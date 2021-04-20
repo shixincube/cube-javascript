@@ -397,7 +397,7 @@ export class RTCDevice {
 
     /**
      * 启动 RTC 终端为主叫。
-     * @param {MediaConstraint} mediaConstraint 媒体约束，设置为 {@linkcode null} 值时不使用用户媒体设备。
+     * @param {MediaConstraint} mediaConstraint 媒体约束。
      * @param {function} handleSuccess 启动成功回调函数。
      * @param {function} handleFailure 启动失败回调函数。
      */
@@ -423,19 +423,28 @@ export class RTCDevice {
         };
 
         (async () => {
-            // 判断是否忽略获取媒体
-            if (null != mediaConstraint) {
-                let constraints = mediaConstraint.getConstraints();
+            if (this.mode === 'recvonly') {
+                let useAudio = this.mediaConstraint.audioEnabled;
+                let useVideo = this.mediaConstraint.videoEnabled;
 
-                if (this.mode === 'recvonly') {
-
+                if (useAudio) {
+                    this.pc.addTransceiver('audio', {
+                        direction: 'recvonly'
+                    });
                 }
-                else if (this.mode == 'sendonly') {
 
+                if (useVideo) {
+                    this.pc.addTransceiver('video', {
+                        direction: 'recvonly'
+                    });
                 }
-
+            }
+            else {
                 // 如果出站流为空，则从媒体设备上获取
                 if (null == this.outboundStream) {
+                    // 设备约束
+                    let constraints = this.mediaConstraint.getConstraints();
+
                     let stream = await this.getUserMedia(constraints);
                     if (!(stream instanceof MediaStream)) {
                         handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.MediaPermissionDenied, this, stream));
@@ -463,6 +472,13 @@ export class RTCDevice {
                 // 添加 track
                 for (const track of this.outboundStream.getTracks()) {
                     this.pc.addTrack(track);
+                }
+
+                // 设置 sendonly 状态
+                if (this.mode == 'sendonly') {
+                    this.pc.getTransceivers().forEach((transceiver) => {
+                        transceiver.direction = "sendonly";
+                    });
                 }
             }
 

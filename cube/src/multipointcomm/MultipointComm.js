@@ -525,11 +525,11 @@ export class MultipointComm extends Module {
             let rtcDevice = this.createRTCDevice(self, self.getDevice(), 'sendonly');
 
             // 1. 申请通话
-            // target.applyCall(self, (commField, proposer) => {
-
-            // }, (error) => {
-                
-            // });
+            target.applyCall(self, (commField, proposer) => {
+                console.log('applyCall is ok');
+            }, (error) => {
+                failureHandler(error);
+            });
         }
         else {
             return false;
