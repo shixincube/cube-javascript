@@ -427,6 +427,13 @@ export class RTCDevice {
             if (null != mediaConstraint) {
                 let constraints = mediaConstraint.getConstraints();
 
+                if (this.mode === 'recvonly') {
+
+                }
+                else if (this.mode == 'sendonly') {
+
+                }
+
                 // 如果出站流为空，则从媒体设备上获取
                 if (null == this.outboundStream) {
                     let stream = await this.getUserMedia(constraints);

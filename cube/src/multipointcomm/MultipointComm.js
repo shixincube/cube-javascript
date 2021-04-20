@@ -45,6 +45,7 @@ import { ModuleError } from "../core/error/ModuleError";
 import { CallRecord } from "./CallRecord";
 import { CommFieldEndpoint } from "./CommFieldEndpoint";
 import { MediaDeviceTool } from "../util/MediaDeviceTool";
+import { Device } from "../contact/Device";
 
 /**
  * 多方通信服务。
@@ -237,6 +238,14 @@ export class MultipointComm extends Module {
     }
 
     /**
+     * 获取私有通信域。
+     * @returns {CommField}
+     */
+    getPrivateField() {
+        return this.privateField;
+    }
+
+    /**
      * 列举当前系统可用的所有媒体设备。
      * @param {function} handler 结果回调函数。参数：({@linkcode list}:{@linkcode Array< MediaDeviceDescription >}) 。
      */
@@ -258,27 +267,22 @@ export class MultipointComm extends Module {
     /**
      * 创建 RTC 终端节点。
      * @private
-     * @param {HTMLElement} localVideoElem 
-     * @param {HTMLElement} remoteVideoElem 
+     * @param {Contact} contact 
+     * @param {Device} device 
+     * @param {string} mode
+     * @param {HTMLElement} [localVideoElem]
+     * @param {HTMLElement} [remoteVideoElem]
      * @returns {RTCDevice} 返回 {@ink RTCDevice} 实例。
      */
-    createRTCDevice(localVideoElem, remoteVideoElem) {
-        let self = this.cs.getSelf();
-        if (null == self) {
-            return null;
-        }
-
-        let rtcDevice = new RTCDevice(self, self.getDevice());
+    createRTCDevice(contact, device, mode, localVideoElem, remoteVideoElem) {
+        // 创建 RTC Device
+        let rtcDevice = new RTCDevice(contact, device, mode);
 
         if (localVideoElem) {
-            // localVideoElem.volume = 1.0;
-            // localVideoElem.setAttribute('muted', 'muted');
-
             rtcDevice.localVideoElem = localVideoElem;
         }
 
         if (remoteVideoElem) {
-            // remoteVideoElem.volume = 1.0;
             rtcDevice.remoteVideoElem = remoteVideoElem;
         }
 
@@ -287,12 +291,16 @@ export class MultipointComm extends Module {
 
     /**
      * 创建多方场域。
-     * @param {Array< Contact >} contacts 
+     * @param {Array<Contact>} [contacts] 
      * @returns {CommField}
      */
     createCommField(contacts) {
-        let commField = new CommField(cell.Utils.generateSerialNumber(), self, this.pipeline);
-        
+        let commField = new CommField(cell.Utils.generateSerialNumber(), this.cs.getSelf(), this.pipeline);
+
+        if (contacts) {
+            commField.invitees = contacts;
+        }
+
         return commField;
     }
 
@@ -401,14 +409,17 @@ export class MultipointComm extends Module {
             this.activeCall = new CallRecord(this.privateField.getFounder());
             this.activeCall.field = this.privateField;
 
+            // 设置主叫
             this.privateField.caller = this.privateField.getFounder();
+            // 设置被叫
             this.privateField.callee = target;
 
             // 创建 RTC 设备
-            let rtcDevice = this.createRTCDevice(this.videoElem.local, this.videoElem.remote);
+            let rtcDevice = this.createRTCDevice(this.privateField.caller, this.privateField.caller.getDevice(),
+                            'sendrecv', this.videoElem.local, this.videoElem.remote);
 
             // 1. 先申请主叫，从而设置目标
-            this.privateField.applyCall(this.privateField.getFounder(), target, (commField, proposer, target) => {
+            this.privateField.applyCall(this.privateField.caller, (commField, proposer) => {
                 // 记录主叫媒体约束
                 this.activeCall.callerMediaConstraint = mediaConstraint;
 
@@ -449,11 +460,20 @@ export class MultipointComm extends Module {
                 this.notifyObservers(new ObservableEvent(MultipointCommEvent.InProgress, target));
             });
 
-            let rtcDevice = this.createRTCDevice();
+            // xjw
+            let self = this.cs.getSelf();
+            let rtcDevice = this.createRTCDevice(self, self.getDevice(), 'sendonly');
+
+            // 1. 申请呼入
+            target.applyCall(self, (commField, proposer) => {
+
+            }, (error) => {
+                
+            });
 
             // 发布本地流到 Comm Field
-            target.launchCaller(rtcDevice, mediaConstraint, successHandler, failureHandler);
-            target.outboundRTC = rtcDevice;
+            // target.launchCaller(rtcDevice, mediaConstraint, successHandler, failureHandler);
+            // target.outboundRTC = rtcDevice;
         }
         else {
             return false;
@@ -536,6 +556,7 @@ export class MultipointComm extends Module {
                 this.notifyObservers(new ObservableEvent(MultipointCommEvent.InProgress, target));
             });
 
+            // xjw
             let rtcDevice = this.createRTCDevice();
 
             // 获取 Comm Field 的混码流
@@ -561,6 +582,7 @@ export class MultipointComm extends Module {
                 this.notifyObservers(new ObservableEvent(MultipointCommEvent.InProgress, target));
             });
 
+            // xjw
             let rtcDevice = this.createRTCDevice();
 
             // 订阅 CommFieldEndpoint 的流
@@ -669,7 +691,8 @@ export class MultipointComm extends Module {
             this.activeCall.answerTime = Date.now();
 
             // 创建 RTC 设备
-            let rtcDevice = this.createRTCDevice(this.videoElem.local, this.videoElem.remote);
+            let rtcDevice = this.createRTCDevice(this.privateField.getFounder(), this.privateField.getFounder().getDevice(),
+                                'sendrecv', this.videoElem.local, this.videoElem.remote);
 
             // 1. 先申请加入
             this.privateField.applyJoin(rtcDevice.getContact(), rtcDevice.getDevice(), (contact, device) => {
@@ -686,6 +709,7 @@ export class MultipointComm extends Module {
         }
         else if (target instanceof CommField) {
             // 创建 RTC 终端
+            // xjw
             let rtcDevice = this.createRTCDevice();
 
             // 应答 Comm Field

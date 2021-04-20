@@ -77,6 +77,12 @@ export class CommField extends Entity {
         this.listener = null;
 
         /**
+         * 被邀请的联系人列表。
+         * @type {Array<Contact>}
+         */
+        this.invitees = [];
+
+        /**
          * RTC 终端列表。
          * @type {Array<RTCDevice>}
          */
@@ -251,27 +257,36 @@ export class CommField extends Entity {
     /**
      * 申请通话场域。
      * @param {Contact} proposer 
-     * @param {Contact} target 
      * @param {function} successCallback 
      * @param {function} failureCallback 
      */
-    applyCall(proposer, target, successCallback, failureCallback) {
-        let packet = new Packet(MultipointCommAction.ApplyCall, {
-            field: this.toCompactJSON(),
-            proposer: proposer.toCompactJSON(),
-            target: target.toCompactJSON()
-        });
+    applyCall(proposer, successCallback, failureCallback) {
+        let packet = null;
+        if (this.isPrivate()) {
+            packet = new Packet(MultipointCommAction.ApplyCall, {
+                field: this.toCompactJSON(),
+                proposer: proposer.toCompactJSON(),
+                target: this.callee.toCompactJSON()
+            });
+        }
+        else {
+            packet = new Packet(MultipointCommAction.ApplyCall, {
+                field: this.toCompactJSON(),
+                proposer: proposer.toCompactJSON()
+            });
+        }
+
         this.pipeline.send(MultipointComm.NAME, packet, (pipeline, source, responsePacket) => {
             if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
                 if (responsePacket.data.code == MultipointCommState.Ok) {
                     let responseData = responsePacket.data.data;
-                    successCallback(this, proposer, target);
+                    successCallback(this, proposer, this.callee);
                 }
                 else {
                     let error = new ModuleError(MultipointComm.NAME, responsePacket.data.code, {
                         field: this,
                         proposer: proposer,
-                        target: target
+                        target: this.callee
                     });
                     failureCallback(error);
                 }
@@ -281,7 +296,7 @@ export class CommField extends Entity {
                     (null != responsePacket) ? responsePacket.getStateCode() : MultipointCommState.ServerFault, {
                     field: this,
                     proposer: proposer,
-                    target: target
+                    target: this.callee
                 });
                 failureCallback(error);
             }

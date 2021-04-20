@@ -24,3 +24,6 @@
  * SOFTWARE.
  */
 
+
+export const CommFieldEndpointState = {
+};
