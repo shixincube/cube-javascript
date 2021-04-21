@@ -290,6 +290,9 @@ export class MultipointComm extends Module {
             rtcDevice.remoteVideoElem = remoteVideoElem;
         }
 
+        // 启用 ICE
+        rtcDevice.enableICE(this.iceServers);
+
         return rtcDevice;
     }
 
@@ -361,14 +364,18 @@ export class MultipointComm extends Module {
         }
 
         // 处理操作成功
-        let successHandler = (signaling) => {
+        let successHandler = () => {
             if (successCallback) {
                 successCallback(this.activeCall);
             }
 
-            if (signaling.field.isPrivate()) {
+            if (this.activeCall.field.isPrivate()) {
                 // 私有场域，触发 Ringing 事件
                 this.notifyObservers(new ObservableEvent(MultipointCommEvent.Ringing, this.activeCall));
+            }
+            else {
+                // 普通场域，触发 Connected 事件
+                this.notifyObservers(new ObservableEvent(MultipointCommEvent.Connected, this.activeCall));
             }
         };
 
@@ -385,12 +392,12 @@ export class MultipointComm extends Module {
             // 如果是 MediaPermissionDenied
             if (error.code == MultipointCommState.MediaPermissionDenied) {
                 // 需要额外进行处理，因为浏览器可能无法连接到摄像头，但是可以连接麦克风
-                // 当连接不到摄像头时，需要直接从私域退出，而不发送信令
+                // 当连接不到摄像头时，需要直接从通信域退出，而不发送信令
                 if (this.activeCall.field.isPrivate()) {
                     this.privateField.applyTerminate(this.privateField.founder, this.privateField.device);
                 }
                 else {
-                    // TODO
+                    this.activeCall.field.applyTerminate(this.privateField.founder, this.privateField.device);
                 }
 
                 if (failureCallback) {
@@ -408,12 +415,8 @@ export class MultipointComm extends Module {
     
                 this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
 
-                if (this.activeCall.field.isPrivate()) {
-                    this.hangupCall();
-                }
-                else {
-                    // TODO
-                }
+                // 挂断通话
+                this.hangupCall();
             }
         };
 
@@ -451,17 +454,17 @@ export class MultipointComm extends Module {
             // 设置被叫
             this.privateField.callee = target;
 
-            // 创建 RTC 设备
-            let rtcDevice = this.createRTCDevice(this.privateField.caller, this.privateField.device,
-                            'sendrecv', this.videoElem.local, this.videoElem.remote);
-
-            // 1. 先申请主叫，从而设置目标
+            // 1. 申请一对一主叫
             this.privateField.applyCall(this.privateField.caller, this.privateField.device, (commField, proposer, device) => {
                 // 记录主叫媒体约束
                 this.activeCall.callerMediaConstraint = mediaConstraint;
 
                 // 2. 启动 RTC 节点，发起 Offer
-                rtcDevice.enableICE(this.iceServers);
+                // 创建 RTC 设备
+                let rtcDevice = this.createRTCDevice(this.privateField.caller, this.privateField.device,
+                                                    'sendrecv', this.videoElem.local, this.videoElem.remote);
+
+                // 发起 Offer
                 this.privateField.launchOffer(rtcDevice, mediaConstraint, successHandler, failureHandler);
             }, (error) => {
                 failureHandler(error);
@@ -522,11 +525,16 @@ export class MultipointComm extends Module {
             });
 
             let self = this.cs.getSelf();
-            let rtcDevice = this.createRTCDevice(self, self.getDevice(), 'sendonly');
 
             // 1. 申请通话
-            target.applyCall(self, (commField, proposer) => {
-                console.log('applyCall is ok');
+            target.applyCall(self, self.getDevice(), (commField, proposer, device) => {
+                // 获取自己的终端节点
+                let endpoint = commField.getEndpoint(self);
+                console.log(endpoint);
+
+                // 2. 发起 Offer
+                // let rtcDevice = this.createRTCDevice(self, self.getDevice(), 'sendonly', this.videoElem.local);
+                // commField.launchOffer(rtcDevice, mediaConstraint, successHandler, failureHandler);
             }, (error) => {
                 failureHandler(error);
             });
@@ -1134,6 +1142,10 @@ export class MultipointComm extends Module {
         this.activeCall = new CallRecord(this.privateField.getFounder());
 
         if (this.offerSignaling.field.isPrivate()) {
+            // 更新数据
+            this.privateField.caller = offerSignaling.caller;
+            this.privateField.callee = offerSignaling.callee;
+
             // 设置私域
             this.activeCall.field = this.privateField;
             // 记录媒体约束
@@ -1149,7 +1161,6 @@ export class MultipointComm extends Module {
                 this.activeCall.field.callee = this.offerSignaling.callee = this.cs.getSelf();
                 callback();
             }, (error) => {
-                this.activeCall.field.caller = this.offerSignaling.caller;
                 this.activeCall.field.callee = this.offerSignaling.callee = this.cs.getSelf();
                 callback();
             });

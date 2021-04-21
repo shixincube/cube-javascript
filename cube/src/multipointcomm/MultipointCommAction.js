@@ -72,10 +72,26 @@ export const MultipointCommAction = {
     Candidate: 'candidate',
 
     /**
+     * 新的终端参与到场域。
+     * @type {string}
+     */
+    Arrived: 'arrived',
+
+    /**
      * 创建通讯场域。
      * @type {string}
      */
     CreateField: 'createField',
+
+    /**
+     * @type {string}
+     */
+    GetField: 'getField',
+
+    /**
+     * @type {string}
+     */
+    ExistingEndpoints: 'existingEndpoints',
     
     /**
      * 申请主叫对方。

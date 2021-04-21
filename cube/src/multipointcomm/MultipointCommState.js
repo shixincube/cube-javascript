@@ -54,19 +54,25 @@ export const MultipointCommState = {
      * 没有设备信息。
      * @type {number}
      */
-    NoDevice: 15,
+    NoDevice: 13,
 
     /**
      * 没有找到联系人。
      * @type {number}
      */
-    NoContact: 16,
+    NoContact: 14,
 
     /**
      * 没有找到通讯场域。
      * @type {number}
      */
-    NoCommField: 17,
+    NoCommField: 15,
+
+    /**
+     * 没有找到媒体单元。
+     * @type {number}
+     */
+    NoMediaUnit: 16,
 
     /**
      * 没有找到 Endpoint 。

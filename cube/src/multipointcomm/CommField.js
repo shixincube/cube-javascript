@@ -151,27 +151,27 @@ export class CommField extends Entity {
 
     /**
      * 启动为 Offer 。
-     * @param {RTCDevice} device RTC 设备。
+     * @param {RTCDevice} rtcDevice RTC 设备。
      * @param {MediaConstraint} mediaConstraint 媒体约束。
      * @param {function} successCallback 成功回调。
      * @param {function} failureCallback 失败回调。
      */
-    launchOffer(device, mediaConstraint, successCallback, failureCallback) {
-        this.rtcDevices.push(device);
+    launchOffer(rtcDevice, mediaConstraint, successCallback, failureCallback) {
+        this.rtcDevices.push(rtcDevice);
 
-        device.onIceCandidate = (candidate) => {
-            this.onIceCandidate(candidate, device);
+        rtcDevice.onIceCandidate = (candidate) => {
+            this.onIceCandidate(candidate, rtcDevice);
         };
-        device.onMediaConnected = (device) => {
-            this.onMediaConnected(device);
+        rtcDevice.onMediaConnected = (rtcDevice) => {
+            this.onMediaConnected(rtcDevice);
         };
-        device.onMediaDisconnected = (device) => {
-            this.onMediaDisconnected(device);
+        rtcDevice.onMediaDisconnected = (rtcDevice) => {
+            this.onMediaDisconnected(rtcDevice);
         };
 
-        device.openOffer(mediaConstraint, (description) => {
+        rtcDevice.openOffer(mediaConstraint, (description) => {
             let signaling = new Signaling(MultipointCommAction.Offer, this,
-                device.getContact(), device.getDevice(), device.sn);
+                rtcDevice.getContact(), rtcDevice.getDevice(), rtcDevice.sn);
             // 设置 SDP 信息
             signaling.sessionDescription = description;
             // 设置媒体约束
@@ -185,28 +185,28 @@ export class CommField extends Entity {
 
     /**
      * 启动为 Answer 。
-     * @param {RTCDevice} device RTC 设备。
+     * @param {RTCDevice} rtcDevice RTC 设备。
      * @param {string} offerDescription
      * @param {MediaConstraint} mediaConstraint 
      * @param {function} successCallback 
      * @param {function} failureCallback 
      */
-    launchAnswer(device, offerDescription, mediaConstraint, successCallback, failureCallback) {
-        this.rtcDevices.push(device);
+    launchAnswer(rtcDevice, offerDescription, mediaConstraint, successCallback, failureCallback) {
+        this.rtcDevices.push(rtcDevice);
 
-        device.onIceCandidate = (candidate) => {
-            this.onIceCandidate(candidate, device);
+        rtcDevice.onIceCandidate = (candidate) => {
+            this.onIceCandidate(candidate, rtcDevice);
         };
-        device.onMediaConnected = (device) => {
-            this.onMediaConnected(device);
+        rtcDevice.onMediaConnected = (rtcDevice) => {
+            this.onMediaConnected(rtcDevice);
         };
-        device.onMediaDisconnected = (device) => {
-            this.onMediaDisconnected(device);
+        rtcDevice.onMediaDisconnected = (rtcDevice) => {
+            this.onMediaDisconnected(rtcDevice);
         };
 
-        device.openAnswer(offerDescription, mediaConstraint, (description) => {
+        rtcDevice.openAnswer(offerDescription, mediaConstraint, (description) => {
             let signaling = new Signaling(MultipointCommAction.Answer, this,
-                device.getContact(), device.getDevice(), device.sn);
+                rtcDevice.getContact(), rtcDevice.getDevice(), rtcDevice.sn);
             // 设置 SDP 信息
             signaling.sessionDescription = description;
             // 设置媒体约束
@@ -272,6 +272,9 @@ export class CommField extends Entity {
             if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
                 if (responsePacket.data.code == MultipointCommState.Ok) {
                     let responseData = responsePacket.data.data;
+                    // 更新数据
+                    this.copy(responseData);
+
                     successCallback(this, proposer, device);
                 }
                 else {
@@ -390,16 +393,28 @@ export class CommField extends Entity {
 
     /**
      * 返回指定的终端节点的实际实例。
-     * @param {CommFieldEndpoint} fieldEndpoint 
+     * @param {CommFieldEndpoint|Contact} input 
      * @returns {CommFieldEndpoint}
      */
-    getEndpoint(fieldEndpoint) {
-        for (let i = 0; i < this.endpoints.length; ++i) {
-            let ep = this.endpoints[i];
-            if (ep.getId() == fieldEndpoint.getId()) {
-                return ep;
+    getEndpoint(input) {
+        if (input instanceof CommFieldEndpoint) {
+            for (let i = 0; i < this.endpoints.length; ++i) {
+                let ep = this.endpoints[i];
+                if (ep.getId() == input.getId()) {
+                    return ep;
+                }
             }
         }
+        else if (input instanceof Contact) {
+            for (let i = 0; i < this.endpoints.length; ++i) {
+                let ep = this.endpoints[i];
+                if (ep.contact.id == input.getId()) {
+                    return ep;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -620,6 +635,30 @@ export class CommField extends Entity {
     }
 
     /**
+     * 从 JSON 数据里复制数据。
+     * @param {JSON} sourceJson 
+     */
+    copy(sourceJson) {
+        if (undefined !== sourceJson.endpoints) {
+            this.endpoints = [];
+
+            sourceJson.endpoints.forEach((value) => {
+                let cfep = CommFieldEndpoint.create(value);
+                cfep.field = this;
+                this.endpoints.push(cfep);
+            });
+        }
+
+        if (null == this.caller && undefined !== sourceJson.caller) {
+            this.caller = Contact.create(sourceJson.caller);
+        }
+
+        if (null == this.callee && undefined !== sourceJson.callee) {
+            this.callee = Contact.create(sourceJson.callee);
+        }
+    }
+
+    /**
      * 创建由 JSON 格式定义的 {@link CommField} 对象。
      * @param {JSON} json 指定 JSON 格式。
      * @param {Pipeline} pipeline 指定数据管道。
@@ -627,12 +666,13 @@ export class CommField extends Entity {
      */
     static create(json, pipeline) {
         let field = new CommField(json.id, Contact.create(json.founder, json.domain), pipeline);
+
         if (undefined !== json.endpoints) {
             let list = json.endpoints;
             for (let i = 0; i < list.length; ++i) {
                 let cfep = CommFieldEndpoint.create(list[i]);
                 cfep.field = field;
-                field.endpoints.put(cfep.getId(), cfep);
+                field.endpoints.push(cfep.getId(), cfep);
             }
         }
 
