@@ -387,7 +387,7 @@ export class MultipointComm extends Module {
                 // 需要额外进行处理，因为浏览器可能无法连接到摄像头，但是可以连接麦克风
                 // 当连接不到摄像头时，需要直接从私域退出，而不发送信令
                 if (this.activeCall.field.isPrivate()) {
-                    this.privateField.applyTerminate(this.privateField.getFounder(), this.privateField.callee);
+                    this.privateField.applyTerminate(this.privateField.founder, this.privateField.device);
                 }
                 else {
                     // TODO
@@ -452,11 +452,11 @@ export class MultipointComm extends Module {
             this.privateField.callee = target;
 
             // 创建 RTC 设备
-            let rtcDevice = this.createRTCDevice(this.privateField.caller, this.privateField.caller.getDevice(),
+            let rtcDevice = this.createRTCDevice(this.privateField.caller, this.privateField.device,
                             'sendrecv', this.videoElem.local, this.videoElem.remote);
 
             // 1. 先申请主叫，从而设置目标
-            this.privateField.applyCall(this.privateField.caller, (commField, proposer) => {
+            this.privateField.applyCall(this.privateField.caller, this.privateField.device, (commField, proposer, device) => {
                 // 记录主叫媒体约束
                 this.activeCall.callerMediaConstraint = mediaConstraint;
 
@@ -654,7 +654,7 @@ export class MultipointComm extends Module {
     /**
      * 应答呼叫。
      * @param {MediaConstraint} mediaConstraint 指定本地的媒体约束。
-     * @param {CommField|Contact} [target] 指定应答对象。
+     * @param {CommField|Contact|Group} [target] 指定应答对象。
      * @param {function} [successCallback] 成功回调函数，函数参数：({@linkcode callRecord}:{@link CallRecord}) 。
      * @param {function} [failureCallback] 失败回调函数，函数参数：({@linkcode error}:{@link ModuleError}) 。
      * @returns {boolean} 返回是否允许执行该操作。
@@ -735,7 +735,7 @@ export class MultipointComm extends Module {
 
             if (null == this.videoElem.local && null == this.videoElem.remote) {
                 // 没有设置任何视频元素标签
-                let error = new ModuleError(MultipointComm.NAME, MultipointCommState.VideoElementNotSet, target);
+                let error = new ModuleError(MultipointComm.NAME, MultipointCommState.VideoElementNotSetting, target);
                 if (failureCallback) {
                     failureCallback(error);
                 }
@@ -747,11 +747,11 @@ export class MultipointComm extends Module {
             this.activeCall.answerTime = Date.now();
 
             // 创建 RTC 设备
-            let rtcDevice = this.createRTCDevice(this.privateField.getFounder(), this.privateField.getFounder().getDevice(),
+            let rtcDevice = this.createRTCDevice(this.privateField.founder, this.privateField.device,
                                 'sendrecv', this.videoElem.local, this.videoElem.remote);
 
             // 1. 先申请加入
-            this.privateField.applyJoin(rtcDevice.getContact(), rtcDevice.getDevice(), (contact, device) => {
+            this.privateField.applyJoin(rtcDevice.getContact(), rtcDevice.getDevice(), (commField, contact, device) => {
                 // 记录
                 this.activeCall.calleeMediaConstraint = mediaConstraint;
 

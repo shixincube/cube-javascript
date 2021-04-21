@@ -102,43 +102,49 @@ export const MultipointCommState = {
      * 正在建立通话。
      * @type {number}
      */
-    Calling: 27,
+    Calling: 30,
 
     /**
-     * 主叫忙。
+     * 当前线路忙。
      * @type {number}
      */
-    CallerBusy: 28,
-
-    /**
-     * 被叫忙。
-     * @type {number}
-     */
-    CalleeBusy: 29,
+    Busy: 31,
 
     /**
      * 通话已接通。
      * @type {number}
      */
-    CallConnected: 30,
+    CallConnected: 33,
+
+     /**
+      * 通话结束。
+      * @type {number}
+      */
+    CallBye: 35,
 
     /**
-     * 通话结束。
+     * 主叫忙。
      * @type {number}
      */
-    CallBye: 33,
+    CallerBusy: 41,
+
+    /**
+     * 被叫忙。
+     * @type {number}
+     */
+    CalleeBusy: 42,
 
     /**
      * 被主叫阻止。
      * @type {number}
      */
-    BeCallerBlocked: 41,
+    BeCallerBlocked: 45,
 
     /**
      * 被被叫阻止。
      * @type {number}
      */
-    BeCalleeBlocked: 42,
+    BeCalleeBlocked: 46,
 
     /**
      * 终端未初始化。
@@ -162,7 +168,7 @@ export const MultipointCommState = {
      * 视频元素未设置。
      * @type {number}
      */
-    VideoElementNotSet: 112,
+    VideoElementNotSetting: 112,
 
     /**
      * 信令错误。

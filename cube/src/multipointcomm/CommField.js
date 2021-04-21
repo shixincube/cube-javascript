@@ -221,7 +221,7 @@ export class CommField extends Entity {
     /**
      * 启动无出站流呼叫目标。
      * @param {CommFieldEndpoint} target 
-     * @param {RTCDevice} device 
+     * @param {RTCDevice} rtcDevice 
      * @param {function} successCallback 
      * @param {function} failureCallback 
      *
@@ -257,70 +257,30 @@ export class CommField extends Entity {
     /**
      * 申请通话场域。
      * @param {Contact} proposer 
+     * @param {Device} device
      * @param {function} successCallback 
      * @param {function} failureCallback 
      */
-    applyCall(proposer, successCallback, failureCallback) {
+    applyCall(proposer, device, successCallback, failureCallback) {
         let packet = new Packet(MultipointCommAction.ApplyCall, {
             field: this.toCompactJSON(),
-            proposer: proposer.toCompactJSON()
-        });
-
-        this.pipeline.send(MultipointComm.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
-                if (responsePacket.data.code == MultipointCommState.Ok) {
-                    let responseData = responsePacket.data.data;
-                    successCallback(this, proposer);
-                }
-                else {
-                    let error = new ModuleError(MultipointComm.NAME, responsePacket.data.code, {
-                        field: this,
-                        proposer: proposer
-                    });
-                    failureCallback(error);
-                }
-            }
-            else {
-                let error = new ModuleError(MultipointComm.NAME,
-                    (null != responsePacket) ? responsePacket.getStateCode() : MultipointCommState.ServerFault, {
-                    field: this,
-                    proposer: proposer
-                });
-                failureCallback(error);
-            }
-        });
-    }
-
-    /**
-     * 申请终止场域。
-     * @param {Contact} proposer 
-     * @param {Contact} target
-     * @param {function} [successCallback] 
-     * @param {function} [failureCallback] 
-     */
-    applyTerminate(proposer, target, successCallback, failureCallback) {
-        let packet = new Packet(MultipointCommAction.ApplyTerminate, {
-            field: this.toCompactJSON(),
             proposer: proposer.toCompactJSON(),
-            target: target.toCompactJSON()
+            device: device.toCompactJSON()
         });
+
         this.pipeline.send(MultipointComm.NAME, packet, (pipeline, source, responsePacket) => {
             if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
                 if (responsePacket.data.code == MultipointCommState.Ok) {
                     let responseData = responsePacket.data.data;
-                    if (successCallback) {
-                        successCallback(this, proposer, target);
-                    }
+                    successCallback(this, proposer, device);
                 }
                 else {
                     let error = new ModuleError(MultipointComm.NAME, responsePacket.data.code, {
                         field: this,
                         proposer: proposer,
-                        target: target
+                        device: device
                     });
-                    if (failureCallback) {
-                        failureCallback(error);
-                    }
+                    failureCallback(error);
                 }
             }
             else {
@@ -328,11 +288,9 @@ export class CommField extends Entity {
                     (null != responsePacket) ? responsePacket.getStateCode() : MultipointCommState.ServerFault, {
                     field: this,
                     proposer: proposer,
-                    target: target
+                    device: device
                 });
-                if (failureCallback) {
-                    failureCallback(error);
-                }
+                failureCallback(error);
             }
         });
     }
@@ -354,6 +312,13 @@ export class CommField extends Entity {
             if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
                 if (responsePacket.data.code == MultipointCommState.Ok) {
                     let responseData = responsePacket.data.data;
+
+                    if (this.isPrivate()) {
+                        // 更新主被叫信息
+                        this.caller = Contact.create(responseData.caller);
+                        this.callee = Contact.create(responseData.callee);
+                    }
+
                     successCallback(this, contact, device);
                 }
                 else {
@@ -373,6 +338,52 @@ export class CommField extends Entity {
                         device: device
                 });
                 failureCallback(error);
+            }
+        });
+    }
+
+    /**
+     * 申请终止场域。
+     * @param {Contact} proposer 
+     * @param {Device} device
+     * @param {function} [successCallback] 
+     * @param {function} [failureCallback] 
+     */
+    applyTerminate(proposer, device, successCallback, failureCallback) {
+        let packet = new Packet(MultipointCommAction.ApplyTerminate, {
+            field: this.toCompactJSON(),
+            proposer: proposer.toCompactJSON(),
+            device: device.toCompactJSON()
+        });
+        this.pipeline.send(MultipointComm.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+                if (responsePacket.data.code == MultipointCommState.Ok) {
+                    let responseData = responsePacket.data.data;
+                    if (successCallback) {
+                        successCallback(this, proposer, device);
+                    }
+                }
+                else {
+                    let error = new ModuleError(MultipointComm.NAME, responsePacket.data.code, {
+                        field: this,
+                        proposer: proposer,
+                        device: device
+                    });
+                    if (failureCallback) {
+                        failureCallback(error);
+                    }
+                }
+            }
+            else {
+                let error = new ModuleError(MultipointComm.NAME,
+                    (null != responsePacket) ? responsePacket.getStateCode() : MultipointCommState.ServerFault, {
+                    field: this,
+                    proposer: proposer,
+                    device: device
+                });
+                if (failureCallback) {
+                    failureCallback(error);
+                }
             }
         });
     }
@@ -577,6 +588,14 @@ export class CommField extends Entity {
             json.invitees.push(this.invitees[i].toCompactJSON());
         }
 
+        if (null != this.caller) {
+            json.caller = this.caller.toCompactJSON();
+        }
+
+        if (null != this.callee) {
+            json.callee = this.callee.toCompactJSON();
+        }
+
         return json;
     }
 
@@ -616,6 +635,15 @@ export class CommField extends Entity {
                 field.endpoints.put(cfep.getId(), cfep);
             }
         }
+
+        if (undefined !== json.caller) {
+            field.caller = Contact.create(json.caller, json.domain);
+        }
+
+        if (undefined !== json.callee) {
+            field.callee = Contact.create(json.callee, json.domain);
+        }
+
         return field;
     }
 }
