@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,9 +42,8 @@ export class Signaling extends JSONable {
      * @param {CommField} field 信令的通讯场域。
      * @param {Contact} contact 传送/接收该信令的联系人。
      * @param {Device} device 传送/接收该信令的设备。
-     * @param {number} rtcSN RTC 设备的 SN 。
      */
-    constructor(name, field, contact, device, rtcSN) {
+    constructor(name, field, contact, device) {
         super();
 
         /**
@@ -70,12 +69,6 @@ export class Signaling extends JSONable {
          * @type {Device}
          */
         this.device = device;
-
-        /**
-         * RTC 的 SN 。
-         * @type {number}
-         */
-        this.rtcSN = rtcSN;
 
         /**
          * 目标。
@@ -129,14 +122,13 @@ export class Signaling extends JSONable {
         json["field"] = this.field.toCompactJSON();
         json["contact"] = this.contact.toCompactJSON();
         json["device"] = this.device.toCompactJSON();
-        json["rtcSN"] = this.rtcSN;
 
         if (null != this.sessionDescription) {
             json["description"] = this.sessionDescription;
         }
 
         if (null != this.target) {
-            json["target"] = this.target.toCompactJSON();
+            json["target"] = this.target.toJSON();
         }
 
         if (null != this.candidate) {
@@ -161,14 +153,14 @@ export class Signaling extends JSONable {
      * 创建 {@link Signaling} 实例。
      * @param {JSON} json JSON 数据对象。
      * @param {Pipeline} pipeline 数据管道。
+     * @param {Self} self 指定当前登录用户。
      * @returns {Signaling} 返回 {@linkcode Signaling} 实例。
      */
-    static create(json, pipeline) {
+    static create(json, pipeline, self) {
         let signaling = new Signaling(json.name,
-            CommField.create(json.field, pipeline),
+            CommField.create(json.field, pipeline, self),
             Contact.create(json.contact),
-            Device.create(json.device),
-            json.rtcSN);
+            Device.create(json.device));
 
         if (json.description) {
             signaling.sessionDescription = json.description;

@@ -27,6 +27,7 @@
 import { Entity } from "../core/Entity";
 import { Contact } from "../contact/Contact";
 import { Device } from "../contact/Device";
+import { Self } from "../contact/Self";
 import { CommFieldEndpoint } from "./CommFieldEndpoint";
 import { MediaConstraint } from "./MediaConstraint";
 import { RTCDevice } from "./RTCDevice";
@@ -38,6 +39,7 @@ import { StateCode } from "../core/StateCode";
 import { MultipointCommState } from "./MultipointCommState";
 import { Signaling } from "./Signaling";
 import { ModuleError } from "../core/error/ModuleError";
+import { OrderMap } from "../util/OrderMap";
 
 /**
  * 多方通信场域。
@@ -48,8 +50,9 @@ export class CommField extends Entity {
      * @param {number} id 场域 ID 。
      * @param {Contact} founder 创建人 ID 。
      * @param {Pipeline} pipeline 数据通道。
+     * @param {Self} self 当前登录的用户。
      */
-    constructor(id, founder, pipeline) {
+    constructor(id, founder, pipeline, self) {
         super(7 * 24 * 60 * 60 * 1000);
 
         /**
@@ -77,6 +80,12 @@ export class CommField extends Entity {
         this.pipeline = pipeline;
 
         /**
+         * 当前签入的用户。
+         * @type {Self}
+         */
+        this.self = self;
+
+        /**
          * 监听器。
          * @type {object}
          */
@@ -89,28 +98,22 @@ export class CommField extends Entity {
         this.invitees = [];
 
         /**
-         * RTC 终端列表。
-         * @type {Array<RTCDevice>}
-         */
-        this.rtcDevices = [];
-
-        /**
          * 终端列表。
          * @type {Array<CommFieldEndpoint>}
          */
          this.endpoints = [];
 
         /**
-         * 出站流的 RTC 终端。仅适用于私有域。
+         * 出站流的 RTC 终端。
          * @type {RTCDevice}
          */
         this.outboundRTC = null;
 
         /**
-         * 入站流的 RTC 终端。仅适用于私有域。
-         * @type {RTCDevice}
+         * 入站流的 RTC 终端。键为 Endpoint 的 ID 。
+         * @type {OrderMap< number, RTCDevice >}
          */
-        this.inboundRTC = null;
+        this.inboundRTCMap = new OrderMap();
 
         /**
          * 私域的设备，仅适用于私有域。
@@ -148,14 +151,6 @@ export class CommField extends Entity {
     }
 
     /**
-     * 返回设备。
-     * @returns {Device} 返回设备。
-     */
-    getDevice() {
-        return this.device;
-    }
-
-    /**
      * 当前通信场是否是私有场域。
      * @returns {boolean} 如果是私有场域返回 {@linkcode true} ，否则返回 {@linkcode false} 。
      */
@@ -172,7 +167,18 @@ export class CommField extends Entity {
      * @param {CommFieldEndpoint} [target] 目标终端。
      */
     launchOffer(rtcDevice, mediaConstraint, successCallback, failureCallback, target) {
-        this.rtcDevices.push(rtcDevice);
+        if (rtcDevice.mode == 'sendrecv' || rtcDevice.mode == 'sendonly') {
+            this.outboundRTC = rtcDevice;
+        }
+        else {
+            if (undefined !== target && null != target) {
+                this.inboundRTCMap.put(target.id, rtcDevice);
+            }
+            else {
+                failureCallback(new ModuleError(MultipointComm.NAME, MultipointCommState.RTCPeerError, rtcDevice));
+                return;
+            }
+        }
 
         rtcDevice.onIceCandidate = (candidate) => {
             this.onIceCandidate(candidate, rtcDevice);
@@ -185,8 +191,8 @@ export class CommField extends Entity {
         };
 
         rtcDevice.openOffer(mediaConstraint, (description) => {
-            let signaling = new Signaling(MultipointCommAction.Offer, this,
-                rtcDevice.getContact(), rtcDevice.getDevice(), rtcDevice.sn);
+            // 创建信令
+            let signaling = new Signaling(MultipointCommAction.Offer, this, this.self, this.self.device);
             // 设置 SDP 信息
             signaling.sessionDescription = description;
             // 设置媒体约束
@@ -195,8 +201,13 @@ export class CommField extends Entity {
             if (undefined !== target) {
                 signaling.target = target;
             }
-            // 发送信令
-            this.sendSignaling(signaling, successCallback, failureCallback);
+
+            try {
+                // 发送信令
+                this.sendSignaling(signaling, successCallback, failureCallback);
+            } catch (error) {
+                failureCallback(new ModuleError(MultipointComm.NAME, MultipointCommState.Failure, error));
+            }
         }, (error) => {
             failureCallback(error);
         });
@@ -209,9 +220,21 @@ export class CommField extends Entity {
      * @param {MediaConstraint} mediaConstraint 
      * @param {function} successCallback 
      * @param {function} failureCallback 
+     * @param {CommFieldEndpoint} target
      */
-    launchAnswer(rtcDevice, offerDescription, mediaConstraint, successCallback, failureCallback) {
-        this.rtcDevices.push(rtcDevice);
+    launchAnswer(rtcDevice, offerDescription, mediaConstraint, successCallback, failureCallback, target) {
+        if (rtcDevice.mode == 'sendrecv' || rtcDevice.mode == 'sendonly') {
+            this.outboundRTC = rtcDevice;
+        }
+        else {
+            if (undefined !== target && null != target) {
+                this.inboundRTCMap.put(target.id, rtcDevice);
+            }
+            else {
+                failureCallback(new ModuleError(MultipointComm.NAME, MultipointCommState.RTCPeerError, rtcDevice));
+                return;
+            }
+        }
 
         rtcDevice.onIceCandidate = (candidate) => {
             this.onIceCandidate(candidate, rtcDevice);
@@ -224,12 +247,18 @@ export class CommField extends Entity {
         };
 
         rtcDevice.openAnswer(offerDescription, mediaConstraint, (description) => {
-            let signaling = new Signaling(MultipointCommAction.Answer, this,
-                rtcDevice.getContact(), rtcDevice.getDevice(), rtcDevice.sn);
+            // 创建信令
+            let signaling = new Signaling(MultipointCommAction.Answer, this, this.self, this.self.device);
             // 设置 SDP 信息
             signaling.sessionDescription = description;
             // 设置媒体约束
             signaling.mediaConstraint = mediaConstraint;
+
+            // 设置目标
+            if (undefined !== target) {
+                signaling.target = target;
+            }
+
             // 发送信令
             this.sendSignaling(signaling, successCallback, failureCallback);
         }, (error) => {
@@ -238,52 +267,16 @@ export class CommField extends Entity {
     }
 
     /**
-     * 启动无出站流呼叫目标。
-     * @param {CommFieldEndpoint} target 
-     * @param {RTCDevice} rtcDevice 
-     * @param {function} successCallback 
-     * @param {function} failureCallback 
-     *
-    launchFollow(target, device, successCallback, failureCallback) {
-        device.target = target;
-
-        this.rtcDevices.push(device);
-
-        device.onIceCandidate = (candidate) => {
-            this.onIceCandidate(candidate, device);
-        };
-        device.onMediaConnected = (device) => {
-            this.onMediaConnected(device);
-        };
-        device.onMediaDisconnected = (device) => {
-            this.onMediaDisconnected(device);
-        };
-
-        device.openOffer(null, (description) => {
-            let signaling = new Signaling(MultipointCommAction.Follow, this,
-                device.getContact(), device.getDevice(), device.sn);
-            // 设置 SDP 信息
-            signaling.sessionDescription = description;
-            // 设置目标
-            signaling.target = target;
-            // 发送信令
-            this.sendSignaling(signaling, successCallback, failureCallback);
-        }, (error) => {
-            failureCallback(error);
-        });
-    }*/
-
-    /**
      * 申请通话场域。
-     * @param {Contact} proposer 
+     * @param {Contact} participant 
      * @param {Device} device
      * @param {function} successCallback 
      * @param {function} failureCallback 
      */
-    applyCall(proposer, device, successCallback, failureCallback) {
+    applyCall(participant, device, successCallback, failureCallback) {
         let packet = new Packet(MultipointCommAction.ApplyCall, {
             field: this.toCompactJSON(),
-            proposer: proposer.toCompactJSON(),
+            participant: participant.toCompactJSON(),
             device: device.toCompactJSON()
         });
 
@@ -294,12 +287,12 @@ export class CommField extends Entity {
                     // 更新数据
                     this.copy(responseData);
 
-                    successCallback(this, proposer, device);
+                    successCallback(this, participant, device);
                 }
                 else {
                     let error = new ModuleError(MultipointComm.NAME, responsePacket.data.code, {
                         field: this,
-                        proposer: proposer,
+                        participant: participant,
                         device: device
                     });
                     failureCallback(error);
@@ -309,7 +302,7 @@ export class CommField extends Entity {
                 let error = new ModuleError(MultipointComm.NAME,
                     (null != responsePacket) ? responsePacket.getStateCode() : MultipointCommState.ServerFault, {
                     field: this,
-                    proposer: proposer,
+                    participant: participant,
                     device: device
                 });
                 failureCallback(error);
@@ -319,34 +312,30 @@ export class CommField extends Entity {
 
     /**
      * 申请直接加入场域。
-     * @param {Contact} contact 
+     * @param {Contact} participant 
      * @param {Device} device
      * @param {function} successCallback 
      * @param {function} failureCallback 
      */
-    applyJoin(contact, device, successCallback, failureCallback) {
+    applyJoin(participant, device, successCallback, failureCallback) {
         let packet = new Packet(MultipointCommAction.ApplyJoin, {
             field: this.toCompactJSON(),
-            contact: contact.toCompactJSON(),
+            participant: participant.toCompactJSON(),
             device: device.toCompactJSON()
         });
         this.pipeline.send(MultipointComm.NAME, packet, (pipeline, source, responsePacket) => {
             if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
                 if (responsePacket.data.code == MultipointCommState.Ok) {
                     let responseData = responsePacket.data.data;
+                    // 更新数据
+                    this.copy(responseData);
 
-                    if (this.isPrivate()) {
-                        // 更新主被叫信息
-                        this.caller = Contact.create(responseData.caller);
-                        this.callee = Contact.create(responseData.callee);
-                    }
-
-                    successCallback(this, contact, device);
+                    successCallback(this, participant, device);
                 }
                 else {
                     let error = new ModuleError(MultipointComm.NAME, responsePacket.data.code, {
                         field: this,
-                        contact: contact,
+                        participant: participant,
                         device: device
                     });
                     failureCallback(error);
@@ -356,7 +345,7 @@ export class CommField extends Entity {
                 let error = new ModuleError(MultipointComm.NAME,
                     (null != responsePacket) ? responsePacket.getStateCode() : MultipointCommState.ServerFault, {
                         field: this,
-                        contact: contact,
+                        participant: participant,
                         device: device
                 });
                 failureCallback(error);
@@ -366,29 +355,32 @@ export class CommField extends Entity {
 
     /**
      * 申请终止场域。
-     * @param {Contact} proposer 
+     * @param {Contact} participant 
      * @param {Device} device
      * @param {function} [successCallback] 
      * @param {function} [failureCallback] 
      */
-    applyTerminate(proposer, device, successCallback, failureCallback) {
+    applyTerminate(participant, device, successCallback, failureCallback) {
         let packet = new Packet(MultipointCommAction.ApplyTerminate, {
             field: this.toCompactJSON(),
-            proposer: proposer.toCompactJSON(),
+            participant: participant.toCompactJSON(),
             device: device.toCompactJSON()
         });
         this.pipeline.send(MultipointComm.NAME, packet, (pipeline, source, responsePacket) => {
             if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
                 if (responsePacket.data.code == MultipointCommState.Ok) {
                     let responseData = responsePacket.data.data;
+                    // 更新数据
+                    this.copy(responseData);
+
                     if (successCallback) {
-                        successCallback(this, proposer, device);
+                        successCallback(this, participant, device);
                     }
                 }
                 else {
                     let error = new ModuleError(MultipointComm.NAME, responsePacket.data.code, {
                         field: this,
-                        proposer: proposer,
+                        participant: participant,
                         device: device
                     });
                     if (failureCallback) {
@@ -400,7 +392,7 @@ export class CommField extends Entity {
                 let error = new ModuleError(MultipointComm.NAME,
                     (null != responsePacket) ? responsePacket.getStateCode() : MultipointCommState.ServerFault, {
                     field: this,
-                    proposer: proposer,
+                    participant: participant,
                     device: device
                 });
                 if (failureCallback) {
@@ -412,22 +404,30 @@ export class CommField extends Entity {
 
     /**
      * 返回指定的终端节点的实际实例。
-     * @param {CommFieldEndpoint|Contact} input 
+     * @param {CommFieldEndpoint|Contact|number} param 
      * @returns {CommFieldEndpoint}
      */
-    getEndpoint(input) {
-        if (input instanceof CommFieldEndpoint) {
+    getEndpoint(param) {
+        if (param instanceof CommFieldEndpoint) {
             for (let i = 0; i < this.endpoints.length; ++i) {
                 let ep = this.endpoints[i];
-                if (ep.getId() == input.getId()) {
+                if (ep.getId() == param.getId()) {
                     return ep;
                 }
             }
         }
-        else if (input instanceof Contact) {
+        else if (param instanceof Contact) {
             for (let i = 0; i < this.endpoints.length; ++i) {
                 let ep = this.endpoints[i];
-                if (ep.contact.id == input.getId()) {
+                if (ep.contact.id == param.id) {
+                    return ep;
+                }
+            }
+        }
+        else if (typeof param === 'number') {
+            for (let i = 0; i < this.endpoints.length; ++i) {
+                let ep = this.endpoints[i];
+                if (ep.getId() == param) {
                     return ep;
                 }
             }
@@ -437,87 +437,45 @@ export class CommField extends Entity {
     }
 
     /**
-     * 获取 RTC 设备数量。
-     * @returns {number} 返回 RTC 终端数量。
+     * 获取当前管理的 RTC 设备数量。
+     * @returns {number} 返回当前管理的 RTC 设备数量。
      */
     numRTCDevices() {
-        return this.rtcDevices.length;
-    }
-
-    /**
-     * 获取指定 SN 的 RTC 设备。
-     * @param {number} sn 
-     * @returns {number} 返回指定 SN 的 RTC 终端。
-     */
-    getRTCDeviceBySN(sn) {
-        for (let i = 0; i < this.rtcDevices.length; ++i) {
-            let device = this.rtcDevices[i];
-            if (device.sn == sn) {
-                return device;
-            }
-        }
-
-        return null;
+        let result = (null != this.outboundRTC) ? 1 : 0;
+        return result + this.inboundRTCMap.size();
     }
 
     /**
      * 获取指定终端的 RTC 设备。
-     * @param {CommFieldEndpoint} [fieldEndpoint] 指定终端。
+     * @param {CommFieldEndpoint} [endpoint] 指定终端。
      * @returns {RTCDevice} 返回指定终端的 RTC 设备。
      */
-    getRTCDevice(fieldEndpoint) {
-        if (undefined === fieldEndpoint) {
-            if (this.rtcDevices.length > 0) {
-                return this.rtcDevices[0];
-            }
-            else {
-                return null;
-            }
+    getRTCDevice(endpoint) {
+        if (undefined == endpoint) {
+            return this.outboundRTC;
         }
-        else {
-            for (let i = 0; i < this.rtcDevices.length; ++i) {
-                let device = this.rtcDevices[i];
-                if (null != device.target && device.target.getId() == fieldEndpoint.getId()) {
-                    return device;
-                }
-            }
 
-            return null;
+        if (endpoint.contact.id == this.self.id) {
+            return this.outboundRTC;
         }
+
+        return this.inboundRTCMap.get(endpoint.getId());
     }
 
     closeRTCDevice(device) {
         if (device instanceof RTCDevice) {
-            for (let i = 0; i < this.rtcDevices.length; ++i) {
-                let rtcDevice = this.rtcDevices[i];
-                if (rtcDevice == device) {
-                    if (this.outboundRTC == rtcDevice) {
-                        this.outboundRTC = null;
-                    }
-                    if (this.inboundRTC == rtcDevice) {
-                        this.inboundRTC = null;
-                    }
-                    rtcDevice.close();
-                    this.rtcDevices.splice(i, 1);
-                    break;
-                }
+            if (device == this.outboundRTC) {
+                this.outboundRTC = null;
             }
-        }
-        else {
-            for (let i = 0; i < this.rtcDevices.length; ++i) {
-                let rtcDevice = this.rtcDevices[i];
-                if (null != rtcDevice.target && rtcDevice.target.getId() == endpoint.getId()) {
-                    rtcDevice.close();
-                    if (this.outboundRTC == rtcDevice) {
-                        this.outboundRTC = null;
-                    }
-                    if (this.inboundRTC == rtcDevice) {
-                        this.inboundRTC = null;
-                    }
-                    this.rtcDevices.splice(i, 1);
-                    break;
+
+            this.inboundRTCMap.forEach((key, value) => {
+                if (value == device) {
+                    this.inboundRTCMap.remove(key);
+                    return true;
                 }
-            }
+            });
+
+            device.close();
         }
     }
 
@@ -525,17 +483,15 @@ export class CommField extends Entity {
      * 关闭并清空所有 RTC 终端。
      */
     closeRTCDevices() {
-        if (this.rtcDevices.length == 0) {
-            return;
+        if (null != this.outboundRTC) {
+            this.outboundRTC.close();
+            this.outboundRTC = null;
         }
 
-        this.rtcDevices.forEach((device, index, array) => {
-            device.close();
+        this.inboundRTCMap.forEach((key, value) => {
+            value.close();
         });
-        this.rtcDevices.splice(0, this.rtcDevices.length);
-
-        this.outboundRTC = null;
-        this.inboundRTC = null;
+        this.inboundRTCMap.clear();
     }
 
     /**
@@ -550,7 +506,7 @@ export class CommField extends Entity {
             if (null != packet && packet.getStateCode() == StateCode.OK) {
                 if (packet.data.code == MultipointCommState.Ok) {
                     let data = packet.data.data;
-                    let response = Signaling.create(data, this.pipeline);
+                    let response = Signaling.create(data, this.pipeline, this.self);
                     packet.context = response;
 
                     if (successCallback) {
@@ -577,8 +533,7 @@ export class CommField extends Entity {
      * @param {RTCDevice} rtcDevice
      */
     onIceCandidate(candidate, rtcDevice) {
-        let signaling = new Signaling(MultipointCommAction.Candidate,
-            this, rtcDevice.getContact(), rtcDevice.getDevice(), rtcDevice.sn);
+        let signaling = new Signaling(MultipointCommAction.Candidate, this, this.self, this.self.device);
         signaling.candidate = candidate;
         this.sendSignaling(signaling);
     }
@@ -683,10 +638,11 @@ export class CommField extends Entity {
      * 创建由 JSON 格式定义的 {@link CommField} 对象。
      * @param {JSON} json 指定 JSON 格式。
      * @param {Pipeline} pipeline 指定数据管道。
+     * @param {Self} self 指定当前登录用户。
      * @returns {CommField} 返回 {@link CommField} 对象实例。
      */
-    static create(json, pipeline) {
-        let field = new CommField(json.id, Contact.create(json.founder, json.domain), pipeline);
+    static create(json, pipeline, self) {
+        let field = new CommField(json.id, Contact.create(json.founder), pipeline, self);
 
         field.name = json.name;
 

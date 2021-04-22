@@ -25,10 +25,7 @@
  */
 
 import cell from "@lib/cell-lib";
-import { Contact } from "../contact/Contact";
-import { Device } from "../contact/Device";
 import { ModuleError } from "../core/error/ModuleError";
-import { CommFieldEndpoint } from "./CommFieldEndpoint";
 import { DeviceSpanner } from "./DeviceSpanner";
 import { MediaConstraint } from "./MediaConstraint";
 import { MultipointComm } from "./MultipointComm";
@@ -40,35 +37,18 @@ import { MultipointCommState } from "./MultipointCommState";
 export class RTCDevice {
 
     /**
-     * @param {Contact} contact 联系人。
-     * @param {Device} device 对应的设备。
      * @param {string} [mode] 模式：'recvonly' ， 'sendonly' ，'sendrecv' 。
      */
-    constructor(contact, device, mode) {
+    constructor(mode) {
         /**
          * @type {number}
          */
         this.sn = cell.Utils.generateSerialNumber();
 
         /**
-         * @type {Contact}
-         */
-        this.contact = contact;
-
-        /**
-         * @type {Device}
-         */
-        this.device = device;
-
-        /**
          * @type {string}
          */
         this.mode = (undefined === mode) ? 'sendrecv' : mode;
-
-        /**
-         * @type {CommFieldEndpoint}
-         */
-        this.target = null;
 
         /**
          * @type {MediaConstraint}
@@ -148,22 +128,6 @@ export class RTCDevice {
                 audio: true
             }
         };
-    }
-
-    /**
-     * 返回当前联系人。
-     * @returns {Contact} 返回当前联系人。
-     */
-    getContact() {
-        return this.contact;
-    }
-
-    /**
-     * 返回当前设备。
-     * @returns {Device} 返回当前设备。
-     */
-    getDevice() {
-        return this.device;
     }
 
     /**
@@ -470,9 +434,6 @@ export class RTCDevice {
                 }
 
                 // 添加 track
-                // for (const track of this.outboundStream.getTracks()) {
-                //     this.pc.addTrack(track);
-                // }
                 this.outboundStream.getTracks().forEach((track) => {
                     this.pc.addTrack(track, this.outboundStream);
                 });
@@ -583,7 +544,7 @@ export class RTCDevice {
 
                 // 添加 track
                 for (const track of this.outboundStream.getTracks()) {
-                    this.pc.addTrack(track);
+                    this.pc.addTrack(track, this.outboundStream);
                 }
 
                 this.pc.createAnswer().then((answer) => {
@@ -795,5 +756,4 @@ export class RTCDevice {
             });
         });
     }
-
 }

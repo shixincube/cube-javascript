@@ -42,24 +42,35 @@
 
     var volume = 0.7;
 
-    function onInProgress(target) {
+    function onInProgress(event) {
+        console.log('#onInProgress');
     }
 
     function onRinging(event) {
-        if (voiceCall) {
-            g.app.voiceCallPanel.tipWaitForAnswer(event.data.getCallee());
+        if (groupCall) {
+
         }
         else {
-            g.app.videoChatPanel.tipWaitForAnswer(event.data.getCallee());
+            if (voiceCall) {
+                g.app.voiceCallPanel.tipWaitForAnswer(event.data.getCallee());
+            }
+            else {
+                g.app.videoChatPanel.tipWaitForAnswer(event.data.getCallee());
+            }
         }
     }
 
     function onConnected(event) {
-        if (voiceCall) {
-            g.app.voiceCallPanel.tipConnected();
+        if (groupCall) {
+
         }
         else {
-            g.app.videoChatPanel.tipConnected();
+            if (voiceCall) {
+                g.app.voiceCallPanel.tipConnected();
+            }
+            else {
+                g.app.videoChatPanel.tipConnected();
+            }
         }
     }
 
@@ -148,17 +159,22 @@
     }
 
     function onTimeout(event) {
-        if (voiceCall) {
-            g.app.voiceCallPanel.close();
-            g.app.voiceCallPanel.closeNewCallToast();
+        if (groupCall) {
+
         }
         else {
-            g.app.videoChatPanel.close();
-            g.app.videoChatPanel.closeNewCallToast();
-        }
-
-        if (event.data.isCaller()) {
-            g.dialog.launchToast(Toast.Info, '对方无应答');
+            if (voiceCall) {
+                g.app.voiceCallPanel.close();
+                g.app.voiceCallPanel.closeNewCallToast();
+            }
+            else {
+                g.app.videoChatPanel.close();
+                g.app.videoChatPanel.closeNewCallToast();
+            }
+    
+            if (event.data.isCaller()) {
+                g.dialog.launchToast(Toast.Info, '对方无应答');
+            }
         }
     }
 
@@ -188,13 +204,18 @@
         }
 
         setTimeout(function() {
-            if (voiceCall) {
-                g.app.voiceCallPanel.close();
-                g.app.voiceCallPanel.closeNewCallToast();
+            if (groupCall) {
+                console.log('#onCallFailed: ' + error.code);
             }
             else {
-                g.app.videoChatPanel.close();
-                g.app.videoChatPanel.closeNewCallToast();
+                if (voiceCall) {
+                    g.app.voiceCallPanel.close();
+                    g.app.voiceCallPanel.closeNewCallToast();
+                }
+                else {
+                    g.app.videoChatPanel.close();
+                    g.app.videoChatPanel.closeNewCallToast();
+                }
             }
         }, 500);
     }

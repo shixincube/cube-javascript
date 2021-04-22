@@ -195,6 +195,12 @@ export const MultipointCommState = {
     SignalingError: 115,
 
     /**
+     * RTC 节点数据不正确。
+     * @type {number}
+     */
+    RTCPeerError: 117,
+
+    /**
      * 创建 RTC offer 错误。
      * @type {number}
      */
