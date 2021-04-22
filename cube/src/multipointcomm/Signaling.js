@@ -136,7 +136,7 @@ export class Signaling extends JSONable {
         }
 
         if (null != this.target) {
-            json["target"] = target.toCompactJSON();
+            json["target"] = this.target.toCompactJSON();
         }
 
         if (null != this.candidate) {

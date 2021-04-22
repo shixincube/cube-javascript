@@ -42,6 +42,7 @@
     var VoiceGroupCallPanel = function() {
         that = this;
         panelEl = $('#group_voice_call');
+        that.localVideo = panelEl.find('video[data-target="local"]')[0];
 
         btnMin = panelEl.find('button[data-target="minimize"]');
         btnMin.click(function() {

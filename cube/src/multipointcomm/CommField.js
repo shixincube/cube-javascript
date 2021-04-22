@@ -59,6 +59,12 @@ export class CommField extends Entity {
         this.id = id;
 
         /**
+         * 场域名称。
+         * @type {string}
+         */
+        this.name = founder.getName() + '#' + id;
+
+        /**
          * 通信场创建人。
          * @type {Contact}
          */
@@ -126,6 +132,14 @@ export class CommField extends Entity {
     }
 
     /**
+     * 返回名称。
+     * @returns {string} 返回名称。
+     */
+    getName() {
+        return this.name;
+    }
+
+    /**
      * 返回创建人。
      * @returns {Contact} 返回创建人。
      */
@@ -155,8 +169,9 @@ export class CommField extends Entity {
      * @param {MediaConstraint} mediaConstraint 媒体约束。
      * @param {function} successCallback 成功回调。
      * @param {function} failureCallback 失败回调。
+     * @param {CommFieldEndpoint} [target] 目标终端。
      */
-    launchOffer(rtcDevice, mediaConstraint, successCallback, failureCallback) {
+    launchOffer(rtcDevice, mediaConstraint, successCallback, failureCallback, target) {
         this.rtcDevices.push(rtcDevice);
 
         rtcDevice.onIceCandidate = (candidate) => {
@@ -176,6 +191,10 @@ export class CommField extends Entity {
             signaling.sessionDescription = description;
             // 设置媒体约束
             signaling.mediaConstraint = mediaConstraint;
+            // 设置目标
+            if (undefined !== target) {
+                signaling.target = target;
+            }
             // 发送信令
             this.sendSignaling(signaling, successCallback, failureCallback);
         }, (error) => {
@@ -591,6 +610,7 @@ export class CommField extends Entity {
         let json = super.toJSON();
         json.id = this.id;
         json.domain = this.founder.getDomain();
+        json.name = this.name;
         json.founder = this.founder.toCompactJSON();
 
         json.endpoints = [];
@@ -621,6 +641,7 @@ export class CommField extends Entity {
         let json = super.toCompactJSON();
         json.id = this.id;
         json.domain = this.founder.getDomain();
+        json.name = this.name;
         json.founder = this.founder.toCompactJSON();
 
         if (null != this.caller) {
@@ -666,6 +687,8 @@ export class CommField extends Entity {
      */
     static create(json, pipeline) {
         let field = new CommField(json.id, Contact.create(json.founder, json.domain), pipeline);
+
+        field.name = json.name;
 
         if (undefined !== json.endpoints) {
             let list = json.endpoints;

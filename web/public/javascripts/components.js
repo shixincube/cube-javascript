@@ -4184,6 +4184,7 @@
     var VoiceGroupCallPanel = function() {
         that = this;
         panelEl = $('#group_voice_call');
+        that.localVideo = panelEl.find('video[data-target="local"]')[0];
 
         btnMin = panelEl.find('button[data-target="minimize"]');
         btnMin.click(function() {
@@ -6008,6 +6009,13 @@
             return cube.mpComm.makeCall(target, mediaConstraint, callback);
         }
         else if (target instanceof Group) {
+            if (videoEnabled) {
+                // TODO
+            }
+            else {
+                cube.mpComm.setLocalVideoElement(g.app.voiceGroupCallPanel.localVideo);
+            }
+
             // 发起通话
             return cube.mpComm.makeCall(target, mediaConstraint, callback);
         }

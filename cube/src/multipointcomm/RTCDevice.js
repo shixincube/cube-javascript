@@ -470,9 +470,12 @@ export class RTCDevice {
                 }
 
                 // 添加 track
-                for (const track of this.outboundStream.getTracks()) {
-                    this.pc.addTrack(track);
-                }
+                // for (const track of this.outboundStream.getTracks()) {
+                //     this.pc.addTrack(track);
+                // }
+                this.outboundStream.getTracks().forEach((track) => {
+                    this.pc.addTrack(track, this.outboundStream);
+                });
 
                 // 设置 sendonly 状态
                 if (this.mode == 'sendonly') {

@@ -401,6 +401,13 @@
             return cube.mpComm.makeCall(target, mediaConstraint, callback);
         }
         else if (target instanceof Group) {
+            if (videoEnabled) {
+                // TODO
+            }
+            else {
+                cube.mpComm.setLocalVideoElement(g.app.voiceGroupCallPanel.localVideo);
+            }
+
             // 发起通话
             return cube.mpComm.makeCall(target, mediaConstraint, callback);
         }

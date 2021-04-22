@@ -75,6 +75,12 @@ export const MultipointCommState = {
     NoMediaUnit: 16,
 
     /**
+     * 没有找到与媒体单元的数据通道。
+     * @type {number}
+     */
+    NoPipeline: 17,
+
+    /**
      * 没有找到 Endpoint 。
      * @type {number}
      */
@@ -103,6 +109,12 @@ export const MultipointCommState = {
      * @type {number}
      */
     MediaUnitField: 23,
+
+    /**
+     * 不被支持的信令。
+     * @type {number}
+     */
+    UnsupportedSignaling: 24,
 
     /**
      * 正在建立通话。

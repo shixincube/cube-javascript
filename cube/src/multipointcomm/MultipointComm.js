@@ -300,10 +300,15 @@ export class MultipointComm extends Module {
      * 创建多方场域。
      * @param {function} successCallback 
      * @param {function} failureCallback 
+     * @param {string} name
      * @param {Array<Contact>} [contacts] 
      */
-    createCommField(successCallback, failureCallback, contacts) {
+    createCommField(successCallback, failureCallback, name, contacts) {
         let commField = new CommField(cell.Utils.generateSerialNumber(), this.cs.getSelf(), this.pipeline);
+
+        if (name) {
+            commField.name = name;
+        }
 
         if (contacts) {
             commField.invitees = contacts;
@@ -488,7 +493,7 @@ export class MultipointComm extends Module {
                     }, 1);
                 }, (error) => {
                     failureHandler(error);
-                });
+                }, target.getName() + '#' + target.getId());
             }
             else {
                 // 获取场域
@@ -530,11 +535,11 @@ export class MultipointComm extends Module {
             target.applyCall(self, self.getDevice(), (commField, proposer, device) => {
                 // 获取自己的终端节点
                 let endpoint = commField.getEndpoint(self);
-                console.log(endpoint);
 
                 // 2. 发起 Offer
-                // let rtcDevice = this.createRTCDevice(self, self.getDevice(), 'sendonly', this.videoElem.local);
-                // commField.launchOffer(rtcDevice, mediaConstraint, successHandler, failureHandler);
+                let rtcDevice = this.createRTCDevice(self, self.getDevice(), 'sendonly', this.videoElem.local);
+                // 自己发起 send only 的 Offer
+                commField.launchOffer(rtcDevice, mediaConstraint, successHandler, failureHandler, endpoint);
             }, (error) => {
                 failureHandler(error);
             });
