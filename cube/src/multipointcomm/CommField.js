@@ -456,6 +456,7 @@ export class CommField extends Entity {
         }
 
         if (endpoint.contact.id == this.self.id) {
+            // loopback 的 Peer
             return this.outboundRTC;
         }
 
