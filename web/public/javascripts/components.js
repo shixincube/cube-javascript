@@ -4171,6 +4171,11 @@
  */
 (function(g) {
 
+    /**
+     * 最大允许的通话人数。
+     */
+    const maxMembers = 16;
+
     var that = null;
 
     var panelEl = null;
@@ -4243,8 +4248,9 @@
                         // 界面布局
                         that.resetLayout(result);
 
-                        // 进行呼叫
                         result.shift();
+
+                        // 调用启动通话
                         handler(group, result);
 
                     }, '群通话', '请选择要邀请通话的群组成员');
@@ -4391,8 +4397,9 @@
                         // 界面布局
                         that.resetLayout(result);
 
-                        // 进行呼叫
                         result.shift();
+
+                        // 调用启动通话
                         handler(group, result);
 
                     }, '群通话', '请选择要邀请通话的群组成员');
@@ -4413,8 +4420,53 @@
      * @private
      * @param {Array} list 
      */
-     VideoGroupChatPanel.prototype.resetLayout = function(list) {
-     }
+    VideoGroupChatPanel.prototype.resetLayout = function(list) {
+        var contactList = [];
+
+        for (var i = 0; i < list.length; ++i) {
+            var cid = list[i];
+            g.app.getContact(cid, function(contact) {
+                contactList.push(contact);
+
+                if (contactList.length == list.length) {
+                    that.doLayout(contactList);
+                }
+            });
+        }
+    }
+
+    VideoGroupChatPanel.prototype.doLayout = function(list) {
+        var html = null;
+
+        if (list.length == 2) {
+            html = [
+                '<div class="row align-items-center layout-pattern-2">',
+                    '<div class="col-6">',
+                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="toolbar">', list[0].getPriorityName(), '</div>',
+                    '</div>',
+                    '<div class="col-6">',
+                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="toolbar">', list[1].getPriorityName(), '</div>',
+                    '</div>',
+                '</div>'
+            ];
+        }
+        else if (list.length == 3) {
+
+        }
+        else if (list.length == 4) {
+
+        }
+        else if (list.length == 5) {
+
+        }
+        else if (list.length == 6) {
+
+        }
+
+        panelEl.find('.container').html(html.join(''));
+    }
 
     g.VideoGroupChatPanel = VideoGroupChatPanel;
 

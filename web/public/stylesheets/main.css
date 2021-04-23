@@ -1414,12 +1414,40 @@ video {
 /* 群组视频通话 */
 
 .video-group-panel {
-    width: 512px;
-    margin-left: -256px;
+    width: 682px;
+    margin-left: -341px;
     color: #f8f9fa;
 }
 .video-group-panel .modal-dialog {
-    width: 510px;
+    width: 680px;
+}
+.video-group-panel .layout {
+    padding: 10px;
+}
+.video-group-panel .layout .row {
+    margin: 0px;
+}
+.video-group-panel .layout .col-12, .video-group-panel .layout .col-6, .video-group-panel .layout .col-4 {
+    padding: 0px;
+}
+.video-group-panel .layout-pattern-2 video {
+    width: 320px;
+    height: 240px;
+    background-color: #000;
+}
+.video-group-panel .layout .viewport {
+    text-align: center;
+    vertical-align: middle;
+}
+.video-group-panel .layout .toolbar {
+    width: 320px;
+    height: 24px;
+    font-size: 12px;
+    position: absolute;
+    float: left;
+    bottom: 0px;
+    vertical-align: middle;
+    text-align: right;
 }
 
 /* 群组语音通话 */

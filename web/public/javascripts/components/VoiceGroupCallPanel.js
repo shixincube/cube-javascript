@@ -29,6 +29,11 @@
  */
 (function(g) {
 
+    /**
+     * 最大允许的通话人数。
+     */
+    const maxMembers = 16;
+
     var that = null;
 
     var panelEl = null;
@@ -101,8 +106,9 @@
                         // 界面布局
                         that.resetLayout(result);
 
-                        // 进行呼叫
                         result.shift();
+
+                        // 调用启动通话
                         handler(group, result);
 
                     }, '群通话', '请选择要邀请通话的群组成员');
