@@ -3385,7 +3385,7 @@
      * 显示发起通话界面。
      * @param {Contact} target 
      */
-    VoiceCallPanel.prototype.showMakeCall = function(target) {
+    VoiceCallPanel.prototype.makeCall = function(target) {
         console.log('发起语音通话 ' + target.getId());
 
         var audioDevice = null;
@@ -3448,7 +3448,7 @@
      * 显示应答通话界面。
      * @param {Contact} caller 
      */
-    VoiceCallPanel.prototype.showAnswerCall = function(caller) {
+    VoiceCallPanel.prototype.showAnswer = function(caller) {
         console.log('应答语音通话 ' + caller.getId());
 
         this.elPeerAvatar.attr('src', 'images/' + caller.getContext().avatar);
@@ -3861,7 +3861,7 @@
      * 发起通话。
      * @param {Contact} target 
      */
-    VideoChatPanel.prototype.showMakeCall = function(target) {
+    VideoChatPanel.prototype.makeCall = function(target) {
         console.log('发起视频连线 ' + target.getId());
 
         var videoDevice = null;
@@ -3924,7 +3924,7 @@
      * 发起应答。
      * @param {Contact} caller 
      */
-    VideoChatPanel.prototype.showAnswerCall = function(caller) {
+    VideoChatPanel.prototype.showAnswer = function(caller) {
         console.log('应答视频通话 ' + caller.getId());
 
         this.elRemoteLabel.text(caller.getName());
@@ -4206,7 +4206,7 @@
         });
     }
 
-    VoiceGroupCallPanel.prototype.showMakeCall = function(group) {
+    VoiceGroupCallPanel.prototype.makeCall = function(group) {
         var members = [];
 
         var audioDevice = null;
@@ -4253,6 +4253,10 @@
         });
     }
 
+    VoiceGroupCallPanel.prototype.close = function() {
+        panelEl.modal('hide');
+    }
+
     VoiceGroupCallPanel.prototype.minimize = function() {
         if (minimized) {
             return;
@@ -4278,7 +4282,7 @@
     }
 
     VoiceGroupCallPanel.prototype.terminate = function() {
-        panelEl.modal('hide');
+        g.app.callCtrl.hangupCall();
     }
 
     /**
@@ -4336,8 +4340,9 @@
 
     var VideoGroupChatPanel = function() {
         that = this;
-
         panelEl = $('#group_video_chat');
+
+        that.localVideo = null;
 
         btnHangup = panelEl.find('button[data-target="hangup"]');
         btnHangup.click(function() {
@@ -4345,16 +4350,71 @@
         });
     }
 
-    VideoGroupChatPanel.prototype.showMakeCall = function(group) {
-        panelEl.modal({
-            keyboard: false,
-            backdrop: false
+    /**
+     * 
+     * @param {Group} group 
+     */
+    VideoGroupChatPanel.prototype.makeCall = function(group) {
+        var members = [];
+
+        var videoDevice = null;
+
+        var handler = function(group, idList) {
+            if (g.app.callCtrl.makeCall(group, true, videoDevice)) {
+                panelEl.find('.video-group-default .modal-title').text('群通话 - ' + group.getName());
+                // panelEl.find('.voice-group-minisize .modal-title').text(group.getName());
+
+                // 显示窗口
+                panelEl.modal({
+                    keyboard: false,
+                    backdrop: false
+                });
+            }
+            else {
+                g.dialog.launchToast(Toast.Warning, '您当前正在通话中');
+            }
+        }
+        
+        group.getMembers().forEach(function(element) {
+            if (element.getId() == g.app.getSelf().getId()) {
+                return;
+            }
+
+            g.app.getContact(element.getId(), function(contact) {
+                members.push(contact);
+
+                if (members.length == group.numMembers() - 1) {
+                    // 显示联系人列表对话框，以便选择邀请通话的联系人。
+                    g.app.contactListDialog.show(members, [], function(result) {
+                        result.unshift(g.app.getSelf().getId());
+
+                        // 界面布局
+                        that.resetLayout(result);
+
+                        // 进行呼叫
+                        result.shift();
+                        handler(group, result);
+
+                    }, '群通话', '请选择要邀请通话的群组成员');
+                }
+            });
         });
     }
 
-    VideoGroupChatPanel.prototype.terminate = function() {
+    VideoGroupChatPanel.prototype.close = function() {
         panelEl.modal('hide');
     }
+
+    VideoGroupChatPanel.prototype.terminate = function() {
+        g.app.callCtrl.hangupCall();
+    }
+
+    /**
+     * @private
+     * @param {Array} list 
+     */
+     VideoGroupChatPanel.prototype.resetLayout = function(list) {
+     }
 
     g.VideoGroupChatPanel = VideoGroupChatPanel;
 
@@ -5959,10 +6019,10 @@
             }
 
             if (video) {
-                g.app.videoChatPanel.showMakeCall(contact);
+                g.app.videoChatPanel.makeCall(contact);
             }
             else {
-                g.app.voiceCallPanel.showMakeCall(contact);
+                g.app.voiceCallPanel.makeCall(contact);
             }
         });
     }
@@ -5981,10 +6041,10 @@
         groupCall = true;
 
         if (video) {
-            g.app.videoGroupChatPanel.showMakeCall(group);
+            g.app.videoGroupChatPanel.makeCall(group);
         }
         else {
-            g.app.voiceGroupCallPanel.showMakeCall(group);
+            g.app.voiceGroupCallPanel.makeCall(group);
         }
     }
 
@@ -6031,14 +6091,14 @@
         }
         else if (target instanceof Group) {
             if (videoEnabled) {
-                // TODO
+                cube.mpComm.setLocalVideoElement(g.app.videoGroupChatPanel.localVideo);
             }
             else {
                 cube.mpComm.setLocalVideoElement(g.app.voiceGroupCallPanel.localVideo);
             }
 
             // 发起通话
-            return cube.mpComm.makeCall(target, mediaConstraint, callback);
+            return true;// XJW cube.mpComm.makeCall(target, mediaConstraint, callback);
         }
         else {
             return false;
@@ -6063,7 +6123,7 @@
             // 只使用音频通道
             var mediaConstraint = new MediaConstraint(false, true);
             if (cube.mpComm.answerCall(mediaConstraint)) {
-                g.app.voiceCallPanel.showAnswerCall(cube.mpComm.getActiveRecord().getCaller());
+                g.app.voiceCallPanel.showAnswer(cube.mpComm.getActiveRecord().getCaller());
                 return true;
             }
         }
@@ -6077,7 +6137,7 @@
             // 只使用音频通道
             var mediaConstraint = new MediaConstraint(true, true);
             if (cube.mpComm.answerCall(mediaConstraint)) {
-                g.app.videoChatPanel.showAnswerCall(cube.mpComm.getActiveRecord().getCaller());
+                g.app.videoChatPanel.showAnswer(cube.mpComm.getActiveRecord().getCaller());
                 return true;
             }
         }
@@ -6095,19 +6155,19 @@
 
         working = false;
 
-        if (cube.mpComm.hangupCall()) {
+        if (!cube.mpComm.hangupCall()) {
+            console.log('CallController 终止通话时发生错误。');
+        }
+
+        if (groupCall) {
             if (voiceCall) {
-                g.app.voiceCallPanel.close();
-                g.app.voiceCallPanel.closeNewCallToast();
+                g.app.voiceGroupCallPanel.close();
             }
             else {
-                g.app.videoChatPanel.close();
-                g.app.videoChatPanel.closeNewCallToast();
+                g.app.videoGroupChatPanel.close();
             }
         }
         else {
-            console.error('终止通话时发生错误。');
-
             if (voiceCall) {
                 g.app.voiceCallPanel.close();
                 g.app.voiceCallPanel.closeNewCallToast();

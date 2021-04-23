@@ -64,7 +64,7 @@
         });
     }
 
-    VoiceGroupCallPanel.prototype.showMakeCall = function(group) {
+    VoiceGroupCallPanel.prototype.makeCall = function(group) {
         var members = [];
 
         var audioDevice = null;
@@ -111,6 +111,10 @@
         });
     }
 
+    VoiceGroupCallPanel.prototype.close = function() {
+        panelEl.modal('hide');
+    }
+
     VoiceGroupCallPanel.prototype.minimize = function() {
         if (minimized) {
             return;
@@ -136,7 +140,7 @@
     }
 
     VoiceGroupCallPanel.prototype.terminate = function() {
-        panelEl.modal('hide');
+        g.app.callCtrl.hangupCall();
     }
 
     /**

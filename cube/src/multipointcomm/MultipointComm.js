@@ -537,7 +537,7 @@ export class MultipointComm extends Module {
 
                 // 2. 发起 Offer
                 let rtcDevice = this.createRTCDevice('sendonly', this.videoElem.local);
-                // 自己发起 send only 的 Offer
+                // 发起 send only 的 Offer 回送自己的视频流
                 commField.launchOffer(rtcDevice, mediaConstraint, successHandler, failureHandler, endpoint);
             }, (error) => {
                 failureHandler(error);

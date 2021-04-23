@@ -295,7 +295,7 @@
      * 发起通话。
      * @param {Contact} target 
      */
-    VideoChatPanel.prototype.showMakeCall = function(target) {
+    VideoChatPanel.prototype.makeCall = function(target) {
         console.log('发起视频连线 ' + target.getId());
 
         var videoDevice = null;
@@ -358,7 +358,7 @@
      * 发起应答。
      * @param {Contact} caller 
      */
-    VideoChatPanel.prototype.showAnswerCall = function(caller) {
+    VideoChatPanel.prototype.showAnswer = function(caller) {
         console.log('应答视频通话 ' + caller.getId());
 
         this.elRemoteLabel.text(caller.getName());

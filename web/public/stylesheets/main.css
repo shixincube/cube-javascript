@@ -1241,28 +1241,20 @@ video {
     padding-bottom: 4px;
 }
 
-.video-chat-panel {
-    width: 642px;
-    margin-left: -321px;
-    color: #f8f9fa;
-    overflow: hidden;
-}
-.video-chat-panel-mini {
-    width: 242px;
-    height: 227px;
-    margin-left: -121px;
-}
-.video-chat-panel h6 {
+.video-chat-panel h6, .video-group-panel h6, .voice-call-panel h6, .voice-group-panel h6 {
     font-size: 14px;
     font-weight: bold;
 }
-.video-chat-panel .title-button-group {
-    display: flex;
+.video-chat-panel .modal-content, .video-group-panel .modal-content, .voice-call-panel .modal-content, .voice-group-panel .modal-content {
+    background-color: #343a40;
+    box-shadow: none;
 }
-.video-chat-panel .title-button-group .title-button {
-    margin-left: 4px;
+.video-chat-panel .modal-header, .video-group-panel .modal-header, .voice-call-panel .modal-header, .voice-group-panel .modal-header {
+    padding: 10px 16px 10px 16px;
+    border-bottom: 1px solid #545a60;
+    cursor: move;
 }
-.video-chat-panel .title-button {
+.video-chat-panel .title-button, .video-group-panel .title-button, .voice-call-panel .title-button, .voice-group-panel .title-button {
     width: 22px;
     height: 22px;
     font-size: 14px;
@@ -1277,33 +1269,49 @@ video {
     text-shadow: 0 1px 0 #343a40;
     opacity: .8;
 }
+.video-chat-panel .title-button-group, .video-group-panel .title-button-group, .voice-call-panel .title-button-group, .voice-group-panel .title-button-group {
+    display: flex;
+}
+.video-chat-panel .title-button-group .title-button, .video-group-panel .title-button-group .title-button, .voice-call-panel .title-button-group .title-button, .voice-group-panel .title-button-group .title-button {
+    margin-left: 4px;
+}
+.video-chat-panel .modal-body, .video-group-panel .modal-body, .voice-call-panel .modal-body, .voice-group-panel .modal-body {
+    padding: 0;
+}
+.video-chat-panel .modal-footer, .video-group-panel .modal-footer, .voice-call-panel .modal-footer, .voice-group-panel .modal-footer {
+    padding: 10px 16px 10px 16px;
+    border-top: 1px solid #545a60;
+}
+.video-chat-panel .modal-footer button, .video-group-panel .modal-footer button, .voice-call-panel .modal-footer button, .voice-group-panel .modal-footer button {
+    font-size: 14px;
+}
+
+.voice-call-panel .modal-body .info-box-desc, .voice-group-panel .modal-body .info-box-desc {
+    color: #adb5bd;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+/* 一对一视频通话 */
+
+.video-chat-panel {
+    width: 642px;
+    margin-left: -321px;
+    color: #f8f9fa;
+    overflow: hidden;
+}
+.video-chat-panel-mini {
+    width: 242px;
+    height: 227px;
+    margin-left: -121px;
+}
+
 .video-chat-panel .modal-dialog {
     width: 642px;
-}
-.video-chat-panel .modal-content {
-    width: 642px;
-    background-color: #343a40;
-    box-shadow: none;
 }
 .video-chat-panel .modal-content-mini {
     width: 242px;
     height: 227px;
     overflow: hidden;
-}
-.video-chat-panel .modal-header {
-    padding: 10px 16px 10px 16px;
-    border-bottom: 1px solid #545a60;
-    cursor: move;
-}
-.video-chat-panel .modal-body {
-    padding: 0;
-}
-.video-chat-panel .modal-footer {
-    padding: 10px 16px 10px 16px;
-    border-top: 1px solid #545a60;
-}
-.video-chat-panel .modal-footer button {
-    font-size: 14px;
 }
 
 .video-chat-panel .header-tip {
@@ -1377,6 +1385,7 @@ video {
     border: 0;
 }
 
+/* 一对一语音通话 */
 
 .voice-call-panel {
     width: 362px;
@@ -1402,6 +1411,19 @@ video {
     width: 360px;
 }
 
+/* 群组视频通话 */
+
+.video-group-panel {
+    width: 512px;
+    margin-left: -256px;
+    color: #f8f9fa;
+}
+.video-group-panel .modal-dialog {
+    width: 510px;
+}
+
+/* 群组语音通话 */
+
 .voice-group-panel {
     width: 512px;
     margin-left: -256px;
@@ -1414,30 +1436,7 @@ video {
 .voice-group-panel .modal-dialog {
     width: 510px;
 }
-/* .voice-group-panel .modal-content {
-    width: 510px;
-} */
-.voice-group-panel .title-button-group {
-    display: flex;
-}
-.voice-group-panel .title-button-group .title-button {
-    margin-left: 4px;
-}
-.voice-group-panel .title-button {
-    width: 22px;
-    height: 22px;
-    font-size: 14px;
-    color: #f8f9fa;
-    background-color: transparent;
-    border: 0;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    font-weight: 700;
-    line-height: 1;
-    text-shadow: 0 1px 0 #343a40;
-    opacity: .8;
-}
+
 .voice-group-panel .layout {
     background-color: #343a40;
     padding: 10px;
@@ -1481,14 +1480,6 @@ video {
     font-weight: 700;
     font-family: 'Courier New', Courier, monospace;
 }
-
-/* .voice-call-panel .close, .voice-group-panel .close {
-    font-size: 12px;
-} */
-.voice-call-panel h6, .voice-group-panel h6 {
-    font-size: 14px;
-    font-weight: bold;
-}
 .voice-call-panel .media-container, .voice-group-panel .media-container {
     position: absolute;
     float: left;
@@ -1501,29 +1492,6 @@ video {
 .voice-call-panel .media-container video, .voice-group-panel .media-container video {
     width: 1px;
     height: 1px;
-}
-.voice-call-panel .modal-content, .voice-group-panel .modal-content {
-    background-color: #343a40;
-    box-shadow: none;
-}
-.voice-call-panel .modal-header, .voice-group-panel .modal-header {
-    padding: 10px 16px 10px 16px;
-    border-bottom: 1px solid #545a60;
-    cursor: move;
-}
-.voice-call-panel .modal-body, .voice-group-panel .modal-body {
-    padding: 0;
-}
-.voice-call-panel .modal-body .info-box-desc, .voice-group-panel .modal-body .info-box-desc {
-    color: #adb5bd;
-    font-family: 'Courier New', Courier, monospace;
-}
-.voice-call-panel .modal-footer, .voice-group-panel .modal-footer {
-    padding: 10px 16px 10px 16px;
-    border-top: 1px solid #545a60;
-}
-.voice-call-panel .modal-footer button, .voice-group-panel .modal-footer button {
-    font-size: 14px;
 }
 
 .toasts-info {

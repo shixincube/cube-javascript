@@ -351,10 +351,10 @@
             }
 
             if (video) {
-                g.app.videoChatPanel.showMakeCall(contact);
+                g.app.videoChatPanel.makeCall(contact);
             }
             else {
-                g.app.voiceCallPanel.showMakeCall(contact);
+                g.app.voiceCallPanel.makeCall(contact);
             }
         });
     }
@@ -373,10 +373,10 @@
         groupCall = true;
 
         if (video) {
-            g.app.videoGroupChatPanel.showMakeCall(group);
+            g.app.videoGroupChatPanel.makeCall(group);
         }
         else {
-            g.app.voiceGroupCallPanel.showMakeCall(group);
+            g.app.voiceGroupCallPanel.makeCall(group);
         }
     }
 
@@ -423,14 +423,14 @@
         }
         else if (target instanceof Group) {
             if (videoEnabled) {
-                // TODO
+                cube.mpComm.setLocalVideoElement(g.app.videoGroupChatPanel.localVideo);
             }
             else {
                 cube.mpComm.setLocalVideoElement(g.app.voiceGroupCallPanel.localVideo);
             }
 
             // 发起通话
-            return cube.mpComm.makeCall(target, mediaConstraint, callback);
+            return true;// XJW cube.mpComm.makeCall(target, mediaConstraint, callback);
         }
         else {
             return false;
@@ -455,7 +455,7 @@
             // 只使用音频通道
             var mediaConstraint = new MediaConstraint(false, true);
             if (cube.mpComm.answerCall(mediaConstraint)) {
-                g.app.voiceCallPanel.showAnswerCall(cube.mpComm.getActiveRecord().getCaller());
+                g.app.voiceCallPanel.showAnswer(cube.mpComm.getActiveRecord().getCaller());
                 return true;
             }
         }
@@ -469,7 +469,7 @@
             // 只使用音频通道
             var mediaConstraint = new MediaConstraint(true, true);
             if (cube.mpComm.answerCall(mediaConstraint)) {
-                g.app.videoChatPanel.showAnswerCall(cube.mpComm.getActiveRecord().getCaller());
+                g.app.videoChatPanel.showAnswer(cube.mpComm.getActiveRecord().getCaller());
                 return true;
             }
         }
@@ -487,19 +487,19 @@
 
         working = false;
 
-        if (cube.mpComm.hangupCall()) {
+        if (!cube.mpComm.hangupCall()) {
+            console.log('CallController 终止通话时发生错误。');
+        }
+
+        if (groupCall) {
             if (voiceCall) {
-                g.app.voiceCallPanel.close();
-                g.app.voiceCallPanel.closeNewCallToast();
+                g.app.voiceGroupCallPanel.close();
             }
             else {
-                g.app.videoChatPanel.close();
-                g.app.videoChatPanel.closeNewCallToast();
+                g.app.videoGroupChatPanel.close();
             }
         }
         else {
-            console.error('终止通话时发生错误。');
-
             if (voiceCall) {
                 g.app.voiceCallPanel.close();
                 g.app.voiceCallPanel.closeNewCallToast();

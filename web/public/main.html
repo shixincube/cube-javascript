@@ -860,34 +860,24 @@
     <!-- Group Voice Call - end -->
 
     <!-- Group Video Chat - begin -->
-    <div id="group_video_chat" class="modal fade modeless video-chat-panel">
-        <div class="modal-dialog modal-dialog-modeless">
+    <div id="group_video_chat" class="modal fade modeless video-group-panel">
+        <div class="modal-dialog modal-dialog-modeless video-group-default">
             <div class="modal-content">
                 <div class="modal-header">
                     <h6 class="modal-title">群视频</h6>
                     <div class="header-tip"></div>
                     <div class="title-button-group">
-                        <button class="close title-button" type="button" data-target="minimize">
+                        <button class="title-button" type="button" data-target="minimize">
                             <i class="fas fa-window-minimize"></i>
-                        </button>
-                        <button class="close title-button" type="button" data-target="maximize">
-                            <i class="fas fa-window-maximize"></i>
-                        </button>
-                        <button class="close title-button" type="button" data-target="restore">
-                            <i class="fas fa-window-restore"></i>
                         </button>
                     </div>
                 </div>
                 <div class="modal-body">
-                    <div class="video-main" data-target="video-remote">
-                        <video autoplay="autoplay"></video>
-                        <div class="video-label">Remote</div>
+                    <div class="container-fluid">
+                        <div class="row align-items-center layout">
+                            <!-- ## -->
+                        </div>
                     </div>
-                    <div class="video-pip" data-target="video-local">
-                        <video autoplay="autoplay"></video>
-                        <div class="video-label">Local</div>
-                    </div>
-                    <div class="call-tip">&nbsp;</div>
                 </div>
                 <div class="modal-footer justify-content-between">
                     <div class="media-btn-group">
@@ -898,7 +888,7 @@
                     <button class="btn btn-danger hangup-btn" type="button" title="挂断通话" data-target="hangup"><i class="ci ci-hangup"></i> 挂断</button>
                 </div>
             </div>
-        </div>
+        </div><!-- /.modal-dialog -->
     </div>
     <!-- Group Video Chat - end -->
 

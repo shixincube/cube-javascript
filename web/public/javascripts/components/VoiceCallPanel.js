@@ -110,7 +110,7 @@
      * 显示发起通话界面。
      * @param {Contact} target 
      */
-    VoiceCallPanel.prototype.showMakeCall = function(target) {
+    VoiceCallPanel.prototype.makeCall = function(target) {
         console.log('发起语音通话 ' + target.getId());
 
         var audioDevice = null;
@@ -173,7 +173,7 @@
      * 显示应答通话界面。
      * @param {Contact} caller 
      */
-    VoiceCallPanel.prototype.showAnswerCall = function(caller) {
+    VoiceCallPanel.prototype.showAnswer = function(caller) {
         console.log('应答语音通话 ' + caller.getId());
 
         this.elPeerAvatar.attr('src', 'images/' + caller.getContext().avatar);
