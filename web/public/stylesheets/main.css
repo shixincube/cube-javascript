@@ -1430,7 +1430,7 @@ video {
 .video-group-panel .layout .col-12, .video-group-panel .layout .col-6, .video-group-panel .layout .col-4 {
     padding: 0px;
 }
-.video-group-panel .layout-pattern-2 video {
+.video-group-panel .layout-pattern-2 video, .video-group-panel .layout-pattern-3 video, .video-group-panel .layout-pattern-4 video {
     width: 320px;
     height: 240px;
     background-color: #000;
@@ -1454,6 +1454,20 @@ video {
 .video-group-panel .layout .toolbar .name {
     padding-top: 3px;
     padding-right: 6px;
+}
+.video-group-panel .layout-pattern-3 .col-12 .toolbar {
+    left: calc(160px + 5px + 4px);
+}
+.video-group-panel .layout-pattern-6 {
+    margin-bottom: 8px;
+}
+.video-group-panel .layout-pattern-6 video {
+    width: 210px;
+    height: 140px;
+    background-color: #000;
+}
+.video-group-panel .layout-pattern-6 .toolbar {
+    width: 210px;
 }
 
 /* 群组语音通话 */

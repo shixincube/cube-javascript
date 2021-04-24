@@ -29,6 +29,11 @@
  */
 (function(g) {
 
+    /**
+     * 最大允许的通话人数。
+     */
+    const maxMembers = 6;
+
     var that = null;
 
     var panelEl = null;
@@ -85,6 +90,11 @@
                     g.app.contactListDialog.show(members, [], function(result) {
                         result.unshift(g.app.getSelf().getId());
 
+                        if (result.length > maxMembers) {
+                            g.dialog.showAlert('超过最大通话人数（最大通话人数 ' + maxMembers + ' 人）。');
+                            return;
+                        }
+
                         // 界面布局
                         that.resetLayout(result);
 
@@ -133,6 +143,40 @@
             html = [
                 '<div class="row align-items-center layout-pattern-2">',
                     '<div class="col-6">',
+                        '<div class="viewport"><video autoplay data-target="', list[0].getId(), '"></video></div>',
+                        '<div class="toolbar"><div class="name">', list[0].getPriorityName(), '</div></div>',
+                    '</div>',
+                    '<div class="col-6">',
+                        '<div class="viewport"><video autoplay data-target="', list[1].getId(), '"></video></div>',
+                        '<div class="toolbar"><div class="name">', list[1].getPriorityName(), '</div></div>',
+                    '</div>',
+                '</div>'
+            ];
+        }
+        else if (list.length == 3) {
+            html = [
+                '<div class="row align-items-center layout-pattern-3">',
+                    '<div class="col-12">',
+                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="toolbar"><div class="name">', list[0].getPriorityName(), '</div></div>',
+                    '</div>',
+                '</div>',
+                '<div class="row align-items-center layout-pattern-3">',
+                    '<div class="col-6">',
+                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="toolbar"><div class="name">', list[1].getPriorityName(), '</div></div>',
+                    '</div>',
+                    '<div class="col-6">',
+                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="toolbar"><div class="name">', list[2].getPriorityName(), '</div></div>',
+                    '</div>',
+                '</div>'
+            ];
+        }
+        else if (list.length == 4) {
+            html = [
+                '<div class="row align-items-center layout-pattern-4">',
+                    '<div class="col-6">',
                         '<div class="viewport"><video autoplay></video></div>',
                         '<div class="toolbar"><div class="name">', list[0].getPriorityName(), '</div></div>',
                     '</div>',
@@ -140,20 +184,78 @@
                         '<div class="viewport"><video autoplay></video></div>',
                         '<div class="toolbar"><div class="name">', list[1].getPriorityName(), '</div></div>',
                     '</div>',
+                '</div>',
+                '<div class="row align-items-center layout-pattern-4">',
+                    '<div class="col-6">',
+                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="toolbar"><div class="name">', list[2].getPriorityName(), '</div></div>',
+                    '</div>',
+                    '<div class="col-6">',
+                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="toolbar"><div class="name">', list[3].getPriorityName(), '</div></div>',
+                    '</div>',
                 '</div>'
             ];
         }
-        else if (list.length == 3) {
-
-        }
-        else if (list.length == 4) {
-
-        }
         else if (list.length == 5) {
-
+            html = [
+                '<div class="row align-items-center layout-pattern-6" style="margin-bottom:4px !important;">',
+                    '<div class="col-4">',
+                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="toolbar"><div class="name">', list[0].getPriorityName(), '</div></div>',
+                    '</div>',
+                    '<div class="col-4">',
+                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="toolbar"><div class="name">', list[1].getPriorityName(), '</div></div>',
+                    '</div>',
+                    '<div class="col-4">',
+                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="toolbar"><div class="name">', list[2].getPriorityName(), '</div></div>',
+                    '</div>',
+                '</div>',
+                '<div class="row align-items-center layout-pattern-6">',
+                    '<div class="col-4">',
+                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="toolbar"><div class="name">', list[3].getPriorityName(), '</div></div>',
+                    '</div>',
+                    '<div class="col-4">',
+                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="toolbar"><div class="name">', list[4].getPriorityName(), '</div></div>',
+                    '</div>',
+                '</div>'
+            ];
         }
         else if (list.length == 6) {
-
+            html = [
+                '<div class="row align-items-center layout-pattern-6" style="margin-bottom:4px !important;">',
+                    '<div class="col-4">',
+                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="toolbar"><div class="name">', list[0].getPriorityName(), '</div></div>',
+                    '</div>',
+                    '<div class="col-4">',
+                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="toolbar"><div class="name">', list[1].getPriorityName(), '</div></div>',
+                    '</div>',
+                    '<div class="col-4">',
+                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="toolbar"><div class="name">', list[2].getPriorityName(), '</div></div>',
+                    '</div>',
+                '</div>',
+                '<div class="row align-items-center layout-pattern-6">',
+                    '<div class="col-4">',
+                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="toolbar"><div class="name">', list[3].getPriorityName(), '</div></div>',
+                    '</div>',
+                    '<div class="col-4">',
+                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="toolbar"><div class="name">', list[4].getPriorityName(), '</div></div>',
+                    '</div>',
+                    '<div class="col-4">',
+                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="toolbar"><div class="name">', list[5].getPriorityName(), '</div></div>',
+                    '</div>',
+                '</div>'
+            ];
         }
 
         panelEl.find('.container').html(html.join(''));
