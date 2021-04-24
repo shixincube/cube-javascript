@@ -134,11 +134,11 @@
                 '<div class="row align-items-center layout-pattern-2">',
                     '<div class="col-6">',
                         '<div class="viewport"><video autoplay></video></div>',
-                        '<div class="toolbar">', list[0].getPriorityName(), '</div>',
+                        '<div class="toolbar"><div class="name">', list[0].getPriorityName(), '</div></div>',
                     '</div>',
                     '<div class="col-6">',
                         '<div class="viewport"><video autoplay></video></div>',
-                        '<div class="toolbar">', list[1].getPriorityName(), '</div>',
+                        '<div class="toolbar"><div class="name">', list[1].getPriorityName(), '</div></div>',
                     '</div>',
                 '</div>'
             ];

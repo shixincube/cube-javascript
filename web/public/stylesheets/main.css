@@ -1445,9 +1445,15 @@ video {
     font-size: 12px;
     position: absolute;
     float: left;
-    bottom: 0px;
+    bottom: 5px;
+    left: 4px;
     vertical-align: middle;
     text-align: right;
+    background-color: rgba(52, 58, 64, 0.5);   /* rgba(248, 2499, 250, 0.5); */
+}
+.video-group-panel .layout .toolbar .name {
+    padding-top: 3px;
+    padding-right: 6px;
 }
 
 /* 群组语音通话 */
