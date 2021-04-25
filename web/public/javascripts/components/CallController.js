@@ -430,7 +430,7 @@
             }
 
             // 发起通话
-            return true;// XJW cube.mpComm.makeCall(target, mediaConstraint, callback);
+            return cube.mpComm.makeCall(target, mediaConstraint, callback);
         }
         else {
             return false;

@@ -341,7 +341,7 @@ export class RTCDevice {
     /**
      * @private
      */
-    onIceCandidate(candidate) {
+    onIceCandidate(candidate, device) {
         // Nothing
     }
 
@@ -721,7 +721,7 @@ export class RTCDevice {
      */
     fireOnIceCandidate(event) {
         if (event.candidate) {
-            this.onIceCandidate(event.candidate);
+            this.onIceCandidate(event.candidate, this);
         }
     }
 

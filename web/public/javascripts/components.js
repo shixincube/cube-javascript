@@ -4371,6 +4371,9 @@
         var videoDevice = null;
 
         var handler = function(group, idList) {
+            // 获取本地视频窗口
+            that.localVideo = panelEl.find('video[data-target="' + g.app.getSelf().getId() + '"]')[0];
+
             if (g.app.callCtrl.makeCall(group, true, videoDevice)) {
                 panelEl.find('.video-group-default .modal-title').text('群通话 - ' + group.getName());
                 // panelEl.find('.voice-group-minisize .modal-title').text(group.getName());
@@ -4466,17 +4469,17 @@
             html = [
                 '<div class="row align-items-center layout-pattern-3">',
                     '<div class="col-12">',
-                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="viewport"><video autoplay data-target="', list[0].getId(), '"></video></div>',
                         '<div class="toolbar"><div class="name">', list[0].getPriorityName(), '</div></div>',
                     '</div>',
                 '</div>',
                 '<div class="row align-items-center layout-pattern-3">',
                     '<div class="col-6">',
-                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="viewport"><video autoplay data-target="', list[1].getId(), '"></video></div>',
                         '<div class="toolbar"><div class="name">', list[1].getPriorityName(), '</div></div>',
                     '</div>',
                     '<div class="col-6">',
-                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="viewport"><video autoplay data-target="', list[2].getId(), '"></video></div>',
                         '<div class="toolbar"><div class="name">', list[2].getPriorityName(), '</div></div>',
                     '</div>',
                 '</div>'
@@ -4486,21 +4489,21 @@
             html = [
                 '<div class="row align-items-center layout-pattern-4">',
                     '<div class="col-6">',
-                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="viewport"><video autoplay data-target="', list[0].getId(), '"></video></div>',
                         '<div class="toolbar"><div class="name">', list[0].getPriorityName(), '</div></div>',
                     '</div>',
                     '<div class="col-6">',
-                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="viewport"><video autoplay data-target="', list[1].getId(), '"></video></div>',
                         '<div class="toolbar"><div class="name">', list[1].getPriorityName(), '</div></div>',
                     '</div>',
                 '</div>',
                 '<div class="row align-items-center layout-pattern-4">',
                     '<div class="col-6">',
-                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="viewport"><video autoplay data-target="', list[2].getId(), '"></video></div>',
                         '<div class="toolbar"><div class="name">', list[2].getPriorityName(), '</div></div>',
                     '</div>',
                     '<div class="col-6">',
-                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="viewport"><video autoplay data-target="', list[3].getId(), '"></video></div>',
                         '<div class="toolbar"><div class="name">', list[3].getPriorityName(), '</div></div>',
                     '</div>',
                 '</div>'
@@ -4510,25 +4513,25 @@
             html = [
                 '<div class="row align-items-center layout-pattern-6" style="margin-bottom:4px !important;">',
                     '<div class="col-4">',
-                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="viewport"><video autoplay data-target="', list[0].getId(), '"></video></div>',
                         '<div class="toolbar"><div class="name">', list[0].getPriorityName(), '</div></div>',
                     '</div>',
                     '<div class="col-4">',
-                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="viewport"><video autoplay data-target="', list[1].getId(), '"></video></div>',
                         '<div class="toolbar"><div class="name">', list[1].getPriorityName(), '</div></div>',
                     '</div>',
                     '<div class="col-4">',
-                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="viewport"><video autoplay data-target="', list[2].getId(), '"></video></div>',
                         '<div class="toolbar"><div class="name">', list[2].getPriorityName(), '</div></div>',
                     '</div>',
                 '</div>',
                 '<div class="row align-items-center layout-pattern-6">',
                     '<div class="col-4">',
-                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="viewport"><video autoplay data-target="', list[3].getId(), '"></video></div>',
                         '<div class="toolbar"><div class="name">', list[3].getPriorityName(), '</div></div>',
                     '</div>',
                     '<div class="col-4">',
-                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="viewport"><video autoplay data-target="', list[4].getId(), '"></video></div>',
                         '<div class="toolbar"><div class="name">', list[4].getPriorityName(), '</div></div>',
                     '</div>',
                 '</div>'
@@ -4538,29 +4541,29 @@
             html = [
                 '<div class="row align-items-center layout-pattern-6" style="margin-bottom:4px !important;">',
                     '<div class="col-4">',
-                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="viewport"><video autoplay data-target="', list[0].getId(), '"></video></div>',
                         '<div class="toolbar"><div class="name">', list[0].getPriorityName(), '</div></div>',
                     '</div>',
                     '<div class="col-4">',
-                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="viewport"><video autoplay data-target="', list[1].getId(), '"></video></div>',
                         '<div class="toolbar"><div class="name">', list[1].getPriorityName(), '</div></div>',
                     '</div>',
                     '<div class="col-4">',
-                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="viewport"><video autoplay data-target="', list[2].getId(), '"></video></div>',
                         '<div class="toolbar"><div class="name">', list[2].getPriorityName(), '</div></div>',
                     '</div>',
                 '</div>',
                 '<div class="row align-items-center layout-pattern-6">',
                     '<div class="col-4">',
-                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="viewport"><video autoplay data-target="', list[3].getId(), '"></video></div>',
                         '<div class="toolbar"><div class="name">', list[3].getPriorityName(), '</div></div>',
                     '</div>',
                     '<div class="col-4">',
-                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="viewport"><video autoplay data-target="', list[4].getId(), '"></video></div>',
                         '<div class="toolbar"><div class="name">', list[4].getPriorityName(), '</div></div>',
                     '</div>',
                     '<div class="col-4">',
-                        '<div class="viewport"><video autoplay></video></div>',
+                        '<div class="viewport"><video autoplay data-target="', list[5].getId(), '"></video></div>',
                         '<div class="toolbar"><div class="name">', list[5].getPriorityName(), '</div></div>',
                     '</div>',
                 '</div>'
@@ -6252,7 +6255,7 @@
             }
 
             // 发起通话
-            return true;// XJW cube.mpComm.makeCall(target, mediaConstraint, callback);
+            return cube.mpComm.makeCall(target, mediaConstraint, callback);
         }
         else {
             return false;

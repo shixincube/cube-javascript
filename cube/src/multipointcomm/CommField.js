@@ -101,7 +101,7 @@ export class CommField extends Entity {
          * 终端列表。
          * @type {Array<CommFieldEndpoint>}
          */
-         this.endpoints = [];
+        this.endpoints = [];
 
         /**
          * 出站流的 RTC 终端。
@@ -114,6 +114,12 @@ export class CommField extends Entity {
          * @type {OrderMap< number, RTCDevice >}
          */
         this.inboundRTCMap = new OrderMap();
+
+        /**
+         * RTC 设备对应的目标。键为 RTC 设备的 SN 。
+         * @type {OrderMap< number, CommFieldEndpoint >}
+         */
+        this.rtcForEndpointMap = new OrderMap();
 
         /**
          * 私域的设备，仅适用于私有域。
@@ -167,7 +173,10 @@ export class CommField extends Entity {
      * @param {CommFieldEndpoint} [target] 目标终端。
      */
     launchOffer(rtcDevice, mediaConstraint, successCallback, failureCallback, target) {
-        if (rtcDevice.mode == 'sendrecv' || rtcDevice.mode == 'sendonly') {
+        if (rtcDevice.mode == 'sendrecv') {
+            this.outboundRTC = rtcDevice;
+        }
+        else if (rtcDevice.mode == 'sendonly') {
             this.outboundRTC = rtcDevice;
         }
         else {
@@ -180,7 +189,12 @@ export class CommField extends Entity {
             }
         }
 
-        rtcDevice.onIceCandidate = (candidate) => {
+        if (target) {
+            // 匹配目标
+            this.rtcForEndpointMap.put(rtcDevice.sn, target);
+        }
+
+        rtcDevice.onIceCandidate = (candidate, rtcDevice) => {
             this.onIceCandidate(candidate, rtcDevice);
         };
         rtcDevice.onMediaConnected = (rtcDevice) => {
@@ -536,6 +550,12 @@ export class CommField extends Entity {
     onIceCandidate(candidate, rtcDevice) {
         let signaling = new Signaling(MultipointCommAction.Candidate, this, this.self, this.self.device);
         signaling.candidate = candidate;
+
+        let endpoint = this.rtcForEndpointMap.get(rtcDevice.sn);
+        if (null != endpoint) {
+            signaling.target = endpoint;
+        }
+
         this.sendSignaling(signaling);
     }
 
