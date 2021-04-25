@@ -69,12 +69,6 @@ export class CallRecord {
         this.field = null;
 
         /**
-         * 当前事件的终端。
-         * @type {CommFieldEndpoint}
-         */
-        this.currentFieldEndpoint = null;
-
-        /**
          * @type {MediaConstraint}
          */
         this.callerMediaConstraint = null;

@@ -1418,6 +1418,13 @@ video {
     margin-left: -341px;
     color: #f8f9fa;
 }
+.video-group-panel .header-tip {
+    color: #fff;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    text-align: left;
+    margin-top: 5px;
+}
 .video-group-panel .modal-dialog {
     width: 680px;
 }

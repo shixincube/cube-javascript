@@ -42,45 +42,6 @@
 
     var volume = 0.7;
 
-    function onInProgress(event) {
-        console.log('#onInProgress');
-    }
-
-    function onRinging(event) {
-        if (groupCall) {
-
-        }
-        else {
-            if (voiceCall) {
-                g.app.voiceCallPanel.tipWaitForAnswer(event.data.getCallee());
-            }
-            else {
-                g.app.videoChatPanel.tipWaitForAnswer(event.data.getCallee());
-            }
-        }
-    }
-
-    function onConnected(event) {
-        if (groupCall) {
-
-        }
-        else {
-            if (voiceCall) {
-                g.app.voiceCallPanel.tipConnected();
-            }
-            else {
-                g.app.videoChatPanel.tipConnected();
-            }
-        }
-    }
-
-    function onMediaConnected(event) {
-
-    }
-
-    function onMediaDisconnected(event) {
-        
-    }
 
     function onNewCall(event) {
         var record = event.data;
@@ -104,34 +65,98 @@
         }
     }
 
+    function onInProgress(event) {
+        console.log('#onInProgress');
+    }
+
+    function onRinging(event) {
+        if (groupCall) {
+            if (voiceCall) {
+                g.app.voiceGroupCallPanel.tipWaitForAnswer(event.data);
+            }
+            else {
+                g.app.videoGroupChatPanel.tipWaitForAnswer(event.data);
+            }
+        }
+        else {
+            if (voiceCall) {
+                g.app.voiceCallPanel.tipWaitForAnswer(event.data.getCallee());
+            }
+            else {
+                g.app.videoChatPanel.tipWaitForAnswer(event.data.getCallee());
+            }
+        }
+    }
+
+    function onConnected(event) {
+        if (groupCall) {
+            if (voiceCall) {
+                g.app.voiceGroupCallPanel.tipConnected(event.data);
+            }
+            else {
+                g.app.videoGroupChatPanel.tipConnected(event.data);
+            }
+        }
+        else {
+            if (voiceCall) {
+                g.app.voiceCallPanel.tipConnected();
+            }
+            else {
+                g.app.videoChatPanel.tipConnected();
+            }
+        }
+    }
+
+    function onMediaConnected(event) {
+        console.log('#onMediaConnected');
+    }
+
+    function onMediaDisconnected(event) {
+        console.log('#onMediaDisconnected');
+    }
+
     function onBye(event) {
         var record = event.data;
         working = false;
 
         // console.log('DEBUG - ' + record.getCaller().getId() + ' -> ' + record.getCallee().getId());
 
-        if (voiceCall) {
-            g.app.voiceCallPanel.close();
+        if (groupCall) {
+            if (voiceCall) {
+                g.app.voiceGroupCallPanel.close();
 
-            if (record.isCaller()) {
-                var recordMessage = new CallRecordMessage(record);
-                cube.messaging.sendTo(record.getCallee(), recordMessage);
+                g.dialog.launchToast(Toast.Info, '群组语音通话已结束');
+            }
+            else {
+                g.app.videoGroupChatPanel.close();
+
+                g.dialog.launchToast(Toast.Info, '群组视频通话已结束');
             }
         }
         else {
-            g.app.videoChatPanel.close();
+            if (voiceCall) {
+                g.app.voiceCallPanel.close();
 
-            if (record.isCaller()) {
-                var recordMessage = new CallRecordMessage(record);
-                cube.messaging.sendTo(record.getCallee(), recordMessage);
+                if (record.isCaller()) {
+                    var recordMessage = new CallRecordMessage(record);
+                    cube.messaging.sendTo(record.getCallee(), recordMessage);
+                }
             }
+            else {
+                g.app.videoChatPanel.close();
+    
+                if (record.isCaller()) {
+                    var recordMessage = new CallRecordMessage(record);
+                    cube.messaging.sendTo(record.getCallee(), recordMessage);
+                }
+            }
+
+            var duration = record.getDuration();
+            var log = duration > 1000 ? '通话结束 - ' + g.formatClockTick(parseInt(duration / 1000)) : '通话结束';
+            console.log(log);
+
+            g.dialog.launchToast(Toast.Info, log);
         }
-
-        var duration = record.getDuration();
-        var log = duration > 1000 ? '通话结束 - ' + g.formatClockTick(parseInt(duration / 1000)) : '通话结束';
-        console.log(log);
-
-        g.dialog.launchToast(Toast.Info, log);
     }
 
     function onBusy(event) {
@@ -237,6 +262,8 @@
         cube.mpComm.on(CallEvent.Busy, onBusy);
         cube.mpComm.on(CallEvent.Timeout, onTimeout);
         cube.mpComm.on(CallEvent.CallFailed, onCallFailed);
+        cube.mpComm.on(CallEvent.MediaConnected, onMediaConnected);
+        cube.mpComm.on(CallEvent.MediaDisconnected, onMediaDisconnected);
     }
 
     /**
@@ -423,6 +450,8 @@
         }
         else if (target instanceof Group) {
             if (videoEnabled) {
+                mediaConstraint.setVideoDimension(VideoDimension.QVGA);
+
                 cube.mpComm.setLocalVideoElement(g.app.videoGroupChatPanel.localVideo);
             }
             else {

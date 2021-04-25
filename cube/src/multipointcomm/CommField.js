@@ -451,6 +451,23 @@ export class CommField extends Entity {
     }
 
     /**
+     * 关闭指定的终端。
+     * @param {*} endpoint 
+     */
+    closeEndpoint(endpoint) {
+        for (let i = 0; i < this.endpoints.length; ++i) {
+            let ep = this.endpoints[i];
+            if (ep.getId() == endpoint.getId()) {
+                // 关闭设备
+                this.closeRTCDevice(ep);
+                // 删除
+                this.endpoints.splice(i, 1);
+                break;
+            }
+        }
+    }
+
+    /**
      * 获取当前管理的 RTC 设备数量。
      * @returns {number} 返回当前管理的 RTC 设备数量。
      */
@@ -469,7 +486,7 @@ export class CommField extends Entity {
             return this.outboundRTC;
         }
 
-        if (endpoint.contact.id == this.self.id) {
+        if (endpoint.contact.id == this.self.id && endpoint.device.name == this.self.device.name) {
             // loopback 的 Peer
             return this.outboundRTC;
         }
@@ -477,25 +494,37 @@ export class CommField extends Entity {
         return this.inboundRTCMap.get(endpoint.getId());
     }
 
-    closeRTCDevice(device) {
-        if (device instanceof RTCDevice) {
-            if (device == this.outboundRTC) {
+    /**
+     * 关闭当前场域。
+     */
+    close() {
+        this.closeRTCDevices();
+        this.endpoints.splice(0, this.endpoints.length);
+    }
+
+    /**
+     * @private
+     * @param {CommFieldEndpoint} endpoint 
+     */
+    closeRTCDevice(endpoint) {
+        if (null != this.outboundRTC) {
+            if (this.self.id == endpoint.contact.id && this.self.device.name == endpoint.device.name) {
+                this.outboundRTC.close();
                 this.outboundRTC = null;
+                return;
             }
+        }
 
-            this.inboundRTCMap.forEach((key, value) => {
-                if (value == device) {
-                    this.inboundRTCMap.remove(key);
-                    return true;
-                }
-            });
-
-            device.close();
+        let rtc = this.inboundRTCMap.remove(endpoint.getId());
+        if (null != rtc) {
+            this.rtcForEndpointMap.remove(rtc.sn);
+            rtc.close();
         }
     }
 
     /**
      * 关闭并清空所有 RTC 终端。
+     * @private
      */
     closeRTCDevices() {
         if (null != this.outboundRTC) {
@@ -507,6 +536,8 @@ export class CommField extends Entity {
             value.close();
         });
         this.inboundRTCMap.clear();
+
+        this.rtcForEndpointMap.clear();
     }
 
     /**

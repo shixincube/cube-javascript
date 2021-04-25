@@ -121,6 +121,14 @@
         panelEl.modal('hide');
     }
 
+    VoiceGroupCallPanel.prototype.tipWaitForAnswer = function(activeCall) {
+        panelEl.find('.header-tip').text('正在等待服务器应答...');
+    }
+
+    VoiceGroupCallPanel.prototype.tipConnected = function(activeCall) {
+        panelEl.find('.header-tip').text('已接通...');
+    }
+
     VoiceGroupCallPanel.prototype.minimize = function() {
         if (minimized) {
             return;

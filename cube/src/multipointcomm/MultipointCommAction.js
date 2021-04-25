@@ -78,6 +78,12 @@ export const MultipointCommAction = {
     Arrived: 'arrived',
 
     /**
+     * 终端已离开场域。
+     * @type {string}
+     */
+    Left: 'left',
+
+    /**
      * 创建通讯场域。
      * @type {string}
      */

@@ -69,6 +69,8 @@
                 panelEl.find('.video-group-default .modal-title').text('群通话 - ' + group.getName());
                 // panelEl.find('.voice-group-minisize .modal-title').text(group.getName());
 
+                panelEl.find('.header-tip').text('正在接通，请稍候...');
+
                 // 显示窗口
                 panelEl.modal({
                     keyboard: false,
@@ -103,6 +105,8 @@
 
                         result.shift();
 
+                        panelEl.find('.header-tip').text('正在启动摄像机...');
+
                         // 调用启动通话
                         handler(group, result);
 
@@ -110,6 +114,14 @@
                 }
             });
         });
+    }
+
+    VideoGroupChatPanel.prototype.tipWaitForAnswer = function(activeCall) {
+        panelEl.find('.header-tip').text('正在等待服务器应答...');
+    }
+
+    VideoGroupChatPanel.prototype.tipConnected = function(activeCall) {
+        panelEl.find('.header-tip').text('已接通...');
     }
 
     VideoGroupChatPanel.prototype.close = function() {
