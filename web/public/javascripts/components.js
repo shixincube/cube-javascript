@@ -4473,6 +4473,71 @@
 
         if (list.length == 2) {
             html = [
+                '<table class="table table-borderless layout-pattern-1">',
+                    '<tr>',
+                        '<td>',
+                            '<div class="viewport"><video autoplay data-target="', list[0].getId(), '"></video></div>',
+                            '<div class="toolbar"><div class="name">', list[0].getPriorityName(), '</div></div>',
+                        '</td>',
+                        '<td>',
+                            '<div class="viewport"><video autoplay data-target="', list[1].getId(), '"></video></div>',
+                            '<div class="toolbar"><div class="name">', list[1].getPriorityName(), '</div></div>',
+                        '</td>',
+                    '</tr>',
+                '</table>'
+            ];
+        }
+        else if (list.length == 3) {
+            html = [
+                '<table class="table table-borderless layout-pattern-1">',
+                    '<tr>',
+                        '<td colspan="2" class="colspan">',
+                            '<div class="viewport"><video autoplay data-target="', list[0].getId(), '"></video></div>',
+                            '<div class="toolbar"><div class="name">', list[0].getPriorityName(), '</div></div>',
+                        '</td>',
+                    '</tr>',
+                    '<tr>',
+                        '<td>',
+                            '<div class="viewport"><video autoplay data-target="', list[1].getId(), '"></video></div>',
+                            '<div class="toolbar"><div class="name">', list[1].getPriorityName(), '</div></div>',
+                        '</td>',
+                        '<td>',
+                            '<div class="viewport"><video autoplay data-target="', list[2].getId(), '"></video></div>',
+                            '<div class="toolbar"><div class="name">', list[2].getPriorityName(), '</div></div>',
+                        '</td>',
+                    '</tr>',
+                '</table>'
+            ];
+        }
+        else if (list.length == 4) {
+            html = [
+                '<table class="table table-borderless layout-pattern-2">',
+                    '<tr>',
+                        '<td>',
+                            '<div class="viewport"><video autoplay data-target="', list[0].getId(), '"></video></div>',
+                            '<div class="toolbar"><div class="name">', list[0].getPriorityName(), '</div></div>',
+                        '</td>',
+                        '<td>',
+                            '<div class="viewport"><video autoplay data-target="', list[1].getId(), '"></video></div>',
+                            '<div class="toolbar"><div class="name">', list[1].getPriorityName(), '</div></div>',
+                        '</td>',
+                    '</tr>',
+                    '<tr>',
+                        '<td>',
+                            '<div class="viewport"><video autoplay data-target="', list[2].getId(), '"></video></div>',
+                            '<div class="toolbar"><div class="name">', list[2].getPriorityName(), '</div></div>',
+                        '</td>',
+                        '<td>',
+                            '<div class="viewport"><video autoplay data-target="', list[3].getId(), '"></video></div>',
+                            '<div class="toolbar"><div class="name">', list[3].getPriorityName(), '</div></div>',
+                        '</td>',
+                    '</tr>',
+                '</table>'
+            ];
+        }
+
+        /*if (list.length == 2) {
+            html = [
                 '<div class="row align-items-center layout-pattern-2">',
                     '<div class="col-6">',
                         '<div class="viewport"><video autoplay data-target="', list[0].getId(), '"></video></div>',
@@ -4588,7 +4653,7 @@
                     '</div>',
                 '</div>'
             ];
-        }
+        }*/
 
         panelEl.find('.container').html(html.join(''));
     }
@@ -6266,6 +6331,8 @@
 
         working = true;
         voiceCall = !videoEnabled;
+
+        if (target) return true;
 
         // 媒体约束
         var mediaConstraint = new MediaConstraint(videoEnabled, true);

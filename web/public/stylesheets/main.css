@@ -1430,21 +1430,67 @@ video {
 }
 .video-group-panel .layout {
     padding: 10px;
+    text-align: center;
 }
-.video-group-panel .layout .row {
+.video-group-panel .layout .table {
+    padding: 0px;
+    margin: 0 auto;
+}
+.video-group-panel .layout .table td {
+    padding: 0px;
     margin: 0px;
 }
-.video-group-panel .layout .col-12, .video-group-panel .layout .col-6, .video-group-panel .layout .col-4 {
-    padding: 0px;
+.video-group-panel .table .toolbar {
+    width: 320px;
+    height: 24px;
+    font-size: 12px;
+    position: absolute;
+    float: left;
+    bottom: 10px;
+    vertical-align: middle;
+    text-align: right;
+    background-color: rgba(52, 58, 64, 0.5);
 }
-.video-group-panel .layout-pattern-2 video, .video-group-panel .layout-pattern-3 video, .video-group-panel .layout-pattern-4 video {
+.video-group-panel .layout-pattern-1, .video-group-panel .layout-pattern-2 {
+    width: 640px;
+}
+.video-group-panel .layout-pattern-1 td, .video-group-panel .layout-pattern-2 td {
+    width: 320px;
+    height: 240px;
+}
+.video-group-panel .layout-pattern-1 .viewport, .video-group-panel .layout-pattern-2 .viewport {
+    width: 320px;
+    height: 240px;
+}
+.video-group-panel .layout-pattern-1 video, .video-group-panel .layout-pattern-2 video {
     width: 320px;
     height: 240px;
     background-color: #000;
 }
+.video-group-panel .layout-pattern-1 .colspan {
+    width: 640px;
+}
+.video-group-panel .layout-pattern-1 .colspan .viewport {
+    margin: 0 auto;
+}
+.video-group-panel .layout-pattern-1 .colspan .toolbar {
+    top: calc(240px - 14px);
+    left: calc(160px + 19px);
+}
+.video-group-panel .layout-pattern-2 tr:first-child .toolbar {
+    top: calc(240px - 14px);
+}
+
+/*
+.video-group-panel .layout .row {
+    margin: 0px;
+}
 .video-group-panel .layout .viewport {
     text-align: center;
     vertical-align: middle;
+}
+.video-group-panel .layout .col-12, .video-group-panel .layout .col-6, .video-group-panel .layout .col-4 {
+    padding: 0px;
 }
 .video-group-panel .layout .toolbar {
     width: 320px;
@@ -1456,8 +1502,8 @@ video {
     left: 4px;
     vertical-align: middle;
     text-align: right;
-    background-color: rgba(52, 58, 64, 0.5);   /* rgba(248, 2499, 250, 0.5); */
-}
+    background-color: rgba(52, 58, 64, 0.5);
+}*/
 .video-group-panel .layout .toolbar .name {
     padding-top: 3px;
     padding-right: 6px;

@@ -73,5 +73,8 @@ export class CommPipelineListener extends PipelineListener {
         else if (packet.name == MultipointCommAction.Arrived) {
 
         }
+        else if (packet.name == MultipointCommAction.Left) {
+
+        }
     }
 }
