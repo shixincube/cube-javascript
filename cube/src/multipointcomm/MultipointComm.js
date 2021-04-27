@@ -295,10 +295,10 @@ export class MultipointComm extends Module {
     }
 
     /**
-     * 创建多方场域。
+     * 创建多方通讯场域。
      * @param {function} successCallback 
      * @param {function} failureCallback 
-     * @param {string} name
+     * @param {string} [name]
      * @param {Array<Contact>} [contacts] 
      */
     createCommField(successCallback, failureCallback, name, contacts) {
@@ -338,13 +338,69 @@ export class MultipointComm extends Module {
     }
 
     /**
-     * 
-     * @param {number} id 
+     * 获取指定 ID 的场域。
+     * @param {number} commFieldId 
      * @param {function} successCallback 
-     * @param {function} failureCallback 
+     * @param {function} [failureCallback] 
      */
-    getCommField(id, successCallback, failureCallback) {
+    getCommField(commFieldId, successCallback, failureCallback) {
+        let requestPacekt = new Packet(MultipointCommAction.GetField, {
+            "commFieldId": commFieldId
+        });
 
+        this.pipeline.send(MultipointComm.NAME, requestPacekt, (pipeline, source, packet) => {
+            if (null != packet && packet.getStateCode() == StateCode.OK) {
+                if (packet.data.code == MultipointCommState.Ok) {
+                    let commField = CommField.create(packet.data.data, this.pipeline, this.cs.getSelf());
+                    successCallback(commField);
+                }
+                else {
+                    let error = new ModuleError(MultipointComm.NAME, packet.data.code, commFieldId);
+                    if (failureCallback) {
+                        failureCallback(error);
+                    }
+                }
+            }
+            else {
+                let error = new ModuleError(MultipointComm.NAME, MultipointCommState.ServerFault, commFieldId);
+                if (failureCallback) {
+                    failureCallback(error);
+                }
+            }
+        });
+    }
+
+    /**
+     * 销毁指定的通讯场域。
+     * @param {number} commFieldId 
+     * @param {function} successCallback 
+     * @param {function} [failureCallback] 
+     */
+    destroyCommField(commFieldId, successCallback, failureCallback) {
+        let requestPacekt = new Packet(MultipointCommAction.DestroyField, {
+            "commFieldId": commFieldId
+        });
+
+        this.pipeline.send(MultipointComm.NAME, requestPacekt, (pipeline, source, packet) => {
+            if (null != packet && packet.getStateCode() == StateCode.OK) {
+                if (packet.data.code == MultipointCommState.Ok) {
+                    let commField = CommField.create(packet.data.data, this.pipeline, this.cs.getSelf());
+                    successCallback(commField);
+                }
+                else {
+                    let error = new ModuleError(MultipointComm.NAME, packet.data.code, commFieldId);
+                    if (failureCallback) {
+                        failureCallback(error);
+                    }
+                }
+            }
+            else {
+                let error = new ModuleError(MultipointComm.NAME, MultipointCommState.ServerFault, commFieldId);
+                if (failureCallback) {
+                    failureCallback(error);
+                }
+            }
+        });
     }
 
     /**

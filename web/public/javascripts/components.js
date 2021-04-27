@@ -4416,38 +4416,79 @@
                 g.dialog.launchToast(Toast.Warning, '您当前正在通话中');
             }
         }
-        
-        group.getMembers().forEach(function(element) {
-            if (element.getId() == g.app.getSelf().getId()) {
+
+        var start = function() {
+            group.getMembers().forEach(function(element) {
+                if (element.getId() == g.app.getSelf().getId()) {
+                    return;
+                }
+
+                g.app.getContact(element.getId(), function(contact) {
+                    members.push(contact);
+
+                    if (members.length == group.numMembers() - 1) {
+                        // 显示联系人列表对话框，以便选择邀请通话的联系人。
+                        g.app.contactListDialog.show(members, [], function(result) {
+                            result.unshift(g.app.getSelf().getId());
+
+                            if (result.length > maxMembers) {
+                                g.dialog.showAlert('超过最大通话人数（最大通话人数 ' + maxMembers + ' 人）。');
+                                return;
+                            }
+
+                            // 界面布局
+                            that.resetLayout(result);
+
+                            result.shift();
+
+                            panelEl.find('.header-tip').text('正在启动摄像机...');
+
+                            // 调用启动通话
+                            handler(group, result);
+
+                        }, '群通话', '请选择要邀请通话的群组成员');
+                    }
+                });
+            });
+        }
+
+        // 检测是否有多个可用设备
+        g.cube().mpComm.listMediaDevices(function(list) {
+            if (list.length == 0) {
+                g.dialog.showAlert('没有找到可用的摄像机设备，请您确认是否正确连接了摄像机设备。');
                 return;
             }
 
-            g.app.getContact(element.getId(), function(contact) {
-                members.push(contact);
+            // 多个设备时进行选择
+            var deviceList = [];
+            for (var i = 0; i < list.length; ++i) {
+                if (list[i].isVideoInput()) {
+                    deviceList.push(list[i]);
+                }
+            }
 
-                if (members.length == group.numMembers() - 1) {
-                    // 显示联系人列表对话框，以便选择邀请通话的联系人。
-                    g.app.contactListDialog.show(members, [], function(result) {
-                        result.unshift(g.app.getSelf().getId());
-
-                        if (result.length > maxMembers) {
-                            g.dialog.showAlert('超过最大通话人数（最大通话人数 ' + maxMembers + ' 人）。');
+            if (deviceList.length > 1) {
+                g.app.callCtrl.showSelectMediaDevice(deviceList, function(selected, selectedIndex) {
+                    if (selected) {
+                        if (selectedIndex >= deviceList.length) {
+                            g.dialog.showAlert('选择的设备错误');
                             return;
                         }
 
-                        // 界面布局
-                        that.resetLayout(result);
+                        // 设置设备
+                        videoDevice = deviceList[selectedIndex];
 
-                        result.shift();
-
-                        panelEl.find('.header-tip').text('正在启动摄像机...');
-
-                        // 调用启动通话
-                        handler(group, result);
-
-                    }, '群通话', '请选择要邀请通话的群组成员');
-                }
-            });
+                        start();
+                    }
+                    else {
+                        // 取消通话
+                        return;
+                    }
+                });
+            }
+            else {
+                start();
+            }
         });
     }
 

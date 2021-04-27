@@ -84,20 +84,22 @@ export const MultipointCommAction = {
     Left: 'left',
 
     /**
+     * 获取通讯场域数据。
+     * @type {string}
+     */
+    GetField: 'getField',
+
+    /**
      * 创建通讯场域。
      * @type {string}
      */
     CreateField: 'createField',
 
     /**
+     * 销毁通讯场域。
      * @type {string}
      */
-    GetField: 'getField',
-
-    /**
-     * @type {string}
-     */
-    ExistingEndpoints: 'existingEndpoints',
+    DestroyField: 'destroyField',
     
     /**
      * 申请主叫对方。
