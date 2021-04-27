@@ -1418,6 +1418,10 @@ video {
     margin-left: -341px;
     color: #f8f9fa;
 }
+.video-group-panel-mini {
+    width: 200px;
+    margin-left: -100px;
+}
 .video-group-panel .header-tip {
     color: #fff;
     font-family: 'Courier New', Courier, monospace;
@@ -1451,6 +1455,10 @@ video {
     text-align: right;
     background-color: rgba(52, 58, 64, 0.5);
 }
+.video-group-panel .layout .toolbar .name {
+    padding-top: 3px;
+    padding-right: 6px;
+}
 .video-group-panel .layout-pattern-1, .video-group-panel .layout-pattern-2 {
     width: 640px;
 }
@@ -1480,47 +1488,51 @@ video {
 .video-group-panel .layout-pattern-2 tr:first-child .toolbar {
     top: calc(240px - 14px);
 }
-
-/*
-.video-group-panel .layout .row {
-    margin: 0px;
+.video-group-panel .layout-pattern-3 {
+    width: 630px;
 }
-.video-group-panel .layout .viewport {
-    text-align: center;
-    vertical-align: middle;
+.video-group-panel .layout-pattern-3 td {
+    width: 210px;
+    height: 140px;
 }
-.video-group-panel .layout .col-12, .video-group-panel .layout .col-6, .video-group-panel .layout .col-4 {
-    padding: 0px;
+.video-group-panel .layout-pattern-3 .viewport {
+    width: 210px;
+    height: 140px;
 }
-.video-group-panel .layout .toolbar {
-    width: 320px;
-    height: 24px;
-    font-size: 12px;
-    position: absolute;
-    float: left;
-    bottom: 5px;
-    left: 4px;
-    vertical-align: middle;
-    text-align: right;
-    background-color: rgba(52, 58, 64, 0.5);
-}*/
-.video-group-panel .layout .toolbar .name {
-    padding-top: 3px;
-    padding-right: 6px;
-}
-.video-group-panel .layout-pattern-3 .col-12 .toolbar {
-    left: calc(160px + 5px + 4px);
-}
-.video-group-panel .layout-pattern-6 {
-    margin-bottom: 8px;
-}
-.video-group-panel .layout-pattern-6 video {
+.video-group-panel .layout-pattern-3 video {
     width: 210px;
     height: 140px;
     background-color: #000;
 }
-.video-group-panel .layout-pattern-6 .toolbar {
+.video-group-panel .layout-pattern-3 .toolbar {
     width: 210px;
+}
+.video-group-panel .layout-pattern-3 tr:first-child .toolbar {
+    top: calc(140px - 14px);
+}
+
+.video-group-minisize {
+    display: none;
+    width: 200px !important;
+    color: #f8f9fa;
+}
+.video-group-minisize .viewport {
+    width: 160px;
+    height: 120px;
+    margin: 0px auto;
+}
+.video-group-minisize video {
+    width: 160px;
+    height: 120px;
+    background-color: #000;
+}
+.video-group-minisize .modal-footer {
+    font-size: 14px;
+}
+.video-group-minisize .duration, .video-group-minisize .number-of-member, .video-group-minisize .max-member {
+    color: #fff;
+    font-weight: 700;
+    font-family: 'Courier New', Courier, monospace;
 }
 
 /* 群组语音通话 */
@@ -1576,7 +1588,7 @@ video {
 .voice-group-minisize .modal-footer {
     font-size: 14px;
 }
-.voice-group-minisize .duration, .voice-group-minisize .number-of-member {
+.voice-group-minisize .duration, .voice-group-minisize .number-of-member, .voice-group-minisize .max-member {
     color: #fff;
     font-weight: 700;
     font-family: 'Courier New', Courier, monospace;

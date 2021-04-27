@@ -422,8 +422,6 @@
         working = true;
         voiceCall = !videoEnabled;
 
-        if (target) return true;
-
         // 媒体约束
         var mediaConstraint = new MediaConstraint(videoEnabled, true);
 

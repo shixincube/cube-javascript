@@ -38,8 +38,9 @@
 
     var panelEl = null;
 
-    var btnMin = null;
+    var btnMinimize = null;
     var btnRestore = null;
+    
     var btnHangup = null;
 
     var minimized = false;
@@ -49,8 +50,8 @@
         panelEl = $('#group_voice_call');
         that.localVideo = panelEl.find('video[data-target="local"]')[0];
 
-        btnMin = panelEl.find('button[data-target="minimize"]');
-        btnMin.click(function() {
+        btnMinimize = panelEl.find('button[data-target="minimize"]');
+        btnMinimize.click(function() {
             that.minimize();
         });
 
