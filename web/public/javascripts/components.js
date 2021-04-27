@@ -6393,7 +6393,7 @@
         working = false;
 
         if (!cube.mpComm.hangupCall()) {
-            console.log('CallController 终止通话时发生错误。');
+            console.error('CallController 终止通话时发生错误。');
         }
 
         if (groupCall) {

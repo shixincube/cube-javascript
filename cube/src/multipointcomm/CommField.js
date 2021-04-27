@@ -25,9 +25,10 @@
  */
 
 import { Entity } from "../core/Entity";
-import { Contact } from "../contact/Contact";
 import { Device } from "../contact/Device";
+import { Contact } from "../contact/Contact";
 import { Self } from "../contact/Self";
+import { Group } from "../contact/Group";
 import { CommFieldEndpoint } from "./CommFieldEndpoint";
 import { MediaConstraint } from "./MediaConstraint";
 import { RTCDevice } from "./RTCDevice";
@@ -120,6 +121,12 @@ export class CommField extends Entity {
          * @type {OrderMap< number, CommFieldEndpoint >}
          */
         this.rtcForEndpointMap = new OrderMap();
+
+        /**
+         * 仅用于目标为群组时。
+         * @type {Group}
+         */
+        this.group = null;
 
         /**
          * 私域的设备，仅适用于私有域。

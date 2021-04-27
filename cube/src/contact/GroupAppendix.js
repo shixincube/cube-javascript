@@ -174,6 +174,14 @@ export class GroupAppendix extends JSONable {
     }
 
     /**
+     * 获取当前通讯 ID 。
+     * @returns 返回当前通讯 ID 。
+     */
+    getCommId() {
+        return this.commId;
+    }
+
+    /**
      * 更新备注信息。
      * @param {string} content 新的备注信息。
      * @param {function} [handleSuccess] 成功回调。参数：({@linkcode appendix}:{@link GroupAppendix}) 。
@@ -291,8 +299,42 @@ export class GroupAppendix extends JSONable {
         });
     }
 
-    updateCommId(id) {
-        // TODO XJW
+    /**
+     * 更新群组对应的通讯 ID 。
+     * @param {number} id 指定通讯 ID 。
+     * @param {function} [handleSuccess] 成功回调。参数：({@linkcode appendix}:{@link GroupAppendix}) 。
+     * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    updateCommId(id, handleSuccess, handleFailure) {
+        let request = new Packet(ContactAction.UpdateAppendix, {
+            "groupId": this.owner.getId(),
+            "commId": id
+        });
+
+        this.service.pipeline.send(ContactService.NAME, request, (pipeline, source, packet) => {
+            if (null == packet || packet.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, this);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            if (packet.getPayload().code != ContactServiceState.Ok) {
+                let error = new ModuleError(ContactService.NAME, packet.getPayload().code, this);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            // 更新通讯 ID
+            this.commId = id;
+
+            if (handleSuccess) {
+                handleSuccess(this);
+            }
+        });
     }
 
     /**

@@ -474,19 +474,28 @@ export class MultipointComm extends Module {
         else if (target instanceof Group) {
             // 发起群组内的通话
 
-            let cfid = target.getAppendix().commId;
+            let cfid = target.getAppendix().getCommId();
             if (0 == cfid) {
                 // 创建新场域
                 this.createCommField((commField) => {
                     // 更新群组的 CommFiled ID
-                    target.getAppendix().updateCommId(commField.getId());
+                    target.getAppendix().updateCommId(commField.getId(), (appendix) => {
+                        // 关联对应的群组
+                        commField.group = target;
 
-                    // 发起呼叫
-                    setTimeout(() => {
-                        if (!this.makeCall(commField, mediaConstraint, successCallback, failureCallback)) {
-                            failureHandler(new ModuleError(MultipointComm.NAME, MultipointCommState.GroupStateError, target));
-                        }
-                    }, 0);
+                        // 发起呼叫
+                        setTimeout(() => {
+                            if (!this.makeCall(commField, mediaConstraint, successCallback, failureCallback)) {
+                                failureHandler(new ModuleError(MultipointComm.NAME, MultipointCommState.GroupStateError, target));
+
+                                // 呼叫失败，重置群组的 Comm ID
+                                target.getAppendix().updateCommId(0);
+                            }
+                        }, 0);
+                    }, (error) => {
+                        // 更新群组的通讯 ID 错误
+                        failureHandler(new ModuleError(MultipointComm.NAME, MultipointCommState.GroupStateError, target));
+                    });
                 }, (error) => {
                     failureHandler(error);
                 }, target.getName() + '#' + target.getId());
@@ -506,7 +515,7 @@ export class MultipointComm extends Module {
             }
         }
         else if (target instanceof CommField) {
-            if (null != this.activeCall) {
+            if (null != this.activeCall && null != this.activeCall.field) {
                 if (this.activeCall.field.getId() != target.getId()) {
                     return false;
                 }
@@ -515,9 +524,10 @@ export class MultipointComm extends Module {
             if (null == this.activeCall) {
                 // 创建通话记录
                 this.activeCall = new CallRecord(this.privateField.getFounder());
-                // 记录
-                this.activeCall.field = target;
             }
+
+            // 记录
+            this.activeCall.field = target;
 
             (new Promise((resolve, reject) => {
                 resolve();
@@ -739,6 +749,11 @@ export class MultipointComm extends Module {
                         }
 
                         this.notifyObservers(new ObservableEvent(MultipointCommEvent.Bye, activeCall));
+
+                        // 关联群组重置 Comm ID
+                        if (null != field.group) {
+                            field.group.getAppendix().updateCommId(0);
+                        }
                     }
 
                     if (activeCall.field.numRTCDevices() == 0) {
@@ -1319,5 +1334,14 @@ export class MultipointComm extends Module {
         else {
             this.hangupCall(signaling.field);
         }
+    }
+
+    triggerArrived(payload) {
+        let commField = CommField.create(payload.field, this.pipeline, this.cs.getSelf());
+        cell.Logger.d(MultipointComm.NAME, 'Endpoint ' +  + ' arrived');
+    }
+
+    triggerLeft(payload) {
+        cell.Logger.d(MultipointComm.NAME, 'Endpoint left');
     }
 }

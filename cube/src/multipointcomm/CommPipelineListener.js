@@ -71,10 +71,10 @@ export class CommPipelineListener extends PipelineListener {
             this.multipointComm.triggerCandidate(packet.data, packet.context);
         }
         else if (packet.name == MultipointCommAction.Arrived) {
-
+            this.multipointComm.triggerArrived(packet.data);
         }
         else if (packet.name == MultipointCommAction.Left) {
-
+            this.multipointComm.triggerLeft(packet.data);
         }
     }
 }
