@@ -177,8 +177,13 @@ export class GroupAppendix extends JSONable {
      * 获取当前通讯 ID 。
      * @returns 返回当前通讯 ID 。
      */
-    getCommId() {
-        return this.commId;
+    getCommId(handleSuccess, handleFailure) {
+        if (undefined === handleSuccess && undefined === handleFailure) {
+            return this.commId;
+        }
+        
+
+        
     }
 
     /**

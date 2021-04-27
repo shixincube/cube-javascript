@@ -304,6 +304,9 @@ export class MultipointComm extends Module {
     createCommField(successCallback, failureCallback, name, contacts) {
         let commField = new CommField(cell.Utils.generateSerialNumber(), this.cs.getSelf(), this.pipeline, this.cs.getSelf());
 
+        // 监听器
+        commField.listener = this;
+
         if (name) {
             commField.name = name;
         }
@@ -1394,10 +1397,13 @@ export class MultipointComm extends Module {
 
     triggerArrived(payload) {
         let commField = CommField.create(payload.field, this.pipeline, this.cs.getSelf());
-        cell.Logger.d(MultipointComm.NAME, 'Endpoint ' +  + ' arrived');
+        let endpoint = CommFieldEndpoint.create(payload.endpoint);
+        cell.Logger.d(MultipointComm.NAME, 'Endpoint "' + endpoint.getName() + '" arrived');
     }
 
     triggerLeft(payload) {
+        let commField = CommField.create(payload.field, this.pipeline, this.cs.getSelf());
+        let endpoint = CommFieldEndpoint.create(payload.endpoint);
         cell.Logger.d(MultipointComm.NAME, 'Endpoint left');
     }
 }

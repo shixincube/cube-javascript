@@ -137,6 +137,14 @@ export class CommFieldEndpoint extends Aggregation(Entity, Endpoint) {
     }
 
     /**
+     * 获取终端名称。
+     * @returns {string} 返回终端名称。
+     */
+    getName() {
+        return this.name;
+    }
+
+    /**
      * 获取联系人实例。
      * @returns {Contact} 返回联系人实例。
      */
