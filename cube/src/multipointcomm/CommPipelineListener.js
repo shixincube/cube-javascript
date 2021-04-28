@@ -70,6 +70,9 @@ export class CommPipelineListener extends PipelineListener {
         else if (packet.name == MultipointCommAction.Candidate) {
             this.multipointComm.triggerCandidate(packet.data, packet.context);
         }
+        else if (packet.name == MultipointCommAction.Invite) {
+            this.multipointComm.triggerInvite(packet.data, packet.context);
+        }
         else if (packet.name == MultipointCommAction.Arrived) {
             this.multipointComm.triggerArrived(packet.data);
         }

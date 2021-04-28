@@ -117,6 +117,12 @@ export class MultipointComm extends Module {
         this.videoElem = { local: null, remote: null };
 
         /**
+         * @type {function}
+         * @private
+         */
+        this.videoElemAgent = null;
+
+        /**
          * 呼叫定时器。
          * @type {number}
          */
@@ -237,6 +243,15 @@ export class MultipointComm extends Module {
      */
     setRemoteVideoElement(element) {
         this.videoElem.remote = element;
+    }
+
+    /**
+     * 设置视频元素代理器。用于将视频、音频流加载到对应的 {@linkcode vidoe} 标签上。
+     * 代理器是一个 {@linkcode function} 类型，输入参数为联系人，返回该联系人对应的视频标签元素。
+     * @param {function} agent 指定能返回指定联系人 video 标签元素的函数。
+     */
+    setVideoElementAgent(agent) {
+        this.videoElemAgent = agent;
     }
 
     /**
@@ -637,7 +652,7 @@ export class MultipointComm extends Module {
                 commField.launchOffer(rtcDevice, mediaConstraint, successHandler, failureHandler, endpoint);
 
                 // 3. 请求接收其他终端的数据
-                
+                // TODO
             }, (error) => {
                 failureHandler(error);
             });
@@ -647,6 +662,68 @@ export class MultipointComm extends Module {
         }
 
         return true;
+    }
+
+    /**
+     * 邀请列表里的联系人加入到当前通讯域。
+     * @param {CommField|Group|number} entityOrId 指定场域或者群组。
+     * @param {Array} list 被邀请人的 ID 清单。
+     * @param {function} successCallback 
+     * @param {function} failureCallback 
+     */
+    inviteCall(entityOrId, list, successCallback, failureCallback) {
+        let commFieldId = 0;
+        if (entityOrId instanceof Group) {
+            commFieldId = entityOrId.getAppendix().getCommId();
+        }
+        else if (entityOrId instanceof CommField) {
+            commFieldId = entityOrId.getId();
+        }
+        else {
+            commFieldId = entityOrId;
+        }
+
+        let handler = (commField) => {
+            // 设置邀请列表
+            commField.invitees = list;
+
+            let signaling = new Signaling(MultipointCommAction.Invite, commField, 
+                this.privateField.founder, this.privateField.founder.device);
+
+            let requestPacket = new Packet(MultipointCommAction.Invite, signaling.toJSON());
+            this.pipeline.send(MultipointComm.NAME, requestPacket, (pipeline, source, packet) => {
+                if (null != packet && packet.getStateCode() == StateCode.OK) {
+                    if (packet.data.code == MultipointCommState.Ok) {
+                        if (successCallback) {
+                            successCallback(commField);
+                        }
+                    }
+                    else {
+                        if (failureCallback) {
+                            failureCallback(new ModuleError(MultipointComm.NAME, packet.data.code, commField));
+                        }
+                    }
+                }
+                else {
+                    if (failureCallback) {
+                        failureCallback(new ModuleError(MultipointComm.NAME, MultipointCommState.ServerFault, commField));
+                    }
+                }
+            });
+        };
+
+        if (null != this.activeCall && null != this.activeCall.field && this.activeCall.field.id == commFieldId) {
+            handler(this.activeCall.field);
+        }
+        else {
+            this.getCommField(commFieldId, (commField) => {
+                handler(commField);
+            }, (error) => {
+                if (failureCallback) {
+                    failureCallback(error);
+                }
+            });
+        }
     }
 
     /**
@@ -1318,7 +1395,7 @@ export class MultipointComm extends Module {
             return;
         }
 
-        cell.Logger.i(MultipointComm.NAME, 'Answer from ' + answerSignaling.contact.getId());
+        cell.Logger.d(MultipointComm.NAME, 'Answer from ' + answerSignaling.contact.getId());
 
         rtcDevice.doAnswer(answerSignaling.sessionDescription, () => {
             this.notifyObservers(new ObservableEvent(MultipointCommEvent.Connected, this.activeCall));
@@ -1418,6 +1495,10 @@ export class MultipointComm extends Module {
         if (signaling.field.isPrivate()) {
             this.hangupCall();
         }
+    }
+
+    triggerInvite(payload, context) {
+
     }
 
     triggerArrived(payload) {

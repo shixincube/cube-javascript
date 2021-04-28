@@ -94,7 +94,7 @@ export class CommField extends Entity {
 
         /**
          * 被邀请的联系人列表。
-         * @type {Array<Contact>}
+         * @type {Array<number>}
          */
         this.invitees = [];
 
@@ -696,9 +696,8 @@ export class CommField extends Entity {
             json.endpoints.push(this.endpoints[i].toJSON());
         }
 
-        json.invitees = [];
-        for (let i = 0; i < this.invitees.length; ++i) {
-            json.invitees.push(this.invitees[i].toCompactJSON());
+        if (this.invitees.length > 0) {
+            json.invitees = this.invitees.concat();
         }
 
         if (null != this.group) {
@@ -725,6 +724,10 @@ export class CommField extends Entity {
         json.domain = this.founder.getDomain();
         json.name = this.name;
         json.founder = this.founder.toCompactJSON();
+
+        if (this.invitees.length > 0) {
+            json.invitees = this.invitees.concat();
+        }
 
         if (null != this.group) {
             json.group = this.group.toCompactJSON();

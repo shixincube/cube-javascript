@@ -4356,12 +4356,20 @@
 
     var panelEl = null;
 
+    var invitationList = null;
+
     var currentLayoutList = [];     // 当前布局的联系人列表
 
     var btnMinimize = null;
     var btnRestore = null;
 
     var btnHangup = null;
+
+
+    function videoElementAgent(contactId) {
+
+    }
+
 
     var VideoGroupChatPanel = function() {
         that = this;
@@ -4394,7 +4402,12 @@
      * @param {Group} group 
      */
     VideoGroupChatPanel.prototype.makeCall = function(group) {
+        invitationList = null;
+
         panelEl.find('.header-tip').text('');
+
+        // 设置视频标签代理
+        g.cube().mpComm.setVideoElementAgent(videoElementAgent);
 
         var videoDevice = null;
 
@@ -4413,6 +4426,10 @@
                     keyboard: false,
                     backdrop: false
                 });
+
+                if (idList) {
+                    invitationList = idList;
+                }
             }
             else {
                 g.dialog.launchToast(Toast.Warning, '您当前正在通话中');
@@ -4441,7 +4458,7 @@
                                 clist.shift();
 
                                 // 调用启动通话
-                                handler(group, clist);
+                                handler(group);
                             }
                         });
                     });
@@ -4525,6 +4542,11 @@
 
     VideoGroupChatPanel.prototype.tipWaitForAnswer = function(activeCall) {
         panelEl.find('.header-tip').text('正在等待服务器应答...');
+
+        // 尝试邀请列表里联系人
+        if (null != invitationList) {
+            g.cube().mpComm.inviteCall(activeCall.field, invitationList);
+        }
     }
 
     VideoGroupChatPanel.prototype.tipConnected = function(activeCall) {
@@ -4566,12 +4588,13 @@
             html = [
                 '<table class="table table-borderless layout-pattern-1">',
                     '<tr>',
-                        '<td>',
-                            '<div class="viewport" data="', list[0].getId(), '"><video autoplay data-target="', list[0].getId(), '"></video></div>',
+                        '<td data="', list[0].getId(), '">',
+                            '<div class="viewport"><video autoplay data-target="', list[0].getId(), '"></video></div>',
                             '<div class="toolbar"><div class="name">', list[0].getPriorityName(), '</div></div>',
                         '</td>',
-                        '<td>',
-                            '<div class="viewport" data="', list[1].getId(), '"><video autoplay data-target="', list[1].getId(), '"></video></div>',
+                        '<td data="', list[1].getId(), '">',
+                            '<div class="viewport"><video autoplay data-target="', list[1].getId(), '"></video></div>',
+                            '<div class="mask" style="background-image:linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)), url(images/', list[1].context.avatar, ');"><div>正在邀请“', list[1].getPriorityName(), '”...</div></div>',
                             '<div class="toolbar"><div class="name">', list[1].getPriorityName(), '</div></div>',
                         '</td>',
                     '</tr>',
@@ -4582,18 +4605,20 @@
             html = [
                 '<table class="table table-borderless layout-pattern-1">',
                     '<tr>',
-                        '<td colspan="2" class="colspan">',
-                            '<div class="viewport" data="', list[0].getId(), '"><video autoplay data-target="', list[0].getId(), '"></video></div>',
+                        '<td colspan="2" class="colspan" data="', list[0].getId(), '">',
+                            '<div class="viewport"><video autoplay data-target="', list[0].getId(), '"></video></div>',
                             '<div class="toolbar"><div class="name">', list[0].getPriorityName(), '</div></div>',
                         '</td>',
                     '</tr>',
                     '<tr>',
-                        '<td>',
-                            '<div class="viewport" data="', list[1].getId(), '"><video autoplay data-target="', list[1].getId(), '"></video></div>',
+                        '<td data="', list[1].getId(), '">',
+                            '<div class="viewport"><video autoplay data-target="', list[1].getId(), '"></video></div>',
+                            '<div class="mask" style="background-image:linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)), url(images/', list[1].context.avatar, ');"><div>正在邀请“', list[1].getPriorityName(), '”...</div></div>',
                             '<div class="toolbar"><div class="name">', list[1].getPriorityName(), '</div></div>',
                         '</td>',
-                        '<td>',
-                            '<div class="viewport" data="', list[2].getId(), '"><video autoplay data-target="', list[2].getId(), '"></video></div>',
+                        '<td data="', list[2].getId(), '">',
+                            '<div class="viewport"><video autoplay data-target="', list[2].getId(), '"></video></div>',
+                            '<div class="mask" style="background-image:linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)), url(images/', list[2].context.avatar, ');"><div>正在邀请“', list[2].getPriorityName(), '”...</div></div>',
                             '<div class="toolbar"><div class="name">', list[2].getPriorityName(), '</div></div>',
                         '</td>',
                     '</tr>',
@@ -4604,22 +4629,25 @@
             html = [
                 '<table class="table table-borderless layout-pattern-2">',
                     '<tr>',
-                        '<td>',
-                            '<div class="viewport" data="', list[0].getId(), '"><video autoplay data-target="', list[0].getId(), '"></video></div>',
+                        '<td data="', list[0].getId(), '">',
+                            '<div class="viewport"><video autoplay data-target="', list[0].getId(), '"></video></div>',
                             '<div class="toolbar"><div class="name">', list[0].getPriorityName(), '</div></div>',
                         '</td>',
-                        '<td>',
-                            '<div class="viewport" data="', list[1].getId(), '"><video autoplay data-target="', list[1].getId(), '"></video></div>',
+                        '<td data="', list[1].getId(), '">',
+                            '<div class="viewport"><video autoplay data-target="', list[1].getId(), '"></video></div>',
+                            '<div class="mask" style="background-image:linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)), url(images/', list[1].context.avatar, ');"><div>正在邀请“', list[1].getPriorityName(), '”...</div></div>',
                             '<div class="toolbar"><div class="name">', list[1].getPriorityName(), '</div></div>',
                         '</td>',
                     '</tr>',
                     '<tr>',
-                        '<td>',
-                            '<div class="viewport" data="', list[2].getId(), '"><video autoplay data-target="', list[2].getId(), '"></video></div>',
+                        '<td data="', list[2].getId(), '">',
+                            '<div class="viewport"><video autoplay data-target="', list[2].getId(), '"></video></div>',
+                            '<div class="mask" style="background-image:linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)), url(images/', list[2].context.avatar, ');"><div>正在邀请“', list[2].getPriorityName(), '”...</div></div>',
                             '<div class="toolbar"><div class="name">', list[2].getPriorityName(), '</div></div>',
                         '</td>',
-                        '<td>',
-                            '<div class="viewport" data="', list[3].getId(), '"><video autoplay data-target="', list[3].getId(), '"></video></div>',
+                        '<td data="', list[3].getId(), '">',
+                            '<div class="viewport"><video autoplay data-target="', list[3].getId(), '"></video></div>',
+                            '<div class="mask" style="background-image:linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)), url(images/', list[3].context.avatar, ');"><div>正在邀请“', list[3].getPriorityName(), '”...</div></div>',
                             '<div class="toolbar"><div class="name">', list[3].getPriorityName(), '</div></div>',
                         '</td>',
                     '</tr>',
@@ -4638,8 +4666,11 @@
                 while (numCol > 0) {
                     var contact = list[index];
                     var chtml = [
-                        '<td>',
-                            '<div class="viewport" data="', contact.getId(), '"><video autoplay data-target="', contact.getId(), '"></video></div>',
+                        '<td data="', contact.getId(), '">',
+                            '<div class="viewport"><video autoplay data-target="', contact.getId(), '"></video></div>',
+
+                            (index != 0) ? '<div class="mask" style="background-image:linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)), url(images/' + contact.context.avatar + ');"><div>正在邀请“' + contact.getPriorityName() + '”...</div></div>' : '',
+
                             '<div class="toolbar"><div class="name">', contact.getPriorityName(), '</div></div>',
                         '</td>'
                     ];
@@ -4689,7 +4720,7 @@
         var curVideo = panelEl.find('video[data-target="' + selfId + '"]');
 
         curVideo.remove();
-        var parent = panelEl.find('div[data="' + selfId +'"]');
+        var parent = panelEl.find('td[data="' + selfId +'"]').find('.viewport');
         parent.append(curVideo);
 
         panelEl.removeClass('video-group-panel-mini');

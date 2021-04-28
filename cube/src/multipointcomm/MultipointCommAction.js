@@ -47,17 +47,17 @@ export const MultipointCommAction = {
      */
     Bye: 'bye',
 
-    /**
+    /*
      * 信令 Follow 。
      * @type {string}
      */
-    Follow: 'follow',
+    // Follow: 'follow',
 
-    /**
+    /*
      * 信令 Revoke 。
      * @type {string}
      */
-    Revoke: 'revoke',
+    // Revoke: 'revoke',
 
     /**
      * 信令忙 Busy 。
@@ -70,6 +70,12 @@ export const MultipointCommAction = {
      * @type {string}
      */
     Candidate: 'candidate',
+
+    /**
+     * 邀请进入场域。
+     * @type {string}
+     */
+    Invite: 'invite',
 
     /**
      * 新的终端参与到场域。

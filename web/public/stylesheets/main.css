@@ -1444,6 +1444,19 @@ video {
     padding: 0px;
     margin: 0px;
 }
+.video-group-panel .mask {
+    background-repeat: no-repeat;
+    background-size: 180px auto;
+    background-position: center;
+    position: absolute;
+    float: left;
+    top: 10px;
+    text-align: center;
+    font-size: 12px;
+}
+.video-group-panel .mask div {
+    line-height: 230px;
+}
 .video-group-panel .table .toolbar {
     width: 320px;
     height: 24px;
@@ -1475,6 +1488,10 @@ video {
     height: 240px;
     background-color: #000;
 }
+.video-group-panel .layout-pattern-1 .mask, .video-group-panel .layout-pattern-2 .mask {
+    width: 320px;
+    height: 240px;
+}
 .video-group-panel .layout-pattern-1 .colspan {
     width: 640px;
 }
@@ -1485,8 +1502,16 @@ video {
     top: calc(240px - 14px);
     left: calc(160px + 19px);
 }
+.video-group-panel .layout-pattern-1 tr:last-child .mask {
+    top: unset;
+    bottom: 10px;
+}
 .video-group-panel .layout-pattern-2 tr:first-child .toolbar {
     top: calc(240px - 14px);
+}
+.video-group-panel .layout-pattern-2 tr:last-child .mask {
+    top: unset;
+    bottom: 10px;
 }
 .video-group-panel .layout-pattern-3 {
     width: 630px;
@@ -1499,6 +1524,14 @@ video {
     width: 210px;
     height: 140px;
 }
+.video-group-panel .layout-pattern-3 .mask {
+    width: 210px;
+    height: 140px;
+    background-size: 110px auto;
+}
+.video-group-panel .layout-pattern-3 .mask div {
+    line-height: 132px;
+}
 .video-group-panel .layout-pattern-3 video {
     width: 210px;
     height: 140px;
@@ -1509,6 +1542,10 @@ video {
 }
 .video-group-panel .layout-pattern-3 tr:first-child .toolbar {
     top: calc(140px - 14px);
+}
+.video-group-panel .layout-pattern-3 tr:last-child .mask {
+    top: unset;
+    bottom: 10px;
 }
 
 .video-group-minisize {
