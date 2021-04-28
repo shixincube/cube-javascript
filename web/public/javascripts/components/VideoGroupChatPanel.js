@@ -76,7 +76,7 @@
      * @param {Group} group 
      */
     VideoGroupChatPanel.prototype.makeCall = function(group) {
-        var members = [];
+        panelEl.find('.header-tip').text('');
 
         var videoDevice = null;
 
@@ -102,19 +102,35 @@
         }
 
         var start = function() {
+            panelEl.find('.header-tip').text('正在启动摄像机...');
+
             // 如果群组正在通话，则加入
             g.cube().mpComm.isCalling(group, function(calling) {
                 if (calling) {
                     // 获取当前群组的通讯场域
                     g.cube().mpComm.getCommField(group, function(commField) {
                         // 当前在通讯的联系人
+                        var clist = [ g.app.getSelf().getId() ];
+
                         commField.getEndpoints().forEach(function(ep) {
-                            console.log(ep);
-                            // g.app.getContact();
+                            // 添加联系人的 ID
+                            clist.push(ep.getContact().getId());
+
+                            if (clist.length == commField.numEndpoints() + 1) {
+                                // 界面布局
+                                that.resetLayout(clist);
+
+                                clist.shift();
+
+                                // 调用启动通话
+                                handler(group, clist);
+                            }
                         });
                     });
                 }
                 else {
+                    var members = [];
+
                     group.getMembers().forEach(function(element) {
                         if (element.getId() == g.app.getSelf().getId()) {
                             return;
@@ -137,8 +153,6 @@
                                     that.resetLayout(result);
 
                                     result.shift();
-
-                                    panelEl.find('.header-tip').text('正在启动摄像机...');
 
                                     // 调用启动通话
                                     handler(group, result);
@@ -196,11 +210,12 @@
     }
 
     VideoGroupChatPanel.prototype.tipConnected = function(activeCall) {
-        panelEl.find('.header-tip').text('已接通...');
+        panelEl.find('.header-tip').text('');
     }
 
     VideoGroupChatPanel.prototype.close = function() {
         panelEl.modal('hide');
+        panelEl.find('.header-tip').text('');
     }
 
     VideoGroupChatPanel.prototype.terminate = function() {

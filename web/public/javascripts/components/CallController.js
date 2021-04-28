@@ -34,6 +34,7 @@
     var selectMediaDeviceCallback = null;
     var selectVideoDevice = false;
     var selectVideoData = [];
+    var confirmedIndex = -1;
 
     var working = false;
 
@@ -274,6 +275,9 @@
     CallController.prototype.showSelectMediaDevice = function(list, callback) {
         // 记录 Callback
         selectMediaDeviceCallback = callback;
+
+        confirmedIndex = -1;
+
         if (list[0].isVideoInput()) {
             selectVideoDevice = true;
         }
@@ -285,13 +289,14 @@
             var el = $('#select_media_device');
 
             el.find('button[data-target="cancel"]').click(function() {
+                confirmedIndex = -1;
                 selectMediaDeviceCallback(false);
             });
 
             el.find('button[data-target="confirm"]').click(function() {
                 var queryString = selectVideoDevice ? 'input:radio[name="VideoDevice"]:checked' : 'input:radio[name="AudioDevice"]:checked';
                 var data = selectMediaDeviceEl.find(queryString).attr('data');
-                selectMediaDeviceCallback(true, parseInt(data));
+                confirmedIndex = parseInt(data);
             });
 
             el.on('hide.bs.modal', function() {
@@ -302,6 +307,12 @@
                         MediaDeviceTool.stopStream(value.stream, value.videoEl);
                     }
                     selectVideoData.splice(0, selectVideoData.length);
+                }
+
+                if (confirmedIndex >= 0) {
+                    setTimeout(function() {
+                        selectMediaDeviceCallback(true, confirmedIndex);
+                    }, 1);
                 }
             });
 

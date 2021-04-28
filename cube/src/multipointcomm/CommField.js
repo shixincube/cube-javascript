@@ -438,6 +438,14 @@ export class CommField extends Entity {
     }
 
     /**
+     * 终端节点数量。
+     * @returns {number} 返回终端节点数量。
+     */
+    numEndpoints() {
+        return this.endpoints.length;
+    }
+
+    /**
      * 获取终端节点列表。
      * @returns {Array<CommFieldEndpoint>} 返回终端节点列表。
      */
@@ -750,7 +758,7 @@ export class CommField extends Entity {
             for (let i = 0; i < list.length; ++i) {
                 let cfep = CommFieldEndpoint.create(list[i]);
                 cfep.field = field;
-                field.endpoints.push(cfep.getId(), cfep);
+                field.endpoints.push(cfep);
             }
         }
 

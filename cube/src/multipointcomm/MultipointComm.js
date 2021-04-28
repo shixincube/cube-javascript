@@ -456,6 +456,13 @@ export class MultipointComm extends Module {
             }
 
             // 记录错误
+            if (null == this.activeCall) {
+                if (failureCallback) {
+                    failureCallback(error);
+                }
+                return;
+            }
+
             this.activeCall.lastError = error;
 
             // 如果是 MediaPermissionDenied
@@ -481,7 +488,7 @@ export class MultipointComm extends Module {
                 if (failureCallback) {
                     failureCallback(error);
                 }
-    
+
                 this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
 
                 // 挂断通话
@@ -567,14 +574,26 @@ export class MultipointComm extends Module {
                     // 获取场域
                     this.getCommField(commId, (commField) => {
                         // 发起呼叫
-                        alert(commField.getName());
-                        // setTimeout(() => {
-                        //     if (!this.makeCall(commField, mediaConstraint, successCallback, failureCallback)) {
-                        //         failureHandler(new ModuleError(MultipointComm.NAME, MultipointCommState.GroupStateError, target));
-                        //     }
-                        // }, 0);
+                        setTimeout(() => {
+                            if (!this.makeCall(commField, mediaConstraint, successCallback, failureCallback)) {
+                                failureHandler(new ModuleError(MultipointComm.NAME, MultipointCommState.GroupStateError, target));
+                            }
+                        }, 0);
                     }, (error) => {
-                        failureHandler(error);
+                        if (error.code == MultipointCommState.NoCommField) {
+                            // 场域不存在
+                            target.getAppendix().updateCommId(0, () => {
+                                setTimeout(() => {
+                                    this.makeCall(target, mediaConstraint, successCallback, failureCallback);
+                                }, 0);
+                            }, () => {
+                                failureHandler(new ModuleError(MultipointComm.NAME, MultipointCommState.GroupStateError, target));
+                            });
+                        }
+                        else {
+                            // 其他错误
+                            failureHandler(error);
+                        }
                     });
                 }
             }, (error) => {
@@ -616,6 +635,9 @@ export class MultipointComm extends Module {
                 let rtcDevice = this.createRTCDevice('sendonly', this.videoElem.local);
                 // 发起 send only 的 Offer 回送自己的视频流
                 commField.launchOffer(rtcDevice, mediaConstraint, successHandler, failureHandler, endpoint);
+
+                // 3. 请求接收其他终端的数据
+                
             }, (error) => {
                 failureHandler(error);
             });
@@ -766,14 +788,6 @@ export class MultipointComm extends Module {
         // 当前通话的场域
         let field = this.activeCall.field;
 
-        // if (undefined !== target) {
-        //     // 调整函数参数
-        //     if (typeof target === 'function') {
-        //         failureCallback = successCallback;
-        //         successCallback = target;
-        //     }
-        // }
-
         let handler = (pipeline, source, packet) => {
             if (null == this.activeCall) {
                 // 当返回数据时，之前的操作已经关闭通话
@@ -809,7 +823,11 @@ export class MultipointComm extends Module {
                             successCallback(activeCall);
                         }
 
-                        this.notifyObservers(new ObservableEvent(MultipointCommEvent.Bye, activeCall));
+                        try {
+                            this.notifyObservers(new ObservableEvent(MultipointCommEvent.Bye, activeCall));
+                        } catch (e) {
+                            // Nothing
+                        }
 
                         // 关闭所有节点
                         field.close();
@@ -1139,7 +1157,16 @@ export class MultipointComm extends Module {
      */
     isCalling(group, handler) {
         group.getAppendix().getCommId((commId) => {
-            handler(commId != 0);
+            if (0 == commId) {
+                handler(false);
+                return;
+            }
+
+            this.getCommField(commId, () => {
+                handler(true);
+            }, () => {
+                handler(false);
+            });
         }, (error) => {
             handler(false);
         });
@@ -1290,6 +1317,8 @@ export class MultipointComm extends Module {
             this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
             return;
         }
+
+        cell.Logger.i(MultipointComm.NAME, 'Answer from ' + answerSignaling.contact.getId());
 
         rtcDevice.doAnswer(answerSignaling.sessionDescription, () => {
             this.notifyObservers(new ObservableEvent(MultipointCommEvent.Connected, this.activeCall));

@@ -4394,7 +4394,7 @@
      * @param {Group} group 
      */
     VideoGroupChatPanel.prototype.makeCall = function(group) {
-        var members = [];
+        panelEl.find('.header-tip').text('');
 
         var videoDevice = null;
 
@@ -4420,19 +4420,35 @@
         }
 
         var start = function() {
+            panelEl.find('.header-tip').text('正在启动摄像机...');
+
             // 如果群组正在通话，则加入
             g.cube().mpComm.isCalling(group, function(calling) {
                 if (calling) {
                     // 获取当前群组的通讯场域
                     g.cube().mpComm.getCommField(group, function(commField) {
                         // 当前在通讯的联系人
+                        var clist = [ g.app.getSelf().getId() ];
+
                         commField.getEndpoints().forEach(function(ep) {
-                            console.log(ep);
-                            // g.app.getContact();
+                            // 添加联系人的 ID
+                            clist.push(ep.getContact().getId());
+
+                            if (clist.length == commField.numEndpoints() + 1) {
+                                // 界面布局
+                                that.resetLayout(clist);
+
+                                clist.shift();
+
+                                // 调用启动通话
+                                handler(group, clist);
+                            }
                         });
                     });
                 }
                 else {
+                    var members = [];
+
                     group.getMembers().forEach(function(element) {
                         if (element.getId() == g.app.getSelf().getId()) {
                             return;
@@ -4455,8 +4471,6 @@
                                     that.resetLayout(result);
 
                                     result.shift();
-
-                                    panelEl.find('.header-tip').text('正在启动摄像机...');
 
                                     // 调用启动通话
                                     handler(group, result);
@@ -4514,11 +4528,12 @@
     }
 
     VideoGroupChatPanel.prototype.tipConnected = function(activeCall) {
-        panelEl.find('.header-tip').text('已接通...');
+        panelEl.find('.header-tip').text('');
     }
 
     VideoGroupChatPanel.prototype.close = function() {
         panelEl.modal('hide');
+        panelEl.find('.header-tip').text('');
     }
 
     VideoGroupChatPanel.prototype.terminate = function() {
@@ -5968,6 +5983,7 @@
     var selectMediaDeviceCallback = null;
     var selectVideoDevice = false;
     var selectVideoData = [];
+    var confirmedIndex = -1;
 
     var working = false;
 
@@ -6208,6 +6224,9 @@
     CallController.prototype.showSelectMediaDevice = function(list, callback) {
         // 记录 Callback
         selectMediaDeviceCallback = callback;
+
+        confirmedIndex = -1;
+
         if (list[0].isVideoInput()) {
             selectVideoDevice = true;
         }
@@ -6219,13 +6238,14 @@
             var el = $('#select_media_device');
 
             el.find('button[data-target="cancel"]').click(function() {
+                confirmedIndex = -1;
                 selectMediaDeviceCallback(false);
             });
 
             el.find('button[data-target="confirm"]').click(function() {
                 var queryString = selectVideoDevice ? 'input:radio[name="VideoDevice"]:checked' : 'input:radio[name="AudioDevice"]:checked';
                 var data = selectMediaDeviceEl.find(queryString).attr('data');
-                selectMediaDeviceCallback(true, parseInt(data));
+                confirmedIndex = parseInt(data);
             });
 
             el.on('hide.bs.modal', function() {
@@ -6236,6 +6256,12 @@
                         MediaDeviceTool.stopStream(value.stream, value.videoEl);
                     }
                     selectVideoData.splice(0, selectVideoData.length);
+                }
+
+                if (confirmedIndex >= 0) {
+                    setTimeout(function() {
+                        selectMediaDeviceCallback(true, confirmedIndex);
+                    }, 1);
                 }
             });
 

@@ -25,9 +25,7 @@
  */
 
 import cell from "@lib/cell-lib";
-import { Aggregation } from "../util/Aggregation";
 import { Entity } from "../core/Entity";
-import { Endpoint } from "../util/Endpoint";
 import { Contact } from "../contact/Contact";
 import { MultipointCommState } from "./MultipointCommState";
 import { Device } from "../contact/Device";
@@ -37,7 +35,7 @@ import { CommField } from "./CommField";
 /**
  * 通讯场域里的媒体节点。
  */
-export class CommFieldEndpoint extends Aggregation(Entity, Endpoint) {
+export class CommFieldEndpoint extends Entity {
 
     /**
      * @param {number} id 节点 ID 。
