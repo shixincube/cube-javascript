@@ -38,6 +38,8 @@
 
     var panelEl = null;
 
+    var currentLayoutList = [];     // 当前布局的联系人列表
+
     var btnMinimize = null;
     var btnRestore = null;
 
@@ -100,37 +102,52 @@
         }
 
         var start = function() {
-            group.getMembers().forEach(function(element) {
-                if (element.getId() == g.app.getSelf().getId()) {
-                    return;
+            // 如果群组正在通话，则加入
+            g.cube().mpComm.isCalling(group, function(calling) {
+                if (calling) {
+                    // 获取当前群组的通讯场域
+                    g.cube().mpComm.getCommField(group, function(commField) {
+                        // 当前在通讯的联系人
+                        commField.getEndpoints().forEach(function(ep) {
+                            console.log(ep);
+                            // g.app.getContact();
+                        });
+                    });
                 }
+                else {
+                    group.getMembers().forEach(function(element) {
+                        if (element.getId() == g.app.getSelf().getId()) {
+                            return;
+                        }
 
-                g.app.getContact(element.getId(), function(contact) {
-                    members.push(contact);
+                        g.app.getContact(element.getId(), function(contact) {
+                            members.push(contact);
 
-                    if (members.length == group.numMembers() - 1) {
-                        // 显示联系人列表对话框，以便选择邀请通话的联系人。
-                        g.app.contactListDialog.show(members, [], function(result) {
-                            result.unshift(g.app.getSelf().getId());
+                            if (members.length == group.numMembers() - 1) {
+                                // 显示联系人列表对话框，以便选择邀请通话的联系人。
+                                g.app.contactListDialog.show(members, [], function(result) {
+                                    result.unshift(g.app.getSelf().getId());
 
-                            if (result.length > maxMembers) {
-                                g.dialog.showAlert('超过最大通话人数（最大通话人数 ' + maxMembers + ' 人）。');
-                                return;
+                                    if (result.length > maxMembers) {
+                                        g.dialog.showAlert('超过最大通话人数（最大通话人数 ' + maxMembers + ' 人）。');
+                                        return;
+                                    }
+
+                                    // 界面布局
+                                    that.resetLayout(result);
+
+                                    result.shift();
+
+                                    panelEl.find('.header-tip').text('正在启动摄像机...');
+
+                                    // 调用启动通话
+                                    handler(group, result);
+
+                                }, '群通话', '请选择要邀请通话的群组成员');
                             }
-
-                            // 界面布局
-                            that.resetLayout(result);
-
-                            result.shift();
-
-                            panelEl.find('.header-tip').text('正在启动摄像机...');
-
-                            // 调用启动通话
-                            handler(group, result);
-
-                        }, '群通话', '请选择要邀请通话的群组成员');
-                    }
-                });
+                        });
+                    });
+                }
             });
         }
 

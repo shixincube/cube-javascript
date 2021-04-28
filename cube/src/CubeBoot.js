@@ -76,6 +76,8 @@ import { MultipointCommState } from "./multipointcomm/MultipointCommState";
 import { CallRecord } from "./multipointcomm/CallRecord";
 import { CallEvent } from "./multipointcomm/CallEvent";
 import { CallState } from "./multipointcomm/CallState";
+import { CommField } from "./multipointcomm/CommField";
+import { CommFieldEndpoint } from "./multipointcomm/CommFieldEndpoint";
 import { ConferenceService } from "./conference/ConferenceService";
 import { Conference } from "./conference/Conference";
 import { Invitation } from "./conference/Invitation";
@@ -149,6 +151,8 @@ import { Announcer } from "./util/Announcer";
     global.CallRecord = CallRecord;
     global.CallEvent = CallEvent;
     global.CallState = CallState;
+    global.CommField = CommField;
+    global.CommFieldEndpoint = CommFieldEndpoint;
 
     global.ConferenceService = ConferenceService;
     global.Conference = Conference;

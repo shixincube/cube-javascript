@@ -225,7 +225,12 @@ export class CommField extends Entity {
 
             try {
                 // 发送信令
-                this.sendSignaling(signaling, successCallback, failureCallback);
+                this.sendSignaling(signaling, (signaling) => {
+                    // 更新数据
+                    this.copy(signaling.field);
+                    // 回调
+                    successCallback(this);
+                }, failureCallback);
             } catch (error) {
                 failureCallback(new ModuleError(MultipointComm.NAME, MultipointCommState.Failure, error));
             }
@@ -280,8 +285,17 @@ export class CommField extends Entity {
                 signaling.target = target;
             }
 
-            // 发送信令
-            this.sendSignaling(signaling, successCallback, failureCallback);
+            try {
+                // 发送信令
+                this.sendSignaling(signaling, (signaling) => {
+                    // 更新数据
+                    this.copy(signaling.field);
+                    // 回调
+                    successCallback(this);
+                }, failureCallback);
+            } catch (error) {
+                failureCallback(new ModuleError(MultipointComm.NAME, MultipointCommState.Failure, error));
+            }
         }, (error) => {
             failureCallback(error);
         });
@@ -424,6 +438,14 @@ export class CommField extends Entity {
     }
 
     /**
+     * 获取终端节点列表。
+     * @returns {Array<CommFieldEndpoint>} 返回终端节点列表。
+     */
+    getEndpoints() {
+        return this.endpoints.concat();
+    }
+
+    /**
      * 返回指定的终端节点的实际实例。
      * @param {CommFieldEndpoint|Contact|number} param 
      * @returns {CommFieldEndpoint}
@@ -559,6 +581,7 @@ export class CommField extends Entity {
             if (null != packet && packet.getStateCode() == StateCode.OK) {
                 if (packet.data.code == MultipointCommState.Ok) {
                     let data = packet.data.data;
+                    // 解析数据
                     let response = Signaling.create(data, this.pipeline, this.self);
                     packet.context = response;
 
@@ -618,6 +641,39 @@ export class CommField extends Entity {
     }
 
     /**
+     * 从 JSON 数据里复制数据。
+     * @param {CommField|JSON} source 
+     */
+    copy(source) {
+        if (source instanceof CommField) {
+            this.endpoints = source.endpoints.concat();
+
+            if (null == this.group && null != source.group) {
+                this.group = source.group;
+            }
+        }
+        else {
+            if (undefined !== source.endpoints) {
+                this.endpoints.splice(0, this.endpoints.length);
+
+                source.endpoints.forEach((value) => {
+                    let cfep = CommFieldEndpoint.create(value);
+                    cfep.field = this;
+                    this.endpoints.push(cfep);
+                });
+            }
+
+            if (null == this.caller && undefined !== source.caller) {
+                this.caller = Contact.create(source.caller);
+            }
+
+            if (null == this.callee && undefined !== source.callee) {
+                this.callee = Contact.create(source.callee);
+            }
+        }
+    }
+
+    /**
      * @inheritdoc
      */
     toJSON() {
@@ -635,6 +691,10 @@ export class CommField extends Entity {
         json.invitees = [];
         for (let i = 0; i < this.invitees.length; ++i) {
             json.invitees.push(this.invitees[i].toCompactJSON());
+        }
+
+        if (null != this.group) {
+            json.group = this.group.toCompactJSON();
         }
 
         if (null != this.caller) {
@@ -658,6 +718,10 @@ export class CommField extends Entity {
         json.name = this.name;
         json.founder = this.founder.toCompactJSON();
 
+        if (null != this.group) {
+            json.group = this.group.toCompactJSON();
+        }
+
         if (null != this.caller) {
             json.caller = this.caller.toCompactJSON();
         }
@@ -667,30 +731,6 @@ export class CommField extends Entity {
         }
 
         return json;
-    }
-
-    /**
-     * 从 JSON 数据里复制数据。
-     * @param {JSON} sourceJson 
-     */
-    copy(sourceJson) {
-        if (undefined !== sourceJson.endpoints) {
-            this.endpoints = [];
-
-            sourceJson.endpoints.forEach((value) => {
-                let cfep = CommFieldEndpoint.create(value);
-                cfep.field = this;
-                this.endpoints.push(cfep);
-            });
-        }
-
-        if (null == this.caller && undefined !== sourceJson.caller) {
-            this.caller = Contact.create(sourceJson.caller);
-        }
-
-        if (null == this.callee && undefined !== sourceJson.callee) {
-            this.callee = Contact.create(sourceJson.callee);
-        }
     }
 
     /**
@@ -712,6 +752,10 @@ export class CommField extends Entity {
                 cfep.field = field;
                 field.endpoints.push(cfep.getId(), cfep);
             }
+        }
+
+        if (undefined !== json.group) {
+            field.group = Group.create(null, json.group);
         }
 
         if (undefined !== json.caller) {

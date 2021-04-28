@@ -175,15 +175,41 @@ export class GroupAppendix extends JSONable {
 
     /**
      * 获取当前通讯 ID 。
-     * @returns 返回当前通讯 ID 。
+     * @param {function} handleSuccess
+     * @param {function} handleFailure
+     * @returns {number} 当 {@linkcode handleSuccess} 和 {@linkcode handleFailure} 返回当前通讯 ID 。
      */
     getCommId(handleSuccess, handleFailure) {
         if (undefined === handleSuccess && undefined === handleFailure) {
             return this.commId;
         }
-        
 
-        
+        let request = new Packet(ContactAction.GetAppendix, {
+            "groupId": this.owner.getId(),
+            "commId": this.commId
+        });
+        this.service.pipeline.send(ContactService.NAME, request, (pipeline, source, packet) => {
+            if (null == packet || packet.getStateCode() != StateCode.OK) {
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, this);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            if (packet.getPayload().code != ContactServiceState.Ok) {
+                let error = new ModuleError(ContactService.NAME, packet.getPayload().code, this);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            // 更新
+            this.commId = packet.getPayload().data.commId;
+
+            handleSuccess(this.commId, this, this.owner);
+        });
     }
 
     /**

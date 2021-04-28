@@ -298,14 +298,19 @@ export class MultipointComm extends Module {
      * 创建多方通讯场域。
      * @param {function} successCallback 
      * @param {function} failureCallback 
+     * @param {Group} [group]
      * @param {string} [name]
      * @param {Array<Contact>} [contacts] 
      */
-    createCommField(successCallback, failureCallback, name, contacts) {
+    createCommField(successCallback, failureCallback, group, name, contacts) {
         let commField = new CommField(cell.Utils.generateSerialNumber(), this.cs.getSelf(), this.pipeline, this.cs.getSelf());
-
         // 监听器
         commField.listener = this;
+
+        // 设置群组
+        if (group) {
+            commField.group = group;
+        }
 
         if (name) {
             commField.name = name;
@@ -342,11 +347,13 @@ export class MultipointComm extends Module {
 
     /**
      * 获取指定 ID 的场域。
-     * @param {number} commFieldId 
+     * @param {number|Group} idOrGroup 
      * @param {function} successCallback 
      * @param {function} [failureCallback] 
      */
-    getCommField(commFieldId, successCallback, failureCallback) {
+    getCommField(idOrGroup, successCallback, failureCallback) {
+        let commFieldId = (typeof idOrGroup === 'number') ? idOrGroup : idOrGroup.getAppendix().getCommId();
+
         let requestPacekt = new Packet(MultipointCommAction.GetField, {
             "commFieldId": commFieldId
         });
@@ -532,46 +539,47 @@ export class MultipointComm extends Module {
         }
         else if (target instanceof Group) {
             // 发起群组内的通话
+            // 获取群组的通讯 ID
+            target.getAppendix().getCommId((commId, appendix, group) => {
+                if (0 == commId) {
+                    // 创建新场域，关联对应的群组
+                    this.createCommField((commField) => {
+                        // 更新群组的 CommFiled ID
+                        target.getAppendix().updateCommId(commField.getId(), (appendix) => {
+                            // 发起呼叫
+                            setTimeout(() => {
+                                if (!this.makeCall(commField, mediaConstraint, successCallback, failureCallback)) {
+                                    failureHandler(new ModuleError(MultipointComm.NAME, MultipointCommState.GroupStateError, target));
 
-            let cfid = target.getAppendix().getCommId();
-            if (0 == cfid) {
-                // 创建新场域
-                this.createCommField((commField) => {
-                    // 更新群组的 CommFiled ID
-                    target.getAppendix().updateCommId(commField.getId(), (appendix) => {
-                        // 关联对应的群组
-                        commField.group = target;
-
-                        // 发起呼叫
-                        setTimeout(() => {
-                            if (!this.makeCall(commField, mediaConstraint, successCallback, failureCallback)) {
-                                failureHandler(new ModuleError(MultipointComm.NAME, MultipointCommState.GroupStateError, target));
-
-                                // 呼叫失败，重置群组的 Comm ID
-                                target.getAppendix().updateCommId(0);
-                            }
-                        }, 0);
-                    }, (error) => {
-                        // 更新群组的通讯 ID 错误
-                        failureHandler(new ModuleError(MultipointComm.NAME, MultipointCommState.GroupStateError, target));
-                    });
-                }, (error) => {
-                    failureHandler(error);
-                }, target.getName() + '#' + target.getId());
-            }
-            else {
-                // 获取场域
-                this.getCommField(cfid, (commField) => {
-                    // 发起呼叫
-                    setTimeout(() => {
-                        if (!this.makeCall(commField, mediaConstraint, successCallback, failureCallback)) {
+                                    // 呼叫失败，重置群组的 Comm ID
+                                    target.getAppendix().updateCommId(0);
+                                }
+                            }, 0);
+                        }, (error) => {
+                            // 更新群组的通讯 ID 错误
                             failureHandler(new ModuleError(MultipointComm.NAME, MultipointCommState.GroupStateError, target));
-                        }
-                    }, 0);
-                }, (error) => {
-                    failureHandler(error);
-                });
-            }
+                        });
+                    }, (error) => {
+                        failureHandler(error);
+                    }, target, target.getName() + '#' + target.getId());
+                }
+                else {
+                    // 获取场域
+                    this.getCommField(commId, (commField) => {
+                        // 发起呼叫
+                        alert(commField.getName());
+                        // setTimeout(() => {
+                        //     if (!this.makeCall(commField, mediaConstraint, successCallback, failureCallback)) {
+                        //         failureHandler(new ModuleError(MultipointComm.NAME, MultipointCommState.GroupStateError, target));
+                        //     }
+                        // }, 0);
+                    }, (error) => {
+                        failureHandler(error);
+                    });
+                }
+            }, (error) => {
+                failureHandler(new ModuleError(MultipointComm.NAME, MultipointCommState.GroupStateError, target));
+            });
         }
         else if (target instanceof CommField) {
             if (null != this.activeCall && null != this.activeCall.field) {
@@ -662,7 +670,7 @@ export class MultipointComm extends Module {
             this.callTimer = 0;
         }
 
-        let successHandler = (signaling) => {
+        let successHandler = () => {
             if (successCallback) {
                 successCallback(this.activeCall);
             }
@@ -745,27 +753,26 @@ export class MultipointComm extends Module {
 
     /**
      * 终止当前的通话。
-     * @param {CommFieldEndpoint|Contact} [target] 指定终止的目标。
      * @param {function} [successCallback] 成功回调函数，函数参数：({@linkcode callRecord}:{@link CallRecord}) 。
      * @param {function} [failureCallback] 失败回调函数，函数参数：({@linkcode error}:{@link ModuleError}) 。
      * @returns {boolean} 返回是否允许执行该操作。
      */
-    hangupCall(target, successCallback, failureCallback) {
+    hangupCall(successCallback, failureCallback) {
         if (null == this.activeCall) {
-            cell.Logger.w('MultipointComm', '#hangupCall() - activeCall is null');
+            cell.Logger.w('MultipointComm', '#hangupCall() - No active calling');
             return false;
         }
 
         // 当前通话的场域
         let field = this.activeCall.field;
 
-        if (undefined !== target) {
-            // 调整函数参数
-            if (typeof target === 'function') {
-                failureCallback = successCallback;
-                successCallback = target;
-            }
-        }
+        // if (undefined !== target) {
+        //     // 调整函数参数
+        //     if (typeof target === 'function') {
+        //         failureCallback = successCallback;
+        //         successCallback = target;
+        //     }
+        // }
 
         let handler = (pipeline, source, packet) => {
             if (null == this.activeCall) {
@@ -795,13 +802,8 @@ export class MultipointComm extends Module {
                         this.notifyObservers(new ObservableEvent(MultipointCommEvent.Bye, activeCall));
                     }
                     else {
-                        // 非私域，指定是否关闭指定的终端
-                        if (null != signaling.target) {
-                            field.closeEndpoint(signaling.target);
-                        }
-                        else {
-                            field.close();
-                        }
+                        // 更新数据
+                        field.copy(signaling.field);
 
                         if (successCallback) {
                             successCallback(activeCall);
@@ -809,15 +811,12 @@ export class MultipointComm extends Module {
 
                         this.notifyObservers(new ObservableEvent(MultipointCommEvent.Bye, activeCall));
 
-                        // 关联群组重置 Comm ID
-                        if (null != field.group) {
-                            field.group.getAppendix().updateCommId(0);
-                        }
+                        // 关闭所有节点
+                        field.close();
                     }
 
-                    if (activeCall.field.numRTCDevices() == 0) {
-                        this.activeCall = null;
-                    }
+                    // 重置
+                    this.activeCall = null;
                 }
                 else {
                     let error = new ModuleError(MultipointComm.NAME, packet.data.code, activeCall);
@@ -877,19 +876,6 @@ export class MultipointComm extends Module {
         else {
             let signaling = new Signaling(MultipointCommAction.Bye, field, 
                 this.privateField.founder, this.privateField.founder.device);
-
-            let endpoint = null;
-            if (undefined !== target) {
-                if (target instanceof Contact) {
-                    endpoint = field.getEndpoint(target);
-                }
-                else if (target instanceof CommFieldEndpoint) {
-                    endpoint = target;
-                }
-            }
-
-            // 设置目标
-            signaling.target = endpoint;
 
             let packet = new Packet(MultipointCommAction.Bye, signaling.toJSON());
             this.pipeline.send(MultipointComm.NAME, packet, handler);
@@ -1147,6 +1133,19 @@ export class MultipointComm extends Module {
     }
 
     /**
+     * 群组是否正在通话。
+     * @param {Group} group 
+     * @param {function} handler 回调函数，参数：({@linkcode calling}:{@linkcode boolean}) 。
+     */
+    isCalling(group, handler) {
+        group.getAppendix().getCommId((commId) => {
+            handler(commId != 0);
+        }, (error) => {
+            handler(false);
+        });
+    }
+
+    /**
      * 触发呼叫超时。
      * @private
      */
@@ -1390,20 +1389,17 @@ export class MultipointComm extends Module {
         if (signaling.field.isPrivate()) {
             this.hangupCall();
         }
-        else {
-            this.hangupCall(signaling.field);
-        }
     }
 
     triggerArrived(payload) {
         let commField = CommField.create(payload.field, this.pipeline, this.cs.getSelf());
         let endpoint = CommFieldEndpoint.create(payload.endpoint);
-        cell.Logger.d(MultipointComm.NAME, 'Endpoint "' + endpoint.getName() + '" arrived');
+        cell.Logger.d(MultipointComm.NAME, 'Endpoint "' + endpoint.getName() + '" arrived "' + commField.getName() + '"');
     }
 
     triggerLeft(payload) {
         let commField = CommField.create(payload.field, this.pipeline, this.cs.getSelf());
         let endpoint = CommFieldEndpoint.create(payload.endpoint);
-        cell.Logger.d(MultipointComm.NAME, 'Endpoint left');
+        cell.Logger.d(MultipointComm.NAME, 'Endpoint "' + endpoint.getName() + '" left "' + commField.getName() + '"');
     }
 }

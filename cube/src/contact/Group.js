@@ -427,7 +427,9 @@ export class Group extends AbstractContact {
     static create(service, json, owner) {
         if (undefined === owner) {
             owner = new Contact.create(json.owner, json.domain);
-            service.getAppendix(owner);
+            if (service) {
+                service.getAppendix(owner);
+            }
         }
 
         let group = new Group(service, owner, json.id, json.name, json.domain);
