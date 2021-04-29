@@ -1415,12 +1415,17 @@ video {
 
 .video-group-panel {
     width: 682px;
+    height: 366px;
     margin-left: -341px;
     color: #f8f9fa;
+    overflow: hidden;
 }
 .video-group-panel-mini {
     width: 200px;
+    height: 217px;
     margin-left: -100px;
+    color: #f8f9fa;
+    overflow: hidden;
 }
 .video-group-panel .header-tip {
     color: #fff;
@@ -1549,7 +1554,7 @@ video {
 }
 
 .video-group-minisize {
-    display: none;
+    visibility: collapse;
     width: 200px !important;
     color: #f8f9fa;
 }

@@ -97,6 +97,15 @@
             // 获取本地视频窗口
             that.localVideo = panelEl.find('video[data-target="' + g.app.getSelf().getId() + '"]')[0];
 
+            // XJW
+            // 显示窗口
+            // panelEl.modal({
+            //     keyboard: false,
+            //     backdrop: false
+            // });
+            // if (panelEl) return;
+            // XJW
+
             if (g.app.callCtrl.makeCall(group, true, videoDevice)) {
                 panelEl.find('.video-group-default .modal-title').text('群通话 - ' + group.getName());
                 panelEl.find('.video-group-minisize .modal-title').text(group.getName());
@@ -391,28 +400,38 @@
         var selfId = g.app.getSelf().getId();
         var curVideo = panelEl.find('video[data-target="' + selfId + '"]');
 
-        var vp = panelEl.find('.video-group-minisize').find('.viewport');
+        var miniEl = panelEl.find('.video-group-minisize');
+        var defaultEl = panelEl.find('.video-group-default');
+
+        var vp = miniEl.find('.viewport');
         vp.empty();
 
         curVideo.remove();
         vp.append(curVideo);
 
         panelEl.addClass('video-group-panel-mini');
-        panelEl.find('.video-group-default').css('display', 'none');
-        panelEl.find('.video-group-minisize').css('display', 'block');
+        defaultEl.css('visibility', 'collapse');
+        miniEl.css('visibility', 'visible');
+
+        defaultEl.insertAfter(miniEl);
     }
 
     VideoGroupChatPanel.prototype.restore = function() {
         var selfId = g.app.getSelf().getId();
         var curVideo = panelEl.find('video[data-target="' + selfId + '"]');
 
+        var miniEl = panelEl.find('.video-group-minisize');
+        var defaultEl = panelEl.find('.video-group-default');
+
         curVideo.remove();
         var parent = panelEl.find('td[data="' + selfId +'"]').find('.viewport');
         parent.append(curVideo);
 
         panelEl.removeClass('video-group-panel-mini');
-        panelEl.find('.video-group-default').css('display', 'block');
-        panelEl.find('.video-group-minisize').css('display', 'none');
+        defaultEl.css('visibility', 'visible');
+        miniEl.css('visibility', 'collapse');
+
+        miniEl.insertAfter(defaultEl);
     }
 
     g.VideoGroupChatPanel = VideoGroupChatPanel;
