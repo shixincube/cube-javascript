@@ -72,6 +72,18 @@
     }
 
     /**
+     * 返回已加载的实体清单。
+     * @returns {Array}
+     */
+    MessageCatalogue.prototype.getEntityList = function() {
+        var result = [];
+        this.items.forEach(function(value) {
+            result.push(value.entity);
+        });
+        return result;
+    }
+
+    /**
      * 追加菜单项。
      * @param {Contact|Group|object} value 数据值。
      * @param {boolean} [first] 是否插入到队列首位。

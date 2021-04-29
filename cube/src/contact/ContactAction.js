@@ -150,6 +150,12 @@ export const ContactAction = {
     UpdateAppendix: 'updateAppendix',
 
     /**
+     * 群组的附录已更新。
+     * @type {string}
+     */
+    GroupAppendixUpdated: 'groupAppendixUpdated',
+
+    /**
      * 联系人的阻止列表操作。
      * @type {string}
      */

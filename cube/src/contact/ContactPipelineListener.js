@@ -84,6 +84,9 @@ export class ContactPipelineListener extends PipelineListener {
         else if (packet.name == ContactAction.AddGroupMember) {
             this.contactService.triggerAddMember(packet.data, packet.context);
         }
+        else if (packet.name == ContactAction.GroupAppendixUpdated) {
+            this.contactService.triggerGroupAppendixUpdated(packet.data);
+        }
         else if (packet.name == ContactAction.SignOut) {
             this.contactService.triggerSignOut(packet.data);
         }

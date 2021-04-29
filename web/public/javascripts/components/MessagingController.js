@@ -156,6 +156,33 @@
     }
 
     /**
+     * 执行就绪流程。
+     */
+    MessagingController.prototype.ready = function() {
+        // 目录排序
+        g.app.messageCatalog.refreshOrder();
+
+        // 更新最近消息目录里的状态
+        var list = g.app.messageCatalog.getEntityList();
+        for (var i = 0; i < list.length; ++i) {
+            var entity = list[i];
+            if (entity instanceof Group) {
+                let commId = entity.getAppendix().getCommId();
+                if (commId != 0) {
+                    cube.mpComm.getCommField(commId, function(commField) {
+                        if (commField.mediaConstraint.videoEnabled) {
+                            g.app.messageCatalog.updateState(commField.group.getId(), 'video');
+                        }
+                        else {
+                            g.app.messageCatalog.updateState(commField.group.getId(), 'audio');
+                        }
+                    })
+                }
+            }
+        }
+    }
+
+    /**
      * 更新联系人的消息清单。
      * @param {Contact} contact 
      * @param {funciton} completed

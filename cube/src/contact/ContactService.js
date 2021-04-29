@@ -2085,6 +2085,7 @@ export class ContactService extends Module {
                 let groupAppendix = new GroupAppendix(this, owner);
                 groupAppendix.remark = data.remark;
                 groupAppendix.notice = data.notice;
+                groupAppendix.commId = data.commId;
                 groupAppendix.setMemberRemarks(data.memberRemarks);
 
                 // 设置附录
@@ -2130,6 +2131,20 @@ export class ContactService extends Module {
             if (handleFailure) {
                 handleFailure(error);
             }
+        });
+    }
+
+    /**
+     * @private
+     * @param {JSON} data 
+     */
+    triggerGroupAppendixUpdated(data) {
+        this.getGroup(data.owner.id, (owner) => {
+            let groupAppendix = GroupAppendix.create(this, owner, data);
+            owner.appendix = groupAppendix;
+            this.appendixMap.put(owner.getId(), groupAppendix);
+
+            
         });
     }
 

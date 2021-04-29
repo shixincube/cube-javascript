@@ -498,8 +498,8 @@
                     // 隐藏进度提示
                     dialog.hideLoading();
 
-                    // 目录排序
-                    messageCatalog.refreshOrder();
+                    // 消息控制器就绪
+                    messagingCtrl.ready();
 
                     // 文件目录准备
                     filesCatalog.prepare();

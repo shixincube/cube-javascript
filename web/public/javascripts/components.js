@@ -757,6 +757,18 @@
     }
 
     /**
+     * 返回已加载的实体清单。
+     * @returns {Array}
+     */
+    MessageCatalogue.prototype.getEntityList = function() {
+        var result = [];
+        this.items.forEach(function(value) {
+            result.push(value.entity);
+        });
+        return result;
+    }
+
+    /**
      * 追加菜单项。
      * @param {Contact|Group|object} value 数据值。
      * @param {boolean} [first] 是否插入到队列首位。
@@ -5750,6 +5762,33 @@
 
         // 发生故障
         cube.messaging.on(MessagingEvent.Fault, onMessageFault);
+    }
+
+    /**
+     * 执行就绪流程。
+     */
+    MessagingController.prototype.ready = function() {
+        // 目录排序
+        g.app.messageCatalog.refreshOrder();
+
+        // 更新最近消息目录里的状态
+        var list = g.app.messageCatalog.getEntityList();
+        for (var i = 0; i < list.length; ++i) {
+            var entity = list[i];
+            if (entity instanceof Group) {
+                let commId = entity.getAppendix().getCommId();
+                if (commId != 0) {
+                    cube.mpComm.getCommField(commId, function(commField) {
+                        if (commField.mediaConstraint.videoEnabled) {
+                            g.app.messageCatalog.updateState(commField.group.getId(), 'video');
+                        }
+                        else {
+                            g.app.messageCatalog.updateState(commField.group.getId(), 'audio');
+                        }
+                    })
+                }
+            }
+        }
     }
 
     /**
