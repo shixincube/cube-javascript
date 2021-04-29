@@ -101,6 +101,18 @@ export class Signaling extends JSONable {
         this.mediaConstraint = null;
 
         /**
+         * 被邀请人。
+         * @type {Contact}
+         */
+        this.invitee = null;
+
+        /**
+         * 被邀请的联系人列表。
+         * @type {Array<number>}
+         */
+        this.invitees = [];
+
+        /**
          * 主叫。
          * @type {Contact}
          */
@@ -137,6 +149,10 @@ export class Signaling extends JSONable {
 
         if (null != this.mediaConstraint) {
             json["constraint"] = this.mediaConstraint.toJSON();
+        }
+
+        if (this.invitees.length > 0) {
+            json["invitees"] = this.invitees.concat();
         }
 
         return json;
@@ -180,6 +196,16 @@ export class Signaling extends JSONable {
 
         if (json.constraint) {
             signaling.mediaConstraint = MediaConstraint.create(json.constraint);
+        }
+
+        if (json.invitees) {
+            for (let i = 0; i < json.invitees.length; ++i) {
+                signaling.invitees.push(json.invitees[i]);
+            }
+        }
+
+        if (json.invitee) {
+            signaling.invitee = Contact.create(json.invitee);
         }
 
         if (json.caller) {

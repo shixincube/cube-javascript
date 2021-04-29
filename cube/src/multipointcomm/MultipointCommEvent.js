@@ -66,6 +66,12 @@ export const MultipointCommEvent = {
     Bye: 'Bye',
 
     /**
+     * 被邀请加入通话。
+     * @type {string}
+     */
+    Invited: 'Invited',
+
+    /**
      * 呼叫超时。
      * @type {string}
      */

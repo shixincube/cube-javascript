@@ -66,6 +66,25 @@
         }
     }
 
+    function onInvited(event) {
+        var commField = event.data;
+        if (null == commField.group) {
+            return;
+        }
+
+        if (working) {
+            g.dialog.launchToast(Toast.Warning, '收到来自“' + commField.group.getName() + '”通话邀请');
+            return;
+        }
+
+        if (commField.mediaConstraint.videoEnabled) {
+            g.app.videoGroupChatPanel.openInviteToast(commField.group);
+        }
+        else {
+            g.app.voiceGroupCallPanel.openInviteToast(commField.group);
+        }
+    }
+
     function onInProgress(event) {
         console.log('#onInProgress');
     }
@@ -255,9 +274,10 @@
 
         cube = cubeEngine;
 
+        cube.mpComm.on(CallEvent.NewCall, onNewCall);
+        cube.mpComm.on(CallEvent.Invited, onInvited);
         cube.mpComm.on(CallEvent.InProgress, onInProgress);
         cube.mpComm.on(CallEvent.Ringing, onRinging);
-        cube.mpComm.on(CallEvent.NewCall, onNewCall);
         cube.mpComm.on(CallEvent.Connected, onConnected);
         cube.mpComm.on(CallEvent.Bye, onBye);
         cube.mpComm.on(CallEvent.Busy, onBusy);
@@ -553,6 +573,13 @@
         return true;
     }
 
+    CallController.prototype.acceptInvitation = function() {
+
+    }
+
+    CallController.prototype.rejectInvitation = function() {
+    }
+
     /**
      * 是否开启了摄像机。
      * @returns {boolean}
@@ -685,10 +712,6 @@
             rtcDevice.setVolume(volume);
             return true;
         }
-    }
-
-    CallController.prototype.makeGroupCall = function(target, inviteeList) {
-
     }
 
     g.CallController = CallController;

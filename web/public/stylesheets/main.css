@@ -1460,7 +1460,7 @@ video {
     font-size: 12px;
 }
 .video-group-panel .mask div {
-    line-height: 230px;
+    line-height: 240px;
 }
 .video-group-panel .table .toolbar {
     width: 320px;
@@ -1472,6 +1472,7 @@ video {
     vertical-align: middle;
     text-align: right;
     background-color: rgba(52, 58, 64, 0.5);
+    visibility: hidden;
 }
 .video-group-panel .layout .toolbar .name {
     padding-top: 3px;
@@ -1535,7 +1536,7 @@ video {
     background-size: 110px auto;
 }
 .video-group-panel .layout-pattern-3 .mask div {
-    line-height: 132px;
+    line-height: 140px;
 }
 .video-group-panel .layout-pattern-3 video {
     width: 210px;

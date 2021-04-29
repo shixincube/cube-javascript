@@ -93,10 +93,10 @@ export class CommField extends Entity {
         this.listener = null;
 
         /**
-         * 被邀请的联系人列表。
-         * @type {Array<number>}
+         * 媒体约束。
+         * @type {MediaConstraint}
          */
-        this.invitees = [];
+        this.mediaConstraint = null;
 
         /**
          * 终端列表。
@@ -161,6 +161,14 @@ export class CommField extends Entity {
      */
     getFounder() {
         return this.founder;
+    }
+
+    /**
+     * 返回媒体约束。
+     * @returns {MediaConstraint} 返回媒体约束。
+     */
+    getMediaConstraint() {
+        return this.mediaConstraint;
     }
 
     /**
@@ -691,13 +699,11 @@ export class CommField extends Entity {
         json.name = this.name;
         json.founder = this.founder.toCompactJSON();
 
+        json.mediaConstraint = this.mediaConstraint.toJSON();
+
         json.endpoints = [];
         for (let i = 0; i < this.endpoints.length; ++i) {
             json.endpoints.push(this.endpoints[i].toJSON());
-        }
-
-        if (this.invitees.length > 0) {
-            json.invitees = this.invitees.concat();
         }
 
         if (null != this.group) {
@@ -725,9 +731,7 @@ export class CommField extends Entity {
         json.name = this.name;
         json.founder = this.founder.toCompactJSON();
 
-        if (this.invitees.length > 0) {
-            json.invitees = this.invitees.concat();
-        }
+        json.mediaConstraint = this.mediaConstraint.toJSON();
 
         if (null != this.group) {
             json.group = this.group.toCompactJSON();
@@ -755,6 +759,8 @@ export class CommField extends Entity {
         let field = new CommField(json.id, Contact.create(json.founder), pipeline, self);
 
         field.name = json.name;
+
+        field.mediaConstraint = MediaConstraint.create(json.mediaConstraint);
 
         if (undefined !== json.endpoints) {
             let list = json.endpoints;

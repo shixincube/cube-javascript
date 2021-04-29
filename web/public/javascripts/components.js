@@ -4338,6 +4338,12 @@
         }
     }
 
+    VoiceGroupCallPanel.prototype.openInviteToast = function(group) {
+    }
+
+    VoiceGroupCallPanel.prototype.closeInviteToast = function() {
+    }
+
     g.VoiceGroupCallPanel = VoiceGroupCallPanel;
 
 })(window);
@@ -4356,7 +4362,10 @@
 
     var panelEl = null;
 
-    var invitationList = null;
+    var invitation = {
+        list: null,
+        timer: []
+    };
 
     var currentLayoutList = [];     // 当前布局的联系人列表
 
@@ -4367,7 +4376,7 @@
 
 
     function videoElementAgent(contactId) {
-
+        return panelEl.find('video[data-target="' + contactId + '"]')[0];
     }
 
 
@@ -4398,11 +4407,12 @@
     }
 
     /**
-     * 
+     * 启动通话。
      * @param {Group} group 
      */
     VideoGroupChatPanel.prototype.makeCall = function(group) {
-        invitationList = null;
+        invitation.list = null;
+        invitation.timer = [];
 
         panelEl.find('.header-tip').text('');
 
@@ -4413,14 +4423,27 @@
 
         var handler = function(group, idList) {
             // 获取本地视频窗口
-            that.localVideo = panelEl.find('video[data-target="' + g.app.getSelf().getId() + '"]')[0];
+            that.localVideo = videoElementAgent(g.app.getSelf().getId());
 
             // XJW
-            // 显示窗口
             // panelEl.modal({
             //     keyboard: false,
             //     backdrop: false
             // });
+            // if (idList) {
+            //     function test() {
+            //         if (idList.length == 0) {
+            //             return;
+            //         }
+
+            //         g.app.getContact(idList.pop(), function(contact) {
+            //             that.removeContact(contact);
+            //         });
+
+            //         setTimeout(test, 5000);
+            //     }
+            //     setTimeout(test, 5000);
+            // }
             // if (panelEl) return;
             // XJW
 
@@ -4437,7 +4460,7 @@
                 });
 
                 if (idList) {
-                    invitationList = idList;
+                    invitation.list = idList;
                 }
             }
             else {
@@ -4496,6 +4519,7 @@
                                     // 界面布局
                                     that.resetLayout(result);
 
+                                    // 邀请列表要移除自己
                                     result.shift();
 
                                     // 调用启动通话
@@ -4558,8 +4582,15 @@
         panelEl.find('.header-tip').text('正在等待服务器应答...');
 
         // 尝试邀请列表里联系人
-        if (null != invitationList) {
-            g.cube().mpComm.inviteCall(activeCall.field, invitationList);
+        if (null != invitation.list) {
+            invitation.list.forEach(function(value) {
+                var timer = setTimeout(function() {
+                    that.fireInviteTimeout(value);
+                }, 30000);
+                invitation.timer.push(timer);
+            });
+
+            g.cube().mpComm.inviteCall(activeCall.field, invitation.list);
         }
     }
 
@@ -4570,10 +4601,147 @@
     VideoGroupChatPanel.prototype.close = function() {
         panelEl.modal('hide');
         panelEl.find('.header-tip').text('');
+
+        invitation.timer.forEach(function(value) {
+            clearTimeout(value);
+        });
+        invitation.timer.splice(0, invitation.timer.length);
     }
 
     VideoGroupChatPanel.prototype.terminate = function() {
         g.app.callCtrl.hangupCall();
+    }
+
+    VideoGroupChatPanel.prototype.appendContact = function(contact) {
+
+    }
+
+    VideoGroupChatPanel.prototype.removeContact = function(contact) {
+        for (var i = 0; i < currentLayoutList.length; ++i) {
+            var c = currentLayoutList[i];
+            if (c.getId() == contact.getId()) {
+                currentLayoutList.splice(i, 1);
+                break;
+            }
+        }
+
+        this.updateLayout(currentLayoutList);
+    }
+
+    VideoGroupChatPanel.prototype.updateLayout = function(newContactList) {
+        // 被保留的 td 标签
+        var tdElList = [];
+
+        var container = panelEl.find('.container');
+
+        // 对每个联系人创建 td 标签
+        newContactList.forEach(function(contact) {
+            var el = container.find('td[data="' + contact.getId() + '"]');
+            if (el.length > 0) {
+                if (el.hasClass('colspan')) {
+                    el.removeClass('colspan');
+                    el.removeAttr('colspan');
+                }
+
+                tdElList.push(el);
+            }
+            else {
+                el = $([
+                    '<td data="', contact.getId(), '">',
+                        '<div class="viewport"><video autoplay data-target="', contact.getId(), '"></video></div>',
+                        '<div class="mask" style="background-image:linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)), url(images/', contact.context.avatar, ');"><div>接入“', contact.getPriorityName(), '”...</div></div>',
+                        '<div class="toolbar"><div class="name">', contact.getPriorityName(), '</div></div>',
+                    '</td>'
+                ].join(''));
+                tdElList.push(el);
+            }
+        });
+
+        var html = null;
+        var newEl = null;
+
+        if (newContactList.length <= 2) {
+            html = [
+                '<table class="table table-borderless layout-pattern-1">',
+                    '<tr></tr>',
+                '</table>'
+            ];
+
+            newEl = $(html.join(''));
+
+            tdElList.forEach(function(el) {
+                newEl.find('tr').append(el);
+            });
+
+            panelEl.css('height', '366px');
+        }
+        else if (newContactList.length == 3) {
+            html = [
+                '<table class="table table-borderless layout-pattern-1">',
+                    '<tr></tr>',
+                    '<tr></tr>',
+                '</table>'
+            ];
+
+            newEl = $(html.join(''));
+
+            var first = tdElList[0];
+            first.attr('colspan', '2');
+            first.addClass('colspan');
+            newEl.find('tr').eq(0).append(first);
+            newEl.find('tr').eq(1).append(tdElList[1]);
+            newEl.find('tr').eq(1).append(tdElList[2]);
+
+            panelEl.css('height', '606px');
+        }
+        else if (newContactList.length == 4) {
+            html = [
+                '<table class="table table-borderless layout-pattern-2">',
+                    '<tr></tr>',
+                    '<tr></tr>',
+                '</table>'
+            ];
+
+            newEl = $(html.join(''));
+
+            var tr1 = newEl.find('tr').eq(0);
+            tr1.append(tdElList[0]);
+            tr1.append(tdElList[1]);
+
+            var tr2 = newEl.find('tr').eq(1);
+            tr2.append(tdElList[2]);
+            tr2.append(tdElList[3]);
+
+            panelEl.css('height', '606px');
+        }
+        else if (newContactList.length >= 5) {
+            var numCol = 3;
+            var numRow = parseInt(Math.ceil(newContactList.length / numCol));
+            var index = 0;
+
+            html = [ '<table class="table table-borderless layout-pattern-3">' ];
+            while (index < numRow) {
+                html.push('<tr></tr>');
+                ++index;
+            }
+            html.push('</table>');
+
+            newEl = $(html.join(''));
+
+            index = 0;
+            for (var i = 0; i < numRow; ++i) {
+                var tr = newEl.find('tr').eq(i);
+                for (var j = 0; j < numCol; ++j) {
+                    tr.append(tdElList[index]);
+                    ++index;
+                }
+            }
+
+            panelEl.css('height', '406px');
+        }
+
+        container.empty();
+        container.append(newEl);
     }
 
     /**
@@ -4581,15 +4749,15 @@
      * @param {Array} list 
      */
     VideoGroupChatPanel.prototype.resetLayout = function(list) {
-        var contactList = [];
+        currentLayoutList = [];
 
         for (var i = 0; i < list.length; ++i) {
             var cid = list[i];
             g.app.getContact(cid, function(contact) {
-                contactList.push(contact);
+                currentLayoutList.push(contact);
 
-                if (contactList.length == list.length) {
-                    that.doLayout(contactList);
+                if (currentLayoutList.length == list.length) {
+                    that.doLayout(currentLayoutList);
                 }
             });
         }
@@ -4614,6 +4782,8 @@
                     '</tr>',
                 '</table>'
             ];
+
+            panelEl.css('height', '366px');
         }
         else if (list.length == 3) {
             html = [
@@ -4638,6 +4808,8 @@
                     '</tr>',
                 '</table>'
             ];
+
+            panelEl.css('height', '606px');
         }
         else if (list.length == 4) {
             html = [
@@ -4667,6 +4839,8 @@
                     '</tr>',
                 '</table>'
             ];
+
+            panelEl.css('height', '606px');
         }
         else if (list.length >= 5) {
             html = [ '<table class="table table-borderless layout-pattern-3">' ];
@@ -4708,6 +4882,8 @@
                 }
             }
             html.push('</table>');
+
+            panelEl.css('height', '406px');
         }
 
         panelEl.find('.container').html(html.join(''));
@@ -4750,6 +4926,54 @@
         miniEl.css('visibility', 'collapse');
 
         miniEl.insertAfter(defaultEl);
+    }
+
+    VideoGroupChatPanel.prototype.openInviteToast = function(group) {
+        var body = [
+            '<div class="toasts-info">\
+                <div class="info-box">\
+                    <span class="info-box-icon"><img src="images/group-avatar.png" /></span>\
+                    <div class="info-box-content">\
+                        <span class="info-box-text">', group.getName(), '</span>\
+                        <span class="info-box-desc">邀请您参与群组视频通话</span>\
+                    </div>\
+                </div>\
+                <div class="call-answer">\
+                    <button type="button" class="btn btn-danger" onclick="javascript:app.callCtrl.rejectInvitation();"><i class="ci ci-hangup"></i> 拒绝</button>\
+                    <button type="button" class="btn btn-success" onclick="javascript:app.callCtrl.acceptInvitation();"><i class="ci ci-answer"></i> 加入</button>\
+                </div>\
+            </div>'
+        ];
+
+        $(document).Toasts('create', {
+            title: '视频通话邀请',
+            position: 'bottomRight',
+            icon: 'fas fa-video',
+            close: false,
+            class: 'video-new-call',
+            body: body.join('')
+        });
+
+        // 播放振铃音效
+        // g.app.mainPanel.playCallRing();
+    }
+
+    VideoGroupChatPanel.prototype.closeInviteToast = function() {
+        $('#toastsContainerBottomRight').find('.video-new-call').remove();
+    }
+
+    VideoGroupChatPanel.prototype.fireInviteTimeout = function(contactId) {
+        var index = invitation.list.indexOf(contactId);
+        if (index >= 0) {
+            var timer = invitation.timer[index];
+            clearTimeout(timer);
+            invitation.list.splice(index, 1);
+            invitation.timer.splice(index, 1);
+        }
+
+        g.app.getContact(contactId, function(contact) {
+            that.removeContact(contact);
+        });
     }
 
     g.VideoGroupChatPanel = VideoGroupChatPanel;
@@ -6070,6 +6294,25 @@
         }
     }
 
+    function onInvited(event) {
+        var commField = event.data;
+        if (null == commField.group) {
+            return;
+        }
+
+        if (working) {
+            g.dialog.launchToast(Toast.Warning, '收到来自“' + commField.group.getName() + '”通话邀请');
+            return;
+        }
+
+        if (commField.mediaConstraint.videoEnabled) {
+            g.app.videoGroupChatPanel.openInviteToast(commField.group);
+        }
+        else {
+            g.app.voiceGroupCallPanel.openInviteToast(commField.group);
+        }
+    }
+
     function onInProgress(event) {
         console.log('#onInProgress');
     }
@@ -6259,9 +6502,10 @@
 
         cube = cubeEngine;
 
+        cube.mpComm.on(CallEvent.NewCall, onNewCall);
+        cube.mpComm.on(CallEvent.Invited, onInvited);
         cube.mpComm.on(CallEvent.InProgress, onInProgress);
         cube.mpComm.on(CallEvent.Ringing, onRinging);
-        cube.mpComm.on(CallEvent.NewCall, onNewCall);
         cube.mpComm.on(CallEvent.Connected, onConnected);
         cube.mpComm.on(CallEvent.Bye, onBye);
         cube.mpComm.on(CallEvent.Busy, onBusy);
@@ -6557,6 +6801,13 @@
         return true;
     }
 
+    CallController.prototype.acceptInvitation = function() {
+
+    }
+
+    CallController.prototype.rejectInvitation = function() {
+    }
+
     /**
      * 是否开启了摄像机。
      * @returns {boolean}
@@ -6689,10 +6940,6 @@
             rtcDevice.setVolume(volume);
             return true;
         }
-    }
-
-    CallController.prototype.makeGroupCall = function(target, inviteeList) {
-
     }
 
     g.CallController = CallController;

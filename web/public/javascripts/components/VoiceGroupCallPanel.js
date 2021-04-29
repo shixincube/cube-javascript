@@ -196,6 +196,12 @@
         }
     }
 
+    VoiceGroupCallPanel.prototype.openInviteToast = function(group) {
+    }
+
+    VoiceGroupCallPanel.prototype.closeInviteToast = function() {
+    }
+
     g.VoiceGroupCallPanel = VoiceGroupCallPanel;
 
 })(window);
