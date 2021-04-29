@@ -388,6 +388,23 @@ video {
     width: 50px;
     border-radius: 10%;
 }
+.catalog .item-state {
+    width: 50px;
+    height: 50px;
+    position: absolute;
+    float: left;
+    text-align: center;
+    color: #ffffff;
+    font-size: 12px;
+}
+.catalog .item-state div {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(rgba(10, 10, 10, 0.8), rgba(10, 10, 10, 0.8));
+    line-height: 50px;
+    font-size: 22px;
+    border-radius: 10%;
+}
 .catalog .item-top {
     width: 50px;
     height: 50px;
@@ -409,10 +426,6 @@ video {
 .catalog .item-top .top-action div {
     font-size: 10px;
     margin-top: -20px;
-}
-.catalog .item-top:hover .top-action {
-    visibility: visible;
-    color: #fefefe;
 }
 .catalog .item-close {
     position: absolute;

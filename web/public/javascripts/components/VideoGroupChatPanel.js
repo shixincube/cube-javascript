@@ -225,8 +225,8 @@
             }
 
             // XJW
-            videoDevice = deviceList[1];
-            deviceList.splice(0, deviceList.length);
+            // videoDevice = deviceList[1];
+            // deviceList.splice(0, deviceList.length);
             // XJW
 
             if (deviceList.length > 1) {
@@ -289,7 +289,15 @@
     }
 
     VideoGroupChatPanel.prototype.appendContact = function(contact) {
+        for (var i = 0; i < currentLayoutList.length; ++i) {
+            var c = currentLayoutList[i];
+            if (c.getId() == contact.getId()) {
+                return;
+            }
+        }
 
+        currentLayoutList.push(contact);
+        this.updateLayout(currentLayoutList);
     }
 
     VideoGroupChatPanel.prototype.removeContact = function(contact) {
@@ -631,11 +639,14 @@
         });
 
         // 播放振铃音效
-        // g.app.mainPanel.playCallRing();
+        g.app.mainPanel.playCallRing();
     }
 
     VideoGroupChatPanel.prototype.closeInviteToast = function() {
         $('#toastsContainerBottomRight').find('.video-new-call').remove();
+
+        // 停止振铃音效
+        g.app.mainPanel.stopCallRing();
     }
 
     VideoGroupChatPanel.prototype.fireInviteTimeout = function(contactId) {

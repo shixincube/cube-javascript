@@ -41,8 +41,9 @@
     var voiceCall = false;
     var groupCall = false;
 
-    var volume = 0.7;
+    var volume = 1.0;
 
+    var inviteeTimer = 0;   // 被邀请定时器
 
     function onNewCall(event) {
         var record = event.data;
@@ -83,6 +84,10 @@
         else {
             g.app.voiceGroupCallPanel.openInviteToast(commField.group);
         }
+
+        inviteeTimer = setTimeout(function() {
+            that.rejectInvitation();
+        }, 30000);
     }
 
     function onInProgress(event) {
@@ -205,7 +210,7 @@
 
     function onTimeout(event) {
         if (groupCall) {
-
+            // TODO
         }
         else {
             if (voiceCall) {
@@ -573,11 +578,44 @@
         return true;
     }
 
+    /**
+     * 接受当前群组通话邀请。
+     */
     CallController.prototype.acceptInvitation = function() {
+        if (inviteeTimer > 0) {
+            clearTimeout(inviteeTimer);
+            inviteeTimer = 0;
+        }
 
+        var commField = cube.mpComm.getActiveRecord().field;
+
+        if (commField.mediaConstraint.videoEnabled) {
+            g.app.videoGroupChatPanel.closeInviteToast();
+            g.app.videoGroupChatPanel.makeCall(commField.group);
+        }
+        else {
+            g.app.voiceGroupCallPanel.closeInviteToast();
+            g.app.voiceGroupCallPanel.makeCall(commField.group);
+        }
     }
 
+    /**
+     * 拒绝当前群组通话邀请。
+     */
     CallController.prototype.rejectInvitation = function() {
+        if (inviteeTimer > 0) {
+            clearTimeout(inviteeTimer);
+            inviteeTimer = 0;
+        }
+
+        var commField = cube.mpComm.getActiveRecord().field;
+
+        if (commField.mediaConstraint.videoEnabled) {
+            g.app.videoGroupChatPanel.closeInviteToast();
+        }
+        else {
+            g.app.voiceGroupCallPanel.closeInviteToast();
+        }
     }
 
     /**

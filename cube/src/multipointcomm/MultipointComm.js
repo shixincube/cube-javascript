@@ -647,13 +647,14 @@ export class MultipointComm extends Module {
         else if (target instanceof CommField) {
             if (null != this.activeCall && null != this.activeCall.field) {
                 if (this.activeCall.field.getId() != target.getId()) {
+                    cell.Logger.w('MultipointComm', 'Comm field data error');
                     return false;
                 }
             }
 
             if (null == this.activeCall) {
                 // 创建通话记录
-                this.activeCall = new CallRecord(this.privateField.getFounder());
+                this.activeCall = new CallRecord(this.privateField.founder);
             }
 
             // 记录

@@ -829,6 +829,8 @@
         var html = [
             '<li id="mc_item_', index, '" class="item pl-2 pr-2" data="', id, '">',
                 '<div class="item-img" style="background-image:url(', thumb, ');">',
+                    '<div class="item-state">',
+                    '</div>',
                     '<div class="item-top"><div class="top-action" onclick="app.messageCatalog.topItem(', id, ');">',
                         '<i class="fas fa-sort-up"></i><div>置顶</div>',
                     '</div></div>',
@@ -1069,7 +1071,7 @@
 
     /**
      * 置顶目录项。
-     * @param {*} id 
+     * @param {number} id 
      */
     MessageCatalogue.prototype.topItem = function(id) {
         var item = this.getItem(id);
@@ -1136,6 +1138,11 @@
         }
     }
 
+    /**
+     * 恢复上一次的描述时信。
+     * @param {*} target 
+     * @param {*} desc 
+     */
     MessageCatalogue.prototype.restoreDesc = function(target, desc) {
         var id = 0;
 
@@ -1162,6 +1169,11 @@
         item.desc = desc;
     }
 
+    /**
+     * 更新消息气泡。
+     * @param {*} id 
+     * @param {*} badge 
+     */
     MessageCatalogue.prototype.updateBadge = function(id, badge) {
         var item = this.getItem(id);
         if (null == item) {
@@ -1178,6 +1190,29 @@
             else {
                 item.el.find('.unread-badge').text(badge);
             }
+        }
+    }
+
+    /**
+     * 更新状态。
+     * @param {number} id 
+     * @param {string} state 指定状态：'video', 'voice', 'none' 。
+     */
+    MessageCatalogue.prototype.updateState = function(id, state) {
+        var item = this.getItem(id);
+        if (null == item) {
+            return;
+        }
+
+        var stateEl = item.el.find('.item-state');
+        if (state == 'video') {
+            stateEl.html('<div><i class="fas fa-video"></i></div>');
+        }
+        else if (state == 'voice' || state == 'audio') {
+            stateEl.html('<div><i class="fas fa-phone-alt"></i></div>');
+        }
+        else {
+            stateEl.html('');
         }
     }
 
@@ -1331,6 +1366,13 @@
         el.on('mouseout', function(e) {
             var itemId = parseInt($(this).attr('data'));
             that.onItemMouseout(itemId);
+        });
+
+        el.find('.item-state').on('mouseenter', function() {
+            el.find('.top-action').css('visibility', 'visible');
+        });
+        el.find('.item-top').on('mouseleave', function() {
+            el.find('.top-action').css('visibility', 'hidden');
         });
     }
 
@@ -4549,8 +4591,8 @@
             }
 
             // XJW
-            videoDevice = deviceList[1];
-            deviceList.splice(0, deviceList.length);
+            // videoDevice = deviceList[1];
+            // deviceList.splice(0, deviceList.length);
             // XJW
 
             if (deviceList.length > 1) {
@@ -4613,7 +4655,15 @@
     }
 
     VideoGroupChatPanel.prototype.appendContact = function(contact) {
+        for (var i = 0; i < currentLayoutList.length; ++i) {
+            var c = currentLayoutList[i];
+            if (c.getId() == contact.getId()) {
+                return;
+            }
+        }
 
+        currentLayoutList.push(contact);
+        this.updateLayout(currentLayoutList);
     }
 
     VideoGroupChatPanel.prototype.removeContact = function(contact) {
@@ -4955,11 +5005,14 @@
         });
 
         // 播放振铃音效
-        // g.app.mainPanel.playCallRing();
+        g.app.mainPanel.playCallRing();
     }
 
     VideoGroupChatPanel.prototype.closeInviteToast = function() {
         $('#toastsContainerBottomRight').find('.video-new-call').remove();
+
+        // 停止振铃音效
+        g.app.mainPanel.stopCallRing();
     }
 
     VideoGroupChatPanel.prototype.fireInviteTimeout = function(contactId) {
@@ -6269,8 +6322,9 @@
     var voiceCall = false;
     var groupCall = false;
 
-    var volume = 0.7;
+    var volume = 1.0;
 
+    var inviteeTimer = 0;   // 被邀请定时器
 
     function onNewCall(event) {
         var record = event.data;
@@ -6311,6 +6365,10 @@
         else {
             g.app.voiceGroupCallPanel.openInviteToast(commField.group);
         }
+
+        inviteeTimer = setTimeout(function() {
+            that.rejectInvitation();
+        }, 30000);
     }
 
     function onInProgress(event) {
@@ -6433,7 +6491,7 @@
 
     function onTimeout(event) {
         if (groupCall) {
-
+            // TODO
         }
         else {
             if (voiceCall) {
@@ -6801,11 +6859,44 @@
         return true;
     }
 
+    /**
+     * 接受当前群组通话邀请。
+     */
     CallController.prototype.acceptInvitation = function() {
+        if (inviteeTimer > 0) {
+            clearTimeout(inviteeTimer);
+            inviteeTimer = 0;
+        }
 
+        var commField = cube.mpComm.getActiveRecord().field;
+
+        if (commField.mediaConstraint.videoEnabled) {
+            g.app.videoGroupChatPanel.closeInviteToast();
+            g.app.videoGroupChatPanel.makeCall(commField.group);
+        }
+        else {
+            g.app.voiceGroupCallPanel.closeInviteToast();
+            g.app.voiceGroupCallPanel.makeCall(commField.group);
+        }
     }
 
+    /**
+     * 拒绝当前群组通话邀请。
+     */
     CallController.prototype.rejectInvitation = function() {
+        if (inviteeTimer > 0) {
+            clearTimeout(inviteeTimer);
+            inviteeTimer = 0;
+        }
+
+        var commField = cube.mpComm.getActiveRecord().field;
+
+        if (commField.mediaConstraint.videoEnabled) {
+            g.app.videoGroupChatPanel.closeInviteToast();
+        }
+        else {
+            g.app.voiceGroupCallPanel.closeInviteToast();
+        }
     }
 
     /**
