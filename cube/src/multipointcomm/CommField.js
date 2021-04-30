@@ -75,6 +75,18 @@ export class CommField extends Entity {
         this.founder = founder;
 
         /**
+         * 通讯域开始通话时间。
+         * @type {number}
+         */
+        this.startTime = 0;
+
+        /**
+         * 通讯域结束通话时间。
+         * @type {number}
+         */
+        this.endTime = 0;
+
+        /**
          * 通信管道。
          * @type {Pipeline}
          */
@@ -701,6 +713,9 @@ export class CommField extends Entity {
 
         json.mediaConstraint = this.mediaConstraint.toJSON();
 
+        json.startTime = this.startTime;
+        json.endTime = this.endTime;
+
         json.endpoints = [];
         for (let i = 0; i < this.endpoints.length; ++i) {
             json.endpoints.push(this.endpoints[i].toJSON());
@@ -733,6 +748,9 @@ export class CommField extends Entity {
 
         json.mediaConstraint = this.mediaConstraint.toJSON();
 
+        json.startTime = this.startTime;
+        json.endTime = this.endTime;
+
         if (null != this.group) {
             json.group = this.group.toCompactJSON();
         }
@@ -761,6 +779,9 @@ export class CommField extends Entity {
         field.name = json.name;
 
         field.mediaConstraint = MediaConstraint.create(json.mediaConstraint);
+
+        field.startTime = json.startTime;
+        field.endTime = json.endTime;
 
         if (undefined !== json.endpoints) {
             let list = json.endpoints;

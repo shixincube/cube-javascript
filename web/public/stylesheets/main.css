@@ -703,7 +703,6 @@ video {
     display: inline-block;
 }
 
-
 .messaging-catalog {
     margin-top: 0.6rem;
     margin-bottom: 0;
@@ -722,6 +721,22 @@ video {
 }
 .catalog .products-list .product-info {
     margin-left: 65px;
+}
+
+/* 消息面板上的浮动提示条 */
+.messaging-state-bar {
+    position: absolute;
+    float: left;
+    font-size: 12px;
+    right: 140px;
+    color: #007bff;
+    width: 120px;
+    padding-top: 5px;
+    visibility: hidden;
+}
+.messaging-state-bar .timer {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
 }
 
 .messaging-content {

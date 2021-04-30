@@ -1461,6 +1461,7 @@
         this.current = null;
 
         this.elTitle = this.el.find('.card-title');
+        this.elStateBar = this.el.find('.messaging-state-bar');
         this.elContent = this.el.find('.card-body');
 
         this.inputEditor = null;
@@ -1585,6 +1586,10 @@
             that.onCollapseClick(e);
         });
 
+        // 对当前选择的实体的通话进行时间计数的计时器
+        this.callTimer = 0;
+        this.callStartTime = 0;
+
         // 初始化上下文菜单
         this.initContextMenu();
     }
@@ -1686,7 +1691,61 @@
                 else {
                     this.elTitle.text(entity.getPriorityName());
                 }
+
+                this.refreshStateBar();
             }
+        }
+    }
+
+    /**
+     * @private
+     */
+    MessagePanel.prototype.refreshStateBar = function() {
+        if (null == this.current) {
+            this.elStateBar.css('visibility', 'hidden');
+            if (this.callTimer > 0) {
+                clearInterval(this.callTimer);
+                this.callTimer = 0;
+            }
+            this.callStartTime = 0;
+            return;
+        }
+
+        var entity = this.current.entity;
+
+        if (entity instanceof Group) {
+            var commId = entity.getAppendix().getCommId();
+            if (commId != 0) {
+                cube.mpComm.getCommField(commId, function(commField) {
+                    if (commField.startTime > 0) {
+                        if (that.callTimer > 0) {
+                            that.callTimer.clearInterval(that.callTimer);
+                        }
+
+                        that.callStartTime = commField.startTime;
+                        that.callTimer = setInterval(function() {
+                            var now = Date.now();
+                            var duration = now - that.callStartTime;
+                            that.elStateBar.find('.timer').text(g.formatClockTick(duration));
+                        }, 1000);
+
+                        var duration = Date.now() - that.callStartTime;
+                        that.elStateBar.find('.timer').text(g.formatClockTick(duration));
+                        that.elStateBar.css('visibility', 'visible');
+                    }
+                });
+            }
+            else {
+                if (this.callTimer > 0) {
+                    this.callTimer.clearInterval(this.callTimer);
+                    this.callTimer = 0;
+                }
+
+                this.elStateBar.css('visibility', 'hidden');
+            }
+        }
+        else {
+            this.elStateBar.css('visibility', 'hidden');
         }
     }
 
@@ -1778,6 +1837,9 @@
                 entity.getAppendix().getRemarkName() : entity.getName());
         }
 
+        // 刷新状态条
+        this.refreshStateBar();
+
         // 滚动条控制
         var offset = parseInt(this.elContent.prop('scrollHeight'));
         this.elContent.scrollTop(offset);
@@ -1840,6 +1902,8 @@
                 this.lastInput = '';
 
                 this.current = null;
+
+                this.refreshStateBar();
             }
 
             delete this.panels[id.toString()];
