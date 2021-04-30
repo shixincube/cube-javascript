@@ -121,6 +121,24 @@
         var message = error.data;
     }
 
+    function onGroupAppendixUpdated(event) {
+        var group = event.data;
+        let commId = group.getAppendix().getCommId();
+        if (commId != 0) {
+            cube.mpComm.getCommField(commId, function(commField) {
+                if (commField.mediaConstraint.videoEnabled) {
+                    g.app.messageCatalog.updateState(group.getId(), 'video');
+                }
+                else {
+                    g.app.messageCatalog.updateState(group.getId(), 'audio');
+                }
+            });
+        }
+        else {
+            g.app.messageCatalog.updateState(group.getId());
+        }
+    }
+
 
     /**
      * 消息模块的控制器。
@@ -153,6 +171,9 @@
 
         // 发生故障
         cube.messaging.on(MessagingEvent.Fault, onMessageFault);
+
+        // 处理群组附录更新，例如：群组正在进行视频通话
+        cube.contact.on(ContactEvent.GroupAppendixUpdated, onGroupAppendixUpdated);
     }
 
     /**
@@ -176,7 +197,7 @@
                         else {
                             g.app.messageCatalog.updateState(commField.group.getId(), 'audio');
                         }
-                    })
+                    });
                 }
             }
         }

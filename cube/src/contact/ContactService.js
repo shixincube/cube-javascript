@@ -2136,15 +2136,20 @@ export class ContactService extends Module {
 
     /**
      * @private
-     * @param {JSON} data 
+     * @param {object} payload 
      */
-    triggerGroupAppendixUpdated(data) {
+    triggerGroupAppendixUpdated(payload) {
+        let data = payload.data;
         this.getGroup(data.owner.id, (owner) => {
             let groupAppendix = GroupAppendix.create(this, owner, data);
             owner.appendix = groupAppendix;
+
+            // 更新附录
             this.appendixMap.put(owner.getId(), groupAppendix);
 
-            
+            this.notifyObservers(new ObservableEvent(ContactEvent.GroupAppendixUpdated, owner));
+        }, (error) => {
+            cell.Logger.e(ContactService.NAME, error.toString());
         });
     }
 

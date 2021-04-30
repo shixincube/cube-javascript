@@ -79,6 +79,12 @@ export const ContactEvent = {
     GroupMemberRemoved: 'GroupMemberRemoved',
 
     /**
+     * 群组的附录进行了实时更新。
+     * @type {string}
+     */
+    GroupAppendixUpdated: 'GroupAppendixUpdated',
+
+    /**
      * @private
      */
     Unknown: 'Unknown'
