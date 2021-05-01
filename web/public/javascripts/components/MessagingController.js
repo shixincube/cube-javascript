@@ -137,6 +137,8 @@
         else {
             g.app.messageCatalog.updateState(group.getId());
         }
+
+        g.app.messagePanel.refreshStateBar();
     }
 
 
