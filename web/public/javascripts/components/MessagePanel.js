@@ -330,7 +330,7 @@
     }
 
     /**
-     * @private
+     * 刷新状态条信息。
      */
     MessagePanel.prototype.refreshStateBar = function() {
         if (null == this.current) {
