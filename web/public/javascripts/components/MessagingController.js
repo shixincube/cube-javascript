@@ -121,6 +121,10 @@
         var message = error.data;
     }
 
+    /**
+     * 当群组附件更新时回调。
+     * @param {*} event 
+     */
     function onGroupAppendixUpdated(event) {
         var group = event.data;
         let commId = group.getAppendix().getCommId();
