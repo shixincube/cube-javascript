@@ -1461,7 +1461,8 @@
         this.current = null;
 
         this.elTitle = this.el.find('.card-title');
-        this.elStateBar = this.el.find('.messaging-state-bar');
+        this.elStateBar = this.el.find('.card-header').find('.state-bar');
+        this.elInfoBar = this.el.find('.card-header').find('.info-bar');
         this.elContent = this.el.find('.card-body');
 
         this.inputEditor = null;
@@ -1698,9 +1699,16 @@
     }
 
     /**
-     * @private
+     * 刷新状态条信息。
      */
     MessagePanel.prototype.refreshStateBar = function() {
+        this.elStateBar.css('visibility', 'visible');
+
+        // XJW
+        // if (this.current || null == this.current) return;
+
+        this.elInfoBar.css('visibility', 'hidden');
+
         if (null == this.current) {
             this.elStateBar.css('visibility', 'hidden');
             if (this.callTimer > 0) {
@@ -1732,6 +1740,18 @@
                         var duration = Date.now() - that.callStartTime;
                         that.elStateBar.find('.timer').text(g.formatClockTick(duration));
                         that.elStateBar.css('visibility', 'visible');
+
+                        // 填充信息
+                        var rowEl = that.elInfoBar.find('.row').eq(0);
+                        rowEl.empty();
+                        var html = [];
+                        commField.getEndpoints().forEach(function(value) {
+                            var contact = value.contact;
+                            g.app.getContact(contact.getId(), function(contact) {
+                                html.push('<div class="col-3"><img src="images/' + contact.getContext().avatar + '" /></div>');
+                            });
+                        });
+                        rowEl.html(html.join(''));
                     }
                 });
             }
@@ -1740,12 +1760,26 @@
                     this.callTimer.clearInterval(this.callTimer);
                     this.callTimer = 0;
                 }
+                this.callStartTime = 0;
 
                 this.elStateBar.css('visibility', 'hidden');
             }
         }
         else {
             this.elStateBar.css('visibility', 'hidden');
+        }
+    }
+
+    /**
+     * 显示通话信息。
+     */
+    MessagePanel.prototype.toggleBarInfo = function() {
+        var el = this.elInfoBar;
+        if (el.css('visibility') == 'hidden') {
+            el.css('visibility', 'visible');
+        }
+        else {
+            el.css('visibility', 'hidden');
         }
     }
 
@@ -5794,6 +5828,10 @@
         var message = error.data;
     }
 
+    /**
+     * 当群组附件更新时回调。
+     * @param {*} event 
+     */
     function onGroupAppendixUpdated(event) {
         var group = event.data;
         let commId = group.getAppendix().getCommId();
@@ -5810,6 +5848,8 @@
         else {
             g.app.messageCatalog.updateState(group.getId());
         }
+
+        g.app.messagePanel.refreshStateBar();
     }
 
 
@@ -6027,6 +6067,13 @@
         g.app.messagePanel.updatePanel(group.getId(), group);
         g.app.messageCatalog.updateItem(group, null, null, group.getName());
         g.app.messageSidebar.update(group);
+    }
+
+    /**
+     * 显示当前通话信息。
+     */
+    MessagingController.prototype.showCurrentCalling = function() {
+        g.app.messagePanel.toggleBarInfo();
     }
 
     /**

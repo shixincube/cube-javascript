@@ -724,7 +724,7 @@ video {
 }
 
 /* 消息面板上的浮动提示条 */
-.messaging-state-bar {
+.messaging-content .state-bar {
     position: absolute;
     float: left;
     font-size: 12px;
@@ -734,8 +734,34 @@ video {
     padding-top: 5px;
     visibility: hidden;
 }
-.messaging-state-bar .timer {
+.messaging-content .state-bar .timer {
     font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+}
+.messaging-content .info-bar {
+    position: absolute;
+    float: left;
+    top: 42px;
+    right: 55px;
+    max-width: 228px;
+    visibility: hidden;
+    background-color: #f8f9fa;
+    padding: 8px 10px 4px 10px;
+    border-radius: 3px;
+    border: 1px solid #7c858d;
+    font-size: 12px;
+    z-index: 999;
+}
+.messaging-content .info-bar .col-3 {
+    padding-bottom: 6px;
+}
+.messaging-content .info-bar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 10%;
+}
+.messaging-content .info-bar .row:last-child {
+    padding-top: 2px;
     font-weight: bold;
 }
 

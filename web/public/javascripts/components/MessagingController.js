@@ -363,6 +363,13 @@
     }
 
     /**
+     * 显示当前通话信息。
+     */
+    MessagingController.prototype.showCurrentCalling = function() {
+        g.app.messagePanel.toggleBarInfo();
+    }
+
+    /**
      * 显示选择文件界面。
      * @param {*} el 
      */
