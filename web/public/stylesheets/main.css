@@ -728,7 +728,7 @@ video {
     position: absolute;
     float: left;
     font-size: 12px;
-    right: 140px;
+    right: 160px;
     color: #007bff;
     width: 120px;
     padding-top: 5px;
@@ -741,7 +741,7 @@ video {
 .messaging-content .info-bar {
     position: absolute;
     float: left;
-    top: 42px;
+    top: 40px;
     right: 55px;
     width: 228px;
     max-width: 228px;
@@ -749,7 +749,7 @@ video {
     background-color: #f8f9fa;
     padding: 8px 10px 4px 10px;
     border-radius: 3px;
-    border: 1px solid #7c858d;
+    border: 1px solid rgba(0,0,0,.125);
     font-size: 12px;
     z-index: 999;
 }

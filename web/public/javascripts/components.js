@@ -1527,6 +1527,36 @@
             });
         }
 
+        // 状态信息条显示控制
+        this.infoBarDelayTimer = 0;
+        this.elStateBar.on('mouseenter', function() {
+            if (that.infoBarDelayTimer > 0) {
+                clearTimeout(that.infoBarDelayTimer);
+                that.infoBarDelayTimer = 0;
+            }
+            that.toggleBarInfo();
+        });
+        this.elStateBar.on('mouseleave', function() {
+            that.infoBarDelayTimer = setTimeout(function() {
+                that.toggleBarInfo();
+                clearTimeout(that.infoBarDelayTimer);
+                that.infoBarDelayTimer = 0;
+            }, 1000);
+        });
+        this.elInfoBar.on('mouseenter', function() {
+            if (that.infoBarDelayTimer > 0) {
+                clearTimeout(that.infoBarDelayTimer);
+                that.infoBarDelayTimer = 0;
+            }
+        });
+        this.elInfoBar.on('mouseleave', function() {
+            if (that.infoBarDelayTimer > 0) {
+                clearTimeout(that.infoBarDelayTimer);
+                that.infoBarDelayTimer = 0;
+            }
+            that.toggleBarInfo();
+        });
+
         // 发送按钮 Click 事件
         this.btnSend = el.find('button[data-target="send"]');
         this.btnSend.attr('disabled', 'disabled');
@@ -1702,10 +1732,10 @@
      * 刷新状态条信息。
      */
     MessagePanel.prototype.refreshStateBar = function() {
-        this.elStateBar.css('visibility', 'visible');
-
         // XJW
-        if (this.current || null == this.current) return;
+        // this.elStateBar.css('visibility', 'visible');
+        // if (this.current || null == this.current) return;
+        // XJW
 
         this.elInfoBar.css('visibility', 'hidden');
 
@@ -1729,6 +1759,14 @@
                         if (that.callTimer > 0) {
                             that.callTimer.clearInterval(that.callTimer);
                         }
+
+                        var videoEnabled = commField.mediaConstraint.videoEnabled;
+
+                        // 更新图标
+                        that.elStateBar.find('.col-2').html(videoEnabled ? '<i class="fas fa-video"></i>' : '<i class="fas fa-phone-alt"></i>');
+
+                        // 设置人数信息
+                        that.elStateBar.find('.participant').text(commField.numEndpoints() + '/' + videoEnabled ? '6' : '8');
 
                         that.callStartTime = commField.startTime;
                         that.callTimer = setInterval(function() {
@@ -6067,13 +6105,6 @@
         g.app.messagePanel.updatePanel(group.getId(), group);
         g.app.messageCatalog.updateItem(group, null, null, group.getName());
         g.app.messageSidebar.update(group);
-    }
-
-    /**
-     * 显示当前通话信息。
-     */
-    MessagingController.prototype.showCurrentCalling = function() {
-        g.app.messagePanel.toggleBarInfo();
     }
 
     /**
