@@ -743,6 +743,7 @@ video {
     float: left;
     top: 42px;
     right: 55px;
+    width: 228px;
     max-width: 228px;
     visibility: hidden;
     background-color: #f8f9fa;

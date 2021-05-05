@@ -1705,7 +1705,7 @@
         this.elStateBar.css('visibility', 'visible');
 
         // XJW
-        // if (this.current || null == this.current) return;
+        if (this.current || null == this.current) return;
 
         this.elInfoBar.css('visibility', 'hidden');
 

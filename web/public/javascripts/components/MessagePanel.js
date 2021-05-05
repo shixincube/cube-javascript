@@ -337,7 +337,7 @@
         this.elStateBar.css('visibility', 'visible');
 
         // XJW
-        // if (this.current || null == this.current) return;
+        if (this.current || null == this.current) return;
 
         this.elInfoBar.css('visibility', 'hidden');
 
@@ -361,6 +361,11 @@
                         if (that.callTimer > 0) {
                             that.callTimer.clearInterval(that.callTimer);
                         }
+
+                        var videoEnabled = commField.mediaConstraint.videoEnabled;
+
+                        // 设置人数信息
+                        that.elStateBar.find('.participant').text(commField.numEndpoints() + '/' + videoEnabled ? '6' : '8');
 
                         that.callStartTime = commField.startTime;
                         that.callTimer = setInterval(function() {
