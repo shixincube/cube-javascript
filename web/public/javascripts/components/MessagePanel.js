@@ -366,6 +366,15 @@
     MessagePanel.prototype.refreshStateBar = function() {
         // XJW
         // this.elStateBar.css('visibility', 'visible');
+        // var now = Date.now();
+        // that.callStartTime = now - 60000;
+        // that.callTimer = setInterval(function() {
+        //     var now = Date.now();
+        //     var duration = now - that.callStartTime;
+        //     that.elStateBar.find('.timer').text(g.formatClockTick(Math.round(duration/1000)));
+        // }, 1000);
+        // var duration = Date.now() - that.callStartTime;
+        // that.elStateBar.find('.timer').text(g.formatClockTick(Math.round(duration/1000)));
         // if (this.current || null == this.current) return;
         // XJW
 
@@ -398,17 +407,17 @@
                         that.elStateBar.find('.col-2').html(videoEnabled ? '<i class="fas fa-video"></i>' : '<i class="fas fa-phone-alt"></i>');
 
                         // 设置人数信息
-                        that.elStateBar.find('.participant').text(commField.numEndpoints() + '/' + videoEnabled ? '6' : '8');
+                        that.elStateBar.find('.participant').text(commField.numEndpoints() + '/' + (videoEnabled ? '6' : '8'));
 
                         that.callStartTime = commField.startTime;
                         that.callTimer = setInterval(function() {
                             var now = Date.now();
                             var duration = now - that.callStartTime;
-                            that.elStateBar.find('.timer').text(g.formatClockTick(duration));
+                            that.elStateBar.find('.timer').text(g.formatClockTick(Math.round(duration/1000)));
                         }, 1000);
 
                         var duration = Date.now() - that.callStartTime;
-                        that.elStateBar.find('.timer').text(g.formatClockTick(duration));
+                        that.elStateBar.find('.timer').text(g.formatClockTick(Math.round(duration/1000)));
                         that.elStateBar.css('visibility', 'visible');
 
                         // 填充信息

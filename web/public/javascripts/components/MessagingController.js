@@ -132,17 +132,18 @@
             cube.mpComm.getCommField(commId, function(commField) {
                 if (commField.mediaConstraint.videoEnabled) {
                     g.app.messageCatalog.updateState(group.getId(), 'video');
+                    g.app.messagePanel.refreshStateBar();
                 }
                 else {
                     g.app.messageCatalog.updateState(group.getId(), 'audio');
+                    g.app.messagePanel.refreshStateBar();
                 }
             });
         }
         else {
             g.app.messageCatalog.updateState(group.getId());
+            g.app.messagePanel.refreshStateBar();
         }
-
-        g.app.messagePanel.refreshStateBar();
     }
 
 
