@@ -36,27 +36,27 @@ export class TokenStorage {
     constructor() {
     }
 
-    /**
+    /*
      * 加载未使用的候选令牌。
      * @returns {AuthToken} 返回令牌。如果没有找到对应的令牌返回 {@linkcode null} 值。
-     */
+     *
     loadCandidate() {
         return this.load('token');
-    }
+    }*/
 
-    /**
+    /*
      * 将令牌保存为候选令牌。
      * @param {AuthToken} token 指定令牌实例。
-     */
+     *
     saveCandidate(token) {
         this.save('token', token);
-    }
+    }*/
 
-    /**
+    /*
      * 将候选令牌转为指定 ID 的令牌。
      * @param {number} id 指定联系人 ID 。
      * @returns {boolean} 如果操作成功返回 {@linkcode true} ，否则返回 {@linkcode false} 。
-     */
+     *
     raise(id) {
         let token = this.loadCandidate();
         if (null == token) {
@@ -66,6 +66,29 @@ export class TokenStorage {
         this.save(id, token);
         this.remove('token');
         return true;
+    }*/
+
+    /**
+     * 保存令牌。
+     * @param {AuthToken} token 指定待保存的令牌。
+     */
+    saveToken(token) {
+        this.save('token', token);
+    }
+
+    /**
+     * 加载令牌。
+     * @returns {AuthToken} 返回令牌数据。
+     */
+    loadToken() {
+        return this.load('token');
+    }
+
+    /**
+     * 删除令牌数据。
+     */
+    removeToken() {
+        this.remove('token');
     }
 
     /**
@@ -110,6 +133,11 @@ export class TokenStorage {
      * 删除所有令牌。
      */
     removeAll() {
-        window.localStorage.clear();
+        for (let i = 0; i < window.localStorage.length; ++i) {
+            let key = window.localStorage.key(i);
+            if (key.startsWith('_cube_')) {
+                window.localStorage.removeItem(key);
+            }
+        }
     }
 }

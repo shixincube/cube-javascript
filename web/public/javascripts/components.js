@@ -1754,10 +1754,10 @@
         if (entity instanceof Group) {
             var commId = entity.getAppendix().getCommId();
             if (commId != 0) {
-                cube.mpComm.getCommField(commId, function(commField) {
+                g.cube().mpComm.getCommField(commId, function(commField) {
                     if (commField.startTime > 0) {
                         if (that.callTimer > 0) {
-                            that.callTimer.clearInterval(that.callTimer);
+                            clearInterval(that.callTimer);
                         }
 
                         var videoEnabled = commField.mediaConstraint.videoEnabled;
@@ -1795,7 +1795,7 @@
             }
             else {
                 if (this.callTimer > 0) {
-                    this.callTimer.clearInterval(this.callTimer);
+                    clearInterval(this.callTimer);
                     this.callTimer = 0;
                 }
                 this.callStartTime = 0;

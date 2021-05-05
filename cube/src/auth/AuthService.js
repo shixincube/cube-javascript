@@ -149,14 +149,37 @@ export class AuthService extends Module {
         let storage = new TokenStorage();
 
         let activeToken = storage.load(id);
-        if (null != activeToken) {
+        if (null != activeToken && activeToken.isValid()) {
             this.token = activeToken;
             this.token.cid = id;
             handler(this.token);
             return;
         }
 
-        if (null != this.token) {
+        activeToken = storage.loadToken();
+        if (null != activeToken && activeToken.isValid()) {
+            this.token = activeToken;
+            this.token.cid = id;
+            storage.save(id, this.token);
+            handler(this.token);
+            return;
+        }
+
+        (async ()=> {
+            let newToken = await this.applyToken(this.domain, this.appKey);
+            if (null != newToken) {
+                storage.save(id, newToken);
+                storage.saveToken(newToken);
+                this.token = newToken;
+                this.token.cid = id;
+                handler(this.token);
+            }
+            else {
+                handler(null);
+            }
+        })();
+
+        /*if (null != this.token) {
             // 将候选令牌转为该 ID 令牌
             if (!storage.raise(id)) {
                 this.token.cid = id;
@@ -186,7 +209,7 @@ export class AuthService extends Module {
                     handler(null);
                 }
             })();
-        }
+        }*/
     }
 
     /**
@@ -205,22 +228,20 @@ export class AuthService extends Module {
         let storage = new TokenStorage();
 
         // 尝试读取本地的 Token
-        if (window.localStorage) {
-            this.token = storage.loadCandidate();
-        }
+        this.token = storage.loadToken();
 
         // 判断令牌是否到有效期
         if (null != this.token && this.token.isValid()) {
-            if (this.checkTimer > 0) {
-                clearTimeout(this.checkTimer);
-            }
-            this.checkTimer = setTimeout(() => {
-                clearTimeout(this.checkTimer);
-                this.checkTimer = 0;
-                this.checkToken();
-            }, 2000);
-
             AuthService.TOKEN = this.token.code;
+
+            // if (this.checkTimer > 0) {
+            //     clearTimeout(this.checkTimer);
+            // }
+            // this.checkTimer = setTimeout(() => {
+            //     clearTimeout(this.checkTimer);
+            //     this.checkTimer = 0;
+            //     this.checkToken();
+            // }, 1000);
 
             return this.token;
         }
@@ -239,9 +260,8 @@ export class AuthService extends Module {
         if (null != this.token) {
             AuthService.TOKEN = this.token.code;
 
-            if (window.localStorage) {
-                storage.saveCandidate(this.token);
-            }
+            // 保存令牌
+            storage.saveToken(this.token);
         }
 
         return this.token;
@@ -329,15 +349,14 @@ export class AuthService extends Module {
                 let event = new ObservableEvent(AuthEvent.InvalidToken, this.token);
                 this.notifyObservers(event);
 
-                if (window.localStorage) {
-                    let storage = new TokenStorage();
-                    storage.remove(this.token.cid);
-                }
+                let storage = new TokenStorage();
+                storage.removeToken();
+                storage.remove(this.token.cid);
 
                 this.token = null;
 
                 // 校验无效，进入自动申请
-                this._autoApply();
+                // this._autoApply();
             }
         });
     }
@@ -353,7 +372,7 @@ export class AuthService extends Module {
 
     /**
      * @private
-     */
+     *
     _autoApply() {
         cell.Logger.d('AuthService', 'Auto apply token @ ' + this.domain);
 
@@ -377,5 +396,5 @@ export class AuthService extends Module {
         }).catch(() => {
             // Nothing
         });
-    }
+    }*/
 }
