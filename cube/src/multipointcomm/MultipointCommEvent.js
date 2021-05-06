@@ -72,6 +72,24 @@ export const MultipointCommEvent = {
     Invited: 'Invited',
 
     /**
+     * 新参与者加入。
+     * @type {string}
+     */
+    Arrived: 'Arrived',
+
+    /**
+     * 参与者已离开。
+     * @type {string}
+     */
+    Left: 'Left',
+
+    /**
+     * 已经跟随接收参与者数据。
+     * @type {string}
+     */
+    Followed: 'Followed',
+
+    /**
      * 呼叫超时。
      * @type {string}
      */
@@ -88,8 +106,15 @@ export const MultipointCommEvent = {
     MediaDisconnected: 'MediaDisconnected',
 
     /**
-     * 呼叫发生错误。
+     * 发生错误。
      * @type {string}
      */
-    CallFailed: 'CallFailed'
+    Failed: 'Failed',
+
+    /**
+     * 呼叫发生错误。
+     * @type {string}
+     * @deprecated
+     */
+    CallFailed: 'Failed'
 }

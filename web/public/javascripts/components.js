@@ -6639,6 +6639,29 @@
         }, 30000);
     }
 
+    function onArrived(event) {
+        // 更新布局
+        g.app.getContact(event.data.contact.getId(), function(contact) {
+            if (voiceCall) {
+                // TODO
+            }
+            else {
+                g.app.videoGroupChatPanel.appendContact(contact);
+            }
+        });
+    }
+
+    function onLeft(event) {
+        g.app.getContact(event.data.contact.getId(), function(contact) {
+            if (voiceCall) {
+                // TODO
+            }
+            else {
+                g.app.videoGroupChatPanel.removeContact(contact);
+            }
+        });
+    }
+
     function onInProgress(event) {
         console.log('#onInProgress');
     }
@@ -6780,7 +6803,7 @@
         }
     }
 
-    function onCallFailed(event) {
+    function onFailed(event) {
         var error = event.data;
         working = false;
         console.log('onCallFailed - ' + error);
@@ -6831,17 +6854,19 @@
 
         cube = cubeEngine;
 
-        cube.mpComm.on(CallEvent.NewCall, onNewCall);
-        cube.mpComm.on(CallEvent.Invited, onInvited);
-        cube.mpComm.on(CallEvent.InProgress, onInProgress);
-        cube.mpComm.on(CallEvent.Ringing, onRinging);
-        cube.mpComm.on(CallEvent.Connected, onConnected);
-        cube.mpComm.on(CallEvent.Bye, onBye);
-        cube.mpComm.on(CallEvent.Busy, onBusy);
-        cube.mpComm.on(CallEvent.Timeout, onTimeout);
-        cube.mpComm.on(CallEvent.CallFailed, onCallFailed);
-        cube.mpComm.on(CallEvent.MediaConnected, onMediaConnected);
-        cube.mpComm.on(CallEvent.MediaDisconnected, onMediaDisconnected);
+        cube.mpComm.on(CommEvent.NewCall, onNewCall);
+        cube.mpComm.on(CommEvent.Invited, onInvited);
+        cube.mpComm.on(CommEvent.InProgress, onInProgress);
+        cube.mpComm.on(CommEvent.Ringing, onRinging);
+        cube.mpComm.on(CommEvent.Connected, onConnected);
+        cube.mpComm.on(CommEvent.Bye, onBye);
+        cube.mpComm.on(CommEvent.Busy, onBusy);
+        cube.mpComm.on(CommEvent.Arrived, onArrived);
+        cube.mpComm.on(CommEvent.Left, onLeft);
+        cube.mpComm.on(CommEvent.Timeout, onTimeout);
+        cube.mpComm.on(CommEvent.Failed, onFailed);
+        cube.mpComm.on(CommEvent.MediaConnected, onMediaConnected);
+        cube.mpComm.on(CommEvent.MediaDisconnected, onMediaDisconnected);
     }
 
     /**

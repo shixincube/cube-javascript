@@ -108,7 +108,7 @@ export class CommField extends Entity {
          * 媒体约束。
          * @type {MediaConstraint}
          */
-        this.mediaConstraint = null;
+        this.mediaConstraint = new MediaConstraint(true, true);
 
         /**
          * 终端列表。

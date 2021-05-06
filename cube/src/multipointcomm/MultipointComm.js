@@ -30,7 +30,6 @@ import { ContactEvent } from "../contact/ContactEvent";
 import { Contact } from "../contact/Contact";
 import { Device } from "../contact/Device";
 import { Group } from "../contact/Group";
-import { GroupAppendix } from "../contact/GroupAppendix";
 import { ContactService } from "../contact/ContactService";
 import { Packet } from "../core/Packet";
 import { StateCode } from "../core/StateCode";
@@ -284,7 +283,7 @@ export class MultipointComm extends Module {
     /**
      * 创建 RTC 终端节点。
      * @private
-     * @param {string} mode
+     * @param {string} mode 工作模式。
      * @param {HTMLElement} [localVideoElem]
      * @param {HTMLElement} [remoteVideoElem]
      * @returns {RTCDevice} 返回 {@ink RTCDevice} 实例。
@@ -479,7 +478,7 @@ export class MultipointComm extends Module {
             if (failureCallback) {
                 failureCallback(error);
             }
-            this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
+            this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
             return false;
         }
 
@@ -531,7 +530,7 @@ export class MultipointComm extends Module {
                     failureCallback(error);
                 }
 
-                this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
+                this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
 
                 this.activeCall = null;
             }
@@ -540,7 +539,7 @@ export class MultipointComm extends Module {
                     failureCallback(error);
                 }
 
-                this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
+                this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
 
                 // 挂断通话
                 this.hangupCall();
@@ -556,7 +555,7 @@ export class MultipointComm extends Module {
                 if (failureCallback) {
                     failureCallback(error);
                 }
-                this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
+                this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
                 return false;
             }
 
@@ -819,7 +818,7 @@ export class MultipointComm extends Module {
             if (failureCallback) {
                 failureCallback(error);
             }
-            this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
+            this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
 
             if (this.activeCall.field.isPrivate()) {
                 this.hangupCall();
@@ -841,7 +840,7 @@ export class MultipointComm extends Module {
                 if (failureCallback) {
                     failureCallback(error);
                 }
-                this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
+                this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
                 return false;
             }
 
@@ -851,7 +850,7 @@ export class MultipointComm extends Module {
                 if (failureCallback) {
                     failureCallback(error);
                 }
-                this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
+                this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
                 return false;
             }
 
@@ -962,7 +961,7 @@ export class MultipointComm extends Module {
                     if (failureCallback) {
                         failureCallback(error);
                     }
-                    this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
+                    this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
 
                     this.activeCall = null;
                 }
@@ -979,7 +978,7 @@ export class MultipointComm extends Module {
                 if (failureCallback) {
                     failureCallback(error);
                 }
-                this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
+                this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
 
                 this.activeCall = null;
             }
@@ -1016,29 +1015,32 @@ export class MultipointComm extends Module {
         return true;
     }
 
-    /*
-     * 获取指定场域或者终端的通讯数据。
-     * @param {CommField|CommFieldEndpoint} target 指定待获取数据的场域或者终端。
+    /**
+     * 获取指定终端的通讯数据。
+     * @param {CommFieldEndpoint} endpoint 指定待获取数据的终端。
      * @param {function} [successCallback] 成功回调函数，函数参数：({@linkcode callRecord}:{@link CallRecord}) 。
      * @param {function} [failureCallback] 失败回调函数，函数参数：({@linkcode error}:{@link ModuleError}) 。
      * @returns {boolean} 返回是否允许执行该操作。
-     *
-    followCall(target, successCallback, failureCallback) {
+     */
+    follow(endpoint, successCallback, failureCallback) {
         if (null == this.privateField) {
             // 联系人模块没有完成签入操作
-            let error = new ModuleError(MultipointComm.NAME, MultipointCommState.Uninitialized, target);
+            let error = new ModuleError(MultipointComm.NAME, MultipointCommState.Uninitialized, endpoint);
             if (failureCallback) {
                 failureCallback(error);
             }
-            this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
+            this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
             return false;
         }
 
         // 处理操作成功
-        let successHandler = (signaling) => {
+        let successHandler = () => {
             if (successCallback) {
-                successCallback(this.activeCall);
+                successCallback(this.activeCall, endpoint);
             }
+
+            // 发送 Followed 事件
+            this.notifyObservers(new ObservableEvent(MultipointCommEvent.Followed, endpoint));
         };
 
         // 处理操作失败
@@ -1050,84 +1052,42 @@ export class MultipointComm extends Module {
                 failureCallback(error);
             }
 
-            this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
+            this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
 
-            if (target instanceof CommField) {
-                this.activeCall.field.closeRTCDevices();
-            }
-            else if (target instanceof CommFieldEndpoint) {
-                this.activeCall.field.closeRTCDevice(target);
-            }
+            this.activeCall.field.closeRTCDevice(endpoint);
         };
 
-        if (target instanceof CommField) {
-            if (null != this.activeCall) {
-                if (this.activeCall.field.getId() != target.getId()) {
-                    return false;
-                }
-
-                if (null != this.activeCall.field.inboundRTC) {
-                    // 正在通话中
-                    let error = new ModuleError(MultipointComm.NAME, MultipointCommState.CallerBusy, target);
-                    if (failureCallback) {
-                        failureCallback(error);
-                    }
-                    this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
-                    return false;
-                }
-            }
-            else {
-                // 创建通话记录
-                this.activeCall = new CallRecord(this.privateField.getFounder());
-                // 记录
-                this.activeCall.field = target;
+        if (null == this.activeCall) {
+            if (null == endpoint.field) {
+                failureHandler(new ModuleError(MultipointComm.NAME, MultipointCommState.NoCommField, endpoint));
+                return false;
             }
 
-            (new Promise((resolve, reject) => {
-                resolve();
-            })).then(() => {
-                // 回调 InProgress 事件
-                this.notifyObservers(new ObservableEvent(MultipointCommEvent.InProgress, target));
-            });
-
-            // xjw
-            let rtcDevice = this.createRTCDevice();
-
-            // 获取 Comm Field 的混码流
-            target.launchOffer(rtcDevice, null, successHandler, failureHandler);
-            target.inboundRTC = rtcDevice;
-        }
-        else if (target instanceof CommFieldEndpoint) {
-            if (null != this.activeCall) {
-                if (this.activeCall.field.getId() != target.field.getId()) {
-                    return false;
-                }
-            }
-            else {
-                // 记录
-                this.activeCall = new CallRecord(this.privateField.getFounder());
-                this.activeCall.field = target.field;
-            }
-
-            (new Promise((resolve, reject) => {
-                resolve();
-            })).then(() => {
-                // 回调 InProgress 事件
-                this.notifyObservers(new ObservableEvent(MultipointCommEvent.InProgress, target));
-            });
-
-            // xjw
-            let rtcDevice = this.createRTCDevice();
-
-            // 订阅 CommFieldEndpoint 的流
-            target.field.launchFollow(target, rtcDevice, successHandler, failureHandler);
+            // 创建记录
+            this.activeCall = new CallRecord(this.privateField.founder);
+            this.activeCall.field = endpoint.field;
         }
         else {
-            return false;
+            if (this.activeCall.field.isPrivate()) {
+                failureHandler(new ModuleError(MultipointComm.NAME, MultipointCommState.CommFieldStateError, endpoint));
+                return false;
+            }
         }
 
+        // (new Promise((resolve, reject) => {
+        //     resolve();
+        // })).then(() => {
+            // 回调 InProgress 事件
+            // this.notifyObservers(new ObservableEvent(MultipointCommEvent.InProgress, this.activeCall));
+        // });
+
+        // 发起 Offer
+        let rtcDevice = this.createRTCDevice('recvonly', null, this.videoElemAgent(endpoint.contact));
+        // 发起 recv only 的 Offer
+        commField.launchOffer(rtcDevice, this.activeCall.field.mediaConstraint, successHandler, failureHandler, endpoint);
+
         return true;
-    }*/
+    }
 
     /*
      * 取消指定场域或者指定场域终端的入站流。
@@ -1198,7 +1158,7 @@ export class MultipointComm extends Module {
                     if (failureCallback) {
                         failureCallback(error);
                     }
-                    this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
+                    this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
                 }
             }
             else {
@@ -1209,7 +1169,7 @@ export class MultipointComm extends Module {
                 if (failureCallback) {
                     failureCallback(error);
                 }
-                this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
+                this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
             }
         };
 
@@ -1427,7 +1387,7 @@ export class MultipointComm extends Module {
         if (null == rtcDevice) {
             cell.Logger.e(MultipointComm.NAME, '#triggerAnswer() can not find rtc device for ' + answerSignaling.contact.id);
             let error = new ModuleError(MultipointComm.NAME, MultipointCommState.NoPeerEndpoint, this.activeCall);
-            this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
+            this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
             return;
         }
 
@@ -1437,7 +1397,7 @@ export class MultipointComm extends Module {
             this.notifyObservers(new ObservableEvent(MultipointCommEvent.Connected, this.activeCall));
         }, (error) => {
             this.activeCall.lastError = error;
-            this.notifyObservers(new ObservableEvent(MultipointCommEvent.CallFailed, error));
+            this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
         });
     }
 
@@ -1489,7 +1449,7 @@ export class MultipointComm extends Module {
     triggerBusy(payload, context) {
         if (payload.code != MultipointCommState.Ok) {
             let error = new ModuleError(MultipointComm.NAME, payload.code, this);
-            this.notifyObservers(new ObservableEvent(MultipointCommAction.CallFailed, error));
+            this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
             return;
         }
 
@@ -1550,14 +1510,29 @@ export class MultipointComm extends Module {
     }
 
     triggerArrived(payload) {
-        let commField = CommField.create(payload.field, this.pipeline, this.cs.getSelf());
-        let endpoint = CommFieldEndpoint.create(payload.endpoint);
+        let data = payload.data;
+        let commField = CommField.create(data.field, this.pipeline, this.cs.getSelf());
+
+        if (commField.id == this.activeCall.field.id) {
+            this.activeCall.field.copy(commField);
+            commField = this.activeCall.field;
+        }
+
+        let endpoint = CommFieldEndpoint.create(data.endpoint);
+        endpoint.field = commField;
+
         cell.Logger.d(MultipointComm.NAME, 'Endpoint "' + endpoint.getName() + '" arrived "' + commField.getName() + '"');
+
+        this.notifyObservers(new ObservableEvent(MultipointCommEvent.Arrived, endpoint));
+
+        // 接收对方的音视频流
+        this.follow(endpoint);
     }
 
     triggerLeft(payload) {
-        let commField = CommField.create(payload.field, this.pipeline, this.cs.getSelf());
-        let endpoint = CommFieldEndpoint.create(payload.endpoint);
+        let data = payload.data;
+        let commField = CommField.create(data.field, this.pipeline, this.cs.getSelf());
+        let endpoint = CommFieldEndpoint.create(data.endpoint);
         cell.Logger.d(MultipointComm.NAME, 'Endpoint "' + endpoint.getName() + '" left "' + commField.getName() + '"');
     }
 }

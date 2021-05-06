@@ -70,7 +70,7 @@ export class MediaConstraint extends JSONable {
          * @type {JSON}
          * @see VideoDimension
          */
-        this.dimension = VideoDimension.VGA;
+        this.dimension = VideoDimension.VGA_IDEAL;
 
         /**
          * SFU 模式。
