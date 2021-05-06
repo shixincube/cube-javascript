@@ -1017,6 +1017,7 @@ export class MultipointComm extends Module {
 
     /**
      * 获取指定终端的通讯数据。
+     * @protected
      * @param {CommFieldEndpoint} endpoint 指定待获取数据的终端。
      * @param {function} [successCallback] 成功回调函数，函数参数：({@linkcode callRecord}:{@link CallRecord}) 。
      * @param {function} [failureCallback] 失败回调函数，函数参数：({@linkcode error}:{@link ModuleError}) 。
@@ -1080,6 +1081,11 @@ export class MultipointComm extends Module {
             // 回调 InProgress 事件
             // this.notifyObservers(new ObservableEvent(MultipointCommEvent.InProgress, this.activeCall));
         // });
+
+        if (null == this.videoElemAgent || typeof this.videoElemAgent !== 'function') {
+            failureHandler(new ModuleError(MultipointComm.NAME, MultipointCommState.VideoElementNotSetting, endpoint));
+            return false;
+        }
 
         // 发起 Offer
         let rtcDevice = this.createRTCDevice('recvonly', null, this.videoElemAgent(endpoint.contact));
@@ -1182,26 +1188,6 @@ export class MultipointComm extends Module {
 
         return true;
     }*/
-
-    /**
-     * 获取指定 ID 的通信场域。
-     * @param {number} id 
-     * @param {function} successCallback
-     * @param {function} [failureCallback]
-     * @returns {boolean} 返回操作是否被正确执行。
-     */
-    getField(id, successCallback, failureCallback) {
-        let field = this.fields.get(id);
-        if (null != field) {
-            handleSuccess(field);
-            return;
-        }
-
-        let requestPacket = new Packet(MultipointCommAction.GetField, { "id": id });
-        this.pipeline.send(MultipointComm.NAME, requestPacket, (pipeline, source, packet) => {
-            
-        });
-    }
 
     /**
      * 获取当前通话的通信场域。
@@ -1526,7 +1512,9 @@ export class MultipointComm extends Module {
         this.notifyObservers(new ObservableEvent(MultipointCommEvent.Arrived, endpoint));
 
         // 接收对方的音视频流
-        this.follow(endpoint);
+        if (!this.follow(endpoint)) {
+            cell.Logger.w(MultipointComm.NAME, 'Comm field state error, can not follow endpoint "' + endpoint.getName() + '"');
+        }
     }
 
     triggerLeft(payload) {

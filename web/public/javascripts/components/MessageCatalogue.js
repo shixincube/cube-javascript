@@ -686,11 +686,11 @@
             var itemId = parseInt($(this).attr('data'));
             that.onItemDoubleClick(itemId);
         });
-        el.on('mouseover', function(e) {
+        el.on('mouseenter', function(e) {
             var itemId = parseInt($(this).attr('data'));
             that.onItemMouseover(itemId);
         });
-        el.on('mouseout', function(e) {
+        el.on('mouseleave', function(e) {
             var itemId = parseInt($(this).attr('data'));
             that.onItemMouseout(itemId);
         });
