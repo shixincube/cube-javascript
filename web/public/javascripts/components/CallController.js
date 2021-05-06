@@ -257,7 +257,7 @@
     function onFailed(event) {
         var error = event.data;
         working = false;
-        console.log('onCallFailed - ' + error);
+        console.log('onFailed - ' + error);
 
         if (error.code == CallState.MediaPermissionDenied) {
             if (voiceCall) {
@@ -281,7 +281,13 @@
 
         setTimeout(function() {
             if (groupCall) {
-                console.log('#onCallFailed: ' + error.code);
+                console.log('#onFailed: ' + error.code);
+                if (voiceCall) {
+                    g.app.voiceGroupCallPanel.close();
+                }
+                else {
+                    g.app.videoGroupChatPanel.close();
+                }
             }
             else {
                 if (voiceCall) {

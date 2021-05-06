@@ -1087,8 +1087,14 @@ export class MultipointComm extends Module {
             return false;
         }
 
+        let videoEl = this.videoElemAgent(endpoint.contact);
+        if (null == videoEl || undefined == videoEl) {
+            failureHandler(new ModuleError(MultipointComm.NAME, MultipointCommState.VideoElementNotSetting, endpoint));
+            return false;
+        }
+
         // 发起 Offer
-        let rtcDevice = this.createRTCDevice('recvonly', null, this.videoElemAgent(endpoint.contact));
+        let rtcDevice = this.createRTCDevice('recvonly', null, videoEl);
         // 发起 recv only 的 Offer
         commField.launchOffer(rtcDevice, this.activeCall.field.mediaConstraint, successHandler, failureHandler, endpoint);
 

@@ -4739,7 +4739,7 @@
                                     // 调用启动通话
                                     handler(group, result);
 
-                                }, '群通话', '请选择要邀请通话的群组成员');
+                                }, '群通话', '请选择要邀请通话的群组成员', (maxMembers - 1));
                             }
                         });
                     });
@@ -5670,6 +5670,9 @@
     var currentList = null;
     var preselected = null;
 
+    var maxSelected = -1;
+    var selectCountList = [];
+
     var btnConfirm = null;
     var confirmCallback = null;
 
@@ -5714,6 +5717,7 @@
         }
     }
 
+
     /**
      * 联系人列表对话框。
      */
@@ -5731,10 +5735,19 @@
      * @param {function} confirmHandle 确认事件回调。参数：({@linkcode list}:{@linkcode Array}) 。
      * @param {string} [title] 对话框标题。
      * @param {string} [prompt] 提示内容。
+     * @param {number} [maxSelectedNum] 最大选择数量。
      */
-    ContactListDialog.prototype.show = function(list, selectedList, confirmHandle, title, prompt) {
+    ContactListDialog.prototype.show = function(list, selectedList, confirmHandle, title, prompt, maxSelectedNum) {
         currentList = list;
         preselected = selectedList;
+
+        if (undefined !== maxSelectedNum) {
+            maxSelected = maxSelectedNum;
+            selectCountList = [];
+        }
+        else {
+            maxSelected = -1;
+        }
 
         if (title) {
             dialogEl.find('.modal-title').text(title);
@@ -5809,6 +5822,24 @@
         else {
             el.prop('checked', true);
         }
+
+        // if (maxSelected > 0) {
+        //     setTimeout(function() {
+        //         if (el.prop('checked')) {
+        //             ++selectCount;
+        //             if (selectCount > maxSelected) {
+        //                 el.prop('checked', false);
+        //                 --selectCount;
+        //             }
+        //         }
+        //         else {
+        //             --selectCount;
+        //             if (selectCount < 0) {
+        //                 selectCount = 0;
+        //             }
+        //         }
+        //     }, 10);
+        // }
     }
 
     g.ContactListDialog = ContactListDialog;
@@ -6806,7 +6837,7 @@
     function onFailed(event) {
         var error = event.data;
         working = false;
-        console.log('onCallFailed - ' + error);
+        console.log('onFailed - ' + error);
 
         if (error.code == CallState.MediaPermissionDenied) {
             if (voiceCall) {
@@ -6830,7 +6861,13 @@
 
         setTimeout(function() {
             if (groupCall) {
-                console.log('#onCallFailed: ' + error.code);
+                console.log('#onFailed: ' + error.code);
+                if (voiceCall) {
+                    g.app.voiceGroupCallPanel.close();
+                }
+                else {
+                    g.app.videoGroupChatPanel.close();
+                }
             }
             else {
                 if (voiceCall) {
