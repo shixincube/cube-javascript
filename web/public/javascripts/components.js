@@ -4633,6 +4633,9 @@
         var handler = function(group, idList) {
             // 获取本地视频窗口
             that.localVideo = videoElementAgent(g.app.getSelf().getId());
+            if (undefined === that.localVideo) {
+                alert('查找本地视频标签错误');
+            }
 
             // XJW
             // panelEl.modal({
@@ -4699,7 +4702,9 @@
                                 clist.shift();
 
                                 // 调用启动通话
-                                handler(group);
+                                setTimeout(function() {
+                                    handler(group);
+                                }, 500);
                             }
                         });
                     });
@@ -6870,7 +6875,6 @@
                 }
 
                 confirmedIndex = -1;
-                selectMediaDeviceCallback(false);
 
                 selectMediaDeviceEl.modal('hide');
             });
@@ -6904,7 +6908,12 @@
                 if (confirmedIndex >= 0) {
                     setTimeout(function() {
                         selectMediaDeviceCallback(true, confirmedIndex);
-                    }, 100);
+                    }, 1000);
+                }
+                else {
+                    setTimeout(function() {
+                        selectMediaDeviceCallback(false);
+                    }, 500);
                 }
             });
 
@@ -6925,9 +6934,8 @@
             // 隐藏选项
             videoEl.find('.col-6').css('display', 'none');
 
-            for (var i = 0; i < list.length; ++i) {
-                var value = list[i];
-                var item = videoEl.find('div[data-target="video-' + i + '"]');
+            list.forEach(function(value, index) {
+                var item = videoEl.find('div[data-target="video-' + index + '"]');
                 item.find('label').text(value.label);
 
                 selectVideoData.push({
@@ -6952,7 +6960,7 @@
                 });
 
                 item.css('display', 'block');
-            }
+            });
         }
         else {
             // 调整大小
@@ -7064,12 +7072,20 @@
         }
         else if (target instanceof Group) {
             if (videoEnabled) {
-                mediaConstraint.setVideoDimension(VideoDimension.QVGA);
+                mediaConstraint.setVideoDimension(VideoDimension.VGA_IDEAL);
 
                 cube.mpComm.setLocalVideoElement(g.app.videoGroupChatPanel.localVideo);
+
+                if (device) {
+                    mediaConstraint.setVideoDevice(device);
+                }
             }
             else {
                 cube.mpComm.setLocalVideoElement(g.app.voiceGroupCallPanel.localVideo);
+
+                if (device) {
+                    mediaConstraint.setAudioDevice(device);
+                }
             }
 
             // 发起通话

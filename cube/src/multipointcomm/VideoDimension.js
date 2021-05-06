@@ -37,8 +37,21 @@ export const VideoDimension = {
         width: 320,
         height: 240,
         constraints: {
-            width: { exact: 320 },
-            height: { exact: 240 }
+            width: { max: 320 },
+            height: { max: 240 }
+        }
+    },
+
+    /**
+     * 较好的 VGA 约束。
+     * @type {object}
+     */
+    VGA_IDEAL: {
+        width: 640,
+        height: 480,
+        constraints: {
+            width: { min: 320, max: 640 },
+            height: { min: 240, max: 480 }
         }
     },
 
@@ -50,8 +63,8 @@ export const VideoDimension = {
         width: 640,
         height: 480,
         constraints: {
-            width: { exact: 640 },
-            height: { exact: 480 }
+            width: { max: 640 },
+            height: { max: 480 }
         }
     },
 
@@ -63,8 +76,8 @@ export const VideoDimension = {
         width: 800,
         height: 600,
         constraints: {
-            width: { exact: 800 },
-            height: { exact: 600 }
+            width: { max: 800 },
+            height: { max: 600 }
         }
     },
 
@@ -76,8 +89,8 @@ export const VideoDimension = {
         width: 1280,
         height: 720,
         constraints: {
-            width: { exact: 1280 },
-            height: { exact: 720 }
+            width: { max: 1280 },
+            height: { max: 720 }
         }
     },
 
@@ -89,8 +102,8 @@ export const VideoDimension = {
         width: 1920,
         height: 1080,
         constraints: {
-            width: { exact: 1920 },
-            height: { exact: 1080 }
+            width: { max: 1920 },
+            height: { max: 1080 }
         }
     },
 
@@ -102,8 +115,8 @@ export const VideoDimension = {
         width: 4096,
         height: 2160,
         constraints: {
-            width: { exact: 4096 },
-            height: { exact: 2160 }
+            width: { max: 4096 },
+            height: { max: 2160 }
         }
     },
 
@@ -115,8 +128,8 @@ export const VideoDimension = {
         width: 7680,
         height: 4320,
         constraints: {
-            width: { exact: 7680 },
-            height: { exact: 4320 }
+            width: { max: 7680 },
+            height: { max: 4320 }
         }
     }
 }

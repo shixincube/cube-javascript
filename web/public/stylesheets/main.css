@@ -730,7 +730,7 @@ video {
     font-size: 12px;
     right: 160px;
     color: #007bff;
-    width: 120px;
+    width: 126px;
     padding-top: 5px;
     visibility: hidden;
 }
@@ -1609,10 +1609,14 @@ video {
     bottom: 10px;
 }
 
+.video-group-default {
+    overflow: hidden;
+}
 .video-group-minisize {
     visibility: collapse;
     width: 200px !important;
     color: #f8f9fa;
+    overflow: hidden;
 }
 .video-group-minisize .viewport {
     width: 160px;

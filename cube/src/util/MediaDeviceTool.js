@@ -42,6 +42,13 @@ export class MediaDeviceTool {
         let list = [];
         navigator.mediaDevices.enumerateDevices().then((devices) => {
             devices.forEach((device) => {
+                for (let i = 0; i < list.length; ++i) {
+                    let dev = list[i];
+                    if (dev.deviceId == device.deviceId && dev.kind == device.kind) {
+                        return;
+                    }
+                }
+
                 list.push(new MediaDeviceDescription(device.deviceId,
                     device.groupId, device.kind, device.label));
             });
@@ -67,13 +74,14 @@ export class MediaDeviceTool {
 
     /**
      * 加载指定设备的媒体流到指定的视频标签显示。
-     * @param {HTMLElement} videoEl 指定视频的 DOM 元素。
+     * @param {HTMLElement} videoElement 指定视频的 DOM 元素。
      * @param {MediaDeviceDescription} deviceDesc 指定媒体设备描述。
      * @param {boolean} enableAudio 是否启用设备的音频通道。
-     * @param {function} successCallback 加载数据成功回调。参数：({@linkcode videoEl}:{@linkcode HTMLElement}, {@linkcode deviceDesc}:{@linkcode MediaDeviceDescription}, {@linkcode stream}:{@linkcode MediaStream}) 。
+     * @param {function} successCallback 加载数据成功回调。参数：({@linkcode videoElement}:{@linkcode HTMLElement}, {@linkcode deviceDesc}:{@linkcode MediaDeviceDescription}, {@linkcode stream}:{@linkcode MediaStream}) 。
      * @param {function} failureCallback 加载数据失败回调。参数：({@linkcode error}:{@linkcode Error}) 。
      */
-    static loadVideoDeviceStream(videoEl, deviceDesc, enableAudio, successCallback, failureCallback) {
+    static loadVideoDeviceStream(videoElement, deviceDesc, enableAudio, successCallback, failureCallback) {
+        let videoEl = videoElement;
         let constraints = {
             audio: enableAudio,
             video: {
@@ -82,9 +90,10 @@ export class MediaDeviceTool {
             }
         };
 
+        let device = deviceDesc;
         MediaDeviceTool.getUserMedia(constraints, (stream) => {
             MediaDeviceTool.bindVideoStream(videoEl, stream, () => {
-                successCallback(videoEl, deviceDesc, stream);
+                successCallback(videoEl, device, stream);
             });
         }, (error) => {
             failureCallback(error);

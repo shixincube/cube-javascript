@@ -101,6 +101,9 @@
         var handler = function(group, idList) {
             // 获取本地视频窗口
             that.localVideo = videoElementAgent(g.app.getSelf().getId());
+            if (undefined === that.localVideo) {
+                alert('查找本地视频标签错误');
+            }
 
             // XJW
             // panelEl.modal({
@@ -167,7 +170,9 @@
                                 clist.shift();
 
                                 // 调用启动通话
-                                handler(group);
+                                setTimeout(function() {
+                                    handler(group);
+                                }, 500);
                             }
                         });
                     });
