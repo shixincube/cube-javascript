@@ -145,17 +145,10 @@
                                 </div>
                                 <div class="info-bar">
                                     <div class="row">
-                                        <div class="col-3"><img src="images/avatar02.png" /></div>
-                                        <div class="col-3"><img src="images/avatar03.png" /></div>
-                                        <div class="col-3"><img src="images/avatar04.png" /></div>
-                                        <div class="col-3"><img src="images/avatar05.png" /></div>
-                                        <div class="col-3"><img src="images/avatar06.png" /></div>
-                                        <div class="col-3"><img src="images/avatar07.png" /></div>
-                                        <div class="col-3"><img src="images/avatar08.png" /></div>
-                                        <div class="col-3"><img src="images/avatar09.png" /></div>
+                                        <!-- ## -->
                                     </div>
                                     <div class="row">
-                                        <div class="col-12 text-right"><a href="javascript:;">视频加入 &raquo;</a></div>
+                                        <div class="col-12 text-right"><a href="javascript:app.messagingCtrl.fireJoin();">视频加入 &raquo;</a></div>
                                     </div>
                                 </div>
                             </div>
@@ -1007,8 +1000,8 @@
                     </div><!-- /.form -->
                 </div>
                 <div class="modal-footer justify-content-between">
-                    <button class="btn btn-danger" type="button" data-dismiss="modal" data-target="cancel">取消通话</button>
-                    <button class="btn btn-primary" type="button" data-dismiss="modal" data-target="confirm">确定</button>
+                    <button class="btn btn-danger" type="button" data-target="cancel">取消通话</button>
+                    <button class="btn btn-primary" type="button" data-target="confirm">确定</button>
                 </div>
             </div>
         </div>

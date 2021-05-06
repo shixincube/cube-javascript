@@ -50,6 +50,7 @@
 
     var btnHangup = null;
 
+    var tickTimer = 0;
 
     function videoElementAgent(contactId) {
         return panelEl.find('video[data-target="' + contactId + '"]')[0];
@@ -224,11 +225,6 @@
                 }
             }
 
-            // XJW
-            // videoDevice = deviceList[1];
-            // deviceList.splice(0, deviceList.length);
-            // XJW
-
             if (deviceList.length > 1) {
                 g.app.callCtrl.showSelectMediaDevice(deviceList, function(selected, selectedIndex) {
                     if (selected) {
@@ -239,7 +235,7 @@
 
                         // 设置设备
                         videoDevice = deviceList[selectedIndex];
-
+                        console.log('Select device: ' + videoDevice.label);
                         start();
                     }
                     else {
@@ -272,9 +268,34 @@
 
     VideoGroupChatPanel.prototype.tipConnected = function(activeCall) {
         panelEl.find('.header-tip').text('');
+
+        if (tickTimer > 0) {
+            clearInterval(tickTimer);
+        }
+
+        tickTimer = setInterval(function() {
+            if (null == activeCall.field) {
+                clearInterval(tickTimer);
+                tickTimer = 0;
+                return;
+            }
+
+            var startTime = activeCall.field.startTime;
+            if (startTime <= 0) {
+                return;
+            }
+            var now = Date.now();
+            var duration = Math.round((now - startTime) / 1000.0);
+            panelEl.find('.header-tip').text(g.formatClockTick(duration));
+        }, 1000);
     }
 
     VideoGroupChatPanel.prototype.close = function() {
+        if (tickTimer > 0) {
+            clearInterval(tickTimer);
+            tickTimer = 0;
+        }
+
         panelEl.modal('hide');
         panelEl.find('.header-tip').text('');
 
@@ -285,7 +306,9 @@
     }
 
     VideoGroupChatPanel.prototype.terminate = function() {
-        g.app.callCtrl.hangupCall();
+        if (!g.app.callCtrl.hangupCall()) {
+            that.close();
+        }
     }
 
     VideoGroupChatPanel.prototype.appendContact = function(contact) {

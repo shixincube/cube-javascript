@@ -379,7 +379,14 @@ export class MultipointComm extends Module {
         this.pipeline.send(MultipointComm.NAME, requestPacekt, (pipeline, source, packet) => {
             if (null != packet && packet.getStateCode() == StateCode.OK) {
                 if (packet.data.code == MultipointCommState.Ok) {
+                    // 实例化
                     let commField = CommField.create(packet.data.data, this.pipeline, this.cs.getSelf());
+
+                    if (null != this.activeCall && this.activeCall.field.id == commField.id) {
+                        // 进行数据更新
+                        this.activeCall.field.copy(commField);
+                        commField = this.activeCall.field;
+                    }
 
                     if (null != commField.group) {
                         // 更新群组实例

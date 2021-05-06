@@ -121,13 +121,16 @@
             else {
                 g.app.videoGroupChatPanel.tipConnected(event.data);
             }
+
+            // 更新消息面板的状态栏
+            g.app.messagePanel.refreshStateBar();
         }
         else {
             if (voiceCall) {
-                g.app.voiceCallPanel.tipConnected();
+                g.app.voiceCallPanel.tipConnected(event.data);
             }
             else {
-                g.app.videoChatPanel.tipConnected();
+                g.app.videoChatPanel.tipConnected(event.data);
             }
         }
     }
@@ -314,14 +317,34 @@
             var el = $('#select_media_device');
 
             el.find('button[data-target="cancel"]').click(function() {
+                for (var i = 0; i < selectVideoData.length; ++i) {
+                    var data = selectVideoData[i];
+                    if (undefined === data.stream) {
+                        // 摄像头没有完成初始化
+                        return;
+                    }
+                }
+
                 confirmedIndex = -1;
                 selectMediaDeviceCallback(false);
+
+                selectMediaDeviceEl.modal('hide');
             });
 
             el.find('button[data-target="confirm"]').click(function() {
+                for (var i = 0; i < selectVideoData.length; ++i) {
+                    var data = selectVideoData[i];
+                    if (undefined === data.stream) {
+                        // 摄像头没有完成初始化
+                        return;
+                    }
+                }
+
                 var queryString = selectVideoDevice ? 'input:radio[name="VideoDevice"]:checked' : 'input:radio[name="AudioDevice"]:checked';
                 var data = selectMediaDeviceEl.find(queryString).attr('data');
                 confirmedIndex = parseInt(data);
+
+                selectMediaDeviceEl.modal('hide');
             });
 
             el.on('hide.bs.modal', function() {
@@ -337,7 +360,7 @@
                 if (confirmedIndex >= 0) {
                     setTimeout(function() {
                         selectMediaDeviceCallback(true, confirmedIndex);
-                    }, 1);
+                    }, 100);
                 }
             });
 
@@ -363,13 +386,23 @@
                 var item = videoEl.find('div[data-target="video-' + i + '"]');
                 item.find('label').text(value.label);
 
+                selectVideoData.push({
+                    device: value
+                });
+
                 // 将摄像机数据加载到视频标签
                 MediaDeviceTool.loadVideoDeviceStream(item.find('video')[0], value, false, function(videoEl, deviceDesc, stream) {
-                    selectVideoData.push({
-                        videoEl: videoEl,
-                        device: deviceDesc,
-                        stream: stream,
-                    });
+                    for (var n = 0; n < selectVideoData.length; ++n) {
+                        var d = selectVideoData[n];
+                        if (d.device == deviceDesc) {
+                            selectVideoData[n] = {
+                                videoEl: videoEl,
+                                device: deviceDesc,
+                                stream: stream
+                            };
+                            break;
+                        }
+                    }
                 }, function(error) {
                     console.log(error);
                 });
@@ -434,6 +467,7 @@
         }
 
         groupCall = true;
+        voiceCall = !video;
 
         if (video) {
             g.app.videoGroupChatPanel.makeCall(group);
@@ -576,6 +610,10 @@
         }
 
         return true;
+    }
+
+    CallController.prototype.joinGroupCalling = function(groupId) {
+
     }
 
     /**

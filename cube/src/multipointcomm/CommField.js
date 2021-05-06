@@ -458,6 +458,21 @@ export class CommField extends Entity {
     }
 
     /**
+     * 判断当前签入的终端是否参与了通讯。
+     * @returns {boolean} 返回 {@linkcode true} 表示当前签入的设备已经在当前场域内。
+     */
+    hasJoin() {
+        for (let i = 0; i < this.endpoints.length; ++i) {
+            let ep = this.endpoints[i];
+            if (ep.contact.id == this.self.id && ep.device.name == this.self.device.name) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * 终端节点数量。
      * @returns {number} 返回终端节点数量。
      */
@@ -676,8 +691,27 @@ export class CommField extends Entity {
         if (source instanceof CommField) {
             this.endpoints = source.endpoints.concat();
 
+            if (source.mediaConstraint) {
+                this.mediaConstraint = source.mediaConstraint;
+            }
+
+            if (source.startTime > 0) {
+                this.startTime = source.startTime;
+            }
+
+            if (source.endTime > 0) {
+                this.endTime = source.endTime;
+            }
+
             if (null == this.group && null != source.group) {
                 this.group = source.group;
+            }
+
+            if (null != source.caller) {
+                this.caller = source.caller;
+            }
+            if (null != source.callee) {
+                this.callee = source.callee;
             }
         }
         else {
@@ -689,6 +723,22 @@ export class CommField extends Entity {
                     cfep.field = this;
                     this.endpoints.push(cfep);
                 });
+            }
+
+            if (undefined !== source.mediaConstraint) {
+                this.mediaConstraint = MediaConstraint.create(source.mediaConstraint);
+            }
+
+            if (undefined !== source.startTime) {
+                this.startTime = source.startTime;
+            }
+
+            if (undefined !== source.endTime) {
+                this.endTime = source.endTime;
+            }
+
+            if (undefined !== source.group) {
+                this.group = Group.create(null, source.group);
             }
 
             if (null == this.caller && undefined !== source.caller) {

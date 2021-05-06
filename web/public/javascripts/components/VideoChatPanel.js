@@ -339,7 +339,7 @@
 
                         // 设置设备
                         videoDevice = result[selectedIndex];
-                        // g.dialog.showAlert(videoDevice.label);
+                        // console.log('Select device: ' + videoDevice.label);
                         handler();
                     }
                     else {

@@ -132,12 +132,12 @@
             cube.mpComm.getCommField(commId, function(commField) {
                 if (commField.mediaConstraint.videoEnabled) {
                     g.app.messageCatalog.updateState(group.getId(), 'video');
-                    g.app.messagePanel.refreshStateBar();
                 }
                 else {
                     g.app.messageCatalog.updateState(group.getId(), 'audio');
-                    g.app.messagePanel.refreshStateBar();
                 }
+
+                g.app.messagePanel.refreshStateBar();
             });
         }
         else {
@@ -207,6 +207,25 @@
                     });
                 }
             }
+        }
+    }
+
+    MessagingController.prototype.fireJoin = function() {
+        var current = g.app.messagePanel.getCurrentPanel();
+        if (null == current || !current.groupable) {
+            return;
+        }
+
+        let commId = current.entity.getAppendix().getCommId();
+        if (commId != 0) {
+            cube.mpComm.getCommField(commId, function(commField) {
+                if (!commField.hasJoin()) {
+                    g.app.callCtrl.launchGroupCall(current.entity, commField.mediaConstraint.videoEnabled);
+                }
+                else {
+                    g.dialog.launchToast(Toast.Info, '您已经加入了当前群通话。');
+                }
+            });
         }
     }
 
@@ -609,10 +628,10 @@
      */
     MessagingController.prototype.openVoiceCall = function(target) {
         if (target instanceof Group) {
-            g.app.callCtrl.launchGroupCall(target);
+            g.app.callCtrl.launchGroupCall(target, false);
         }
         else {
-            g.app.callCtrl.callContact(target);
+            g.app.callCtrl.callContact(target, false);
         }
     }
 

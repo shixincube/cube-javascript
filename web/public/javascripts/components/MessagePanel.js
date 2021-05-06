@@ -378,9 +378,8 @@
         // if (this.current || null == this.current) return;
         // XJW
 
-        this.elInfoBar.css('visibility', 'hidden');
-
         if (null == this.current) {
+            this.elInfoBar.css('visibility', 'hidden');
             this.elStateBar.css('visibility', 'hidden');
             if (this.callTimer > 0) {
                 clearInterval(this.callTimer);
@@ -393,10 +392,9 @@
         var entity = this.current.entity;
 
         if (entity instanceof Group) {
-            var commId = entity.getAppendix().getCommId();
-            if (commId != 0) {
-                g.cube().mpComm.getCommField(commId, function(commField) {
-                    if (commField.startTime > 0) {
+            entity.getAppendix().getCommId(function(commId) {
+                if (commId != 0) {
+                    g.cube().mpComm.getCommField(commId, function(commField) {
                         if (that.callTimer > 0) {
                             clearInterval(that.callTimer);
                         }
@@ -410,14 +408,24 @@
                         that.elStateBar.find('.participant').text(commField.numEndpoints() + '/' + (videoEnabled ? '6' : '8'));
 
                         that.callStartTime = commField.startTime;
+
                         that.callTimer = setInterval(function() {
+                            if (that.callStartTime == 0) {
+                                g.cube().mpComm.getCommField(commId, function(commField) {
+                                    that.callStartTime = commField.startTime;
+                                    if (that.callStartTime == 0) {
+                                        that.callStartTime = Date.now();
+                                    }
+                                });
+                                return;
+                            }
+
                             var now = Date.now();
                             var duration = now - that.callStartTime;
                             that.elStateBar.find('.timer').text(g.formatClockTick(Math.round(duration/1000)));
                         }, 1000);
 
-                        var duration = Date.now() - that.callStartTime;
-                        that.elStateBar.find('.timer').text(g.formatClockTick(Math.round(duration/1000)));
+                        that.elStateBar.find('.timer').text('--:--:--');
                         that.elStateBar.css('visibility', 'visible');
 
                         // 填充信息
@@ -431,20 +439,21 @@
                             });
                         });
                         rowEl.html(html.join(''));
-                    }
-                });
-            }
-            else {
-                if (this.callTimer > 0) {
-                    clearInterval(this.callTimer);
-                    this.callTimer = 0;
+                    });
                 }
-                this.callStartTime = 0;
+                else {
+                    if (that.callTimer > 0) {
+                        clearInterval(that.callTimer);
+                        that.callTimer = 0;
+                    }
+                    that.callStartTime = 0;
 
-                this.elStateBar.css('visibility', 'hidden');
-            }
+                    that.elStateBar.css('visibility', 'hidden');
+                }
+            });
         }
         else {
+            this.elInfoBar.css('visibility', 'hidden');
             this.elStateBar.css('visibility', 'hidden');
         }
     }
