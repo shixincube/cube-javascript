@@ -1017,7 +1017,7 @@ export class MultipointComm extends Module {
     }
 
     /**
-     * 获取指定终端的通讯数据。
+     * 定向接收指定终端的音视频数据。
      * @protected
      * @param {CommFieldEndpoint} endpoint 指定待获取数据的终端。
      * @param {function} [successCallback] 成功回调函数，函数参数：({@linkcode callRecord}:{@link CallRecord}) 。
@@ -1083,13 +1083,6 @@ export class MultipointComm extends Module {
             }
         }
 
-        // (new Promise((resolve, reject) => {
-        //     resolve();
-        // })).then(() => {
-            // 回调 InProgress 事件
-            // this.notifyObservers(new ObservableEvent(MultipointCommEvent.InProgress, this.activeCall));
-        // });
-
         if (null == this.videoElemAgent || typeof this.videoElemAgent !== 'function') {
             failureHandler(new ModuleError(MultipointComm.NAME, MultipointCommState.VideoElementNotSetting, endpoint));
             return false;
@@ -1112,72 +1105,53 @@ export class MultipointComm extends Module {
         return true;
     }
 
-    /*
-     * 取消指定场域或者指定场域终端的入站流。
-     * @param {CommField|CommFieldEndpoint} target 指定场域或者场域终端。
-     * @param {function} [successCallback] 成功回调函数，函数参数：({@linkcode callRecord}:{@link CallRecord}) 。
-     * @param {function} [failureCallback] 失败回调函数，函数参数：({@linkcode error}:{@link ModuleError}) 。
-     * @returns {boolean} 返回是否允许执行该操作。
-    revokeCall(target, successCallback, failureCallback) {
-        if (null == this.activeCall || !this.activeCall.isActive()) {
-            return false;
-        }
-
-        if (this.activeCall.field.isPrivate()) {
-            return false;
-        }
-
-        // 当前通话的场域
-        let field = this.activeCall.field;
-        let endpoint = null;
-
-        if (target instanceof Contact) {
-            return false;
-        }
-        else if (target instanceof CommField) {
-            if (field.getId() != target.getId()) {
-                return false;
+    /**
+     * 取消定向接收的指定终端音视频数据。
+     * @protected
+     * @param {CommFieldEndpoint} endpoint 
+     * @param {function} successCallback 
+     * @param {function} failureCallback 
+     */
+    unfollow(endpoint, successCallback, failureCallback) {
+        if (null == this.privateField) {
+            // 联系人模块没有完成签入操作
+            let error = new ModuleError(MultipointComm.NAME, MultipointCommState.Uninitialized, endpoint);
+            if (failureCallback) {
+                failureCallback(error);
             }
-
-            if (null == field.inboundRTC) {
-                // 没有拉取场域的流
-                return false;
-            }
-        }
-        else if (target instanceof CommFieldEndpoint) {
-            endpoint = target;
+            this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
+            return false;
         }
 
-        let revokeHandler = (pipeline, source, packet) => {
-            let activeCall = this.activeCall;
+        if (null == this.activeCall) {
+            return false;
+        }
 
-            if (null != packet && packet.getStateCode() == StateCode.OK) {
-                if (packet.data.code == MultipointCommState.Ok) {
-                    let signaling = Signaling.create(packet.data.data, this.pipeline, this.cs.getSelf());
+        let signaling = new Signaling(MultipointCommAction.Bye, this.activeCall.field, 
+            this.privateField.founder, this.privateField.founder.device);
 
-                    // 非私域，指定是否关闭指定的终端
-                    if (null != signaling.target) {
-                        field.closeRTCDevice(signaling.target);
-                        activeCall.currentFieldEndpoint = field.getEndpoint(signaling.target);
-                    }
-                    else {
-                        field.closeRTCDevice(field.inboundRTC);
-                    }
+        // 设置目标
+        signaling.target = endpoint;
+
+        let packet = new Packet(MultipointCommAction.Bye, signaling.toJSON());
+        this.pipeline.send(MultipointComm.NAME, packet, (pipeline, source, response) => {
+            if (null != response && response.getStateCode() == StateCode.OK) {
+                if (response.data.code == MultipointCommState.Ok) {
+                    // 更新
+                    endpoint.field = this.activeCall.field;
+
+                    // 关闭 RTC 设备
+                    this.activeCall.field.closeRTCDevice(endpoint);
+
+                    // 发送 Unfollowed 事件
+                    this.notifyObservers(new ObservableEvent(MultipointCommEvent.Unfollowed, endpoint));
 
                     if (successCallback) {
-                        successCallback(activeCall);
-                    }
-                    this.notifyObservers(new ObservableEvent(MultipointCommEvent.Bye, activeCall));
-
-                    if (field.numRTCDevices() == 0) {
-                        this.activeCall = null;
+                        successCallback(this.activeCall, endpoint);
                     }
                 }
                 else {
-                    let error = new ModuleError(MultipointComm.NAME, packet.data.code, activeCall);
-
-                    activeCall.lastError = error;
-
+                    let error = new ModuleError(MultipointComm.NAME, response.data.code, endpoint);
                     if (failureCallback) {
                         failureCallback(error);
                     }
@@ -1185,26 +1159,16 @@ export class MultipointComm extends Module {
                 }
             }
             else {
-                let error = new ModuleError(MultipointComm.NAME, packet.getStateCode(), activeCall);
-
-                activeCall.lastError = error;
-
+                let error = new ModuleError(MultipointComm.NAME, MultipointCommState.ServerFault, endpoint);
                 if (failureCallback) {
                     failureCallback(error);
                 }
                 this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
             }
-        };
-
-        let signaling = new Signaling(MultipointCommAction.Revoke, field, 
-            this.privateField.founder, this.privateField.founder.getDevice());
-        // 设置目标，如果不订阅目标设置为 null
-        signaling.target = endpoint;
-        let packet = new Packet(MultipointCommAction.Revoke, signaling.toJSON());
-        this.pipeline.send(MultipointComm.NAME, packet, revokeHandler);
+        });
 
         return true;
-    }*/
+    }
 
     /**
      * 获取当前通话的通信场域。
@@ -1389,8 +1353,8 @@ export class MultipointComm extends Module {
 
         if (null == rtcDevice) {
             cell.Logger.w(MultipointComm.NAME, '#triggerAnswer() - Can not find rtc device for ' + answerSignaling.contact.id);
-            // let error = new ModuleError(MultipointComm.NAME, MultipointCommState.NoPeerEndpoint, this.activeCall);
-            // this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
+            let error = new ModuleError(MultipointComm.NAME, MultipointCommState.NoPeerEndpoint, this.activeCall);
+            this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
             return;
         }
 
@@ -1539,7 +1503,26 @@ export class MultipointComm extends Module {
     triggerLeft(payload) {
         let data = payload.data;
         let commField = CommField.create(data.field, this.pipeline, this.cs.getSelf());
+
         let endpoint = CommFieldEndpoint.create(data.endpoint);
+        endpoint.field = commField;
+
         cell.Logger.d(MultipointComm.NAME, 'Endpoint "' + endpoint.getName() + '" left "' + commField.getName() + '"');
+
+        this.notifyObservers(new ObservableEvent(MultipointCommEvent.Left, endpoint));
+
+        // 停止接收对方音视频流
+        if (commField.id == this.activeCall.field.id) {
+            let rtc = this.activeCall.field.getRTCDevice(endpoint);
+            if (null != rtc) {
+                setTimeout(() => {
+                    if (!this.unfollow(endpoint, () => {
+                        this.activeCall.field.copy(commField);
+                    })) {
+                        cell.Logger.w(MultipointComm.NAME, 'Comm field state error, can not unfollow endpoint "' + endpoint.getName() + '"');
+                    }
+                }, 1);
+            }
+        }
     }
 }

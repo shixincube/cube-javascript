@@ -193,6 +193,7 @@ export class CommField extends Entity {
 
     /**
      * 启动为 Offer 。
+     * @protected
      * @param {RTCDevice} rtcDevice RTC 设备。
      * @param {MediaConstraint} mediaConstraint 媒体约束。
      * @param {function} successCallback 成功回调。
@@ -261,6 +262,7 @@ export class CommField extends Entity {
 
     /**
      * 启动为 Answer 。
+     * @protected
      * @param {RTCDevice} rtcDevice RTC 设备。
      * @param {string} offerDescription
      * @param {MediaConstraint} mediaConstraint 
@@ -322,7 +324,8 @@ export class CommField extends Entity {
     }
 
     /**
-     * 申请通话场域。
+     * 申请通话。
+     * @protected
      * @param {Contact} participant 
      * @param {Device} device
      * @param {function} successCallback 
@@ -366,7 +369,8 @@ export class CommField extends Entity {
     }
 
     /**
-     * 申请直接加入场域。
+     * 申请加入场域。
+     * @protected
      * @param {Contact} participant 
      * @param {Device} device
      * @param {function} successCallback 
@@ -409,7 +413,8 @@ export class CommField extends Entity {
     }
 
     /**
-     * 申请终止场域。
+     * 申请终止指定参与者的数据。
+     * @protected
      * @param {Contact} participant 
      * @param {Device} device
      * @param {function} [successCallback] 

@@ -84,10 +84,16 @@ export const MultipointCommEvent = {
     Left: 'Left',
 
     /**
-     * 已经跟随接收参与者数据。
+     * 已经接收参与者数据。
      * @type {string}
      */
     Followed: 'Followed',
+
+    /**
+     * 已经停止接收参与者数据。
+     * @type {string}
+     */
+    Unfollowed: 'Unfollowed',
 
     /**
      * 呼叫超时。
