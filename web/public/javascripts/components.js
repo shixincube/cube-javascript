@@ -26,7 +26,6 @@
 
 // 对话框组件
 (function(g) {
-    'use strict';
 
     /**
      * Toast 提示类型。
@@ -5743,10 +5742,11 @@
 
         if (undefined !== maxSelectedNum) {
             maxSelected = maxSelectedNum;
-            selectCountList = [];
+            selectCountList.splice(0, selectCountList.length);
         }
         else {
             maxSelected = -1;
+            selectCountList.splice(0, selectCountList.length);
         }
 
         if (title) {
@@ -5818,28 +5818,33 @@
         var el = dialogEl.find('input[data="' + id +'"]');
         if (el.prop('checked')) {
             el.prop('checked', false);
+
+            var index = selectCountList.indexOf(id);
+            if (index >= 0) {
+                selectCountList.splice(index, 1);
+            }
         }
         else {
             el.prop('checked', true);
+
+            var index = selectCountList.indexOf(id);
+            if (index < 0) {
+                selectCountList.push(id);
+            }
         }
 
-        // if (maxSelected > 0) {
-        //     setTimeout(function() {
-        //         if (el.prop('checked')) {
-        //             ++selectCount;
-        //             if (selectCount > maxSelected) {
-        //                 el.prop('checked', false);
-        //                 --selectCount;
-        //             }
-        //         }
-        //         else {
-        //             --selectCount;
-        //             if (selectCount < 0) {
-        //                 selectCount = 0;
-        //             }
-        //         }
-        //     }, 10);
-        // }
+        if (maxSelected > 0) {
+            setTimeout(function() {
+                if (selectCountList.length > maxSelected) {
+                    var id = selectCountList.pop();
+                    var el = dialogEl.find('input[data="' + id +'"]');
+                    el.prop('checked', false);
+
+                    // 提示
+                    g.dialog.launchToast(Toast.Info, '最多只能选择' + maxSelected + '个联系人');
+                }
+            }, 10);
+        }
     }
 
     g.ContactListDialog = ContactListDialog;

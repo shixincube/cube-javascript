@@ -26,7 +26,6 @@
 
 // 对话框组件
 (function(g) {
-    'use strict';
 
     /**
      * Toast 提示类型。
