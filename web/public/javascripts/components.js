@@ -4834,6 +4834,11 @@
         }, 1000);
     }
 
+    VideoGroupChatPanel.prototype.unmark = function(contact) {
+        var container = panelEl.find('.container');
+        container.find('td[data="' + contact.getId() + '"]').find('.mask').css('visibility', 'hidden');
+    }
+
     VideoGroupChatPanel.prototype.close = function() {
         if (tickTimer > 0) {
             clearInterval(tickTimer);
@@ -6706,6 +6711,16 @@
         });
     }
 
+    function onFollowed(event) {
+        var endpoint = event.data;
+        if (voiceCall) {
+            // TODO
+        }
+        else {
+            g.app.videoGroupChatPanel.unmark(endpoint.contact);
+        }
+    }
+
     function onInProgress(event) {
         console.log('#onInProgress');
     }
@@ -6870,6 +6885,7 @@
         }
         else {
             g.dialog.launchToast(Toast.Warning, '通话失败，故障码：' + error.code);
+            that.hangupCall();
         }
 
         setTimeout(function() {
@@ -6913,6 +6929,7 @@
         cube.mpComm.on(CommEvent.Busy, onBusy);
         cube.mpComm.on(CommEvent.Arrived, onArrived);
         cube.mpComm.on(CommEvent.Left, onLeft);
+        cube.mpComm.on(CommEvent.Followed, onFollowed)
         cube.mpComm.on(CommEvent.Timeout, onTimeout);
         cube.mpComm.on(CommEvent.Failed, onFailed);
         cube.mpComm.on(CommEvent.MediaConnected, onMediaConnected);

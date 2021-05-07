@@ -113,6 +113,16 @@
         });
     }
 
+    function onFollowed(event) {
+        var endpoint = event.data;
+        if (voiceCall) {
+            // TODO
+        }
+        else {
+            g.app.videoGroupChatPanel.unmark(endpoint.contact);
+        }
+    }
+
     function onInProgress(event) {
         console.log('#onInProgress');
     }
@@ -321,6 +331,7 @@
         cube.mpComm.on(CommEvent.Busy, onBusy);
         cube.mpComm.on(CommEvent.Arrived, onArrived);
         cube.mpComm.on(CommEvent.Left, onLeft);
+        cube.mpComm.on(CommEvent.Followed, onFollowed)
         cube.mpComm.on(CommEvent.Timeout, onTimeout);
         cube.mpComm.on(CommEvent.Failed, onFailed);
         cube.mpComm.on(CommEvent.MediaConnected, onMediaConnected);

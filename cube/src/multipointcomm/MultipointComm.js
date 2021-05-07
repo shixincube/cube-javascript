@@ -1037,6 +1037,9 @@ export class MultipointComm extends Module {
 
         // 处理操作成功
         let successHandler = () => {
+            // 更新 field
+            endpoint.field = this.activeCall.field;
+
             if (successCallback) {
                 successCallback(this.activeCall, endpoint);
             }
@@ -1530,7 +1533,7 @@ export class MultipointComm extends Module {
             if (!this.follow(endpoint)) {
                 cell.Logger.w(MultipointComm.NAME, 'Comm field state error, can not follow endpoint "' + endpoint.getName() + '"');
             }
-        }, 5000);
+        }, 1000);
     }
 
     triggerLeft(payload) {

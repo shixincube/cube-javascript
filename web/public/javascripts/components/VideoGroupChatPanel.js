@@ -301,6 +301,11 @@
         }, 1000);
     }
 
+    VideoGroupChatPanel.prototype.unmark = function(contact) {
+        var container = panelEl.find('.container');
+        container.find('td[data="' + contact.getId() + '"]').find('.mask').css('visibility', 'hidden');
+    }
+
     VideoGroupChatPanel.prototype.close = function() {
         if (tickTimer > 0) {
             clearInterval(tickTimer);
