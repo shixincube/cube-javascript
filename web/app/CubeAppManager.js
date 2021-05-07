@@ -193,8 +193,9 @@ class CubeAppManager {
             }
 
             if (this.isOnline(account)) {
-                callback(1, '');
-                return;
+                // callback(1, '');
+                // return;
+                delete this.onlineAccounts[account];
             }
 
             // 生成 Token

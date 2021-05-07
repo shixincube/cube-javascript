@@ -277,6 +277,7 @@
         }
         else {
             g.dialog.launchToast(Toast.Warning, '通话失败，故障码：' + error.code);
+            that.hangupCall();
         }
 
         setTimeout(function() {

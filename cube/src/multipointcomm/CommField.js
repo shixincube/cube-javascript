@@ -554,8 +554,13 @@ export class CommField extends Entity {
      * @returns {RTCDevice} 返回指定终端的 RTC 设备。
      */
     getRTCDevice(endpoint) {
-        if (undefined == endpoint) {
+        if (undefined === endpoint) {
             return this.outboundRTC;
+        }
+
+        let device = this.inboundRTCMap.get(endpoint.getId());
+        if (null != device) {
+            return device;
         }
 
         if (endpoint.contact.id == this.self.id && endpoint.device.name == this.self.device.name) {
@@ -563,7 +568,7 @@ export class CommField extends Entity {
             return this.outboundRTC;
         }
 
-        return this.inboundRTCMap.get(endpoint.getId());
+        return null;
     }
 
     /**

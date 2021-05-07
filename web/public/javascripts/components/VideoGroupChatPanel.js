@@ -52,7 +52,8 @@
 
     var tickTimer = 0;
 
-    function videoElementAgent(contactId) {
+    function videoElementAgent(contact) {
+        var contactId = (contact instanceof Contact) ? contact.getId() : parseInt(contact);
         return panelEl.find('video[data-target="' + contactId + '"]')[0];
     }
 
@@ -191,11 +192,16 @@
                             if (members.length == group.numMembers() - 1) {
                                 // 显示联系人列表对话框，以便选择邀请通话的联系人。
                                 g.app.contactListDialog.show(members, [], function(result) {
+                                    if (result.length == 0) {
+                                        g.dialog.showAlert('没有邀请任何联系人参与视频通话');
+                                        return false;
+                                    }
+
                                     result.unshift(g.app.getSelf().getId());
 
                                     if (result.length > maxMembers) {
-                                        g.dialog.showAlert('超过最大通话人数（最大通话人数 ' + maxMembers + ' 人）。');
-                                        return;
+                                        g.dialog.showAlert('超过最大通话人数（最大通话人数 ' + maxMembers + ' 人）');
+                                        return false;
                                     }
 
                                     // 界面布局

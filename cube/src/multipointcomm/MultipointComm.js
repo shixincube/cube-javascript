@@ -47,6 +47,7 @@ import { ModuleError } from "../core/error/ModuleError";
 import { CallRecord } from "./CallRecord";
 import { CommFieldEndpoint } from "./CommFieldEndpoint";
 import { MediaDeviceTool } from "../util/MediaDeviceTool";
+import { BroswerUtil } from "../util/BroswerUtil";
 
 /**
  * 多方通信服务。
@@ -1047,7 +1048,9 @@ export class MultipointComm extends Module {
         // 处理操作失败
         let failureHandler = (error) => {
             // 记录错误
-            this.activeCall.lastError = error;
+            if (null != this.activeCall) {
+                this.activeCall.lastError = error;
+            }
 
             if (failureCallback) {
                 failureCallback(error);
@@ -1055,7 +1058,9 @@ export class MultipointComm extends Module {
 
             this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
 
-            this.activeCall.field.closeRTCDevice(endpoint);
+            if (null != this.activeCall) {
+                this.activeCall.field.closeRTCDevice(endpoint);
+            }
         };
 
         if (null == this.activeCall) {
@@ -1088,15 +1093,18 @@ export class MultipointComm extends Module {
         }
 
         let videoEl = this.videoElemAgent(endpoint.contact);
-        if (null == videoEl || undefined == videoEl) {
+        if (null == videoEl || undefined === videoEl) {
             failureHandler(new ModuleError(MultipointComm.NAME, MultipointCommState.VideoElementNotSetting, endpoint));
             return false;
         }
 
+        // TODO 检查是否已经接收该终端数据
+
+        cell.Logger.d(MultipointComm.NAME, 'Follow endpoint (' + BroswerUtil.getBrowserName() + ')');
         // 发起 Offer
         let rtcDevice = this.createRTCDevice('recvonly', null, videoEl);
         // 发起 recv only 的 Offer
-        commField.launchOffer(rtcDevice, this.activeCall.field.mediaConstraint, successHandler, failureHandler, endpoint);
+        this.activeCall.field.launchOffer(rtcDevice, this.activeCall.field.mediaConstraint, successHandler, failureHandler, endpoint);
 
         return true;
     }
@@ -1377,9 +1385,9 @@ export class MultipointComm extends Module {
         }
 
         if (null == rtcDevice) {
-            cell.Logger.e(MultipointComm.NAME, '#triggerAnswer() can not find rtc device for ' + answerSignaling.contact.id);
-            let error = new ModuleError(MultipointComm.NAME, MultipointCommState.NoPeerEndpoint, this.activeCall);
-            this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
+            cell.Logger.w(MultipointComm.NAME, '#triggerAnswer() - Can not find rtc device for ' + answerSignaling.contact.id);
+            // let error = new ModuleError(MultipointComm.NAME, MultipointCommState.NoPeerEndpoint, this.activeCall);
+            // this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
             return;
         }
 
@@ -1416,7 +1424,7 @@ export class MultipointComm extends Module {
         }
 
         if (null == rtcDevice) {
-            cell.Logger.e('MultipointComm', 'Can NOT find RTC device: ' + signaling.name);
+            cell.Logger.e('MultipointComm', '#triggerCandidate() - Can NOT find RTC device: ' + signaling.name);
             return;
         }
 
@@ -1518,9 +1526,11 @@ export class MultipointComm extends Module {
         this.notifyObservers(new ObservableEvent(MultipointCommEvent.Arrived, endpoint));
 
         // 接收对方的音视频流
-        if (!this.follow(endpoint)) {
-            cell.Logger.w(MultipointComm.NAME, 'Comm field state error, can not follow endpoint "' + endpoint.getName() + '"');
-        }
+        setTimeout(() => {
+            if (!this.follow(endpoint)) {
+                cell.Logger.w(MultipointComm.NAME, 'Comm field state error, can not follow endpoint "' + endpoint.getName() + '"');
+            }
+        }, 5000);
     }
 
     triggerLeft(payload) {

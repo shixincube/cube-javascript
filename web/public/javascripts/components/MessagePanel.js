@@ -409,7 +409,7 @@
 
                         that.callStartTime = commField.startTime;
 
-                        that.callTimer = setInterval(function() {
+                        function intervalHandler() {
                             if (that.callStartTime == 0) {
                                 g.cube().mpComm.getCommField(commId, function(commField) {
                                     that.callStartTime = commField.startTime;
@@ -423,9 +423,11 @@
                             var now = Date.now();
                             var duration = now - that.callStartTime;
                             that.elStateBar.find('.timer').text(g.formatClockTick(Math.round(duration/1000)));
-                        }, 1000);
+                        }
+                        that.callTimer = setInterval(intervalHandler, 1000);
 
                         that.elStateBar.find('.timer').text('--:--:--');
+                        intervalHandler();
                         that.elStateBar.css('visibility', 'visible');
 
                         // 填充信息
