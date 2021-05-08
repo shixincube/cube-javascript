@@ -670,10 +670,6 @@
         return true;
     }
 
-    CallController.prototype.joinGroupCalling = function(groupId) {
-
-    }
-
     /**
      * 接受当前群组通话邀请。
      */

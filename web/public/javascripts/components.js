@@ -328,11 +328,7 @@
 })(window);
 
 
-/**
- * 主面板。
- */
 (function(g) {
-    'use strict';
 
     var that = null;
 
@@ -341,11 +337,15 @@
 
     var pushMenu = null;
     var collapseSidebar = false;
-    var mouseoutTimer = 0;
+    var mouseleaveTimer = 0;
 
     var audioCallRing = null;
     var audioWaitingTone = null;
 
+    /**
+     * 主面板。
+     * 封装了主面板上的辅助和共用功能。
+     */
     var MainPanel = function() {
         that = this;
 
@@ -361,20 +361,23 @@
             g.app.saveConfig('sidebarCollapse', collapseSidebar);
         });
 
-        $('.main-sidebar').on('mouseout', function() {
+        $('.main-sidebar').on('mouseleave', function() {
             if (collapseSidebar) {
-                if (mouseoutTimer > 0) {
+                if (mouseleaveTimer > 0) {
                     return;
                 }
-                mouseoutTimer = setTimeout(function() {
-                    clearTimeout(mouseoutTimer);
-                    mouseoutTimer = 0;
+                mouseleaveTimer = setTimeout(function() {
+                    clearTimeout(mouseleaveTimer);
+                    mouseleaveTimer = 0;
                     $('.main-sidebar').removeClass('sidebar-focused');
                 }, 100);
             }
         });
     }
 
+    /**
+     * 初始化面板上的控件数据。
+     */
     MainPanel.prototype.prepare = function() {
         // 加载侧边栏是否展开配置
         var value = g.app.loadConfig('sidebarCollapse');
@@ -392,7 +395,7 @@
 
     /**
      * 切换主界面。
-     * @param {string} id 
+     * @param {string} id 界面 ID 。
      */
     MainPanel.prototype.toggle = function(id) {
         if (tabId == id) {
@@ -424,7 +427,7 @@
     }
 
     /**
-     * 
+     * 播放振铃音效。
      */
     MainPanel.prototype.playCallRing = function() {
         audioCallRing.volume = 1.0;
@@ -436,7 +439,7 @@
     }
 
     /**
-     * 
+     * 停止振铃音效。
      */
     MainPanel.prototype.stopCallRing = function() {
         audioCallRing.pause();
@@ -444,7 +447,7 @@
     }
 
     /**
-     * 
+     * 播放等待接通音效。
      */
     MainPanel.prototype.playWaitingTone = function() {
         audioWaitingTone.volume = 1.0;
@@ -456,7 +459,7 @@
     }
 
     /**
-     * 
+     * 停止等待接通音效。
      */
     MainPanel.prototype.stopWaitingTone = function() {
         audioWaitingTone.pause();
@@ -7258,10 +7261,6 @@
         return true;
     }
 
-    CallController.prototype.joinGroupCalling = function(groupId) {
-
-    }
-
     /**
      * 接受当前群组通话邀请。
      */
@@ -10649,6 +10648,26 @@
         that.appendLog(event.name, event.data.field.getName());
     }
 
+    function onInvited(event) {
+        that.appendLog(event.name, event.data.getName());
+    }
+
+    function onArrived(event) {
+        that.appendLog(event.name, event.data.getName());
+    }
+
+    function onLeft(event) {
+        that.appendLog(event.name, event.data.getName());
+    }
+
+    function onFollowed(event) {
+        that.appendLog(event.name, event.data.getName());
+    }
+
+    function onUnfollowed(event) {
+        that.appendLog(event.name, event.data.getName());
+    }
+
     // 多方通讯事件 - 结束
 
 
@@ -10760,6 +10779,12 @@
         cube.mpComm.on(CommEvent.Timeout, onTimeout);   // 过程性事件
 
         cube.mpComm.on(CommEvent.NewCall, onNewCall);
+
+        cube.mpComm.on(CommEvent.Invited, onInvited);
+        cube.mpComm.on(CommEvent.Arrived, onArrived);
+        cube.mpComm.on(CommEvent.Left, onLeft);
+        cube.mpComm.on(CommEvent.Followed, onFollowed);
+        cube.mpComm.on(CommEvent.Unfollowed, onUnfollowed);
 
         // 多方通讯事件 - 结束 ---------------------------------------------------
     }

@@ -24,11 +24,12 @@
  * SOFTWARE.
  */
 
+'use strict'
+
 /**
  * Web Application Main
  */
 (function (g) {
-    'use strict';
 
     var that = null;
 
@@ -490,6 +491,9 @@
             return list;
         },
 
+        /**
+         * 当完成账号数据并加载引擎之后回调该函数表示程序就绪。
+         */
         onReady: function() {
             // 准备联系人和群组数据
             that.prepare(function() {

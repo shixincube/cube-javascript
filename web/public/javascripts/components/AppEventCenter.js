@@ -64,6 +64,26 @@
         that.appendLog(event.name, event.data.field.getName());
     }
 
+    function onInvited(event) {
+        that.appendLog(event.name, event.data.getName());
+    }
+
+    function onArrived(event) {
+        that.appendLog(event.name, event.data.getName());
+    }
+
+    function onLeft(event) {
+        that.appendLog(event.name, event.data.getName());
+    }
+
+    function onFollowed(event) {
+        that.appendLog(event.name, event.data.getName());
+    }
+
+    function onUnfollowed(event) {
+        that.appendLog(event.name, event.data.getName());
+    }
+
     // 多方通讯事件 - 结束
 
 
@@ -175,6 +195,12 @@
         cube.mpComm.on(CommEvent.Timeout, onTimeout);   // 过程性事件
 
         cube.mpComm.on(CommEvent.NewCall, onNewCall);
+
+        cube.mpComm.on(CommEvent.Invited, onInvited);
+        cube.mpComm.on(CommEvent.Arrived, onArrived);
+        cube.mpComm.on(CommEvent.Left, onLeft);
+        cube.mpComm.on(CommEvent.Followed, onFollowed);
+        cube.mpComm.on(CommEvent.Unfollowed, onUnfollowed);
 
         // 多方通讯事件 - 结束 ---------------------------------------------------
     }
