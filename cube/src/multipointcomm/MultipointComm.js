@@ -496,6 +496,20 @@ export class MultipointComm extends Module {
             else {
                 // 普通场域，触发 Ringing 事件
                 this.notifyObservers(new ObservableEvent(MultipointCommEvent.Ringing, this.activeCall));
+
+                // 请求接收其他终端的数据
+                setTimeout(() => {
+                    let self = this.cs.getSelf();
+                    this.activeCall.field.getEndpoints().forEach((endpoint) => {
+                        if (endpoint.contact.id == self.id) {
+                            // 跳过自己
+                            return;
+                        }
+
+                        // 接收指定终端的数据
+                        this.follow(endpoint);
+                    });
+                }, 100);
             }
         };
 
@@ -687,9 +701,6 @@ export class MultipointComm extends Module {
                 let rtcDevice = this.createRTCDevice('sendonly', this.videoElem.local);
                 // 发起 send only 的 Offer 回送自己的视频流
                 commField.launchOffer(rtcDevice, mediaConstraint, successHandler, failureHandler, endpoint);
-
-                // 3. 请求接收其他终端的数据
-                // TODO
             }, (error) => {
                 failureHandler(error);
             });
@@ -937,11 +948,7 @@ export class MultipointComm extends Module {
                             successCallback(activeCall);
                         }
 
-                        try {
-                            this.notifyObservers(new ObservableEvent(MultipointCommEvent.Bye, activeCall));
-                        } catch (e) {
-                            // Nothing
-                        }
+                        this.notifyObservers(new ObservableEvent(MultipointCommEvent.Bye, activeCall));
 
                         // 关闭所有节点
                         field.close();
@@ -1081,6 +1088,11 @@ export class MultipointComm extends Module {
                 failureHandler(new ModuleError(MultipointComm.NAME, MultipointCommState.CommFieldStateError, endpoint));
                 return false;
             }
+        }
+
+        if (this.activeCall.field.hasRTCDevice(endpoint)) {
+            // 已经存在该终端的 RTC 设备
+            return false;
         }
 
         if (null == this.videoElemAgent || typeof this.videoElemAgent !== 'function') {

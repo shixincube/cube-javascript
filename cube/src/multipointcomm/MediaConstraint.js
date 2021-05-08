@@ -129,46 +129,52 @@ export class MediaConstraint extends JSONable {
      * @returns {JSON} 返回约束的 JSON 格式。
      */
     getConstraints() {
-        let json = {};
+        let data = {};
+
         if (this.audioEnabled) {
             if (null == this.audioDevice) {
-                json.audio = this.audioEnabled;
+                data.audio = this.audioEnabled;
             }
             else {
-                json.audio = {
+                data.audio = {
                     deviceId: this.audioDevice.deviceId,
                     groupId: this.audioDevice.groupId
                 };
             }
         }
         else {
-            json.audio = this.audioEnabled;
+            data.audio = false;
         }
 
         if (this.videoEnabled) {
             // 获取视频画幅约束
+            data.video = this.dimension.constraints;
+
             if (this.sfuPattern) {
-                json.video = {
-                    mandatory : {
-                        maxWidth : 320,
-                        maxFrameRate : 15,
-                        minFrameRate : 15
-                    }
+                /*
+                mandatory : {
+                    maxWidth : 320,
+                    maxFrameRate : 15,
+                    minFrameRate : 15
+                }
+                exact: 15*/
+
+                data.video = VideoDimension.VGA_IDEAL.constraints;
+                data.video.frameRate = {
+                    min: 15, ideal: 15, max: 15
                 };
-            }
-            else {
-                json.video = this.dimension.constraints;
             }
 
             if (null != this.videoDevice) {
-                json.video.deviceId = this.videoDevice.deviceId;
-                json.video.groupId = this.videoDevice.groupId;
+                data.video.deviceId = this.videoDevice.deviceId;
+                data.video.groupId = this.videoDevice.groupId;
             }
         }
         else {
-            json.video = false;
+            data.video = false;
         }
-        return json;
+
+        return data;
     }
 
     /**

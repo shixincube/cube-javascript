@@ -106,28 +106,6 @@
                 alert('查找本地视频标签错误');
             }
 
-            // XJW
-            // panelEl.modal({
-            //     keyboard: false,
-            //     backdrop: false
-            // });
-            // if (idList) {
-            //     function test() {
-            //         if (idList.length == 0) {
-            //             return;
-            //         }
-
-            //         g.app.getContact(idList.pop(), function(contact) {
-            //             that.removeContact(contact);
-            //         });
-
-            //         setTimeout(test, 5000);
-            //     }
-            //     setTimeout(test, 5000);
-            // }
-            // if (panelEl) return;
-            // XJW
-
             if (g.app.callCtrl.makeCall(group, true, videoDevice)) {
                 panelEl.find('.video-group-default .modal-title').text('群通话 - ' + group.getName());
                 panelEl.find('.video-group-minisize .modal-title').text(group.getName());

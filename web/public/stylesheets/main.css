@@ -1473,7 +1473,9 @@ video {
     height: 366px;
     margin-left: -341px;
     color: #f8f9fa;
-    overflow: hidden;
+    overflow-y: hidden;
+    overflow-x: hidden;
+    overflow: hidden !important;
 }
 .video-group-panel-mini {
     width: 200px;

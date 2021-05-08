@@ -232,6 +232,11 @@ export class CommField extends Entity {
             this.onMediaDisconnected(rtcDevice);
         };
 
+        if (!this.isPrivate()) {
+            // 调整为 SFU 模式的媒体约束
+            mediaConstraint.sfuPattern = true;
+        }
+
         rtcDevice.openOffer(mediaConstraint, (description) => {
             // 创建信令
             let signaling = new Signaling(MultipointCommAction.Offer, this, this.self, this.self.device);
@@ -574,6 +579,16 @@ export class CommField extends Entity {
         }
 
         return null;
+    }
+
+    /**
+     * 是否已经存在指定终端的 RTC 设备。
+     * @protected
+     * @param {CommFieldEndpoint} endpoint 指定终端。
+     * @returns {boolean} 如果存在返回 {@linkcode true} 。
+     */
+    hasRTCDevice(endpoint) {
+        return this.inboundRTCMap.containsKey(endpoint.getId());
     }
 
     /**
