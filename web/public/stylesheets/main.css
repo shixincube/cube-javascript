@@ -2010,6 +2010,14 @@ video {
     }
 }
 
+.app-details-log .row {
+    margin-bottom: 2px;
+}
+.app-details-log .row:hover {
+    color: #f8f9fa;
+    background-color: #343a40;
+}
+
 /* Emoji 面板 - 开始 */
 
 .emoji-panel {

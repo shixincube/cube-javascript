@@ -70,7 +70,7 @@
         });
     }
 
-    VoiceGroupCallPanel.prototype.makeCall = function(group) {
+    VoiceGroupCallPanel.prototype.open = function(group) {
         var members = [];
 
         var audioDevice = null;

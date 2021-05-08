@@ -200,6 +200,8 @@
 
                 g.dialog.launchToast(Toast.Info, '群组视频通话已结束');
             }
+
+            g.app.messagePanel.refreshStateBar();
         }
         else {
             if (voiceCall) {
@@ -334,7 +336,7 @@
         cube.mpComm.on(CommEvent.Followed, onFollowed);
         cube.mpComm.on(CommEvent.Unfollowed, onUnfollowed);
         cube.mpComm.on(CommEvent.Busy, onBusy);
-        cube.mpComm.on(CommEvent.Timeout, onTimeout);
+        cube.mpComm.on(CommEvent.Timeout, onTimeout);   // 过程性事件
         cube.mpComm.on(CommEvent.Failed, onFailed);
         cube.mpComm.on(CommEvent.MediaConnected, onMediaConnected);
         cube.mpComm.on(CommEvent.MediaDisconnected, onMediaDisconnected);
@@ -495,10 +497,10 @@
             }
 
             if (video) {
-                g.app.videoChatPanel.makeCall(contact);
+                g.app.videoChatPanel.open(contact);
             }
             else {
-                g.app.voiceCallPanel.makeCall(contact);
+                g.app.voiceCallPanel.open(contact);
             }
         });
     }
@@ -518,10 +520,10 @@
         voiceCall = !video;
 
         if (video) {
-            g.app.videoGroupChatPanel.makeCall(group);
+            g.app.videoGroupChatPanel.open(group);
         }
         else {
-            g.app.voiceGroupCallPanel.makeCall(group);
+            g.app.voiceGroupCallPanel.open(group);
         }
     }
 
@@ -685,11 +687,11 @@
 
         if (commField.mediaConstraint.videoEnabled) {
             g.app.videoGroupChatPanel.closeInviteToast();
-            g.app.videoGroupChatPanel.makeCall(commField.group);
+            g.app.videoGroupChatPanel.open(commField.group);
         }
         else {
             g.app.voiceGroupCallPanel.closeInviteToast();
-            g.app.voiceGroupCallPanel.makeCall(commField.group);
+            g.app.voiceGroupCallPanel.open(commField.group);
         }
     }
 

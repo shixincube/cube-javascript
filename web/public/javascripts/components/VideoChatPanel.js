@@ -295,7 +295,7 @@
      * 发起通话。
      * @param {Contact} target 
      */
-    VideoChatPanel.prototype.makeCall = function(target) {
+    VideoChatPanel.prototype.open = function(target) {
         console.log('发起视频连线 ' + target.getId());
 
         var videoDevice = null;

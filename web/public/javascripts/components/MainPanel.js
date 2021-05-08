@@ -127,6 +127,7 @@
         audioCallRing.volume = 1.0;
 
         if (audioCallRing.paused) {
+            audioCallRing.removeAttribute('muted');
             audioCallRing.play();
         }
     }
@@ -136,6 +137,7 @@
      */
     MainPanel.prototype.stopCallRing = function() {
         audioCallRing.pause();
+        audioCallRing.setAttribute('muted', 'muted');
     }
 
     /**
@@ -145,6 +147,7 @@
         audioWaitingTone.volume = 1.0;
 
         if (audioWaitingTone.paused) {
+            audioWaitingTone.removeAttribute('muted');
             audioWaitingTone.play();
         }
     }
@@ -154,6 +157,7 @@
      */
     MainPanel.prototype.stopWaitingTone = function() {
         audioWaitingTone.pause();
+        audioWaitingTone.setAttribute('muted', 'muted');
     }
 
     g.MainPanel = MainPanel;

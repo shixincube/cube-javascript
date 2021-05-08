@@ -110,7 +110,7 @@
      * 显示发起通话界面。
      * @param {Contact} target 
      */
-    VoiceCallPanel.prototype.makeCall = function(target) {
+    VoiceCallPanel.prototype.open = function(target) {
         console.log('发起语音通话 ' + target.getId());
 
         var audioDevice = null;

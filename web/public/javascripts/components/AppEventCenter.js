@@ -31,7 +31,41 @@
 
     var cube = null;
     var sidebarLogEl = null;
+
+    /**
+     * @type {AppEventCenter}
+     */
     var that = null;
+
+
+    // 多方通讯事件 - 开始
+
+    function onInProgress(event) {
+        that.appendLog(event.name, event.data.getName());
+    }
+
+    function onRinging(event) {
+        that.appendLog(event.name, event.data.field.getName());
+    }
+
+    function onConnected(event) {
+        that.appendLog(event.name, event.data.field.getName());
+    }
+
+    function onBye(event) {
+        that.appendLog(event.name, event.data.field.getName());
+    }
+
+    function onTimeout(event) {
+        that.appendLog(event.name, event.data.field.getName());
+    }
+
+    function onNewCall(event) {
+        that.appendLog(event.name, event.data.field.getName());
+    }
+
+    // 多方通讯事件 - 结束
+
 
     var AppEventCenter = function() {
         that = this;
@@ -130,6 +164,19 @@
             ];
             that.appendLog(event.name, log.join(''));
         });
+
+
+        // 多方通讯事件 - 开始 ---------------------------------------------------
+
+        cube.mpComm.on(CommEvent.InProgress, onInProgress);
+        cube.mpComm.on(CommEvent.Ringing, onRinging);
+        cube.mpComm.on(CommEvent.Connected, onConnected);
+        cube.mpComm.on(CommEvent.Bye, onBye);
+        cube.mpComm.on(CommEvent.Timeout, onTimeout);   // 过程性事件
+
+        cube.mpComm.on(CommEvent.NewCall, onNewCall);
+
+        // 多方通讯事件 - 结束 ---------------------------------------------------
     }
 
     /**

@@ -88,7 +88,7 @@
      * 启动通话。
      * @param {Group} group 
      */
-    VideoGroupChatPanel.prototype.makeCall = function(group) {
+    VideoGroupChatPanel.prototype.open = function(group) {
         invitation.list = null;
         invitation.timer = [];
 
@@ -255,6 +255,10 @@
         }
     }
 
+    /**
+     * 提示已经接通。
+     * @param {*} activeCall 
+     */
     VideoGroupChatPanel.prototype.tipConnected = function(activeCall) {
         panelEl.find('.header-tip').text('');
 
@@ -279,6 +283,10 @@
         }, 1000);
     }
 
+    /**
+     * 
+     * @param {*} contact 
+     */
     VideoGroupChatPanel.prototype.unmark = function(contact) {
         var container = panelEl.find('.container');
         container.find('td[data="' + contact.getId() + '"]').find('.mask').css('visibility', 'hidden');

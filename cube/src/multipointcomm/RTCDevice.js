@@ -135,7 +135,7 @@ export class RTCDevice {
      * @returns {boolean} 返回出站视频是否已启用。
      */
     outboundVideoEnabled() {
-        if (null == this.this.outboundStream) {
+        if (null == this.outboundStream) {
             return this.streamState.out.video;
         }
 
