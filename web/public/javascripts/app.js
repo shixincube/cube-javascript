@@ -24,7 +24,8 @@
  * SOFTWARE.
  */
 
-'use strict'
+
+"use strict";
 
 /**
  * Web Application Main

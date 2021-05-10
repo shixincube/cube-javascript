@@ -4564,9 +4564,6 @@
 
 })(window);
 
-/**
- * 群组视频面板。
- */
 (function(g) {
 
     /**
@@ -4597,7 +4594,9 @@
         return panelEl.find('video[data-target="' + contactId + '"]')[0];
     }
 
-
+    /**
+     * 群组视频面板。
+     */
     var VideoGroupChatPanel = function() {
         that = this;
         panelEl = $('#group_video_chat');
@@ -4779,6 +4778,10 @@
         });
     }
 
+    /**
+     * 提示正在等待服务器应答。
+     * @param {*} activeCall 
+     */
     VideoGroupChatPanel.prototype.tipWaitForAnswer = function(activeCall) {
         panelEl.find('.header-tip').text('正在等待服务器应答...');
 
@@ -4824,14 +4827,19 @@
     }
 
     /**
-     * 
+     * 接触视频图层遮罩并显示用户工具栏。
      * @param {*} contact 
      */
     VideoGroupChatPanel.prototype.unmark = function(contact) {
         var container = panelEl.find('.container');
-        container.find('td[data="' + contact.getId() + '"]').find('.mask').css('visibility', 'hidden');
+        var el = container.find('td[data="' + contact.getId() + '"]');
+        el.find('.mask').css('visibility', 'hidden');
+        el.find('.toolbar').css('visibility', 'visible');
     }
 
+    /**
+     * 关闭群聊面板。
+     */
     VideoGroupChatPanel.prototype.close = function() {
         if (tickTimer > 0) {
             clearInterval(tickTimer);
@@ -4847,12 +4855,20 @@
         invitation.timer.splice(0, invitation.timer.length);
     }
 
+
+    /**
+     * 终止当前己方的通话。
+     */
     VideoGroupChatPanel.prototype.terminate = function() {
         if (!g.app.callCtrl.hangupCall()) {
             that.close();
         }
     }
 
+    /**
+     * 添加联系人到面板，并更新面板布局。
+     * @param {Contact} contact 
+     */
     VideoGroupChatPanel.prototype.appendContact = function(contact) {
         for (var i = 0; i < currentLayoutList.length; ++i) {
             var c = currentLayoutList[i];
@@ -4865,6 +4881,10 @@
         this.updateLayout(currentLayoutList);
     }
 
+    /**
+     * 移除联系人，并更新面板布局。
+     * @param {Contact} contact 
+     */
     VideoGroupChatPanel.prototype.removeContact = function(contact) {
         for (var i = 0; i < currentLayoutList.length; ++i) {
             var c = currentLayoutList[i];
@@ -4877,6 +4897,11 @@
         this.updateLayout(currentLayoutList);
     }
 
+    /**
+     * 更新当前布局。
+     * @private
+     * @param {*} newContactList 
+     */
     VideoGroupChatPanel.prototype.updateLayout = function(newContactList) {
         // 被保留的 td 标签
         var tdElList = [];
@@ -4994,6 +5019,7 @@
     }
 
     /**
+     * 重置布局，清空整个界面元素，不对之前布局的元素进行保留。
      * @private
      * @param {Array} list 
      */
@@ -5012,6 +5038,11 @@
         }
     }
 
+    /**
+     * 执行全新的布局。
+     * @private
+     * @param {*} list 
+     */
     VideoGroupChatPanel.prototype.doLayout = function(list) {
         var html = null;
 
@@ -5138,6 +5169,9 @@
         panelEl.find('.container').html(html.join(''));
     }
 
+    /**
+     * 将界面最小化。
+     */
     VideoGroupChatPanel.prototype.minimize = function() {
         // 将自己的视频节点切换都新界面
         var selfId = g.app.getSelf().getId();
@@ -5159,6 +5193,9 @@
         defaultEl.insertAfter(miniEl);
     }
 
+    /**
+     * 恢复界面最小化。
+     */
     VideoGroupChatPanel.prototype.restore = function() {
         var selfId = g.app.getSelf().getId();
         var curVideo = panelEl.find('video[data-target="' + selfId + '"]');
@@ -5177,6 +5214,10 @@
         miniEl.insertAfter(defaultEl);
     }
 
+    /**
+     * 提示被邀请提示。
+     * @param {*} group 
+     */
     VideoGroupChatPanel.prototype.openInviteToast = function(group) {
         var body = [
             '<div class="toasts-info">\
@@ -5207,6 +5248,9 @@
         g.app.mainPanel.playCallRing();
     }
 
+    /**
+     * 关闭邀请提示面板。
+     */
     VideoGroupChatPanel.prototype.closeInviteToast = function() {
         $('#toastsContainerBottomRight').find('.video-new-call').remove();
 
@@ -5214,6 +5258,10 @@
         g.app.mainPanel.stopCallRing();
     }
 
+    /**
+     * 执行邀请超时。
+     * @param {*} contactId 
+     */
     VideoGroupChatPanel.prototype.fireInviteTimeout = function(contactId) {
         var index = invitation.list.indexOf(contactId);
         if (index >= 0) {

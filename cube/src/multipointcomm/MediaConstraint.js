@@ -160,9 +160,7 @@ export class MediaConstraint extends JSONable {
                 exact: 15*/
 
                 data.video = VideoDimension.VGA_IDEAL.constraints;
-                data.video.frameRate = {
-                    min: 15, ideal: 15, max: 15
-                };
+                data.video.frameRate = 15;
             }
 
             if (null != this.videoDevice) {
