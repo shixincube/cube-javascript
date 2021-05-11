@@ -4396,6 +4396,11 @@
 
     var panelEl = null;
 
+    var invitation = {
+        list: null,
+        timer: []
+    };
+
     var btnMinimize = null;
     var btnRestore = null;
     
@@ -4403,10 +4408,17 @@
 
     var minimized = false;
 
+    
+
+    /**
+     * 群组语音通话面板。
+     */
     var VoiceGroupCallPanel = function() {
         that = this;
         panelEl = $('#group_voice_call');
+
         that.localVideo = panelEl.find('video[data-target="local"]')[0];
+        that.remoteVideo = panelEl.find('video[data-target="remote"]')[0];
 
         btnMinimize = panelEl.find('button[data-target="minimize"]');
         btnMinimize.click(function() {
@@ -4428,51 +4440,159 @@
         });
     }
 
+    /**
+     * 开启面板。
+     * @param {Group} group 
+     */
     VoiceGroupCallPanel.prototype.open = function(group) {
-        var members = [];
+        invitation.list = null;
+        invitation.timer = [];
+
+        panelEl.find('.header-tip').text('');
 
         var audioDevice = null;
 
         var handler = function(group, idList) {
+
+            // XJW
+            // 显示窗口
+            // panelEl.modal({
+            //     keyboard: false,
+            //     backdrop: false
+            // });
+            // if (group) return;
+            // XJW
+
             if (g.app.callCtrl.makeCall(group, false, audioDevice)) {
                 panelEl.find('.voice-group-default .modal-title').text('群通话 - ' + group.getName());
                 panelEl.find('.voice-group-minisize .modal-title').text(group.getName());
+
+                panelEl.find('.header-tip').text('正在接通，请稍候...');
 
                 // 显示窗口
                 panelEl.modal({
                     keyboard: false,
                     backdrop: false
                 });
+
+                if (idList) {
+                    invitation.list = idList;
+                }
             }
             else {
                 g.dialog.launchToast(Toast.Warning, '您当前正在通话中');
             }
         }
 
-        group.getMembers().forEach(function(element) {
-            if (element.getId() == g.app.getSelf().getId()) {
+        var start = function() {
+            panelEl.find('.header-tip').text('正在启动麦克风...');
+
+            // 如果群组正在通话，则加入
+            g.cube().mpComm.isCalling(group, function(calling) {
+                if (calling) {
+                    // 获取当前群组的通讯场域
+                    g.cube().mpComm.getCommField(group, function(commField) {
+                        // 当前在通讯的联系人
+                        var clist = [ g.app.getSelf().getId() ];
+
+                        commField.getEndpoints().forEach(function(ep) {
+                            // 添加联系人的 ID
+                            clist.push(ep.getContact().getId());
+
+                            if (clist.length == commField.numEndpoints() + 1) {
+                                // 界面布局
+                                that.resetLayout(clist);
+
+                                clist.shift();
+
+                                // 调用启动通话
+                                setTimeout(function() {
+                                    handler(group);
+                                }, 1);
+                            }
+                        });
+                    });
+                }
+                else {
+                    var members = [];
+
+                    group.getMembers().forEach(function(element) {
+                        if (element.getId() == g.app.getSelf().getId()) {
+                            return;
+                        }
+
+                        g.app.getContact(element.getId(), function(contact) {
+                            members.push(contact);
+
+                            if (members.length == group.numMembers() - 1) {
+                                // 显示联系人列表对话框，以便选择邀请通话的联系人。
+                                g.app.contactListDialog.show(members, [], function(result) {
+                                    if (result.length == 0) {
+                                        g.dialog.showAlert('没有邀请任何联系人参与群通话');
+                                        return false;
+                                    }
+
+                                    result.unshift(g.app.getSelf().getId());
+
+                                    if (result.length > maxMembers) {
+                                        g.dialog.showAlert('超过最大通话人数（最大通话人数 ' + maxMembers + ' 人）');
+                                        return false;
+                                    }
+
+                                    // 界面布局
+                                    that.resetLayout(result);
+
+                                    // 邀请列表要移除自己
+                                    result.shift();
+
+                                    // 调用启动通话
+                                    handler(group, result);
+
+                                }, '群通话', '请选择要邀请通话的群组成员', (maxMembers - 1));
+                            }
+                        });
+                    });
+                }
+            });
+        }
+
+        // 检测是否有多个可用设备
+        g.cube().mpComm.listMediaDevices(function(list) {
+            if (list.length == 0) {
+                g.dialog.showAlert('没有找到可用的麦克风设备，请您确认是否正确连接了麦克风设备。');
                 return;
             }
 
-            g.app.getContact(element.getId(), function(contact) {
-                members.push(contact);
-
-                if (members.length == group.numMembers() - 1) {
-                    // 显示联系人列表对话框，以便选择邀请通话的联系人。
-                    g.app.contactListDialog.show(members, [], function(result) {
-                        result.unshift(g.app.getSelf().getId());
-
-                        // 界面布局
-                        that.resetLayout(result);
-
-                        result.shift();
-
-                        // 调用启动通话
-                        handler(group, result);
-
-                    }, '群通话', '请选择要邀请通话的群组成员');
+            // 多个设备时进行选择
+            var deviceList = [];
+            for (var i = 0; i < list.length; ++i) {
+                if (list[i].isAudioInput()) {
+                    deviceList.push(list[i]);
                 }
-            });
+            }
+
+            if (deviceList.length > 1) {
+                g.app.callCtrl.showSelectMediaDevice(deviceList, function(selected, selectedIndex) {
+                    if (selected) {
+                        if (selectedIndex >= deviceList.length) {
+                            g.dialog.showAlert('选择的设备错误');
+                            return;
+                        }
+
+                        // 设置设备
+                        audioDevice = deviceList[selectedIndex];
+                        console.log('Select device: ' + audioDevice.label);
+                        start();
+                    }
+                    else {
+                        // 取消通话
+                        return;
+                    }
+                });
+            }
+            else {
+                start();
+            }
         });
     }
 
@@ -4513,7 +4633,9 @@
     }
 
     VoiceGroupCallPanel.prototype.terminate = function() {
-        g.app.callCtrl.hangupCall();
+        if (!g.app.callCtrl.hangupCall()) {
+            that.close();
+        }
     }
 
     /**
@@ -4536,15 +4658,19 @@
             var cid = list[i];
             g.app.getContact(cid, function(contact) {
                 var chtml = [
-                    '<div class="', col, '">',
+                    '<div data="', contact.getId(), '" class="', col, '">',
                         '<div class="avatar">',
                             '<img src="images/', contact.getContext().avatar, '" />',
                         '</div>',
                         '<div class="name">',
                             '<div>', contact.getName(), '</div>',
                         '</div>',
+                        '<div class="mask"', (i == 0) ? ' style="visibility:hidden;"' : '', '>',
+                            '<div>', '<i class="fas fa-spinner"></i>', '</div>',
+                        '</div>',
                     '</div>'
                 ];
+
                 html.push(chtml.join(''));
 
                 if (html.length == num) {
@@ -4554,10 +4680,48 @@
         }
     }
 
+    /**
+     * 提示被邀请提示。
+     * @param {*} group 
+     */
     VoiceGroupCallPanel.prototype.openInviteToast = function(group) {
+        var body = [
+            '<div class="toasts-info">\
+                <div class="info-box">\
+                    <span class="info-box-icon"><img src="images/group-avatar.png" /></span>\
+                    <div class="info-box-content">\
+                        <span class="info-box-text">', group.getName(), '</span>\
+                        <span class="info-box-desc">邀请您参与群组通话</span>\
+                    </div>\
+                </div>\
+                <div class="call-answer">\
+                    <button type="button" class="btn btn-danger" onclick="javascript:app.callCtrl.rejectInvitation();"><i class="ci ci-hangup"></i> 拒绝</button>\
+                    <button type="button" class="btn btn-success" onclick="javascript:app.callCtrl.acceptInvitation();"><i class="ci ci-answer"></i> 加入</button>\
+                </div>\
+            </div>'
+        ];
+
+        $(document).Toasts('create', {
+            title: '语音通话邀请',
+            position: 'bottomRight',
+            icon: 'fas fa-phone-alt',
+            close: false,
+            class: 'voice-new-call',
+            body: body.join('')
+        });
+
+        // 播放振铃音效
+        g.app.mainPanel.playCallRing();
     }
 
+    /**
+     * 关闭邀请提示面板。
+     */
     VoiceGroupCallPanel.prototype.closeInviteToast = function() {
+        $('#toastsContainerBottomRight').find('.voice-new-call').remove();
+
+        // 停止振铃音效
+        g.app.mainPanel.stopCallRing();
     }
 
     g.VoiceGroupCallPanel = VoiceGroupCallPanel;
@@ -4694,7 +4858,7 @@
                                 // 调用启动通话
                                 setTimeout(function() {
                                     handler(group);
-                                }, 500);
+                                }, 100);
                             }
                         });
                     });
@@ -4734,7 +4898,7 @@
                                     // 调用启动通话
                                     handler(group, result);
 
-                                }, '群通话', '请选择要邀请通话的群组成员', (maxMembers - 1));
+                                }, '群视频', '请选择要邀请视频通话的群组成员', (maxMembers - 1));
                             }
                         });
                     });
@@ -7180,14 +7344,32 @@
             return;
         }
 
-        groupCall = true;
-        voiceCall = !video;
+        var handler = function() {
+            groupCall = true;
+            voiceCall = !video;
 
-        if (video) {
-            g.app.videoGroupChatPanel.open(group);
+            if (video) {
+                g.app.videoGroupChatPanel.open(group);
+            }
+            else {
+                g.app.voiceGroupCallPanel.open(group);
+            }
+        }
+
+        // 判断当前场域是否是语音通话
+        if (group.getAppendix().getCommId() != 0) {
+            cube.mpComm.getCommField(group, function(commField) {
+                if (commField.mediaConstraint.videoEnabled == video) {
+                    handler();
+                }
+                else {
+                    // 不能启动
+                    g.dialog.launchToast(Toast.Info, '当前群组正在通话');
+                }
+            });
         }
         else {
-            g.app.voiceGroupCallPanel.open(group);
+            handler();
         }
     }
 
@@ -7244,6 +7426,7 @@
             }
             else {
                 cube.mpComm.setLocalVideoElement(g.app.voiceGroupCallPanel.localVideo);
+                cube.mpComm.setRemoteVideoElement(g.app.voiceGroupCallPanel.remoteVideo);
 
                 if (device) {
                     mediaConstraint.setAudioDevice(device);

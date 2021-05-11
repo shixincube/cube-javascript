@@ -117,6 +117,12 @@ export const MultipointCommState = {
     UnsupportedSignaling: 24,
 
     /**
+     * 不支持的操作。
+     * @type {number}
+     */
+    UnsupportedOperation: 25,
+
+    /**
      * 正在建立通话。
      * @type {number}
      */

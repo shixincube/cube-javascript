@@ -521,14 +521,32 @@
             return;
         }
 
-        groupCall = true;
-        voiceCall = !video;
+        var handler = function() {
+            groupCall = true;
+            voiceCall = !video;
 
-        if (video) {
-            g.app.videoGroupChatPanel.open(group);
+            if (video) {
+                g.app.videoGroupChatPanel.open(group);
+            }
+            else {
+                g.app.voiceGroupCallPanel.open(group);
+            }
+        }
+
+        // 判断当前场域是否是语音通话
+        if (group.getAppendix().getCommId() != 0) {
+            cube.mpComm.getCommField(group, function(commField) {
+                if (commField.mediaConstraint.videoEnabled == video) {
+                    handler();
+                }
+                else {
+                    // 不能启动
+                    g.dialog.launchToast(Toast.Info, '当前群组正在通话');
+                }
+            });
         }
         else {
-            g.app.voiceGroupCallPanel.open(group);
+            handler();
         }
     }
 
@@ -585,6 +603,7 @@
             }
             else {
                 cube.mpComm.setLocalVideoElement(g.app.voiceGroupCallPanel.localVideo);
+                cube.mpComm.setRemoteVideoElement(g.app.voiceGroupCallPanel.remoteVideo);
 
                 if (device) {
                     mediaConstraint.setAudioDevice(device);

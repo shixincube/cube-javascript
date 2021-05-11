@@ -154,7 +154,7 @@
                                 // 调用启动通话
                                 setTimeout(function() {
                                     handler(group);
-                                }, 500);
+                                }, 100);
                             }
                         });
                     });
@@ -194,7 +194,7 @@
                                     // 调用启动通话
                                     handler(group, result);
 
-                                }, '群通话', '请选择要邀请通话的群组成员', (maxMembers - 1));
+                                }, '群视频', '请选择要邀请视频通话的群组成员', (maxMembers - 1));
                             }
                         });
                     });

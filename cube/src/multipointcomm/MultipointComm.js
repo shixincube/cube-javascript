@@ -500,15 +500,20 @@ export class MultipointComm extends Module {
                 // 请求接收其他终端的数据
                 setTimeout(() => {
                     let self = this.cs.getSelf();
-                    this.activeCall.field.getEndpoints().forEach((endpoint) => {
-                        if (endpoint.contact.id == self.id) {
-                            // 跳过自己
-                            return;
-                        }
-
-                        // 接收指定终端的数据
-                        this.follow(endpoint);
-                    });
+                    if (this.activeCall.field.mediaConstraint.videoEnabled) {
+                        this.activeCall.field.getEndpoints().forEach((endpoint) => {
+                            if (endpoint.contact.id == self.id) {
+                                // 跳过自己
+                                return;
+                            }
+    
+                            // 接收指定终端的数据
+                            this.follow(endpoint);
+                        });
+                    }
+                    else {
+                        this.touch(this.activeCall.field);
+                    }
                 }, 100);
             }
         };
@@ -1021,6 +1026,16 @@ export class MultipointComm extends Module {
         }
 
         return true;
+    }
+
+    /**
+     * @protected
+     * @param {*} commField 
+     * @param {*} successCallback 
+     * @param {*} failureCallback 
+     */
+    touch(commField, successCallback, failureCallback) {
+        console.log('touch');
     }
 
     /**
