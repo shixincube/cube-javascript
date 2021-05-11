@@ -202,6 +202,11 @@
             }
 
             g.app.messagePanel.refreshStateBar();
+
+            if (inviteeTimer > 0) {
+                clearTimeout(inviteeTimer);
+                inviteeTimer = 0;
+            }
         }
         else {
             if (voiceCall) {

@@ -4589,6 +4589,8 @@
 
     var tickTimer = 0;
 
+    var minisizeDurationEl = null;
+
     function videoElementAgent(contact) {
         var contactId = (contact instanceof Contact) ? contact.getId() : parseInt(contact);
         return panelEl.find('video[data-target="' + contactId + '"]')[0];
@@ -4600,6 +4602,8 @@
     var VideoGroupChatPanel = function() {
         that = this;
         panelEl = $('#group_video_chat');
+
+        minisizeDurationEl = panelEl.find('.video-group-minisize .duration');
 
         that.localVideo = null;
 
@@ -4794,6 +4798,7 @@
                 invitation.timer.push(timer);
             });
 
+            // 发送加入邀请
             g.cube().mpComm.inviteCall(activeCall.field, invitation.list);
         }
     }
@@ -4805,6 +4810,13 @@
     VideoGroupChatPanel.prototype.tipConnected = function(activeCall) {
         panelEl.find('.header-tip').text('');
 
+        this.refreshState(activeCall);
+    }
+
+    /**
+     * 刷新状态。
+     */
+    VideoGroupChatPanel.prototype.refreshState = function(activeCall) {
         if (tickTimer > 0) {
             clearInterval(tickTimer);
         }
@@ -4822,8 +4834,12 @@
             }
             var now = Date.now();
             var duration = Math.round((now - startTime) / 1000.0);
-            panelEl.find('.header-tip').text(g.formatClockTick(duration));
+            var durationString = g.formatClockTick(duration);
+            panelEl.find('.header-tip').text(durationString);
+            minisizeDurationEl.text(durationString);
         }, 1000);
+
+        panelEl.find('.video-group-minisize .number-of-member').text(activeCall.field.numEndpoints());
     }
 
     /**
@@ -4879,6 +4895,8 @@
 
         currentLayoutList.push(contact);
         this.updateLayout(currentLayoutList);
+
+        panelEl.find('.video-group-minisize .number-of-member').text(currentLayoutList.length);
     }
 
     /**
@@ -4895,6 +4913,8 @@
         }
 
         this.updateLayout(currentLayoutList);
+
+        panelEl.find('.video-group-minisize .number-of-member').text(currentLayoutList.length);
     }
 
     /**
@@ -6841,6 +6861,11 @@
             }
 
             g.app.messagePanel.refreshStateBar();
+
+            if (inviteeTimer > 0) {
+                clearTimeout(inviteeTimer);
+                inviteeTimer = 0;
+            }
         }
         else {
             if (voiceCall) {
