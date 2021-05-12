@@ -1031,8 +1031,8 @@ export class MultipointComm extends Module {
     /**
      * @protected
      * @param {CommField} commField 
-     * @param {function} successCallback 
-     * @param {function} failureCallback 
+     * @param {function} [successCallback] 
+     * @param {function} [failureCallback] 
      */
     touch(commField, successCallback, failureCallback) {
         if (null == this.videoElem.remote) {
@@ -1043,6 +1043,9 @@ export class MultipointComm extends Module {
         }
 
         let successHandler = () => {
+            if (successCallback) {
+                successCallback(this.activeCall);
+            }
         };
 
         let failureHandler = (error) => {
@@ -1061,7 +1064,7 @@ export class MultipointComm extends Module {
         cell.Logger.d(MultipointComm.NAME, 'Touch comm filed: ' + commField.getName());
 
         // 发起 Offer
-        let rtcDevice = this.createRTCDevice('recvonly', null, videoEl);
+        let rtcDevice = this.createRTCDevice('recvonly', null, this.videoElem.remote);
         // 发起 recv only 的 Offer
         this.activeCall.field.launchOffer(rtcDevice, this.activeCall.field.mediaConstraint, successHandler, failureHandler);
 

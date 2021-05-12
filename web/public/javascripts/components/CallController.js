@@ -28,6 +28,9 @@
     
     var cube = null;
 
+    /**
+     * @type {CallController}
+     */
     var that = null;
 
     var selectMediaDeviceEl = null;
@@ -94,7 +97,7 @@
         // 更新布局
         g.app.getContact(event.data.contact.getId(), function(contact) {
             if (voiceCall) {
-                // TODO
+                g.app.voiceGroupCallPanel.appendContact(contact);
             }
             else {
                 g.app.videoGroupChatPanel.appendContact(contact);
@@ -107,7 +110,7 @@
     function onLeft(event) {
         g.app.getContact(event.data.contact.getId(), function(contact) {
             if (voiceCall) {
-                // TODO
+                g.app.voiceGroupCallPanel.removeContact(contact);
             }
             else {
                 g.app.videoGroupChatPanel.removeContact(contact);
@@ -120,7 +123,7 @@
     function onFollowed(event) {
         var endpoint = event.data;
         if (voiceCall) {
-            // TODO
+            g.app.voiceGroupCallPanel.unmark(endpoint.contact);
         }
         else {
             g.app.videoGroupChatPanel.unmark(endpoint.contact);

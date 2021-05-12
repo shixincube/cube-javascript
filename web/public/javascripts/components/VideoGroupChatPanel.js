@@ -31,6 +31,9 @@
      */
     const maxMembers = 6;
 
+    /**
+     * @type {VideoGroupChatPanel}
+     */
     var that = null;
 
     var panelEl = null;

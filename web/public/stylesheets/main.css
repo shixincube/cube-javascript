@@ -1653,7 +1653,13 @@ video {
 .voice-group-panel .modal-dialog {
     width: 510px;
 }
-
+.voice-group-panel .header-tip {
+    color: #fff;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    text-align: left;
+    margin-top: 5px;
+}
 .voice-group-panel .layout {
     background-color: #343a40;
     padding: 10px;

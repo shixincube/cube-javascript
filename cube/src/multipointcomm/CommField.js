@@ -721,6 +721,9 @@ export class CommField extends Entity {
      */
     onIceCandidate(candidate, rtcDevice) {
         let signaling = new Signaling(MultipointCommAction.Candidate, this, this.self, this.self.device);
+        // 设置 SN
+        signaling.sn = rtcDevice.sn;
+        // 设置 Candidate
         signaling.candidate = candidate;
 
         let endpoint = this.rtcForEndpointMap.get(rtcDevice.sn);

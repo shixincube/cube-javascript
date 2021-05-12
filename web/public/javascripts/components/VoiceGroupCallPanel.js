@@ -34,6 +34,9 @@
      */
     const maxMembers = 16;
 
+    /**
+     * @type {VoiceGroupCallPanel}
+     */
     var that = null;
 
     var panelEl = null;
@@ -50,7 +53,9 @@
 
     var minimized = false;
 
-    
+    var tickTimer = 0;
+
+    var minisizeDurationEl = null;
 
     /**
      * 群组语音通话面板。
@@ -58,6 +63,8 @@
     var VoiceGroupCallPanel = function() {
         that = this;
         panelEl = $('#group_voice_call');
+
+        minisizeDurationEl = panelEl.find('.voice-group-minisize .duration');
 
         that.localVideo = panelEl.find('video[data-target="local"]')[0];
         that.remoteVideo = panelEl.find('video[data-target="remote"]')[0];
@@ -95,15 +102,6 @@
         var audioDevice = null;
 
         var handler = function(group, idList) {
-
-            // XJW
-            // 显示窗口
-            // panelEl.modal({
-            //     keyboard: false,
-            //     backdrop: false
-            // });
-            // if (group) return;
-            // XJW
 
             if (g.app.callCtrl.makeCall(group, false, audioDevice)) {
                 panelEl.find('.voice-group-default .modal-title').text('群通话 - ' + group.getName());
@@ -238,18 +236,85 @@
         });
     }
 
+    /**
+     * 关闭面板。
+     */
     VoiceGroupCallPanel.prototype.close = function() {
         panelEl.modal('hide');
     }
 
+    /**
+     * 提示正在等待接通。
+     * @param {*} activeCall 
+     */
     VoiceGroupCallPanel.prototype.tipWaitForAnswer = function(activeCall) {
         panelEl.find('.header-tip').text('正在等待服务器应答...');
+
+        // 尝试邀请列表里联系人
+        if (null != invitation.list) {
+            invitation.list.forEach(function(value) {
+                var timer = setTimeout(function() {
+                    that.fireInviteTimeout(value);
+                }, 30000);
+                invitation.timer.push(timer);
+            });
+
+            // 发送加入邀请
+            g.cube().mpComm.inviteCall(activeCall.field, invitation.list);
+        }
     }
 
+    /**
+     * 提示已接通。
+     * @param {*} activeCall 
+     */
     VoiceGroupCallPanel.prototype.tipConnected = function(activeCall) {
-        panelEl.find('.header-tip').text('已接通...');
+        panelEl.find('.header-tip').text('');
+
+        this.refreshState(activeCall);
     }
 
+    /**
+     * 刷新状态。
+     */
+    VoiceGroupCallPanel.prototype.refreshState = function(activeCall) {
+        if (tickTimer > 0) {
+            clearInterval(tickTimer);
+        }
+
+        tickTimer = setInterval(function() {
+            if (null == activeCall.field) {
+                clearInterval(tickTimer);
+                tickTimer = 0;
+                return;
+            }
+
+            var startTime = activeCall.field.startTime;
+            if (startTime <= 0) {
+                return;
+            }
+            var now = Date.now();
+            var duration = Math.round((now - startTime) / 1000.0);
+            var durationString = g.formatClockTick(duration);
+            panelEl.find('.header-tip').text(durationString);
+            minisizeDurationEl.text(durationString);
+        }, 1000);
+
+        panelEl.find('.voice-group-minisize .number-of-member').text(activeCall.field.numEndpoints());
+    }
+
+    /**
+     * 取消遮罩
+     * @param {Contact} contact 
+     */
+    VoiceGroupCallPanel.prototype.unmark = function(contact) {
+        var layoutEl = panelEl.find('.layout');
+        layoutEl.find('div[data="' + contact.getId() + '"]').find('.mask').css('visibility', 'hidden');
+    }
+
+    /**
+     * 界面最小化。
+     */
     VoiceGroupCallPanel.prototype.minimize = function() {
         if (minimized) {
             return;
@@ -262,6 +327,9 @@
         panelEl.find('.voice-group-minisize').css('display', 'block');
     }
 
+    /**
+     * 恢复界面。
+     */
     VoiceGroupCallPanel.prototype.restore = function() {
         if (!minimized) {
             return;
@@ -274,6 +342,9 @@
         panelEl.find('.voice-group-minisize').css('display', 'none');
     }
 
+    /**
+     * 结束通话。
+     */
     VoiceGroupCallPanel.prototype.terminate = function() {
         if (!g.app.callCtrl.hangupCall()) {
             that.close();
@@ -281,6 +352,50 @@
     }
 
     /**
+     * 添加联系人到面板，并更新面板布局。
+     * @param {Contact} contact 
+     */
+    VoiceGroupCallPanel.prototype.appendContact = function(contact, spinning) {
+        var layoutEl = panelEl.find('.layout');
+        var el = layoutEl.find('div[data="' + contact.getId() + '"]');
+        if (el.length > 0) {
+            return;
+        }
+
+        var col = 'col-3';
+        var html = [
+            '<div data="', contact.getId(), '" class="', col, '">',
+                '<div class="avatar">',
+                    '<img src="images/', contact.getContext().avatar, '" />',
+                '</div>',
+                '<div class="name">',
+                    '<div>', contact.getName(), '</div>',
+                '</div>',
+                '<div class="mask"', spinning ? '' : ' style="visibility:hidden;"', '>',
+                    '<div>', '<i class="fas fa-spinner"></i>', '</div>',
+                '</div>',
+            '</div>'
+        ];
+
+        layoutEl.append($(html.join('')));
+    }
+
+    /**
+     * 移除联系人，并更新面板布局。
+     * @param {Contact} contact 
+     */
+    VoiceGroupCallPanel.prototype.removeContact = function(contact) {
+        var layoutEl = panelEl.find('.layout');
+        var el = layoutEl.find('div[data="' + contact.getId() + '"]');
+        if (el.length == 0) {
+            return;
+        }
+
+        el.remove();
+    }
+
+    /**
+     * 重置布局。
      * @private
      * @param {Array} list 
      */
@@ -292,8 +407,7 @@
         var html = [];
 
         var handler = function() {
-            layoutEl.empty();
-            layoutEl.append($(html.join('')));
+            layoutEl.html(html.join(''));
         };
 
         for (var i = 0; i < num; ++i) {
@@ -364,6 +478,24 @@
 
         // 停止振铃音效
         g.app.mainPanel.stopCallRing();
+    }
+
+    /**
+     * 执行邀请超时。
+     * @param {*} contactId 
+     */
+    VoiceGroupCallPanel.prototype.fireInviteTimeout = function(contactId) {
+        var index = invitation.list.indexOf(contactId);
+        if (index >= 0) {
+            var timer = invitation.timer[index];
+            clearTimeout(timer);
+            invitation.list.splice(index, 1);
+            invitation.timer.splice(index, 1);
+        }
+
+        g.app.getContact(contactId, function(contact) {
+            that.removeContact(contact);
+        });
     }
 
     g.VoiceGroupCallPanel = VoiceGroupCallPanel;
