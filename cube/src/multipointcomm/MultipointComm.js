@@ -1030,12 +1030,42 @@ export class MultipointComm extends Module {
 
     /**
      * @protected
-     * @param {*} commField 
-     * @param {*} successCallback 
-     * @param {*} failureCallback 
+     * @param {CommField} commField 
+     * @param {function} successCallback 
+     * @param {function} failureCallback 
      */
     touch(commField, successCallback, failureCallback) {
-        console.log('touch');
+        if (null == this.videoElem.remote) {
+            if (failureCallback) {
+                failureCallback(new ModuleError(MultipointComm.NAME, MultipointCommState.VideoElementNotSetting, commField));
+            }
+            return false;
+        }
+
+        let successHandler = () => {
+        };
+
+        let failureHandler = (error) => {
+            // 记录错误
+            if (null != this.activeCall) {
+                this.activeCall.lastError = error;
+            }
+
+            if (failureCallback) {
+                failureCallback(error);
+            }
+
+            // this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
+        };
+
+        cell.Logger.d(MultipointComm.NAME, 'Touch comm filed: ' + commField.getName());
+
+        // 发起 Offer
+        let rtcDevice = this.createRTCDevice('recvonly', null, videoEl);
+        // 发起 recv only 的 Offer
+        this.activeCall.field.launchOffer(rtcDevice, this.activeCall.field.mediaConstraint, successHandler, failureHandler);
+
+        return true;
     }
 
     /**
@@ -1081,7 +1111,7 @@ export class MultipointComm extends Module {
                 failureCallback(error);
             }
 
-            this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
+            // this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
 
             if (null != this.activeCall) {
                 this.activeCall.field.closeRTCDevice(endpoint);
@@ -1182,7 +1212,7 @@ export class MultipointComm extends Module {
                     if (failureCallback) {
                         failureCallback(error);
                     }
-                    this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
+                    // this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
                 }
             }
             else {
@@ -1190,7 +1220,7 @@ export class MultipointComm extends Module {
                 if (failureCallback) {
                     failureCallback(error);
                 }
-                this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
+                // this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
             }
         });
 
@@ -1372,10 +1402,16 @@ export class MultipointComm extends Module {
             rtcDevice = this.activeCall.field.getRTCDevice();
         }
         else {
-            let fromContact = answerSignaling.contact;
-            let endpoint = this.activeCall.field.getEndpoint(fromContact);
-            // 查找到对应的 RTC 设备
-            rtcDevice = this.activeCall.field.getRTCDevice(endpoint);
+            if (answerSignaling.sn == 0) {
+                let fromContact = answerSignaling.contact;
+                let endpoint = this.activeCall.field.getEndpoint(fromContact);
+                // 查找到对应的 RTC 设备
+                rtcDevice = this.activeCall.field.getRTCDevice(endpoint);
+            }
+            else {
+                // 通过 SN 查找 RTC 设备
+                rtcDevice = this.activeCall.field.getRTCDevice(answerSignaling.sn);
+            }
         }
 
         if (null == rtcDevice) {
@@ -1410,10 +1446,15 @@ export class MultipointComm extends Module {
             rtcDevice = this.activeCall.field.getRTCDevice();
         }
         else {
-            // 找到对应的节点
-            let endpoint = this.activeCall.field.getEndpoint(signaling.contact);
-            if (null != endpoint) {
-                rtcDevice = this.activeCall.field.getRTCDevice(endpoint);
+            if (signaling.sn == 0) {
+                // 找到对应的节点
+                let endpoint = this.activeCall.field.getEndpoint(signaling.contact);
+                if (null != endpoint) {
+                    rtcDevice = this.activeCall.field.getRTCDevice(endpoint);
+                }
+            }
+            else {
+                rtcDevice = this.activeCall.field.getRTCDevice(signaling.sn);
             }
         }
 
@@ -1519,12 +1560,14 @@ export class MultipointComm extends Module {
 
         this.notifyObservers(new ObservableEvent(MultipointCommEvent.Arrived, endpoint));
 
-        // 接收对方的音视频流
-        setTimeout(() => {
-            if (!this.follow(endpoint)) {
-                cell.Logger.w(MultipointComm.NAME, 'Comm field state error, can not follow endpoint "' + endpoint.getName() + '"');
-            }
-        }, 1000);
+        if (commField.id == this.activeCall.field.id && commField.mediaConstraint.videoEnabled) {
+            // 接收对方的音视频流
+            setTimeout(() => {
+                if (!this.follow(endpoint)) {
+                    cell.Logger.w(MultipointComm.NAME, 'Comm field state error, can not follow endpoint "' + endpoint.getName() + '"');
+                }
+            }, 1000);
+        }
     }
 
     triggerLeft(payload) {

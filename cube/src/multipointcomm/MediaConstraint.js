@@ -73,11 +73,11 @@ export class MediaConstraint extends JSONable {
         this.dimension = VideoDimension.VGA_IDEAL;
 
         /**
-         * SFU 模式。
+         * 强制限制模式。
          * @private
          * @type {boolean}
          */
-        this.sfuPattern = false;
+        this.limitPattern = false;
     }
 
     /**
@@ -150,7 +150,7 @@ export class MediaConstraint extends JSONable {
             // 获取视频画幅约束
             data.video = this.dimension.constraints;
 
-            if (this.sfuPattern) {
+            if (this.limitPattern) {
                 /*
                 mandatory : {
                     maxWidth : 320,

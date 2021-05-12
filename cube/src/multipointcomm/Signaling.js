@@ -47,6 +47,12 @@ export class Signaling extends JSONable {
         super();
 
         /**
+         * 信令序号。
+         * @type {number}
+         */
+        this.sn = 0;
+
+        /**
          * 信令名。
          * @type {string}
          */
@@ -130,6 +136,7 @@ export class Signaling extends JSONable {
      */
     toJSON() {
         let json = super.toJSON();
+        json["sn"] = this.sn;
         json["name"] = this.name;
         json["field"] = this.field.toCompactJSON();
         json["contact"] = this.contact.toCompactJSON();
@@ -177,6 +184,9 @@ export class Signaling extends JSONable {
             CommField.create(json.field, pipeline, self),
             Contact.create(json.contact),
             Device.create(json.device));
+
+        // SN
+        signaling.sn = json.sn;
 
         if (json.description) {
             signaling.sessionDescription = json.description;

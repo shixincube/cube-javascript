@@ -129,6 +129,12 @@ export class CommField extends Entity {
         this.inboundRTCMap = new OrderMap();
 
         /**
+         * 用于 MCU 模式下接收 Comm Field 单路流的入站 RTC 终端。
+         * @type {RTCDevice}
+         */
+        this.inboundRTC = null;
+
+        /**
          * RTC 设备对应的目标。键为 RTC 设备的 SN 。
          * @type {OrderMap< number, CommFieldEndpoint >}
          */
@@ -212,12 +218,11 @@ export class CommField extends Entity {
                 this.inboundRTCMap.put(target.id, rtcDevice);
             }
             else {
-                failureCallback(new ModuleError(MultipointComm.NAME, MultipointCommState.RTCPeerError, rtcDevice));
-                return;
+                this.inboundRTC = rtcDevice;
             }
         }
 
-        if (target) {
+        if (undefined !== target && null != target) {
             // 匹配目标
             this.rtcForEndpointMap.put(rtcDevice.sn, target);
         }
@@ -233,13 +238,15 @@ export class CommField extends Entity {
         };
 
         if (!this.isPrivate()) {
-            // 调整为 SFU 模式的媒体约束
-            mediaConstraint.sfuPattern = true;
+            // 调整为限制模式的媒体约束
+            mediaConstraint.limitPattern = true;
         }
 
         rtcDevice.openOffer(mediaConstraint, (description) => {
             // 创建信令
             let signaling = new Signaling(MultipointCommAction.Offer, this, this.self, this.self.device);
+            // 设置 SN
+            signaling.sn = rtcDevice.sn;
             // 设置 SDP 信息
             signaling.sessionDescription = description;
             // 设置媒体约束
@@ -273,7 +280,7 @@ export class CommField extends Entity {
      * @param {MediaConstraint} mediaConstraint 
      * @param {function} successCallback 
      * @param {function} failureCallback 
-     * @param {CommFieldEndpoint} target
+     * @param {CommFieldEndpoint} [target]
      */
     launchAnswer(rtcDevice, offerDescription, mediaConstraint, successCallback, failureCallback, target) {
         if (rtcDevice.mode == 'sendrecv' || rtcDevice.mode == 'sendonly') {
@@ -284,8 +291,7 @@ export class CommField extends Entity {
                 this.inboundRTCMap.put(target.id, rtcDevice);
             }
             else {
-                failureCallback(new ModuleError(MultipointComm.NAME, MultipointCommState.RTCPeerError, rtcDevice));
-                return;
+                this.inboundRTC = rtcDevice;
             }
         }
 
@@ -302,6 +308,8 @@ export class CommField extends Entity {
         rtcDevice.openAnswer(offerDescription, mediaConstraint, (description) => {
             // 创建信令
             let signaling = new Signaling(MultipointCommAction.Answer, this, this.self, this.self.device);
+            // 设置 SN
+            signaling.sn = rtcDevice.sn;
             // 设置 SDP 信息
             signaling.sessionDescription = description;
             // 设置媒体约束
@@ -560,12 +568,16 @@ export class CommField extends Entity {
 
     /**
      * 获取指定终端的 RTC 设备。
-     * @param {CommFieldEndpoint} [endpoint] 指定终端。
+     * @param {CommFieldEndpoint|number} [endpoint] 指定终端。
      * @returns {RTCDevice} 返回指定终端的 RTC 设备。
      */
     getRTCDevice(endpoint) {
         if (undefined === endpoint) {
             return this.outboundRTC;
+        }
+
+        if (typeof endpoint === 'number') {
+            return this.getRTCDeviceWithSN(endpoint);
         }
 
         let device = this.inboundRTCMap.get(endpoint.getId());
@@ -579,6 +591,32 @@ export class CommField extends Entity {
         }
 
         return null;
+    }
+
+    /**
+     * 获取指定 SN 对应的 RTC 设备。
+     * @private
+     * @param {number} sn 
+     * @returns {RTCDevice}
+     */
+    getRTCDeviceWithSN(sn) {
+        if (null != this.outboundRTC && this.outboundRTC.sn == sn) {
+            return this.outboundRTC;
+        }
+        else if (null != this.inboundRTC && this.inboundRTC.sn == sn) {
+            return this.inboundRTC;
+        }
+        else {
+            let list = this.inboundRTCMap.values();
+            for (let i = 0; i < list.length; ++i) {
+                let rtc = list[i];
+                if (rtc.sn == sn) {
+                    return rtc;
+                }
+            }
+
+            return null;
+        }
     }
 
     /**
@@ -635,6 +673,11 @@ export class CommField extends Entity {
         this.inboundRTCMap.clear();
 
         this.rtcForEndpointMap.clear();
+
+        if (null != this.inboundRTC) {
+            this.inboundRTC.close();
+            this.inboundRTC = null;
+        }
     }
 
     /**
