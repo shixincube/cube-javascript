@@ -5,7 +5,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2021 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,7 @@
     <meta id="theme-color" name="theme-color" content="#ffffff">
     <base target="_blank">
 
-    <title>时信魔方示例 - 消息的发送与接收</title>
+    <title>时信魔方示例 - Hello World</title>
 
     <link rel="icon" sizes="192x192" href="../../images/favicon.png">
     <link rel="stylesheet" href="../../css/main.css">
@@ -44,52 +44,40 @@
 <body>
 <div id="container">
 
-    <h1><a href="../../" title="时信魔方示例">时信魔方示例</a> <span>消息的发送与接收</span>
+    <h1><a href="../../" title="时信魔方示例">时信魔方示例</a> <span>Hello World</span>
     </h1>
 
     <section id="blurb">
-        <p>该示例演示如何启动 Cube 并使用消息模块收发消息。</p>
+        <p>Hello World - 欢迎来到时信魔方。</p>
+        <textarea cols="100" rows="5" disabled placeholder="您可以点击“启动”按钮来启动魔方引擎，这里会显示引擎的日志信息。"></textarea>
     </section>
 
-    <section id="contactSetting">
-        <h2>账号设置</h2>
-        <div>
-            <label for="contactId">账号ID：</label>
-            <input id="contactId">
-        </div>
-        <div>
-            <label for="contactName">账号显示名：</label>
-            <input id="contactName">
-        </div>
-
+    <section id="operation">
+        <h2>启动/停止魔方引擎</h2>
+        <p>点击“启动”和“停止”按钮来启动和停止魔方引擎。</p>
         <div>
             <button id="start">启动</button>
             <button id="stop" disabled>停止</button>
         </div>
     </section>
 
-    <section id="messages">
-        <h2>消息内容</h2>
+    <section id="contact">
+        <h2>账号操作</h2>
         <div>
-            <textarea rows="8" readonly></textarea>
+            <label for="contactId">账号ID：</label>
+            <input id="contactId" readonly>
+        </div>
+        <div>
+            <label for="contactName">账号显示名：</label>
+            <input id="contactName" readonly>
+        </div>
+
+        <div>
+            <button id="signin" disabled>签入</button>
+            <button id="signout" disabled>签出</button>
         </div>
     </section>
 
-    <section id="operate">
-        <div style="display:block;">
-            <label for="messsageTaget">发送目标：</label>
-            <input id="messsageTaget">
-        </div>
-        <div>
-            <label for="messsageInput">输入消息：</label>
-            <input id="messsageInput">
-        </div>
-        <div>
-            <button id="send" disabled>发送</button>
-        </div>
-
-        <div class="tip">状态：<span id="state">#</span></div>
-    </section>
 </div>
 
 <script type="text/javascript" src="../../js/cube.js"></script>

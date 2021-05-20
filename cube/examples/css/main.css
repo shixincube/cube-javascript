@@ -58,6 +58,11 @@ body {
     margin: 0;
     padding: 1em;
     word-break: break-word;
+    font-size: 16px;
+}
+
+input {
+    font-size: 14px;
 }
 
 button {
