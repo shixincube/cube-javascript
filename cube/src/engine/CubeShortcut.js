@@ -184,7 +184,7 @@ export class CubeShortcut {
      * @returns {boolean} 如果当前状态正常，允许签出返回 {@linkcode true} 。
      */
     signOut() {
-        return this.engine.getContactService.signOut();
+        return this.engine.getContactService().signOut();
     }
 
     /**

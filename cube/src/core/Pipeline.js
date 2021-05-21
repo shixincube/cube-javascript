@@ -54,6 +54,32 @@ import { PipelineError } from "./error/PipelineError";
 
 
 /**
+ * 网络事件名枚举。
+ * @readonly
+ * @enum {string}
+ */
+const CubeNetworkEventName = {
+    /**
+     * 与服务器建立连接。
+     * @type {string}
+     */
+    connected: 'connected',
+
+    /**
+     * 与服务器断开连接。
+     * @type {string}
+     */
+    disconnected: 'disconnected',
+
+    /**
+     * 连接时发生故障，建立连接失败。
+     * @type {string}
+     */
+    failed: 'failed'
+};
+
+
+/**
  * 数据通道服务接口。
  */
 export class Pipeline {
@@ -215,7 +241,7 @@ export class Pipeline {
     /**
      * 触发状态事件。
      * @private
-     * @param {string} state 
+     * @param {string} state 状态描述有：{@linkcode connected} ， {@linkcode disconnected} 和 {@linkcode failed} 。
      * @param {PipelineError} error 
      */
     triggerState(state, error) {

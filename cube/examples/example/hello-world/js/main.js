@@ -41,9 +41,14 @@ const signInCubeButton = document.querySelector('button#signin');
 const signOutCubeButton = document.querySelector('button#signout');
 
 const contactIdInput = document.querySelector('input#contactId');
+const contactNameInput = document.querySelector('input#contactName');
 
 startCubeButton.onclick = startCube;
 stopCubeButton.onclick = stopCube;
+
+signInCubeButton.onclick = signIn;
+signOutCubeButton.onclick = signOut;
+
 
 // 启动魔方引擎
 function startCube() {
@@ -63,12 +68,12 @@ function startCube() {
         println('启动 Cube 成功');
 
         stopCubeButton.removeAttribute('disabled');
-        // contactIdInput.setAttribute('readonly', 'readonly');
-        // contactNameInput.setAttribute('readonly', 'readonly');
 
-        // if (contactNameInput.value.length == 0) {
-        //     contactNameInput.value = '时信魔方-' + contactIdInput.value;
-        // }
+        contactIdInput.removeAttribute('disabled');
+        contactNameInput.removeAttribute('disabled');
+        signInCubeButton.removeAttribute('disabled');
+
+        println('输入任意一个联系人的 ID 即可签入');
     }, function() {
         println('启动 Cube 失败');
 
@@ -84,6 +89,44 @@ function stopCube() {
 
     startCubeButton.removeAttribute('disabled');
     stopCubeButton.setAttribute('disabled', 'disabled');
+    contactIdInput.setAttribute('disabled', 'disabled');
+    contactNameInput.setAttribute('disabled', 'disabled');
+    signInCubeButton.setAttribute('disabled', 'disabled');
+    signOutCubeButton.setAttribute('disabled', 'disabled');
+}
+
+// 联系人签入
+function signIn() {
+    if (contactIdInput.value.length < 6) {
+        println('账号 ID 不能少于 6 位');
+        return;
+    }
+
+    println('签入联系人 ' + contactIdInput.value);
+
+    // 调用 siginIn 函数签入联系人
+    cube.signIn(contactIdInput.value, contactNameInput.value);
+
+    contactIdInput.setAttribute('disabled', 'disabled');
+    contactNameInput.setAttribute('disabled', 'disabled');
+    signInCubeButton.setAttribute('disabled', 'disabled');
+    signOutCubeButton.removeAttribute('disabled');
+}
+
+// 联系人签出
+function signOut() {
+    println('签出联系人 ' + contactIdInput.value);
+
+    // 调用 signOut 函数签出联系人
+    cube.signOut();
+
+    contactIdInput.value = '';
+    contactNameInput.value = '';
+
+    contactIdInput.removeAttribute('disabled');
+    contactNameInput.removeAttribute('disabled');
+    signOutCubeButton.setAttribute('disabled', 'disabled');
+    signInCubeButton.removeAttribute('disabled');
 }
 
 // 打印一行文档到日志显示区域
