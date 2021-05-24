@@ -149,67 +149,39 @@ export class AuthService extends Module {
         let storage = new TokenStorage();
 
         let activeToken = storage.load(id);
-        if (null != activeToken && activeToken.isValid()) {
-            this.token = activeToken;
-            this.token.cid = id;
-            handler(this.token);
-            return;
-        }
 
-        activeToken = storage.loadToken();
         if (null != activeToken && activeToken.isValid()) {
-            this.token = activeToken;
-            this.token.cid = id;
-            storage.save(id, this.token);
-            handler(this.token);
-            return;
+            if (activeToken.cid == 0) {
+                activeToken.cid = id;
+                this.token = activeToken;
+                storage.save(id, activeToken);
+                AuthService.TOKEN = this.token.code;
+                handler(this.token);
+                return;
+            }
+
+            if (activeToken.cid == id) {
+                this.token = activeToken;
+                AuthService.TOKEN = this.token.code;
+                handler(this.token);
+                return;
+            }
         }
 
         (async ()=> {
             let newToken = await this.applyToken(this.domain, this.appKey);
             if (null != newToken) {
+                newToken.cid = id;
                 storage.save(id, newToken);
-                storage.saveToken(newToken);
                 this.token = newToken;
-                this.token.cid = id;
+                AuthService.TOKEN = this.token.code;
                 handler(this.token);
             }
             else {
+                AuthService.TOKEN = null;
                 handler(null);
             }
         })();
-
-        /*if (null != this.token) {
-            // 将候选令牌转为该 ID 令牌
-            if (!storage.raise(id)) {
-                this.token.cid = id;
-                storage.save(id, this.token);
-            }
-
-            // 申请新的候选令牌
-            (async ()=> {
-                let newToken = await this.applyToken(this.token.domain, this.token.appKey);
-                if (null != newToken) {
-                    storage.saveCandidate(newToken);
-                }
-            })();
-
-            handler(this.token);
-        }
-        else {
-            (async ()=> {
-                let newToken = await this.applyToken(this.domain, this.appKey);
-                if (null != newToken) {
-                    storage.save(id, newToken);
-                    this.token = newToken;
-                    this.token.cid = id;
-                    handler(this.token);
-                }
-                else {
-                    handler(null);
-                }
-            })();
-        }*/
     }
 
     /**
@@ -233,16 +205,6 @@ export class AuthService extends Module {
         // 判断令牌是否到有效期
         if (null != this.token && this.token.isValid()) {
             AuthService.TOKEN = this.token.code;
-
-            // if (this.checkTimer > 0) {
-            //     clearTimeout(this.checkTimer);
-            // }
-            // this.checkTimer = setTimeout(() => {
-            //     clearTimeout(this.checkTimer);
-            //     this.checkTimer = 0;
-            //     this.checkToken();
-            // }, 1000);
-
             return this.token;
         }
 
@@ -259,7 +221,6 @@ export class AuthService extends Module {
 
         if (null != this.token) {
             AuthService.TOKEN = this.token.code;
-
             // 保存令牌
             storage.saveToken(this.token);
         }

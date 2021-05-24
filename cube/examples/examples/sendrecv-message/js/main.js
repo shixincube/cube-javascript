@@ -125,7 +125,7 @@ function onSent(event) {
     let message = event.getData();
     let text = [message.from, ' -> ', message.to, ' (', formatDate(message.getRemoteTimestamp()), '): ',
         message.getPayload().content, '\n'];
-    
+
     messagesTextarea.value += text.join('');
 
     messagesTextarea.scrollTop = messagesTextarea.scrollHeight;
