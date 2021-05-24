@@ -31,6 +31,10 @@ textarea {
     color: #616161;
 }
 
+section#blurb {
+    margin: 0 0 2px 0;
+}
+
 section#operation div {
     display: inline-block;
     margin-right: 2em;
