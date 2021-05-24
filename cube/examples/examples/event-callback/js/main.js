@@ -63,6 +63,9 @@ function startCube() {
         "appKey": "shixin-cubeteam-opensource-appkey"
     };
 
+    // 绑定事件
+    bindEvents();
+
     // 调用 start 启动引擎
     cube.start(config, function() {
         println('启动 Cube 成功');
@@ -93,6 +96,32 @@ function stopCube() {
     contactNameInput.setAttribute('disabled', 'disabled');
     signInCubeButton.setAttribute('disabled', 'disabled');
     signOutCubeButton.setAttribute('disabled', 'disabled');
+}
+
+// 绑定事件监听器
+function bindEvents() {
+    // 监听网络事件
+    cube.on('network', function(event) {
+        if (event.name == 'connected') {
+            println('网络事件：已连接');
+        }
+        else if (event.name == 'failed') {
+            println('网络事件：连接发生错误');
+        }
+        else if (event.name == 'disconnected') {
+            println('网络事件：未连接');
+        }
+    });
+
+    // 监听联系人签入事件
+    cube.contact.on(ContactEvent.SignIn, function(event) {
+        println(event.name + ' - 签入的联系人 ID ：' + event.data.id);
+    });
+
+    // 监听联系人签出事件
+    cube.contact.on(ContactEvent.SignOut, function(event) {
+        println(event.name + ' - 签出的联系人 ID ：' + event.data.id);
+    });
 }
 
 // 联系人签入
