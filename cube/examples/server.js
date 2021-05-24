@@ -1,8 +1,19 @@
-const express = require('express')
+const express = require('express');
 var path = require('path');
-const app = express()
-const port = 8000
+var fs = require('fs');
+var https = require('https');
 
-app.use(express.static(path.join(__dirname, './')))
+var options = {
+    cert: fs.readFileSync(path.join(__dirname, 'server.cer')),
+    key:  fs.readFileSync(path.join(__dirname, 'server.key'))
+};
 
-app.listen(port, () => console.log(`Example server listening on port ${port}!`))
+const app = express();
+const port = 8000;
+const sslPort = 8443;
+
+app.use(express.static(path.join(__dirname, './')));
+
+app.listen(port, () => console.log(`Example server listening on port ${port}!`));
+
+https.createServer(options, app).listen(sslPort, () => console.log(`Example server listening on SSL port ${sslPort}!`));
