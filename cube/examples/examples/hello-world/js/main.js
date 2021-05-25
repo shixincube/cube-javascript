@@ -57,7 +57,7 @@ function startCube() {
     startCubeButton.setAttribute('disabled', 'disabled');
 
     // 填写引擎需要的参数
-    let config = {
+    var config = {
         "address": "127.0.0.1",
         "domain": "shixincube.com",
         "appKey": "shixin-cubeteam-opensource-appkey"

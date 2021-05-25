@@ -57,12 +57,13 @@ function startCube() {
         return;
     }
 
-    let config = {
+    var config = {
         "address": "127.0.0.1",
         "domain": "shixincube.com",
         "appKey": "shixin-cubeteam-opensource-appkey"
     };
-    // 获取 Cube 实例，并启动
+
+    // 启动魔方引擎
     cube.start(config, function() {
         stateLabel.innerHTML = '启动 Cube 成功';
 
@@ -99,20 +100,20 @@ function stopCube() {
 }
 
 function sendMessage() {
-    let target = messsageTagetInput.value;
+    var target = messsageTagetInput.value;
     if (target.length == 0) {
         stateLabel.innerHTML = '<span class="warning">请指定“发送目标”</span>';
         return;
     }
 
-    let content = messsageInput.value;
+    var content = messsageInput.value;
     if (content.length == 0) {
         stateLabel.innerHTML = '<span class="warning">请输入需要发送的内容</span>';
         return;
     }
 
     // 创建 Message 实例
-    let message = new Message({ content: content });
+    var message = new Message({ content: content });
     // 发送消息给目标联系人
     cube.messaging.sendToContact(target, message);
 
@@ -122,8 +123,10 @@ function sendMessage() {
 }
 
 function onSent(event) {
-    let message = event.getData();
-    let text = [message.from, ' -> ', message.to, ' (', formatDate(message.getRemoteTimestamp()), '): ',
+    // 从事件中得到已发送的消息实例
+    var message = event.getData();
+
+    var text = [message.from, ' -> ', message.to, ' (', formatDate(message.getRemoteTimestamp()), '): ',
         message.getPayload().content, '\n'];
 
     messagesTextarea.value += text.join('');
@@ -134,9 +137,10 @@ function onSent(event) {
 }
 
 function onNotify(event) {
-    let message = event.getData();
+    // 从事件中得到接收到的消息实例
+    var message = event.getData();
 
-    let text = [message.from, ' -> ', message.to, ' (', formatDate(message.getRemoteTimestamp()), '): ',
+    var text = [message.from, ' -> ', message.to, ' (', formatDate(message.getRemoteTimestamp()), '): ',
         message.getPayload().content, '\n'];
     
     messagesTextarea.value += text.join('');
@@ -147,8 +151,8 @@ function onNotify(event) {
 }
 
 function formatDate(timestamp) {
-    let date = new Date(timestamp);
-    let text = [date.getMonth() + 1, '-', date.getDate(), ' ', date.getHours(), ':', date.getMinutes(), ':', date.getSeconds()];
+    var date = new Date(timestamp);
+    var text = [date.getMonth() + 1, '-', date.getDate(), ' ', date.getHours(), ':', date.getMinutes(), ':', date.getSeconds()];
     return text.join('');
 }
 
