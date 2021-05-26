@@ -25,18 +25,35 @@
  */
 
 /**
- * 多方通讯事件。
+ * 多方通讯事件枚举。
+ * @readonly
+ * @enum
+ * @property {string} NewCall 有新的通话邀请。
+ * @property {string} InProgress 正在处理通话请求。
+ * @property {string} Ringing 对方振铃。
+ * @property {string} Connected 已经建立连接。
+ * @property {string} Busy 对方忙。
+ * @property {string} Bye 结束当前呼叫。
+ * @property {string} Invited 被邀请加入通话。
+ * @property {string} Arrived 新参与者加入。
+ * @property {string} Left 参与者已离开。
+ * @property {string} Followed 已经接收参与者数据。
+ * @property {string} Unfollowed 已经停止接收参与者数据。
+ * @property {string} Timeout 呼叫或应答超时。
+ * @property {string} MediaConnected 媒体流建立连接。
+ * @property {string} MediaDisconnected 媒体流断开连接。
+ * @property {string} Failed 发生错误。
  */
 export const MultipointCommEvent = {
 
     /**
-     * 有新的呼叫。
+     * 有新的通话邀请。
      * @type {string}
      */
     NewCall: 'NewCall',
 
     /**
-     * 正在处理呼叫。
+     * 正在处理通话请求。
      * @type {string}
      */
     InProgress: 'InProgress',
@@ -96,18 +113,20 @@ export const MultipointCommEvent = {
     Unfollowed: 'Unfollowed',
 
     /**
-     * 呼叫超时。
+     * 呼叫或应答超时。
      * @type {string}
      */
     Timeout: 'Timeout',
 
     /**
-     * 媒体建立连接。
+     * 媒体流建立连接。
+     * @type {string}
      */
     MediaConnected: 'MediaConnected',
 
     /**
-     * 媒体断开连接。
+     * 媒体流断开连接。
+     * @type {string}
      */
     MediaDisconnected: 'MediaDisconnected',
 

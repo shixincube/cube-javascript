@@ -25,7 +25,20 @@
  */
 
 /**
- * 消息事件。
+ * 消息模块的事件枚举。
+ * @readonly
+ * @enum
+ * @property {string} Notify 收到新消息。
+ * @property {string} Sent 消息已经发出。
+ * @property {string} Sending 消息正在发送。
+ * @property {string} Processing 消息数据处理中。
+ * @property {string} Recall 消息被撤回。
+ * @property {string} Delete 消息被删除。
+ * @property {string} Read 消息已读。
+ * @property {string} MarkOnlyOwner 消息被发送到服务器成功标记为仅作用于自己设备。
+ * @property {string} SendBlocked 消息被阻止发送。
+ * @property {string} ReceiveBlocked 消息被阻止接收。
+ * @property {string} Fault 消息处理故障。
  */
 export const MessagingEvent = {
     

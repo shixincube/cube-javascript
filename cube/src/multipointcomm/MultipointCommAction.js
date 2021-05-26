@@ -27,6 +27,7 @@
 
 /**
  * 多方通讯动作描述。
+ * @private
  */
 export const MultipointCommAction = {
 
@@ -47,18 +48,6 @@ export const MultipointCommAction = {
      * @type {string}
      */
     Bye: 'bye',
-
-    /*
-     * 信令 Follow 。
-     * @type {string}
-     */
-    // Follow: 'follow',
-
-    /*
-     * 信令 Revoke 。
-     * @type {string}
-     */
-    // Revoke: 'revoke',
 
     /**
      * 信令忙 Busy 。

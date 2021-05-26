@@ -26,6 +26,18 @@
 
 /**
  * 消息状态描述。
+ * @readonly
+ * @enum
+ * @property {number} Unknown 未知。
+ * @property {number} Unsent 未发送。
+ * @property {number} Sending 发送中。
+ * @property {number} Sent 已发送。
+ * @property {number} Read 已读。
+ * @property {number} Recalled 已召回。
+ * @property {number} Deleted 已删除。
+ * @property {number} SendBlocked 被阻止发送。
+ * @property {number} ReceiveBlocked 被阻止接收。
+ * @property {number} Fault 消息出现故障。
  */
 export const MessageState = {
 

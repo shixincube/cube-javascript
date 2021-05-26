@@ -28,5 +28,6 @@ import { MultipointCommState } from "./MultipointCommState";
 
 /**
  * 通话状态。
+ * @see MultipointCommState
  */
 export const CallState = MultipointCommState;

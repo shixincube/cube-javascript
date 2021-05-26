@@ -27,6 +27,9 @@
 
 /**
  * 多方通信模块状态描述。
+ * @readonly
+ * @enum
+ * @property {number} Ok 成功。
  */
 export const MultipointCommState = {
 

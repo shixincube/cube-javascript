@@ -24,6 +24,8 @@
  * SOFTWARE.
  */
 
-
+/**
+ * @private
+ */
 export const CommFieldEndpointState = {
-};
+}

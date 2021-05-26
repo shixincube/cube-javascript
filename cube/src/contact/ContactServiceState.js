@@ -26,6 +26,20 @@
 
 /**
  * 联系人服务状态码。
+ * @readonly
+ * @enum
+ * @property {number} Ok 成功。
+ * @property {number} InvalidParameter 无效的参数。
+ * @property {number} DataStructureError 数据结构错误。
+ * @property {number} Failure 遇到故障。
+ * @property {number} InvalidDomain 无效域信息。
+ * @property {number} NoSignIn 未签入联系人。
+ * @property {number} NotFindGroup 未找到群组。
+ * @property {number} InconsistentToken 令牌不一致。
+ * @property {number} IllegalOperation 不被接受的非法操作。
+ * @property {number} ServerError 服务器错误。
+ * @property {number} NotAllowed 不被允许的操作。
+ * @property {number} Unknown 未知的状态。
  */
 export const ContactServiceState = {
 

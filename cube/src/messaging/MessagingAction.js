@@ -26,6 +26,7 @@
 
 /**
  * 消息动作。
+ * @private
  */
 export const MessagingAction = {
     /**

@@ -26,6 +26,26 @@
 
 /**
  * 消息服务状态描述。
+ * @readonly
+ * @enum
+ * @property {number} Ok 成功。
+ * @property {number} InvalidParameter 无效参数。
+ * @property {number} Failure 遇到故障。
+ * @property {number} InvalidDomain 无效域信息。
+ * @property {number} DataStructureError 数据结构错误。
+ * @property {number} NoDomain 没有域信息。
+ * @property {number} NoDevice 没有设备信息。
+ * @property {number} NoContact 没有找到联系人。
+ * @property {number} NoGroup 没有找到群组。
+ * @property {number} AttachmentError 附件错误。
+ * @property {number} GroupError 群组错误。
+ * @property {number} BeBlocked 被对方阻止。
+ * @property {number} Forbidden 禁止操作。
+ * @property {number} IllegalOperation 不能被执行的操作。
+ * @property {number} DataTimeout 数据超时。
+ * @property {number} ServerFault 服务器故障。
+ * @property {number} StorageNoData 存储里没有读取到数据。
+ * @property {number} Unknown 未知的状态。
  */
 export const MessagingServiceState = {
 

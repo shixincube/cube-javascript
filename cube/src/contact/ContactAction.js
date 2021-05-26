@@ -26,6 +26,7 @@
 
 /**
  * 联系人模块相关的指令动作。
+ * @private
  */
 export const ContactAction = {
 

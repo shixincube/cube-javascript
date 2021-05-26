@@ -28,5 +28,6 @@ import { MultipointCommEvent } from "./MultipointCommEvent";
 
 /**
  * 通话事件。
+ * @see MultipointCommEvent
  */
 export const CallEvent = MultipointCommEvent;
