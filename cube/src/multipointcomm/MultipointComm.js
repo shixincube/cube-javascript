@@ -64,18 +64,21 @@ export class MultipointComm extends Module {
         /**
          * 管道监听器。
          * @type {CommPipelineListener}
+         * @private
          */
         this.pipelineListener = new CommPipelineListener(this);
 
         /**
          * 联系人模块。
          * @type {ContactService}
+         * @private
          */
         this.cs = null;
 
         /**
          * ICE Servers 。
          * @type {Array}
+         * @private
          */
         this.iceServers = null;
 
@@ -88,18 +91,21 @@ export class MultipointComm extends Module {
         /**
          * 管理的通信场域。
          * @type {OrderMap<number,CommField>}
+         * @private
          */
         this.fields = new OrderMap();
 
         /**
          * 来自主叫的信令。
          * @type {Signaling}
+         * @private
          */
         this.offerSignaling = null;
 
         /**
          * 来自被叫的信令。
          * @type {Signaling}
+         * @private
          */
         this.answerSignaling = null;
 
@@ -125,6 +131,7 @@ export class MultipointComm extends Module {
         /**
          * 呼叫定时器。
          * @type {number}
+         * @private
          */
         this.callTimer = 0;
 

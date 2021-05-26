@@ -58,7 +58,7 @@ makeCallButton.onclick = makeCall;
 answerCallButton.onclick = answerCall;
 hangupCallButton.onclick = hangupCall;
 
-let timer = 0;
+var timer = 0;
 
 // 获取 Cube 实例
 const cube = window.cube();
@@ -69,7 +69,7 @@ function start() {
         return;
     }
 
-    let config = {
+    var config = {
         "address": "127.0.0.1",
         "domain": "shixincube.com",
         "appKey": "shixin-cubeteam-opensource-appkey"
@@ -124,7 +124,7 @@ function makeCall() {
     }
 
     cube.contact.getContact(peerIdInput.value, function(contact) {
-        let mediaConstraint = new MediaConstraint(true, true);
+        var mediaConstraint = new MediaConstraint(true, true);
 
         cube.mpComm.makeCall(contact, mediaConstraint, function() {
             stateLabel.innerHTML = '呼叫 ' + contact.getId();
@@ -141,7 +141,7 @@ function answerCall() {
     cube.mpComm.setRemoteVideoElement(peerVideo);
     cube.mpComm.setLocalVideoElement(myVideo);
 
-    let mediaConstraint = new MediaConstraint(true, true);
+    var mediaConstraint = new MediaConstraint(true, true);
     cube.mpComm.answerCall(mediaConstraint, function(record) {
         stateLabel.innerHTML = '应答 ' + record.getPeer().getId();
     }, function(error) {
@@ -161,7 +161,7 @@ function onInProgress() {
 function onRinging() {
     stateLabel.innerHTML = '对方振铃...';
 
-    let count = 0;
+    var count = 0;
     timer = setInterval(function() {
         stateLabel.innerHTML = '对方振铃，等待接通 (' + (++count) + ')';
     }, 1000);
@@ -169,7 +169,7 @@ function onRinging() {
 
 function onNewCall(event) {
     // 当前的通话记录
-    let record = event.getData();
+    var record = event.getData();
     stateLabel.innerHTML = '收到来自 ' + record.getCaller().getId() + ' 通话邀请';
     hangupCallButton.removeAttribute('disabled');
     answerCallButton.removeAttribute('disabled');
@@ -182,7 +182,7 @@ function onNewCall(event) {
 }
 
 function onConnected(event) {
-    let record = event.getData();
+    var record = event.getData();
 
     clearInterval(timer);
 
@@ -199,8 +199,8 @@ function onBye() {
 
     enableCtrlButtons(false);
 
-    let parentNode = myVideo.parentNode;
-    let newNode = document.createElement('video');
+    var parentNode = myVideo.parentNode;
+    var newNode = document.createElement('video');
     parentNode.replaceChild(newNode, myVideo);
     myVideo = newNode;
 
@@ -249,13 +249,13 @@ function enableCtrlButtons(enabled) {
 }
 
 function switchLocalVideo() {
-    let field = cube.mpComm.getActiveField();
+    var field = cube.mpComm.getActiveField();
     if (null == field) {
         console.log('没有找到活跃 Field');
         return;
     }
 
-    let rtcDevice = field.getRTCDevice();
+    var rtcDevice = field.getRTCDevice();
     if (null == rtcDevice) {
         console.log('当前状态不能操作');
         return;
@@ -272,13 +272,13 @@ function switchLocalVideo() {
 }
 
 function switchLocalAudio() {
-    let field = cube.mpComm.getActiveField();
+    var field = cube.mpComm.getActiveField();
     if (null == field) {
         console.log('没有找到活跃 Field');
         return;
     }
 
-    let rtcDevice = field.getRTCDevice();
+    var rtcDevice = field.getRTCDevice();
     if (null == rtcDevice) {
         console.log('当前状态不能操作');
         return;
@@ -295,13 +295,13 @@ function switchLocalAudio() {
 }
 
 function switchRemoteVideo() {
-    let field = cube.mpComm.getActiveField();
+    var field = cube.mpComm.getActiveField();
     if (null == field) {
         console.log('没有找到活跃 Field');
         return;
     }
 
-    let rtcDevice = field.getRTCDevice();
+    var rtcDevice = field.getRTCDevice();
     if (null == rtcDevice) {
         console.log('当前状态不能操作');
         return;
@@ -318,13 +318,13 @@ function switchRemoteVideo() {
 }
 
 function switchRemoteAudio() {
-    let field = cube.mpComm.getActiveField();
+    var field = cube.mpComm.getActiveField();
     if (null == field) {
         console.log('没有找到活跃 Field');
         return;
     }
 
-    let rtcDevice = field.getRTCDevice();
+    var rtcDevice = field.getRTCDevice();
     if (null == rtcDevice) {
         console.log('当前状态不能操作');
         return;
