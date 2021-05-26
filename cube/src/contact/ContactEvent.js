@@ -27,6 +27,8 @@
 
 /**
  * 联系人模块的事件名称枚举。
+ * @readonly
+ * @property {string} SignIn 当前客户端的联系人签入。
  */
 export const ContactEvent = {
 

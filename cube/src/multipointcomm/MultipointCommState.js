@@ -24,6 +24,10 @@
  * SOFTWARE.
  */
 
+
+/**
+ * 多方通信模块状态描述。
+ */
 export const MultipointCommState = {
 
     /**

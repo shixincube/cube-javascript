@@ -24,8 +24,9 @@
  * SOFTWARE.
  */
 
+
 /**
- * 多方通讯动作。
+ * 多方通讯动作描述。
  */
 export const MultipointCommAction = {
 
