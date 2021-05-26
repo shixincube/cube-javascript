@@ -1,5 +1,6 @@
 /**
  * This file is part of Cube.
+ * https://shixincube.com
  * 
  * The MIT License (MIT)
  *
@@ -92,14 +93,23 @@ function start() {
     });
 
     // 监听通话相关事件
+
+    // 事件：当前通话正在处理中
     cube.mpComm.on(CallEvent.InProgress, onInProgress);
+    // 事件：对方已振铃
     cube.mpComm.on(CallEvent.Ringing, onRinging);
+    // 事件：通话已经被接通
     cube.mpComm.on(CallEvent.Connected, onConnected);
+    // 事件：通话已结束
     cube.mpComm.on(CallEvent.Bye, onBye);
+    // 事件：有新通话邀请
     cube.mpComm.on(CallEvent.NewCall, onNewCall);
+    // 事件：对端忙
     cube.mpComm.on(CallEvent.Busy, onBusy);
+    // 事件：通话邀请或通话应答超时
     cube.mpComm.on(CallEvent.Timeout, onTimeout);
-    cube.mpComm.on(CallEvent.CallFailed, onCallFailed);
+    // 事件：通话时发送错误
+    cube.mpComm.on(CallEvent.Failed, onFailed);
 }
 
 function stop() {
@@ -123,9 +133,12 @@ function makeCall() {
         return;
     }
 
+    // 从联系人模块获取被叫方的信息
     cube.contact.getContact(peerIdInput.value, function(contact) {
+        // 告诉引擎同时使用视频和音频通话
         var mediaConstraint = new MediaConstraint(true, true);
 
+        // 调用 makeCall 发起邀请
         cube.mpComm.makeCall(contact, mediaConstraint, function() {
             stateLabel.innerHTML = '呼叫 ' + contact.getId();
             hangupCallButton.removeAttribute('disabled');
@@ -142,6 +155,8 @@ function answerCall() {
     cube.mpComm.setLocalVideoElement(myVideo);
 
     var mediaConstraint = new MediaConstraint(true, true);
+
+    // 调用 answerCall 发起邀请
     cube.mpComm.answerCall(mediaConstraint, function(record) {
         stateLabel.innerHTML = '应答 ' + record.getPeer().getId();
     }, function(error) {
@@ -151,6 +166,7 @@ function answerCall() {
 
 // 挂断通话
 function hangupCall() {
+    // 调用 hangupCall 结束通话
     cube.mpComm.hangupCall();
 }
 
@@ -228,7 +244,7 @@ function onTimeout() {
     answerCallButton.setAttribute('disabled', 'disabled');
 }
 
-function onCallFailed(error) {
+function onFailed(error) {
     stateLabel.innerHTML = '发生错误:' + error;
 }
 
