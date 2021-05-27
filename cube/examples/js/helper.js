@@ -28,7 +28,7 @@
 // 辅助函数库
 (function(g) {
 
-    var contactData = [{
+    const contactData = [{
             id: 300101,
             name: '武致远'
         }, {
@@ -69,6 +69,7 @@
                 return data.name;
             }
         }
+        return '';
     }
 
     // 从引擎加载联系人
