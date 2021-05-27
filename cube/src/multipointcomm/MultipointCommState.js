@@ -30,6 +30,41 @@
  * @readonly
  * @enum
  * @property {number} Ok 成功。
+ * @property {number} Failure 遇到故障。
+ * @property {number} InvalidDomain 无效域信息。
+ * @property {number} NoDomain 没有域信息。
+ * @property {number} NoDevice 没有设备信息。
+ * @property {number} NoContact 没有找到联系人。
+ * @property {number} NoCommField 没有找到通讯场域。
+ * @property {number} NoMediaUnit 没有找到媒体单元。
+ * @property {number} NoPipeline 没有找到与媒体单元的数据通道。
+ * @property {number} NoCommFieldEndpoint 没有找到 Endpoint 。
+ * @property {number} NoPeerEndpoint 没有找到对端。
+ * @property {number} DataStructureError 数据结构错误。
+ * @property {number} CommFieldStateError 场域状态错误。
+ * @property {number} MediaUnitField 媒体单元故障。
+ * @property {number} UnsupportedSignaling 不被支持的信令。
+ * @property {number} UnsupportedOperation 不支持的操作。
+ * @property {number} Calling 正在建立通话。
+ * @property {number} Busy 当前线路忙。
+ * @property {number} CallConnected 通话已接通。
+ * @property {number} CallBye 通话结束。
+ * @property {number} CallerBusy 主叫忙。
+ * @property {number} CalleeBusy 被叫忙。
+ * @property {number} BeCallerBlocked 被主叫阻止。
+ * @property {number} BeCalleeBlocked 被被叫阻止。
+ * @property {number} Uninitialized 终端未初始化。
+ * @property {number} ConnRepeated 重复创建连接。
+ * @property {number} MediaPermissionDenied 拒绝访问媒体设备。
+ * @property {number} VideoElementNotSetting 视频元素未设置。
+ * @property {number} SignalingError 信令错误。
+ * @property {number} RTCPeerError RTC 节点数据不正确。
+ * @property {number} CreateOfferFailed 创建 RTC offer SDP 错误。
+ * @property {number} CreateAnswerFailed 创建 RTC answer SDP 错误。
+ * @property {number} LocalDescriptionFault 设置本地 SDP 错误。
+ * @property {number} RemoteDescriptionFault 设置远端 SDP 错误。
+ * @property {number} GroupStateError 群组状态错误。
+ * @property {number} ServerFault 服务器故障。
  */
 export const MultipointCommState = {
 
@@ -214,13 +249,13 @@ export const MultipointCommState = {
     RTCPeerError: 117,
 
     /**
-     * 创建 RTC offer 错误。
+     * 创建 RTC offer SDP 错误。
      * @type {number}
      */
     CreateOfferFailed: 121,
 
     /**
-     * 创建 RTC answer 错误。
+     * 创建 RTC answer SDP 错误。
      * @type {number}
      */
     CreateAnswerFailed: 122,

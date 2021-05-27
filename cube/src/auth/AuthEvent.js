@@ -26,12 +26,16 @@
 
 /**
  * 授权模块的事件名称枚举。
+ * @readonly
+ * @enum {string}
+ * @alias AuthEvent
  */
-export const AuthEvent = {
-
+let CubeAuthEvent = {
     /**
      * 令牌作废。
      * @type {string}
      */
-    InvalidToken: 'InvalidToken'
+    InvalidToken: 'InvalidToken'   
 }
+
+export const AuthEvent = CubeAuthEvent;

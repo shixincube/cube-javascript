@@ -26,6 +26,7 @@
 
 /**
  * 状态码。
+ * @private
  */
 export const StateCode = {
 

@@ -25,9 +25,6 @@
  */
 
 import { JSONable } from "../util/JSONable";
-import { Packet } from "./Packet";
-import { Kernel } from "./Kernel";
-import { EntityAction } from "./EntityAction";
 
 /**
  * 信息实体对象。
@@ -121,30 +118,6 @@ export class Entity extends JSONable {
      */
     overdue() {
         return (this.expiry > Date.now());
-    }
-
-    /**
-     * 向该实体的所有副本进行数据广播。
-     * @param {JSON} data 指定广播数据。
-     */
-    broadcast(data) {
-        if (null == this.moduleName) {
-            return false;
-        }
-
-        let id = this.id;
-        let pipeline = Kernel.gsInstance.getPipeline('Cell');
-        if (null == pipeline) {
-            return false;
-        }
-
-        let packet = new Packet(EntityAction.Broadcast, {
-            "id" : id,
-            "data" : data
-        });
-        pipeline.send(this.moduleName, packet);
-
-        return true;
     }
 
     /**

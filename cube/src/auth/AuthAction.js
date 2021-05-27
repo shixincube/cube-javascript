@@ -26,6 +26,7 @@
 
 /**
  * 授权模块相关的指令动作。
+ * @private
  */
 export const AuthAction = {
 
