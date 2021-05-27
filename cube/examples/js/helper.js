@@ -88,4 +88,31 @@
         });
     }
 
+    // 对话框操作
+    g.dialog = function(id, action, handler) {
+        var el = document.getElementById(id);
+        if (undefined === el) {
+            return;
+        }
+
+        var list = el.getElementsByTagName('button');
+        for (var i = 0; i < list.length; ++i) {
+            var item = list[i];
+            if (item.getAttribute('data') == 'close') {
+                item.onclick = function() {
+                    handler(false);
+                    el.style.visibility = 'hidden';
+                };
+            }
+            else if (item.getAttribute('data') == 'confirm') {
+                item.onclick = function() {
+                    handler(true);
+                    el.style.visibility = 'hidden';
+                };
+            }
+        }
+
+        el.style.visibility = (action == 'show') ? 'visible' : 'hidden';
+    }
+
 })(window);

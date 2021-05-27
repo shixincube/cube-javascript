@@ -1,0 +1,175 @@
+<!doctype html>
+<!--
+ * This file is part of Cube.
+ * https://shixincube.com
+ * 
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2020-2021 Shixin Cube Team.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+-->
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="cube examples">
+    <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta id="theme-color" name="theme-color" content="#ffffff">
+    <base target="_blank">
+
+    <title>时信魔方示例 - 群组管理</title>
+
+    <link rel="icon" sizes="192x192" href="../../images/favicon.png">
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body>
+<div id="container">
+
+    <h1><a href="../../" title="时信魔方示例">时信魔方示例</a> <span>群组管理</span>
+    </h1>
+
+    <section id="blurb">
+        <p>该示例演示如何操作群组，这些操作包括创建和解散群组，群组成员管理以及其他群组数据的管理，例如群组的公告。</p>
+    </section>
+
+    <section id="contact">
+        <h2>登录</h2>
+        <div>
+            <label for="contactId">账号ID：</label>
+            <input id="contactId">
+        </div>
+        <div>
+            <label for="contactName">账号显示名(可选)：</label>
+            <input id="contactName">
+        </div>
+        <div>
+            <button id="login">登录</button>
+            <button id="logout" disabled>登出</button>
+        </div>
+    </section>
+
+    <section id="info">
+        <table>
+            <tr>
+                <td>
+                    <h4>群列表</h4>
+                    <select id="groupList" multiple size="11"></select>
+                </td>
+                <td>
+                    <form>
+                        <div class="item">
+                            <label for="groupId">群组 ID：</label>
+                            <input id="groupId" readonly>
+                        </div>
+                        <div class="item">
+                            <label for="groupName">群名称：</label>
+                            <input id="groupName" readonly>
+                        </div>
+                        <div class="item">
+                            <label for="ownerId">创建人ID：</label>
+                            <input id="ownerId" readonly>
+                        </div>
+                        <div class="item">
+                            <label for="ownerId" style="vertical-align:top;margin-top:2px;">群公告：</label>
+                            <textarea cols="17" rows="3" readonly></textarea>
+                        </div>
+                    </form>
+                </td>
+                <td>
+                    <h4>群成员</h4>
+                    <select id="memberList" multiple size="11"></select>
+                </td>
+            </tr>
+        </table>
+    </section>
+
+    <section id="tools">
+        <div>
+            <button id="create">创建群组</button>
+            <button id="dissolve">解散群组</button>
+        </div>
+        <div>
+            <button id="addMember">添加群成员</button>
+            <button id="removeMember">移除群成员</button>
+        </div>
+    </section>
+
+    <div id="contacts" class="dialog">
+        <div class="dialog-content">
+            <div class="dialog-header">
+                <h3>选择联系人</h3>
+            </div>
+            <div class="dialog-body">
+                <div>
+                    <input id="300101" type="checkbox" value="300101">
+                    <label for="300101">武致远 - 300101</label>
+                </div>
+                <div>
+                    <input id="300102" type="checkbox" value="300102">
+                    <label for="300102">邓雅云 - 300102</label>
+                </div>
+                <div>
+                    <input id="300103" type="checkbox" value="300103">
+                    <label for="300103">石季萌 - 300103</label>
+                </div>
+                <div>
+                    <input id="300104" type="checkbox" value="300104">
+                    <label for="300104">吴凝蕊 - 300104</label>
+                </div>
+                <div>
+                    <input id="300105" type="checkbox" value="300105">
+                    <label for="300105">罗文栋 - 300105</label>
+                </div>
+                <div>
+                    <input id="300106" type="checkbox" value="300106">
+                    <label for="300106">叶瑶华 - 300106</label>
+                </div>
+                <div>
+                    <input id="300107" type="checkbox" value="300107">
+                    <label for="300107">田宏茂 - 300107</label>
+                </div>
+                <div>
+                    <input id="300108" type="checkbox" value="300108">
+                    <label for="300108">风诗柳 - 300108</label>
+                </div>
+                <div>
+                    <input id="300109" type="checkbox" value="300109">
+                    <label for="300109">徐文石 - 300109</label>
+                </div>
+                <div>
+                    <input id="300110" type="checkbox" value="300110">
+                    <label for="300110">韶宁乐 - 300110</label>
+                </div>
+            </div>
+            <div class="dialog-footer">
+                <button data="close">关闭</button>
+                <button data="confirm">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="../../js/cube.js"></script>
+<script type="text/javascript" src="../../js/helper.js"></script>
+<script type="text/javascript" src="js/main.js"></script>
+</body>
+</html>

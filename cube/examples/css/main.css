@@ -67,29 +67,6 @@ table {
 }
 
 table tr td {
-    border-top: 1px solid #999;
-    border-bottom: 1px solid #999;
-    border-left: 1px solid #999;
-    border-right: 1px solid #999;
-    padding: 4px 8px 4px 8px;
-}
-table tr td:last-child {
-    border-left: 0px;
-    border-right: 1px solid #999;
-}
-
-table tr:last-child td {
-    border-top: 0px;
-    border-bottom: 1px solid #999;
-    border-left: 1px solid #999;
-    border-right: 1px solid #999;
-    padding: 4px 8px 4px 8px;
-}
-table tr:last-child td:last-child {
-    border-top: 0px;
-    border-bottom: 1px solid #999;
-    border-left: 0px;
-    border-right: 1px solid #999;
     padding: 4px 8px 4px 8px;
 }
 
@@ -201,7 +178,7 @@ p {
 
 p#data {
     border-top: 1px dotted #666;
-    font-family: Courier New, monospace;
+    font-family: "Courier New", monospace;
     line-height: 1.3em;
     max-height: 1000px;
     overflow-y: auto;
@@ -219,8 +196,8 @@ section p:last-of-type {
 
 section {
     border-bottom: 1px solid #eee;
-    margin: 0 0 30px 0;
-    padding: 0 0 20px 0;
+    margin: 0 0 24px 0;
+    padding: 0 0 18px 0;
 }
 
 section:last-of-type {
@@ -303,6 +280,44 @@ video {
 
 ul {
     margin: 0 0 0.5em 0;
+}
+
+.dialog {
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background-color: rgba(24, 24, 24, 0.7);
+    visibility: hidden;
+}
+.dialog-content {
+    position: absolute;
+    float: left;
+    left: calc(50vw - 200px);
+    top: 100px;
+    width: 400px;
+    border-radius: 8px;
+    background-color: #fefefe;
+    box-shadow: 0 0 1px rgba(0,0,0,.125),0 1px 3px rgba(0,0,0,.2);
+}
+.dialog-header {
+    border-bottom: 1px solid #aaa;
+    padding-left: 10px;
+}
+.dialog-body {
+    margin: 8px 10px 8px 10px;
+}
+.dialog-footer {
+    border-top: 1px solid #aaa;
+    padding: 10px 10px 8px 0;
+    text-align: right;
+}
+.dialog-footer button {
+    display: inline-block;
+    margin-bottom: 0px;
+    margin-left: 10px;
 }
 
 @media screen and (max-width: 650px) {
