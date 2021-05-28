@@ -903,6 +903,11 @@ export class ContactService extends Module {
             for (let i = 0; i < list.length; ++i) {
                 let group = list[i];
 
+                let current = this.groups.get(group.id);
+                if (null != current) {
+                    group = current;
+                }
+
                 if (group.state == GroupState.Normal && group.tag == 'public') {
                     // 更新计数
                     ++count;
@@ -927,7 +932,9 @@ export class ContactService extends Module {
                         resultList.push(group);
                     }
 
-                    this.groups.put(group.getId(), group);
+                    if (null == current) {
+                        this.groups.put(group.getId(), group);
+                    }
                 }
             }
 
@@ -1149,9 +1156,14 @@ export class ContactService extends Module {
 
             // 获取群组附录
             this.getAppendix(newGroup, (appendix, newGroup) => {
+                // 写入存储
+                this.storage.writeGroup(newGroup);
+                // 写入内存
                 this.groups.put(newGroup.getId(), newGroup);
                 // 回调
-                handleSuccess(newGroup);
+                setTimeout(() => {
+                    handleSuccess(newGroup);
+                }, 1);
             }, (error) => {
                 if (handleFailure) {
                     handleFailure(error);
@@ -1261,7 +1273,9 @@ export class ContactService extends Module {
                 this.groups.put(updatedGroup.getId(), updatedGroup);
 
                 if (handleSuccess) {
-                    handleSuccess(updatedGroup);
+                    setTimeout(() => {
+                        handleSuccess(updatedGroup);
+                    }, 1);
                 }
             }, (error) => {
                 if (handleFailure) {

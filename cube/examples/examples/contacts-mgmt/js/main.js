@@ -60,6 +60,12 @@ btnRemoveTeammate.onclick = removeTeammate;
 
 // 启动程序
 function start() {
+    var elContactId = document.querySelector('input#contactId');
+    if (elContactId.value.length < 4) {
+        alert('请输入至少4位数字的登录联系人的 ID');
+        return;
+    }
+
     // 引擎配置
     var config = {
         "address": "127.0.0.1",
@@ -69,11 +75,10 @@ function start() {
 
     // 调用 start 启动引擎
     cube.start(config, function() {
-        var id = document.querySelector('input#contactId');
         var name = document.querySelector('input#contactName');
 
         // 调用 siginIn 函数签入联系人
-        cube.signIn(parseInt(id.value), name.value);
+        cube.signIn(parseInt(elContactId.value), name.value);
 
         btnStart.setAttribute('disabled', 'disabled');
         btnStop.removeAttribute('disabled');

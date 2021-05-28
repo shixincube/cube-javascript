@@ -72,6 +72,18 @@
         return '';
     }
 
+    g.formatTime = function(timestamp) {
+        var date = new Date(timestamp);
+        var format = [
+            date.getMonth() + 1, '-',
+            date.getDate(), ' ',
+            date.getHours(), ':',
+            date.getMinutes(), ':',
+            date.getSeconds()
+        ];
+        return format.join('');
+    }
+
     // 从引擎加载联系人
     g.loadContacts = function(cube, callback) {
         contacts.splice(0, contacts.length);
@@ -86,6 +98,17 @@
                 }
             });
         });
+    }
+
+    g.getContactName = function(id) {
+        var name = getContactName(id);
+        if (name.length == 0) {
+            if (g.cube().contact.getSelf().getId() == id) {
+                name = g.cube().contact.getSelf().getName();
+            }
+        }
+
+        return name;
     }
 
     // 对话框操作
@@ -106,8 +129,10 @@
             }
             else if (item.getAttribute('data') == 'confirm') {
                 item.onclick = function() {
-                    handler(true);
-                    el.style.visibility = 'hidden';
+                    var ret = handler(true);
+                    if (undefined === ret || ret === true) {
+                        el.style.visibility = 'hidden';
+                    }
                 };
             }
         }

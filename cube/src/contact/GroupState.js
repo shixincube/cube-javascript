@@ -24,10 +24,14 @@
  * SOFTWARE.
  */
 
+
 /**
  * 群组状态。
+ * @readonly
+ * @alias GroupState
+ * @enum {number}
  */
-export const GroupState = {
+const CubeGroupState = {
     /**
      * 正常状态。
      * @type {number}
@@ -64,3 +68,5 @@ export const GroupState = {
      */
     Unknown: -1
 }
+
+export const GroupState = CubeGroupState;

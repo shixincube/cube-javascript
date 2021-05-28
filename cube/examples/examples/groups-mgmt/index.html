@@ -75,7 +75,7 @@
                     <select id="groupList" multiple size="11"></select>
                 </td>
                 <td>
-                    <form>
+                    <form id="groupInfo">
                         <div class="item">
                             <label for="groupId">群组 ID：</label>
                             <input id="groupId" readonly>
@@ -85,12 +85,12 @@
                             <input id="groupName" readonly>
                         </div>
                         <div class="item">
-                            <label for="ownerId">创建人ID：</label>
-                            <input id="ownerId" readonly>
+                            <label for="creationTime">创建时间：</label>
+                            <input id="creationTime" readonly>
                         </div>
                         <div class="item">
                             <label for="ownerId" style="vertical-align:top;margin-top:2px;">群公告：</label>
-                            <textarea cols="17" rows="3" readonly></textarea>
+                            <textarea id="groupNotice" cols="17" rows="3" readonly></textarea>
                         </div>
                     </form>
                 </td>

@@ -27,10 +27,10 @@
 /**
  * 授权模块的事件名称枚举。
  * @readonly
- * @enum {string}
  * @alias AuthEvent
+ * @enum {string}
  */
-let CubeAuthEvent = {
+const CubeAuthEvent = {
     /**
      * 令牌作废。
      * @type {string}
