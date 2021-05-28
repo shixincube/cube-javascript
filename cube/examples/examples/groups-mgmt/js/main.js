@@ -33,9 +33,13 @@ const cube = window.cube();
 
 const btnLogin = document.querySelector('button#login');
 const btnLogout = document.querySelector('button#logout');
+
 const btnCreate = document.querySelector('button#create');
 const btnDissolve = document.querySelector('button#dissolve');
 
+
+btnLogin.onclick = login;
+btnLogout.onclick = logout;
 btnCreate.onclick = createGroup;
 btnDissolve.onclick = dissolveGroup;
 
@@ -45,7 +49,7 @@ function login() {
 }
 
 function logout() {
-    
+
 }
 
 function createGroup() {
