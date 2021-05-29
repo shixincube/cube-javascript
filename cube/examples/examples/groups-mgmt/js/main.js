@@ -27,7 +27,6 @@
 
 'use strict';
 
-
 // 获取 Cube 实例
 const cube = window.cube();
 
@@ -42,17 +41,22 @@ const selMembers = document.querySelector('select#memberList');
 
 const btnCreate = document.querySelector('button#create');
 const btnDissolve = document.querySelector('button#dissolve');
+const btnAddMember = document.querySelector('button#addMember');
+const btnRemoveMember = document.querySelector('button#removeMember');
+
 const btnUpdateNotice = document.querySelector('button#updateNotice');
 
 btnLogin.onclick = login;
 btnLogout.onclick = logout;
 btnCreate.onclick = createGroup;
 btnDissolve.onclick = dissolveGroup;
+btnAddMember.onclick = addMember;
+btnRemoveMember.onclick = removeMember;
 btnUpdateNotice.onclick = updateNotice;
 
 selGroups.onclick = onGroupsSelectClick;
 
-
+// 
 function login() {
     var elContactId = document.querySelector('input#contactId');
     if (elContactId.value.length < 4) {
@@ -146,6 +150,14 @@ function dissolveGroup() {
     });
 }
 
+function addMember() {
+
+}
+
+function removeMember() {
+
+}
+
 function updateNotice() {
     var groupId = getSelectedGroupId();
     if (groupId <= 0) {
@@ -157,6 +169,13 @@ function updateNotice() {
     if (null == notice) {
         return;
     }
+
+    cube.contact.getGroup(groupId, function(group) {
+        // 使用群组附录的 updateNotice 方法更新公告
+        group.getAppendix().updateNotice(notice, function() {
+            document.querySelector('textarea#groupNotice').value = notice;
+        });
+    });
 }
 
 function refreshGroupList() {
