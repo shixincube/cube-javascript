@@ -151,11 +151,29 @@ function dissolveGroup() {
 }
 
 function addMember() {
+    dialog('contacts', 'show', function(ok) {
+        if (ok) {
+            var list = querySelectedContacts();
+            if (list.length == 0) {
+                alert('至少选择一个联系人');
+                return false;
+            }
 
+            
+        }
+    });
 }
 
 function removeMember() {
+    if (selMembers.options.length == 0) {
+        return;
+    }
 
+    if (selGroups.selectedIndex < 0) {
+        return;
+    }
+
+    var selectedOption = selMembers.options[selMembers.selectedIndex];
 }
 
 function updateNotice() {
