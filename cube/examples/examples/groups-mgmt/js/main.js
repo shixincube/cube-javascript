@@ -56,7 +56,7 @@ btnUpdateNotice.onclick = updateNotice;
 
 selGroups.onclick = onGroupsSelectClick;
 
-// 
+// 联系人登录
 function login() {
     var elContactId = document.querySelector('input#contactId');
     if (elContactId.value.length < 4) {
@@ -85,6 +85,7 @@ function login() {
     });
 }
 
+// 联系人登出
 function logout() {
     cube.signOut();
     cube.stop();
@@ -96,6 +97,7 @@ function logout() {
     refreshGroupInfo();
 }
 
+// 创建新群组
 function createGroup() {
     var groupName = prompt('请输入群名称');
     if (null == groupName) {
@@ -130,6 +132,7 @@ function createGroup() {
     });
 }
 
+// 解散群组
 function dissolveGroup() {
     var groupId = getSelectedGroupId();
     if (groupId <= 0) {
@@ -150,32 +153,59 @@ function dissolveGroup() {
     });
 }
 
+// 添加新成员到当前选择的群组
 function addMember() {
-    dialog('contacts', 'show', function(ok) {
-        if (ok) {
-            var list = querySelectedContacts();
-            if (list.length == 0) {
-                alert('至少选择一个联系人');
-                return false;
+    var groupId = getSelectedGroupId();
+    if (groupId <= 0) {
+        alert('请选择一个群组');
+        return;
+    }
+
+    cube.contact.getGroup(groupId, function(group) {
+        presetContactsDialog(group.getMembers());
+
+        dialog('contacts', 'show', function(ok) {
+            if (ok) {
+                var list = querySelectedContacts();
+                if (list.length == 0) {
+                    alert('至少选择一个联系人');
+                    return false;
+                }
+    
+                group.addMembers(list, function(group) {
+                    refreshGroupInfo(group);
+                });
             }
 
-            
-        }
+            resetContactsDialog();
+        });
     });
 }
 
+// 移除当前选择的成员
 function removeMember() {
     if (selMembers.options.length == 0) {
         return;
     }
 
-    if (selGroups.selectedIndex < 0) {
+    if (selMembers.selectedIndex < 0) {
+        alert('请选择一个需要移除的成员');
         return;
     }
 
     var selectedOption = selMembers.options[selMembers.selectedIndex];
+
+    var groupId = getSelectedGroupId();
+    cube.contact.getGroup(groupId, function(group) {
+        group.removeMembers([parseInt(selectedOption.value)], function() {
+            refreshGroupInfo(group);
+        }, function(error) {
+            console.log(error);
+        });
+    });
 }
 
+// 修改当前选择群组的公告
 function updateNotice() {
     var groupId = getSelectedGroupId();
     if (groupId <= 0) {
@@ -196,6 +226,7 @@ function updateNotice() {
     });
 }
 
+// 刷新群组列表
 function refreshGroupList() {
     selGroups.innerText = '';
 
@@ -211,6 +242,7 @@ function refreshGroupList() {
     });
 }
 
+// 刷新群组信息
 function refreshGroupInfo(group) {
     selMembers.innerText = '';
 
@@ -235,6 +267,7 @@ function refreshGroupInfo(group) {
     }
 }
 
+// 签入回调
 function onSignIn() {
     refreshGroupList();
 }
@@ -250,7 +283,7 @@ function onGroupsSelectClick() {
     });
 }
 
-
+// 获取当前界面上选择的群组的 ID
 function getSelectedGroupId() {
     if (selGroups.options.length == 0) {
         return 0;
@@ -264,6 +297,7 @@ function getSelectedGroupId() {
     return parseInt(selectedOption.value);
 }
 
+// 查询联系人对话框里已选择的联系人列表
 function querySelectedContacts() {
     var result = [];
 
@@ -271,7 +305,7 @@ function querySelectedContacts() {
     var inputList = el.getElementsByTagName('input');
     for (var i = 0; i < inputList.length; ++i) {
         var checkbox = inputList[i];
-        if (checkbox.checked) {
+        if (checkbox.checked && !checkbox.hasAttribute('disabled')) {
             result.push(parseInt(checkbox.value));
         }
     }
@@ -279,11 +313,41 @@ function querySelectedContacts() {
     return result;
 }
 
+// 重置联系人对话框里联系人选择状态，将 list 里的联系人禁止操作
+function presetContactsDialog(list) {
+    resetContactsDialog();
+
+    var el = document.querySelector('div#contacts');
+    var inputList = el.getElementsByTagName('input');
+
+    function getCheckbox(id) {
+        for (var i = 0; i < inputList.length; ++i) {
+            var checkbox = inputList[i];
+            if (parseInt(checkbox.value) == id) {
+                return checkbox;
+            }
+        }
+        return null;
+    }
+
+    list.forEach(function(member) {
+        var checkbox = getCheckbox(member.getId());
+        if (null == checkbox) {
+            return;
+        }
+
+        checkbox.checked = true;
+        checkbox.setAttribute('disabled', 'disabled');
+    });
+}
+
+// 重置联系人对话框的显示状态
 function resetContactsDialog() {
     var el = document.querySelector('div#contacts');
     var inputList = el.getElementsByTagName('input');
     for (var i = 0; i < inputList.length; ++i) {
         var checkbox = inputList[i];
         checkbox.checked = false;
+        checkbox.removeAttribute('disabled');
     }
 }
