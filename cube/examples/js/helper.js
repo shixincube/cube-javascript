@@ -140,4 +140,8 @@
         el.style.visibility = (action == 'show') ? 'visible' : 'hidden';
     }
 
+    g.selectMediaDevice = function() {
+        
+    }
+
 })(window);

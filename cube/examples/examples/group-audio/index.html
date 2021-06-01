@@ -48,7 +48,7 @@
     </h1>
 
     <section id="blurb">
-        <p>该示例演示。</p>
+        <p>该示例演示如何在群组里发起并参与群组语音通话。</p>
     </section>
 
     <section id="contact">
@@ -112,20 +112,30 @@
         <div class="logs">
             <div>
                 <label for="logs">日志：</label>
-                <textarea id="logs" cols="50" rows="16" readonly></textarea>
+                <textarea id="logs" cols="50" rows="16" readonly>请选择联系人并点击“登录”按钮</textarea>
             </div>
         </div>
     </section>
 
     <section id="tools">
-        <button id="start">发起群组通话</button>
-        <button id="stop">结束群组通话</button>
+        <div>
+            <button id="initiate">发起群组通话</button>
+            <button id="join">加入群组通话</button>
+            <button id="quit">退出群组通话</button>
+        </div>
+        <div>
+            <button id="switchMic">关闭麦克风</button>
+        </div>
     </section>
 </div>
 
 <div id="media-container">
     <video id="local" autoplay muted></video>
     <video id="remote" autoplay muted></video>
+</div>
+
+<div class="dialog">
+
 </div>
 
 <script type="text/javascript" src="../../js/cube.js"></script>
