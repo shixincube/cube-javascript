@@ -51,6 +51,8 @@ btnQuit.onclick = quit;
 btnSwitchMic.onclick = switchMic;
 selContactId.onclick = selectLoginContact;
 
+textareaLogs.value = '请选择联系人并点击“登录”按钮';
+
 window.onunload = logout;
 
 function login() {
@@ -71,6 +73,10 @@ function login() {
 
         btnLogin.setAttribute('disabled', 'disabled');
         btnLogout.removeAttribute('disabled');
+        btnInitiate.removeAttribute('disabled');
+        btnJoin.removeAttribute('disabled');
+        btnQuit.removeAttribute('disabled');
+        btnSwitchMic.removeAttribute('disabled');
         selContactId.setAttribute('disabled', 'disabled');
     }, function() {
         alert('启动魔方引擎失败');
@@ -82,7 +88,13 @@ function logout() {
 
     btnLogin.removeAttribute('disabled');
     btnLogout.setAttribute('disabled', 'disabled');
+    btnInitiate.setAttribute('disabled', 'disabled');
+    btnJoin.setAttribute('disabled', 'disabled');
+    btnQuit.setAttribute('disabled', 'disabled');
+    btnSwitchMic.setAttribute('disabled', 'disabled');
     selContactId.removeAttribute('disabled');
+
+    textareaLogs.value = '请选择联系人并点击“登录”按钮';
 }
 
 function selectLoginContact() {

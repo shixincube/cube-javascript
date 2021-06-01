@@ -107,7 +107,7 @@ export class CellPipeline extends Pipeline {
         super.close();
 
         if (null == this.address || 0 == this.port) {
-            cell.Logger.w('CellPipeline', 'Not configured address and port');
+            cell.Logger.d('CellPipeline', 'Not configured address and port');
             return;
         }
 
