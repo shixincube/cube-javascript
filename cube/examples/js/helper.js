@@ -140,8 +140,102 @@
         el.style.visibility = (action == 'show') ? 'visible' : 'hidden';
     }
 
-    g.selectMediaDevice = function() {
-        
+    /**
+     * 选择一个可用的媒体输入设备。
+     * @param {string} type 设备类型：'audio' 或 'video'
+     * @param {function} handler 
+     */
+    g.selectMediaDevice = function(type, handler) {
+        // 枚举当前接入的设备
+        MediaDeviceTool.enumDevices(function(list) {
+            var devices = [];
+            for (var i = 0; i < list.length; ++i) {
+                var device = list[i];
+                if (type == 'audio' && device.isAudioInput()) {
+                    devices.push(device);
+                }
+                else if (type == 'video' && device.isVideoInput()) {
+                    devices.push(device);
+                }
+            }
+
+            if (devices.length == 0) {
+                handler(undefined);
+            }
+            else if (devices.length == 1) {
+                handler(devices[0]);
+            }
+            else {
+                showSelectDevice(devices, handler);
+            }
+        });
+    }
+
+    function showSelectDevice(devices, handler) {
+        var el = document.getElementById('select_device');
+        if (null == el || undefined === el) {
+            var html = [
+                '<div class="dialog-content">',
+                    '<div class="dialog-header">',
+                        '<h3>选择设备</h3>',
+                    '</div>',
+                    '<div class="dialog-body">',
+                    '</div>',
+                    '<div class="dialog-footer">',
+                        '<button data="close">取消</button>',
+                        '<button data="confirm">确定</button>',
+                    '</div>',
+                '</div>'
+            ];
+
+            el = document.createElement('div');
+            el.setAttribute('id', 'select_device');
+            el.setAttribute('class', 'dialog');
+            el.innerHTML = html.join('');
+            document.body.appendChild(el);
+        }
+
+        var deviceHTML = ['<form>'];
+        for (var i = 0; i < devices.length; ++i) {
+            var device = devices[i];
+            deviceHTML.push('<div style="margin-bottom:10px;"><label><input name="MediaDevices" id="device_' + i + '" type="radio" value="' + i + '" '
+                    + ((i == 0) ? 'checked' : '')
+                + ' > ' +
+                    device.label
+                + '</label></div>');
+        }
+        deviceHTML.push('</form>');
+
+        var body = el.getElementsByClassName('dialog-body')[0];
+        body.innerHTML = deviceHTML.join('');
+
+        var list = el.getElementsByTagName('button');
+        for (var i = 0; i < list.length; ++i) {
+            var item = list[i];
+            if (item.getAttribute('data') == 'close') {
+                item.onclick = function() {
+                    handler(null);
+                    el.style.visibility = 'hidden';
+                };
+            }
+            else if (item.getAttribute('data') == 'confirm') {
+                item.onclick = function() {
+                    var radioList = body.getElementsByTagName('input');
+                    var selectedDevice = null;
+                    for (var n = 0; n < radioList.length; ++n) {
+                        var radio = radioList[n];
+                        if (radio.checked) {
+                            selectedDevice = devices[parseInt(radio.value)];
+                            break;
+                        }
+                    }
+                    handler(selectedDevice);
+                    el.style.visibility = 'hidden';
+                };
+            }
+        }
+
+        el.style.visibility = 'visible';
     }
 
 })(window);

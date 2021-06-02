@@ -103,7 +103,19 @@ function selectLoginContact() {
 }
 
 function initiate() {
+    selectMediaDevice('audio', function(device) {
+        if (undefined === device) {
+            alert('没有找到可用的麦克风设备');
+            return;
+        }
 
+        if (null == device) {
+            // 没有选择设备
+            return;
+        }
+
+        console.log(device);
+    });
 }
 
 function join() {
@@ -123,6 +135,9 @@ function onSignIn(event) {
     println('已签入 "' + event.data.getName() + '"');
 
     cube.contact.queryGroups(function(list) {
+        list.forEach(function(group) {
+            
+        });
     });
 }
 
