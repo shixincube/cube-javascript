@@ -513,7 +513,7 @@ export class MultipointComm extends Module {
                                 // 跳过自己
                                 return;
                             }
-    
+
                             // 接收指定终端的数据
                             this.follow(endpoint);
                         });

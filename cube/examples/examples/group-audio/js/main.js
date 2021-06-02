@@ -30,7 +30,17 @@
 // 获取 Cube 实例
 const cube = window.cube();
 
+// 当前通话群的 ID
+var groupId = 0;
+
+// 监听 SignIn 事件
 cube.contact.on(ContactEvent.SignIn, onSignIn);
+
+// 监听通话相关事件
+cube.mpComm.on(CommEvent.InProgress, onInProgress);
+cube.mpComm.on(CommEvent.Ringing, onRinging);
+cube.mpComm.on(CommEvent.Connected, onConnected);
+cube.mpComm.on(CommEvent.Bye, onBye);
 
 const btnLogin = document.querySelector('button#login');
 const btnLogout = document.querySelector('button#logout');
@@ -68,6 +78,9 @@ function login() {
 
     // 调用 start 启动引擎
     cube.start(config, function() {
+        // 启动多方通讯模块
+        cube.mpComm.start();
+
         // 调用 siginIn 函数签入联系人
         cube.signIn(contactId, inputContactName.value);
 
@@ -114,12 +127,34 @@ function initiate() {
             return;
         }
 
-        
+        // 设置媒体元素
+        cube.mpComm.setLocalVideoElement(document.querySelector('video#local'));
+        cube.mpComm.setRemoteVideoElement(document.querySelector('video#remote'));
+
+        // 创建媒体约束，使用音频，禁用视频
+        var mediaConstraint = new MediaConstraint(false, true);
+        // 设置设备
+        mediaConstraint.setAudioDevice(device);
+
+        cube.contact.getGroup(groupId, function(group) {
+            cube.mpComm.makeCall(group, mediaConstraint, function(activeCall) {
+                println('已成功发起群通话');
+            }, function(error) {
+                println('发起群通话失败: ' + error.toString());
+            });
+        });
     });
 }
 
 function join() {
+    cube.contact.getGroup(groupId, function(group) {
+        if (group.getAppendix().getCommId() == 0) {
+            alert('当前群组没有正在进行的语音通话');
+            return;
+        }
 
+        initiate();
+    });
 }
 
 function quit() {
@@ -132,7 +167,7 @@ function switchMic() {
 
 
 function onSignIn(event) {
-    println('已签入 "' + event.data.getName() + '"');
+    println('[事件] 已签入 "' + event.data.getName() + '"');
 
     var groupName = '群组语音通话演示群';
     var currentGroup = null;
@@ -148,8 +183,34 @@ function onSignIn(event) {
 
         if (null == currentGroup) {
             // 创建新群组
+            cube.contact.createGroup(groupName, getAllContactsId(), function(group) {
+                println('已创建新群组 "' + group.getName() + '" - ' + group.getId());
+                groupId = group.getId();
+                document.querySelector('input#groupName').value = group.getName();
+            });
+        }
+        else {
+            println('已加载新群组 "' + currentGroup.getName() + '" - ' + currentGroup.getId());
+            groupId = currentGroup.getId();
+            document.querySelector('input#groupName').value = currentGroup.getName();
         }
     });
+}
+
+function onInProgress(event) {
+    println('[事件] 正在处理通话请求: ' + event.data.id);
+}
+
+function onRinging(event) {
+    println('[事件] 已连通服务器: ' + event.data.field.id);
+}
+
+function onConnected(event) {
+    println('[事件] 已建立通话链路: ' + event.data.field.id);
+}
+
+function onBye(event) {
+    println('[事件] 通话结束: ' + event.data.field.id);
 }
 
 function println(text) {

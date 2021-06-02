@@ -100,6 +100,11 @@
         });
     }
 
+    /**
+     * 返回指定 ID 的联系人名称。
+     * @param {number} id 
+     * @returns {string}
+     */
     g.getContactName = function(id) {
         var name = getContactName(id);
         if (name.length == 0) {
@@ -109,6 +114,17 @@
         }
 
         return name;
+    }
+
+    /**
+     * 
+     */
+    g.getAllContactsId = function() {
+        var list = [];
+        for (var i = 0; i < contactData.length; ++i) {
+            list.push(contactData[i].id);
+        }
+        return list;
     }
 
     // 对话框操作
