@@ -33,6 +33,9 @@ const cube = window.cube();
 // 当前通话群的 ID
 var groupId = 0;
 
+// 刷新状态信息的定时器
+var statsTimer = 0;
+
 // 监听 SignIn 事件
 cube.contact.on(ContactEvent.SignIn, onSignIn);
 
@@ -97,6 +100,8 @@ function login() {
 }
 
 function logout() {
+    stopRefreshStats();
+
     cube.stop();
 
     btnLogin.removeAttribute('disabled');
@@ -162,6 +167,8 @@ function join() {
 }
 
 function quit() {
+    stopRefreshStats();
+
     cube.mpComm.hangupCall(function() {
         btnInitiate.removeAttribute('disabled');
         btnJoin.removeAttribute('disabled');
@@ -171,6 +178,22 @@ function quit() {
 
 function switchMic() {
 
+}
+
+function startRefreshStats() {
+    if (statsTimer == 0) {
+        statsTimer = setInterval(function() {
+            var field = cube.mpComm.getActiveField();
+            
+        }, 1000);
+    }
+}
+
+function stopRefreshStats() {
+    if (statsTimer > 0) {
+        clearInterval(statsTimer);
+        statsTimer = 0;
+    }
 }
 
 

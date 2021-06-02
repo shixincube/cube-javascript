@@ -198,6 +198,33 @@ export class CommField extends Entity {
     }
 
     /**
+     * 快照当前的 WebRTC 节点状态数据。
+     * @param {function} outboundCallback 
+     * @param {function} [inboundCallback] 
+     */
+    snapshootStatsReport(outboundCallback, inboundCallback) {
+        if (null != this.outboundRTC) {
+            this.outboundRTC.pc.getStats(null).then(stats => {
+                outboundCallback(this, stats);
+            });
+        }
+        else {
+            outboundCallback(this, null);
+        }
+
+        if (inboundCallback) {
+            if (null != this.inboundRTC) {
+                this.inboundRTC.pc.getStats(null).then(stats => {
+                    inboundCallback(this, stats);
+                });
+            }
+            else {
+                inboundCallback(this, null);
+            }
+        }
+    }
+
+    /**
      * 启动为 Offer 。
      * @protected
      * @param {RTCDevice} rtcDevice RTC 设备。
