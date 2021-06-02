@@ -114,7 +114,7 @@ function initiate() {
             return;
         }
 
-        console.log(device);
+        
     });
 }
 
@@ -134,10 +134,21 @@ function switchMic() {
 function onSignIn(event) {
     println('已签入 "' + event.data.getName() + '"');
 
+    var groupName = '群组语音通话演示群';
+    var currentGroup = null;
+
     cube.contact.queryGroups(function(list) {
-        list.forEach(function(group) {
-            
-        });
+        for (var i = 0; i < list.length; ++i) {
+            var group = list[i];
+            if (group.getName() == groupName) {
+                currentGroup = group;
+                break;
+            }
+        }
+
+        if (null == currentGroup) {
+            // 创建新群组
+        }
     });
 }
 

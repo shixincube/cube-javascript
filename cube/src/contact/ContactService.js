@@ -306,17 +306,51 @@ export class ContactService extends Module {
 
         cell.Logger.d('ContactService', 'Trigger SignIn: ' + this.self.getId());
 
+        let gotGroups = false;
+        let gotBlockList = false;
+        let gotTopList = false;
+        let gotAppendix = false;
+
+        let trigger = () => {
+            if (gotGroups && gotBlockList && gotTopList && gotAppendix) {
+                (new Promise((resolve, reject) => {
+                    resolve();
+                })).then(() => {
+                    // 更新状态
+                    this.selfReady = true;
+
+                    this.notifyObservers(new ObservableEvent(ContactEvent.SignIn, this.self));
+                }).catch((error) => {
+                    // Noting
+                });
+            }
+        };
+
         // 更新群组
         let now = Date.now();
         this.listGroups(now - this.defaultRetrospect, now, (groupList) => {
             cell.Logger.d('ContactService', 'List groups number: ' + groupList.length);
+            gotGroups = true;
+            trigger();
         });
 
         // 更新阻止列表
-        this.listBlockList();
+        this.listBlockList(() => {
+            gotBlockList = true;
+            trigger();
+        }, (error) => {
+            gotBlockList = true;
+            trigger();
+        });
 
         // 更新置顶列表
-        this.listTopList();
+        this.listTopList(() => {
+            gotTopList = true; 
+            trigger();
+        }, (error) => {
+            gotTopList = true; 
+            trigger();
+        });
 
         this.self.name = data["name"];
         let devices = data["devices"];
@@ -330,17 +364,13 @@ export class ContactService extends Module {
 
         // 获取附录
         this.getAppendix(this.self, (appendix) => {
-            // 更新状态
-            this.selfReady = true;
-
-            this.notifyObservers(new ObservableEvent(ContactEvent.SignIn, this.self));
+            gotAppendix = true;
+            trigger();
         }, (error) => {
             cell.Logger.w('ContactService', 'Get self appendix: ' + error);
 
-            // 更新状态
-            this.selfReady = true;
-
-            this.notifyObservers(new ObservableEvent(ContactEvent.SignIn, this.self));
+            gotAppendix = true;
+            trigger();
         });
     }
 
