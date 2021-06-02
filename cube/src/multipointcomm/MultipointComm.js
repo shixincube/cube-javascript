@@ -1036,7 +1036,8 @@ export class MultipointComm extends Module {
     }
 
     /**
-     * @protected
+     * 从指定 Comm Field 上接收混码流。
+     * @private
      * @param {CommField} commField 
      * @param {function} [successCallback] 
      * @param {function} [failureCallback] 
@@ -1434,7 +1435,10 @@ export class MultipointComm extends Module {
         cell.Logger.d(MultipointComm.NAME, 'Answer from ' + answerSignaling.contact.getId());
 
         rtcDevice.doAnswer(answerSignaling.sessionDescription, () => {
-            this.notifyObservers(new ObservableEvent(MultipointCommEvent.Connected, this.activeCall));
+            // 对于 recvonly 的 Peer 不回调 Connected 事件
+            if (rtcDevice.mode == 'sendrecv' || rtcDevice.mode == 'sendonly') {
+                this.notifyObservers(new ObservableEvent(MultipointCommEvent.Connected, this.activeCall));
+            }
         }, (error) => {
             this.activeCall.lastError = error;
             this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));

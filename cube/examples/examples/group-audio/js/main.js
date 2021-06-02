@@ -139,6 +139,8 @@ function initiate() {
         cube.contact.getGroup(groupId, function(group) {
             cube.mpComm.makeCall(group, mediaConstraint, function(activeCall) {
                 println('已成功发起群通话');
+                btnInitiate.setAttribute('disabled', 'disabled');
+                btnJoin.setAttribute('disabled', 'disabled');
             }, function(error) {
                 println('发起群通话失败: ' + error.toString());
             });
@@ -148,17 +150,23 @@ function initiate() {
 
 function join() {
     cube.contact.getGroup(groupId, function(group) {
-        if (group.getAppendix().getCommId() == 0) {
-            alert('当前群组没有正在进行的语音通话');
-            return;
-        }
+        cube.mpComm.isCalling(group, function(calling) {
+            if (!calling) {
+                alert('当前群组没有正在进行的语音通话');
+                return;
+            }
 
-        initiate();
+            initiate();
+        });
     });
 }
 
 function quit() {
-
+    cube.mpComm.hangupCall(function() {
+        btnInitiate.removeAttribute('disabled');
+        btnJoin.removeAttribute('disabled');
+    }, function(error) {
+    });
 }
 
 function switchMic() {

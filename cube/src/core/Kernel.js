@@ -180,18 +180,18 @@ export class Kernel {
     shutdown() {
         this.working = false;
 
-        // 关闭管道
-        let list = this.pipelines.values();
-        for (let i = 0; i < list.length; ++i) {
-            let pl = list[i];
-            pl.close();
-        }
-
         // 停止模块
         let mods = this.modules.values();
         for (let i = 0; i < mods.length; ++i) {
             let mod = mods[i];
             mod.stop();
+        }
+
+        // 关闭管道
+        let list = this.pipelines.values();
+        for (let i = 0; i < list.length; ++i) {
+            let pl = list[i];
+            pl.close();
         }
     }
 
