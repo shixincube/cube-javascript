@@ -83,3 +83,7 @@ div#media-container video {
 .logs label {
     display: block;
 }
+
+div#inboundStats {
+    left: 222px;
+}

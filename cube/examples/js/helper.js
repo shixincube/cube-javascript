@@ -280,6 +280,7 @@
         });
 
         el.innerHTML = statsOutput;
+        el.style.visibility = 'visible';
     }
 
 })(window);

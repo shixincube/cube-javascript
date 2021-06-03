@@ -330,6 +330,7 @@ ul {
     background-color: lightslategray;
     color: snow;
     opacity: 0.5;
+    visibility: hidden;
 }
 .stats-box:hover {
     opacity: 1.0;
