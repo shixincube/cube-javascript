@@ -259,7 +259,14 @@
 
         stats.forEach(function(report) {
             if (report.type.indexOf('rtp') >= 0) {
+                statsOutput += `<h3>${report.type}</h3>\n<span class="stat-name">id</span> : ${report.id}<br>\n` +
+                        `<span class="stat-name">timestamp</span> : ${report.timestamp}<br>\n`;
 
+                Object.keys(report).forEach(function(statName) {
+                    if (statName !== "id" && statName !== "timestamp" && statName !== "type") {
+                        statsOutput += `<span class="stat-name">${statName}</span> : ${report[statName]}<br>\n`;
+                    }
+                });
             }
 
             /* ALL - only for debug

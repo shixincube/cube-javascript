@@ -177,7 +177,21 @@ function quit() {
 }
 
 function switchMic() {
-
+    var stats = [
+        {
+            type: "outbound-rtp",
+            id: "a6ce028c",
+            timestamp: 1622686045004,
+            kind: "audio",
+            mediaType: "audio",
+            ssrc: 160462922,
+            bytesSent: 4049238,
+            packetsSent: 23406,
+            nackCount: 0,
+            remoteId: "81d78073"
+        }
+    ];
+    showRTCStats(document.querySelector('div#outboundStats'), stats);
 }
 
 function startRefreshStats() {
