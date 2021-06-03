@@ -321,6 +321,13 @@ ul {
     margin-left: 10px;
 }
 
+.stats-box {
+    position: absolute;
+    float: left;
+    top: 0;
+    left: 0;
+}
+
 @media screen and (max-width: 650px) {
     .highlight {
         font-size: 1em;

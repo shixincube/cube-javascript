@@ -254,4 +254,25 @@
         el.style.visibility = 'visible';
     }
 
+    g.showRTCStats = function(el, stats) {
+        var statsOutput = "";
+
+        stats.forEach(function(report) {
+            if (report.type.indexOf('rtp') >= 0) {
+
+            }
+
+            /* ALL - only for debug
+            statsOutput += `<h3>Report: ${report.type}</h3>\n<strong>ID:</strong> ${report.id}<br>\n` +
+                        `<strong>Timestamp:</strong> ${report.timestamp}<br>\n`;
+            Object.keys(report).forEach(function(statName) {
+                if (statName !== "id" && statName !== "timestamp" && statName !== "type") {
+                    statsOutput += `<strong>${statName}:</strong> ${report[statName]}<br>\n`;
+                }
+            });*/
+        });
+
+        el.innerHTML = statsOutput;
+    }
+
 })(window);

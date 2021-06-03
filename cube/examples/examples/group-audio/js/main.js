@@ -181,10 +181,18 @@ function switchMic() {
 }
 
 function startRefreshStats() {
+    var field = cube.mpComm.getActiveField();
+    if (null == field) {
+        return;
+    }
+
     if (statsTimer == 0) {
         statsTimer = setInterval(function() {
-            var field = cube.mpComm.getActiveField();
-            
+            field.snapshootStatsReport(function(field, stats) {
+                showRTCStats(document.querySelector('div#outboundStats'), stats);
+            }, function(field, stats) {
+
+            });
         }, 1000);
     }
 }
@@ -238,6 +246,8 @@ function onRinging(event) {
 
 function onConnected(event) {
     println('[事件] 已建立通话链路: ' + event.data.field.id);
+
+    startRefreshStats();
 }
 
 function onBye(event) {
