@@ -51,6 +51,7 @@ const btnInitiate = document.querySelector('button#initiate');
 const btnJoin = document.querySelector('button#join');
 const btnQuit = document.querySelector('button#quit');
 const btnSwitchMic = document.querySelector('button#switchMic');
+const btnStatistics = document.querySelector('button#statistics');
 
 const selContactId = document.querySelector('select#contactId');
 const inputContactName = document.querySelector('input#contactName');
@@ -62,6 +63,7 @@ btnInitiate.onclick = initiate;
 btnJoin.onclick = join;
 btnQuit.onclick = quit;
 btnSwitchMic.onclick = switchMic;
+btnStatistics.onclick = statistics;
 selContactId.onclick = selectLoginContact;
 
 textareaLogs.value = '请选择联系人并点击“登录”按钮';
@@ -169,6 +171,8 @@ function join() {
 function quit() {
     stopRefreshStats();
 
+    btnStatistics.setAttribute('disabled', 'disabled');
+
     cube.mpComm.hangupCall(function() {
         btnInitiate.removeAttribute('disabled');
         btnJoin.removeAttribute('disabled');
@@ -177,6 +181,10 @@ function quit() {
 }
 
 function switchMic() {
+    
+}
+
+function statistics() {
     // var stats = [
     //     {
     //         type: "outbound-rtp",
@@ -193,6 +201,13 @@ function switchMic() {
     // ];
     // showRTCStats(document.querySelector('div#outboundStats'), stats);
     // showRTCStats(document.querySelector('div#inboundStats'), stats);
+
+    if (statsTimer == 0) {
+        startRefreshStats();
+    }
+    else {
+        stopRefreshStats();
+    }
 }
 
 function startRefreshStats() {
@@ -216,6 +231,8 @@ function stopRefreshStats() {
     if (statsTimer > 0) {
         clearInterval(statsTimer);
         statsTimer = 0;
+
+        hideRTCStats(document.querySelector('div#outboundStats'));
     }
 }
 
@@ -262,11 +279,14 @@ function onRinging(event) {
 function onConnected(event) {
     println('[事件] 已建立通话链路: ' + event.data.field.id);
 
-    startRefreshStats();
+    btnStatistics.removeAttribute('disabled');
 }
 
 function onBye(event) {
     println('[事件] 通话结束: ' + event.data.field.id);
+
+    stopRefreshStats();
+    btnStatistics.addAttribute('disabled', 'disabled');
 }
 
 function println(text) {

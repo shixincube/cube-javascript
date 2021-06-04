@@ -32,47 +32,55 @@ export const StateCode = {
 
     /**
      * 成功。
+     * @type {number}
      */
     OK: 1000,
 
     /**
      * 数据请求错误。
+     * @type {number}
      */
     BadRequest: 1400,
 
     /**
      * 未知的请求命令。
+     * @type {number}
      */
     NotFound: 1404,
 
     /**
      * 没有找到授权码。
+     * @type {number}
      */
     NoAuthToken: 1501,
 
     /**
      * 请求服务超时。
+     * @type {number}
      */
     ServiceTimeout: 2001,
 
     /**
      * 负载格式错误。
+     * @type {number}
      */
     PayloadFormat: 2002,
 
     /**
      * 参数错误。
+     * @type {number}
      */
     InvalidParameter: 2003,
 
     /**
      * 网关错误。
+     * @type {number}
      */
     GatewayError: 2101,
 
     /**
      * 提取服务器返回的链路状态码。
-     * 
+     * @private
      * @param {ActionDialect} action 指定动作方言实例。
      * @returns 如果有状态信息返回状态信息的 JSON 格式，否则返回 {@linkcode null} 值。
      */

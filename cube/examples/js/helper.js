@@ -255,7 +255,7 @@
     }
 
     g.showRTCStats = function(el, stats) {
-        var statsOutput = "";
+        var statsOutput = '';
 
         stats.forEach(function(report) {
             if (report.type.indexOf('rtp') >= 0) {
@@ -281,6 +281,10 @@
 
         el.innerHTML = statsOutput;
         el.style.visibility = 'visible';
+    }
+
+    g.hideRTCStats = function(el) {
+        el.style.visibility = 'hidden';
     }
 
 })(window);

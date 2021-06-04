@@ -329,16 +329,21 @@ ul {
     padding: 8px;
     background-color: lightslategray;
     color: snow;
-    opacity: 0.5;
+    opacity: 0.8;
     visibility: hidden;
 }
 .stats-box:hover {
     opacity: 1.0;
 }
+.stats-box h3 {
+    color: snow;
+    font-weight: bold;
+    margin: 20px 0px 10px 0px;
+}
 .stats-box .stat-name {
     display: inline-block;
     font-weight: bold;
-    min-width: 90px;
+    min-width: 114px;
     text-align: right;
 }
 
