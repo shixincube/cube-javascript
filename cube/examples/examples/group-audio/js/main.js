@@ -112,6 +112,7 @@ function logout() {
     btnJoin.setAttribute('disabled', 'disabled');
     btnQuit.setAttribute('disabled', 'disabled');
     btnSwitchMic.setAttribute('disabled', 'disabled');
+    btnStatistics.setAttribute('disabled', 'disabled');
     selContactId.removeAttribute('disabled');
 
     textareaLogs.value = '请选择联系人并点击“登录”按钮';
@@ -185,23 +186,6 @@ function switchMic() {
 }
 
 function statistics() {
-    // var stats = [
-    //     {
-    //         type: "outbound-rtp",
-    //         id: "a6ce028c",
-    //         timestamp: 1622686045004,
-    //         kind: "audio",
-    //         mediaType: "audio",
-    //         ssrc: 160462922,
-    //         bytesSent: 4049238,
-    //         packetsSent: 23406,
-    //         nackCount: 0,
-    //         remoteId: "81d78073"
-    //     }
-    // ];
-    // showRTCStats(document.querySelector('div#outboundStats'), stats);
-    // showRTCStats(document.querySelector('div#inboundStats'), stats);
-
     if (statsTimer == 0) {
         startRefreshStats();
     }
@@ -221,7 +205,7 @@ function startRefreshStats() {
             field.snapshootStatsReport(function(field, stats) {
                 showRTCStats(document.querySelector('div#outboundStats'), stats);
             }, function(field, stats) {
-
+                showRTCStats(document.querySelector('div#inboundStats'), stats);
             });
         }, 1000);
     }
@@ -233,6 +217,7 @@ function stopRefreshStats() {
         statsTimer = 0;
 
         hideRTCStats(document.querySelector('div#outboundStats'));
+        hideRTCStats(document.querySelector('div#inboundStats'));
     }
 }
 
@@ -286,7 +271,7 @@ function onBye(event) {
     println('[事件] 通话结束: ' + event.data.field.id);
 
     stopRefreshStats();
-    btnStatistics.addAttribute('disabled', 'disabled');
+    btnStatistics.setAttribute('disabled', 'disabled');
 }
 
 function println(text) {

@@ -26,6 +26,7 @@
 
 import cell from "@lib/cell-lib";
 import { ModuleError } from "../core/error/ModuleError";
+import { VolumeMeter } from "../util/VolumeMeter";
 import { DeviceSpanner } from "./DeviceSpanner";
 import { MediaConstraint } from "./MediaConstraint";
 import { MultipointComm } from "./MultipointComm";
@@ -89,6 +90,11 @@ export class RTCDevice {
          * @type {MediaStream}
          */
         this.inboundStream = null;
+
+        /**
+         * @type {VolumeMeter}
+         */
+        this.outboundMeter = null;
 
         /**
          * 是否已启动 PeerConnection 。
@@ -685,6 +691,23 @@ export class RTCDevice {
     /**
      * @private
      */
+    startOutboundMeter() {
+        let audioContext = new AudioContext();
+        let mediaStreamSource = audioContext.createMediaStreamSource(this.outboundStream);
+        this.outboundMeter = new VolumeMeter(audioContext);
+        mediaStreamSource.connect(this.outboundMeter.processor);
+    }
+
+    /**
+     * @private
+     */
+    stopOutboundMeter() {
+        this.outboundMeter.shutdown();
+    }
+
+    /**
+     * @private
+     */
     fireOnTrack(event) {
         if (event.streams && event.streams[0]) {
             this.inboundStream = event.streams[0];
@@ -707,9 +730,9 @@ export class RTCDevice {
             this.inboundStream.addTrack(event.track);
         }
 
-        // 同步流状态
         setTimeout(() => {
             if (null != this.inboundStream) {
+                // 同步流状态
                 this.syncStreamState(this.inboundStream, this.streamState.in);
                 this.remoteVideoElem.volume = this.streamState.in.volume;
             }

@@ -23,3 +23,125 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+/**
+ * 音量度量工具。
+ */
+export class VolumeMeter {
+
+    /**
+     * @param {AudioContext} audioContext 音频上下文。
+     * @param {number} [clipLevel=0.98] 剪裁级别，数值范围：{@linkcode 0} - {@linkcode 1} 。
+     * @param {number} [averaging=0.95] 平均采样平滑系数，数值范围：{@linkcode 0} - {@linkcode 1} 。
+     * @param {number} [clipLag=750] 剪裁数据时，剪裁数据的长度，单位：毫秒。
+     */
+    constructor(audioContext, clipLevel, averaging, clipLag) {
+        /**
+         * @type {number}
+         */
+        this.volume = 0;
+
+        /**
+         * @private
+         * @type {boolean}
+         */
+        this.clipping = false;
+
+        /**
+         * 上一次剪裁时间戳
+         * @private
+         * @type {number}
+         */
+        this.lastClip = 0;
+
+        /**
+         * @private
+         * @type {number}
+         */
+        this.clipLevel = clipLevel || 0.98;
+
+        /**
+         * @private
+         * @type {number}
+         */
+        this.averaging = averaging || 0.95;
+
+        /**
+         * @private
+         * @type {number}
+         */
+        this.clipLag = clipLag || 750;
+
+        let processor = audioContext.createScriptProcessor(512);
+        processor.onaudioprocess = (event) => {
+            this.volumeAudioProcess(event);
+        };
+
+        // 对上下文没有影响，不复制输入到输出
+        processor.connect(audioContext.destination);
+
+        /**
+         * @private
+         * @type {ScriptProcessorNode}
+         */
+        this.processor = processor;
+    }
+
+    /**
+     * 获取音频音量。
+     * @returns {number} 返回音频音量。
+     */
+    getVolume() {
+        return this.volume;
+    }
+
+    /**
+     * 
+     * @returns 
+     */
+    checkClipping() {
+        if (!this.clipping)
+            return false;
+
+        if ((this.lastClip + this.clipLag) < window.performance.now())
+            this.clipping = false;
+
+        return this.clipping;
+    }
+
+    /**
+     * 
+     */
+    shutdown() {
+        this.processor.disconnect();
+        this.processor.onaudioprocess = null;
+    }
+
+    /**
+     * @private
+     * @param {*} event 
+     */
+    volumeAudioProcess(event) {
+        let buf = event.inputBuffer.getChannelData(0);
+        let bufLength = buf.length;
+        let sum = 0;
+        let x = 0;
+
+        // 计算平方和
+        for (let i = 0; i < bufLength; i++) {
+            x = buf[i];
+            if (Math.abs(x) >= this.clipLevel) {
+                this.clipping = true;
+    		    this.lastClip = window.performance.now();
+            }
+
+            sum += x * x;
+        }
+
+        // 取和的平方根
+        let rms =  Math.sqrt(sum / bufLength);
+
+        // 现在用上一次的采样的平均因子来平滑数值：在这里取最大值，因为我们想要“快速攻击，缓慢释放”
+        this.volume = Math.max(rms, this.volume * this.averaging);
+    }
+}

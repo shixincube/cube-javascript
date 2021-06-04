@@ -257,27 +257,32 @@
     g.showRTCStats = function(el, stats) {
         var statsOutput = '';
 
-        stats.forEach(function(report) {
-            if (report.type.indexOf('rtp') >= 0) {
-                statsOutput += `<h3>${report.type}</h3>\n<span class="stat-name">id</span> : ${report.id}<br>\n` +
-                        `<span class="stat-name">timestamp</span> : ${report.timestamp}<br>\n`;
+        if (null != stats) {
+            stats.forEach(function(report) {
+                if (report.type.indexOf('rtp') >= 0) {
+                    statsOutput += `<h3>${report.type}</h3>\n<span class="stat-name">id</span> : ${report.id}<br>\n` +
+                            `<span class="stat-name">timestamp</span> : ${report.timestamp}<br>\n`;
+    
+                    Object.keys(report).forEach(function(statName) {
+                        if (statName !== "id" && statName !== "timestamp" && statName !== "type") {
+                            statsOutput += `<span class="stat-name">${statName}</span> : ${report[statName]}<br>\n`;
+                        }
+                    });
+                }
 
+                /* ALL - only for debug
+                statsOutput += `<h3>Report: ${report.type}</h3>\n<strong>ID:</strong> ${report.id}<br>\n` +
+                            `<strong>Timestamp:</strong> ${report.timestamp}<br>\n`;
                 Object.keys(report).forEach(function(statName) {
                     if (statName !== "id" && statName !== "timestamp" && statName !== "type") {
-                        statsOutput += `<span class="stat-name">${statName}</span> : ${report[statName]}<br>\n`;
+                        statsOutput += `<strong>${statName}:</strong> ${report[statName]}<br>\n`;
                     }
-                });
-            }
-
-            /* ALL - only for debug
-            statsOutput += `<h3>Report: ${report.type}</h3>\n<strong>ID:</strong> ${report.id}<br>\n` +
-                        `<strong>Timestamp:</strong> ${report.timestamp}<br>\n`;
-            Object.keys(report).forEach(function(statName) {
-                if (statName !== "id" && statName !== "timestamp" && statName !== "type") {
-                    statsOutput += `<strong>${statName}:</strong> ${report[statName]}<br>\n`;
-                }
-            });*/
-        });
+                });*/
+            });
+        }
+        else {
+            statsOutput = '<h3>没有数据</h3>'
+        }
 
         el.innerHTML = statsOutput;
         el.style.visibility = 'visible';

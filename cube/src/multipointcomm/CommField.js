@@ -709,10 +709,10 @@ export class CommField extends Entity {
 
     /**
      * 发送信令。
+     * @private
      * @param {Signaling} signaling 
      * @param {function} [successCallback]
      * @param {function} [failureCallback]
-     * @private
      */
     sendSignaling(signaling, successCallback, failureCallback) {
         this.pipeline.send(MultipointComm.NAME, new Packet(signaling.name, signaling.toJSON()), (pipeline, source, packet) => {
