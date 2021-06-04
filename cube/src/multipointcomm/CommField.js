@@ -198,6 +198,19 @@ export class CommField extends Entity {
     }
 
     /**
+     * 获取麦克风实时音量。
+     * @returns {number} 返回麦克风实时音量。
+     */
+    getMicrophoneVolume() {
+        if (null == this.outboundRTC) {
+            return 0;
+        }
+
+        this.outboundRTC.startOutboundMeter();
+        return (null != this.outboundRTC.outboundMeter) ? this.outboundRTC.outboundMeter.volume : 0;
+    }
+
+    /**
      * 快照当前的 WebRTC 节点状态数据。
      * @param {function} outboundCallback 
      * @param {function} [inboundCallback] 

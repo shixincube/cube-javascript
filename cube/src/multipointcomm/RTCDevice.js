@@ -644,6 +644,8 @@ export class RTCDevice {
     close() {
         this.started = false;
 
+        this.stopOutboundMeter();
+
         this.candidates = [];
 
         if (null != this.inboundStream) {
@@ -692,6 +694,14 @@ export class RTCDevice {
      * @private
      */
     startOutboundMeter() {
+        if (null == this.outboundStream) {
+            return;
+        }
+
+        if (null != this.outboundMeter) {
+            return;
+        }
+
         let audioContext = new AudioContext();
         let mediaStreamSource = audioContext.createMediaStreamSource(this.outboundStream);
         this.outboundMeter = new VolumeMeter(audioContext);
@@ -702,7 +712,10 @@ export class RTCDevice {
      * @private
      */
     stopOutboundMeter() {
-        this.outboundMeter.shutdown();
+        if (null != this.outboundMeter) {
+            this.outboundMeter.shutdown();
+            this.outboundMeter = null;
+        }
     }
 
     /**
