@@ -26,6 +26,7 @@
 
 /**
  * 音量度量工具。
+ * @private
  */
 export class VolumeMeter {
 

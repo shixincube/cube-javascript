@@ -116,7 +116,11 @@ const CubeMultipointCommEvent = {
      */
     MediaDisconnected: 'MediaDisconnected',
 
-    
+    /**
+     * 麦克风音量事件。
+     * @type {string}
+     */
+    MicrophoneVolume: 'MicrophoneVolume',
 
     /**
      * 发生错误。
