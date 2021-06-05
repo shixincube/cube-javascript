@@ -129,6 +129,13 @@ export class MultipointComm extends Module {
         this.videoElemAgent = null;
 
         /**
+         * 实时状态更新定时器。
+         * @type {number}
+         * @private
+         */
+        this.statsTimer = 0;
+
+        /**
          * 呼叫定时器。
          * @type {number}
          * @private
@@ -922,6 +929,11 @@ export class MultipointComm extends Module {
             return false;
         }
 
+        if (this.statsTimer > 0) {
+            clearInterval(this.statsTimer);
+            this.statsTimer = 0;
+        }
+
         // 当前通话的场域
         let field = this.activeCall.field;
 
@@ -1303,6 +1315,12 @@ export class MultipointComm extends Module {
      */
     onMediaConnected(commField, rtcDevice) {
         this.notifyObservers(new ObservableEvent(MultipointCommEvent.MediaConnected, this.activeCall));
+
+        if (0 == this.statsTimer) {
+            this.statsTimer = setInterval(() => {
+                this.onTimer();
+            }, 1000);
+        }
     }
 
     /**
@@ -1312,12 +1330,21 @@ export class MultipointComm extends Module {
      * @param {RTCDevice} rtcDevice 
      */
     onMediaDisconnected(commField, rtcDevice) {
+        if (this.statsTimer > 0) {
+            clearInterval(this.statsTimer);
+            this.statsTimer = 0;
+        }
+
         this.notifyObservers(new ObservableEvent(MultipointCommEvent.MediaDisconnected, this.activeCall));
 
         if (this.activeCall.field.isPrivate()) {
             // 私域通信，触发 Hangup
             this.hangupCall();
         }
+    }
+
+    onTimer() {
+
     }
 
     /**
