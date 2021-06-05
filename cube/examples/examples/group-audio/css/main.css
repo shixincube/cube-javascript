@@ -76,6 +76,9 @@ div#media-container video {
 .participants select {
     width: 170px;
 }
+.participants > div {
+    margin-bottom: 8px;
+}
 
 .logs {
     margin-left: 20px;
