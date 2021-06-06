@@ -1343,8 +1343,22 @@ export class MultipointComm extends Module {
         }
     }
 
+    /**
+     * @private
+     * 定时器回调。
+     */
     onTimer() {
+        if (null == this.activeCall) {
+            return;
+        }
 
+        let field = this.activeCall.field;
+        if (null == field) {
+            return;
+        }
+
+        let volume = field.getMicrophoneVolume();
+        this.notifyObservers(new ObservableEvent(MultipointCommEvent.MicrophoneVolume, volume));
     }
 
     /**

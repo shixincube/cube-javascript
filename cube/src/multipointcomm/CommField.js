@@ -203,10 +203,13 @@ export class CommField extends Entity {
      */
     getMicrophoneVolume() {
         if (null == this.outboundRTC) {
-            return 0;
+            return -1;
         }
 
-        this.outboundRTC.startOutboundMeter();
+        if (null == this.outboundRTC.outboundMeter) {
+            this.outboundRTC.startOutboundMeter();
+        }
+
         return (null != this.outboundRTC.outboundMeter) ? this.outboundRTC.outboundMeter.volume : 0;
     }
 
