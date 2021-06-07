@@ -68,7 +68,7 @@ btnJoin.onclick = join;
 btnQuit.onclick = quit;
 btnSwitchMic.onclick = switchMic;
 btnStatistics.onclick = statistics;
-selContactId.onclick = selectLoginContact;
+selContactId.onchange = selectLoginContact;
 
 textareaLogs.value = '请选择联系人并点击“登录”按钮';
 

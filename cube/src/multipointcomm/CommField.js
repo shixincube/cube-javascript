@@ -791,7 +791,9 @@ export class CommField extends Entity {
      */
     onMediaConnected(device) {
         if (device == this.outboundRTC && null == this.outboundRTC.outboundMeter) {
-            this.outboundRTC.startOutboundMeter();
+            setTimeout(() => {
+                this.outboundRTC.startOutboundMeter();
+            }, 1);
         }
 
         if (null != this.listener) {

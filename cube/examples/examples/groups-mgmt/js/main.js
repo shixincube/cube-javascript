@@ -54,7 +54,7 @@ btnAddMember.onclick = addMember;
 btnRemoveMember.onclick = removeMember;
 btnUpdateNotice.onclick = updateNotice;
 
-selGroups.onclick = onGroupsSelectClick;
+selGroups.onchange = onGroupsSelectChange;
 
 // 联系人登录
 function login() {
@@ -272,7 +272,7 @@ function onSignIn() {
     refreshGroupList();
 }
 
-function onGroupsSelectClick() {
+function onGroupsSelectChange() {
     var groupId = getSelectedGroupId();
 
     // 调用 getGroup 获取群组实例

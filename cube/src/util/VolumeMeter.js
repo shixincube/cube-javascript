@@ -97,7 +97,7 @@ export class VolumeMeter {
     }
 
     /**
-     * 
+     * @private
      * @returns 
      */
     checkClipping() {
@@ -111,7 +111,7 @@ export class VolumeMeter {
     }
 
     /**
-     * 
+     * 关闭。
      */
     shutdown() {
         this.processor.disconnect();

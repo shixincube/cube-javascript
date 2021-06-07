@@ -141,6 +141,7 @@
                 item.onclick = function() {
                     handler(false);
                     el.style.visibility = 'hidden';
+                    document.documentElement.style.overflow = 'unset';
                 };
             }
             else if (item.getAttribute('data') == 'confirm') {
@@ -148,11 +149,14 @@
                     var ret = handler(true);
                     if (undefined === ret || ret === true) {
                         el.style.visibility = 'hidden';
+                        document.documentElement.style.overflow = 'unset';
                     }
                 };
             }
         }
 
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
+        document.documentElement.style.overflow = 'hidden';
         el.style.visibility = (action == 'show') ? 'visible' : 'hidden';
     }
 
@@ -232,6 +236,7 @@
                 item.onclick = function() {
                     handler(null);
                     el.style.visibility = 'hidden';
+                    document.documentElement.style.overflow = 'unset';
                 };
             }
             else if (item.getAttribute('data') == 'confirm') {
@@ -247,10 +252,13 @@
                     }
                     handler(selectedDevice);
                     el.style.visibility = 'hidden';
+                    document.documentElement.style.overflow = 'unset';
                 };
             }
         }
 
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
+        document.documentElement.style.overflow = 'hidden';
         el.style.visibility = 'visible';
     }
 

@@ -1694,5 +1694,13 @@ export class MultipointComm extends Module {
      */
     triggerBroadcast(payload, context) {
         let data = payload.data;
+        if (undefined !== data.data && undefined !== data.source) {
+            let source = CommFieldEndpoint.create(data.source);
+            let event = data.data.event;
+            if (event == MultipointCommEvent.MicrophoneVolume) {
+                let value = data.data.value;
+                console.log('triggerBroadcast : ' + source.getName() + ' - ' + value);
+            }
+        }
     }
 }

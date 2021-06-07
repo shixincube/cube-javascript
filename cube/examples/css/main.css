@@ -151,12 +151,6 @@ li {
     margin: 0 0 0.4em 0;
 }
 
-html {
-    /* avoid annoying page width change
-    when moving from the home page */
-    overflow-y: scroll;
-}
-
 img {
     border: none;
     max-width: 100%;

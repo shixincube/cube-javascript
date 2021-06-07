@@ -26,7 +26,9 @@
 
 import cell from "@lib/cell-lib";
 import { ModuleError } from "../core/error/ModuleError";
+import { BroswerUtil } from "../util/BroswerUtil";
 import { VolumeMeter } from "../util/VolumeMeter";
+import { AudioWorkletVolumeMeter } from "../util/AudioWorkletVolumeMeter";
 import { DeviceSpanner } from "./DeviceSpanner";
 import { MediaConstraint } from "./MediaConstraint";
 import { MultipointComm } from "./MultipointComm";
@@ -92,7 +94,7 @@ export class RTCDevice {
         this.inboundStream = null;
 
         /**
-         * @type {VolumeMeter}
+         * @type {VolumeMeter|AudioWorkletVolumeMeter}
          */
         this.outboundMeter = null;
 
@@ -703,9 +705,16 @@ export class RTCDevice {
         }
 
         let audioContext = new AudioContext();
-        let mediaStreamSource = audioContext.createMediaStreamSource(this.outboundStream);
-        this.outboundMeter = new VolumeMeter(audioContext);
-        mediaStreamSource.connect(this.outboundMeter.processor);
+
+        let useAudioWorklet = BroswerUtil.getBrowserName() == 'Chrome';
+        if (useAudioWorklet) {
+            this.outboundMeter = new AudioWorkletVolumeMeter(audioContext);
+        }
+        else {
+            let mediaStreamSource = audioContext.createMediaStreamSource(this.outboundStream);
+            this.outboundMeter = new VolumeMeter(audioContext);
+            mediaStreamSource.connect(this.outboundMeter.processor);
+        }
     }
 
     /**
