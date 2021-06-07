@@ -56,7 +56,7 @@ const btnSwitchMic = document.querySelector('button#switchMic');
 const btnStatistics = document.querySelector('button#statistics');
 
 const selContactId = document.querySelector('select#contactId');
-const selParticipants = document.querySelector('select#participants');
+const divParticipants = document.querySelector('div#participants');
 const inputContactName = document.querySelector('input#contactName');
 const inputMicVolume = document.querySelector('input#micVolume');
 const textareaLogs = document.querySelector('textarea#logs');
@@ -301,17 +301,21 @@ function onMicrophoneVolume(event) {
 }
 
 function refreshCommField(field) {
-    selParticipants.innerHTML = '';
+    divParticipants.innerHTML = '';
 
     if (null == field) {
         return;
     }
 
     field.getEndpoints().forEach(function(endpoint) {
-        var option = document.createElement('option');
-        option.value = endpoint.contact.getId();
-        option.innerText = endpoint.contact.getName() + ' - ' + endpoint.contact.getId();
-        selParticipants.append(option);
+        var name = endpoint.contact.getName();
+        var id = endpoint.contact.getId();
+
+        var div = document.createElement('div');
+        div.innerHTML = '<label for="' + id + '">' + 
+            name + ' - ' + id + '</label><input id="' + id + '" size="10" readonly >';
+
+        divParticipants.append(div);
     });
 }
 

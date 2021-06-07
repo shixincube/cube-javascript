@@ -113,5 +113,11 @@ export const MultipointCommAction = {
      * 申请终止呼叫。
      * @type {string}
      */
-    ApplyTerminate: 'applyTerminate'
+    ApplyTerminate: 'applyTerminate',
+
+    /**
+     * 客户端请求对当期场域进行数据广播。
+     * @type {string}
+     */
+    Broadcast: 'broadcast'
 }

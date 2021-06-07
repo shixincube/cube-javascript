@@ -206,10 +206,6 @@ export class CommField extends Entity {
             return -1;
         }
 
-        if (null == this.outboundRTC.outboundMeter) {
-            this.outboundRTC.startOutboundMeter();
-        }
-
         if (null != this.outboundRTC.outboundMeter) {
             let volume = this.outboundRTC.outboundMeter.volume * 100;
 
@@ -794,6 +790,10 @@ export class CommField extends Entity {
      * @param {RTCDevice} device 
      */
     onMediaConnected(device) {
+        if (device == this.outboundRTC && null == this.outboundRTC.outboundMeter) {
+            this.outboundRTC.startOutboundMeter();
+        }
+
         if (null != this.listener) {
             this.listener.onMediaConnected(this, device);
         }

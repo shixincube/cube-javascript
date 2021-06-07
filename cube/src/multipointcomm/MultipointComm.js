@@ -1357,13 +1357,28 @@ export class MultipointComm extends Module {
             return;
         }
 
-        let volume = field.getMicrophoneVolume();
-        if (volume >= 0) {
-            let ep = field.getEndpoint(this.cs.getSelf());
-            this.notifyObservers(new ObservableEvent(MultipointCommEvent.MicrophoneVolume, {
-                endpoint: ep,
-                volume: volume
-            }));
+        let endpoint = field.getEndpoint(this.cs.getSelf());
+        if (null != endpoint) {
+            let lastVolume = endpoint.volume;
+
+            let volume = field.getMicrophoneVolume();
+            if (volume >= 0) {
+                if (Math.abs(lastVolume - volume) >= 10) {
+                    let packet = new Packet(MultipointCommAction.Broadcast, {
+                        "source" : endpoint.toJSON(),
+                        "data" : {
+                            event: MultipointCommEvent.MicrophoneVolume,
+                            value: volume
+                        }
+                    });
+                    this.pipeline.send(MultipointComm.NAME, packet);
+                }
+
+                this.notifyObservers(new ObservableEvent(MultipointCommEvent.MicrophoneVolume, {
+                    endpoint: endpoint,
+                    volume: volume
+                }));
+            }
         }
     }
 

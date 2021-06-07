@@ -56,7 +56,7 @@ div#media-container video {
     height: 10px;
 }
 
-.group, .participants, .logs {
+.group, .participants, .local {
     display: inline-block;
     vertical-align: top;
 }
@@ -68,7 +68,8 @@ div#media-container video {
 }
 
 .participants {
-    margin-left: 20px;
+    margin-left: 40px;
+    min-width: 230px;
 }
 .participants label {
     display: block;
@@ -76,15 +77,26 @@ div#media-container video {
 .participants select {
     width: 170px;
 }
-.participants > div {
-    margin-bottom: 8px;
+
+.local {
+    margin-left: 40px;
+}
+.local label {
+    display: block;
 }
 
-.logs {
-    margin-left: 20px;
-}
 .logs label {
-    display: block;
+    vertical-align: top;
+}
+
+div#participants label {
+    font-size: 14px;
+    font-weight: bold;
+    display: inline-block;
+    margin-right: 10px;
+}
+div#participants > div {
+    margin-bottom: 4px;
 }
 
 div#inboundStats {
