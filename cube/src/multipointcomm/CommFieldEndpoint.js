@@ -84,6 +84,12 @@ export class CommFieldEndpoint extends Entity {
         this.state = MultipointCommState.Ok;
 
         /**
+         * 实时麦克风音量。
+         * @type {number}
+         */
+        this.volume = 0;
+
+        /**
          * 客户端是否启用视频设备。
          * @type {boolean}
          */

@@ -129,7 +129,7 @@ export class VolumeMeter {
         let x = 0;
 
         // 计算平方和
-        for (let i = 0; i < bufLength; i++) {
+        for (let i = 0; i < bufLength; ++i) {
             x = buf[i];
             if (Math.abs(x) >= this.clipLevel) {
                 this.clipping = true;

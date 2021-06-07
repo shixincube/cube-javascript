@@ -45,6 +45,8 @@ cube.mpComm.on(CommEvent.Ringing, onRinging);
 cube.mpComm.on(CommEvent.Connected, onConnected);
 cube.mpComm.on(CommEvent.Bye, onBye);
 
+cube.mpComm.on(CommEvent.MicrophoneVolume, onMicrophoneVolume);
+
 const btnLogin = document.querySelector('button#login');
 const btnLogout = document.querySelector('button#logout');
 const btnInitiate = document.querySelector('button#initiate');
@@ -54,7 +56,9 @@ const btnSwitchMic = document.querySelector('button#switchMic');
 const btnStatistics = document.querySelector('button#statistics');
 
 const selContactId = document.querySelector('select#contactId');
+const selParticipants = document.querySelector('select#participants');
 const inputContactName = document.querySelector('input#contactName');
+const inputMicVolume = document.querySelector('input#micVolume');
 const textareaLogs = document.querySelector('textarea#logs');
 
 btnLogin.onclick = login;
@@ -114,6 +118,7 @@ function logout() {
     btnSwitchMic.setAttribute('disabled', 'disabled');
     btnStatistics.setAttribute('disabled', 'disabled');
     selContactId.removeAttribute('disabled');
+    inputMicVolume.value = '';
 
     textareaLogs.value = '请选择联系人并点击“登录”按钮';
 }
@@ -201,6 +206,9 @@ function startRefreshStats() {
     }
 
     if (statsTimer == 0) {
+        showRTCStats(document.querySelector('div#outboundStats'), null);
+        showRTCStats(document.querySelector('div#inboundStats'), null);
+
         statsTimer = setInterval(function() {
             field.snapshootStatsReport(function(field, stats) {
                 showRTCStats(document.querySelector('div#outboundStats'), stats);
@@ -265,13 +273,46 @@ function onConnected(event) {
     println('[事件] 已建立通话链路: ' + event.data.field.id);
 
     btnStatistics.removeAttribute('disabled');
+    refreshCommField(event.data.field);
 }
 
 function onBye(event) {
     println('[事件] 通话结束: ' + event.data.field.id);
 
     stopRefreshStats();
+    refreshCommField(null);
+
     btnStatistics.setAttribute('disabled', 'disabled');
+    inputMicVolume.value = '';
+}
+
+function onMicrophoneVolume(event) {
+    var endpoint = event.data.endpoint;
+    var volume = event.data.volume;
+
+    if (endpoint.contact.id == cube.contact.getSelf().id) {
+        var num = Math.round(volume * 0.1);
+        var chunk = [];
+        for (var i = 0; i < num; ++i) {
+            chunk.push('■');
+        }
+        inputMicVolume.value = chunk.join('');
+    }
+}
+
+function refreshCommField(field) {
+    selParticipants.innerHTML = '';
+
+    if (null == field) {
+        return;
+    }
+
+    field.getEndpoints().forEach(function(endpoint) {
+        var option = document.createElement('option');
+        option.value = endpoint.contact.getId();
+        option.innerText = endpoint.contact.getName() + ' - ' + endpoint.contact.getId();
+        selParticipants.append(option);
+    });
 }
 
 function println(text) {

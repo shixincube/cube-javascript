@@ -210,7 +210,19 @@ export class CommField extends Entity {
             this.outboundRTC.startOutboundMeter();
         }
 
-        return (null != this.outboundRTC.outboundMeter) ? this.outboundRTC.outboundMeter.volume : 0;
+        if (null != this.outboundRTC.outboundMeter) {
+            let volume = this.outboundRTC.outboundMeter.volume * 100;
+
+            let ep = this.getEndpoint(this.self);
+            if (null != ep) {
+                ep.volume = volume;
+            }
+
+            return volume;
+        }
+        else {
+            return 0;
+        }
     }
 
     /**
@@ -563,7 +575,7 @@ export class CommField extends Entity {
                 }
             }
         }
-        else if (param instanceof Contact) {
+        else if (param instanceof Contact || param instanceof Self) {
             for (let i = 0; i < this.endpoints.length; ++i) {
                 let ep = this.endpoints[i];
                 if (ep.contact.id == param.id) {
