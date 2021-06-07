@@ -1604,6 +1604,11 @@ export class MultipointComm extends Module {
         }
     }
 
+    /**
+     * @private
+     * @param {JSON} payload 
+     * @param {object} context 
+     */
     triggerInvite(payload, context) {
         if (null != this.activeCall && this.activeCall.isActive()) {
             // 正在通话，不能回调邀请
@@ -1620,6 +1625,11 @@ export class MultipointComm extends Module {
         this.notifyObservers(new ObservableEvent(MultipointCommEvent.Invited, signaling.field));
     }
 
+    /**
+     * @private
+     * @param {JSON} payload 
+     * @param {object} context 
+     */
     triggerArrived(payload) {
         let data = payload.data;
         let commField = CommField.create(data.field, this.pipeline, this.cs.getSelf());
@@ -1646,6 +1656,11 @@ export class MultipointComm extends Module {
         }
     }
 
+    /**
+     * @private
+     * @param {JSON} payload 
+     * @param {object} context 
+     */
     triggerLeft(payload) {
         let data = payload.data;
         let commField = CommField.create(data.field, this.pipeline, this.cs.getSelf());
@@ -1670,5 +1685,14 @@ export class MultipointComm extends Module {
                 }, 1);
             }
         }
+    }
+
+    /**
+     * @private
+     * @param {JSON} payload 
+     * @param {object} context 
+     */
+    triggerBroadcast(payload, context) {
+        let data = payload.data;
     }
 }

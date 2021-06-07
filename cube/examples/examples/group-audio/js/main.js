@@ -313,7 +313,7 @@ function refreshCommField(field) {
 
         var div = document.createElement('div');
         div.innerHTML = '<label for="' + id + '">' + 
-            name + ' - ' + id + '</label><input id="' + id + '" size="10" readonly >';
+            name + ' - ' + id + '</label><input id="' + id + '" size="12" readonly >';
 
         divParticipants.append(div);
     });
