@@ -227,7 +227,7 @@ export class CommFieldEndpoint extends Entity {
     }
 
     /**
-     * @inheritdoc
+     * @private
      */
     toJSON() {
         let json = super.toJSON();
@@ -249,7 +249,7 @@ export class CommFieldEndpoint extends Entity {
     }
 
     /**
-     * @inheritdoc
+     * @private
      */
     toCompactJSON() {
         let json = super.toCompactJSON();

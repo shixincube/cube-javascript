@@ -262,6 +262,11 @@
         el.style.visibility = 'visible';
     }
 
+    /**
+     * 显示状态统计数据。
+     * @param {*} el 
+     * @param {*} stats 
+     */
     g.showRTCStats = function(el, stats) {
         var statsOutput = '';
 
