@@ -24,20 +24,66 @@
  * SOFTWARE.
  */
 
+import { Kernel } from "../core/Kernel";
+
 /**
  * 使用 AudioWorkletNode 的音量度量工具。
  * @private
  */
 export class AudioWorkletVolumeMeter {
 
-    constructor(audioContext) {
+    /**
+     * @param {AudioContext} audioContext 
+     * @param {MediaStream} stream 
+     */
+    constructor(audioContext, stream) {
         /**
          * @type {number}
          */
         this.volume = 0;
+
+        /**
+         * @type {MediaStreamAudioSourceNode}
+         */
+        this.microphoneSource = null;
+
+        /**
+         * @type {AudioWorkletNode}
+         */
+        this.node = null;
+
+        audioContext.audioWorklet.addModule(Kernel.WORKER_URL_PATH + 'cube-volume-processor.js').then(() => {
+            // 从麦克风的流创建 MediaStreamSource
+            let microphone = audioContext.createMediaStreamSource(stream);
+
+            // 创建 'volume-meter' 节点
+            const node = new AudioWorkletNode(audioContext, 'volume-meter');
+
+            node.port.postMessage({ sampleRate: audioContext.sampleRate });
+
+            node.port.onmessage = event => {
+                this.volume = event.data.volume;
+            };
+
+            microphone.connect(node).connect(audioContext.destination);
+
+            this.node = node;
+            this.microphoneSource = microphone;
+        }).catch((error) => {
+            console.warn(error);
+        });
     }
 
+    /**
+     * 关闭。
+     */
     shutdown() {
+        if (null != this.microphoneSource) {
+            this.microphoneSource.disconnect();
+            this.node.disconnect();
 
+            this.microphoneSource = null;
+            this.node = null;
+        }
     }
 }

@@ -51,7 +51,13 @@ export class Kernel {
      * 内核版本号。
      * @type {string}
      */
-    static VERSION = '1.0.0';
+    static VERSION = '3.0.0';
+
+    /**
+     * Worklet 的 Woker 脚本访问路径。
+     * @type {string}
+     */
+    static WORKER_URL_PATH = '/cube/';
 
     /**
      * @private

@@ -291,7 +291,7 @@ function onMicrophoneVolume(event) {
     var volume = event.data.volume;
 
     if (endpoint.contact.id == cube.contact.getSelf().id) {
-        var num = Math.round(volume * 0.1);
+        var num = Math.round(volume * 0.2);
         var chunk = [];
         for (var i = 0; i < num; ++i) {
             chunk.push('■');

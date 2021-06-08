@@ -706,14 +706,12 @@ export class RTCDevice {
 
         let audioContext = new AudioContext();
 
-        let useAudioWorklet = BroswerUtil.getBrowserName() == 'Chrome';
+        let useAudioWorklet = (BroswerUtil.getBrowserName() == 'Chrome');
         if (useAudioWorklet) {
-            this.outboundMeter = new AudioWorkletVolumeMeter(audioContext);
+            this.outboundMeter = new AudioWorkletVolumeMeter(audioContext, this.outboundStream);
         }
         else {
-            let mediaStreamSource = audioContext.createMediaStreamSource(this.outboundStream);
-            this.outboundMeter = new VolumeMeter(audioContext);
-            mediaStreamSource.connect(this.outboundMeter.processor);
+            this.outboundMeter = new VolumeMeter(audioContext, this.outboundStream);
         }
     }
 

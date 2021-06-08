@@ -62,11 +62,17 @@ var CubeAllConfig = {
                         source: path.resolve(__dirname, './dist') + '/*.js.map',
                         destination: path.resolve(__dirname, '../web/public/javascripts/')
                     }, {
+                        source: path.resolve(__dirname, './worker') + '/*.js',
+                        destination: path.resolve(__dirname, '../web/public/cube/')
+                    }, {
                         source: path.resolve(__dirname, './dist') + '/*.js',
                         destination: path.resolve(__dirname, './examples/js/')
                     }, {
                         source: path.resolve(__dirname, './dist') + '/*.js.map',
                         destination: path.resolve(__dirname, './examples/js/')
+                    }, {
+                        source: path.resolve(__dirname, './worker') + '/*.js',
+                        destination: path.resolve(__dirname, './examples/cube/')
                     }]
                 }
             }

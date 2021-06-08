@@ -32,11 +32,12 @@ export class VolumeMeter {
 
     /**
      * @param {AudioContext} audioContext 音频上下文。
+     * @param {MediaStream} stream 媒体流。
      * @param {number} [clipLevel=0.98] 剪裁级别，数值范围：{@linkcode 0} - {@linkcode 1} 。
-     * @param {number} [averaging=0.95] 平均采样平滑系数，数值范围：{@linkcode 0} - {@linkcode 1} 。
+     * @param {number} [smoothingFactor=0.95] 平均采样平滑系数，数值范围：{@linkcode 0} - {@linkcode 1} 。
      * @param {number} [clipLag=750] 剪裁数据时，剪裁数据的长度，单位：毫秒。
      */
-    constructor(audioContext, clipLevel, averaging, clipLag) {
+    constructor(audioContext, stream, clipLevel, smoothingFactor, clipLag) {
         /**
          * @type {number}
          */
@@ -65,13 +66,15 @@ export class VolumeMeter {
          * @private
          * @type {number}
          */
-        this.averaging = averaging || 0.95;
+        this.smoothingFactor = smoothingFactor || 0.95;
 
         /**
          * @private
          * @type {number}
          */
         this.clipLag = clipLag || 750;
+
+        let mediaStreamSource = audioContext.createMediaStreamSource(stream);
 
         let processor = audioContext.createScriptProcessor(512);
         processor.onaudioprocess = (event) => {
@@ -80,6 +83,9 @@ export class VolumeMeter {
 
         // 对上下文没有影响，不复制输入到输出
         processor.connect(audioContext.destination);
+
+        // 媒体流连接到处理器
+        mediaStreamSource.connect(processor);
 
         /**
          * @private
@@ -143,6 +149,6 @@ export class VolumeMeter {
         let rms =  Math.sqrt(sum / bufLength);
 
         // 现在用上一次的采样的平均因子来平滑数值：在这里取最大值，因为我们想要“快速攻击，缓慢释放”
-        this.volume = Math.max(rms, this.volume * this.averaging);
+        this.volume = Math.max(rms, this.volume * this.smoothingFactor);
     }
 }
