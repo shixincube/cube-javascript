@@ -45,6 +45,9 @@ cube.mpComm.on(CommEvent.Ringing, onRinging);
 cube.mpComm.on(CommEvent.Connected, onConnected);
 cube.mpComm.on(CommEvent.Bye, onBye);
 
+cube.mpComm.on(CommEvent.Arrived, onArrived);
+cube.mpComm.on(CommEvent.Left, onLeft);
+
 cube.mpComm.on(CommEvent.MicrophoneVolume, onMicrophoneVolume);
 
 const btnLogin = document.querySelector('button#login');
@@ -284,6 +287,14 @@ function onBye(event) {
 
     btnStatistics.setAttribute('disabled', 'disabled');
     inputMicVolume.value = '';
+}
+
+function onArrived(event) {
+    var endpoint = event.data;
+}
+
+function onLeft(event) {
+    var endpoint = event.data;
 }
 
 function onMicrophoneVolume(event) {

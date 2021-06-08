@@ -34,97 +34,112 @@ const CubeMultipointCommEvent = {
 
     /**
      * 有新的通话邀请。
+     * 事件数据：{@linkcode CallRecord} - 通话记录实例。
      * @type {string}
      */
     NewCall: 'NewCall',
 
     /**
      * 正在处理通话请求。
+     * 事件数据：{@linkcode Contact} 、{@linkcode Group} 或 {@linkcode CommField} - 发起或应答通话的目标。
      * @type {string}
      */
     InProgress: 'InProgress',
 
     /**
      * 对方振铃。
+     * 事件数据：{@linkcode CallRecord} - 通话记录实例。
      * @type {string}
      */
     Ringing: 'Ringing',
 
     /**
      * 已经建立连接。
+     * 事件数据：{@linkcode CallRecord} - 通话记录实例。
      * @type {string}
      */
     Connected: 'Connected',
 
     /**
      * 对方忙。
+     * 事件数据：{@linkcode CallRecord} - 通话记录实例。
      * @type {string}
      */
     Busy: 'Busy',
 
     /**
      * 结束当前呼叫。
+     * 事件数据：{@linkcode CallRecord} - 通话记录实例。
      * @type {string}
      */
     Bye: 'Bye',
 
     /**
      * 被邀请加入通话。
+     * 事件数据：{@linkcode CommField} - 发出邀请的通讯场域的实例。
      * @type {string}
      */
     Invited: 'Invited',
 
     /**
      * 新参与者加入。
+     * 事件数据：{@linkcode CommFieldEndpoint} - 已加入终端的实例。
      * @type {string}
      */
     Arrived: 'Arrived',
 
     /**
      * 参与者已离开。
+     * 事件数据：{@linkcode CommFieldEndpoint} - 已离开终端的实例。
      * @type {string}
      */
     Left: 'Left',
 
     /**
      * 已经接收参与者数据。
+     * 事件数据：{@linkcode CommFieldEndpoint} - 终端的实例。
      * @type {string}
      */
     Followed: 'Followed',
 
     /**
      * 已经停止接收参与者数据。
+     * 事件数据：{@linkcode CommFieldEndpoint} - 终端的实例。
      * @type {string}
      */
     Unfollowed: 'Unfollowed',
 
     /**
      * 呼叫或应答超时。
+     * 事件数据：{@linkcode CallRecord} - 通话记录实例。
      * @type {string}
      */
     Timeout: 'Timeout',
 
     /**
      * 媒体流建立连接。
+     * 事件数据：{@linkcode CallRecord} - 通话记录实例。
      * @type {string}
      */
     MediaConnected: 'MediaConnected',
 
     /**
      * 媒体流断开连接。
+     * 事件数据：{@linkcode CallRecord} - 通话记录实例。
      * @type {string}
      */
     MediaDisconnected: 'MediaDisconnected',
 
     /**
      * 麦克风音量事件。
-     * 事件数据：<pre><code>{ "endpoint": endpoint, "volume": volume }</code></pre>
+     * 事件数据：<code>{ "endpoint": endpoint, "volume": volume }</code> 。
      * @type {string}
      */
     MicrophoneVolume: 'MicrophoneVolume',
 
     /**
      * 发生错误。
+     * 事件数据：{@linkcode ModuleError} 。
      * @type {string}
      */
     Failed: 'Failed',
