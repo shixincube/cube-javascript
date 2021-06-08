@@ -558,15 +558,28 @@ export class CommField extends Entity {
     }
 
     /**
-     * 返回指定的终端节点的实际实例。
-     * @param {CommFieldEndpoint|Contact|number} param 
-     * @returns {CommFieldEndpoint}
+     * 返回指定的终端节点的实例。
+     * @param {CommFieldEndpoint|Contact|number} [param] 指定配置数据的终端，不填写此参数返回当前登录联系人的终端实例。
+     * @returns {CommFieldEndpoint} 返回指定的终端节点的实例。未找到终端返回 {@linkcode null} 值。
      */
     getEndpoint(param) {
+        if (undefined === param) {
+            for (let i = 0; i < this.endpoints.length; ++i) {
+                let ep = this.endpoints[i];
+                if (ep.contact.id == this.self.id) {
+                    ep.rtcDevice = this.getRTCDevice();
+                    return ep;
+                }
+            }
+
+            return null;
+        }
+
         if (param instanceof CommFieldEndpoint) {
             for (let i = 0; i < this.endpoints.length; ++i) {
                 let ep = this.endpoints[i];
                 if (ep.getId() == param.getId()) {
+                    ep.rtcDevice = this.getRTCDevice(ep);
                     return ep;
                 }
             }
@@ -575,6 +588,7 @@ export class CommField extends Entity {
             for (let i = 0; i < this.endpoints.length; ++i) {
                 let ep = this.endpoints[i];
                 if (ep.contact.id == param.id) {
+                    ep.rtcDevice = this.getRTCDevice(ep);
                     return ep;
                 }
             }
@@ -583,6 +597,7 @@ export class CommField extends Entity {
             for (let i = 0; i < this.endpoints.length; ++i) {
                 let ep = this.endpoints[i];
                 if (ep.getId() == param) {
+                    ep.rtcDevice = this.getRTCDevice(ep);
                     return ep;
                 }
             }
@@ -593,7 +608,7 @@ export class CommField extends Entity {
 
     /**
      * 关闭指定的终端。
-     * @param {*} endpoint 
+     * @param {CommFieldEndpoint} endpoint 
      */
     closeEndpoint(endpoint) {
         for (let i = 0; i < this.endpoints.length; ++i) {

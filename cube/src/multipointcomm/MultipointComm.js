@@ -1220,6 +1220,9 @@ export class MultipointComm extends Module {
                     // 更新
                     endpoint.field = this.activeCall.field;
 
+                    // 关闭 Endpoint
+                    this.activeCall.field.closeEndpoint(endpoint);
+
                     // 关闭 RTC 设备
                     this.activeCall.field.closeRTCDevice(endpoint);
 
@@ -1670,19 +1673,26 @@ export class MultipointComm extends Module {
 
         cell.Logger.d(MultipointComm.NAME, 'Endpoint "' + endpoint.getName() + '" left "' + commField.getName() + '"');
 
-        this.notifyObservers(new ObservableEvent(MultipointCommEvent.Left, endpoint));
-
         // 停止接收对方音视频流
         if (commField.id == this.activeCall.field.id) {
             let rtc = this.activeCall.field.getRTCDevice(endpoint);
+
+            // 复制数据
+            this.activeCall.field.copy(commField);
+
             if (null != rtc) {
                 setTimeout(() => {
                     if (!this.unfollow(endpoint, () => {
-                        this.activeCall.field.copy(commField);
+                        this.notifyObservers(new ObservableEvent(MultipointCommEvent.Left, endpoint));
                     })) {
                         cell.Logger.w(MultipointComm.NAME, 'Comm field state error, can not unfollow endpoint "' + endpoint.getName() + '"');
                     }
                 }, 1);
+            }
+            else {
+                this.activeCall.field.closeEndpoint(endpoint);
+
+                this.notifyObservers(new ObservableEvent(MultipointCommEvent.Left, endpoint));
             }
         }
     }

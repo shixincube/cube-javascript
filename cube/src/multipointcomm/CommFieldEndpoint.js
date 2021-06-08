@@ -31,6 +31,7 @@ import { MultipointCommState } from "./MultipointCommState";
 import { Device } from "../contact/Device";
 import { StringUtil } from "../util/StringUtil";
 import { CommField } from "./CommField";
+import { RTCDevice } from "./RTCDevice";
 
 /**
  * 通讯场域里的媒体节点。
@@ -75,6 +76,13 @@ export class CommFieldEndpoint extends Entity {
          * @type {CommField}
          */
         this.field = null;
+
+        /**
+         * 对应的 RTC 设备。
+         * @private
+         * @type {RTCDevice}
+         */
+        this.rtcDevice = null;
 
         /**
          * 当前状态。
@@ -169,7 +177,7 @@ export class CommFieldEndpoint extends Entity {
      * @returns {boolean} 返回视频流是否被停用。
      */
     isVideoMuted() {
-        return this.videoStreamEnabled;
+        return !this.videoStreamEnabled;
     }
 
     /**
@@ -191,7 +199,11 @@ export class CommFieldEndpoint extends Entity {
      * @returns {boolean} 返回音频流是否被停用。
      */
     isAudioMuted() {
-        return this.audioStreamEnabled;
+        if (null != this.rtcDevice) {
+            this.audioStreamEnabled = this.rtcDevice.outboundAudioEnabled();
+        }
+
+        return !this.audioStreamEnabled;
     }
 
     /**
@@ -199,6 +211,9 @@ export class CommFieldEndpoint extends Entity {
      */
     muteAudio() {
         this.audioStreamEnabled = false;
+        if (null != this.rtcDevice) {
+            this.rtcDevice.enableOutboundAudio(false);
+        }
     }
 
     /**
@@ -206,6 +221,9 @@ export class CommFieldEndpoint extends Entity {
      */
     unmuteAudio() {
         this.audioStreamEnabled = true;
+        if (null != this.rtcDevice) {
+            this.rtcDevice.enableOutboundAudio(true);
+        }
     }
 
     /**

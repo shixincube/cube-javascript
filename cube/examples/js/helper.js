@@ -117,7 +117,7 @@
     }
 
     /**
-     * 
+     * 返回所有演示用联系人的 ID 列表。
      */
     g.getAllContactsId = function() {
         var list = [];

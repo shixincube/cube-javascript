@@ -45,9 +45,11 @@ cube.mpComm.on(CommEvent.Ringing, onRinging);
 cube.mpComm.on(CommEvent.Connected, onConnected);
 cube.mpComm.on(CommEvent.Bye, onBye);
 
+// 监听参与人事件
 cube.mpComm.on(CommEvent.Arrived, onArrived);
 cube.mpComm.on(CommEvent.Left, onLeft);
 
+// 监听麦克风音量事件
 cube.mpComm.on(CommEvent.MicrophoneVolume, onMicrophoneVolume);
 
 const btnLogin = document.querySelector('button#login');
@@ -71,12 +73,16 @@ btnJoin.onclick = join;
 btnQuit.onclick = quit;
 btnSwitchMic.onclick = switchMic;
 btnStatistics.onclick = statistics;
+
 selContactId.onchange = selectLoginContact;
 
 textareaLogs.value = '请选择联系人并点击“登录”按钮';
 
 window.onunload = logout;
 
+/**
+ * 登录。
+ */
 function login() {
     var selectedOption = selContactId.options[selContactId.selectedIndex];
     var contactId = parseInt(selectedOption.value);
@@ -108,6 +114,9 @@ function login() {
     });
 }
 
+/**
+ * 登出。
+ */
 function logout() {
     stopRefreshStats();
 
@@ -126,12 +135,19 @@ function logout() {
     textareaLogs.value = '请选择联系人并点击“登录”按钮';
 }
 
+/**
+ * 选择登录的联系人。
+ */
 function selectLoginContact() {
     var selectedOption = selContactId.options[selContactId.selectedIndex];
     inputContactName.value = getContactName(parseInt(selectedOption.value));
 }
 
+/**
+ * 点击发起群通话时触发该函数。
+ */
 function initiate() {
+    // 选择媒体设备
     selectMediaDevice('audio', function(device) {
         if (undefined === device) {
             alert('没有找到可用的麦克风设备');
@@ -152,7 +168,10 @@ function initiate() {
         // 设置设备
         mediaConstraint.setAudioDevice(device);
 
+        // 获取指定的群组
         cube.contact.getGroup(groupId, function(group) {
+
+            // 使用指定的群组发起通话
             cube.mpComm.makeCall(group, mediaConstraint, function(activeCall) {
                 println('已成功发起群通话');
                 btnInitiate.setAttribute('disabled', 'disabled');
@@ -164,35 +183,71 @@ function initiate() {
     });
 }
 
+/**
+ * 点击加入群通话时触发该函数。
+ */
 function join() {
+    // 获取指定的群组
     cube.contact.getGroup(groupId, function(group) {
+
+        // 判断群组是否正在进行通话
         cube.mpComm.isCalling(group, function(calling) {
             if (!calling) {
                 alert('当前群组没有正在进行的语音通话');
                 return;
             }
 
+            // 如果群组正在通话，则执行 initiate() 函数
             initiate();
         });
     });
 }
 
+/**
+ * 点击退出通话时触发该函数。
+ */
 function quit() {
     stopRefreshStats();
 
     btnStatistics.setAttribute('disabled', 'disabled');
 
+    // 挂断当前的通话
     cube.mpComm.hangupCall(function() {
         btnInitiate.removeAttribute('disabled');
         btnJoin.removeAttribute('disabled');
     }, function(error) {
+        println('退出群通话发生错误: ' + error.toString());
     });
 }
 
+/**
+ * 切换本地的麦克风状态。
+ */
 function switchMic() {
-    
+    // 获取当前账号自己的终端节点
+    var endpoint = cube.mpComm.getActiveField().getEndpoint();
+    if (null == endpoint) {
+        return;
+    }
+
+    // 判断音频是否已静音
+    if (endpoint.isAudioMuted()) {
+        // 已静音，则解除静音
+        endpoint.unmuteAudio();
+
+        btnSwitchMic.innerText = '静音麦克风';
+    }
+    else {
+        // 没有静音，设置为静音
+        endpoint.muteAudio();
+
+        btnSwitchMic.innerText = '恢复麦克风';
+    }
 }
 
+/**
+ * 切换显示或隐藏 RTP 统计数据。
+ */
 function statistics() {
     if (statsTimer == 0) {
         startRefreshStats();
@@ -202,6 +257,9 @@ function statistics() {
     }
 }
 
+/**
+ * 启动刷新统计数据界面。
+ */
 function startRefreshStats() {
     var field = cube.mpComm.getActiveField();
     if (null == field) {
@@ -222,6 +280,9 @@ function startRefreshStats() {
     }
 }
 
+/**
+ * 停止刷新统计数据界面。
+ */
 function stopRefreshStats() {
     if (statsTimer > 0) {
         clearInterval(statsTimer);
@@ -291,10 +352,20 @@ function onBye(event) {
 
 function onArrived(event) {
     var endpoint = event.data;
+    println('[事件] 终端加入: ' + getContactName(endpoint.contact.getId()) + ' - ' + endpoint.contact.getId());
+
+    setTimeout(function() {
+        refreshCommField(cube.mpComm.getActiveField());
+    }, 100);
 }
 
 function onLeft(event) {
     var endpoint = event.data;
+    println('[事件] 终端退出: ' + getContactName(endpoint.contact.getId()) + ' - ' + endpoint.contact.getId());
+
+    setTimeout(function() {
+        refreshCommField(cube.mpComm.getActiveField());
+    }, 100);
 }
 
 function onMicrophoneVolume(event) {
@@ -309,8 +380,14 @@ function onMicrophoneVolume(event) {
         }
         inputMicVolume.value = chunk.join('');
     }
+
+    // 更新麦克风音量显示
+    refreshMicVolume(endpoint, volume);
 }
 
+/**
+ * 更新界面上的参与人信息。
+ */
 function refreshCommField(field) {
     divParticipants.innerHTML = '';
 
@@ -330,6 +407,24 @@ function refreshCommField(field) {
     });
 }
 
+/**
+ * 更新指定参与终端的音量。
+ */
+function refreshMicVolume(endpoint, volume) {
+    var el = document.querySelector('input#' + endpoint.contact.id);
+    if (el) {
+        var num = Math.round(volume * 0.2);
+        var chunk = [];
+        for (var i = 0; i < num; ++i) {
+            chunk.push('■');
+        }
+        el.value = chunk.join('');
+    }
+}
+
+/**
+ * 打印日志。
+ */
 function println(text) {
     var content = [ textareaLogs.value, '\n', formatTime(Date.now()), ' ', text ];
 
