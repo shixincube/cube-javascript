@@ -1705,11 +1705,33 @@ export class MultipointComm extends Module {
     triggerBroadcast(payload, context) {
         let data = payload.data;
         if (undefined !== data.data && undefined !== data.source) {
+            // 解析 source
             let source = CommFieldEndpoint.create(data.source);
+            // 事件名
             let event = data.data.event;
             if (event == MultipointCommEvent.MicrophoneVolume) {
                 let value = data.data.value;
-                console.log('triggerBroadcast : ' + source.getName() + ' - ' + value);
+
+                // console.log('triggerBroadcast : ' + source.getName() + ' - ' + value);
+
+                if (null != this.activeCall) {
+                    let endpoint = this.activeCall.field.getEndpoint(source);
+                    if (null != endpoint) {
+                        // 更新音量数据
+                        endpoint.volume = value;
+
+                        (new Promise((resolve, reject) => {
+                            resolve();
+                        })).then(() => {
+                            this.notifyObservers(new ObservableEvent(MultipointCommEvent.MicrophoneVolume, {
+                                endpoint: endpoint,
+                                volume: value
+                            }));
+                        }).catch((error) => {
+                            // Noting
+                        });
+                    }
+                }
             }
         }
     }
