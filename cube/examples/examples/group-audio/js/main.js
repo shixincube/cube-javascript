@@ -293,14 +293,15 @@ function stopRefreshStats() {
     }
 }
 
-
 function onSignIn(event) {
     println('[事件] 已签入 "' + event.data.getName() + '"');
 
     var groupName = '群组语音通话演示群';
     var currentGroup = null;
 
+    // 查询与该账号有关的所有群组
     cube.contact.queryGroups(function(list) {
+        // 查找是否有名称匹配的群组
         for (var i = 0; i < list.length; ++i) {
             var group = list[i];
             if (group.getName() == groupName) {
@@ -318,6 +319,7 @@ function onSignIn(event) {
             });
         }
         else {
+            // 已经有这个群组，不需要创建
             println('已加载新群组 "' + currentGroup.getName() + '" - ' + currentGroup.getId());
             groupId = currentGroup.getId();
             document.querySelector('input#groupName').value = currentGroup.getName();
