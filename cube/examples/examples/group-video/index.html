@@ -34,7 +34,7 @@
     <meta id="theme-color" name="theme-color" content="#ffffff">
     <base target="_blank">
 
-    <title>时信魔方示例 - 基于群组的语音通话</title>
+    <title>时信魔方示例 - 基于群组的视频通话</title>
 
     <link rel="icon" sizes="192x192" href="../../images/favicon.png">
     <link rel="stylesheet" href="../../css/main.css">
@@ -44,11 +44,11 @@
 <body>
 <div id="container">
 
-    <h1><a href="../../" title="时信魔方示例">时信魔方示例</a> <span>基于群组的语音通话</span>
+    <h1><a href="../../" title="时信魔方示例">时信魔方示例</a> <span>基于群组的视频通话</span>
     </h1>
 
     <section id="blurb">
-        <p>该示例演示如何在群组里发起并参与群组语音通话。</p>
+        <p>该示例演示使用群组和多方通讯模块进行群组内的群组成员的多人视频通话。</p>
     </section>
 
     <section id="contact">
@@ -77,77 +77,60 @@
         </div>
     </section>
 
-    <section id="content">
-        <div class="group">
-            <div>
-                <label for="groupName">群名称：</label>
-                <input id="groupName" readonly>
-            </div>
-            <div>
-                <label for="groupMembers" style="vertical-align:top;">群成员：</label>
-                <select id="groupMembers" size="10">
-                    <option value="300101">武致远 - 300101</option>
-                    <option value="300102">邓雅云 - 300102</option>
-                    <option value="300103">石季萌 - 300103</option>
-                    <option value="300104">吴凝蕊 - 300104</option>
-                    <option value="300105">罗文栋 - 300105</option>
-                    <option value="300106">叶瑶华 - 300106</option>
-                    <option value="300107">田宏茂 - 300107</option>
-                    <option value="300108">风诗柳 - 300108</option>
-                    <option value="300109">徐文石 - 300109</option>
-                    <option value="300110">韶宁乐 - 300110</option>
-                </select>
-            </div>
+    <section id="toolbar">
+        <div>
+            <label for="groupName">群名称：</label>
+            <input id="groupName" readonly>
         </div>
-
-        <div class="participants">
-            <div>
-                <label for="participants" style="margin-bottom:8px;">参与者：</label>
-                <div id="participants">
-                    <!-- ## -->
-                </div>
-            </div>
+        <div>
+            <button id="startVideoCall" disabled>进入群组通话</button>
+            <button id="stopVideoCall" disabled>退出群组通话</button>
         </div>
-
-        <div class="local">
-            <div>
-                <label for="micVolume">麦克风音量：</label>
-                <input id="micVolume" size="12" readonly>
-            </div>
+        <div>
+            <button id="invite" disabled>邀请进行通话</button>
+        </div>
+        <div>
+            <button id="switchCamera" disabled>关闭摄像机</button>
+            <button id="switchMic" disabled>关闭麦克风</button>
         </div>
     </section>
 
-    <section id="tools">
-        <div>
-            <button id="initiate" disabled>发起群组通话</button>
-            <button id="join" disabled>加入群组通话</button>
-            <button id="quit" disabled>退出群组通话</button>
+    <section id="view">
+        <div class="video-view">
+            <video id="local" autoplay></video>
+            <div class="contact-name">我</div>
         </div>
-        <div>
-            <button id="switchMic" disabled>静音麦克风</button>
+        <div class="video-view">
+            <video id="remote_1" autoplay></video>
+            <div class="contact-name">&nbsp;</div>
         </div>
-        <div>
-            <button id="statistics" disabled>显示/隐藏连接数据</button>
+        <div class="video-view">
+            <video id="remote_2" autoplay></video>
+            <div class="contact-name">&nbsp;</div>
+        </div>
+        <div class="video-view">
+            <video id="remote_3" autoplay></video>
+            <div class="contact-name">&nbsp;</div>
+        </div>
+        <div class="video-view">
+            <video id="remote_4" autoplay></video>
+            <div class="contact-name">&nbsp;</div>
+        </div>
+        <div class="video-view">
+            <video id="remote_5" autoplay></video>
+            <div class="contact-name">&nbsp;</div>
+        </div>
+        <div class="video-view">
+            <video id="remote_6" autoplay></video>
+            <div class="contact-name">&nbsp;</div>
+        </div>
+        <div class="video-view">
+            <video id="remote_7" autoplay></video>
+            <div class="contact-name">&nbsp;</div>
         </div>
     </section>
 
-    <section>
-        <div class="logs">
-            <div>
-                <label for="logs">日志：</label>
-                <textarea id="logs" cols="100" rows="10" readonly></textarea>
-            </div>
-        </div>
-    </section>
 </div>
-
-<div id="media-container">
-    <video id="local" autoplay></video>
-    <video id="remote" autoplay></video>
-</div>
-
-<div id="outboundStats" class="stats-box"></div>
-<div id="inboundStats" class="stats-box"></div>
 
 <script type="text/javascript" src="../../js/cube.js"></script>
 <script type="text/javascript" src="../../js/helper.js"></script>
