@@ -100,6 +100,15 @@ function logout() {
 }
 
 
+function startVideoCall() {
+
+}
+
+function stopVideoCall() {
+
+}
+
+
 function onContactIdChange() {
     var selectedOption = selContactId.options[selContactId.selectedIndex];
     inputContactName.value = getContactName(parseInt(selectedOption.value));

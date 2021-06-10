@@ -207,7 +207,7 @@ export class CommField extends Entity {
         }
 
         if (null != this.outboundRTC.outboundMeter) {
-            let volume = this.outboundRTC.outboundMeter.volume * 100;
+            let volume = Math.round(this.outboundRTC.outboundMeter.volume * 100);
 
             let ep = this.getEndpoint(this.self);
             if (null != ep) {

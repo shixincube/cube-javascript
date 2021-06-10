@@ -1371,7 +1371,8 @@ export class MultipointComm extends Module {
                         "source" : endpoint.toJSON(),
                         "data" : {
                             event: MultipointCommEvent.MicrophoneVolume,
-                            value: volume
+                            value: volume,
+                            timestamp: window.performance.now()
                         }
                     });
                     this.pipeline.send(MultipointComm.NAME, packet);
@@ -1711,6 +1712,7 @@ export class MultipointComm extends Module {
             let event = data.data.event;
             if (event == MultipointCommEvent.MicrophoneVolume) {
                 let value = data.data.value;
+                let timestamp = data.data.timestamp;
 
                 // console.log('triggerBroadcast : ' + source.getName() + ' - ' + value);
 
@@ -1725,7 +1727,8 @@ export class MultipointComm extends Module {
                         })).then(() => {
                             this.notifyObservers(new ObservableEvent(MultipointCommEvent.MicrophoneVolume, {
                                 endpoint: endpoint,
-                                volume: value
+                                volume: value,
+                                timestamp: timestamp
                             }));
                         }).catch((error) => {
                             // Noting

@@ -58,7 +58,7 @@ section#view video {
 }
 
 .video-view {
-    visibility: hidden;
+    visibility: collapse;
 }
 .contact-name {
     font-size: 14px;

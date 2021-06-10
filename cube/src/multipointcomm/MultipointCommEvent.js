@@ -132,7 +132,7 @@ const CubeMultipointCommEvent = {
 
     /**
      * 麦克风音量事件。
-     * 事件数据：<code>{ "endpoint": endpoint, "volume": volume }</code> 。
+     * 事件数据：<code>{ "endpoint": endpoint, "volume": volume: "timestamp": timestamp }</code> 。
      * @type {string}
      */
     MicrophoneVolume: 'MicrophoneVolume',
