@@ -1362,17 +1362,23 @@ export class MultipointComm extends Module {
 
         let endpoint = field.getEndpoint(this.cs.getSelf());
         if (null != endpoint) {
+            // 先读取上一次的值
             let lastVolume = endpoint.volume;
 
+            // 再获取新的值
             let volume = field.getMicrophoneVolume();
+
             if (volume >= 0) {
+                let timestamp = window.performance.now();
+
                 if (Math.abs(lastVolume - volume) >= 10) {
+                    // 超过控制阀值发送数据
                     let packet = new Packet(MultipointCommAction.Broadcast, {
                         "source" : endpoint.toJSON(),
                         "data" : {
                             event: MultipointCommEvent.MicrophoneVolume,
                             value: volume,
-                            timestamp: window.performance.now()
+                            timestamp: timestamp
                         }
                     });
                     this.pipeline.send(MultipointComm.NAME, packet);
@@ -1380,7 +1386,8 @@ export class MultipointComm extends Module {
 
                 this.notifyObservers(new ObservableEvent(MultipointCommEvent.MicrophoneVolume, {
                     endpoint: endpoint,
-                    volume: volume
+                    volume: volume,
+                    timestamp: timestamp
                 }));
             }
         }
