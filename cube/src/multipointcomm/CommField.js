@@ -781,6 +781,20 @@ export class CommField extends Entity {
     }
 
     /**
+     * 发送广播。
+     * @private
+     * @param {CommFieldEndpoint} source
+     * @param {JSON} data 
+     */
+    sendBroadcast(source, data) {
+        let packet = new Packet(MultipointCommAction.Broadcast, {
+            "source" : source.toJSON(),
+            "data" : data
+        });
+        this.pipeline.send(MultipointComm.NAME, packet);
+    }
+
+    /**
      * @private
      * @param {object} candidate 
      * @param {RTCDevice} rtcDevice

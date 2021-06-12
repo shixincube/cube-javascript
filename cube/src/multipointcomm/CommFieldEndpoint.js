@@ -28,6 +28,7 @@ import cell from "@lib/cell-lib";
 import { Entity } from "../core/Entity";
 import { Contact } from "../contact/Contact";
 import { MultipointCommState } from "./MultipointCommState";
+import { MultipointCommEvent } from "./MultipointCommEvent";
 import { Device } from "../contact/Device";
 import { StringUtil } from "../util/StringUtil";
 import { CommField } from "./CommField";
@@ -211,8 +212,17 @@ export class CommFieldEndpoint extends Entity {
      */
     muteAudio() {
         this.audioStreamEnabled = false;
+
         if (null != this.rtcDevice) {
             this.rtcDevice.enableOutboundAudio(false);
+        }
+
+        if (null != this.field) {
+            this.field.sendBroadcast(this, {
+                event: MultipointCommEvent.AudioMuted,
+                value: true,
+                timestamp: window.performance.now()
+            });
         }
     }
 
@@ -221,8 +231,17 @@ export class CommFieldEndpoint extends Entity {
      */
     unmuteAudio() {
         this.audioStreamEnabled = true;
+
         if (null != this.rtcDevice) {
             this.rtcDevice.enableOutboundAudio(true);
+        }
+
+        if (null != this.field) {
+            this.field.sendBroadcast(this, {
+                event: MultipointCommEvent.AudioMuted,
+                value: false,
+                timestamp: window.performance.now()
+            });
         }
     }
 
