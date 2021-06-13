@@ -1743,6 +1743,28 @@ export class MultipointComm extends Module {
                     }
                 }
             }
+            else if (event == MultipointCommEvent.AudioMuted) {
+                let value = data.data.value;
+                let timestamp = data.data.timestamp;
+
+                if (null != this.activeCall) {
+                    let endpoint = this.activeCall.field.getEndpoint(source);
+                    if (null != endpoint) {
+
+                        (new Promise((resolve, reject) => {
+                            resolve();
+                        })).then(() => {
+                            this.notifyObservers(new ObservableEvent(MultipointCommEvent.AudioMuted, {
+                                endpoint: endpoint,
+                                volume: value,
+                                timestamp: timestamp
+                            }));
+                        }).catch((error) => {
+                            // Noting
+                        });
+                    }
+                }
+            }
         }
     }
 }
