@@ -1750,6 +1750,8 @@ export class MultipointComm extends Module {
                 if (null != this.activeCall) {
                     let endpoint = this.activeCall.field.getEndpoint(source);
                     if (null != endpoint) {
+                        // 更新数据
+                        endpoint.audioStreamEnabled = !value;
 
                         (new Promise((resolve, reject) => {
                             resolve();
