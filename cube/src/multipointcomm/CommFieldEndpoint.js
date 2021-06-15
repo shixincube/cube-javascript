@@ -178,6 +178,10 @@ export class CommFieldEndpoint extends Entity {
      * @returns {boolean} 返回视频流是否被停用。
      */
     isVideoMuted() {
+        if (null != this.rtcDevice) {
+            this.videoStreamEnabled = this.rtcDevice.outboundVideoEnabled();
+        }
+
         return !this.videoStreamEnabled;
     }
 
@@ -186,6 +190,18 @@ export class CommFieldEndpoint extends Entity {
      */
     muteVideo() {
         this.videoStreamEnabled = false;
+
+        if (null != this.rtcDevice) {
+            this.rtcDevice.enableOutboundVideo(false);
+        }
+
+        if (null != this.field) {
+            this.field.sendBroadcast(this, {
+                event: MultipointCommEvent.VideoMuted,
+                value: true,
+                timestamp: window.performance.now()
+            });
+        }
     }
 
     /**
@@ -193,6 +209,18 @@ export class CommFieldEndpoint extends Entity {
      */
     unmuteVideo() {
         this.videoStreamEnabled = true;
+
+        if (null != this.rtcDevice) {
+            this.rtcDevice.enableOutboundVideo(true);
+        }
+
+        if (null != this.field) {
+            this.field.sendBroadcast(this, {
+                event: MultipointCommEvent.VideoMuted,
+                value: false,
+                timestamp: window.performance.now()
+            });
+        }
     }
 
     /**

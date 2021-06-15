@@ -144,6 +144,12 @@ const CubeMultipointCommEvent = {
     AudioMuted: 'AudioMuted',
 
     /**
+     * @private
+     * @type {string}
+     */
+    VideoMuted: 'VideoMuted',
+
+    /**
      * 发生错误。
      * 事件数据：{@linkcode ModuleError} 。
      * @type {string}
