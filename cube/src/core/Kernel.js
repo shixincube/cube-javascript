@@ -31,6 +31,7 @@ import { Module } from "./Module";
 import { AuthToken } from "../auth/AuthToken";
 import { KernelError } from "./error/KernelError";
 import { AuthService } from "../auth/AuthService";
+import { CellPipeline } from "../pipeline/CellPipeline";
 
 /**
  * 内核配置定义。
@@ -38,8 +39,10 @@ import { AuthService } from "../auth/AuthService";
  * @property {string} address 管道服务器地址。
  * @property {string} domain 授权的指定域。
  * @property {string} appKey 当前应用申请到的 App Key 串。
- * @property {boolean} unconnected 启动时不进行连接。
- * @property {boolean} pipelineReady 内核是否等待通道就绪再回调。
+ * @property {boolean} [unconnected] 启动时不进行连接。
+ * @property {boolean} [pipelineReady] 内核是否等待通道就绪再回调。
+ * @property {number} [port] WebSocket 端口。
+ * @property {number} [securePort] Secure WebSocket 端口。
  */
 
 /**
@@ -119,6 +122,19 @@ export class Kernel {
         if (config.address === undefined) {
             config.address = '127.0.0.1';
         }
+
+        // 为通道配置端口
+        let secure = window.location.protocol.toLowerCase().indexOf("https") >= 0;
+        this.pipelines.values().forEach((value) => {
+            if (value instanceof CellPipeline) {
+                if (undefined !== config.port && !secure) {
+                    value.port = parseInt(config.port);
+                }
+                else if (undefined !== config.securePort && secure) {
+                    value.port = parseInt(config.securePort);
+                }
+            }
+        });
 
         // 标记为已工作状态
         this.working = true;

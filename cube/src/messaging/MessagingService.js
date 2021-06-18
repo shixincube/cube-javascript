@@ -1224,7 +1224,7 @@ export class MessagingService extends Module {
      * @private
      * @param {number} [beginning] 指定获取消息的起始时间。
      * @param {number} [ending] 指定获取消息的截止时间。
-     * @returns {boolean} 如果成功执行查询返回 {@linkcode true} 。
+     * @returns {boolean} 如果成功执行查询操作返回 {@linkcode true} 。
      */
     queryRemoteMessage(beginning, ending) {
         if (!this.contactService.selfReady) {

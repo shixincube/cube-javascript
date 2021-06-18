@@ -191,7 +191,7 @@ export class ContactService extends Module {
      * 签入当前终端的联系人。
      * @param {Self|number|string} self 指定 {@link Self} 对象或者自己的联系人 ID 。
      * @param {string} [name] 指定名称/昵称。
-     * @param {object} [context] 指定关联的上下文。
+     * @param {JSON} [context] 指定关联的上下文。
      * @returns {boolean} 设置成功返回 {@linkcode true} ，否则返回 {@linkcode false} 。
      */
     signIn(self, name, context) {
