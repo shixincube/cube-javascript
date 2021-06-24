@@ -31,6 +31,7 @@ import { MessagingService } from "../messaging/MessagingService";
 import { FileProcessor } from "../fileprocessor/FileProcessor";
 import { MultipointComm } from "../multipointcomm/MultipointComm";
 import { ConferenceService } from "../conference/ConferenceService";
+import { AuthService } from "../auth/AuthService";
 
 /**
  * Cube Engine 的快捷操作方式封装。
@@ -44,6 +45,13 @@ export class CubeShortcut {
          * @type {CubeEngine}
          */
         this.engine = new CubeEngine();
+
+        /**
+         * 授权服务模块。
+         * @type {AuthService}
+         * @public
+         */
+        this.auth = this.engine.getAuthService();
 
         /**
          * 联系人模块。

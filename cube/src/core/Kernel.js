@@ -174,11 +174,11 @@ export class Kernel {
                     // 启动管道
                     pl.open();
                 }
-    
+
                 if (config.pipelineReady !== undefined && config.pipelineReady) {
                     await this.waitPipelineReady(10000);
                 }
-    
+
                 if (successful) {
                     handleSuccess();
                 }

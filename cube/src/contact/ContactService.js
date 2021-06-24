@@ -244,6 +244,7 @@ export class ContactService extends Module {
     /**
      * 将当前设置的联系人签出。
      * @param {function} [handler] 当签出成功时回调该函数，参数：({@linkcode self}:{@link Self}) 。
+     * @returns {boolean} 是否执行签出操作。
      */
     signOut(handler) {
         if (!this.selfReady || null == this.self) {

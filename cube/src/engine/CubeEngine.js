@@ -120,6 +120,14 @@ export class CubeEngine {
     }
 
     /**
+     * 获取授权服务模块。
+     * @returns {AuthService} 返回授权服务模块。
+     */
+    getAuthService() {
+        return this.kernel.getModule(AuthService.NAME);
+    }
+
+    /**
      * 获取联系人服务。
      * @returns {ContactService} 返回联系人模块。
      */
