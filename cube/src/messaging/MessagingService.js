@@ -1761,7 +1761,9 @@ export class MessagingService extends Module {
                 */
             });
         }, (fileAnchor) => {
-            // TODO 错误处理
+            // 错误处理
+            let error = new ModuleError(MessagingService.NAME, MessagingServiceState.AttachmentError, fileAnchor);
+            this.notifyObservers(new ObservableEvent(MessagingEvent.Fault, error));
         });
     }
 
