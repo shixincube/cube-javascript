@@ -37,6 +37,7 @@ import { GroupAppendix } from "./GroupAppendix";
 
 /**
  * 群组类。包含了多个联系人的集合。
+ * @extends AbstractContact
  */
 export class Group extends AbstractContact {
 

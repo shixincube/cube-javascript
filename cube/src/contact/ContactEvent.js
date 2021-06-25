@@ -24,22 +24,13 @@
  * SOFTWARE.
  */
 
-
 /**
  * 联系人模块的事件名称枚举。
  * @readonly
- * @enum
- * @property {string} SignIn 当前客户端的联系人签入。
- * @property {string} SignOut 当前客户端的联系人签出。
- * @property {string} Comeback 当前客户端的联系人恢复连接。
- * @property {string} GroupUpdated 群组已更新。
- * @property {string} GroupCreated 群组被创建。
- * @property {string} GroupDissolved 群组已解散。
- * @property {string} GroupMemberAdded 群成员加入。
- * @property {string} GroupMemberRemoved 群成员移除。
- * @property {string} GroupAppendixUpdated 群组的附录进行了实时更新。
+ * @enum {string}
+ * @alias ContactEvent
  */
-export const ContactEvent = {
+const CubeContactEvent = {
 
     /**
      * 当前客户端的联系人签入。
@@ -96,8 +87,11 @@ export const ContactEvent = {
     GroupAppendixUpdated: 'GroupAppendixUpdated',
 
     /**
+     * 未知事件。
      * @private
      * @type {string}
      */
     Unknown: 'Unknown'
 }
+
+export const ContactEvent = CubeContactEvent;

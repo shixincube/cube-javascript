@@ -30,6 +30,7 @@ import { Device } from "./Device";
 
 /**
  * 联系人。
+ * @extends AbstractContact
  */
 export class Contact extends AbstractContact {
 

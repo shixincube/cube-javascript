@@ -104,7 +104,7 @@ export class VolumeMeter {
 
     /**
      * @private
-     * @returns 
+     * @returns {boolean}
      */
     checkClipping() {
         if (!this.clipping)

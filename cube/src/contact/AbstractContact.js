@@ -29,6 +29,7 @@ import { Entity } from "../core/Entity";
 
 /**
  * 抽象联系人。
+ * @extends Entity
  */
 export class AbstractContact extends Entity {
 
