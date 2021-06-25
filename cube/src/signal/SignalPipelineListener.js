@@ -25,49 +25,29 @@
  */
 
 import cell from "@lib/cell-lib";
-import { Module } from "../core/Module";
-import { ModuleError } from "../core/error/ModuleError";
-import { Contact } from "../contact/Contact";
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+import { PipelineListener } from "../core/PipelineListener";
+import { StateCode } from "../core/StateCode";
+import { SignalService } from "./SignalService";
+
 /**
- * 信号通道服务。
- * @extends Module
+ * 信号模块数据管道监听器。
  */
-export class SignalService extends Module {
+export class SignalPipelineListener extends PipelineListener {
 
     /**
-     * 服务名称。
+     * @param {SignalService} signalService 
      */
-    static NAME = 'Signal';
-
-    constructor() {
-        super('Signal');
+    constructor(signalService) {
+        super();
+        this.signalService = signalService;
     }
 
     /**
      * @inheritdoc
      */
-    start() {
-        if (!super.start()) {
-            return false;
-        }
+    onReceived(pipeline, source, packet) {
+        super.onReceived(pipeline, source, packet);
 
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    stop() {
-        super.stop();
-    }
-
-    /**
-     * 
-     * @param {Contact} contact 
-     * @param {JSON} payload 
-     */
-    emit(contact, data) {
 
     }
 }

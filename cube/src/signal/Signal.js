@@ -24,50 +24,39 @@
  * SOFTWARE.
  */
 
-import cell from "@lib/cell-lib";
-import { Module } from "../core/Module";
-import { ModuleError } from "../core/error/ModuleError";
 import { Contact } from "../contact/Contact";
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+import { JSONable } from "../util/JSONable";
+
 /**
- * 信号通道服务。
- * @extends Module
+ * 信号数据实体。
  */
-export class SignalService extends Module {
+export class Signal extends JSONable {
 
     /**
-     * 服务名称。
-     */
-    static NAME = 'Signal';
-
-    constructor() {
-        super('Signal');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    start() {
-        if (!super.start()) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    stop() {
-        super.stop();
-    }
-
-    /**
-     * 
-     * @param {Contact} contact 
      * @param {JSON} payload 
      */
-    emit(contact, data) {
+    constructor(payload) {
+        super();
 
+        /**
+         * 信号携带的数据负载。
+         * @type {JSON}
+         * @private
+         */
+        this.payload = payload;
+
+        /**
+         * @type {Contact}
+         */
+        this.destContact = null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    toJSON() {
+        let json = super.toJSON();
+
+        return json;
     }
 }

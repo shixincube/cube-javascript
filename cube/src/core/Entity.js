@@ -59,8 +59,7 @@ export class Entity extends JSONable {
 
         /**
          * 关联的上下文信息。
-         * @private
-         * @type {object}
+         * @type {JSON}
          */
         this.context = null;
 
@@ -98,7 +97,7 @@ export class Entity extends JSONable {
 
     /**
      * 设置关联的上下文。
-     * @param {object} context 指定上下文对象。
+     * @param {JSON} context 指定上下文数据。
      */
     setContext(context) {
         this.context = context;
@@ -106,7 +105,7 @@ export class Entity extends JSONable {
 
     /**
      * 获取关联的上下文。
-     * @returns {object} 返回关联的上下文。
+     * @returns {JSON} 返回关联的上下文数据。
      */
     getContext() {
         return this.context;
