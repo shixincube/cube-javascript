@@ -28,7 +28,9 @@ import cell from "@lib/cell-lib";
 import { Module } from "../core/Module";
 import { ModuleError } from "../core/error/ModuleError";
 import { Contact } from "../contact/Contact";
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+import { SignalPipelineListener } from "./SignalPipelineListener";
+import { Signal } from "./Signal";
+
 /**
  * 信号通道服务。
  * @extends Module
@@ -42,6 +44,11 @@ export class SignalService extends Module {
 
     constructor() {
         super('Signal');
+
+        /**
+         * @type {SignalPipelineListener}
+         */
+        this.pipelineListener = null;
     }
 
     /**
@@ -52,6 +59,9 @@ export class SignalService extends Module {
             return false;
         }
 
+        this.pipelineListener = new SignalPipelineListener(this);
+        this.pipeline.addListener(SignalService.NAME, this.pipelineListener);
+
         return true;
     }
 
@@ -60,6 +70,11 @@ export class SignalService extends Module {
      */
     stop() {
         super.stop();
+
+        if (null != this.pipelineListener) {
+            this.pipeline.removeListener(SignalService.NAME, this.pipelineListener);
+        }
+        
     }
 
     /**
@@ -68,6 +83,6 @@ export class SignalService extends Module {
      * @param {JSON} payload 
      */
     emit(contact, data) {
-
+        let signal = new Signal(data);
     }
 }
