@@ -43,6 +43,7 @@ import { CellPipeline } from "../pipeline/CellPipeline";
  * @property {boolean} [pipelineReady] 内核是否等待通道就绪再回调。
  * @property {number} [port] WebSocket 端口。
  * @property {number} [securePort] Secure WebSocket 端口。
+ * @property {number} [log] 日志等级。
  */
 
 /**

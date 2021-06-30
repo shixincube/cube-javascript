@@ -61,4 +61,13 @@ export class ImageMessage extends TypeableMessage {
     getFileName() {
         return this.attachment.getFileName();
     }
+
+    /**
+     * 禁用缩略图。
+     */
+    disableThumb() {
+        if (this.hasAttachment()) {
+            this.getAttachment().disableThumb();
+        }
+    }
 }

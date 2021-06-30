@@ -355,8 +355,8 @@ export class Pipeline {
     /**
      * 触发来自服务器的数据回调。
      * @protected
-     * @param {string} source 来自通道的描述串。
-     * @param {Packet} packet 来自服务器的数据包。
+     * @param {string} source 通道的描述串。
+     * @param {Packet} packet 服务器的数据包。
      */
     triggerListeners(source, packet) {
         let listeners = this.listenerMap.get(source);
