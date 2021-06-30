@@ -27,7 +27,7 @@
 /**
  * 文本消息。
  */
-var TextMessage = Class(Message, {
+var SimpleTextMessage = Class(Message, {
 
     /**
      * 构造函数。

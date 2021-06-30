@@ -46,10 +46,10 @@ var MessageTypePlugin = Class(MessagePlugin, {
 
         if (undefined !== payload.type) {
             if (payload.type == 'text') {
-                return new TextMessage(message);
+                return new SimpleTextMessage(message);
             }
             else if (payload.type == 'image') {
-                return new ImageMessage(message);
+                return new SimpleImageMessage(message);
             }
         }
 

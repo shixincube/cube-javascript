@@ -125,8 +125,8 @@ function sendText() {
         return;
     }
 
-    // 创建 TextMessage 实例
-    let message = new TextMessage(text);
+    // 创建 SimpleTextMessage 实例
+    let message = new SimpleTextMessage(text);
     // 发送消息给联系人
     cube.messaging.sendToContact(target, message);
 
@@ -149,8 +149,8 @@ function sendImage() {
     cube.launchFileSelector(function(event) {
         let file = event.target.files[0];
 
-        // 创建 ImageMessage 实例
-        let message = new ImageMessage(file);
+        // 创建 SimpleImageMessage 实例
+        let message = new SimpleImageMessage(file);
 
         // 发送图片消息
         cube.messaging.sendToContact(target, message);

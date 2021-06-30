@@ -27,7 +27,7 @@
 /**
  * 图片消息。
  */
-var ImageMessage = Class(Message, {
+var SimpleImageMessage = Class(Message, {
 
     /**
      * 构造函数。
