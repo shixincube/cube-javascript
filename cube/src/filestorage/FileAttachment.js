@@ -174,6 +174,10 @@ export class FileAttachment extends JSONable {
             return null;
         }
 
+        if (null == this.token || this.token.length == 0) {
+            this.token = AuthService.TOKEN;
+        }
+
         let url = null;
         if (undefined !== secure) {
             url = [ secure ? this.label.getFileSecureURL() : this.label.getFileURL(),
@@ -219,6 +223,10 @@ export class FileAttachment extends JSONable {
             return null;
         }
 
+        if (null == this.token || this.token.length == 0) {
+            this.token = AuthService.TOKEN;
+        }
+
         let thumb = this.thumbs[0];
         thumb.token = this.token;
         return thumb;
@@ -231,6 +239,10 @@ export class FileAttachment extends JSONable {
     getDefaultThumbURL(secure) {
         if (null == this.thumbs) {
             return null;
+        }
+
+        if (null == this.token || this.token.length == 0) {
+            this.token = AuthService.TOKEN;
         }
 
         let thumb = this.thumbs[0];

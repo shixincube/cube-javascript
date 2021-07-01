@@ -24,6 +24,7 @@
  * SOFTWARE.
  */
 
+import { AuthService } from "../auth/AuthService";
 import { Entity } from "../core/Entity";
 import { FileLabel } from "../filestorage/FileLabel";
 
@@ -88,7 +89,7 @@ export class FileThumbnail extends Entity {
          * @type {string}
          * @private
          */
-        this.token = 'cube';
+        this.token = null;
     }
 
     /**
@@ -97,6 +98,10 @@ export class FileThumbnail extends Entity {
      * @returns {string} 返回文件的访问 URL 地址。
      */
     getFileURL(secure) {
+        if (null == this.token || this.token.length == 0) {
+            this.token = AuthService.TOKEN;
+        }
+
         let url = null;
         if (undefined !== secure) {
             url = [ secure ? this.fileLabel.getFileSecureURL() : this.fileLabel.getFileURL(),
