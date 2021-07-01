@@ -221,6 +221,7 @@ export class FileStorage extends Module {
      * @param {function} [handleProcessing] 正在进行文件处理的回调函数。函数参数：({@linkcode fileAnchor}:{@link FileAnchor}) 。
      * @param {function} [handleSuccess] 上传文件成功的回调函数。函数参数：({@linkcode fileLabel}:{@link FileLabel}) 。
      * @param {function} [handleFailure] 上传文件失败的回调函数。函数参数：({@linkcode error}:{@link ModuleError}) 。
+     * @returns {FileAnchor} 返回文件锚。
      */
     uploadFile(file, handleProcessing, handleSuccess, handleFailure) {
         let fileSize = file.size;
@@ -286,6 +287,9 @@ export class FileStorage extends Module {
                 handleProcessing(fileAnchor);
             }
         });
+
+        // 返回文件锚
+        return fileAnchor;
     }
 
     /**
@@ -301,7 +305,7 @@ export class FileStorage extends Module {
                 // 将锚点上的回调函数置空
                 fileAnchor.finishCallback = null;
 
-                callback(fileLabel);
+                callback(fileAnchor);
 
                 this.fileAnchors.remove(fileAnchor.fileCode);
             }, (error) => {

@@ -345,11 +345,6 @@ export class MessagingService extends Module {
                 // 存储
                 this.storage.writeMessage(msg);
 
-                // 事件通知
-                if (msg.scope == 0) {
-                    this.notifyObservers(new ObservableEvent(MessagingEvent.Sending, msg));
-                }
-
                 resolve(msg);
             });
             promise.then((msg) => {
@@ -416,11 +411,6 @@ export class MessagingService extends Module {
             let promise = new Promise((resolve, reject) => {
                 // 存储
                 this.storage.writeMessage(msg);
-
-                // 事件通知
-                if (msg.scope == 0) {
-                    this.notifyObservers(new ObservableEvent(MessagingEvent.Sending, msg));
-                }
 
                 resolve(msg);
             });
@@ -1676,6 +1666,11 @@ export class MessagingService extends Module {
                     this._processAttachment(message);
                 }
                 else {
+                    // 事件通知
+                    if (message.scope == 0) {
+                        this.notifyObservers(new ObservableEvent(MessagingEvent.Sending, message));
+                    }
+
                     // 发送到服务器
                     let packet = new Packet(MessagingAction.Push, message.toJSON());
                     this.pipeline.send(MessagingService.NAME, packet, (pipeline, source, responsePacket) => {
@@ -1695,7 +1690,8 @@ export class MessagingService extends Module {
         let fs = this.kernel.getModule(FileStorage.NAME);
         fs.start();
 
-        fs.uploadFile(message.attachment.file, (fileAnchor) => {
+        // 上传数据
+        let anchor = fs.uploadFile(message.attachment.file, (fileAnchor) => {
             // 正在发送文件
             message.attachment.anchor = fileAnchor;
 
@@ -1711,60 +1707,19 @@ export class MessagingService extends Module {
             this.pipeline.send(MessagingService.NAME, packet, (pipeline, source, responsePacket) => {
                 // 处理服务返回的数据
                 this._processPushResult(message, responsePacket);
-
-                /*if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
-                    // 错误处理
-                    this.sendingMap.remove(message.getId());
-                    message.state = MessageState.Fault;
-                    let error = new ModuleError(MessagingService.NAME, MessageState.Fault, message);
-                    this.notifyObservers(new ObservableEvent(MessagingEvent.Fault, error));
-                    return;
-                }
-
-                if (responsePacket.data.code != 0) {
-                    // 错误处理
-                    this.sendingMap.remove(message.getId());
-                    message.state = MessageState.Fault;
-                    let error = new ModuleError(MessagingService.NAME, responsePacket.data.code, message);
-                    this.notifyObservers(new ObservableEvent(MessagingEvent.Fault, error));
-                    return;
-                }
-
-                // 收到的应答消息
-                let respMessage = Message.create(responsePacket.data.data);
-                (async ()=> {
-                    let result = await this.fillMessage(respMessage);
-                    if (result instanceof ModuleError) {
-                        cell.Logger.e(MessagingService.NAME, result.toString());
-                    }
-                })();
-
-                // 从正在发送队列移除
-                this.sendingMap.remove(respMessage.id);
-
-                // 更新状态
-                message.state = MessageState.Sent;
-
-                // 更新附件
-                respMessage.attachment.token = this.getAuthToken().code;
-                message.setAttachment(respMessage.attachment);
-
-                // 更新时间戳
-                message.remoteTS = respMessage.remoteTS;
-                this.refreshLastMessageTime(message);
-
-                // 更新存储
-                this.storage.updateMessage(message);
-
-                let event = new ObservableEvent(MessagingEvent.Sent, message);
-                this.notifyObservers(event);
-                */
             });
         }, (fileAnchor) => {
             // 错误处理
             let error = new ModuleError(MessagingService.NAME, MessagingServiceState.AttachmentError, fileAnchor);
             this.notifyObservers(new ObservableEvent(MessagingEvent.Fault, error));
         });
+
+        message.attachment.anchor = anchor;
+
+        // 事件通知
+        if (message.scope == 0) {
+            this.notifyObservers(new ObservableEvent(MessagingEvent.Sending, message));
+        }
     }
 
     /**

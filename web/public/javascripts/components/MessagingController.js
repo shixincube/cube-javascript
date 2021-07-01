@@ -73,6 +73,7 @@
      */
     function onMessageSent(event) {
         g.app.messagePanel.changeMessageState(event.data);
+        g.app.messagePanel.refreshMessage(g.app.getSelf(), event.data);
     }
 
     /**

@@ -733,35 +733,40 @@
             var action = null;
             var fileDesc = null;
 
-            if (attachment.isImageType()) {
-                action = ['javascript:dialog.showImage(\'', attachment.getFileCode(), '\');'];
-
-                fileDesc = ['<table class="file-label" border="0" cellspacing="4" cellpodding="0">',
-                    '<tr>',
-                        '<td>',
-                            '<img class="thumb" src="', attachment.getDefaultThumbURL(), '" onclick="', action.join(''), '"',
-                                ' onload="app.messagePanel.refreshScroll()"',
-                                ' alt="', attachment.getFileName(), '"', ' />',
-                        '</td>',
-                    '</tr>',
-                '</table>'];
+            if (null == attachment.getFileURL()) {
+                fileDesc = ['<div>', attachment.getFileName(), '<div>'];
             }
             else {
-                action = ['<a class="btn btn-xs btn-default" title="下载文件" href="javascript:dialog.downloadFile(\'',
-                                attachment.getFileCode(), '\');">',
-                    '<i class="fas fa-download"></i>',
-                '</a>'];
-
-                fileDesc = ['<table class="file-label" border="0" cellspacing="4" cellpodding="0">',
-                    '<tr>',
-                        '<td rowspan="2" valign="middle" align="center">', matchFileIcon(attachment.getFileType()), '</td>',
-                        '<td colspan="2" class="file-name">', attachment.getFileName(), '</td>',
-                    '</tr>',
-                    '<tr>',
-                        '<td class="file-size">', formatSize(attachment.getFileSize()), '</td>',
-                        '<td class="file-action">', action.join(''), '</td>',
-                    '</tr>',
-                '</table>'];
+                if (attachment.isImageType()) {
+                    action = ['javascript:dialog.showImage(\'', attachment.getFileCode(), '\');'];
+    
+                    fileDesc = ['<table class="file-label" border="0" cellspacing="4" cellpodding="0">',
+                        '<tr>',
+                            '<td>',
+                                '<img class="thumb" src="', attachment.getDefaultThumbURL(), '" onclick="', action.join(''), '"',
+                                    ' onload="app.messagePanel.refreshScroll()"',
+                                    ' alt="', attachment.getFileName(), '"', ' />',
+                            '</td>',
+                        '</tr>',
+                    '</table>'];
+                }
+                else {
+                    action = ['<a class="btn btn-xs btn-default" title="下载文件" href="javascript:dialog.downloadFile(\'',
+                                    attachment.getFileCode(), '\');">',
+                        '<i class="fas fa-download"></i>',
+                    '</a>'];
+    
+                    fileDesc = ['<table class="file-label" border="0" cellspacing="4" cellpodding="0">',
+                        '<tr>',
+                            '<td rowspan="2" valign="middle" align="center">', matchFileIcon(attachment.getFileType()), '</td>',
+                            '<td colspan="2" class="file-name">', attachment.getFileName(), '</td>',
+                        '</tr>',
+                        '<tr>',
+                            '<td class="file-size">', formatSize(attachment.getFileSize()), '</td>',
+                            '<td class="file-action">', action.join(''), '</td>',
+                        '</tr>',
+                    '</table>'];
+                }
             }
 
             text = fileDesc.join('');
@@ -887,6 +892,59 @@
         this.loadDraft(panel);
 
         return newEl;
+    }
+
+    /**
+     * 刷新当前面板里的消息。
+     * @param {*} sender 
+     * @param {*} message 
+     */
+    MessagePanel.prototype.refreshMessage = function(sender, message) {
+        var parentEl = this.current.el;
+        var msgEl = parentEl.find('#' + message.getId());
+        if (msgEl.length == 0) {
+            return;
+        }
+
+        if (message instanceof ImageMessage || message instanceof FileMessage) {
+            attachment = message.getAttachment();
+            var action = null;
+            var fileDesc = null;
+
+            if (attachment.isImageType()) {
+                action = ['javascript:dialog.showImage(\'', attachment.getFileCode(), '\');'];
+
+                fileDesc = ['<table class="file-label" border="0" cellspacing="4" cellpodding="0">',
+                    '<tr>',
+                        '<td>',
+                            '<img class="thumb" src="', attachment.getDefaultThumbURL(), '" onclick="', action.join(''), '"',
+                                ' onload="app.messagePanel.refreshScroll()"',
+                                ' alt="', attachment.getFileName(), '"', ' />',
+                        '</td>',
+                    '</tr>',
+                '</table>'];
+            }
+            else {
+                action = ['<a class="btn btn-xs btn-default" title="下载文件" href="javascript:dialog.downloadFile(\'',
+                                attachment.getFileCode(), '\');">',
+                    '<i class="fas fa-download"></i>',
+                '</a>'];
+
+                fileDesc = ['<table class="file-label" border="0" cellspacing="4" cellpodding="0">',
+                    '<tr>',
+                        '<td rowspan="2" valign="middle" align="center">', matchFileIcon(attachment.getFileType()), '</td>',
+                        '<td colspan="2" class="file-name">', attachment.getFileName(), '</td>',
+                    '</tr>',
+                    '<tr>',
+                        '<td class="file-size">', formatSize(attachment.getFileSize()), '</td>',
+                        '<td class="file-action">', action.join(''), '</td>',
+                    '</tr>',
+                '</table>'];
+            }
+
+            var el = msgEl.find('div[data-id="'+ message.getId() +'"]');
+            el.html(fileDesc.join(''));
+        }
     }
 
     /**
