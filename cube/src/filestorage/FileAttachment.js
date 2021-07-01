@@ -166,6 +166,14 @@ export class FileAttachment extends JSONable {
     }
 
     /**
+     * 是否可用。附件可用表示服务器已经管理了该附件。
+     * @returns {boolean} 返回附件是否可用。
+     */
+    isEnabled() {
+        return (null != this.label);
+    }
+
+    /**
      * 返回文件 URL 地址。
      * @returns {string} 返回 URL 地址。
      */
