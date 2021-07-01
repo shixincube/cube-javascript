@@ -307,13 +307,13 @@ export class ContactService extends Module {
 
         cell.Logger.d('ContactService', 'Trigger SignIn: ' + this.self.getId());
 
-        // let gotGroups = false;
+        let gotGroups = false;
         let gotBlockList = false;
         let gotTopList = false;
         let gotAppendix = false;
 
         let trigger = () => {
-            if (gotBlockList && gotTopList && gotAppendix) {
+            if (gotGroups && gotBlockList && gotTopList && gotAppendix) {
                 (new Promise((resolve, reject) => {
                     resolve();
                 })).then(() => {
@@ -331,8 +331,8 @@ export class ContactService extends Module {
         let now = Date.now();
         this.listGroups(now - this.defaultRetrospect, now, (groupList) => {
             cell.Logger.d('ContactService', 'List groups number: ' + groupList.length);
-            // gotGroups = true;
-            // trigger();
+            gotGroups = true;
+            trigger();
         });
 
         // 更新阻止列表
@@ -1038,6 +1038,15 @@ export class ContactService extends Module {
 
         if (this.listGroupsContext.total < 0) {
             this.listGroupsContext.total = total;
+        }
+
+        if (list.length == 0) {
+            clearTimeout(this.listGroupsContext.timer);
+            this.listGroupsContext.timer = 0;
+
+            this.listGroupsContext.handler(this.listGroupsContext.list);
+            this.listGroupsContext = null;
+            return;
         }
 
         let buf = new OrderMap();

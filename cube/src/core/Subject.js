@@ -86,8 +86,8 @@ export class Subject {
     }
 
     /**
-     * 添加指定状态名的观察者。
-     * @param {string} name 状态名称。
+     * 添加指定事件名的观察者。
+     * @param {string} name 事件名称。
      * @param {Observer|function} observer 指定观察者对象或回调函数。
      */
     attachWithName(name, observer) {
@@ -134,8 +134,8 @@ export class Subject {
     }
 
     /**
-     * 移除指定状态名的观察者。
-     * @param {string} name 指定状态名。
+     * 移除指定事件名的观察者。
+     * @param {string} name 指定事件名。
      * @param {Observer|function} observer 指定观察者对象或回调函数。
      */
     detachWithName(name, observer) {
@@ -165,36 +165,36 @@ export class Subject {
     }
 
     /**
-     * 通知观察者有新状态更新。
-     * @param {ObservableEvent} state 新的状态。
+     * 通知观察者有新事件更新。
+     * @param {ObservableEvent} event 新的事件。
      */
-    notifyObservers(state) {
-        state.subject = this;
+    notifyObservers(event) {
+        event.subject = this;
 
         for (let i = 0; i < this.functions.length; ++i) {
             let func = this.functions[i];
-            func(state);
+            func(event);
         }
 
         for (let i = 0; i < this.observers.length; ++i) {
             let obs = this.observers[i];
-            obs.update(state);
+            obs.update(event);
         }
 
         if (null != this.namedFunctions) {
-            let list = this.namedFunctions.get(state.name);
+            let list = this.namedFunctions.get(event.name);
             if (null != list) {
                 for (let i = 0; i < list.length; ++i) {
-                    list[i](state);
+                    list[i](event);
                 }
             }
         }
 
         if (null != this.namedObservers) {
-            let list = this.namedObservers.get(state.name);
+            let list = this.namedObservers.get(event.name);
             if (null != list) {
                 for (let i = 0; i < list.length; ++i) {
-                    list[i].update(state);
+                    list[i].update(event);
                 }
             }
         }
