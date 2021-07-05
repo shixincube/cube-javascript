@@ -46,7 +46,7 @@ export class PrimaryDescription extends JSONable {
         this.address = address;
 
         /**
-         * 文件存储描述。
+         * 主要配置内容描述。
          * @type {JSON}
          */
         this.primaryContent = primaryContent;
@@ -61,8 +61,8 @@ export class PrimaryDescription extends JSONable {
     }
 
     /**
-     * 获取主描述内容。
-     * @returns {JSON} 返回主描述内容。
+     * 获取主要配置内容描述。
+     * @returns {JSON} 返回主要配置内容描述。
      */
     getPrimaryContent() {
         return this.primaryContent;
