@@ -120,7 +120,7 @@ export class FileStorage extends Module {
          * 文件分块大小。
          * @type {number}
          */
-        this.block = 128 * 1024;
+        this.block = 512 * 1024;
 
         /**
          * 默认管道的监听器。
@@ -786,7 +786,9 @@ export class FileStorage extends Module {
                     this.notifyObservers(event);
 
                     if (fileAnchor.position < fileSize) {
-                        this._serialReadAndUpload(reader, file, fileAnchor, fileSize, completed, processing);
+                        setTimeout(() => {
+                            this._serialReadAndUpload(reader, file, fileAnchor, fileSize, completed, processing);
+                        }, 0);
                     }
                     else {
                         completed(anchor);
