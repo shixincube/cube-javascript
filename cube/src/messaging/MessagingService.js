@@ -137,6 +137,19 @@ export class MessagingService extends Module {
         this.lastQueryTime = 0;
 
         /**
+         * 查询 Pull 回调处理函数。
+         * @private
+         * @type {function}
+         */
+        this.pullHandler = null;
+
+        /**
+         * @private
+         * @type {number}
+         */
+        this.pullHandlerTimer = 0;
+
+        /**
          * @private
          * @type {boolean}
          */
@@ -1211,13 +1224,17 @@ export class MessagingService extends Module {
 
     /**
      * 查询服务器上的消息。
-     * @private
      * @param {number} [beginning] 指定获取消息的起始时间。
      * @param {number} [ending] 指定获取消息的截止时间。
+     * @param {function} [handler] 指定本次查询回调，该回调函数仅用于通知该次查询结束，不携带任何消息数据。
      * @returns {boolean} 如果成功执行查询操作返回 {@linkcode true} 。
      */
-    queryRemoteMessage(beginning, ending) {
+    queryRemoteMessage(beginning, ending, handler) {
         if (!this.contactService.selfReady) {
+            return false;
+        }
+
+        if (0 != this.pullHandlerTimer) {
             return false;
         }
 
@@ -1226,6 +1243,17 @@ export class MessagingService extends Module {
         if (now - this.lastQueryTime < 2000) {
             // 不允许高频查询
             return false;
+        }
+
+        if (undefined !== handler && typeof handler === 'function') {
+            // 设置回调
+            this.pullHandler = handler;
+
+            this.pullHandlerTimer = setTimeout(() => {
+                clearTimeout(this.pullHandlerTimer);
+                this.pullHandlerTimer = 0;
+                this.pullHandler = null;
+            }, 10 * 1000);
         }
 
         this.lastQueryTime = now;
@@ -1501,7 +1529,13 @@ export class MessagingService extends Module {
      * @param {JSON} payload 
      */
     triggerPull(payload) {
+        if (this.pullHandlerTimer > 0) {
+            clearTimeout(this.pullHandlerTimer);
+            this.pullHandlerTimer = 0;
+        }
+
         if (payload.code != 0) {
+            this.pullHandler = null;
             this.triggerFail(MessagingAction.Pull, payload);
             return;
         }
@@ -1516,6 +1550,11 @@ export class MessagingService extends Module {
 
         for (let i = 0, len = messages.length; i < len; ++i) {
             this.triggerNotify(messages[i]);
+        }
+
+        if (null != this.pullHandler) {
+            this.pullHandler(this);
+            this.pullHandler = null;
         }
     }
 
