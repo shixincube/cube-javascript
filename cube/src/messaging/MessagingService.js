@@ -1515,10 +1515,14 @@ export class MessagingService extends Module {
                     this.notifyObservers(new ObservableEvent(MessagingEvent.Notify, message));
                 }
 
-                this._processNotify();
+                setTimeout(() => {
+                    this._processNotify();
+                }, 0);
             }).catch((error) => {
                 console.log('MessagingService ' + error);
-                this._processNotify();
+                setTimeout(() => {
+                    this._processNotify();
+                }, 0);
             });
         })();
     }
