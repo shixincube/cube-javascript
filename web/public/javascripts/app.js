@@ -548,6 +548,10 @@
                             console.debug('Debug #getContact: ' + contact.getId() + ' - ' + itemMap.count);
                         });
                     }
+                    else {
+                        // 自己
+                        itemMap.count += 1;
+                    }
                 });
 
                 var promise = new Promise(function(resolve, reject) {

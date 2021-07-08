@@ -337,6 +337,7 @@ export class ContactService extends Module {
 
         // 更新阻止列表
         this.listBlockList(() => {
+            cell.Logger.d('ContactService', 'List block list finish');
             gotBlockList = true;
             trigger();
         }, (error) => {
@@ -346,6 +347,7 @@ export class ContactService extends Module {
 
         // 更新置顶列表
         this.listTopList(() => {
+            cell.Logger.d('ContactService', 'List top list finish');
             gotTopList = true; 
             trigger();
         }, (error) => {
@@ -365,6 +367,7 @@ export class ContactService extends Module {
 
         // 获取附录
         this.getAppendix(this.self, (appendix) => {
+            cell.Logger.d('ContactService', 'Get appendix finish');
             gotAppendix = true;
             trigger();
         }, (error) => {

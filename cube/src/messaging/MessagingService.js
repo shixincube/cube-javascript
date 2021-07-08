@@ -207,9 +207,10 @@ export class MessagingService extends Module {
                     this.lastMessageTime = value;
                 }
 
-                this.queryRemoteMessage(this.lastMessageTime, now);
-
-                this.serviceReady = true;
+                this.queryRemoteMessage(this.lastMessageTime, now, () => {
+                    cell.Logger.d('MessagingService', 'Ready');
+                    this.serviceReady = true;
+                });
             });
         }
 
@@ -1876,9 +1877,10 @@ export class MessagingService extends Module {
                     this.lastMessageTime = value;
                 }
 
-                this.queryRemoteMessage(this.lastMessageTime, now);
-
-                this.serviceReady = true;
+                this.queryRemoteMessage(this.lastMessageTime, now, () => {
+                    cell.Logger.d('MessagingService', 'Ready');
+                    this.serviceReady = true;
+                });
             });
 
             /*if (this.lastMessageTime > 0) {

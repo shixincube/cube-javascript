@@ -170,6 +170,10 @@ export class FileStorage extends Module {
         // 开启存储库
         this.storage.open(AuthService.DOMAIN);
 
+        if (this.contactService.isReady()) {
+            this.serviceReady = true;
+        }
+
         return true;
     }
 
