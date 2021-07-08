@@ -108,9 +108,17 @@ export class MessagingService extends Module {
 
         /**
          * 消息发送队列定时器。
-         * @type {object}
+         * @private
+         * @type {number}
          */
         this.timer = 0;
+
+        /**
+         * 定时器上一次执行时间戳。
+         * @private
+         * @type {number}
+         */
+        this.timerLastTime = 0;
 
         /**
          * 用于监听数据通道数据的监听器。
@@ -185,12 +193,8 @@ export class MessagingService extends Module {
         // 添加数据通道的监听器
         this.pipeline.addListener(MessagingService.NAME, this.pipelineListener);
 
-        if (this.timer > 0) {
-            clearInterval(this.timer);
-        }
-        this.timer = setInterval((e) => {
-            this._processQueue();
-        }, 100);
+        // 启动定时器
+        this.resetTimer();
 
         let self = this.contactService.getSelf();
         if (null != self) {
@@ -267,6 +271,19 @@ export class MessagingService extends Module {
      */
     assemble() {
         this.pluginSystem.addHook(new InstantiateHook());
+    }
+
+    /**
+     * 重置定时器。
+     * @private
+     */
+    resetTimer() {
+        if (this.timer > 0) {
+            clearInterval(this.timer);
+        }
+        this.timer = setInterval((e) => {
+            this._processQueue();
+        }, 100);
     }
 
     /**
@@ -367,6 +384,10 @@ export class MessagingService extends Module {
             });
         })();
 
+        if (msg.localTS - this.timerLastTime > 5000) {
+            this.resetTimer();
+        }
+
         return msg;
     }
 
@@ -433,6 +454,10 @@ export class MessagingService extends Module {
                 this.pushQueue.push(msg);
             });
         })();
+
+        if (msg.localTS - this.timerLastTime > 5000) {
+            this.resetTimer();
+        }
 
         return msg;
     }
@@ -1698,6 +1723,9 @@ export class MessagingService extends Module {
      * @private
      */
     _processQueue() {
+        // 更新时间戳
+        this.timerLastTime = Date.now();
+
         if (this.pushQueue.length > 0) {
             if (this.pipeline.isReady()) {
                 let message = this.pushQueue.shift();
