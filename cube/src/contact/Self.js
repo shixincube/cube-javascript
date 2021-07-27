@@ -61,6 +61,16 @@ export class Self extends Contact {
     }
 
     /**
+     * 重置设备。
+     * @param {Device} device 
+     */
+    resetDevice(device) {
+        this.removeDevice(this.device);
+        this.device = device;
+        this.addDevice(this.device);
+    }
+
+    /**
      * @inheritdoc
      */
     toJSON() {

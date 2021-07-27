@@ -192,9 +192,10 @@ export class ContactService extends Module {
      * @param {Self|number|string} self 指定 {@link Self} 对象或者自己的联系人 ID 。
      * @param {string} [name] 指定名称/昵称。
      * @param {JSON} [context] 指定关联的上下文。
+     * @param {Device} [device] 指定设备。
      * @returns {boolean} 设置成功返回 {@linkcode true} ，否则返回 {@linkcode false} 。
      */
-    signIn(self, name, context) {
+    signIn(self, name, context, device) {
         if (!this.started) {
             this.start();
         }
@@ -210,11 +211,14 @@ export class ContactService extends Module {
         // 开启存储器
         this.storage.open(this.self.id, AuthService.DOMAIN);
 
-        if (undefined !== name) {
+        if (undefined !== name && null != name) {
             this.self.setName(name);
         }
-        if (undefined !== context) {
+        if (undefined !== context && null != context) {
             this.self.setContext(context);
+        }
+        if (undefined !== device && null != device) {
+            this.self.resetDevice(device);
         }
 
         if (!this.pipeline.isReady()) {

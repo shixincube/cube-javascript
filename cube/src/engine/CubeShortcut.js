@@ -182,9 +182,10 @@ export class CubeShortcut {
      * @param {number} id 联系人 ID 。
      * @param {string} [name] 联系人名称。
      * @param {JSON} [context] 联系人关联的上下文。
+     * @param {Device} [device] 指定设备。
      */
-    signIn(id, name, context) {
-        this.engine.getContactService().signIn(id, name, context);
+    signIn(id, name, context, device) {
+        this.engine.getContactService().signIn(id, name, context, device);
     }
 
     /**
