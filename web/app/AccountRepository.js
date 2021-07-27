@@ -102,6 +102,7 @@ class AccountRepository {
                         "`id` int(10) unsigned NOT NULL AUTO_INCREMENT,",
                         "`account_id` bigint(13) NOT NULL,",
                         "`token` varchar(128) NOT NULL,",
+                        "`device` varchar(256) NOT NULL,",
                         "`creation` bigint(13) NOT NULL,",
                         "`expire` bigint(13) NOT NULL,",
                         "PRIMARY KEY (`id`)",
@@ -318,15 +319,16 @@ class AccountRepository {
         });
     }
 
-    updateToken(id, token, maxAge, handlerCallback) {
+    updateToken(id, token, device, maxAge, handlerCallback) {
         let time = Date.now();
         let params = [
             id,
             token,
+            device,
             time,
             time + maxAge
         ];
-        this.pool.query("INSERT INTO `token` (account_id,token,creation,expire) VALUE (?,?,?,?)", params, (error, result) => {
+        this.pool.query("INSERT INTO `token` (account_id,token,device,creation,expire) VALUE (?,?,?,?,?)", params, (error, result) => {
             if (error) {
                 if (handlerCallback) {
                     handlerCallback(null);

@@ -65,6 +65,7 @@
         $.post('/account/login', {
             "account": account,
             "password": pwdMD5,
+            "device": 'Web/' + navigator.userAgent,
             "remember": remember
         }, function(response, status, xhr) {
             if (response.code == 0) {

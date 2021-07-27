@@ -71,7 +71,8 @@ Request
 ```json
 {
     "account": "haosiyan",
-    "password": "c7af98d321febe62e04d45e8806852e0"
+    "password": "c7af98d321febe62e04d45e8806852e0",
+    "device": "Web/Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:90.0) Gecko/20100101 Firefox/90.0"
 }
 ```
 

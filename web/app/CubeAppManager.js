@@ -47,7 +47,7 @@ class CubeAppManager {
     constructor() {
         this.accRepo = new AccountRepository();
 
-        // Key : account {string}
+        // Key : account + '#' + device {string}
         this.onlineAccounts = {};
 
         setInterval(() => {
@@ -55,29 +55,30 @@ class CubeAppManager {
         }, 60000);
     }
 
-    addOnlineAccount(data, token) {
+    addOnlineAccount(data, token, device) {
         data.last = Date.now();
         data.token = token;
-        this.onlineAccounts[data.account] = data;
+        data.device = device;
+        this.onlineAccounts[data.account + '#' + device] = data;
     }
 
     removeOnlineAccount(token) {
-        for (let account in this.onlineAccounts) {
-            let data = this.onlineAccounts[account];
+        for (let key in this.onlineAccounts) {
+            let data = this.onlineAccounts[key];
             if (data.token == token) {
-                delete this.onlineAccounts[account];
+                delete this.onlineAccounts[key];
                 break;
             }
         }
     }
 
-    getOnlineAccount(account) {
-        return this.onlineAccounts[account];
+    getOnlineAccount(account, device) {
+        return this.onlineAccounts[account + '#' + device];
     }
 
     getOnlineAccountByToken(token) {
-        for (let account in this.onlineAccounts) {
-            let data = this.onlineAccounts[account];
+        for (let key in this.onlineAccounts) {
+            let data = this.onlineAccounts[key];
             if (data.token == token) {
                 return data;
             }
@@ -85,15 +86,16 @@ class CubeAppManager {
         return null;
     }
 
-    isOnline(account) {
-        let value = this.onlineAccounts[account];
+    isOnline(account, device) {
+        let key = account + '#' + device;
+        let value = this.onlineAccounts[key];
         return (undefined !== value && null != value);
     }
 
     isOnlineByToken(token) {
         let online = false;
-        for (let account in this.onlineAccounts) {
-            let data = this.onlineAccounts[account];
+        for (let key in this.onlineAccounts) {
+            let data = this.onlineAccounts[key];
             if (data.token == token) {
                 online = true;
                 break;
@@ -129,7 +131,7 @@ class CubeAppManager {
     }
 
     /**
-     * 
+     * 修改账号信息
      * @param {*} id 
      * @param {*} newName 
      * @param {*} newAvatar 
@@ -177,9 +179,10 @@ class CubeAppManager {
      * 账号登录。
      * @param {string} account 
      * @param {string} password 
+     * @param {string} device
      * @param {function} callback 
      */
-    login(account, password, callback) {
+    login(account, password, device, callback) {
         this.accRepo.queryAccount(account, (data) => {
             if (null == data) {
                 callback(9, '');
@@ -192,21 +195,19 @@ class CubeAppManager {
                 return;
             }
 
-            if (this.isOnline(account)) {
-                // callback(1, '');
-                // return;
-                delete this.onlineAccounts[account];
+            if (this.isOnline(account, device)) {
+                delete this.onlineAccounts[account + '#' + device];
             }
 
             // 生成 Token
             let token = stringRandom(32, {numbers: false});
             // 更新令牌
-            this.accRepo.updateToken(data.id, token, 7 * 24 * 3600 * 1000);
+            this.accRepo.updateToken(data.id, token, device, 7 * 24 * 3600 * 1000);
 
             // 删除账号信息
             delete data["password"];
 
-            this.addOnlineAccount(data, token);
+            this.addOnlineAccount(data, token, device);
 
             callback(0, token);
         });
@@ -244,7 +245,7 @@ class CubeAppManager {
                     // 删除账号信息
                     delete data["password"];
 
-                    this.addOnlineAccount(account, token);
+                    this.addOnlineAccount(account, token, data.device);
                     callback(0, token);
                 })();
             }
@@ -303,17 +304,17 @@ class CubeAppManager {
         let now = Date.now();
         let offlines = [];
 
-        for (let account in this.onlineAccounts) {
-            let data = this.onlineAccounts[account];
+        for (let key in this.onlineAccounts) {
+            let data = this.onlineAccounts[key];
             // 如果 5 分钟没有心跳，则设置为离线
             if (now - data.last > 300000) {
-                offlines.push(account);
+                offlines.push(data);
             }
         }
 
         offlines.forEach((value) => {
-            console.log('Account "' + value + '" offline');
-            delete this.onlineAccounts[value];
+            console.log('Account "' + value.account + '" offline');
+            delete this.onlineAccounts[value.account + '#' + value.device];
         });
 
         // 数据库连接 Keep-Alive

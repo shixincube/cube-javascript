@@ -41,7 +41,7 @@ router.post('/register', function(req, res, next) {
 /* POST /login */
 router.post('/login', function(req, res, next) {
     if (req.body.account && req.body.password) {
-        req.app.get('manager').login(req.body.account, req.body.password, function(code, token) {
+        req.app.get('manager').login(req.body.account, req.body.password, req.body.device, function(code, token) {
             if (req.body.remember) {
                 // 7天内自动登录
                 res.cookie('CubeAppToken', token, { maxAge: 7 * 24 * 3600 * 1000 });
