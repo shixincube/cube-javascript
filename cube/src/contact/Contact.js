@@ -108,7 +108,7 @@ export class Contact extends AbstractContact {
     }
 
     /**
-     * 返回最近一次使用的设备。
+     * 获取联系人最近一次使用的设备。
      * @return {Device} 返回最近一次使用的设备。
      */
     getDevice() {

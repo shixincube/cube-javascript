@@ -24,7 +24,6 @@
  * SOFTWARE.
  */
 
-
 /**
  * 群组状态。
  * @readonly

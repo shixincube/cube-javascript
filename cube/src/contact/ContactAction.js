@@ -31,7 +31,7 @@
 export const ContactAction = {
 
     /**
-     * 指定当前客户端对应的联系人信息。
+     * 指定当前客户端对应的联系人信息并签入。
      * @type {string}
      */
     SignIn: 'signIn',
