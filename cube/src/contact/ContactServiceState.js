@@ -99,6 +99,12 @@ const CubeContactServiceState = {
     NotAllowed: 102,
 
     /**
+     * 无网络连接。
+     * @type {number}
+     */
+    NoNetwork: 103,
+
+    /**
      * 未知的状态。
      * @type {number}
      */

@@ -31,7 +31,7 @@ import { Group } from "./Group";
 import { GroupAppendix } from "./GroupAppendix";
 
 /**
- * 消息存储器。
+ * 联系人模块存储器。
  */
 export class ContactStorage {
 

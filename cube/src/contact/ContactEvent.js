@@ -87,6 +87,12 @@ const CubeContactEvent = {
     GroupAppendixUpdated: 'GroupAppendixUpdated',
 
     /**
+     * 遇到程序故障。
+     * @type {string}
+     */
+    Fault: 'Fault',
+
+    /**
      * 未知事件。
      * @private
      * @type {string}
