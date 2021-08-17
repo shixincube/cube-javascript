@@ -69,6 +69,12 @@ const CubeContactServiceState = {
     NoSignIn: 12,
 
     /**
+     * 未找到联系人。
+     * @type {number}
+     */
+    NotFindContact: 14,
+
+    /**
      * 未找到群组。
      * @type {number}
      */

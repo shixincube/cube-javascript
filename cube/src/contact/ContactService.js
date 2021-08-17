@@ -248,7 +248,7 @@ export class ContactService extends Module {
     /**
      * 将当前设置的联系人签出。
      * @param {function} [handler] 当签出成功时回调该函数，参数：({@linkcode self}:{@link Self}) 。
-     * @returns {boolean} 是否执行签出操作。
+     * @returns {boolean} 是否执行了签出操作。
      */
     signOut(handler) {
         if (!this.selfReady || null == this.self) {
@@ -265,7 +265,7 @@ export class ContactService extends Module {
         let signOutPacket = new Packet(ContactAction.SignOut, this.self.toJSON());
         this.pipeline.send(ContactService.NAME, signOutPacket, (undefined !== handler) ? (pipeline, source, responsePacket) => {
             if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
-                if (responsePacket.data.code == 0) {
+                if (responsePacket.data.code == ContactServiceState.Ok) {
                     handler(current);
                 }
             }
@@ -274,7 +274,7 @@ export class ContactService extends Module {
     }
 
     /**
-     * 恢复连接状态。
+     * 通过向服务发送状态信息验证自身连接状态。
      */
     comeback() {
         if (null == this.self) {
@@ -690,13 +690,6 @@ export class ContactService extends Module {
                 }
             }
         });
-    }
-
-    /**
-     * @private
-     */
-    mutuals() {
-
     }
 
     /**
