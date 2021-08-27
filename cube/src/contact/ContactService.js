@@ -196,6 +196,11 @@ export class ContactService extends Module {
      * @returns {boolean} 设置成功返回 {@linkcode true} ，否则返回 {@linkcode false} 。
      */
     signIn(self, name, context, device) {
+        // 已经有联系人签入，不允许重复签入
+        if (this.selfReady) {
+            return false;
+        }
+
         if (!this.started) {
             this.start();
         }

@@ -1895,6 +1895,7 @@ export class MessagingService extends Module {
             // 启动存储
             this.storage.open(self.getId(), self.getDomain());
 
+            // 查询最新消息时间
             this.storage.queryLastMessageTime((value) => {
                 let now = Date.now();
 
@@ -1905,26 +1906,12 @@ export class MessagingService extends Module {
                     this.lastMessageTime = value;
                 }
 
+                // 查询离线消息
                 this.queryRemoteMessage(this.lastMessageTime, now, () => {
                     cell.Logger.d('MessagingService', 'Ready');
                     this.serviceReady = true;
                 });
             });
-
-            /*if (this.lastMessageTime > 0) {
-                this.queryRemoteMessage();
-            }
-            else {
-                setTimeout(() => {
-                    if (this.lastMessageTime > 0) {
-                        this.queryRemoteMessage();
-                    }
-                    else {
-                        let now = Date.now();
-                        this.queryRemoteMessage(now - this.defaultRetrospect, now);
-                    }
-                }, 500);
-            }*/
         }
         else if (event.name == ContactEvent.SignOut) {
             // 关闭存储
