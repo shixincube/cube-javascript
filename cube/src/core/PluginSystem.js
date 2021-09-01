@@ -51,7 +51,7 @@ export class PluginSystem {
     constructor() {
         /**
          * 事件钩子。
-         * @type {OrderMap<string,Plugin>}
+         * @type {OrderMap<string,Hook>}
          */
         this.hooks = new OrderMap();
 
@@ -87,6 +87,7 @@ export class PluginSystem {
 
     /**
      * 获取指定事件名的钩子。
+     * @param name 指定事件名。
      * @returns {Hook} 返回指定事件名的钩子。
      */
     getHook(name) {

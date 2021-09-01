@@ -29,7 +29,7 @@ import { InstantiateHook } from "./hook/InstantiateHook";
 import { Message } from "./Message";
 
 /**
- * 通知插件。
+ * 消息插件。
  * @extends Plugin
  */
 export class MessagePlugin extends Plugin {

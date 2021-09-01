@@ -27,7 +27,7 @@
 import { Hook } from "../../core/Hook";
 
 /**
- * 新消息通知钩子。
+ * 实例化消息钩子。
  * @extends Hook
  */
 export class InstantiateHook extends Hook {

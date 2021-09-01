@@ -138,7 +138,7 @@ export class HyperTextMessage extends TypeableMessage {
             else if (c == '[') {
                 let next = input.charAt(i + 1);
                 if (next == 'E') {
-                    // 记录文本数据
+                    // 记录之前缓存里的文本数据
                     this.formattedContents.push({
                         "format": "text",
                         "content": content.join('')
@@ -149,7 +149,7 @@ export class HyperTextMessage extends TypeableMessage {
                     ++i;
                 }
                 else if (next == '@') {
-                    // 记录文本数据
+                    // 记录之前缓存里的文本数据
                     this.formattedContents.push({
                         "format": "text",
                         "content": content.join('')
@@ -228,7 +228,7 @@ export class HyperTextMessage extends TypeableMessage {
      * @returns {object}
      */
     parseEmoji(array) {
-        // Format: [E desc # code ]
+        // Format: [ desc # code ]
         let string = array.join('');
         let index = string.lastIndexOf('#');
         let result = {
@@ -245,7 +245,7 @@ export class HyperTextMessage extends TypeableMessage {
      * @returns {object}
      */
     parseAt(array) {
-        // Format: [@ name # id ]
+        // Format: [ name # id ]
         let string = array.join('');
         let index = string.lastIndexOf('#');
         let result = {

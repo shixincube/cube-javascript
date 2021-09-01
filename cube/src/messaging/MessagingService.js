@@ -211,6 +211,7 @@ export class MessagingService extends Module {
                     this.lastMessageTime = value;
                 }
 
+                // 从服务器上拉取自上一次时间戳之后的所有消息
                 this.queryRemoteMessage(this.lastMessageTime, now, () => {
                     cell.Logger.d('MessagingService', 'Ready');
                     this.serviceReady = true;
@@ -1249,7 +1250,7 @@ export class MessagingService extends Module {
     }
 
     /**
-     * 查询服务器上的消息。
+     * 从服务器上下载指定时间段内的数据，数据将直接写入本地存储。
      * @param {number} [beginning] 指定获取消息的起始时间。
      * @param {number} [ending] 指定获取消息的截止时间。
      * @param {function} [handler] 指定本次查询回调，该回调函数仅用于通知该次查询结束，不携带任何消息数据。
@@ -1279,6 +1280,8 @@ export class MessagingService extends Module {
                 clearTimeout(this.pullHandlerTimer);
                 this.pullHandlerTimer = 0;
                 this.pullHandler = null;
+                // 超时也回调结束
+                handler(this);
             }, 10 * 1000);
         }
 
@@ -1564,7 +1567,7 @@ export class MessagingService extends Module {
             this.pullHandlerTimer = 0;
         }
 
-        if (payload.code != 0) {
+        if (payload.code != MessagingServiceState.Ok) {
             this.pullHandler = null;
             this.triggerFail(MessagingAction.Pull, payload);
             return;
@@ -1906,7 +1909,7 @@ export class MessagingService extends Module {
                     this.lastMessageTime = value;
                 }
 
-                // 查询离线消息
+                // 从服务器上拉取自上一次时间戳之后的所有消息
                 this.queryRemoteMessage(this.lastMessageTime, now, () => {
                     cell.Logger.d('MessagingService', 'Ready');
                     this.serviceReady = true;
