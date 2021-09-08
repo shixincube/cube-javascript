@@ -112,7 +112,17 @@
             if (null == token) {
                 token = g.readCookie('CubeAppToken');
             }
-            console.log('cube token: ' + token);
+
+            if (null == token) {
+                alert('无法获取到登录信息，将返回首页。');
+                window.location.href = '/';
+                return;
+            }
+
+            // 全局赋值
+            g.token = token;
+
+            //console.log('Cube App Token: ' + token);
 
             var tab = g.getQueryString('tab');
             if (null != tab) {
@@ -121,8 +131,9 @@
                 }, 100);
             }
 
+            // 定时心跳
             function heartbeat() {
-                $.post('/account/hb', { "token": token }, function(response, status, xhr) {
+                $.post(server.url + '/account/hb/', { "token": token }, function(response, status, xhr) {
                     var success = response.success;
                     if (!success) {
                         window.location.href = '/';
@@ -132,10 +143,10 @@
 
             $.ajax({
                 type: 'GET',
-                url: '/account/get',
-                data: { "t": token },
+                url: server.url + '/account/info/',
+                data: { "token": token },
+                dataType: 'json',
                 success: function(response, status, xhr) {
-                    delete response["password"];
                     // 修改标题
                     document.title = response.name + ' - 时信魔方';
                     // 启动
@@ -143,7 +154,7 @@
                     heartbeat();
                 },
                 error: function(xhr, error) {
-                    app.stop();
+                    //app.stop();
                 }
             });
 
@@ -169,7 +180,7 @@
             console.log('Account: ' + account.id + ' - ' + account.account);
 
             // 从服务器获取配置
-            $.get('/cube/config', {
+            $.get(server.url + '/cube/config/', {
                 "t": token
             }, function(response, status, xhr) {
                 // 启动 Cube Engine
@@ -177,7 +188,7 @@
 
                 // 准备 UI 数据
                 app.prepareUI();
-            });
+            }, 'json');
         },
 
         /**
@@ -243,7 +254,10 @@
                     var timer = 0;
 
                     var logout = function() {
-                        $.post('/account/logout', { "token": token }, function(response, status, xhr) {
+                        $.post(server.url + '/account/logout/', {
+                            "token": token,
+                            "device": 'Web/' + navigator.userAgent
+                        }, function(response, status, xhr) {
                             clearTimeout(timer);
 
                             // 回到登录界面，停止引擎
@@ -434,15 +448,14 @@
                 else {
                     $.ajax({
                         type: 'GET',
-                        url: '/account/info',
+                        url: server.url + '/account/info/',
                         data: { "id": id, "token": token },
+                        dataType: 'json',
                         success: function(response, status, xhr) {
                             if (null == response) {
                                 callback(null);
                                 return;
                             }
-
-                            delete response["password"];
 
                             contact.setContext(response);
                             contact.setName(response.name);
@@ -583,7 +596,7 @@
             cube.contact.getContactZone(app.contactZone, function(zone) {
                 if (zone.contacts.length == 0) {
                     // 将内置的账号设置为该联系人的通讯录
-                    $.get('/account/buildin', function(response, status, xhr) {
+                    $.get(server.url + '/account/buildin/', function(response, status, xhr) {
                         // 处理
                         process(response);
 
@@ -598,7 +611,7 @@
                     });
                 }
                 else {
-                    $.get('/account/info', {
+                    $.get(server.url + '/account/info/', {
                         "list": zone.contacts.toString(),
                         "token": token
                     }, function(response, status, xhr) {

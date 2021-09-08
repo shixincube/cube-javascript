@@ -5644,7 +5644,6 @@
 })(window);
 
 (function(g) {
-    'use strict';
 
     var dialogEl = null;
 
@@ -5662,8 +5661,9 @@
 
                     $.ajax({
                         type: 'POST',
-                        url: '/account/info',
-                        data: { "name": text },
+                        url: server.url + '/account/info/',
+                        data: { "name": text, "token": g.token },
+                        dataType: 'json',
                         success: function(response, status, xhr) {
                             if (null == response) {
                                 return;

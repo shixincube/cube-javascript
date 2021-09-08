@@ -228,7 +228,7 @@ export class HyperTextMessage extends TypeableMessage {
      * @returns {object}
      */
     parseEmoji(array) {
-        // Format: [ desc # code ]
+        // Format: desc#code
         let string = array.join('');
         let index = string.lastIndexOf('#');
         let result = {
@@ -245,7 +245,7 @@ export class HyperTextMessage extends TypeableMessage {
      * @returns {object}
      */
     parseAt(array) {
-        // Format: [ name # id ]
+        // Format: name#id
         let string = array.join('');
         let index = string.lastIndexOf('#');
         let result = {

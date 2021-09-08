@@ -24,22 +24,31 @@
  * SOFTWARE.
  */
 
-const config = {
-    db: {
-        host     : '192.168.100.122',   // 数据库服务器地址
-        port     : '3307',              // 数据库服务器端口
-        user     : 'cube',              // 数据库访问用户
-        password : 'shixincube',        // 数据库访问密码
-        database : 'cube_3_app',        // 数据库 Schema
-        charset  : 'UTF8',
-        supportBigNumbers : true
-    },
+ (function (g, $) {
 
-    cube: {
-        address : '127.0.0.1',          // 魔方服务器地址
-        domain  : 'shixincube.com',     // 当前应用所在的域
-        appKey  : 'shixin-cubeteam-opensource-appkey'   // 当前应用的 App-Key
-    }
-};
+    var httpURL = 'http://127.0.0.1:7777';
 
-module.exports = config;
+    var httpsURL = 'https://127.0.0.1:7777';
+
+    g.server = {
+        http: httpURL,
+
+        https: httpsURL,
+
+        url: httpURL
+    };
+
+    function getURL() {
+        if (document.location.protocol == 'https:') {
+            return httpsURL;
+        }
+        else {
+            return httpURL;
+        }
+    };
+
+    g.server.url = getURL();
+
+    $.server = g.server;
+
+ })(window, jQuery);

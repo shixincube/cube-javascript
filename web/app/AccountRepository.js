@@ -70,6 +70,7 @@ class AccountRepository {
                     "CREATE TABLE `account` (",
                         "`id` bigint(13) NOT NULL,",
                         "`account` varchar(128) NOT NULL,",
+                        "`phone` varchar(32) DEFAULT '',",
                         "`password` varchar(64) NOT NULL,",
                         "`name` varchar(128) NOT NULL,",
                         "`avatar` varchar(512) NOT NULL,",

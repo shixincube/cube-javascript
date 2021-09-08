@@ -61,15 +61,16 @@
 
         $('#modal_login').modal('show');
 
-        // request
-        $.post('/account/login', {
+        // 发送登录请求
+        $.post(server.url + '/account/login/', {
             "account": account,
             "password": pwdMD5,
             "device": 'Web/' + navigator.userAgent,
             "remember": remember
         }, function(response, status, xhr) {
             if (response.code == 0) {
-                window.location.href = 'main.html';
+                document.cookie = 'CubeAppToken=' + response.token;
+                window.location.href = 'main.html?t=' + response.token;
             }
             else if (response.code == 1) {
                 $('#modal_login').modal('hide');
@@ -91,7 +92,16 @@
                     body: '登录失败，请确认用户名或密码是否正确 (' + response.code + ')'
                 });
             }
-        }, 'json');
+        }, 'json').fail(function() {
+            $('#modal_login').modal('hide');
+            $(document).Toasts('create', {
+                class: 'bg-danger', 
+                title: '提示',
+                autohide: true,
+                delay: 3000,
+                body: '登录失败，服务器故障'
+            });
+        });
     }
 
     $(document).ready(function() {
@@ -116,21 +126,53 @@
                 $('#modal_login').modal('hide');
             }, 10000);
 
-            $.post('/account/login', {}, function(response, status, xhr) {
-                clearTimeout(timer);
+            // 跨域携带 Cookie
+            $.ajax({
+                type: "POST",
+                url: server.url + '/account/login/',
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                dataType: 'json',
+                success: function(response, status, xhr) {
+                    clearTimeout(timer);
 
-                $('#modal_login').modal('hide');
+                    $('#modal_login').modal('hide');
 
-                if (response.code == 0) {
-                    window.location.href = 'main.html';
-                }
-                else if (response.code == 1) {
+                    if (response.code == 0) {
+                        window.location.href = 'main.html';
+                    }
+                    else if (response.code == 1) {
+                        $(document).Toasts('create', {
+                            class: 'bg-danger', 
+                            title: '提示',
+                            autohide: true,
+                            delay: 3000,
+                            body: '登录失败，不允许重复登录'
+                        });
+                    }
+                    else {
+                        $(document).Toasts('create', {
+                            class: 'bg-danger', 
+                            title: '提示',
+                            autohide: true,
+                            delay: 3500,
+                            body: '请重新登录 #' + response.code
+                        });
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    clearTimeout(timer);
+
+                    $('#modal_login').modal('hide');
+
                     $(document).Toasts('create', {
                         class: 'bg-danger', 
                         title: '提示',
                         autohide: true,
                         delay: 3000,
-                        body: '登录失败，不允许同一个用户同时重复登录'
+                        body: '登录失败，服务器故障'
                     });
                 }
             });

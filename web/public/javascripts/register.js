@@ -53,7 +53,7 @@
             "nickname": nickname,
             "avatar": avatar.substr(7, 13)
         };
-        $.post('/account/register', data, function(response, status, xhr) {
+        $.post(server.url + '/account/register/', data, function(response, status, xhr) {
             $('#modal_register').modal('hide');
             if (response.code == 0) {
                 $(document).Toasts('create', {
