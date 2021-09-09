@@ -64,7 +64,7 @@
                     body: '账号 "' + account + '" 注册成功，即将返回首页'
                 });
                 setTimeout(function() {
-                    window.location.href = 'index.html';
+                    window.location.href = 'index.html?account=' + account;
                 }, 4200);
             }
             else {

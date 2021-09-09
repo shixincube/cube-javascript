@@ -177,7 +177,7 @@
         start: function(current) {
             account = current;
             that.account = account;
-            console.log('Account: ' + account.id + ' - ' + account.account);
+            // console.log('Account: ' + account.id + ' - ' + account.account);
 
             // 从服务器获取配置
             $.get(server.url + '/cube/config/', {
@@ -263,8 +263,9 @@
                             // 回到登录界面，停止引擎
                             cube.stop();
 
-                            // 清空 Cookie
-                            document.cookie = '';
+                            // 修改 Cookie 数据
+                            var date = new Date();
+                            document.cookie = 'CubeAppToken=?; expires=' + date.toUTCString() + '; SameSite=None; Secure';
 
                             window.location.href = '/?c=logout';
                         }, 'json');

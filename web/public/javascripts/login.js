@@ -69,7 +69,11 @@
             "remember": remember
         }, function(response, status, xhr) {
             if (response.code == 0) {
-                document.cookie = 'CubeAppToken=' + response.token;
+                var date = new Date();
+                date.setTime(date.getTime() + 7 * 24 * 60 * 60 * 1000);
+                document.cookie = 'CubeAppToken=' + response.token + '; expires=' + date.toUTCString() + '; SameSite=None; Secure';
+
+                // window.location.href = 'main.html';
                 window.location.href = 'main.html?t=' + response.token;
             }
             else if (response.code == 1) {
@@ -106,6 +110,7 @@
 
     $(document).ready(function() {
         $('#password').val('');
+        $('#remember').prop('checked', 'checked');
 
         // 登录按钮
         $('#btn_login').on('click', function(e) {
@@ -118,7 +123,9 @@
             }
         });
 
-        if (document.cookie.indexOf('CubeAppToken') >= 0 && window.location.search.indexOf('c=logout') < 0) {
+        var cookie = window.readCookie('CubeAppToken');
+
+        if (null != cookie && cookie.length >= 32 && window.location.search.indexOf('c=logout') < 0) {
             // 尝试使用 Cookie 登录
             $('#modal_login').modal('show');
 
@@ -176,6 +183,14 @@
                     });
                 }
             });
+        }
+        else if (window.location.search.indexOf('c=logout') >= 0) {
+            var date = new Date();
+            document.cookie = 'CubeAppToken=?; expires=' + date.toUTCString() + '; SameSite=None; Secure';
+        }
+        else if (window.location.search.indexOf('account=') >= 0) {
+            var account = window.getQueryString('account');
+            $('#account').val(account);
         }
     });
 
