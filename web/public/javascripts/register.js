@@ -51,7 +51,7 @@
             "account" : account,
             "password" : pwdMD5,
             "nickname": nickname,
-            "avatar": avatar.substr(7, 13)
+            "avatar": avatar.substr(7, 8)
         };
         $.post(server.url + '/account/register/', data, function(response, status, xhr) {
             $('#modal_register').modal('hide');
