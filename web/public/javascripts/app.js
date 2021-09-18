@@ -693,6 +693,7 @@
     app.queryContact = queryContact;
     app.updateContact = updateContact;
 
+    // 默认的联系人组
     app.contactZone = 'contacts';
 
     that = app;
