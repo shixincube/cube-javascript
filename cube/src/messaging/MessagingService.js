@@ -883,7 +883,7 @@ export class MessagingService extends Module {
     }
 
     /**
-     * 查询指定联系人 ID 相关的所有消息，即包括该联系人发送的消息，也包含该联系人接收的消息s。
+     * 查询指定联系人 ID 相关的所有消息，即包括该联系人发送的消息，也包含该联系人接收的消息。从起始时间向后查询所有消息。
      * @param {Contact|number} contactOrId 指定联系人或联系人 ID 。
      * @param {number} beginning 指定查询的起始时间。
      * @param {function} handler 查询结果回调函数，函数参数：({@linkcode contactId}:number, {@linkcode beginning}:number, {@linkcode result}:Array<{@link Message}>) 。
@@ -934,7 +934,7 @@ export class MessagingService extends Module {
     }
 
     /**
-     * 查询指定群组 ID 相关的所有消息。
+     * 查询指定群组 ID 相关的所有消息。从起始时间向后查询所有消息。
      * @param {Group|number} groupOrId 指定群组或者群组 ID 。
      * @param {number} beginning 指定查询的起始时间。
      * @param {function} handler 查询结果回调函数，函数参数：({@linkcode groupId}:number, {@linkcode beginning}:number, {@linkcode result}:Array<{@link Message}>) 。
