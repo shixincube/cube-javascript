@@ -148,7 +148,9 @@
                 dataType: 'json',
                 success: function(response, status, xhr) {
                     // 头像直接使用 PNG 图片
-                    response.avatar += '.png';
+                    if (!response.avatar.startsWith('http')) {
+                        response.avatar += '.png';
+                    }
 
                     // 修改标题
                     document.title = response.name + ' - 时信魔方';
@@ -462,7 +464,9 @@
                             }
 
                             // 头像使用 PNG
-                            response.avatar += '.png';
+                            if (!response.avatar.startsWith('http')) {
+                                response.avatar += '.png';
+                            }
 
                             contact.setContext(response);
                             contact.setName(response.name);
@@ -552,7 +556,9 @@
             var process = function(list) {
                 // list - Array<object>
                 list.forEach(function(item) {
-                    item.avatar += '.png';
+                    if (!item.avatar.startsWith('http')) {
+                        item.avatar += '.png';
+                    }
 
                     if (item.id != account.id) {
                         itemMap[item.id.toString()] = item;

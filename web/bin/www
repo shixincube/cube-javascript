@@ -103,6 +103,7 @@ function onHttpListening() {
         ? 'pipe ' + addr
         : 'port ' + addr.port;
     debug('Listening on ' + bind);
+    console.log('Listening on ' + bind);
 }
 
 
@@ -142,4 +143,5 @@ function onHttpsListening() {
         ? 'pipe ' + addr
         : 'port ' + addr.port;
     debug('Listening on ' + bind);
+    console.log('Listening on ' + bind);
 }
