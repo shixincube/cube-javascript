@@ -40,29 +40,38 @@
                         return;
                     }
 
-                    $.ajax({
-                        type: 'POST',
-                        url: server.url + '/account/info/',
-                        data: { "name": text, "token": g.token },
-                        dataType: 'json',
-                        success: function(response, status, xhr) {
-                            if (null == response) {
-                                return;
-                            }
+                    // 修改 Cube 的联系人
+                    g.cube().contact.modifyContact(text, null, function(contact) {
+                        if (contact.getName() != text) {
+                            // 修改之后名字没有变化，新昵称里敏感词
+                            g.dialog.launchToast(Toast.Warning, '不允许使用新的昵称');
+                            return;
+                        }
 
-                            // 修改 Cube 的联系人
-                            g.cube().contact.modifyContact(text, response, function(contact) {
+                        $.ajax({
+                            type: 'POST',
+                            url: server.url + '/account/info/',
+                            data: { "name": text, "token": g.token },
+                            dataType: 'json',
+                            success: function(response, status, xhr) {
+                                if (null == response) {
+                                    return;
+                                }
+
+                                // 更新上下文
+                                contact.context = response;
+
                                 g.app.updateContact(contact);
                                 g.app.sidebarAccountPanel.updateName(contact.getName());
-                            }, function(error) {
-                                console.log(error);
-                            });
 
-                            dialogEl.find('.widget-user-username').text(response.name);
-                        },
-                        error: function(xhr, error) {
-                            console.log(error);
-                        }
+                                dialogEl.find('.widget-user-username').text(response.name);
+                            },
+                            error: function(xhr, error) {
+                                console.log(error);
+                            }
+                        });
+                    }, function(error) {
+                        console.log(error);
                     });
                 }
             });
