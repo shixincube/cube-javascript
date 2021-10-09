@@ -82,10 +82,10 @@
 
     g.selectAvatar = function(num) {
         if (num < 10) {
-            avatar = 'images/avatar0'+ num +'.png';
+            avatar = 'images/avatar0' + num + '.png';
         }
         else {
-            avatar = 'images/avatar'+ num +'.png';
+            avatar = 'images/avatar' + num + '.png';
         }
 
         $('#select_avatar img').attr('src', avatar);

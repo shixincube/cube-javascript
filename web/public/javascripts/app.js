@@ -552,6 +552,8 @@
             var process = function(list) {
                 // list - Array<object>
                 list.forEach(function(item) {
+                    item.avatar += '.png';
+
                     if (item.id != account.id) {
                         itemMap[item.id.toString()] = item;
 
@@ -601,7 +603,7 @@
 
             // 从 Cube 里获取指定的联系人分组
             cube.contact.getContactZone(app.contactZone, function(zone) {
-                if (zone.contacts.length == 0) {
+                if (zone.contacts.length == 0 && that.demo) {
                     // 将内置的账号设置为该联系人的通讯录
                     $.get(server.url + '/account/buildin/', function(response, status, xhr) {
                         // 处理
@@ -695,6 +697,9 @@
 
     // 默认的联系人组
     app.contactZone = 'contacts';
+
+    // 是否使用 Demo 数据
+    app.demo = true;
 
     that = app;
     g.app = app;
