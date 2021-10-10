@@ -36,15 +36,16 @@
         if (currentContact.getId() == g.app.getSelf().getId()) {
             dialog.showPrompt('修改我的昵称', '请输入新昵称：', function(ok, text) {
                 if (ok) {
-                    if (text.length == 0) {
-                        return;
+                    if (text.length < 3) {
+                        g.dialog.launchToast(Toast.Warning, '昵称至少3个字符');
+                        return false;
                     }
 
                     // 修改 Cube 的联系人
                     g.cube().contact.modifyContact(text, null, function(contact) {
                         if (contact.getName() != text) {
                             // 修改之后名字没有变化，新昵称里敏感词
-                            g.dialog.launchToast(Toast.Warning, '不允许使用新的昵称');
+                            g.dialog.launchToast(Toast.Warning, '不被允许使用的新昵称');
                             return;
                         }
 
@@ -71,6 +72,7 @@
                             }
                         });
                     }, function(error) {
+                        g.dialog.launchToast(Toast.Warning, '不允许修改昵称');
                         console.log(error);
                     });
                 }
