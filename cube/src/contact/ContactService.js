@@ -585,7 +585,7 @@ export class ContactService extends Module {
      * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
      */
     getPendingZone(name, handleSuccess, handleFailure) {
-        let packet = new Packet(ContactAction.GetContactZone, {
+        /*let packet = new Packet(ContactAction.GetContactZone, {
             "name": name,
             "pending": true
         });
@@ -605,7 +605,7 @@ export class ContactService extends Module {
                     handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.ServerError, name));
                 }
             }
-        });
+        });*/
     }
 
     /**

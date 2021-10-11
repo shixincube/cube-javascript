@@ -122,7 +122,7 @@
     ContactsController.prototype.ready = function(callback) {
         pendingList = [];
 
-        // XJW getPendingZone 已作废删除
+        // XJW getPendingZone 已作废
         /*cube.contact.getPendingZone(g.app.contactZone, function(zone) {
             var count = zone.contacts.length;
 

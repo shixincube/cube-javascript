@@ -59,6 +59,13 @@ export class AbstractContact extends Entity {
           * @type {string}
           */
         this.name = (undefined === name) ? 'Cube-' + id : name;
+
+        /**
+         * 名字的拼音。
+         * @private
+         * @type {string}
+         */
+        this.namePY = '';
  
          /**
           * 联系人所在域。
@@ -101,6 +108,15 @@ export class AbstractContact extends Entity {
     }
 
     /**
+     * 获取名字的拼音格式。
+     * @returns {string} 返回名字的拼音格式。
+     */
+    getNamePinYin() {
+        let array = this.namePY.split(',');
+        return array.join('');
+    }
+
+    /**
      * @inheritdoc
      */
     toJSON() {
@@ -108,6 +124,8 @@ export class AbstractContact extends Entity {
         json["id"] = this.id;
         json["name"] = this.name;
         json["domain"] = this.domain;
+
+        json["namePY"] = this.namePY;
 
         if (null != this.context) {
             json["context"] = (this.context instanceof JSONable) ? this.context.toJSON() : this.context;
@@ -125,6 +143,8 @@ export class AbstractContact extends Entity {
         json["id"] = this.id;
         json["name"] = this.name;
         json["domain"] = this.domain;
+
+        json["namePY"] = this.namePY;
 
         if (null != this.context) {
             json["context"] = (this.context instanceof JSONable) ? this.context.toJSON() : this.context;

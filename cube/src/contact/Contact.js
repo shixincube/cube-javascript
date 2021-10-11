@@ -178,8 +178,10 @@ export class Contact extends AbstractContact {
         let name = json.name;
         let domain = (undefined !== domainName) ? domainName : json.domain;
         let devices = (json.devices) ? json.devices : [];
+        let namePY = (json.namePY) ? json.namePY : '';
 
         let contact = new Contact(id, name, domain);
+        contact.namePY = namePY;
 
         for (let i = 0; i < devices.length; ++i) {
             let devJson = devices[i];
