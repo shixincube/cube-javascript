@@ -635,7 +635,47 @@
                     });
                 }
             }, function(error) {
-                console.log(error);
+                if (error.code == ContactServiceState.NotFindContactZone) {
+                    // 创建分区
+
+                    if (that.demo) {
+                        // 将内置的账号设置为该联系人的通讯录
+                        $.get(server.url + '/account/buildin/', function(response, status, xhr) {
+                            // 处理
+                            process(response);
+
+                            let contactIdList = [];
+                            // 依次添加到 Zone
+                            response.forEach(function(value, index) {
+                                if (value.id == account.id) {
+                                    return;
+                                }
+
+                                contactIdList.push(value.id);
+                            });
+
+                            // 创建通讯录分区
+                            cube.contact.createContactZone(app.contactZone, null, contactIdList, function(zone) {
+                                console.log('Create contact zone : ' + zone.name);
+                            }, function(error) {
+                                console.log(error);
+                            });
+                        });
+                    }
+                    else {
+                        let contactIdList = [ that.account.id ];
+                        // 创建通讯录分区
+                        cube.contact.createContactZone(app.contactZone, null, contactIdList, function(zone) {
+                            console.log('Create contact zone : ' + zone.name);
+                        }, function(error) {
+                            console.log(error);
+                        });
+                    }
+                }
+                else {
+                    console.log(error);
+                    process([]);
+                }
             });
         },
 

@@ -122,7 +122,8 @@
     ContactsController.prototype.ready = function(callback) {
         pendingList = [];
 
-        cube.contact.getPendingZone(g.app.contactZone, function(zone) {
+        // XJW getPendingZone 已作废删除
+        /*cube.contact.getPendingZone(g.app.contactZone, function(zone) {
             var count = zone.contacts.length;
 
             zone.contacts.forEach(function(value) {
@@ -143,7 +144,7 @@
             }
         }, function(error) {
             console.log(error);
-        });
+        });*/
 
         // 更新阻止清单
         cube.contact.queryBlockList(function(list) {

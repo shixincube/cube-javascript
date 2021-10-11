@@ -72,22 +72,34 @@ export const ContactAction = {
      */
     GetContactZone: 'getContactZone',
 
-     /**
-      * 联系人是否在分区。
-      * @type {string}
-      */
+    /**
+     * 创建联系人分区。
+     * @type {string}
+     */
+    CreateContactZone: 'createContactZone',
+
+    /**
+     * 删除联系人分区。
+     * @type {string}
+     */
+    DeleteContactZone: 'deleteContactZone',
+
+    /**
+     * 联系人是否在分区。
+     * @type {string}
+     */
     ContainsContactInZone: 'containsContactInZone',
 
-     /**
-      * 添加联系人到分区。
-      * @type {string}
-      */
+    /**
+     * 添加联系人到分区。
+     * @type {string}
+     */
     AddContactToZone: 'addContactToZone',
  
-     /**
-      * 从分区移除联系人。
-      * @type {string}
-      */
+    /**
+     * 从分区移除联系人。
+     * @type {string}
+     */
     RemoveContactFromZone: 'removeContactFromZone',
 
     /**

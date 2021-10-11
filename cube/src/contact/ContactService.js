@@ -47,6 +47,7 @@ import { ContactServiceState } from "./ContactServiceState";
 import { ContactAppendix } from "./ContactAppendix";
 import { GroupAppendix } from "./GroupAppendix";
 import { ContactZone } from "./ContactZone";
+import { ContactZoneParticipant } from "./ContactZoneParticipant";
 
 /**
  * 联系人模块。
@@ -524,6 +525,39 @@ export class ContactService extends Module {
     getContactZone(name, handleSuccess, handleFailure) {
         let packet = new Packet(ContactAction.GetContactZone, {
             "name": name
+        });
+        this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+                if (responsePacket.data.code == ContactServiceState.Ok) {
+                    handleSuccess(new ContactZone(responsePacket.data.data));
+                }
+                else {
+                    if (handleFailure) {
+                        handleFailure(new ModuleError(ContactService.NAME, responsePacket.data.code, name));
+                    }
+                }
+            }
+            else {
+                if (handleFailure) {
+                    handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.ServerError, name));
+                }
+            }
+        });
+    }
+
+    /**
+     * 创建新的联系人分区。
+     * @param {string} name 分区名。
+     * @param {string} displayName 分区显示名，可以为 {@linkcode null} 值。
+     * @param {Array} contactIdList 分区里包含的联系人 ID 列表。
+     * @param {function} handleSuccess 操作成功回调该方法，参数：({@linkcode contactZone}:{@link ContactZone})。
+     * @param {function} handleFailure 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
+     */
+    createContactZone(name, displayName, contactIdList, handleSuccess, handleFailure) {
+        let packet = new Packet(ContactAction.CreateContactZone, {
+            "name": name,
+            "contacts": contactIdList,
+            "displayName": (null != displayName && undefined !== displayName) ? displayName : name
         });
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
             if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {

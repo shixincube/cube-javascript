@@ -24,74 +24,32 @@
  * SOFTWARE.
  */
 
-import { ContactZoneParticipant } from "./ContactZoneParticipant";
-
 /**
  * 联系人分区数据。
  */
-export class ContactZone {
+ export class ContactZoneParticipant {
 
     constructor(json) {
         /**
-         * @private
+         * 联系人的 ID 。
          * @type {number}
          */
         this.id = json.id;
 
         /**
-         * @private
-         * @type {string}
-         */
-        this.domain = json.domain;
-
-        /**
-         * @private
+         * 参与者的状态。
          * @type {number}
          */
-        this.owner = json.owner;
+        this.state = json.state;
 
         /**
-         * 分区名。
+         * 分区所有人留给该参与者的附言。
          * @type {string}
          */
-        this.name = json.name;
+        this.postscript = '';
 
-        /**
-         * 分区显示名。
-         * @type {string}
-         */
-        this.displayName = json.displayName;
-
-        /**
-         * 分区内的联系人 ID 列表。
-         * @type {Array<number>}
-         */
-        this.contacts = json.contacts;
-
-        /**
-         * 分区参与者列表。
-         * @type {Array<ContactZoneParticipant>}
-         * @see ContactZoneParticipant
-         */
-        this.participants = [];
-
-        for (let i = 0; i < json.participants.length; ++i) {
-            let participant = new ContactZoneParticipant(json.participants[i]);
-            this.participants.push(participant);
+        if (undefined !== json.postscript) {
+            this.postscript = json.postscript;
         }
     }
-
-    /**
-     * 获取指定的参与人。
-     * @param {number} contactId 指定参与人的 ID 。
-     * @returns {ContactZoneParticipant} 返回指定参与人。
-     */
-    getParticipant(contactId) {
-        let index = this.contacts.indexOf(contactId);
-        if (index >= 0) {
-            return this.participants[index];
-        }
-
-        return null;
-    }
-}
+ }
