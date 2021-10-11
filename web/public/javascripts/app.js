@@ -667,8 +667,10 @@
                         // 创建通讯录分区
                         cube.contact.createContactZone(app.contactZone, null, contactIdList, function(zone) {
                             console.log('Create contact zone : ' + zone.name);
+                            process([]);
                         }, function(error) {
                             console.log(error);
+                            process([]);
                         });
                     }
                 }
