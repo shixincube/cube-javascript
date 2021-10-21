@@ -810,45 +810,6 @@ export class MessagingService extends Module {
         this.storage.queryRecentMessagers((list) => {
             process(list);
         });
-
-        /* 从存储里读取消息，于 2021-4-11 弃用该方案
-        let selfId = this.contactService.getSelf().getId();
-        this.storage.readMessages(beginning, (beginning, result) => {
-            let list = result.sort((a, b) => {
-                if (a.remoteTS < b.remoteTS) return -1;
-                else if (a.remoteTS > b.remoteTS) return 1;
-                else return 0;
-            });
-
-            let ids = [];
-            let messagers = [];
-
-            for (let i = 0; i < list.length; ++i) {
-                let message = list[i];
-                if (message.isFromGroup()) {
-                    if (message.sourecGroup.tag != 'public' || message.sourecGroup.state != GroupState.Normal) {
-                        continue;
-                    }
-
-                    if (ids.indexOf(message.source) < 0) {
-                        ids.push(message.source);
-                        messagers.push(message.sourecGroup);
-                    }
-                }
-                else {
-                    if (message.from != selfId && ids.indexOf(message.from) < 0) {
-                        ids.push(message.from);
-                        messagers.push(message.getSender());
-                    }
-                    if (message.to != selfId && ids.indexOf(message.to) < 0) {
-                        ids.push(message.to);
-                        messagers.push(message.getReceiver());
-                    }
-                }
-            }
-
-            handler(beginning, messagers);
-        });*/
     }
 
     /**
