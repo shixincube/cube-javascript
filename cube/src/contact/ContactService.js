@@ -90,7 +90,7 @@ export class ContactService extends Module {
         /**
          * 群组内存缓存。
          * @private
-         * @type {OrderMap<number,Contact>}
+         * @type {OrderMap<number,Group>}
          */
         this.groups = new OrderMap();
 

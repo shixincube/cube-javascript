@@ -175,13 +175,22 @@ export class Contact extends AbstractContact {
      */
     static create(json, domainName) {
         let id = json.id;
+        let timestamp = json.timestamp;
         let name = json.name;
         let domain = (undefined !== domainName) ? domainName : json.domain;
         let devices = (json.devices) ? json.devices : [];
         let namePY = (json.namePY) ? json.namePY : '';
 
         let contact = new Contact(id, name, domain);
+        contact.timestamp = timestamp;
         contact.namePY = namePY;
+
+        if (undefined !== json.last) {
+            contact.last = json.last;
+        }
+        if (undefined !== json.expiry) {
+            contact.expiry = json.expiry;
+        }
 
         for (let i = 0; i < devices.length; ++i) {
             let devJson = devices[i];

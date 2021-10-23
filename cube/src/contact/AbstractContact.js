@@ -36,7 +36,7 @@ export class AbstractContact extends Entity {
     /**
      * 联系人实体的有效期。
      */
-    static Lifespan = 10 * 60 * 1000;
+    static Lifespan = 7 * 24 * 60 * 60 * 1000;
 
     /**
      * @param {number|string} id 指定联系人 ID 。
@@ -44,14 +44,7 @@ export class AbstractContact extends Entity {
      * @param {string} [domain] 指定联系人所在的域。
      */
     constructor(id, name, domain) {
-        super(AbstractContact.Lifespan);
-
-        /**
-         * 联系人 ID 。
-         * @private
-         * @type {number}
-         */
-        this.id = (typeof id === 'string') ? parseInt(id) : id;
+        super(id);
 
          /**
           * 联系人名称。
@@ -121,14 +114,13 @@ export class AbstractContact extends Entity {
      */
     toJSON() {
         let json = super.toJSON();
-        json["id"] = this.id;
-        json["name"] = this.name;
-        json["domain"] = this.domain;
+        json.name = this.name;
+        json.domain = this.domain;
 
-        json["namePY"] = this.namePY;
+        json.namePY = this.namePY;
 
         if (null != this.context) {
-            json["context"] = (this.context instanceof JSONable) ? this.context.toJSON() : this.context;
+            json.context = (this.context instanceof JSONable) ? this.context.toJSON() : this.context;
         }
 
         return json;
@@ -140,14 +132,13 @@ export class AbstractContact extends Entity {
      */
     toCompactJSON() {
         let json = super.toCompactJSON();
-        json["id"] = this.id;
-        json["name"] = this.name;
-        json["domain"] = this.domain;
+        json.name = this.name;
+        json.domain = this.domain;
 
-        json["namePY"] = this.namePY;
+        json.namePY = this.namePY;
 
         if (null != this.context) {
-            json["context"] = (this.context instanceof JSONable) ? this.context.toJSON() : this.context;
+            json.context = (this.context instanceof JSONable) ? this.context.toJSON() : this.context;
         }
 
         return json;

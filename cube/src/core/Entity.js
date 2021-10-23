@@ -33,9 +33,10 @@ import { JSONable } from "../util/JSONable";
 export class Entity extends JSONable {
 
     /**
-     * @param {number} lifespan 实体的生存周期，单位：毫秒。
+     * @param {number} [id] 实体的 ID 。
+     * @param {number} [timestamp] 时间戳。
      */
-    constructor(lifespan) {
+    constructor(id, timestamp) {
         super();
 
         /**
@@ -44,18 +45,32 @@ export class Entity extends JSONable {
          * @type {number}
          */
         this.id = 0;
+        if (id !== undefined) {
+            if (typeof id === 'number') {
+                this.id = id;
+            }
+            else if (typeof id === 'string') {
+                this.id = parseInt(id);
+            }
+        }
 
         /**
-         * 实体创建时的时间戳。
+         * 数据时间戳。
          * @type {number}
          */
-        this.timestamp = Date.now();
+        this.timestamp = (timestamp !== undefined && typeof timestamp === 'number') ? timestamp : Date.now();
 
         /**
-         * 实体的有效期。
+         * 上一次更新数据的时间戳。
          * @type {number}
          */
-        this.expiry = this.timestamp + (lifespan !== undefined && typeof lifespan === 'number') ? lifespan : 10 * 60 * 1000;
+        this.last = this.timestamp;
+
+        /**
+         * 有效期。
+         * @type {number}
+         */
+        this.expiry = this.timestamp + (7 * 24 * 60 * 60 * 1000);
 
         /**
          * 关联的上下文信息。
@@ -80,16 +95,24 @@ export class Entity extends JSONable {
     }
 
     /**
-     * 获取实体创建时的时间戳。
-     * @returns {number} 返回实体创建时的时间戳。
+     * 获取数据时间戳。
+     * @returns {number} 返回数据时间戳。
      */
     getTimestamp() {
         return this.timestamp;
     }
 
     /**
-     * 获取实体的有效期。
-     * @returns {number} 返回实体的有效期。
+     * 获取最近一次更新数据的时间戳。
+     * @returns {number} 返回最近一次更新数据的时间戳。
+     */
+    getLast() {
+        return this.last;
+    }
+
+    /**
+     * 获取数据的有效期。
+     * @returns {number} 返回数据的有效期。
      */
     getExpiry() {
         return this.expiry;
@@ -112,7 +135,7 @@ export class Entity extends JSONable {
     }
 
     /**
-     * 实体生命周期是否已经超期。
+     * 数据是否已经超期。
      * @returns {boolean} 如果超期返回 {@linkcode true} ，否则返回 {@linkcode false} 。
      */
     overdue() {
@@ -123,13 +146,20 @@ export class Entity extends JSONable {
      * @inheritdoc
      */
     toJSON() {
-        return super.toJSON();
+        let json = super.toJSON();
+        json.id = this.id;
+        json.timestamp = this.timestamp;
+        json.last = this.last;
+        json.expiry = this.expiry;
+        return json;
     }
 
     /**
      * @inheritdoc
      */
     toCompactJSON() {
-        return super.toCompactJSON();
+        let json = super.toCompactJSON();
+        json.id = this.id;
+        return json;
     }
 }
