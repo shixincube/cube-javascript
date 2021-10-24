@@ -26,6 +26,7 @@
 
 import cell from "@lib/cell-lib";
 import InDB from "indb";
+import { Contact } from "./Contact";
 import { ContactService } from "./ContactService";
 import { Group } from "./Group";
 import { GroupAppendix } from "./GroupAppendix";
@@ -118,6 +119,14 @@ export class ContactStorage {
                     name: 'id',
                     keyPath: 'id',
                     unique: true
+                }, {
+                    name: 'last',
+                    keyPath: 'last',
+                    unique: false
+                }, {
+                    name: 'timestamp',
+                    keyPath: 'timestamp',
+                    unique: false
                 }]
             }, {
                 name: 'appendix',
@@ -178,8 +187,17 @@ export class ContactStorage {
      * @param {function} handler 回调函数，参数：({@linkcode contact}:{@link Contact}) 。如果没有在数据库里找到数据 {@linkcode contact} 为 {@linkcode null} 值。
      */
     readContact(id, handler) {
-        // TODO 超期控制
-        handler(null);
+        (async ()=> {
+            let result = await this.contactStore.query('id', id);
+            if (result.length > 0) {
+                let data = result[0];
+                let contact = Contact.create(data);
+                handler(contact);
+            }
+            else {
+                handler(null);
+            }
+        })();
     }
 
     /**
@@ -187,7 +205,10 @@ export class ContactStorage {
      * @param {Contact} contact 指定写入数据的联系人。
      */
     writeContact(contact) {
-        // TODO
+        (async ()=> {
+            let data = contact.toJSON();
+            await this.contactStore.put(data);
+        })();
     }
 
     /**

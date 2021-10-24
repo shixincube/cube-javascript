@@ -33,6 +33,16 @@ import { JSONable } from "../util/JSONable";
 export class Entity extends JSONable {
 
     /**
+     * 缓存持续时长。
+     */
+    static CacheDuration = 10 * 60 * 1000;
+
+    /**
+     * 数据生命周期。
+     */
+    static Lifespan = 7 * 24 * 60 * 60 * 1000;
+
+    /**
      * @param {number} [id] 实体的 ID 。
      * @param {number} [timestamp] 时间戳。
      */
@@ -70,7 +80,7 @@ export class Entity extends JSONable {
          * 有效期。
          * @type {number}
          */
-        this.expiry = this.timestamp + (7 * 24 * 60 * 60 * 1000);
+        this.expiry = this.last + Entity.Lifespan;
 
         /**
          * 关联的上下文信息。
@@ -84,6 +94,13 @@ export class Entity extends JSONable {
          * @type {string}
          */
         this.moduleName = null;
+
+        /**
+         * 实体创建时间戳。
+         * @private
+         * @type {number}
+         */
+        this.entityCreation = Date.now();
     }
 
     /**
@@ -119,6 +136,15 @@ export class Entity extends JSONable {
     }
 
     /**
+     * 重置更新时间。
+     * @param {number} time 更新时间。
+     */
+    resetUpdateTime(time) {
+        this.last = time;
+        this.expiry = this.last + Entity.Lifespan;
+    }
+
+    /**
      * 设置关联的上下文。
      * @param {JSON} context 指定上下文数据。
      */
@@ -138,7 +164,15 @@ export class Entity extends JSONable {
      * 数据是否已经超期。
      * @returns {boolean} 如果超期返回 {@linkcode true} ，否则返回 {@linkcode false} 。
      */
-    overdue() {
+    isOverdue() {
+        return (this.expiry <= Date.now());
+    }
+
+    /**
+     * 数据是否在有效期内。
+     * @returns {boolean} 如果有效返回 {@linkcode true} ，否则返回 {@linkcode false} 。
+     */
+    isValid() {
         return (this.expiry > Date.now());
     }
 

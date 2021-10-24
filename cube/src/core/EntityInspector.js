@@ -115,7 +115,7 @@ export class EntityInspector {
                     continue;
                 }
 
-                if (entity.expiry > now) {
+                if (now - entity.entityCreation > Entity.CacheDuration) {
                     map.remove(key);
                     if (null != this.listener) {
                         this.listener(entity);
@@ -132,7 +132,7 @@ export class EntityInspector {
                     continue;
                 }
 
-                if (entity.expiry > now) {
+                if (now - entity.entityCreation > Entity.CacheDuration) {
                     array.splice(n, 1);
 
                     if (null != this.listener) {

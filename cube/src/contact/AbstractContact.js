@@ -34,11 +34,6 @@ import { Entity } from "../core/Entity";
 export class AbstractContact extends Entity {
 
     /**
-     * 联系人实体的有效期。
-     */
-    static Lifespan = 7 * 24 * 60 * 60 * 1000;
-
-    /**
      * @param {number|string} id 指定联系人 ID 。
      * @param {string} [name] 指定联系人名称。
      * @param {string} [domain] 指定联系人所在的域。

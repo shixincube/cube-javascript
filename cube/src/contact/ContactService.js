@@ -432,28 +432,26 @@ export class ContactService extends Module {
             id = contactId.getId();
         }
 
-        if (undefined !== handleSuccess) {
-            // 从缓存读取
-            let contact = this.contacts.get(id);
-            if (null != contact) {
-                handleSuccess(contact);
+        let promise = new Promise((resolve, reject) => {
+            // 判断是不是 Self
+            if (id == this.self.id) {
+                resolve(this.self);
                 return;
             }
-        }
 
-        let promise = new Promise((resolve, reject) => {
             // 从缓存读取
             let contact = this.contacts.get(id);
 
             if (null == contact) {
                 // 从存储读取
                 this.storage.readContact(id, (contact) => {
-                    if (null != contact) {
+                    if (null != contact && contact.isValid()) {
                         // 保存到内存
                         this.contacts.put(contact.getId(), contact);
 
                         // 获取附录
                         this.getAppendix(contact, (appendix) => {
+                            contact.appendix = appendix;
                             resolve(contact);
                         }, (error) => {
                             reject(error);
@@ -469,6 +467,8 @@ export class ContactService extends Module {
                         if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
                             if (responsePacket.data.code == ContactServiceState.Ok) {
                                 let contact = Contact.create(responsePacket.data.data);
+                                // 设置更新时间
+                                contact.resetUpdateTime(Date.now());
                                 // 保存到内存
                                 this.contacts.put(contact.getId(), contact);
                                 // 更新存储
@@ -2136,7 +2136,7 @@ export class ContactService extends Module {
 
             let data = packet.getPayload().data;
             if (requestData.contactId) {
-                let owner = contactOrGroup;//this.contacts.get(data.owner.id);
+                let owner = contactOrGroup;
                 if (null == owner) {
                     owner = Contact.create(data.owner, AuthService.DOMAIN);
                 }
@@ -2170,7 +2170,7 @@ export class ContactService extends Module {
                 }
             }
             else {
-                let owner = contactOrGroup;//this.groups.get(data.owner.id);
+                let owner = contactOrGroup;
                 if (null == owner) {
                     owner = Group.create(this, data.owner);
                 }
