@@ -32,6 +32,7 @@ import { AuthToken } from "../auth/AuthToken";
 import { KernelError } from "./error/KernelError";
 import { AuthService } from "../auth/AuthService";
 import { CellPipeline } from "../pipeline/CellPipeline";
+import { EntityInspector } from "./EntityInspector";
 
 /**
  * 内核配置定义。
@@ -98,6 +99,13 @@ export class Kernel {
         this.pipelines = new FastMap();
 
         /**
+         * 实体生命周期管理器。
+         * @protected
+         * @type {EntityInspector}
+         */
+        this.inspector = new EntityInspector();
+
+        /**
          * 模块对象映射。
          * @private
          * @type {FastMap<string,Module>}
@@ -142,6 +150,9 @@ export class Kernel {
 
         // 配置
         this.config = config;
+
+        // 启动实体周期管理器
+        this.inspector.start();
 
         // 绑定默认通道关系
         this.bundleDefault();
@@ -202,6 +213,9 @@ export class Kernel {
      */
     shutdown() {
         this.working = false;
+
+        // 停止实体周期管理器
+        this.inspector.stop();
 
         // 停止模块
         let mods = this.modules.values();

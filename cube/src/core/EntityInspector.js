@@ -91,6 +91,28 @@ export class EntityInspector {
     }
 
     /**
+     * 解除托管映射。
+     * @param {OrderMap} map 指定映射。
+     */
+    withdrawMap(map) {
+        let index = this.depositedMapList.indexOf(map);
+        if (index >= 0) {
+            this.depositedMapList.splice(index, 1);
+        }
+    }
+
+    /**
+     * 解除托管数组。
+     * @param {Array} array 指定数组。
+     */
+    withdrawArray(array) {
+        let index = this.depositedArrayList.indexOf(array);
+        if (index >= 0) {
+            this.depositedArrayList.splice(index, 1);
+        }
+    }
+
+    /**
      * 设置监听函数。
      * @param {function} listener 当实体过期时回调的函数。
      */

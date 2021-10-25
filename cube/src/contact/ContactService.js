@@ -30,7 +30,6 @@ import { ModuleError } from "../core/error/ModuleError";
 import { Module } from "../core/Module";
 import { Packet } from "../core/Packet";
 import { StateCode } from "../core/StateCode";
-import { EntityInspector } from "../core/EntityInspector";
 import { AuthService } from "../auth/AuthService";
 import { ContactPipelineListener } from "./ContactPipelineListener";
 import { Self } from "./Self";
@@ -95,15 +94,6 @@ export class ContactService extends Module {
         this.groups = new OrderMap();
 
         /**
-         * 实体生命周期管理器。
-         * @private
-         * @type {EntityInspector}
-         */
-        this.inspector = new EntityInspector();
-        this.inspector.depositMap(this.contacts);
-        this.inspector.depositMap(this.groups);
-
-        /**
          * 数据通道监听器。
          * @private
          * @type {ContactPipelineListener}
@@ -140,7 +130,8 @@ export class ContactService extends Module {
             return false;
         }
 
-        this.inspector.start();
+        this.kernel.inspector.depositMap(this.contacts);
+        this.kernel.inspector.depositMap(this.groups);
 
         this.pipeline.addListener(ContactService.NAME, this.pipelineListener);
 
@@ -153,13 +144,14 @@ export class ContactService extends Module {
     stop() {
         super.stop();
 
+        this.kernel.inspector.withdrawMap(this.contacts);
+        this.kernel.inspector.withdrawMap(this.groups);
+
         if (null == this.pipeline) {
             return;
         }
 
         this.pipeline.removeListener(ContactService.NAME, this.pipelineListener);
-
-        this.inspector.stop();
 
         // 关闭存储器
         this.storage.close();
