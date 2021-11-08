@@ -438,10 +438,11 @@ export class Kernel {
             pipeline.setTokenCode(token.code);
         }
 
-        // 校验依赖关系
         let modules = this.modules.values();
         for (let i = 0; i < modules.length; ++i) {
             let mod = modules[i];
+
+            // 校验依赖关系
             for (let j = 0; j < mod.dependencies.length; ++j) {
                 let depName = mod.dependencies[j];
                 if (!this.modules.containsKey(depName)) {

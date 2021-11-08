@@ -25,8 +25,8 @@
  */
 
 import { JSONable } from "../util/JSONable";
-import { FileAnchor } from "./FileAnchor";
-import { FileLabel } from "./FileLabel";
+import { FileAnchor } from "../filestorage/FileAnchor";
+import { FileLabel } from "../filestorage/FileLabel";
 import { FileThumbnail } from "../fileprocessor/FileThumbnail";
 import { AuthService } from "../auth/AuthService";
 

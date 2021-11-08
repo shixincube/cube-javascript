@@ -28,7 +28,7 @@ import cell from "@lib/cell-lib";
 import { Entity } from "../core/Entity";
 import { MessageState } from "./MessageState";
 import { AuthService } from "../auth/AuthService";
-import { FileAttachment } from "../filestorage/FileAttachment";
+import { FileAttachment } from "./FileAttachment";
 import { Contact } from "../contact/Contact";
 import { Group } from "../contact/Group";
 

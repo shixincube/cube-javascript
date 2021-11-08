@@ -64,7 +64,7 @@ export class FileLabel extends Entity {
         this.fileName = null;
 
         /**
-         * 文件大小。
+         * 文件大小。单位：字节。
          * @type {number}
          */
         this.fileSize = 0;
