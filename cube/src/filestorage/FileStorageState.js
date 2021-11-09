@@ -84,10 +84,28 @@ export const FileStorageState = {
     SearchConditionError: 25,
 
     /**
+     * 模块的工作状态未就绪。
+     * @type {number}
+     */
+    NotReady: 101,
+
+    /**
+     * 文件 I/O 异常。
+     * @type {number}
+     */
+    IOException: 102,
+
+    /**
+     * 读取文件错误。
+     * @type {number}
+     */
+    ReadFileFailed: 103,
+
+    /**
      * 上传失败。
      * @type {number}
      */
-    UploadFailed: 102,
+    TransmitFailed: 104,
 
     /**
      * 获取文件标签失败。

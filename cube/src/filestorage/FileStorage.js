@@ -257,7 +257,7 @@ export class FileStorage extends Module {
                 fileAnchor.success = false;
 
                 // 实例化错误
-                let error = new ModuleError(FileStorage.NAME, FileStorageState.UploadFailed, fileAnchor);
+                let error = new ModuleError(FileStorage.NAME, FileStorageState.TransmitFailed, fileAnchor);
 
                 if (handleFailure) {
                     handleFailure(error);
@@ -299,7 +299,7 @@ export class FileStorage extends Module {
     /**
      * @private
      * @param {FileAnchor} fileAnchor 
-     * @param {number} count
+     * @param {number} count 尝试次数
      * @param {function} failureCallback
      */
     _queryFileLabel(fileAnchor, count, failureCallback) {
