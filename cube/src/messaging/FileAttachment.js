@@ -33,6 +33,9 @@ import { AuthService } from "../auth/AuthService";
 /**
  * 文件附件。
  * @extends JSONable
+ * 
+ * FIXME 2021-11-17 XJW 需要重构，新结构使用 labels 和 anchors ，一个文件附件包含多个文件
+ * 弃用 thumbs 和 thumbConfig
  */
 export class FileAttachment extends JSONable {
 

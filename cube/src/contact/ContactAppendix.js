@@ -34,6 +34,8 @@ import { ContactServiceState } from "./ContactServiceState";
 
 /**
  * 联系人附录。
+ * 
+ * FIXME 2021-11-18 XJW 弃用 noNoticeContacts 和 noNoticeGroups
  */
 export class ContactAppendix {
 

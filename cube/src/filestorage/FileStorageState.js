@@ -72,6 +72,18 @@ export const FileStorageState = {
     Reject: 15,
 
     /**
+     * 文件标签错误。
+     * @type {number}
+     */
+    FileLabelError: 16,
+
+    /**
+     * 正在写入文件。
+     * @type {number}
+     */
+    Writing: 17,
+
+    /**
      * 重名。
      * @type {number}
      */

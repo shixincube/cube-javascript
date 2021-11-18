@@ -67,7 +67,7 @@ export class FileHierarchy {
         this.root = null;
 
         /**
-         * @type {FastMap}
+         * @type {FastMap<number, Directory>}
          */
         this.dirMap = new FastMap();
 

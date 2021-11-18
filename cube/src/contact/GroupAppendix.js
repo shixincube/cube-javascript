@@ -37,6 +37,8 @@ import { Group } from "./Group";
 
 /**
  * 群组附录。
+ * 
+ * FIXME 2021-11-17 XJW 增加了 following 属性
  */
 export class GroupAppendix extends JSONable {
 

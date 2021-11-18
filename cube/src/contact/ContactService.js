@@ -51,6 +51,8 @@ import { ContactZoneParticipant } from "./ContactZoneParticipant";
 /**
  * 联系人模块。
  * @extends Module
+ * 
+ * FIXME 2021-11-18 XJW 群组数据结构变更
  */
 export class ContactService extends Module {
 

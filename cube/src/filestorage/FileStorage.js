@@ -494,7 +494,7 @@ export class FileStorage extends Module {
      * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError})。
      */
     getRoot(idOrObject, handleSuccess, handleFailure) {
-        if (!this.start) {
+        if (!this.started) {
             return;
         }
 
