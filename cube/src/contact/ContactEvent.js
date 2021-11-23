@@ -66,7 +66,7 @@ const CubeContactEvent = {
      * 群组已解散。
      * @type {string}
      */
-    GroupDissolved: 'GroupDissolved',
+    GroupDismissed: 'GroupDismissed',
 
     /**
      * 群成员加入。

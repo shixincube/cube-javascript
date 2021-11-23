@@ -124,7 +124,7 @@ export const ContactAction = {
      * 解散群组。
      * @type {string}
      */
-    DissolveGroup: 'dissolveGroup',
+    DismissGroup: 'dismissGroup',
 
     /**
      * 向群组添加成员。

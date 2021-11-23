@@ -40,7 +40,7 @@ const selGroups = document.querySelector('select#groupList');
 const selMembers = document.querySelector('select#memberList');
 
 const btnCreate = document.querySelector('button#create');
-const btnDissolve = document.querySelector('button#dissolve');
+const btnDismiss = document.querySelector('button#dismiss');
 const btnAddMember = document.querySelector('button#addMember');
 const btnRemoveMember = document.querySelector('button#removeMember');
 
@@ -49,7 +49,7 @@ const btnUpdateNotice = document.querySelector('button#updateNotice');
 btnLogin.onclick = login;
 btnLogout.onclick = logout;
 btnCreate.onclick = createGroup;
-btnDissolve.onclick = dissolveGroup;
+btnDismiss.onclick = dismissGroup;
 btnAddMember.onclick = addMember;
 btnRemoveMember.onclick = removeMember;
 btnUpdateNotice.onclick = updateNotice;
@@ -133,7 +133,7 @@ function createGroup() {
 }
 
 // 解散群组
-function dissolveGroup() {
+function dismissGroup() {
     var groupId = getSelectedGroupId();
     if (groupId <= 0) {
         alert('请选择一个群组');
@@ -145,8 +145,8 @@ function dissolveGroup() {
             return;
         }
 
-        // 调用 dissolveGroup 解散群组
-        cube.contact.dissolveGroup(group, function(group) {
+        // 调用 dismissGroup 解散群组
+        cube.contact.dismissGroup(group, function(group) {
             refreshGroupList();
             refreshGroupInfo();
         });

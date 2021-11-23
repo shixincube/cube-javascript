@@ -44,9 +44,9 @@ export class GroupAppendix extends JSONable {
 
     /**
      * @param {ContactService} service 
-     * @param {Group} owner 
+     * @param {Group} group 
      */
-    constructor(service, owner) {
+    constructor(service, group) {
         super();
 
         /**
@@ -59,7 +59,7 @@ export class GroupAppendix extends JSONable {
          * @private
          * @type {Group}
          */
-        this.owner = owner;
+        this.group = group;
 
         /**
          * 当前联系人对该群的备注。
@@ -187,7 +187,7 @@ export class GroupAppendix extends JSONable {
         }
 
         let request = new Packet(ContactAction.GetAppendix, {
-            "groupId": this.owner.getId(),
+            "groupId": this.group.getId(),
             "commId": this.commId
         });
         this.service.pipeline.send(ContactService.NAME, request, (pipeline, source, packet) => {
@@ -210,7 +210,7 @@ export class GroupAppendix extends JSONable {
             // 更新
             this.commId = packet.getPayload().data.commId;
 
-            handleSuccess(this.commId, this, this.owner);
+            handleSuccess(this.commId, this, this.group);
         });
     }
 
@@ -222,7 +222,7 @@ export class GroupAppendix extends JSONable {
      */
     updateRemark(content, handleSuccess, handleFailure) {
         let request = new Packet(ContactAction.UpdateAppendix, {
-            "groupId": this.owner.getId(),
+            "groupId": this.group.getId(),
             "remark": content
         });
 
@@ -260,7 +260,7 @@ export class GroupAppendix extends JSONable {
      */
     updateNotice(notice, handleSuccess, handleFailure) {
         let request = new Packet(ContactAction.UpdateAppendix, {
-            "groupId": this.owner.getId(),
+            "groupId": this.group.getId(),
             "notice": notice
         });
 
@@ -299,7 +299,7 @@ export class GroupAppendix extends JSONable {
      */
     updateMemberRemark(member, remark, handleSuccess, handleFailure) {
         let request = new Packet(ContactAction.UpdateAppendix, {
-            "groupId": this.owner.getId(),
+            "groupId": this.group.getId(),
             "memberRemark": {
                 "id": (member instanceof Contact) ? member.getId() : parseInt(member),
                 "name": remark
@@ -340,7 +340,7 @@ export class GroupAppendix extends JSONable {
      */
     updateCommId(id, handleSuccess, handleFailure) {
         let request = new Packet(ContactAction.UpdateAppendix, {
-            "groupId": this.owner.getId(),
+            "groupId": this.group.getId(),
             "commId": id
         });
 
@@ -375,10 +375,10 @@ export class GroupAppendix extends JSONable {
      */
      toJSON() {
         let json = super.toJSON();
-        json.id = this.owner.getId();
+        json.id = this.group.getId();
 
         json.notice = this.notice;
-        
+
         if (null != this.remark) {
             json.remark = this.remark;
         }
@@ -408,12 +408,12 @@ export class GroupAppendix extends JSONable {
     /**
      * 创建群组附录实例。
      * @param {ContactService} service 
-     * @param {Group} owner 
+     * @param {Group} group 
      * @param {JSON} json 
      * @returns {GroupAppendix}
      */
-    static create(service, owner, json) {
-        let appendix = new GroupAppendix(service, owner);
+    static create(service, group, json) {
+        let appendix = new GroupAppendix(service, group);
 
         appendix.notice = json.notice;
 

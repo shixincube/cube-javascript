@@ -1166,26 +1166,29 @@ export class ContactService extends Module {
         for (let i = 0; i < members.length; ++i) {
             let member = members[i];
             if (member instanceof Contact) {
-                memberList.push(member.toCompactJSON());
+                // memberList.push(member.toCompactJSON());
+                memberList.push(member.id);
             }
             else if (typeof member === 'number') {
-                memberList.push({
-                    "id": member,
-                    "name": 'Cube-' + member
-                });
+                // memberList.push({
+                //     "id": member,
+                //     "name": 'Cube-' + member
+                // });
+                memberList.push(member);
             }
             else if (typeof member === 'string') {
-                memberList.push({
-                    "id": parseInt(member),
-                    "name": 'Cube-' + member
-                });
+                // memberList.push({
+                //     "id": parseInt(member),
+                //     "name": 'Cube-' + member
+                // });
+                memberList.push(parseInt(member));
             }
-            else if (undefined !== member.id && undefined !== member.name) {
-                memberList.push({
-                    "id": parseInt(member.id),
-                    "name": member.name
-                });
-            }
+            // else if (undefined !== member.id && undefined !== member.name) {
+            //     memberList.push({
+            //         "id": parseInt(member.id),
+            //         "name": member.name
+            //     });
+            // }
         }
 
         let payload = {
@@ -1307,7 +1310,7 @@ export class ContactService extends Module {
      * @param {function} [handleFailure] 操作失败回调该方法，函数参数：({@linkcode error}:{@link ModuleError}) 。
      * @returns {boolean} 返回该群是否允许由当前联系人解散。
      */
-    dissolveGroup(group, handleSuccess, handleFailure) {
+    dismissGroup(group, handleSuccess, handleFailure) {
         if (group.getOwner().getId() != this.self.getId()) {
             // 群组的所有者不是自己，不能解散
             let error = new ModuleError(ContactService.NAME, ContactServiceState.NotAllowed, group);
@@ -1317,11 +1320,11 @@ export class ContactService extends Module {
             return false;
         }
 
-        let packet = new Packet(ContactAction.DissolveGroup, group.toCompactJSON());
+        let packet = new Packet(ContactAction.DismissGroup, group.toCompactJSON());
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
             if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
                 let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, group);
-                cell.Logger.w('ContactService', 'Dissolve group failed - ' + error);
+                cell.Logger.w('ContactService', 'Dismiss group failed - ' + error);
                 if (handleFailure) {
                     handleFailure(error);
                 }
@@ -1330,7 +1333,7 @@ export class ContactService extends Module {
 
             if (responsePacket.getPayload().code != ContactServiceState.Ok) {
                 let error = new ModuleError(ContactService.NAME, responsePacket.getPayload().code, group);
-                cell.Logger.w('ContactService', 'Dissolve group failed - ' + error);
+                cell.Logger.w('ContactService', 'Dismiss group failed - ' + error);
                 if (handleFailure) {
                     handleFailure(error);
                 }
@@ -1366,7 +1369,7 @@ export class ContactService extends Module {
      * @param {JSON} payload 数据包数据。
      * @param {object} context 数据包携带的上下文。
      */
-    triggerDissolveGroup(payload, context) {
+    triggerDismissGroup(payload, context) {
         if (payload.code != ContactServiceState.Ok) {
             return;
         }
@@ -1398,9 +1401,9 @@ export class ContactService extends Module {
                 this.storage.writeGroup(group);
             }
 
-            this.notifyObservers(new ObservableEvent(ContactEvent.GroupDissolved, group));
+            this.notifyObservers(new ObservableEvent(ContactEvent.GroupDismissed, group));
         }).catch((error) => {
-            cell.Logger.e('ContactService', '#triggerDissolveGroup() ' + error);
+            cell.Logger.e('ContactService', '#triggerDismissGroup() ' + error);
         });
     }
 
@@ -2227,14 +2230,14 @@ export class ContactService extends Module {
      */
     triggerGroupAppendixUpdated(payload) {
         let data = payload.data;
-        this.getGroup(data.owner.id, (owner) => {
-            let groupAppendix = GroupAppendix.create(this, owner, data);
-            owner.appendix = groupAppendix;
+        this.getGroup(data.group.id, (group) => {
+            let groupAppendix = GroupAppendix.create(this, group, data);
+            group.appendix = groupAppendix;
 
             // 更新附录
-            this.appendixMap.put(owner.getId(), groupAppendix);
+            this.appendixMap.put(group.getId(), groupAppendix);
 
-            this.notifyObservers(new ObservableEvent(ContactEvent.GroupAppendixUpdated, owner));
+            this.notifyObservers(new ObservableEvent(ContactEvent.GroupAppendixUpdated, group));
         }, (error) => {
             cell.Logger.e(ContactService.NAME, error.toString());
         });

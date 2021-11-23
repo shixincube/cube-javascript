@@ -75,8 +75,8 @@ export class ContactPipelineListener extends PipelineListener {
         else if (packet.name == ContactAction.CreateGroup) {
             this.contactService.triggerCreateGroup(packet.data, packet.context);
         }
-        else if (packet.name == ContactAction.DissolveGroup) {
-            this.contactService.triggerDissolveGroup(packet.data, packet.context);
+        else if (packet.name == ContactAction.DismissGroup) {
+            this.contactService.triggerDismissGroup(packet.data, packet.context);
         }
         else if (packet.name == ContactAction.RemoveGroupMember) {
             this.contactService.triggerRemoveMember(packet.data, packet.context);
