@@ -26,7 +26,7 @@
 
 import { Module } from "../core/Module";
 import { Packet } from "../core/Packet";
-import { StateCode } from "../core/StateCode";
+import { PipelineState } from "../core/PipelineState";
 import { ObservableEvent } from "../core/ObservableEvent";
 import { ContactService } from "../contact/ContactService";
 import { MultipointComm } from "../multipointcomm/MultipointComm";
@@ -126,7 +126,7 @@ export class ConferenceService extends Module {
         });
 
         this.pipeline.send(ConferenceService.NAME, requestPacket, (pipeline, source, packet) => {
-            if (null == packet || packet.getStateCode() != StateCode.OK) {
+            if (null == packet || packet.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(ConferenceService.NAME, ConferenceServiceState.ServerError, this);
                 if (failureCallback) {
                     failureCallback(error);
@@ -198,7 +198,7 @@ export class ConferenceService extends Module {
         let requestPacket = new Packet(ConferenceAction.CreateConference, packetData);
 
         this.pipeline.send(ConferenceService.NAME, requestPacket, (pipeline, source, packet) => {
-            if (null == packet || packet.getStateCode() != StateCode.OK) {
+            if (null == packet || packet.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(ConferenceService.NAME, ConferenceServiceState.ServerError, packetData);
                 if (failureCallback) {
                     failureCallback(error);

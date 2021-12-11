@@ -45,7 +45,7 @@ import { MessagingStorage } from "./MessagingStorage";
 import { FileStorage } from "../filestorage/FileStorage";
 import { FileStorageEvent } from "../filestorage/FileStorageEvent";
 import { ObservableEvent } from "../core/ObservableEvent";
-import { StateCode } from "../core/StateCode";
+import { PipelineState } from "../core/PipelineState";
 import { InstantiateHook } from "./hook/InstantiateHook";
 import { MessagePlugin } from "./MessagePlugin";
 import { MessageDraft } from "./MessageDraft";
@@ -535,7 +535,7 @@ export class MessagingService extends Module {
         };
         let packet = new Packet(MessagingAction.Read, payload);
         this.pipeline.send(MessagingService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+            if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
                 if (responsePacket.data.code == 0) {
                     this.storage.readMessageById(messageId, (message) => {
                         // 更新状态
@@ -608,7 +608,7 @@ export class MessagingService extends Module {
         };
         let packet = new Packet(MessagingAction.Delete, payload);
         this.pipeline.send(MessagingService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+            if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
                 if (responsePacket.data.code == 0) {
                     this.storage.readMessageById(messageId, (message) => {
                         // 更新状态
@@ -1764,7 +1764,7 @@ export class MessagingService extends Module {
      * @param {Packet} responsePacket 
      */
     _processPushResult(message, responsePacket) {
-        if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+        if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
             // 返回的数据
             var responseData = responsePacket.data.data;
 

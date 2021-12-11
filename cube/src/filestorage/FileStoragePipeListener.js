@@ -28,7 +28,7 @@ import cell from "@lib/cell-lib";
 import { PipelineListener } from "../core/PipelineListener";
 import { FileStorage } from "./FileStorage";
 import { FileStorageAction } from "./FileStorageAction";
-import { StateCode } from "../core/StateCode";
+import { PipelineState } from "../core/PipelineState";
 
 /**
  * 文件存储模块数据管道监听器。
@@ -50,13 +50,13 @@ export class FileStoragePipeListener extends PipelineListener {
     onReceived(pipeline, source, packet) {
         super.onReceived(pipeline, source, packet);
 
-        if (packet.getStateCode() != StateCode.OK) {
+        if (packet.getStateCode() != PipelineState.OK) {
             cell.Logger.w('FileStoragePipeListener', 'Pipeline error: ' + packet.name + ' - ' + packet.getStateCode());
             return;
         }
 
         if (packet.name == FileStorageAction.PutFile) {
-            this.fileStorage.triggerPutFile(packet.data, packet.context);
+            this.fileStorage.triggerPutFile(packet.data);
         }
     }
 }

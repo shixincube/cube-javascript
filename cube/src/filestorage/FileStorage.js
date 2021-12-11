@@ -25,7 +25,7 @@
  */
 
 import cell from "@lib/cell-lib";
-import { StateCode } from "../core/StateCode";
+import { PipelineState } from "../core/PipelineState";
 import { Module } from "../core/Module";
 import { ModuleError } from "../core/error/ModuleError";
 import { AjaxPipeline } from "../pipeline/AjaxPipeline";
@@ -437,7 +437,7 @@ export class FileStorage extends Module {
         let request = () => {
             let packet = new Packet(FileStorageAction.GetFile, { "fileCode" : fileCode });
             this.pipeline.send(FileStorage.NAME, packet, (pipeline, source, responsePacket) => {
-                if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+                if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
                     let error = new ModuleError(FileStorage.NAME, FileStorageState.NotFound, fileCode);
                     if (handleFailure) {
                         handleFailure(error);
@@ -528,7 +528,7 @@ export class FileStorage extends Module {
         });
 
         this.pipeline.send(FileStorage.NAME, requestPacket, (pipeline, source, packet) => {
-            if (null == packet || packet.getStateCode() != StateCode.OK) {
+            if (null == packet || packet.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, id);
                 handleFailure(error);
                 return;

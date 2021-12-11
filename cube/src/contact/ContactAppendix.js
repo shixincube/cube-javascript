@@ -26,7 +26,7 @@
 
 import { ModuleError } from "../core/error/ModuleError";
 import { Packet } from "../core/Packet";
-import { StateCode } from "../core/StateCode";
+import { PipelineState } from "../core/PipelineState";
 import { Contact } from "./Contact";
 import { ContactAction } from "./ContactAction";
 import { ContactService } from "./ContactService";
@@ -119,7 +119,7 @@ export class ContactAppendix {
         });
 
         this.service.pipeline.send(ContactService.NAME, request, (pipeline, source, packet) => {
-            if (null == packet || packet.getStateCode() != StateCode.OK) {
+            if (null == packet || packet.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, this);
                 if (handleFailure) {
                     handleFailure(error);
@@ -326,7 +326,7 @@ export class ContactAppendix {
      */
     _update(requestPacket, handleSuccess, handleFailure) {
         this.service.pipeline.send(ContactService.NAME, requestPacket, (pipeline, source, packet) => {
-            if (null == packet || packet.getStateCode() != StateCode.OK) {
+            if (null == packet || packet.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, this);
                 if (handleFailure) {
                     handleFailure(error);

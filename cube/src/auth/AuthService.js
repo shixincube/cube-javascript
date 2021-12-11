@@ -30,7 +30,7 @@ import { AuthAction } from "./AuthAction";
 import { AuthToken } from "./AuthToken";
 import { AuthPipelineListener } from "./AuthPipelineListener";
 import { Packet } from "../core/Packet";
-import { StateCode } from "../core/StateCode";
+import { PipelineState } from "../core/PipelineState";
 import { ObservableEvent } from "../core/ObservableEvent";
 import { AuthEvent } from "./AuthEvent";
 import { TokenStorage } from "./TokenStorage";
@@ -264,7 +264,7 @@ export class AuthService extends Module {
                     }
 
                     let state = responsePacket.getStateCode();
-                    if (state == StateCode.OK) {
+                    if (state == PipelineState.OK) {
                         if (responsePacket.data.code == 0) {
                             let token = AuthToken.create(responsePacket.data.data);
                             resolve(token);
@@ -301,7 +301,7 @@ export class AuthService extends Module {
             }
 
             let state = packet.getStateCode();
-            if (state == StateCode.OK && packet.data.code == 0) {
+            if (state == PipelineState.OK && packet.data.code == 0) {
                 // 令牌有效
                 cell.Logger.d('AuthService', 'Token "' + code + '" is valid');
             }
@@ -330,32 +330,4 @@ export class AuthService extends Module {
         storage.removeAll();
         storage = null;
     }
-
-    /**
-     * @private
-     *
-    _autoApply() {
-        cell.Logger.d('AuthService', 'Auto apply token @ ' + this.domain);
-
-        let promise = this.applyToken(this.domain, this.appKey);
-        promise.then((value) => {
-            if (null == value) {
-                this.checkTimer = setTimeout((e) => {
-                    clearTimeout(this.checkTimer);
-                    this.checkTimer = 0;
-                    this._autoApply();
-                }, 5000);
-                return;
-            }
-
-            this.token = value;
-
-            if (null != this.token && window.localStorage) {
-                let storage = new TokenStorage();
-                storage.saveCandidate(value);
-            }
-        }).catch(() => {
-            // Nothing
-        });
-    }*/
 }

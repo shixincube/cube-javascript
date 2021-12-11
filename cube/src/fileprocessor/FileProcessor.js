@@ -28,7 +28,7 @@ import { AuthService } from "../auth/AuthService";
 import { ModuleError } from "../core/error/ModuleError";
 import { Module } from "../core/Module";
 import { Packet } from "../core/Packet";
-import { StateCode } from "../core/StateCode";
+import { PipelineState } from "../core/PipelineState";
 import { FileLabel } from "../filestorage/FileLabel";
 import { FileProcessorAction } from "./FileProcessorAction";
 import { FileProcessorState } from "./FileProcessorState";
@@ -83,7 +83,7 @@ export class FileProcessor extends Module {
         });
 
         this.pipeline.send(FileProcessor.NAME, packet, (pipeline, source, response) => {
-            if (null == response || response.getStateCode() != StateCode.OK) {
+            if (null == response || response.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(FileProcessor.NAME, FileProcessorState.Failure, fileCode);
                 failureCallback(error);
                 return;

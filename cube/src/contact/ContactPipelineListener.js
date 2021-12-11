@@ -28,7 +28,7 @@ import cell from "@lib/cell-lib";
 import { PipelineListener } from "../core/PipelineListener";
 import { ContactService } from "./ContactService";
 import { ContactAction } from "./ContactAction";
-import { StateCode } from "../core/StateCode";
+import { PipelineState } from "../core/PipelineState";
 
 /**
  * 联系人数据管道监听器。
@@ -55,7 +55,7 @@ export class ContactPipelineListener extends PipelineListener {
     onReceived(pipeline, source, packet) {
         super.onReceived(pipeline, source, packet);
 
-        if (packet.getStateCode() != StateCode.OK) {
+        if (packet.getStateCode() != PipelineState.OK) {
             cell.Logger.w('ContactPipelineListener', 'Pipeline error: ' + packet.name + ' - ' + packet.getStateCode());
             return;
         }
@@ -67,22 +67,22 @@ export class ContactPipelineListener extends PipelineListener {
             this.contactService.triggerListGroups(packet.data);
         }
         else if (packet.name == ContactAction.ModifyGroup) {
-            this.contactService.triggerModifyGroup(packet.data, packet.context);
+            this.contactService.triggerModifyGroup(packet.data);
         }
         else if (packet.name == ContactAction.ModifyGroupMember) {
-            this.contactService.triggerModifyGroupMember(packet.data, packet.context);
+            this.contactService.triggerModifyGroupMember(packet.data);
         }
         else if (packet.name == ContactAction.CreateGroup) {
-            this.contactService.triggerCreateGroup(packet.data, packet.context);
+            this.contactService.triggerCreateGroup(packet.data);
         }
         else if (packet.name == ContactAction.DismissGroup) {
-            this.contactService.triggerDismissGroup(packet.data, packet.context);
+            this.contactService.triggerDismissGroup(packet.data);
         }
         else if (packet.name == ContactAction.RemoveGroupMember) {
-            this.contactService.triggerRemoveMember(packet.data, packet.context);
+            this.contactService.triggerRemoveMember(packet.data);
         }
         else if (packet.name == ContactAction.AddGroupMember) {
-            this.contactService.triggerAddMember(packet.data, packet.context);
+            this.contactService.triggerAddMember(packet.data);
         }
         else if (packet.name == ContactAction.GroupAppendixUpdated) {
             this.contactService.triggerGroupAppendixUpdated(packet.data);

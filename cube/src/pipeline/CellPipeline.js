@@ -29,7 +29,7 @@ import { OrderMap } from "../util/OrderMap";
 import { Pipeline } from "../core/Pipeline";
 import { CellTalkListener } from "./CellTalkListener";
 import { Packet } from "../core/Packet";
-import { StateCode } from "../core/StateCode";
+import { PipelineState } from "../core/PipelineState";
 
 /**
  * 使用 Cell 进行通信的管道服务。
@@ -177,9 +177,10 @@ export class CellPipeline extends Pipeline {
         if (null != response) {
             super.touchCallback(cellet, packet, response.handle);
         }
-
-        // 通知监听器
-        super.triggerListeners(cellet, packet);
+        else {
+            // 通知监听器
+            super.triggerListeners(cellet, packet);
+        }
     }
 
     /**
@@ -207,7 +208,7 @@ export class CellPipeline extends Pipeline {
         let packet = new Packet(action.getName(), action.getParamAsJson('data')
             , action.getParamAsLong('sn'));
         // 提取状态信息
-        packet.state = StateCode.extractState(action);
+        packet.state = PipelineState.extractState(action);
         return packet;
     }
 }

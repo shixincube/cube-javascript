@@ -28,7 +28,7 @@
  * 状态码。
  * @private
  */
-export const StateCode = {
+export const PipelineState = {
 
     /**
      * 成功。

@@ -47,7 +47,14 @@ export class ObservableEvent {
         this.data = (undefined !== data) ? data : null;
 
         /**
+         * 次要事件数据。
+         * @type {object}
+         */
+        this.secondaryData = null;
+
+        /**
          * @private
+         * @type {object}
          */
         this.subject = null;
     }

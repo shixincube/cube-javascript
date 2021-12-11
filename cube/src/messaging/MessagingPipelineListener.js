@@ -28,7 +28,7 @@ import cell from "@lib/cell-lib";
 import { PipelineListener } from "../core/PipelineListener";
 import { MessagingService } from "./MessagingService";
 import { MessagingAction } from "./MessagingAction";
-import { StateCode } from "../core/StateCode";
+import { PipelineState } from "../core/PipelineState";
 
 /**
  * 消息模块数据管道监听器。
@@ -50,7 +50,7 @@ export class MessagingPipelineListener extends PipelineListener {
     onReceived(pipeline, source, packet) {
         super.onReceived(pipeline, source, packet);
 
-        if (packet.getStateCode() != StateCode.OK) {
+        if (packet.getStateCode() != PipelineState.OK) {
             cell.Logger.w('MessagingPipelineListener', 'Pipeline error: ' + packet.name + ' - ' + packet.getStateCode());
             return;
         }

@@ -26,7 +26,7 @@
 
 import { ModuleError } from "../core/error/ModuleError";
 import { Packet } from "../core/Packet";
-import { StateCode } from "../core/StateCode";
+import { PipelineState } from "../core/PipelineState";
 import { JSONable } from "../util/JSONable";
 import { OrderMap } from "../util/OrderMap";
 import { Contact } from "./Contact";
@@ -191,7 +191,7 @@ export class GroupAppendix extends JSONable {
             "commId": this.commId
         });
         this.service.pipeline.send(ContactService.NAME, request, (pipeline, source, packet) => {
-            if (null == packet || packet.getStateCode() != StateCode.OK) {
+            if (null == packet || packet.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, this);
                 if (handleFailure) {
                     handleFailure(error);
@@ -227,7 +227,7 @@ export class GroupAppendix extends JSONable {
         });
 
         this.service.pipeline.send(ContactService.NAME, request, (pipeline, source, packet) => {
-            if (null == packet || packet.getStateCode() != StateCode.OK) {
+            if (null == packet || packet.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, this);
                 if (handleFailure) {
                     handleFailure(error);
@@ -265,7 +265,7 @@ export class GroupAppendix extends JSONable {
         });
 
         this.service.pipeline.send(ContactService.NAME, request, (pipeline, source, packet) => {
-            if (null == packet || packet.getStateCode() != StateCode.OK) {
+            if (null == packet || packet.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, this);
                 if (handleFailure) {
                     handleFailure(error);
@@ -307,7 +307,7 @@ export class GroupAppendix extends JSONable {
         });
 
         this.service.pipeline.send(ContactService.NAME, request, (pipeline, source, packet) => {
-            if (null == packet || packet.getStateCode() != StateCode.OK) {
+            if (null == packet || packet.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, this);
                 if (handleFailure) {
                     handleFailure(error);
@@ -345,7 +345,7 @@ export class GroupAppendix extends JSONable {
         });
 
         this.service.pipeline.send(ContactService.NAME, request, (pipeline, source, packet) => {
-            if (null == packet || packet.getStateCode() != StateCode.OK) {
+            if (null == packet || packet.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, this);
                 if (handleFailure) {
                     handleFailure(error);

@@ -27,7 +27,7 @@
 import cell from "@lib/cell-lib";
 import { PipelineListener } from "../core/PipelineListener";
 import { MultipointComm } from "./MultipointComm";
-import { StateCode } from "../core/StateCode";
+import { PipelineState } from "../core/PipelineState";
 import { MultipointCommAction } from "./MultipointCommAction";
 
 /**
@@ -50,31 +50,31 @@ export class CommPipelineListener extends PipelineListener {
     onReceived(pipeline, source, packet) {
         super.onReceived(pipeline, source, packet);
 
-        if (packet.getStateCode() != StateCode.OK) {
+        if (packet.getStateCode() != PipelineState.OK) {
             cell.Logger.w('CommPipelineListener', 'Pipeline error: ' + packet.name + ' - ' + packet.getStateCode());
             return;
         }
 
         if (packet.name == MultipointCommAction.Offer) {
-            this.multipointComm.triggerOffer(packet.data, packet.context);
+            this.multipointComm.triggerOffer(packet.data);
         }
         else if (packet.name == MultipointCommAction.Answer) {
-            this.multipointComm.triggerAnswer(packet.data, packet.context);
+            this.multipointComm.triggerAnswer(packet.data);
         }
         else if (packet.name == MultipointCommAction.Bye) {
-            this.multipointComm.triggerBye(packet.data, packet.context);
+            this.multipointComm.triggerBye(packet.data);
         }
         else if (packet.name == MultipointCommAction.Busy) {
-            this.multipointComm.triggerBusy(packet.data, packet.context);
+            this.multipointComm.triggerBusy(packet.data);
         }
         else if (packet.name == MultipointCommAction.Candidate) {
-            this.multipointComm.triggerCandidate(packet.data, packet.context);
+            this.multipointComm.triggerCandidate(packet.data);
         }
         else if (packet.name == MultipointCommAction.Broadcast) {
-            this.multipointComm.triggerBroadcast(packet.data, packet.context);
+            this.multipointComm.triggerBroadcast(packet.data);
         }
         else if (packet.name == MultipointCommAction.Invite) {
-            this.multipointComm.triggerInvite(packet.data, packet.context);
+            this.multipointComm.triggerInvite(packet.data);
         }
         else if (packet.name == MultipointCommAction.Arrived) {
             this.multipointComm.triggerArrived(packet.data);

@@ -69,12 +69,6 @@ export class Packet {
         this.state = null;
 
         /**
-         * 仅用于客户端本地进行数据携带的上下文。
-         * @type {object}
-         */
-        this.context = null;
-
-        /**
          * 数据应答类型。
          * @type {string}
          */

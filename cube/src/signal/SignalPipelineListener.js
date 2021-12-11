@@ -26,7 +26,7 @@
 
 import cell from "@lib/cell-lib";
 import { PipelineListener } from "../core/PipelineListener";
-import { StateCode } from "../core/StateCode";
+import { PipelineState } from "../core/PipelineState";
 import { SignalService } from "./SignalService";
 
 /**

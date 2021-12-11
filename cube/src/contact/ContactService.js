@@ -29,7 +29,7 @@ import { OrderMap } from "../util/OrderMap";
 import { ModuleError } from "../core/error/ModuleError";
 import { Module } from "../core/Module";
 import { Packet } from "../core/Packet";
-import { StateCode } from "../core/StateCode";
+import { PipelineState } from "../core/PipelineState";
 import { AuthService } from "../auth/AuthService";
 import { ContactPipelineListener } from "./ContactPipelineListener";
 import { Self } from "./Self";
@@ -264,7 +264,7 @@ export class ContactService extends Module {
 
         let signOutPacket = new Packet(ContactAction.SignOut, this.self.toJSON());
         this.pipeline.send(ContactService.NAME, signOutPacket, (undefined !== handler) ? (pipeline, source, responsePacket) => {
-            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+            if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
                 if (responsePacket.data.code == ContactServiceState.Ok) {
                     handler(current);
                 }
@@ -283,7 +283,7 @@ export class ContactService extends Module {
 
         let packet = new Packet(ContactAction.Comeback, this.self.toJSON());
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+            if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
                 if (responsePacket.data.code == ContactServiceState.Ok) {
                     cell.Logger.d('ContactService', 'Self comeback OK');
                     this.notifyObservers(new ObservableEvent(ContactEvent.Comeback, this.self));
@@ -458,7 +458,7 @@ export class ContactService extends Module {
                         "domain": AuthService.DOMAIN
                     });
                     this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-                        if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+                        if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
                             if (responsePacket.data.code == ContactServiceState.Ok) {
                                 let contact = Contact.create(responsePacket.data.data);
                                 // 设置更新时间
@@ -521,7 +521,7 @@ export class ContactService extends Module {
             "name": name
         });
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+            if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
                 if (responsePacket.data.code == ContactServiceState.Ok) {
                     handleSuccess(new ContactZone(responsePacket.data.data));
                 }
@@ -554,7 +554,7 @@ export class ContactService extends Module {
             "displayName": (null != displayName && undefined !== displayName) ? displayName : name
         });
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+            if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
                 if (responsePacket.data.code == ContactServiceState.Ok) {
                     handleSuccess(new ContactZone(responsePacket.data.data));
                 }
@@ -584,7 +584,7 @@ export class ContactService extends Module {
             "pending": true
         });
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+            if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
                 if (responsePacket.data.code == ContactServiceState.Ok) {
                     handleSuccess(new ContactZone(responsePacket.data.data));
                 }
@@ -619,7 +619,7 @@ export class ContactService extends Module {
             "contactId": contactId
         });
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+            if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
                 if (responsePacket.data.code == ContactServiceState.Ok) {
                     let data = responsePacket.data.data;
                     handleSuccess(data.contained, data.name, data.contactId);
@@ -668,7 +668,7 @@ export class ContactService extends Module {
             "postscript": postscript
         });
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+            if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
                 if (responsePacket.data.code == ContactServiceState.Ok) {
                     if (handleSuccess) {
                         handleSuccess(name, contactId);
@@ -705,7 +705,7 @@ export class ContactService extends Module {
             "contactId": contactId
         });
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+            if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
                 if (responsePacket.data.code == ContactServiceState.Ok) {
                     if (handleSuccess) {
                         handleSuccess(name, contactId);
@@ -755,7 +755,7 @@ export class ContactService extends Module {
 
             let packet = new Packet(ContactAction.ModifyContact, requestData);
             this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-                if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+                if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
                     if (responsePacket.data.code == ContactServiceState.Ok) {
                         let json = responsePacket.data.data;
 
@@ -841,7 +841,7 @@ export class ContactService extends Module {
                     "domain": AuthService.DOMAIN
                 });
                 this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-                    if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK && null != responsePacket.data) {
+                    if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK && null != responsePacket.data) {
                         if (responsePacket.data.code == ContactServiceState.Ok) {
                             // 实例化
                             let group = Group.create(this, responsePacket.data.data);
@@ -1206,7 +1206,7 @@ export class ContactService extends Module {
                 return;
             }
 
-            if (responsePacket.getStateCode() != StateCode.OK) {
+            if (responsePacket.getStateCode() != PipelineState.OK) {
                 cell.Logger.w('ContactService', 'Create group failed: ' + responsePacket.getStateCode());
                 let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, group);
                 if (handleFailure) {
@@ -1322,7 +1322,7 @@ export class ContactService extends Module {
 
         let packet = new Packet(ContactAction.DismissGroup, group.toCompactJSON());
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+            if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, group);
                 cell.Logger.w('ContactService', 'Dismiss group failed - ' + error);
                 if (handleFailure) {
@@ -1443,7 +1443,7 @@ export class ContactService extends Module {
             "operator": operator
         });
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+            if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, group);
                 if (handleFailure) {
                     handleFailure(error);
@@ -1547,7 +1547,7 @@ export class ContactService extends Module {
         });
 
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+            if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, {
                     group: group,
                     members: members,
@@ -1733,7 +1733,7 @@ export class ContactService extends Module {
         }
 
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+            if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, {
                     group: group,
                     members: members,
@@ -1877,7 +1877,7 @@ export class ContactService extends Module {
         let packet = new Packet(ContactAction.ModifyGroup, data);
 
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+            if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, group);
                 if (handleFailure) {
                     handleFailure(error);
@@ -1974,7 +1974,7 @@ export class ContactService extends Module {
         let packet = new Packet(ContactAction.ModifyGroupMember, data);
 
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+            if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, {
                     group: group,
                     member: member
@@ -2115,7 +2115,7 @@ export class ContactService extends Module {
 
         let request = new Packet(ContactAction.GetAppendix, requestData);
         this.pipeline.send(ContactService.NAME, request, (pipeline, source, packet) => {
-            if (null == packet || packet.getStateCode() != StateCode.OK) {
+            if (null == packet || packet.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, contactOrGroup);
                 if (handleFailure) {
                     handleFailure(error);
@@ -2254,7 +2254,7 @@ export class ContactService extends Module {
             "action": "get"
         });
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+            if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, 'get');
                 if (handleFailure) {
                     handleFailure(error);
@@ -2313,7 +2313,7 @@ export class ContactService extends Module {
             "blockId": contactId
         });
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+            if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, contactId);
                 if (handleFailure) {
                     handleFailure(error);
@@ -2352,7 +2352,7 @@ export class ContactService extends Module {
             "blockId": contactId
         });
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+            if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, contactId);
                 if (handleFailure) {
                     handleFailure(error);
@@ -2389,7 +2389,7 @@ export class ContactService extends Module {
             "action": "get"
         });
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+            if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, 'get');
                 if (handleFailure) {
                     handleFailure(error);
@@ -2448,7 +2448,7 @@ export class ContactService extends Module {
             "type": (contactOrGroup instanceof Group) ? "group" : "contact"
         });
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+            if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, contactOrGroup);
                 if (handleFailure) {
                     handleFailure(error);
@@ -2486,7 +2486,7 @@ export class ContactService extends Module {
             "topId": contactOrGroup.getId()
         });
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+            if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, contactOrGroup);
                 if (handleFailure) {
                     handleFailure(error);
@@ -2523,7 +2523,7 @@ export class ContactService extends Module {
             "keyword": keyword.toString()
         });
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null == responsePacket || responsePacket.getStateCode() != StateCode.OK) {
+            if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(ContactService.NAME, ContactServiceState.ServerError, keyword);
                 if (handleFailure) {
                     handleFailure(error);

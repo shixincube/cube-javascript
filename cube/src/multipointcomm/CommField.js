@@ -36,7 +36,7 @@ import { MultipointCommAction } from "./MultipointCommAction";
 import { Pipeline } from "../core/Pipeline";
 import { MultipointComm } from "./MultipointComm";
 import { Packet } from "../core/Packet";
-import { StateCode } from "../core/StateCode";
+import { PipelineState } from "../core/PipelineState";
 import { MultipointCommState } from "./MultipointCommState";
 import { Signaling } from "./Signaling";
 import { ModuleError } from "../core/error/ModuleError";
@@ -403,7 +403,7 @@ export class CommField extends Entity {
         });
 
         this.pipeline.send(MultipointComm.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+            if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
                 if (responsePacket.data.code == MultipointCommState.Ok) {
                     let responseData = responsePacket.data.data;
                     // 更新数据
@@ -447,7 +447,7 @@ export class CommField extends Entity {
             device: device.toCompactJSON()
         });
         this.pipeline.send(MultipointComm.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+            if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
                 if (responsePacket.data.code == MultipointCommState.Ok) {
                     let responseData = responsePacket.data.data;
                     // 更新数据
@@ -491,7 +491,7 @@ export class CommField extends Entity {
             device: device.toCompactJSON()
         });
         this.pipeline.send(MultipointComm.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null != responsePacket && responsePacket.getStateCode() == StateCode.OK) {
+            if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
                 if (responsePacket.data.code == MultipointCommState.Ok) {
                     let responseData = responsePacket.data.data;
                     // 更新数据
@@ -755,7 +755,7 @@ export class CommField extends Entity {
      */
     sendSignaling(signaling, successCallback, failureCallback) {
         this.pipeline.send(MultipointComm.NAME, new Packet(signaling.name, signaling.toJSON()), (pipeline, source, packet) => {
-            if (null != packet && packet.getStateCode() == StateCode.OK) {
+            if (null != packet && packet.getStateCode() == PipelineState.OK) {
                 if (packet.data.code == MultipointCommState.Ok) {
                     let data = packet.data.data;
                     // 解析数据

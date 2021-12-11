@@ -32,7 +32,7 @@ import { Device } from "../contact/Device";
 import { Group } from "../contact/Group";
 import { ContactService } from "../contact/ContactService";
 import { Packet } from "../core/Packet";
-import { StateCode } from "../core/StateCode";
+import { PipelineState } from "../core/PipelineState";
 import { OrderMap } from "../util/OrderMap";
 import { CommField } from "./CommField";
 import { MultipointCommAction } from "./MultipointCommAction";
@@ -355,7 +355,7 @@ export class MultipointComm extends Module {
         // 向服务器申请创建场域
         let requestPacekt = new Packet(MultipointCommAction.CreateField, commField.toJSON());
         this.pipeline.send(MultipointComm.NAME, requestPacekt, (pipeline, source, packet) => {
-            if (null != packet && packet.getStateCode() == StateCode.OK) {
+            if (null != packet && packet.getStateCode() == PipelineState.OK) {
                 if (packet.data.code == MultipointCommState.Ok) {
                     if (successCallback) {
                         successCallback(commField);
@@ -391,7 +391,7 @@ export class MultipointComm extends Module {
         });
 
         this.pipeline.send(MultipointComm.NAME, requestPacekt, (pipeline, source, packet) => {
-            if (null != packet && packet.getStateCode() == StateCode.OK) {
+            if (null != packet && packet.getStateCode() == PipelineState.OK) {
                 if (packet.data.code == MultipointCommState.Ok) {
                     // 实例化
                     let commField = CommField.create(packet.data.data, this.pipeline, this.cs.getSelf());
@@ -444,7 +444,7 @@ export class MultipointComm extends Module {
         });
 
         this.pipeline.send(MultipointComm.NAME, requestPacekt, (pipeline, source, packet) => {
-            if (null != packet && packet.getStateCode() == StateCode.OK) {
+            if (null != packet && packet.getStateCode() == PipelineState.OK) {
                 if (packet.data.code == MultipointCommState.Ok) {
                     let commField = CommField.create(packet.data.data, this.pipeline, this.cs.getSelf());
 
@@ -759,7 +759,7 @@ export class MultipointComm extends Module {
 
             let requestPacket = new Packet(MultipointCommAction.Invite, signaling.toJSON());
             this.pipeline.send(MultipointComm.NAME, requestPacket, (pipeline, source, packet) => {
-                if (null != packet && packet.getStateCode() == StateCode.OK) {
+                if (null != packet && packet.getStateCode() == PipelineState.OK) {
                     if (packet.data.code == MultipointCommState.Ok) {
                         if (successCallback) {
                             successCallback(commField);
@@ -945,7 +945,7 @@ export class MultipointComm extends Module {
 
             let activeCall = this.activeCall;
 
-            if (null != packet && packet.getStateCode() == StateCode.OK) {
+            if (null != packet && packet.getStateCode() == PipelineState.OK) {
                 if (packet.data.code == MultipointCommState.Ok) {
                     // 信令
                     let signaling = Signaling.create(packet.data.data, this.pipeline, this.cs.getSelf());
@@ -1215,7 +1215,7 @@ export class MultipointComm extends Module {
 
         let packet = new Packet(MultipointCommAction.Bye, signaling.toJSON());
         this.pipeline.send(MultipointComm.NAME, packet, (pipeline, source, response) => {
-            if (null != response && response.getStateCode() == StateCode.OK) {
+            if (null != response && response.getStateCode() == PipelineState.OK) {
                 if (response.data.code == MultipointCommState.Ok) {
                     // 更新
                     endpoint.field = this.activeCall.field;

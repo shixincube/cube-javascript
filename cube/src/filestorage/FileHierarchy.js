@@ -28,7 +28,7 @@ import cell from "@lib/cell-lib";
 import { FastMap } from "../util/FastMap";
 import { ModuleError } from "../core/error/ModuleError";
 import { Packet } from "../core/Packet";
-import { StateCode } from "../core/StateCode";
+import { PipelineState } from "../core/PipelineState";
 import { FileStorage } from "./FileStorage";
 import { Directory } from "./Directory";
 import { FileStorageAction } from "./FileStorageAction";
@@ -106,7 +106,7 @@ export class FileHierarchy {
             });
 
             this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
-                if (null == packet || packet.getStateCode() != StateCode.OK) {
+                if (null == packet || packet.getStateCode() != PipelineState.OK) {
                     let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, fileLabel);
                     cell.Logger.w('FileHierarchy', '#uploadFileTo() - ' + error);
                     if (handleFailure) {
@@ -190,7 +190,7 @@ export class FileHierarchy {
             id: directory.id
         });
         this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
-            if (null == packet || packet.getStateCode() != StateCode.OK) {
+            if (null == packet || packet.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, directory);
                 handleFailure(error);
                 return;
@@ -233,7 +233,7 @@ export class FileHierarchy {
         });
 
         this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
-            if (null == packet || packet.getStateCode() != StateCode.OK) {
+            if (null == packet || packet.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, directory);
                 handleFailure(error);
                 return;
@@ -285,7 +285,7 @@ export class FileHierarchy {
             dirName: newDirName
         });
         this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
-            if (null == packet || packet.getStateCode() != StateCode.OK) {
+            if (null == packet || packet.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, workingDir);
                 cell.Logger.w('FileHierarchy', '#newDirectory() - ' + error);
                 if (handleFailure) {
@@ -400,7 +400,7 @@ export class FileHierarchy {
             recursive: recursive
         });
         this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
-            if (null == packet || packet.getStateCode() != StateCode.OK) {
+            if (null == packet || packet.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, pendingDir);
                 cell.Logger.w('FileHierarchy', '#deleteDirectory() - ' + error);
                 if (handleFailure) {
@@ -481,7 +481,7 @@ export class FileHierarchy {
             fileList: fileCodeList
         });
         this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
-            if (null == packet || packet.getStateCode() != StateCode.OK) {
+            if (null == packet || packet.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, fileCodes);
                 cell.Logger.w('FileHierarchy', '#deleteFile() - ' + error);
                 if (handleFailure) {
@@ -533,7 +533,7 @@ export class FileHierarchy {
         });
 
         this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
-            if (null == packet || packet.getStateCode() != StateCode.OK) {
+            if (null == packet || packet.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, this.root);
                 if (handleFailure) {
                     handleFailure(error);
@@ -583,7 +583,7 @@ export class FileHierarchy {
             list: trashIdList
         });
         this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
-            if (null == packet || packet.getStateCode() != StateCode.OK) {
+            if (null == packet || packet.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, trashIdList);
                 cell.Logger.w('FileHierarchy', '#eraseTrash() - ' + error);
                 if (handleFailure) {
@@ -616,7 +616,7 @@ export class FileHierarchy {
         });
 
         this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
-            if (null == packet || packet.getStateCode() != StateCode.OK) {
+            if (null == packet || packet.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, this.root);
                 if (handleFailure) {
                     handleFailure(error);
@@ -653,7 +653,7 @@ export class FileHierarchy {
             list: trashIdList
         });
         this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
-            if (null == packet || packet.getStateCode() != StateCode.OK) {
+            if (null == packet || packet.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, trashIdList);
                 cell.Logger.w('FileHierarchy', '#restoreTrash() - ' + error);
                 if (handleFailure) {
@@ -704,7 +704,7 @@ export class FileHierarchy {
         });
 
         this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
-            if (null == packet || packet.getStateCode() != StateCode.OK) {
+            if (null == packet || packet.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, this.root);
                 if (handleFailure) {
                     handleFailure(error);
