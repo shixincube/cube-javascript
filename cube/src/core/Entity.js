@@ -101,6 +101,13 @@ export class Entity extends JSONable {
          * @type {number}
          */
         this.entityCreation = Date.now();
+
+        /**
+         * 实体内存寿命。
+         * @private
+         * @type {number}
+         */
+        this.entityLifeExpiry = this.entityCreation + Entity.CacheDuration;
     }
 
     /**

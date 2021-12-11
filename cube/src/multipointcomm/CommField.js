@@ -54,13 +54,7 @@ export class CommField extends Entity {
      * @param {Self} self 当前登录的用户。
      */
     constructor(id, founder, pipeline, self) {
-        super(7 * 24 * 60 * 60 * 1000);
-
-        /**
-         * 场域 ID 。
-         * @type {number}
-         */
-        this.id = id;
+        super(id);
 
         /**
          * 场域名称。
@@ -100,7 +94,7 @@ export class CommField extends Entity {
 
         /**
          * 监听器。
-         * @type {object}
+         * @type {MediaListener}
          */
         this.listener = null;
 
