@@ -37,13 +37,19 @@ import { MediaConstraint } from "./MediaConstraint";
 export class CallRecord {
 
     /**
-     * @param {Self} self 创建该记录的联系人。
+     * @param {Self} self 当前签入的联系人。
+     * @param {CommField} field 通信场域。
      */
-    constructor(self) {
+    constructor(self, field) {
         /**
          * @type {Self}
          */
         this.self = self;
+
+        /**
+         * @type {CommField}
+         */
+        this.field = (undefined !== field) ? field : null;
 
         /**
          * 开始时间。
@@ -62,11 +68,6 @@ export class CallRecord {
          * @type {number}
          */
         this.endTime = 0;
-
-        /**
-         * @type {CommField}
-         */
-        this.field = null;
 
         /**
          * @type {MediaConstraint}

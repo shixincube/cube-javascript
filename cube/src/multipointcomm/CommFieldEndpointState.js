@@ -25,7 +25,24 @@
  */
 
 /**
- * @private
+ * 通信域节点状态码。
+ * @readonly
+ * @enum {number}
+ * @alias CommFieldEndpointState
  */
-export const CommFieldEndpointState = {
+const CubeCommFieldEndpointState = {
+
+    /**
+     * 正常状态。
+     * @type {number}
+     */
+    Normal: 0,
+
+    /**
+     * 未知的状态。
+     * @type {number}
+     */
+    Unknown: 99
 }
+
+export const CommFieldEndpointState = CubeCommFieldEndpointState;

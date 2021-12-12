@@ -907,11 +907,9 @@ export class CommField extends Entity {
      */
     toJSON() {
         let json = super.toJSON();
-        json.id = this.id;
         json.domain = this.founder.getDomain();
         json.name = this.name;
         json.founder = this.founder.toCompactJSON();
-
         json.mediaConstraint = this.mediaConstraint.toJSON();
 
         json.startTime = this.startTime;
@@ -942,11 +940,9 @@ export class CommField extends Entity {
      */
     toCompactJSON() {
         let json = super.toCompactJSON();
-        json.id = this.id;
         json.domain = this.founder.getDomain();
         json.name = this.name;
         json.founder = this.founder.toCompactJSON();
-
         json.mediaConstraint = this.mediaConstraint.toJSON();
 
         json.startTime = this.startTime;

@@ -606,11 +606,10 @@ export class MultipointComm extends Module {
             });
 
             // 创建通话记录
-            this.activeCall = new CallRecord(this.privateField.getFounder());
-            this.activeCall.field = this.privateField;
+            this.activeCall = new CallRecord(this.privateField.self, this.privateField);
 
             // 设置主叫
-            this.privateField.caller = this.privateField.getFounder();
+            this.privateField.caller = this.privateField.founder;
             // 设置被叫
             this.privateField.callee = target;
 
@@ -1421,7 +1420,7 @@ export class MultipointComm extends Module {
         }, this.callTimeout - 5500);
 
         // 创建记录
-        this.activeCall = new CallRecord(this.privateField.getFounder());
+        this.activeCall = new CallRecord(this.privateField.founder);
 
         if (this.offerSignaling.field.isPrivate()) {
             // 更新数据

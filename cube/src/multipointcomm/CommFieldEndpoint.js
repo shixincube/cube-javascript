@@ -27,7 +27,7 @@
 import cell from "@lib/cell-lib";
 import { Entity } from "../core/Entity";
 import { Contact } from "../contact/Contact";
-import { MultipointCommState } from "./MultipointCommState";
+import { CommFieldEndpointState } from "./CommFieldEndpointState";
 import { MultipointCommEvent } from "./MultipointCommEvent";
 import { Device } from "../contact/Device";
 import { StringUtil } from "../util/StringUtil";
@@ -45,7 +45,7 @@ export class CommFieldEndpoint extends Entity {
      * @param {Device} device 联系人使用的设备。
      */
     constructor(id, contact, device) {
-        super();
+        super(id);
 
         /**
          * 节点名称。
@@ -54,11 +54,9 @@ export class CommFieldEndpoint extends Entity {
         this.name = ([contact.getId(), '_', contact.getDomain(), '_',
                     device.getName(), '_', device.getPlatform()]).join('');
 
-        /**
-         * 节点的 ID 。
-         * @type {number}
-         */
-        this.id = (null != id) ? id : StringUtil.fastHash(this.name);
+        if (this.id == 0) {
+            this.id = StringUtil.fastHash(this.name);
+        }
 
         /**
          * 关联的联系人。
@@ -88,9 +86,9 @@ export class CommFieldEndpoint extends Entity {
         /**
          * 当前状态。
          * @type {number}
-         * @see MultipointCommState
+         * @see CommFieldEndpointState
          */
-        this.state = MultipointCommState.Ok;
+        this.state = CommFieldEndpointState.Normal;
 
         /**
          * 实时麦克风音量。
@@ -280,7 +278,7 @@ export class CommFieldEndpoint extends Entity {
         let json = super.toJSON();
         json.id = this.id;
         json.domain = this.contact.getDomain();
-        json.contact = this.contact.toJSON();
+        json.contact = this.contact.toCompactJSON();
         json.device = this.device.toJSON();
         json.state = this.state;
         json.name = this.name;

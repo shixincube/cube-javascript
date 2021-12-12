@@ -201,6 +201,7 @@ export class Entity extends JSONable {
     toCompactJSON() {
         let json = super.toCompactJSON();
         json.id = this.id;
+        json.timestamp = this.timestamp;
         return json;
     }
 }
