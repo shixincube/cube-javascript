@@ -743,27 +743,26 @@ export class CommField extends Entity {
      */
     sendSignaling(signaling, successCallback, failureCallback) {
         this.pipeline.send(MultipointComm.NAME, new Packet(signaling.name, signaling.toJSON()), (pipeline, source, packet) => {
-            if (null != packet && packet.getStateCode() == PipelineState.OK) {
-                if (packet.data.code == MultipointCommState.Ok) {
-                    let data = packet.data.data;
-                    // 解析数据
-                    let response = Signaling.create(data, this.pipeline, this.self);
-                    packet.context = response;
-
-                    if (successCallback) {
-                        successCallback(response);
-                    }
-                }
-                else {
-                    if (failureCallback) {
-                        failureCallback(new ModuleError(MultipointComm.NAME, packet.data.code, this));
-                    }
-                }
-            }
-            else {
+            if (null == packet || packet.getStateCode() != PipelineState.OK) {
                 if (failureCallback) {
                     failureCallback(new ModuleError(MultipointComm.NAME, MultipointCommState.ServerFault, this));
                 }
+                return;
+            }
+
+            if (packet.data.code != MultipointCommState.Ok) {
+                if (failureCallback) {
+                    failureCallback(new ModuleError(MultipointComm.NAME, packet.data.code, this));
+                }
+                return;
+            }
+
+            let data = packet.data.data;
+            // 解析数据
+            let response = Signaling.create(data, this.pipeline, this.self);
+
+            if (successCallback) {
+                successCallback(response);
             }
         });
     }

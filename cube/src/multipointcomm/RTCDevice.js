@@ -466,7 +466,7 @@ export class RTCDevice {
                     this.close();
                 });
             }).catch((error) => {
-                // 创建 Offer 错误
+                // 创建 Offer SDP 错误
                 handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.CreateOfferFailed, this, error));
                 this.close();
             });
