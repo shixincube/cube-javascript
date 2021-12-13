@@ -41,7 +41,7 @@ const CubeMultipointCommEvent = {
 
     /**
      * 正在处理通话请求。
-     * 事件数据：{@linkcode Contact} 、{@linkcode Group} 或 {@linkcode CommField} - 发起或应答通话的目标。
+     * 事件数据：{@linkcode CallRecord} - 发起或应答通话的记录。
      * @type {string}
      */
     InProgress: 'InProgress',

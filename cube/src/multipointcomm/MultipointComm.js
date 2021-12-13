@@ -167,7 +167,6 @@ export class MultipointComm extends Module {
                 let self = state.data;
                 this.privateField = new CommField(self.getId(), self, this.pipeline, self);
                 this.privateField.listener = this;
-                this.privateField.device = self.getDevice();
             }
         });
         contactService.attachWithName(ContactEvent.SignOut, (state) => {
@@ -181,7 +180,6 @@ export class MultipointComm extends Module {
             // 创建个人通信场
             this.privateField = new CommField(self.getId(), self, this.pipeline, self);
             this.privateField.listener = this;
-            this.privateField.device = self.getDevice();
         }
         // 赋值
         this.cs = contactService;
@@ -554,10 +552,10 @@ export class MultipointComm extends Module {
                 // 需要额外进行处理，因为浏览器可能无法连接到摄像头，但是可以连接麦克风
                 // 当连接不到摄像头时，需要直接从通信域退出，而不发送信令
                 if (this.activeCall.field.isPrivate()) {
-                    this.privateField.applyTerminate(this.privateField.founder, this.privateField.device);
+                    this.privateField.applyTerminate(this.privateField.founder, this.privateField.self.getDevice());
                 }
                 else {
-                    this.activeCall.field.applyTerminate(this.privateField.founder, this.privateField.device);
+                    this.activeCall.field.applyTerminate(this.privateField.founder, this.privateField.self.getDevice());
                 }
 
                 if (failureCallback) {
@@ -593,6 +591,15 @@ export class MultipointComm extends Module {
                 return false;
             }
 
+            // 创建通话记录
+            this.activeCall = new CallRecord(this.privateField.self, this.privateField);
+            // 设置主叫
+            this.privateField.caller = this.privateField.founder;
+            // 设置被叫
+            this.privateField.callee = target;
+            // 设置媒体约束
+            this.privateField.mediaConstraint = mediaConstraint;
+
             (new Promise((resolve, reject) => {
                 // 启动定时器
                 this.callTimer = setTimeout(() => {
@@ -602,19 +609,11 @@ export class MultipointComm extends Module {
                 resolve();
             })).then(() => {
                 // 回调 InProgress 事件
-                this.notifyObservers(new ObservableEvent(MultipointCommEvent.InProgress, target));
+                this.notifyObservers(new ObservableEvent(MultipointCommEvent.InProgress, this.activeCall));
             });
 
-            // 创建通话记录
-            this.activeCall = new CallRecord(this.privateField.self, this.privateField);
-
-            // 设置主叫
-            this.privateField.caller = this.privateField.founder;
-            // 设置被叫
-            this.privateField.callee = target;
-
             // 1. 申请一对一主叫
-            this.privateField.applyCall(this.privateField.caller, this.privateField.device, (commField, proposer, device) => {
+            this.privateField.applyCall(this.privateField.caller, this.privateField.self.getDevice(), (commField, proposer, device) => {
                 // 记录主叫媒体约束
                 this.activeCall.callerMediaConstraint = mediaConstraint;
 
@@ -1406,7 +1405,7 @@ export class MultipointComm extends Module {
         if (null != this.activeCall && this.activeCall.isActive()) {
             // 应答忙音 Busy
             let busy = new Signaling(MultipointCommAction.Busy, offerSignaling.field,
-                this.privateField.self, this.privateField.device);
+                this.privateField.self, this.privateField.self.getDevice());
             let packet = new Packet(MultipointCommAction.Busy, busy.toJSON());
             this.pipeline.send(MultipointComm.NAME, packet);
             return;

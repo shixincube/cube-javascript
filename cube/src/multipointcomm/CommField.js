@@ -141,12 +141,6 @@ export class CommField extends Entity {
         this.group = null;
 
         /**
-         * 私域的设备，仅适用于私有域。
-         * @type {Device}
-         */
-        this.device = null;
-
-        /**
          * 当前主叫，仅适用于私有域。
          * @type {Contact}
          */
@@ -397,24 +391,7 @@ export class CommField extends Entity {
         });
 
         this.pipeline.send(MultipointComm.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
-                if (responsePacket.data.code == MultipointCommState.Ok) {
-                    let responseData = responsePacket.data.data;
-                    // 更新数据
-                    this.copy(responseData);
-
-                    successCallback(this, participant, device);
-                }
-                else {
-                    let error = new ModuleError(MultipointComm.NAME, responsePacket.data.code, {
-                        field: this,
-                        participant: participant,
-                        device: device
-                    });
-                    failureCallback(error);
-                }
-            }
-            else {
+            if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(MultipointComm.NAME,
                     (null != responsePacket) ? responsePacket.getStateCode() : MultipointCommState.ServerFault, {
                     field: this,
@@ -422,7 +399,24 @@ export class CommField extends Entity {
                     device: device
                 });
                 failureCallback(error);
+                return;
             }
+
+            if (responsePacket.data.code != MultipointCommState.Ok) {
+                let error = new ModuleError(MultipointComm.NAME, responsePacket.data.code, {
+                    field: this,
+                    participant: participant,
+                    device: device
+                });
+                failureCallback(error);
+                return;
+            }
+
+            let responseData = responsePacket.data.data;
+            // 更新数据
+            this.copy(responseData);
+
+            successCallback(this, participant, device);
         });
     }
 

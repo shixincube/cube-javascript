@@ -45,10 +45,6 @@
  * @property {number} MediaUnitField 媒体单元故障。
  * @property {number} UnsupportedSignaling 不被支持的信令。
  * @property {number} UnsupportedOperation 不支持的操作。
- * @property {number} Calling 正在建立通话。
- * @property {number} Busy 当前线路忙。
- * @property {number} CallConnected 通话已接通。
- * @property {number} CallBye 通话结束。
  * @property {number} CallerBusy 主叫忙。
  * @property {number} CalleeBusy 被叫忙。
  * @property {number} BeCallerBlocked 被主叫阻止。
@@ -163,30 +159,6 @@ export const MultipointCommState = {
      * @type {number}
      */
     UnsupportedOperation: 25,
-
-    /**
-     * 正在建立通话。
-     * @type {number}
-     */
-    Calling: 30,
-
-    /**
-     * 当前线路忙。
-     * @type {number}
-     */
-    Busy: 31,
-
-    /**
-     * 通话已接通。
-     * @type {number}
-     */
-    CallConnected: 33,
-
-     /**
-      * 通话结束。
-      * @type {number}
-      */
-    CallBye: 35,
 
     /**
      * 主叫忙。

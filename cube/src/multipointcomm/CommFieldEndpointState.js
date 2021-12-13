@@ -39,6 +39,30 @@ const CubeCommFieldEndpointState = {
     Normal: 0,
 
     /**
+     * 正在建立通话。
+     * @type {number}
+     */
+    Calling: 10,
+
+    /**
+     * 当前线路忙。
+     * @type {number}
+     */
+    Busy: 11,
+
+    /**
+     * 通话已接通。
+     * @type {number}
+     */
+    CallConnected: 13,
+ 
+    /**
+     * 通话结束。
+     * @type {number}
+     */
+    CallBye: 15,
+
+    /**
      * 未知的状态。
      * @type {number}
      */
