@@ -241,7 +241,7 @@ export class CommField extends Entity {
      * @protected
      * @param {RTCDevice} rtcDevice RTC 设备。
      * @param {MediaConstraint} mediaConstraint 媒体约束。
-     * @param {function} successCallback 成功回调。
+     * @param {function} successCallback 成功回调。函数参数：{@linkcode CommField} 。
      * @param {function} failureCallback 失败回调。
      * @param {CommFieldEndpoint} [target] 目标终端。
      */

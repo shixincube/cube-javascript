@@ -496,7 +496,7 @@ export class MultipointComm extends Module {
         }
 
         // 处理操作成功
-        let successHandler = () => {
+        let successHandler = (commField) => {
             if (successCallback) {
                 successCallback(this.activeCall);
             }
@@ -924,6 +924,10 @@ export class MultipointComm extends Module {
     hangupCall(successCallback, failureCallback) {
         if (null == this.activeCall) {
             cell.Logger.w('MultipointComm', '#hangupCall() - No active calling');
+            if (failureCallback) {
+                let error = new ModuleError(MultipointComm.NAME, MultipointCommState.Failure, null);
+                failureCallback(error);
+            }
             return false;
         }
 
@@ -938,65 +942,16 @@ export class MultipointComm extends Module {
         let handler = (pipeline, source, packet) => {
             if (null == this.activeCall) {
                 // 当返回数据时，之前的操作已经关闭通话
+                if (failureCallback) {
+                    let error = new ModuleError(MultipointComm.NAME, MultipointCommState.Failure, null);
+                    failureCallback(error);
+                }
                 return;
             }
 
             let activeCall = this.activeCall;
 
-            if (null != packet && packet.getStateCode() == PipelineState.OK) {
-                if (packet.data.code == MultipointCommState.Ok) {
-                    // 信令
-                    let signaling = Signaling.create(packet.data.data, this.pipeline, this.cs.getSelf());
-
-                    if (field.isPrivate()) {
-                        field.close();
-                        this.offerSignaling = null;
-                        this.answerSignaling = null;
-
-                        // 记录结束时间
-                        activeCall.endTime = Date.now();
-
-                        if (successCallback) {
-                            successCallback(activeCall);
-                        }
-
-                        this.notifyObservers(new ObservableEvent(MultipointCommEvent.Bye, activeCall));
-                    }
-                    else {
-                        // 更新数据
-                        field.copy(signaling.field);
-
-                        if (successCallback) {
-                            successCallback(activeCall);
-                        }
-
-                        this.notifyObservers(new ObservableEvent(MultipointCommEvent.Bye, activeCall));
-
-                        // 关闭所有节点
-                        field.close();
-                    }
-
-                    // 重置
-                    this.activeCall = null;
-                }
-                else {
-                    let error = new ModuleError(MultipointComm.NAME, packet.data.code, activeCall);
-
-                    activeCall.endTime = Date.now();
-                    activeCall.lastError = error;
-
-                    // 关闭本地场域
-                    field.close();
-
-                    if (failureCallback) {
-                        failureCallback(error);
-                    }
-                    this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
-
-                    this.activeCall = null;
-                }
-            }
-            else {
+            if (null == packet || packet.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(MultipointComm.NAME, MultipointCommState.ServerFault, activeCall);
 
                 activeCall.endTime = Date.now();
@@ -1011,7 +966,60 @@ export class MultipointComm extends Module {
                 this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
 
                 this.activeCall = null;
+                return;
             }
+
+            if (packet.data.code != MultipointCommState.Ok) {
+                let error = new ModuleError(MultipointComm.NAME, packet.data.code, activeCall);
+
+                activeCall.endTime = Date.now();
+                activeCall.lastError = error;
+
+                // 关闭本地场域
+                field.close();
+
+                if (failureCallback) {
+                    failureCallback(error);
+                }
+                this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
+
+                this.activeCall = null;
+                return;
+            }
+
+            // 信令
+            let signaling = Signaling.create(packet.data.data, this.pipeline, this.cs.getSelf());
+
+            if (field.isPrivate()) {
+                field.close();
+                this.offerSignaling = null;
+                this.answerSignaling = null;
+
+                // 记录结束时间
+                activeCall.endTime = Date.now();
+
+                if (successCallback) {
+                    successCallback(activeCall);
+                }
+
+                this.notifyObservers(new ObservableEvent(MultipointCommEvent.Bye, activeCall));
+            }
+            else {
+                // 更新数据
+                field.copy(signaling.field);
+
+                if (successCallback) {
+                    successCallback(activeCall);
+                }
+
+                this.notifyObservers(new ObservableEvent(MultipointCommEvent.Bye, activeCall));
+
+                // 关闭场域
+                field.close();
+            }
+
+            // 重置
+            this.activeCall = null;
         };
 
         if (this.callTimer > 0) {

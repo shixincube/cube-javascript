@@ -68,7 +68,7 @@ const CubeMultipointCommEvent = {
     Busy: 'Busy',
 
     /**
-     * 结束当前呼叫。
+     * 结束当前通话。
      * 事件数据：{@linkcode CallRecord} - 通话记录实例。
      * @type {string}
      */
