@@ -32,6 +32,7 @@ import { Group } from "../contact/Group";
 import { CommFieldEndpoint } from "./CommFieldEndpoint";
 import { MediaConstraint } from "./MediaConstraint";
 import { RTCDevice } from "./RTCDevice";
+import { MediaListener } from "./MediaListener";
 import { MultipointCommAction } from "./MultipointCommAction";
 import { Pipeline } from "../core/Pipeline";
 import { MultipointComm } from "./MultipointComm";
@@ -96,7 +97,7 @@ export class CommField extends Entity {
          * 监听器。
          * @type {MediaListener}
          */
-        this.listener = null;
+        this.mediaListener = null;
 
         /**
          * 媒体约束。
@@ -183,6 +184,14 @@ export class CommField extends Entity {
      */
     isPrivate() {
         return (this.id == this.founder.getId());
+    }
+
+    /**
+     * 获取本地的 RTC 设备。
+     * @returns {RTCDevice} 返回本地的 RTC 设备。
+     */
+    getLocalDevice() {
+        return this.outboundRTC;
     }
 
     /**
@@ -812,8 +821,8 @@ export class CommField extends Entity {
             }, 1);
         }
 
-        if (null != this.listener) {
-            this.listener.onMediaConnected(this, device);
+        if (null != this.mediaListener) {
+            this.mediaListener.onMediaConnected(this, device);
         }
     }
 
@@ -822,8 +831,8 @@ export class CommField extends Entity {
      * @param {RTCDevice} device 
      */
     onMediaDisconnected(device) {
-        if (null != this.listener) {
-            this.listener.onMediaDisconnected(this, device);
+        if (null != this.mediaListener) {
+            this.mediaListener.onMediaDisconnected(this, device);
         }
     }
 

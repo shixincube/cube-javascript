@@ -1463,10 +1463,9 @@ export class MultipointComm extends Module {
     /**
      * 处理 Answer 信令。
      * @private
-     * @param {JSON} payload 
-     * @param {object} context 
+     * @param {JSON} payload
      */
-    triggerAnswer(payload, context) {
+    triggerAnswer(payload) {
         if (null == this.activeCall || !this.activeCall.isActive()) {
             cell.Logger.e(MultipointComm.NAME, '#triggerAnswer() no active call record');
             return;
@@ -1528,9 +1527,8 @@ export class MultipointComm extends Module {
      * 处理 Candidate 信令。
      * @private
      * @param {JSON} payload 
-     * @param {object} context 
      */
-    triggerCandidate(payload, context) {
+    triggerCandidate(payload) {
         let signaling = Signaling.create(payload.data, this.pipeline, this.cs.getSelf());
 
         // 获取 RTCDevice 实例
@@ -1552,7 +1550,7 @@ export class MultipointComm extends Module {
         }
 
         if (null == rtcDevice) {
-            cell.Logger.e('MultipointComm', '#triggerCandidate() - Can NOT find RTC device: ' + signaling.name);
+            cell.Logger.e(MultipointComm.NAME, '#triggerCandidate() - Can NOT find RTC device: ' + signaling.name);
             return;
         }
 
@@ -1572,9 +1570,8 @@ export class MultipointComm extends Module {
      * 处理 Busy 信令。
      * @private
      * @param {JSON} payload 
-     * @param {object} context
      */
-    triggerBusy(payload, context) {
+    triggerBusy(payload) {
         if (payload.code != MultipointCommState.Ok) {
             let error = new ModuleError(MultipointComm.NAME, payload.code, this);
             this.notifyObservers(new ObservableEvent(MultipointCommEvent.Failed, error));
@@ -1604,7 +1601,7 @@ export class MultipointComm extends Module {
             }
         }
         else {
-            this.notifyObservers(new ObservableEvent(MultipointCommEvent.Busy, signaling.field));
+            this.notifyObservers(new ObservableEvent(MultipointCommEvent.Busy, this.activeCall));
         }
     }
 
@@ -1612,9 +1609,8 @@ export class MultipointComm extends Module {
      * 处理 Bye 信令。
      * @private
      * @param {JSON} payload 
-     * @param {object} context
      */
-    triggerBye(payload, context) {
+    triggerBye(payload) {
         let signaling = Signaling.create(payload.data, this.pipeline, this.cs.getSelf());
         if (signaling.field.isPrivate()) {
             this.hangupCall();

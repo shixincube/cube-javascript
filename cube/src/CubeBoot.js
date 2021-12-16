@@ -74,6 +74,7 @@ import { MultipointComm } from "./multipointcomm/MultipointComm";
 import { MediaConstraint } from "./multipointcomm/MediaConstraint";
 import { VideoDimension } from "./multipointcomm/VideoDimension";
 import { RTCDevice } from "./multipointcomm/RTCDevice";
+import { MediaListener } from "./multipointcomm/MediaListener";
 import { MultipointCommEvent } from "./multipointcomm/MultipointCommEvent";
 import { MultipointCommState } from "./multipointcomm/MultipointCommState";
 import { CallRecord } from "./multipointcomm/CallRecord";
@@ -161,6 +162,7 @@ import { Announcer } from "./util/Announcer";
     global.CommEvent = CommEvent;
     global.CommField = CommField;
     global.CommFieldEndpoint = CommFieldEndpoint;
+    global.MediaListener = MediaListener;
 
     global.ConferenceService = ConferenceService;
     global.Conference = Conference;
