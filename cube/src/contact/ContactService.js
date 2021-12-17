@@ -2132,25 +2132,15 @@ export class ContactService extends Module {
             }
 
             let data = packet.getPayload().data;
-            if (requestData.contactId) {
+            if (undefined !== requestData.contactId && undefined !== data.contact) {
                 let owner = contactOrGroup;
                 if (null == owner) {
-                    owner = Contact.create(data.owner, AuthService.DOMAIN);
+                    owner = Contact.create(data.contact, AuthService.DOMAIN);
                 }
 
                 let contactAppendix = new ContactAppendix(this, owner);
                 // 备注名
                 contactAppendix.remarkName = data.remarkName;
-
-                // 无提醒联系人
-                if (data.noNoticeContacts) {
-                    contactAppendix.noNoticeContacts = data.noNoticeContacts;
-                }
-
-                // 无提醒群组
-                if (data.noNoticeGroups) {
-                    contactAppendix.noNoticeGroups = data.noNoticeGroups;
-                }
 
                 // 赋值数据
                 if (data.assignedData) {
@@ -2169,7 +2159,7 @@ export class ContactService extends Module {
             else {
                 let owner = contactOrGroup;
                 if (null == owner) {
-                    owner = Group.create(this, data.owner);
+                    owner = Group.create(this, data.group);
                 }
 
                 let groupAppendix = new GroupAppendix(this, owner);
