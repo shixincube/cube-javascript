@@ -858,14 +858,14 @@ export class MultipointComm extends Module {
             resolve();
         })).then(() => {
             // 回调 InProgress 事件
-            this.notifyObservers(new ObservableEvent(MultipointCommEvent.InProgress, target));
+            this.notifyObservers(new ObservableEvent(MultipointCommEvent.InProgress, this.activeCall));
         });
 
         if (target instanceof Contact) {
             // 应答指定联系人
             if (null != this.activeCall && this.activeCall.isActive()) {
                 // 正在通话中
-                let error = new ModuleError(MultipointComm.NAME, MultipointCommState.CalleeBusy, target);
+                let error = new ModuleError(MultipointComm.NAME, MultipointCommState.CalleeBusy, this.activeCall);
                 if (failureCallback) {
                     failureCallback(error);
                 }
@@ -875,7 +875,7 @@ export class MultipointComm extends Module {
 
             if (null == this.videoElem.local && null == this.videoElem.remote) {
                 // 没有设置任何视频元素标签
-                let error = new ModuleError(MultipointComm.NAME, MultipointCommState.VideoElementNotSetting, target);
+                let error = new ModuleError(MultipointComm.NAME, MultipointCommState.VideoElementNotSetting, this.activeCall);
                 if (failureCallback) {
                     failureCallback(error);
                 }
@@ -1403,9 +1403,8 @@ export class MultipointComm extends Module {
      * 处理 Offer 信令。
      * @private
      * @param {JSON} payload 
-     * @param {object} context 
      */
-    triggerOffer(payload, context) {
+    triggerOffer(payload) {
         let data = payload.data;
         let offerSignaling = Signaling.create(data, this.pipeline, this.cs.getSelf());
 
@@ -1424,7 +1423,7 @@ export class MultipointComm extends Module {
 
         this.callTimer = setTimeout(() => {
             this.fireCallTimeout();
-        }, this.callTimeout - 5500);
+        }, this.callTimeout - 10000);
 
         // 创建记录
         this.activeCall = new CallRecord(this.privateField.founder);
