@@ -162,6 +162,13 @@ export class Signaling extends JSONable {
             json["invitees"] = this.invitees.concat();
         }
 
+        if (null != this.caller) {
+            json["caller"] = this.caller.toCompactJSON();
+        }
+        if (null != this.callee) {
+            json["callee"] = this.callee.toCompactJSON();
+        }
+
         return json;
     }
 

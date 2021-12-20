@@ -1038,6 +1038,8 @@ export class MultipointComm extends Module {
                 // 回送被叫忙
                 let signaling = new Signaling(MultipointCommAction.Busy, field, 
                     this.privateField.founder, this.privateField.founder.getDevice());
+                signaling.caller = this.activeCall.getCaller();
+                signaling.callee = this.activeCall.getCallee();
                 let packet = new Packet(MultipointCommAction.Busy, signaling.toJSON());
                 this.pipeline.send(MultipointComm.NAME, packet, handler);
             }

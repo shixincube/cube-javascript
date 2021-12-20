@@ -163,7 +163,11 @@ export class Contact extends AbstractContact {
      * @returns {JSON} 返回紧凑结构的 JSON 数据，数据里只包含基础的联系人数据。
      */
     toCompactJSON() {
-        return super.toCompactJSON();
+        let json = super.toCompactJSON();
+        if (undefined !== json.context) {
+            delete json.context;
+        }
+        return json;
     }
 
     /**
