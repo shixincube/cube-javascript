@@ -484,6 +484,7 @@ export class RTCDevice {
     doAnswer(description, handleSuccess, handleFailure) {
         this.pc.setRemoteDescription(new RTCSessionDescription(description)).then(() => {
             handleSuccess();
+            // 执行就绪
             this.doReady();
         }).catch((error) => {
             // 设置 SDP 错误
@@ -558,15 +559,18 @@ export class RTCDevice {
                 this.pc.createAnswer().then((answer) => {
                     this.pc.setLocalDescription(new RTCSessionDescription(answer)).then(() => {
                         handleSuccess(this.pc.localDescription);
+                        // 执行就绪
                         this.doReady();
                     }).catch((error) => {
                         // 设置 SDP 错误
                         handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.LocalDescriptionFault, this, error));
+                        // 关闭
                         this.close();
                     });
                 }).catch((error) => {
                     // 创建 Answer 错误
                     handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.CreateAnswerFailed, this, error));
+                    // 关闭
                     this.close();
                 });
 
@@ -575,6 +579,7 @@ export class RTCDevice {
         }).catch((error) => {
             // 设置 SDP 错误
             handleFailure(new ModuleError(MultipointComm.NAME, MultipointCommState.RemoteDescriptionFault, this, error));
+            // 关闭
             this.close();
         });
     }

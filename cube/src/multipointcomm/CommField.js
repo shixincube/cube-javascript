@@ -698,6 +698,10 @@ export class CommField extends Entity {
     close() {
         this.closeRTCDevices();
         this.endpoints.splice(0, this.endpoints.length);
+
+        this.caller = null;
+        this.callee = null;
+        this.group = null;
     }
 
     /**
