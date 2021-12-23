@@ -166,7 +166,7 @@ export class MultipointComm extends Module {
             if (null == this.privateField) {
                 let self = state.data;
                 this.privateField = new CommField(self.getId(), self, this.pipeline, self);
-                this.privateField.listener = this;
+                this.privateField.mediaListener = this;
             }
         });
         contactService.attachWithName(ContactEvent.SignOut, (state) => {
@@ -179,7 +179,7 @@ export class MultipointComm extends Module {
         if (null != self) {
             // 创建个人通信场
             this.privateField = new CommField(self.getId(), self, this.pipeline, self);
-            this.privateField.listener = this;
+            this.privateField.mediaListener = this;
         }
         // 赋值
         this.cs = contactService;
@@ -334,8 +334,8 @@ export class MultipointComm extends Module {
         let commField = new CommField(cell.Utils.generateSerialNumber(), this.cs.getSelf(), this.pipeline, this.cs.getSelf());
         commField.mediaConstraint = mediaConstraint;
 
-        // 监听器
-        commField.listener = this;
+        // 媒体监听器
+        commField.mediaListener = this;
 
         // 设置群组
         if (group) {
@@ -637,12 +637,7 @@ export class MultipointComm extends Module {
                         target.getAppendix().updateCommId(commField.getId(), (appendix) => {
                             // 发起呼叫
                             setTimeout(() => {
-                                if (!this.makeCall(commField, mediaConstraint, successCallback, failureCallback)) {
-                                    failureHandler(new ModuleError(MultipointComm.NAME, MultipointCommState.GroupStateError, target));
-
-                                    // 呼叫失败，重置群组的 Comm ID
-                                    target.getAppendix().updateCommId(0);
-                                }
+                                this.makeCall(commField, mediaConstraint, successCallback, failureCallback);
                             }, 0);
                         }, (error) => {
                             // 更新群组的通讯 ID 错误
@@ -657,9 +652,7 @@ export class MultipointComm extends Module {
                     this.getCommField(commId, (commField) => {
                         // 发起呼叫
                         setTimeout(() => {
-                            if (!this.makeCall(commField, mediaConstraint, successCallback, failureCallback)) {
-                                failureHandler(new ModuleError(MultipointComm.NAME, MultipointCommState.GroupStateError, target));
-                            }
+                            this.makeCall(commField, mediaConstraint, successCallback, failureCallback);
                         }, 0);
                     }, (error) => {
                         if (error.code == MultipointCommState.NoCommField) {
@@ -686,6 +679,12 @@ export class MultipointComm extends Module {
             if (null != this.activeCall && null != this.activeCall.field) {
                 if (this.activeCall.field.getId() != target.getId()) {
                     cell.Logger.w('MultipointComm', 'Comm field data error');
+
+                    // 状态错误
+                    let error = new ModuleError(MultipointComm.NAME, MultipointCommState.CommFieldStateError, this.activeCall);
+                    if (failureCallback) {
+                        failureCallback(error);
+                    }
                     return false;
                 }
             }
@@ -714,15 +713,21 @@ export class MultipointComm extends Module {
                 endpoint.videoEnabled = mediaConstraint.videoEnabled;
                 endpoint.audioEnabled = mediaConstraint.audioEnabled;
 
+                this.activeCall.field.copy(commField);
+
                 // 2. 发起 Offer
                 let rtcDevice = this.createRTCDevice('sendonly', this.videoElem.local);
                 // 发起 send only 的 Offer 回送自己的视频流
-                commField.launchOffer(rtcDevice, mediaConstraint, successHandler, failureHandler, endpoint);
+                this.activeCall.field.launchOffer(rtcDevice, mediaConstraint, successHandler, failureHandler, endpoint);
             }, (error) => {
                 failureHandler(error);
             });
         }
         else {
+            let error = new ModuleError(MultipointComm.NAME, MultipointCommState.Failure, target);
+            if (failureCallback) {
+                failureCallback(error);
+            }
             return false;
         }
 
