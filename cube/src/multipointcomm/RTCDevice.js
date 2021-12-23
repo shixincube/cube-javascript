@@ -319,7 +319,7 @@ export class RTCDevice {
     }
 
     /**
-     * 当前本地 RTC 连接是否正在工作。
+     * 当前 RTC 设备是否正在工作。
      * @returns {boolean} 如果正在通话返回 {@linkcode true} 。
      */
     isWorking() {
