@@ -513,6 +513,7 @@ export class MultipointComm extends Module {
                 setTimeout(() => {
                     let self = this.cs.getSelf();
                     if (this.activeCall.field.mediaConstraint.videoEnabled) {
+                        // 多方视频采用 SFU 模式
                         this.activeCall.field.getEndpoints().forEach((endpoint) => {
                             if (endpoint.contact.id == self.id) {
                                 // 跳过自己
@@ -524,6 +525,7 @@ export class MultipointComm extends Module {
                         });
                     }
                     else {
+                        // 多方语音采用 MCU 模式
                         this.touch(this.activeCall.field);
                     }
                 }, 100);
@@ -716,7 +718,7 @@ export class MultipointComm extends Module {
                 this.activeCall.field.copy(commField);
 
                 // 2. 发起 Offer
-                let rtcDevice = this.createRTCDevice('sendonly', this.videoElem.local);
+                let rtcDevice = this.createRTCDevice('sendonly', this.videoElem.local, null);
                 // 发起 send only 的 Offer 回送自己的视频流
                 this.activeCall.field.launchOffer(rtcDevice, mediaConstraint, successHandler, failureHandler, endpoint);
             }, (error) => {
@@ -1096,7 +1098,7 @@ export class MultipointComm extends Module {
 
         cell.Logger.d(MultipointComm.NAME, 'Touch comm filed: ' + commField.getName());
 
-        // 发起 Offer
+        // 创建 RTC device
         let rtcDevice = this.createRTCDevice('recvonly', null, this.videoElem.remote);
         // 发起 recv only 的 Offer
         this.activeCall.field.launchOffer(rtcDevice, this.activeCall.field.mediaConstraint, successHandler, failureHandler);
@@ -1173,6 +1175,10 @@ export class MultipointComm extends Module {
 
         if (this.activeCall.field.hasRTCDevice(endpoint)) {
             // 已经存在该终端的 RTC 设备
+            let error = new ModuleError(MultipointComm.NAME, MultipointCommState.CommFieldStateError, endpoint);
+            if (failureCallback) {
+                failureCallback(error);
+            }
             return false;
         }
 
@@ -1183,14 +1189,14 @@ export class MultipointComm extends Module {
 
         let videoEl = this.videoElemAgent(endpoint.contact);
         if (null == videoEl || undefined === videoEl) {
-            failureHandler(new ModuleError(MultipointComm.NAME, MultipointCommState.VideoElementNotSetting, endpoint));
+            failureHandler(new ModuleError(MultipointComm.NAME, MultipointCommState.NoVideoElement, endpoint));
             return false;
         }
 
         // TODO 检查是否已经接收该终端数据
 
-        cell.Logger.d(MultipointComm.NAME, 'Follow endpoint (' + BroswerUtil.getBrowserName() + ')');
-        // 发起 Offer
+        cell.Logger.d(MultipointComm.NAME, 'Follow endpoint ' + endpoint.id + ' (' + BroswerUtil.getBrowserName() + ')');
+        // 创建 RTC device
         let rtcDevice = this.createRTCDevice('recvonly', null, videoEl);
         // 发起 recv only 的 Offer
         this.activeCall.field.launchOffer(rtcDevice, this.activeCall.field.mediaConstraint, successHandler, failureHandler, endpoint);
@@ -1217,6 +1223,10 @@ export class MultipointComm extends Module {
         }
 
         if (null == this.activeCall) {
+            let error = new ModuleError(MultipointComm.NAME, MultipointCommState.InvalidCallRecord, endpoint);
+            if (failureCallback) {
+                failureCallback(error);
+            }
             return false;
         }
 
@@ -1626,9 +1636,8 @@ export class MultipointComm extends Module {
     /**
      * @private
      * @param {JSON} payload 
-     * @param {object} context 
      */
-    triggerInvite(payload, context) {
+    triggerInvite(payload) {
         if (null != this.activeCall && this.activeCall.isActive()) {
             // 正在通话，不能回调邀请
             return;
@@ -1690,7 +1699,7 @@ export class MultipointComm extends Module {
         cell.Logger.d(MultipointComm.NAME, 'Endpoint "' + endpoint.getName() + '" left "' + commField.getName() + '"');
 
         // 停止接收对方音视频流
-        if (commField.id == this.activeCall.field.id) {
+        if (null != this.activeCall && commField.id == this.activeCall.field.id) {
             let rtc = this.activeCall.field.getRTCDevice(endpoint);
 
             // 复制数据

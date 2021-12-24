@@ -52,7 +52,9 @@
  * @property {number} Uninitialized 终端未初始化。
  * @property {number} ConnRepeated 重复创建连接。
  * @property {number} MediaPermissionDenied 拒绝访问媒体设备。
+ * @property {number} NoVideoElement 没有找到视频元素。
  * @property {number} VideoElementNotSetting 视频元素未设置。
+ * @property {number} InvalidCallRecord 无效的通话记录实例。
  * @property {number} SignalingError 信令错误。
  * @property {number} RTCPeerError RTC 节点数据不正确。
  * @property {number} CreateOfferFailed 创建 RTC offer SDP 错误。
@@ -203,10 +205,22 @@ export const MultipointCommState = {
     MediaPermissionDenied: 110,
 
     /**
+     * 没有找到视频元素。
+     * @type {number}
+     */
+    NoVideoElement: 111,
+
+    /**
      * 视频元素未设置。
      * @type {number}
      */
     VideoElementNotSetting: 112,
+
+    /**
+     * 无效的通话记录实例。
+     * @type {number}
+     */
+    InvalidCallRecord: 113,
 
     /**
      * 信令错误。
