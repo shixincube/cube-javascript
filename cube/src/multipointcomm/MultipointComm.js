@@ -703,7 +703,7 @@ export class MultipointComm extends Module {
                 resolve();
             })).then(() => {
                 // 回调 InProgress 事件
-                this.notifyObservers(new ObservableEvent(MultipointCommEvent.InProgress, target));
+                this.notifyObservers(new ObservableEvent(MultipointCommEvent.InProgress, this.activeCall));
             });
 
             let self = this.cs.getSelf();
