@@ -769,6 +769,11 @@ export class MultipointComm extends Module {
                         if (successCallback) {
                             successCallback(commField);
                         }
+
+                        // 通知事件
+                        let event = new ObservableEvent(MultipointCommEvent.Invite, commField);
+                        event.secondaryData = list;
+                        this.notifyObservers(event);
                     }
                     else {
                         if (failureCallback) {

@@ -75,6 +75,14 @@ const CubeMultipointCommEvent = {
     Bye: 'Bye',
 
     /**
+     * 发起邀请加入通话。
+     * 事件数据：{@linkcode CommField} - 发出邀请的通讯场域的实例。
+     * 事件附加数据：{@linkcode Array} - 被邀请人的 ID 清单。
+     * @type {string}
+     */
+    Invite: 'Invite',
+
+    /**
      * 被邀请加入通话。
      * 事件数据：{@linkcode CommField} - 发出邀请的通讯场域的实例。
      * @type {string}
