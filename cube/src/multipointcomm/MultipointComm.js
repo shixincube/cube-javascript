@@ -1655,7 +1655,11 @@ export class MultipointComm extends Module {
         this.activeCall = new CallRecord(this.privateField.founder);
         this.activeCall.field = signaling.field;
 
-        this.notifyObservers(new ObservableEvent(MultipointCommEvent.Invited, signaling.field));
+        this.cs.getContact(signaling.contact.getId(), (contact) => {
+            this.notifyObservers(new ObservableEvent(MultipointCommEvent.Invited, signaling.field, contact));
+        }, (error) => {
+            this.notifyObservers(new ObservableEvent(MultipointCommEvent.Invited, signaling.field, signaling.contact));
+        });
     }
 
     /**

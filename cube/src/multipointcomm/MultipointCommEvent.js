@@ -85,6 +85,7 @@ const CubeMultipointCommEvent = {
     /**
      * 被邀请加入通话。
      * 事件数据：{@linkcode CommField} - 发出邀请的通讯场域的实例。
+     * 事件附加数据：{@linkcode Contact} - 邀请人。
      * @type {string}
      */
     Invited: 'Invited',

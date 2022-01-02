@@ -32,8 +32,9 @@ export class ObservableEvent {
     /**
      * @param {string} name 事件名称。
      * @param {object} [data] 事件数据。
+     * @param {object} [secondaryData] 时间附加数据。
      */
-    constructor(name, data) {
+    constructor(name, data, secondaryData) {
         /**
          * 事件名。
          * @type {string}
@@ -50,7 +51,7 @@ export class ObservableEvent {
          * 次要事件数据。
          * @type {object}
          */
-        this.secondaryData = null;
+        this.secondaryData = (undefined !== secondaryData) ? secondaryData : null;
 
         /**
          * @private
