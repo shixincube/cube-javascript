@@ -61,10 +61,10 @@ function merge() {
         let data = fs.readFileSync(file, 'utf8');
 
         if (i == 0) {
-            fs.appendFileSync(output, data.substr(0, 1190));
+            fs.appendFileSync(output, data.substr(0, 1184));
         }
 
-        fs.appendFileSync(output, data.substr(1190, data.length - 1190));
+        fs.appendFileSync(output, data.substr(1184, data.length - 1184));
     }
 
     console.log('merge ' + fileList.length + ' files to ' + output);

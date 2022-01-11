@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020-2021 Shixin Cube Team.
+ * Copyright (c) 2020-2022 Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -327,7 +327,6 @@
 
 })(window);
 
-
 (function(g) {
 
     var that = null;
@@ -625,7 +624,6 @@
     g.EmojiPanel = EmojiPanel;
 
 })(window);
-
 (function(g) {
     'use strict'
 
@@ -683,7 +681,6 @@
     g.FileDetails = FileDetails;
 
 })(window);
-
 (function(g) {
     'use strict';
 
@@ -714,7 +711,6 @@
     g.SidebarAccountPanel = SidebarAccountPanel;
 
 })(window);
-
 (function(g) {
     'use strict';
 
@@ -1397,7 +1393,6 @@
     g.MessageCatalogue = MessageCatalogue;
 
 })(window);
-
 (function(g) {
 
     // 消息输入框是否使用编辑器
@@ -3093,7 +3088,6 @@
     g.MessagePanel = MessagePanel;
 
 })(window);
-
 (function(g) {
     'use strict'
 
@@ -3558,7 +3552,6 @@
     g.MessageSidebar = MessageSidebar;
 
 })(window);
-
 /**
  * 语音通话面板。
  */
@@ -3849,7 +3842,6 @@
     g.VoiceCallPanel = VoiceCallPanel;
 
 })(window);
-
 /**
  * 视频聊天面板。
  */
@@ -4425,7 +4417,6 @@
     g.VideoChatPanel = VideoChatPanel;
 
 })(window);
-
 /**
  * 群组语音面板。
  */
@@ -4903,7 +4894,6 @@
     g.VoiceGroupCallPanel = VoiceGroupCallPanel;
 
 })(window);
-
 (function(g) {
 
     /**
@@ -5642,7 +5632,6 @@
     g.VideoGroupChatPanel = VideoGroupChatPanel;
 
 })(window);
-
 (function(g) {
 
     var dialogEl = null;
@@ -5779,7 +5768,6 @@
     g.ContactDetails = ContactDetails;
 
 })(window);
-
 (function(g) {
 
     var lastGroup = null;
@@ -5999,7 +5987,6 @@
     g.GroupDetails = GroupDetails;
 
 })(window);
-
 /**
  * 新建群组对话框。
  */
@@ -6088,7 +6075,6 @@
     g.NewGroupDialog = NewGroupDialog;
 
 })(window);
-
 (function(g) {
     'use strict';
 
@@ -6278,7 +6264,6 @@
     g.ContactListDialog = ContactListDialog;
 
 })(window);
-
 (function(g) {
     
     var that = null;
@@ -7037,7 +7022,6 @@
     g.MessagingController = MessagingController;
 
 })(window);
-
 (function(g) {
     
     var cube = null;
@@ -7888,7 +7872,6 @@
     g.CallController = CallController;
 
 })(window);
-
 (function(g) {
     'use strict'
 
@@ -7988,7 +7971,6 @@
     g.FilesCatalogue = FilesCatalogue;
 
 })(window);
-
 (function(g) {
     'use strict'
 
@@ -8228,7 +8210,6 @@
     g.FilesTable = FilesTable;
 
 })(window);
-
 (function(g) {
     'use strict'
 
@@ -8973,7 +8954,6 @@
     g.FilesPanel = FilesPanel;
 
 })(window);
-
 (function(g) {
     'use strict'
 
@@ -9168,7 +9148,6 @@
     g.FilesController = FilesController;
 
 })(window);
-
  (function(g) {
 
     var that = null;
@@ -9347,8 +9326,7 @@
     g.ContactsTable = ContactsTable;
 
  })(window);
- 
- (function(g) {
+  (function(g) {
 
     var that = null;
 
@@ -9551,8 +9529,7 @@
     g.GroupsTable = GroupsTable;
 
  })(window);
- 
- (function(g) {
+  (function(g) {
 
     var that = null;
 
@@ -9717,8 +9694,7 @@
     g.PendingTable = PendingTable;
 
  })(window);
- 
-/**
+ /**
  * 阻止清单表格。
  */
 (function(g) {
@@ -9922,7 +9898,6 @@
     g.BlockListTable = BlockListTable;
 
 })(window);
-
  (function(g) {
     'use strict';
 
@@ -10021,7 +9996,7 @@
     ContactsController.prototype.ready = function(callback) {
         pendingList = [];
 
-        // XJW getPendingZone 已作废删除
+        // XJW getPendingZone 已作废
         /*cube.contact.getPendingZone(g.app.contactZone, function(zone) {
             var count = zone.contacts.length;
 
@@ -10375,7 +10350,6 @@
     g.ContactsController = ContactsController;
 
  })(window);
-
  (function(g) {
     'use strict';
 
@@ -10524,7 +10498,6 @@
     g.ConferenceTimeline = ConferenceTimeline;
 
  })(window);
-
  (function(g) {
     'use strict'
 
@@ -10746,7 +10719,6 @@
     g.ConferenceController = ConferenceController;
 
  })(window);
-
 /**
  * 用于选择联系人的对话框。
  */
@@ -10887,7 +10859,6 @@
     g.SelectContactsDialog = SelectContactsDialog;
 
  })(window);
-
 /**
  * 搜索对话框。
  */
@@ -11058,7 +11029,6 @@
     g.SearchDialog = SearchDialog;
     
  })(window);
-
 /**
  * 事件监听器。
  */

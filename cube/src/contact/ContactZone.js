@@ -24,19 +24,28 @@
  * SOFTWARE.
  */
 
+import { Entity } from "../core/Entity";
 import { ContactZoneParticipant } from "./ContactZoneParticipant";
 
 /**
  * 联系人分区数据。
+ * @extends Entity
  */
-export class ContactZone {
+export class ContactZone extends Entity {
+
+    /**
+     * 分区状态：正常状态。
+     */
+    static StateNormal = 1;
+
+    /**
+     * 分区状态：已删除的分区。
+     */
+    static StateDeleted = 0;
+
 
     constructor(json) {
-        /**
-         * @private
-         * @type {number}
-         */
-        this.id = json.id;
+        super(json.id, json.timestamp);
 
         /**
          * @private
@@ -63,10 +72,10 @@ export class ContactZone {
         this.displayName = json.displayName;
 
         /**
-         * 分区内的联系人 ID 列表。
-         * @type {Array<number>}
+         * 分区状态。
+         * @type {int}
          */
-        this.contacts = json.contacts;
+        this.state = json.state;
 
         /**
          * 分区参与者列表。
