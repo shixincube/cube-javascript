@@ -67,6 +67,13 @@ export class Group extends AbstractContact {
         this.owner = owner;
 
         /**
+         * 群主的 ID 。
+         * @protected
+         * @type {number}}
+         */
+        this.ownerId = null != owner ? owner.id : 0;
+
+        /**
          * 群组的标签。
          * @protected
          * @type {string}
@@ -92,7 +99,7 @@ export class Group extends AbstractContact {
          * @protected
          * @type {Array<number>}
          */
-        this.memberIdList = [ owner.id ];
+        this.memberIdList = this.ownerId != 0 ? [ this.ownerId ] : [];
 
         /**
          * 群组状态。
@@ -399,7 +406,7 @@ export class Group extends AbstractContact {
     toJSON() {
         let json = super.toJSON();
 
-        json.owner = this.owner.toCompactJSON();
+        json.ownerId = this.ownerId;
         json.tag = this.tag;
         json.creation = this.creationTime;
         json.lastActive = this.lastActiveTime;
@@ -415,7 +422,7 @@ export class Group extends AbstractContact {
     toCompactJSON() {
         let json = super.toCompactJSON();
         json.domain = this.domain;
-        json.owner = this.owner.toCompactJSON();
+        json.ownerId = this.ownerId;
         json.tag = this.tag;
         json.creation = this.creationTime;
         json.lastActive = this.lastActiveTime;
@@ -432,14 +439,8 @@ export class Group extends AbstractContact {
      * @returns {Group} 返回 {@link Group} 实例。
      */
     static create(service, json, owner) {
-        if (undefined === owner) {
-            owner = new Contact.create(json.owner, json.domain);
-            if (service) {
-                service.getAppendix(owner);
-            }
-        }
-
-        let group = new Group(service, owner, json.id, json.name, json.domain);
+        let group = new Group(service, null, json.id, json.name, json.domain);
+        group.ownerId = json.ownerId;
         group.tag = json.tag;
         group.creationTime = json.creation;
         group.lastActiveTime = json.lastActive;
@@ -448,16 +449,20 @@ export class Group extends AbstractContact {
         if (undefined !== json.members) {
             for (let i = 0; i < json.members.length; ++i) {
                 let memeberId = json.members[i];
-                if (memeberId == owner.id) {
-                    continue;
-                }
-
                 group.memberIdList.push(memeberId);
             }
         }
 
         if (undefined !== json.context) {
             group.context = json.context;
+        }
+
+        if (undefined === owner) {
+            service.getContact(json.ownerId, (owner) => {
+                group.owner = owner;
+            }, (error) => {
+                // Nothing
+            });
         }
 
         return group;

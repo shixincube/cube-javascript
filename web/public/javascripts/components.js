@@ -6721,9 +6721,9 @@
                 return;
             }
 
-            g.app.messagePanel.changePanel(id, item);
-            g.app.messageCatalog.activeItem(id);
-            g.app.messageCatalog.updateBadge(id, 0);
+            // g.app.messagePanel.changePanel(id, item);
+            // g.app.messageCatalog.activeItem(id);
+            // g.app.messageCatalog.updateBadge(id, 0);
         }
 
         g.app.getGroup(id, function(group) {

@@ -216,6 +216,11 @@
             // 注册消息插件
             cube.messaging.register(new MessageTypePlugin());
 
+            // 设置联系人上下文提供器
+            cube.contact.setContextProviderCallback(function(contact, provider) {
+                app.needContactContext(contact, provider);
+            });
+
             // 启动 Cube
             cube.start(undefined === config ? {
                 address: '127.0.0.1',
@@ -437,6 +442,45 @@
          */
         getSelf: function() {
             return cube.contact.getSelf();
+        },
+
+        /**
+         * 提供联系人上下文数据。
+         * @param {Contact} contact 
+         * @param {ContactContextProvider} provider 
+         */
+        needContactContext: function(contact, provider) {
+            var id = contact.id;
+
+            $.ajax({
+                type: 'GET',
+                url: server.url + '/account/info/',
+                data: { "id": id, "token": token },
+                dataType: 'json',
+                success: function(response, status, xhr) {
+                    if (null == response) {
+                        provider.setContext(null);
+                        return;
+                    }
+
+                    // 头像使用 PNG
+                    if (!response.avatar.startsWith('http')) {
+                        response.avatar += '.png';
+                    }
+
+                    contact.setContext(response);
+                    contact.setName(response.name);
+
+                    // 更新到内存
+                    updateContact(contact);
+
+                    provider.setContext(response);
+                },
+                error: function(xhr, error) {
+                    console.log(error + ' - ' + id);
+                    provider.setContext(null);
+                }
+            });
         },
 
         /**

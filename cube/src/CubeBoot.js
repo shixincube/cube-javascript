@@ -43,6 +43,7 @@ import { PrimaryDescription } from "./auth/PrimaryDescription";
 import { AuthService } from "./auth/AuthService";
 import { ContactService } from "./contact/ContactService";
 import { ContactServiceState } from "./contact/ContactServiceState";
+import { ContactContextProvider } from "./contact/ContactContextProvider";
 import { ContactEvent } from "./contact/ContactEvent";
 import { Contact } from "./contact/Contact";
 import { ContactZone } from "./contact/ContactZone";
@@ -121,6 +122,7 @@ import { Announcer } from "./util/Announcer";
 
     global.ContactService = ContactService;
     global.ContactServiceState = ContactServiceState;
+    global.ContactContextProvider = ContactContextProvider;
     global.ContactEvent = ContactEvent;
     global.Contact = Contact;
     global.ContactZone = ContactZone;

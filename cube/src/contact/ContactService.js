@@ -46,10 +46,14 @@ import { ContactServiceState } from "./ContactServiceState";
 import { ContactAppendix } from "./ContactAppendix";
 import { GroupAppendix } from "./GroupAppendix";
 import { ContactZone } from "./ContactZone";
+import { ContactContextProvider } from "./ContactContextProvider";
 
 
 /**
- * 联系人
+ * 联系人上下文数据回调。
+ * @callback ContactContextProviderCallback
+ * @param {Contact} contact 需要获取上下文的联系人实例。
+ * @param {ContactContextProvider} provider 数据提供器。
  */
 
 
@@ -125,6 +129,13 @@ export class ContactService extends Module {
          * @type {OrderMap}
          */
         this.appendixMap = new OrderMap();
+
+        /**
+         * 联系人上下文数据提供器。
+         * @private
+         * @type {ContactContextProviderCallback}
+         */
+        this.contextProviderCallback = null;
     }
 
     /**
@@ -407,6 +418,14 @@ export class ContactService extends Module {
     }
 
     /**
+     * 设置联系人上下文提供器回调。
+     * @param {ContactContextProviderCallback} callback 
+     */
+    setContextProviderCallback(callback) {
+        this.contextProviderCallback = callback;
+    }
+
+    /**
      * 获取指定 ID 的联系人信息。
      * @param {number} contactId 指定联系人 ID 。
      * @param {function} [handleSuccess] 成功获取到数据回调该方法，参数：({@linkcode contact}:{@link Contact}) ，(联系人实例)。
@@ -432,7 +451,15 @@ export class ContactService extends Module {
         let promise = new Promise((resolve, reject) => {
             // 判断是不是 Self
             if (id == this.self.id) {
-                resolve(this.self);
+                if (null == this.self.context && null != this.contextProviderCallback) {
+                    this.contextProviderCallback(contact, new ContactContextProvider(contact, (contact) => {
+                        resolve(this.self);
+                    }));
+                }
+                else {
+                    resolve(this.self);
+                }
+
                 return;
             }
 
@@ -443,16 +470,33 @@ export class ContactService extends Module {
                 // 从存储读取
                 this.storage.readContact(id, (contact) => {
                     if (null != contact && contact.isValid()) {
-                        // 保存到内存
-                        this.contacts.put(contact.getId(), contact);
+                        if (null == contact.context && null != this.contextProviderCallback) {
+                            this.contextProviderCallback(contact, new ContactContextProvider(contact, (contact) => {
+                                // 保存到内存
+                                this.contacts.put(contact.getId(), contact);
 
-                        // 获取附录
-                        this.getAppendix(contact, (appendix) => {
-                            contact.appendix = appendix;
-                            resolve(contact);
-                        }, (error) => {
-                            reject(error);
-                        });
+                                // 获取附录
+                                this.getAppendix(contact, (appendix) => {
+                                    contact.appendix = appendix;
+                                    resolve(contact);
+                                }, (error) => {
+                                    reject(error);
+                                });
+                            }));
+                        }
+                        else {
+                            // 保存到内存
+                            this.contacts.put(contact.getId(), contact);
+
+                            // 获取附录
+                            this.getAppendix(contact, (appendix) => {
+                                contact.appendix = appendix;
+                                resolve(contact);
+                            }, (error) => {
+                                reject(error);
+                            });
+                        }
+
                         return;
                     }
 
@@ -463,21 +507,42 @@ export class ContactService extends Module {
                     this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
                         if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
                             if (responsePacket.data.code == ContactServiceState.Ok) {
+                                // 创建联系人实例
                                 let contact = Contact.create(responsePacket.data.data);
+
+                                if (null == contact.context && null != this.contextProviderCallback) {
+                                    this.contextProviderCallback(contact, new ContactContextProvider(contact, (contact) => {
+                                        // 保存到内存
+                                        this.contacts.put(contact.getId(), contact);
+                                        // 更新存储
+                                        this.storage.writeContact(contact);
+
+                                        // 获取附录
+                                        this.getAppendix(contact, (appendix) => {
+                                            contact.appendix = appendix;
+                                            resolve(contact);
+                                        }, (error) => {
+                                            reject(error);
+                                        });
+                                    }));
+                                }
+                                else {
+                                    // 保存到内存
+                                    this.contacts.put(contact.getId(), contact);
+                                    // 更新存储
+                                    this.storage.writeContact(contact);
+
+                                    // 获取附录
+                                    this.getAppendix(contact, (appendix) => {
+                                        contact.appendix = appendix;
+                                        resolve(contact);
+                                    }, (error) => {
+                                        reject(error);
+                                    });
+                                }
+
                                 // 设置更新时间
                                 contact.resetUpdateTime(Date.now());
-                                // 保存到内存
-                                this.contacts.put(contact.getId(), contact);
-                                // 更新存储
-                                this.storage.writeContact(contact);
-
-                                // 获取附录
-                                this.getAppendix(contact, (appendix) => {
-                                    contact.appendix = appendix;
-                                    resolve(contact);
-                                }, (error) => {
-                                    reject(error);
-                                });
                             }
                             else {
                                 reject(new ModuleError(ContactService.NAME, responsePacket.data.code, id));

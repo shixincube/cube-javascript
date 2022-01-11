@@ -164,9 +164,6 @@ export class Contact extends AbstractContact {
      */
     toCompactJSON() {
         let json = super.toCompactJSON();
-        if (undefined !== json.context) {
-            delete json.context;
-        }
         return json;
     }
 
