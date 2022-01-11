@@ -24,45 +24,44 @@
  * SOFTWARE.
  */
 
-import { Entity } from "../core/Entity";
 
 /**
- * 联系人分区数据。
- * @extends Entity
+ * 分区参与人类型。
+ * @readonly
+ * @enum {number}
+ * @alias ContactZoneParticipantType
  */
- export class ContactZoneParticipant extends Entity {
+const CubeContactZoneParticipantType = {
 
-    constructor(json) {
-        super(json.id, json.timestamp);
+    /**
+     * 联系人。
+     */
+    Contact: 1,
 
-        /**
-         * 参与人类型。
-         * @type {number}
-         * @see ContactZoneParticipantType
-         */
-        this.type = json.type;
+    /**
+     * 群组。
+     */
+    Group: 2,
 
-        /**
-         * 参与者的状态。
-         * @type {number}
-         * @see ContactZoneParticipantState
-         */
-        this.state = json.state;
+    /**
+     * 组织或企业。
+     */
+    Organization: 3,
 
-        /**
-         * 邀请人 ID。
-         * @type {number}
-         */
-        this.inviterId = json.inviterId;
+    /**
+     * 系统。
+     */
+    System: 4,
 
-        /**
-         * 分区所有人留给该参与者的附言。
-         * @type {string}
-         */
-        this.postscript = '';
+    /**
+     * 会议。
+     */
+    Conference: 5,
 
-        if (undefined !== json.postscript) {
-            this.postscript = json.postscript;
-        }
-    }
- }
+    /**
+     * 其他类型。
+     */
+    Other: 9
+}
+
+export const ContactZoneParticipantType = CubeContactZoneParticipantType;

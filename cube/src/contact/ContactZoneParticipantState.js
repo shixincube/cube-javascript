@@ -24,45 +24,34 @@
  * SOFTWARE.
  */
 
-import { Entity } from "../core/Entity";
 
 /**
- * 联系人分区数据。
- * @extends Entity
+ * 分区参与人状态。
+ * @readonly
+ * @enum {number}
+ * @alias ContactZoneParticipantState
  */
- export class ContactZoneParticipant extends Entity {
+const CubeContactZoneParticipantState = {
 
-    constructor(json) {
-        super(json.id, json.timestamp);
+    /**
+     * 正常状态。
+     */
+    Normal: 0,
 
-        /**
-         * 参与人类型。
-         * @type {number}
-         * @see ContactZoneParticipantType
-         */
-        this.type = json.type;
+    /**
+     * 待处理状态。
+     */
+    Pending: 1,
 
-        /**
-         * 参与者的状态。
-         * @type {number}
-         * @see ContactZoneParticipantState
-         */
-        this.state = json.state;
+    /**
+     * 已知待处理状态。
+     */
+    KnownPending: 2,
 
-        /**
-         * 邀请人 ID。
-         * @type {number}
-         */
-        this.inviterId = json.inviterId;
+    /**
+     * 拒绝。
+     */
+    Reject: 3
+}
 
-        /**
-         * 分区所有人留给该参与者的附言。
-         * @type {string}
-         */
-        this.postscript = '';
-
-        if (undefined !== json.postscript) {
-            this.postscript = json.postscript;
-        }
-    }
- }
+export const ContactZoneParticipantState = CubeContactZoneParticipantState;

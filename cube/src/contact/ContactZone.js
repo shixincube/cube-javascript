@@ -78,6 +78,12 @@ export class ContactZone extends Entity {
         this.state = json.state;
 
         /**
+         * 是否端到端对等模式。
+         * @type {boolean}
+         */
+        this.peerMode = json.peerMode;
+
+        /**
          * 分区参与者列表。
          * @type {Array<ContactZoneParticipant>}
          * @see ContactZoneParticipant
@@ -103,4 +109,6 @@ export class ContactZone extends Entity {
 
         return null;
     }
+
+    
 }
