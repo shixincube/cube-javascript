@@ -76,6 +76,13 @@ export class GroupAppendix extends JSONable {
         this.notice = '';
 
         /**
+         * 是否被关注。
+         * @private
+         * @type {boolean}
+         */
+        this.following = false;
+
+        /**
          * @private
          * @type {OrderMap}
          */

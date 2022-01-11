@@ -90,9 +90,9 @@ export class Group extends AbstractContact {
         /**
          * 群成员 ID 列表。
          * @protected
-         * @type {Array<Contact>}
+         * @type {Array<number>}
          */
-        this.memberList = [ owner ];
+        this.memberIdList = [ owner.id ];
 
         /**
          * 群组状态。
@@ -241,16 +241,17 @@ export class Group extends AbstractContact {
     /**
      * 获取指定 ID 的成员。
      * @param {number} memberId 指定成员 ID 。
-     * @returns {Contact} 返回指定 ID 成员的实例。
+     * @param {function} handler 指定数据回调句柄，参数：({@linkcode contact}:{@link Contact})  。
      */
-    getMemberById(memberId) {
-        for (let i = 0; i < this.memberList.length; ++i) {
-            let member = this.memberList[i];
-            if (member.id == memberId) {
-                return member;
-            }
+    getMemberById(memberId, handler) {
+        if (this.memberIdList.indexOf(memberId) >= 0) {
+            this.service.getContact(memberId, handler, (error) => {
+                handler(null);
+            });
         }
-        return null;
+        else {
+            handler(null);
+        }
     }
 
     /**
@@ -258,15 +259,15 @@ export class Group extends AbstractContact {
      * @returns {number} 返回群成员数量。
      */
     numMembers() {
-        return this.memberList.length;
+        return this.memberIdList.length;
     }
 
     /**
-     * 获取群组的成员清单。
-     * @returns {Array<Contact>} 返回群组成员列表，该列表为群组列表的副本。
+     * 获取群组的成员 ID 清单。
+     * @returns {Array<long>} 返回群组成员列表，该列表为群组列表的副本。
      */
-    getMembers() {
-        return this.memberList.concat();
+    getMemberIds() {
+        return this.memberIdList.concat();
     }
 
     /**
@@ -290,11 +291,11 @@ export class Group extends AbstractContact {
     listMembers(handler) {
         (new Promise((resolve, reject) => {
             let list = [];
-            for (let i = 0; i < this.memberList.length; ++i) {
-                let member = this.memberList[i];
-                this.service.getContact(member.id, (contact) => {
+            for (let i = 0; i < this.memberIdList.length; ++i) {
+                let memberId = this.memberIdList[i];
+                this.service.getContact(memberId, (contact) => {
                     list.push(contact);
-                    if (list.length == this.memberList.length) {
+                    if (list.length == this.memberIdList.length) {
                         resolve(list);
                     }
                 }, (error) => {
@@ -345,9 +346,9 @@ export class Group extends AbstractContact {
             id = parseInt(contact);
         }
 
-        for (let i = 0; i < this.memberList.length; ++i) {
-            let member = this.memberList[i];
-            if (member.getId() == id) {
+        for (let i = 0; i < this.memberIdList.length; ++i) {
+            let memberId = this.memberIdList[i];
+            if (memberId == id) {
                 return true;
             }
         }
@@ -356,29 +357,29 @@ export class Group extends AbstractContact {
     }
 
     /**
-     * 仅用于维护 memberList 数据。
+     * 仅用于维护 memberIdList 数据。
      * @private
      * @param {Contact} member 
      */
     _removeMember(member) {
         let id = member.getId();
-        for (let i = 0; i < this.memberList.length; ++i) {
-            let m = this.memberList[i];
-            if (m.getId() == id) {
-                this.memberList.splice(i, 1);
+        for (let i = 0; i < this.memberIdList.length; ++i) {
+            let mid = this.memberIdList[i];
+            if (mid == id) {
+                this.memberIdList.splice(i, 1);
                 return;
             }
         }
     }
 
     /**
-     * 仅用于维护 memberList 数据。
+     * 仅用于维护 memberIdList 数据。
      * @private
      * @param {Contact} member 
      */
     _replaceMember(member) {
         this._removeMember(member);
-        this.memberList.push(member);
+        this.memberIdList.push(member);
         if (this.owner.getId() == member.getId()) {
             this.owner = member;
         }
@@ -395,11 +396,11 @@ export class Group extends AbstractContact {
         json.creation = this.creationTime;
         json.lastActive = this.lastActiveTime;
         json.state = this.state;
-        json.members = [];
-        for (let i = 0; i < this.memberList.length; ++i) {
-            json.members.push(this.memberList[i].toCompactJSON());
-        }
-        
+        json.members = this.memberIdList;
+        // for (let i = 0; i < this.memberIdList.length; ++i) {
+        //     json.members.push(this.memberIdList[i]);
+        // }
+
         return json;
     }
 
@@ -441,11 +442,12 @@ export class Group extends AbstractContact {
 
         if (undefined !== json.members) {
             for (let i = 0; i < json.members.length; ++i) {
-                let member = Contact.create(json.members[i], json.domain);
-                if (!group.hasMember(member)) {
-                    service.getAppendix(member);
-                    group.memberList.push(member);
+                let memeberId = json.members[i];
+                if (memeberId == owner.id) {
+                    continue;
                 }
+
+                group.memberIdList.push(memeberId);
             }
         }
 
