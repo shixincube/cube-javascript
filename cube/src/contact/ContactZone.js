@@ -25,6 +25,7 @@
  */
 
 import { Entity } from "../core/Entity";
+import { ContactService } from "./ContactService";
 import { ContactZoneParticipant } from "./ContactZoneParticipant";
 
 /**
@@ -43,9 +44,14 @@ export class ContactZone extends Entity {
      */
     static StateDeleted = 0;
 
-
-    constructor(json) {
+    constructor(json, service) {
         super(json.id, json.timestamp);
+
+        /**
+         * @private
+         * @type {ContactService}
+         */
+        this.service = service;
 
         /**
          * @private
@@ -91,9 +97,17 @@ export class ContactZone extends Entity {
         this.participants = [];
 
         for (let i = 0; i < json.participants.length; ++i) {
-            let participant = new ContactZoneParticipant(json.participants[i]);
+            let participant = new ContactZoneParticipant(json.participants[i], service);
             this.participants.push(participant);
         }
+    }
+
+    /**
+     * 获取分区参与人数量。
+     * @returns {number} 返回分区参与人数量。
+     */
+    numParticipants() {
+        return this.participants.length;
     }
 
     /**
@@ -110,5 +124,33 @@ export class ContactZone extends Entity {
         return null;
     }
 
-    
+    /**
+     * 获取分区里的所有参与人。
+     * @param {function} handler 数据回调句柄，参数：({@linkcode list}:Array<{@link ContactZoneParticipant}>}) 。
+     */
+    getParticipants(handler) {
+        let readyCount = 0;
+
+        let resultHandler = () => {
+            if (readyCount == this.participants.length) {
+                // 获取到全部数据
+                handler(this.participants);
+            }
+        };
+
+        for (let i = 0; i < this.participants.length; ++i) {
+            let participant = this.participants[i];
+            if (participant.isAssigned()) {
+                ++readyCount;
+            }
+            else {
+                participant._assigns(this.service, (participant) => {
+                    ++readyCount;
+                    resultHandler();
+                });
+            }
+        }
+
+        resultHandler();
+    }
 }

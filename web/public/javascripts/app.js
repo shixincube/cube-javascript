@@ -609,7 +609,7 @@
 
             // 从 Cube 里获取指定的联系人分组
             cube.contact.getContactZone(app.contactZone, function(zone) {
-                if (zone.contacts.length == 0 && that.demo) {
+                if (zone.numParticipants() == 0 && that.demo) {
                     // 将内置的账号设置为该联系人的通讯录
                     $.get(server.url + '/account/buildin/', function(response, status, xhr) {
                         // 处理
@@ -626,12 +626,20 @@
                     });
                 }
                 else {
-                    $.get(server.url + '/account/info/', {
-                        "list": zone.contacts.toString(),
-                        "token": token
-                    }, function(response, status, xhr) {
-                        // 处理
-                        process(response);
+                    // 获取分区里所有参与人
+                    zone.getParticipants(function(list) {
+                        var contactIds = [];
+                        for (var i = 0; i < list.length; ++i) {
+                            contactIds.push(list[i].contact.id);
+                        }
+
+                        $.get(server.url + '/account/info/', {
+                            "list": contactIds.toString(),
+                            "token": token
+                        }, function(response, status, xhr) {
+                            // 处理
+                            process(response);
+                        });
                     });
                 }
             }, function(error) {

@@ -397,9 +397,6 @@ export class Group extends AbstractContact {
         json.lastActive = this.lastActiveTime;
         json.state = this.state;
         json.members = this.memberIdList;
-        // for (let i = 0; i < this.memberIdList.length; ++i) {
-        //     json.members.push(this.memberIdList[i]);
-        // }
 
         return json;
     }
@@ -428,7 +425,7 @@ export class Group extends AbstractContact {
      */
     static create(service, json, owner) {
         if (undefined === owner) {
-            owner = new Contact.create(json.ownerId, json.domain);
+            owner = new Contact.create(json.owner, json.domain);
             if (service) {
                 service.getAppendix(owner);
             }

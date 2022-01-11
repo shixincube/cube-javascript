@@ -25,6 +25,10 @@
  */
 
 import { Entity } from "../core/Entity";
+import { Contact } from "./Contact";
+import { Group } from "./Group";
+import { ContactZoneParticipantType } from "./ContactZoneParticipantType";
+import { ContactService } from "./ContactService";
 
 /**
  * 联系人分区数据。
@@ -32,7 +36,7 @@ import { Entity } from "../core/Entity";
  */
  export class ContactZoneParticipant extends Entity {
 
-    constructor(json) {
+    constructor(json, service) {
         super(json.id, json.timestamp);
 
         /**
@@ -63,6 +67,66 @@ import { Entity } from "../core/Entity";
 
         if (undefined !== json.postscript) {
             this.postscript = json.postscript;
+        }
+
+        /**
+         * 联系人实例。
+         * @type {Contact}
+         */
+        this.contact = null;
+
+        /**
+         * 群组实例。
+         * @type {Group}
+         */
+        this.group = null;
+
+        // 赋值操作
+        this._assigns(service);
+    }
+
+    /**
+     * @param {ContactService} service 
+     * @param {function} [callback]
+     */
+    _assigns(service, callback) {
+        if (this.type == ContactZoneParticipantType.Contact) {
+            service.getContact(this.id, (contact) => {
+                this.contact = contact;
+
+                if (undefined !== callback) {
+                    callback(this);
+                }
+            }, (error) => {
+                if (undefined !== callback) {
+                    callback(this);
+                }
+            });
+        }
+        else if (this.type == ContactZoneParticipantType.Group) {
+            service.getGroup(this.id, (group) => {
+                this.group = group;
+
+                if (undefined !== callback) {
+                    callback(this);
+                }
+            }, (error) => {
+                if (undefined !== callback) {
+                    callback(this);
+                }
+            });
+        }
+    }
+
+    isAssigned() {
+        if (this.type == ContactZoneParticipantType.Contact) {
+            return (null != this.contact);
+        }
+        else if (this.type == ContactZoneParticipantType.Group) {
+            return (null != this.group);
+        }
+        else {
+            return true;
         }
     }
  }

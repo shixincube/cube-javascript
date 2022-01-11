@@ -523,7 +523,7 @@ export class ContactService extends Module {
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
             if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
                 if (responsePacket.data.code == ContactServiceState.Ok) {
-                    handleSuccess(new ContactZone(responsePacket.data.data));
+                    handleSuccess(new ContactZone(responsePacket.data.data, this));
                 }
                 else {
                     if (handleFailure) {
@@ -556,7 +556,7 @@ export class ContactService extends Module {
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
             if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
                 if (responsePacket.data.code == ContactServiceState.Ok) {
-                    handleSuccess(new ContactZone(responsePacket.data.data));
+                    handleSuccess(new ContactZone(responsePacket.data.data, this));
                 }
                 else {
                     if (handleFailure) {
@@ -573,6 +573,7 @@ export class ContactService extends Module {
     }
 
     /**
+     * FIXME XJW 可作废的接口
      * 获取指定名称的待处理联系人分区。
      * @param {string} name 分区名。
      * @param {function} handleSuccess 操作成功回调该方法，参数：({@linkcode contactZone}:{@link ContactZone})。
@@ -586,7 +587,7 @@ export class ContactService extends Module {
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
             if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
                 if (responsePacket.data.code == ContactServiceState.Ok) {
-                    handleSuccess(new ContactZone(responsePacket.data.data));
+                    handleSuccess(new ContactZone(responsePacket.data.data, this));
                 }
                 else {
                     if (handleFailure) {
