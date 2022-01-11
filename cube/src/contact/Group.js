@@ -286,7 +286,7 @@ export class Group extends AbstractContact {
 
     /**
      * 列出所有成员数据。
-     * @param {function} handler 回调成员数据清单，参数：({@linkcode list}:{@linkcode Array<Contact>}, {@linkcode group}:{@link Group}) 。
+     * @param {function} handler 回调成员数据清单，参数：({@linkcode list}:Array<{@link Contact}>, {@linkcode group}:{@link Group}) 。
      */
     listMembers(handler) {
         (new Promise((resolve, reject) => {
@@ -308,6 +308,14 @@ export class Group extends AbstractContact {
             console.error(error);
             handler([], this);
         });
+    }
+
+    /**
+     * 获取群组的所有成员。
+     * @param {function} handler 回调成员数据清单，参数：({@linkcode list}:Array<{@link Contact}>, {@linkcode group}:{@link Group}) 。
+     */
+    getMembers(handler) {
+        this.listMembers(handler);
     }
 
     /**

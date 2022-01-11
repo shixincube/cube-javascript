@@ -204,4 +204,41 @@ export class Entity extends JSONable {
         json.timestamp = this.timestamp;
         return json;
     }
+
+    getObjectClass() {
+        if (this.constructor && this.constructor.toString()) {
+            /*
+             * for browsers which have name property in the constructor
+             * of the object,such as chrome 
+             */
+            if (obj.constructor.name) {
+                return obj.constructor.name;
+            }
+
+            let str = obj.constructor.toString();
+
+            let arr = null;
+
+            /*
+             * executed if the return of object.constructor.toString() is 
+             * "[object objectClass]"
+             */
+            if (str.charAt(0) == '[') {
+                arr = str.match(/\[\w+\s*(\w+)\]/);
+            } else {
+                /*
+                * executed if the return of object.constructor.toString() is 
+                * "function objectClass () {}"
+                * for IE Firefox
+                */
+                arr = str.match(/function\s*(\w+)/);
+            }
+
+            if (arr && arr.length == 2) {
+                return arr[1];
+            }
+        }
+
+        return undefined; 
+    }
 }

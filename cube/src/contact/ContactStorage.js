@@ -342,11 +342,11 @@ export class ContactStorage {
      * 读取指定 ID 的群组。
      * @param {number} id 指定群组 ID 。
      * @param {function} handler 查询结果回调函数，参数：({@linkcode id}:{@linkcode number}, {@linkcode group}:{@link Group}) - (群组的ID, 查询到的群组) 。如果查询不到指定群组，参数 {@linkcode group} 为 {@linkcode null} 值。
-     * @returns {boolean} 返回是否执行了查询操作。
      */
     readGroup(id, handler) {
         if (null == this.db) {
-            return false;
+            handler(id, null);
+            return;
         }
 
         (async ()=> {
@@ -371,8 +371,6 @@ export class ContactStorage {
                 handler(id, null);
             }
         })();
-
-        return true;
     }
 
     /**

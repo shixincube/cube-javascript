@@ -46,13 +46,16 @@ import { ContactServiceState } from "./ContactServiceState";
 import { ContactAppendix } from "./ContactAppendix";
 import { GroupAppendix } from "./GroupAppendix";
 import { ContactZone } from "./ContactZone";
-import { ContactZoneParticipant } from "./ContactZoneParticipant";
+
+
+/**
+ * 联系人
+ */
+
 
 /**
  * 联系人模块。
  * @extends Module
- * 
- * FIXME 2021-11-18 XJW 群组数据结构变更
  */
 export class ContactService extends Module {
 
@@ -1271,14 +1274,15 @@ export class ContactService extends Module {
                 this.storage.writeGroup(group);
             }
             else {
-                let members = group.getMembers();
-                for (let i = 0; i < members.length; ++i) {
-                    let member = members[i];
-                    if (member.equals(this.self)) {
-                        members[i] = this.self;
-                        break;
+                group.getMembers((members, group) => {
+                    for (let i = 0; i < members.length; ++i) {
+                        let member = members[i];
+                        if (member.equals(this.self)) {
+                            members[i] = this.self;
+                            break;
+                        }
                     }
-                }
+                });
 
                 // 其他终端创建的群，本终端被邀请进入
                 this.groups.put(group.getId(), group);

@@ -162,22 +162,24 @@ function addMember() {
     }
 
     cube.contact.getGroup(groupId, function(group) {
-        presetContactsDialog(group.getMembers());
+        group.getMembers(function(members, group) {
+            presetContactsDialog(members);
 
-        dialog('contacts', 'show', function(ok) {
-            if (ok) {
-                var list = querySelectedContacts();
-                if (list.length == 0) {
-                    alert('至少选择一个联系人');
-                    return false;
+            dialog('contacts', 'show', function(ok) {
+                if (ok) {
+                    var list = querySelectedContacts();
+                    if (list.length == 0) {
+                        alert('至少选择一个联系人');
+                        return false;
+                    }
+
+                    group.addMembers(list, function(group) {
+                        refreshGroupInfo(group);
+                    });
                 }
-    
-                group.addMembers(list, function(group) {
-                    refreshGroupInfo(group);
-                });
-            }
 
-            resetContactsDialog();
+                resetContactsDialog();
+            });
         });
     });
 }
@@ -252,11 +254,13 @@ function refreshGroupInfo(group) {
         document.querySelector('input#creationTime').value = formatTime(group.getCreationTime());
         document.querySelector('textarea#groupNotice').value = group.getAppendix().getNotice();
 
-        group.getMembers().forEach(function(member) {
-            var option = document.createElement('option');
-            option.value = member.getId();
-            option.innerText = getContactName(member.getId()) + ' - ' + member.getId();
-            selMembers.append(option);
+        group.getMembers(function(members, group) {
+            members.forEach(function(member) {
+                var option = document.createElement('option');
+                option.value = member.getId();
+                option.innerText = getContactName(member.getId()) + ' - ' + member.getId();
+                selMembers.append(option);
+            });
         });
     }
     else {

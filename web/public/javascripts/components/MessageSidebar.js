@@ -140,34 +140,36 @@
 
     function onAddMemberClick(e) {
         var list = g.app.contactsCtrl.getContacts();
-        var members = currentGroup.getMembers();
         var result = [];
         var contains = false;
-        for (var i = 0; i < list.length; ++i) {
-            var contact = list[i];
-            contains = false;
-            for (var j = 0; j < members.length; ++j) {
-                var member = members[j];
-                if (member.id == contact.id) {
-                    contains = true;
-                    break;
+
+        currentGroup.getMembers(function(members, group) {
+            for (var i = 0; i < list.length; ++i) {
+                var contact = list[i];
+                contains = false;
+                for (var j = 0; j < members.length; ++j) {
+                    var member = members[j];
+                    if (member.id == contact.id) {
+                        contains = true;
+                        break;
+                    }
+                }
+
+                if (!contains) {
+                    result.push(contact);
                 }
             }
 
-            if (!contains) {
-                result.push(contact);
-            }
-        }
-
-        g.app.contactListDialog.show(result, [], function(list) {
-            if (list.length > 0) {
-                currentGroup.addMembers(list, function(group) {
-                    that.updateGroup(group);
-                }, function(error) {
-                    g.dialog.launchToast(Toast.Error, '邀请入群操作失败 - ' + error.code);
-                });
-            }
-        }, '邀请入群', '请选择您要邀请入群的联系人');
+            g.app.contactListDialog.show(result, [], function(list) {
+                if (list.length > 0) {
+                    currentGroup.addMembers(list, function(group) {
+                        that.updateGroup(group);
+                    }, function(error) {
+                        g.dialog.launchToast(Toast.Error, '邀请入群操作失败 - ' + error.code);
+                    });
+                }
+            }, '邀请入群', '请选择您要邀请入群的联系人');
+        });
     }
 
     function onRemoveMemberClick(e) {
@@ -176,29 +178,30 @@
             return;
         }
 
-        var members = currentGroup.getMembers().concat();
-        if (members.length == 2) {
-            g.dialog.launchToast(Toast.Warning, '群里仅有两名成员，没有可移除的成员。');
-            return;
-        }
-
-        for (var i = 0; i < members.length; ++i) {
-            var member = members[i];
-            if (member.id == g.app.account.id) {
-                members.splice(i, 1);
-                break;
+        currentGroup.getMembers(function(members, group) {
+            if (members.length == 2) {
+                g.dialog.launchToast(Toast.Warning, '群里仅有两名成员，没有可移除的成员。');
+                return;
             }
-        }
 
-        g.app.contactListDialog.show(members, [], function(list) {
-            if (list.length > 0) {
-                currentGroup.removeMembers(list, function(group) {
-                    that.updateGroup(group);
-                }, function(error) {
-                    g.dialog.launchToast(Toast.Error, '移除成员操作失败 - ' + error.code);
-                });
+            for (var i = 0; i < members.length; ++i) {
+                var member = members[i];
+                if (member.id == g.app.account.id) {
+                    members.splice(i, 1);
+                    break;
+                }
             }
-        }, '移除成员', '请选择您要从群组移除的联系人');
+
+            g.app.contactListDialog.show(members, [], function(list) {
+                if (list.length > 0) {
+                    currentGroup.removeMembers(list, function(group) {
+                        that.updateGroup(group);
+                    }, function(error) {
+                        g.dialog.launchToast(Toast.Error, '移除成员操作失败 - ' + error.code);
+                    });
+                }
+            }, '移除成员', '请选择您要从群组移除的联系人');
+        });
     }
 
 
@@ -319,6 +322,10 @@
      * @param {Group|Contact} entity 
      */
     MessageSidebar.prototype.update = function(entity) {
+        if (null == entity) {
+            return;
+        }
+
         if (entity instanceof Group) {
             this.updateGroup(entity);
             if (groupSidebarEl.hasClass('no-display')) {
@@ -390,8 +397,10 @@
         // 加载成员列表
         memberListEl.empty();
 
-        group.getMembers().forEach(function(element) {
-            g.app.getContact(element.getId(), function(contact) {
+        group.getMembers(function(members, group) {
+            // g.app.getContact(element.getId(), function(contact) {
+            for (var i = 0; i < members.length; ++i) {
+                var contact = members[i];
                 // 更新本地数据
                 group.modifyMember(contact);
 
@@ -410,17 +419,18 @@
                     '</div>'
                 ];
                 memberListEl.append($(html.join('')));
-            });
+            }
         });
 
         // 配置信息
         var appendix = g.app.getSelf().getAppendix();
-        if (appendix.isNoNoticeGroup(group)) {
-            switchContactNoNoticing.bootstrapSwitch('state', true);
-        }
-        else {
-            switchContactNoNoticing.bootstrapSwitch('state', false);
-        }
+        // TODO XJW 联系人的附录里没有该数据，在群组的附录里
+        // if (appendix.isNoNoticeGroup(group)) {
+        //     switchContactNoNoticing.bootstrapSwitch('state', true);
+        // }
+        // else {
+        //     switchContactNoNoticing.bootstrapSwitch('state', false);
+        // }
 
         // 检索群组的图片
         /*window.cube().fs.getRoot(group, function(root) {

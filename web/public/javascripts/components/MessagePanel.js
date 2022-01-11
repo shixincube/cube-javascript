@@ -1179,34 +1179,36 @@
         if (this.current.groupable) {
             var currentGroup = this.current.entity;
             var list = g.app.contactsCtrl.getContacts();
-            var members = currentGroup.getMembers();
             var result = [];
             var contains = false;
-            for (var i = 0; i < list.length; ++i) {
-                var contact = list[i];
-                contains = false;
-                for (var j = 0; j < members.length; ++j) {
-                    var member = members[j];
-                    if (member.id == contact.id) {
-                        contains = true;
-                        break;
+
+            currentGroup.getMembers(function(members, group) {
+                for (var i = 0; i < list.length; ++i) {
+                    var contact = list[i];
+                    contains = false;
+                    for (var j = 0; j < members.length; ++j) {
+                        var member = members[j];
+                        if (member.id == contact.id) {
+                            contains = true;
+                            break;
+                        }
+                    }
+
+                    if (!contains) {
+                        result.push(contact);
                     }
                 }
 
-                if (!contains) {
-                    result.push(contact);
-                }
-            }
-
-            g.app.contactListDialog.show(result, [], function(list) {
-                if (list.length > 0) {
-                    currentGroup.addMembers(list, function(group) {
-                        g.app.messageSidebar.update(group);
-                    }, function(error) {
-                        g.dialog.launchToast(Toast.Error, '邀请入群操作失败 - ' + error.code);
-                    });
-                }
-            }, '邀请入群', '请选择您要邀请入群的联系人');
+                g.app.contactListDialog.show(result, [], function(list) {
+                    if (list.length > 0) {
+                        currentGroup.addMembers(list, function(group) {
+                            g.app.messageSidebar.update(group);
+                        }, function(error) {
+                            g.dialog.launchToast(Toast.Error, '邀请入群操作失败 - ' + error.code);
+                        });
+                    }
+                }, '邀请入群', '请选择您要邀请入群的联系人');
+            });
         }
         else {
             g.app.newGroupDialog.show([this.current.entity.getId()]);
@@ -1375,7 +1377,13 @@
      * @returns 
      */
     MessagePanel.prototype.makeAtPanel = function(group) {
-        var list = group.getMembers();
+        var that = this;
+        group.getMembers(function(members, group) {
+            that._makeAtPanel(group, members);
+        });
+    }
+
+    MessagePanel.prototype._makeAtPanel = function(group, list) {
         var num = list.length - 1;
 
         this.atElList = [];

@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>CallRecord - Cube for Javascript</title>
+    <title>MediaListener - Cube for Javascript</title>
     
     <meta name="description" content="Cube Javascript" />
     
@@ -46,7 +46,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">CallRecord</h1>
+    <h1 class="page-title">MediaListener</h1>
     
 
     
@@ -59,10 +59,10 @@
 <header>
     
         <h2>
-        CallRecord
+        MediaListener
         </h2>
         
-            <div class="class-description usertext"><p>通话记录。</p></div>
+            <div class="class-description usertext"><p>媒体流监听器。</p></div>
         
     
 </header>
@@ -77,7 +77,7 @@
     <h2>Constructor</h2>
     
 
-    <h4 class="name" id="CallRecord"><span class="type-signature"></span>new CallRecord<span class="signature">(self, field)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="MediaListener"><span class="type-signature"></span>new MediaListener<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 
@@ -122,6 +122,116 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+        </div>
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="MediaListener.html">MediaListener</a></dt>
+            <dd></dd>
+        </dl>
+    
+    
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="onMediaConnected"><span class="type-signature"></span>onMediaConnected<span class="signature">(commField, rtcDevice)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>媒体流已连接时回调。</p>
+</div>
 
 
 
@@ -158,30 +268,7 @@
 
         <tr>
             
-                <td class="name"><code>self</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="Self.html">Self</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>当前签入的联系人。</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>field</code></td>
+                <td class="name"><code>commField</code></td>
             
 
             <td class="type">
@@ -197,7 +284,30 @@
 
             
 
-            <td class="description last"><p>通信场域。</p></td>
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>rtcDevice</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="RTCDevice.html">RTCDevice</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
         </tr>
 
     
@@ -223,35 +333,13 @@
 
 
         
-        </div>
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Classes</h3>
-
-        <dl>
-            <dt><a href="CallRecord.html">CallRecord</a></dt>
-            <dd></dd>
-        </dl>
-    
-    
-    
-
-     
-
-    
-
-    
-        <h3 class="subsection-title">Members</h3>
-
-        
             
-<h4 class="name" id="answerTime"><span class="type-signature"></span>answerTime<span class="type-signature"> :number</span></h4>
 
+    
+
+    <h4 class="name" id="onMediaDisconnected"><span class="type-signature"></span>onMediaDisconnected<span class="signature">(commField, rtcDevice)</span><span class="type-signature"></span></h4>
+
+    
 
 
 
@@ -296,1193 +384,105 @@
 
 
 <div class="description usertext">
-    <p>应答时间。</p>
+    <p>媒体流已断开连接时回调。</p>
 </div>
 
 
 
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">number</span>
-
-
-        </li>
-    </ul>
 
 
 
 
 
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
 
         
-            
-<h4 class="name" id="calleeMediaConstraint"><span class="type-signature"></span>calleeMediaConstraint<span class="type-signature"> :<a href="MediaConstraint.html">MediaConstraint</a></span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type"><a href="MediaConstraint.html">MediaConstraint</a></span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
 
         
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
             
-<h4 class="name" id="callerMediaConstraint"><span class="type-signature"></span>callerMediaConstraint<span class="type-signature"> :<a href="MediaConstraint.html">MediaConstraint</a></span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
+                <td class="name"><code>commField</code></td>
             
-<span class="param-type"><a href="MediaConstraint.html">MediaConstraint</a></span>
 
-
-        </li>
-    </ul>
-
-
-
-
-
-
-        
+            <td class="type">
             
-<h4 class="name" id="endTime"><span class="type-signature"></span>endTime<span class="type-signature"> :number</span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>结束时间。</p>
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">number</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="field"><span class="type-signature"></span>field<span class="type-signature"> :<a href="CommField.html">CommField</a></span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
+                
 <span class="param-type"><a href="CommField.html">CommField</a></span>
 
 
-        </li>
-    </ul>
-
-
-
-
-
-
-        
             
-<h4 class="name" id="lastError"><span class="type-signature"></span>lastError<span class="type-signature"> :<a href="ModuleError.html">ModuleError</a></span></h4>
+            </td>
 
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type"><a href="ModuleError.html">ModuleError</a></span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="self"><span class="type-signature"></span>self<span class="type-signature"> :<a href="Self.html">Self</a></span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type"><a href="Self.html">Self</a></span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="startTime"><span class="type-signature"></span>startTime<span class="type-signature"> :number</span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>开始时间。</p>
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">number</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-
-        
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
             
 
-    
-
-    <h4 class="name" id="getCallee"><span class="type-signature"></span>getCallee<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="Contact.html">Contact</a>}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>获取当前通话的被叫。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>返回当前通话的被叫。</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="Contact.html">Contact</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
             
 
-    
-
-    <h4 class="name" id="getCaller"><span class="type-signature"></span>getCaller<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="Contact.html">Contact</a>}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
+            <td class="description last"></td>
+        </tr>
 
     
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>获取当前通话的主叫。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>返回当前通话的主叫。</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="Contact.html">Contact</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
+        <tr>
+            
+                <td class="name"><code>rtcDevice</code></td>
             
 
-    
-
-    <h4 class="name" id="getDuration"><span class="type-signature"></span>getDuration<span class="signature">()</span><span class="type-signature"> &rarr; {number}</span></h4>
-
-    
-
+            <td class="type">
+            
+                
+<span class="param-type"><a href="RTCDevice.html">RTCDevice</a></span>
 
 
+            
+            </td>
 
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>返回通话时长。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">number</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
             
 
-    
-
-    <h4 class="name" id="getPeer"><span class="type-signature"></span>getPeer<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="Contact.html">Contact</a>}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>获取对端联系人。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="Contact.html">Contact</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
             
 
-    
-
-    <h4 class="name" id="isActive"><span class="type-signature"></span>isActive<span class="signature">()</span><span class="type-signature"> &rarr; {boolean}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
+            <td class="description last"></td>
+        </tr>
 
     
+    </tbody>
+</table>
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
 
-    
-</dl>
 
-
-
-
-
-<div class="description usertext">
-    <p>当前记录的通话是否正在进行中。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">boolean</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="isCaller"><span class="type-signature"></span>isCaller<span class="signature">()</span><span class="type-signature"> &rarr; {boolean}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>当前账号是否是主叫。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">boolean</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="isVideoCaller"><span class="type-signature"></span>isVideoCaller<span class="signature">()</span><span class="type-signature"> &rarr; {boolean}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>是否是视频主叫。</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">boolean</span>
-
-
-    </dd>
-</dl>
-
-    
 
 
 

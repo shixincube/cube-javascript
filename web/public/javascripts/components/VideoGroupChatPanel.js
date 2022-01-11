@@ -165,40 +165,42 @@
                 else {
                     var members = [];
 
-                    group.getMembers().forEach(function(element) {
-                        if (element.getId() == g.app.getSelf().getId()) {
-                            return;
-                        }
-
-                        g.app.getContact(element.getId(), function(contact) {
-                            members.push(contact);
-
-                            if (members.length == group.numMembers() - 1) {
-                                // 显示联系人列表对话框，以便选择邀请通话的联系人。
-                                g.app.contactListDialog.show(members, [], function(result) {
-                                    if (result.length == 0) {
-                                        g.dialog.showAlert('没有邀请任何联系人参与视频通话');
-                                        return false;
-                                    }
-
-                                    result.unshift(g.app.getSelf().getId());
-
-                                    if (result.length > maxMembers) {
-                                        g.dialog.showAlert('超过最大通话人数（最大通话人数 ' + maxMembers + ' 人）');
-                                        return false;
-                                    }
-
-                                    // 界面布局
-                                    that.resetLayout(result);
-
-                                    // 邀请列表要移除自己
-                                    result.shift();
-
-                                    // 调用启动通话
-                                    handler(group, result);
-
-                                }, '群视频', '请选择要邀请视频通话的群组成员', (maxMembers - 1));
+                    group.getMembers(function(list, group) {
+                        list.forEach(function(element) {
+                            if (element.getId() == g.app.getSelf().getId()) {
+                                return;
                             }
+
+                            g.app.getContact(element.getId(), function(contact) {
+                                members.push(contact);
+    
+                                if (members.length == group.numMembers() - 1) {
+                                    // 显示联系人列表对话框，以便选择邀请通话的联系人。
+                                    g.app.contactListDialog.show(members, [], function(result) {
+                                        if (result.length == 0) {
+                                            g.dialog.showAlert('没有邀请任何联系人参与视频通话');
+                                            return false;
+                                        }
+
+                                        result.unshift(g.app.getSelf().getId());
+
+                                        if (result.length > maxMembers) {
+                                            g.dialog.showAlert('超过最大通话人数（最大通话人数 ' + maxMembers + ' 人）');
+                                            return false;
+                                        }
+
+                                        // 界面布局
+                                        that.resetLayout(result);
+
+                                        // 邀请列表要移除自己
+                                        result.shift();
+
+                                        // 调用启动通话
+                                        handler(group, result);
+
+                                    }, '群视频', '请选择要邀请视频通话的群组成员', (maxMembers - 1));
+                                }
+                            });
                         });
                     });
                 }

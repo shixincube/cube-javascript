@@ -496,6 +496,7 @@
             cube.contact.getGroup(id, function(group) {
                 callback(group);
             }, function(error) {
+                console.warn('Get group ' + id + ' - error : ' + error);
                 callback(null);
             });
         },

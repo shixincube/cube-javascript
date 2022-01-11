@@ -55,25 +55,26 @@
 
     var fireAddMember = function() {
         var contactList = g.app.getMyContacts();
-        var members = lastGroup.getMembers();
-        g.app.contactListDialog.show(contactList, members, function(list) {
-            if (contactList.length == members.length + 1) {
-                // 当前账号的联系人都已经是群组成员
+        lastGroup.getMembers(function(members, group) {
+            g.app.contactListDialog.show(contactList, members, function(list) {
+                if (contactList.length == members.length + 1) {
+                    // 当前账号的联系人都已经是群组成员
+                    return true;
+                }
+    
+                if (list.length == 0) {
+                    g.dialog.showAlert('没有选择联系人');
+                    return false;
+                }
+    
+                lastGroup.addMembers(list, function() {
+                    g.app.groupDetails.refresh();
+                }, function(error) {
+                    g.dialog.launchToast(Toast.Error, '添加群组成员失败: ' + error.code);
+                });
+    
                 return true;
-            }
-
-            if (list.length == 0) {
-                g.dialog.showAlert('没有选择联系人');
-                return false;
-            }
-
-            lastGroup.addMembers(list, function() {
-                g.app.groupDetails.refresh();
-            }, function(error) {
-                g.dialog.launchToast(Toast.Error, '添加群组成员失败: ' + error.code);
             });
-
-            return true;
         });
     }
 
@@ -160,8 +161,10 @@
 
         var table = el.find('.table');
         table.find('tbody').remove();
-        table.append(this.createGroupDetailsTable(group));
-        el.modal('show');
+        this.createGroupDetailsTable(group, function(tableEl) {
+            table.append(tableEl);
+            el.modal('show');
+        });
     }
 
     /**
@@ -182,15 +185,19 @@
         var el = this.el;
         var table = el.find('.table');
         table.find('tbody').remove();
-        table.append(this.createGroupDetailsTable(lastGroup));
-        el.modal('show');
+
+        this.createGroupDetailsTable(lastGroup, function(tableEl) {
+            table.append(tableEl);
+            el.modal('show');
+        });
     }
 
     /**
      * @private
      * @param {Group} group 
+     * @param {function} completion 
      */
-    GroupDetails.prototype.createGroupDetailsTable = function(group) {
+    GroupDetails.prototype.createGroupDetailsTable = function(group, completion) {
         var detailMemberTable = $('<tbody></tbody>');
 
         var removeable = group.isOwner();
@@ -203,41 +210,43 @@
         ];
         clickEvent = clickEvent.join('');
 
-        var members = group.getMembers();
-        for (var i = 0; i < members.length; ++i) {
-            var member = members[i];
-
-            var operation = removeable ? [ '<button class="btn btn-danger btn-xs" onclick="', clickEvent, '"',
-                    ' data-member="', member.getId(), '"',
-                    ' data-group="', group.getId(), '"',
-                    ' data-original-title="从本群中移除" data-placement="top" data-toggle="tooltip"><i class="fas fa-minus"></i></button>']
-                : [];
-
-            if (removeable) {
-                if (member.equals(g.app.getSelf())) {
-                    operation = [];
+        // 获取群组的所有成员
+        group.getMembers(function(members, group) {
+            for (var i = 0; i < members.length; ++i) {
+                var member = members[i];
+    
+                var operation = removeable ? [ '<button class="btn btn-danger btn-xs" onclick="', clickEvent, '"',
+                        ' data-member="', member.getId(), '"',
+                        ' data-group="', group.getId(), '"',
+                        ' data-original-title="从本群中移除" data-placement="top" data-toggle="tooltip"><i class="fas fa-minus"></i></button>']
+                    : [];
+    
+                if (removeable) {
+                    if (member.equals(g.app.getSelf())) {
+                        operation = [];
+                    }
                 }
+    
+                operation = operation.join('');
+    
+                var contact = g.app.queryContact(member.getId());
+                var html = [
+                    '<tr>',
+                        '<td>', (i + 1), '</td>',
+                        '<td><img class="table-avatar" src="images/', contact.getContext().avatar, '" /></td>',
+                        '<td>', contact.getPriorityName(), '</td>',
+                        '<td>', contact.getId(), '</td>',
+                        '<td>', contact.getContext().region, '</td>',
+                        '<td>', contact.getContext().department, '</td>',
+                        '<td>', operation, '</td>',
+                    '</tr>'];
+        
+                var elMem = $(html.join(''));
+                detailMemberTable.append(elMem);
             }
 
-            operation = operation.join('');
-
-            var contact = g.app.queryContact(member.getId());
-            var html = [
-                '<tr>',
-                    '<td>', (i + 1), '</td>',
-                    '<td><img class="table-avatar" src="images/', contact.getContext().avatar, '" /></td>',
-                    '<td>', contact.getPriorityName(), '</td>',
-                    '<td>', contact.getId(), '</td>',
-                    '<td>', contact.getContext().region, '</td>',
-                    '<td>', contact.getContext().department, '</td>',
-                    '<td>', operation, '</td>',
-                '</tr>'];
-    
-            var elMem = $(html.join(''));
-            detailMemberTable.append(elMem);
-        }
-    
-        return detailMemberTable;
+            completion(detailMemberTable);
+        });
     }
 
     g.GroupDetails = GroupDetails;
