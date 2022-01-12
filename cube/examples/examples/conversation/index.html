@@ -48,8 +48,51 @@
     </h1>
 
     <section id="blurb">
-        <p>该示例演示。</p>
+        <p>该示例演示如何管理即时消息的会话，及会话列表。</p>
     </section>
+
+    <section id="contactSetting">
+        <h2>账号设置</h2>
+        <div>
+            <label for="contactId">账号ID：</label>
+            <input id="contactId">
+        </div>
+        <div>
+            <label for="contactName">账号显示名：</label>
+            <input id="contactName">
+        </div>
+
+        <div>
+            <button id="start">启动</button>
+            <button id="stop" disabled>停止</button>
+        </div>
+    </section>
+
+    <section id="conversations">
+        <h2>会话列表</h2>
+        <div class="wrap">
+            <div class="col">
+                <select multiple>
+                    <option id="1">会话1</option>
+                    <option id="2">会话2</option>
+                    <option id="3">会话3</option>
+                </select>
+            </div>
+    
+            <div class="col">
+                <form>
+                    <label for="convId">会话 ID：</label>
+                    <input id="convId" value="123" readonly />
+                </form>
+            </div>
+
+            <div class="col">
+                <button id="get">加载会话</button>
+            </div>
+        </div>
+    </section>
+
+    <div class="tip">状态：<span id="state">#</span></div>
 
 </div>
 

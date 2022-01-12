@@ -31,7 +31,13 @@
  * @alias MessagingEvent
  */
 const CubeMessagingEvent = {
-    
+
+    /**
+     * 当消息模块就绪时。
+     * @type {string}
+     */
+    Ready: 'Ready',
+
     /**
      * 收到新消息。
      * @type {string}

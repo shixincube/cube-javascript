@@ -63,5 +63,24 @@ export const MessagingAction = {
      * 标记已读。
      * @type {string}
      */
-    Read: 'read'
+    Read: 'read',
+
+    /**
+     * 查询消息状态。
+     * @type {string}
+     */
+    QueryState: 'queryState',
+
+    /**
+     * 获取会话列表。
+     * @type {string}
+     */
+    GetConversations: 'getConversations',
+
+    /**
+     * 更新会话数据。
+     * @type {string}
+     */
+    UpdateConversation: 'updateConversation'
+
 }

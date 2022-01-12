@@ -49,6 +49,8 @@ import { PipelineState } from "../core/PipelineState";
 import { InstantiateHook } from "./hook/InstantiateHook";
 import { MessagePlugin } from "./MessagePlugin";
 import { MessageDraft } from "./MessageDraft";
+import { Conversation } from "./Conversation";
+import { ConversationType } from "./ConversationType";
 
 /**
  * 消息服务模块接口。
@@ -133,6 +135,12 @@ export class MessagingService extends Module {
         this.storage = new MessagingStorage(this);
 
         /**
+         * 会话列表。
+         * @type {Array<Conversation>}
+         */
+        this.conversations = [];
+
+        /**
          * 最近一条消息的时间。
          * @type {number}
          */
@@ -198,25 +206,7 @@ export class MessagingService extends Module {
 
         let self = this.contactService.getSelf();
         if (null != self) {
-            // 开启存储器
-            this.storage.open(self.getId(), AuthService.DOMAIN);
-
-            this.storage.queryLastMessageTime((value) => {
-                let now = Date.now();
-
-                if (value == 0) {
-                    this.lastMessageTime = now - this.defaultRetrospect;
-                }
-                else {
-                    this.lastMessageTime = value;
-                }
-
-                // 从服务器上拉取自上一次时间戳之后的所有消息
-                this.queryRemoteMessage(this.lastMessageTime, now, () => {
-                    cell.Logger.d('MessagingService', 'Ready');
-                    this.serviceReady = true;
-                });
-            });
+            this._prepare(self);
         }
 
         return true;
@@ -261,6 +251,63 @@ export class MessagingService extends Module {
     }
 
     /**
+     * @private
+     * @param {Self} self 
+     */
+     _prepare(self) {
+        let gotMessages = false;
+        let gotConversations = false;
+
+        // 启动存储
+        this.storage.open(self.getId(), self.getDomain());
+
+        // 查询最新消息时间
+        this.storage.queryLastMessageTime((value) => {
+            let now = Date.now();
+
+            if (value == 0) {
+                this.lastMessageTime = now - this.defaultRetrospect;
+            }
+            else {
+                this.lastMessageTime = value;
+            }
+
+            // 从服务器上拉取自上一次时间戳之后的所有消息
+            this.queryRemoteMessage(this.lastMessageTime, now, () => {
+                cell.Logger.d('MessagingService', '#queryRemoteMessage');
+
+                gotMessages = true;
+                if (gotConversations) {
+                    cell.Logger.d('MessagingService', 'Ready');
+
+                    this.serviceReady = true;
+                    let event = new ObservableEvent(MessagingEvent.Ready, this);
+                    this.notifyObservers(event);
+                }
+            });
+
+            // 获取最新的会话列表
+            let limit = 50;
+            if (now - this.lastQueryTime > 1 * 60 * 60 * 1000) {
+                // 大于一小时
+                limit = 100;
+            }
+            this.queryRemoteConversations(limit, (list) => {
+                cell.Logger.d('MessagingService', '#queryRemoteConversations');
+
+                gotConversations = true;
+                if (gotMessages) {
+                    cell.Logger.d('MessagingService', 'Ready');
+
+                    this.serviceReady = true;
+                    let event = new ObservableEvent(MessagingEvent.Ready, this);
+                    this.notifyObservers(event);
+                }
+            });
+        });
+    }
+
+    /**
      * @inheritdoc
      */
     isReady() {
@@ -300,6 +347,45 @@ export class MessagingService extends Module {
         }
 
         return (message.from == self.getId());
+    }
+
+    /**
+     * 获取最近的会话清单。
+     * @param {function} handler 指定会话清单回调句柄，参数：({@linkcode list}:Array<{@link Conversation}>) 。
+     */
+    getRecentConversations(handler) {
+        if (!this.isReady()) {
+            handler(null);
+            return;
+        }
+
+        let process = (list) => {
+            let result = [];
+
+            list.forEach((value) => {
+                (async ()=> {
+                    let conversation = await this.fillConversation(value);
+                    result.push(conversation);
+
+                    if (result.length == list.length) {
+                        // 获取到全部数据
+                        this.conversations = result;
+                        setTimeout(() => {
+                            handler(this.conversations);
+                        }, 0);
+                    }
+                })();
+            });
+        };
+
+        if (this.conversations.length == 0) {
+            this.storage.queryRecentConversations(20, (list) => {
+                process(list);
+            });
+        }
+        else {
+            handler(this.conversations);
+        }
     }
 
     /**
@@ -1270,6 +1356,63 @@ export class MessagingService extends Module {
     }
 
     /**
+     * 查询远端服务器上的会话数据。
+     * @param {number} limit 
+     * @param {function} handleSuccess 
+     * @param {function} handleFailure
+     */
+    queryRemoteConversations(limit, handleSuccess, handleFailure) {
+        if (!this.pipeline.isReady()) {
+            let error = new ModuleError(MessagingService.NAME, MessagingServiceState.Failure);
+            handleFailure(error);
+            return;
+        }
+
+        let payload = {
+            "limit": limit
+        };
+        let requestPacket = new Packet(MessagingAction.GetConversations, payload);
+        this.pipeline.send(MessagingService.NAME, requestPacket, (pipeline, source, packet) => {
+            if (packet.getStateCode() != PipelineState.OK) {
+                cell.Logger.w(MessagingService.NAME, '#queryRemoteConversations : ' + packet.getStateCode());
+                let error = new ModuleError(MessagingService.NAME, MessagingServiceState.ServerFault);
+                handleFailure(error);
+                return;
+            }
+
+            if (packet.extractServiceStateCode() != MessagingServiceState.Ok) {
+                cell.Logger.w(MessagingService.NAME, '#queryRemoteConversations : ' + packet.extractServiceStateCode());
+                let error = new ModuleError(MessagingService.NAME, packet.extractServiceStateCode());
+                handleFailure(error);
+                return;
+            }
+
+            // 删除旧数据
+            this.conversations.splice(0, this.conversations.length);
+
+            // let total = packet.extractServiceData().total;
+            let list = packet.extractServiceData().list;
+
+            list.forEach((value) => {
+                let conversation = Conversation.create(value);
+                (async ()=> {
+                    let conv = await this.fillConversation(conversation);
+                    this.conversations.push(conv);
+
+                    // 写入数据
+                    this.storage.writeConversation(conv);
+
+                    if (this.conversations.length == list.length) {
+                        setTimeout(() => {
+                            handleSuccess(this.conversations);
+                        }, 0);
+                    }
+                })();
+            });
+        });
+    }
+
+    /**
      * 保存草稿。
      * @param {Contact|Group|number} target 草稿的目标实体。
      * @param {Message} message 草稿的消息实体。
@@ -1427,6 +1570,37 @@ export class MessagingService extends Module {
                         reject(error);
                     }
                 });
+            }
+        });
+    }
+
+    /**
+     * 填充会话数据。
+     * @param {Conversation} conversation 
+     * @returns {Promise}
+     */
+    fillConversation(conversation) {
+        return new Promise((resolve, reject) => {
+            if (conversation.type == ConversationType.Contact) {
+                this.contactService.getContact(conversation.pivotalId, (contact) => {
+                    conversation.pivotal = contact;
+                    resolve(conversation);
+                }, (error) => {
+                    cell.Logger.w(MessagingService.NAME, '#fillConversation (Contact) - ' + conversation.id + ' : ' + error);
+                    resolve(conversation);
+                });
+            }
+            else if (conversation.type == ConversationType.Group) {
+                this.contactService.getGroup(conversation.pivotalId, (group) => {
+                    conversation.pivotal = group;
+                    resolve(conversation);
+                }, (error) => {
+                    cell.Logger.w(MessagingService.NAME, '#fillConversation (Group) - ' + conversation.id + ' : ' + error);
+                    resolve(conversation);
+                });
+            }
+            else {
+                resolve(conversation);
             }
         });
     }
@@ -1856,26 +2030,10 @@ export class MessagingService extends Module {
         if (event.name == ContactEvent.SignIn || event.name == ContactEvent.Comeback) {
             let self = event.data;
 
-            // 启动存储
-            this.storage.open(self.getId(), self.getDomain());
-
-            // 查询最新消息时间
-            this.storage.queryLastMessageTime((value) => {
-                let now = Date.now();
-
-                if (value == 0) {
-                    this.lastMessageTime = now - this.defaultRetrospect;
-                }
-                else {
-                    this.lastMessageTime = value;
-                }
-
-                // 从服务器上拉取自上一次时间戳之后的所有消息
-                this.queryRemoteMessage(this.lastMessageTime, now, () => {
-                    cell.Logger.d('MessagingService', 'Ready');
-                    this.serviceReady = true;
-                });
-            });
+            if (!this.serviceReady) {
+                // 未就绪，执行就绪操作
+                this._prepare(self);
+            }
         }
         else if (event.name == ContactEvent.SignOut) {
             // 关闭存储

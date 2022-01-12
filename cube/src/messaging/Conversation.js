@@ -101,6 +101,20 @@ export class Conversation extends Entity {
         this.avatarName = null;
     }
 
+    getContact() {
+        if (this.type == ConversationType.Contact)
+            return this.pivotal;
+        else
+            return null;
+    }
+
+    getGroup() {
+        if (this.type == ConversationType.Group)
+            return this.pivotal;
+        else
+            return null;
+    }
+
     /**
      * @inheritdoc
      */

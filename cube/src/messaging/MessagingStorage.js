@@ -230,14 +230,36 @@ export class MessagingStorage {
                     else return 0;
                 });
 
-                result.forEach((value) => {
+                result.some((value) => {
                     let conversation = Conversation.create(value);
                     list.push(conversation);
+
+                    if (list.length == limit) {
+                        return true;
+                    }
+
+                    return false;
                 });
             }
 
             handler(list);
         })();
+    }
+
+    /**
+     * 写入会话数据。
+     * @param {Conversation} conversation 会话实例。
+     * @returns {boolean} 返回是否执行了写入操作。
+     */
+    writeConversation(conversation) {
+        if (null == this.db) {
+            return false;
+        }
+
+        (async ()=> {
+            await this.conversationStore.put(conversation.toJSON());
+        })();
+        return true;
     }
 
     /**
@@ -912,6 +934,7 @@ export class MessagingStorage {
     /**
      * 写入草稿。
      * @param {MessageDraft} draft 草稿。
+     * @returns {boolean} 返回是否执行了写入操作。
      */
     writeDraft(draft) {
         if (null == this.db) {
@@ -928,6 +951,7 @@ export class MessagingStorage {
     /**
      * 删除草稿。
      * @param {number} ownerId 草稿所属的实体 ID 。
+     * @returns {boolean} 返回是否执行了删除操作。
      */
     deleteDraft(ownerId) {
         if (null == this.db) {

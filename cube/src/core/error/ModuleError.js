@@ -55,13 +55,13 @@ export class ModuleError extends Error {
          * 相关数据。
          * @type {object}
          */
-        this.data = data;
+        this.data = (undefined !== data) ? data : null;
 
         /**
          * 附加描述信息。
          * @type {object}
          */
-        this.desc = desc;
+        this.desc = (undefined !== desc) ? desc : null;
     }
 
     /**

@@ -25,3 +25,30 @@
  * SOFTWARE.
  */
 
+section#contactSetting div {
+    display: inline-block;
+    margin-right: 2em;
+}
+
+section#conversations .wrap {
+    display: flex;
+}
+section#conversations .col {
+    display: inline-block;
+    margin-right: 50px;
+}
+
+section#conversations .col label {
+    display: inline-block;
+    width: 60px;
+}
+
+section#conversations select {
+    width: 280px;
+}
+
+.tip {
+    display: block !important;
+    font-size: 12px;
+    font-weight: bold;
+}

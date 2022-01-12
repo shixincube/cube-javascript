@@ -96,6 +96,22 @@ export class Packet {
     }
 
     /**
+     * 提取服务的状态码。
+     * @returns {number}
+     */
+    extractServiceStateCode() {
+        return this.data.code;
+    }
+
+    /**
+     * 提取服务模块的数据。
+     * @returns {JSON}
+     */
+    extractServiceData() {
+        return this.data.data;
+    }
+
+    /**
      * 从 JSON 格式创建 {@link Packet} 实例。
      * @param {JSON} json 符合格式的 JSON 对象。
      * @returns {Packet} 返回 {@link Packet} 对象实例。
