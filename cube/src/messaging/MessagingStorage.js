@@ -27,10 +27,13 @@
 import cell from "@lib/cell-lib";
 import InDB from "indb";
 import { ModuleError } from "../core/error/ModuleError";
+import { Conversation } from "./Conversation";
+import { ConversationState } from "./ConversationState";
 import { Message } from "./Message";
 import { MessageDraft } from "./MessageDraft";
 import { MessageState } from "./MessageState";
 import { MessagingService } from "./MessagingService";
+
 
 /**
  * 消息存储器。
@@ -121,6 +124,34 @@ export class MessagingStorage {
                     unique: false
                 }]
             }, {
+                name: 'conversation',
+                keyPath: 'id',
+                indexes: [{
+                    name: 'id',
+                    keyPath: 'id',
+                    unique: true
+                }, {
+                    name: 'timestamp',
+                    keyPath: 'timestamp',
+                    unique: false
+                }, {
+                    name: 'type',
+                    keyPath: 'type',
+                    unique: false
+                }, {
+                    name: 'state',
+                    keyPath: 'state',
+                    unique: false
+                }, {
+                    name: 'reminding',
+                    keyPath: 'reminding',
+                    unique: false
+                }, {
+                    name: 'pivotalId',
+                    keyPath: 'pivotalId',
+                    unique: false
+                }]
+            }, {
                 name: 'draft',
                 keyPath: 'owner',
                 indexes: [{
@@ -158,6 +189,7 @@ export class MessagingStorage {
 
         this.configStore = this.db.use('config');
         this.messageStore = this.db.use('message');
+        this.conversationStore = this.db.use('conversation');
         this.draftStore = this.db.use('draft');
         this.recentMessagerStore = this.db.use('recent_messager');
     }
@@ -174,6 +206,38 @@ export class MessagingStorage {
 
         this.db.close();
         this.db = null;
+    }
+
+    /**
+     * 查询最近的会话。
+     * @param {number} limit 查询的最大数量。
+     * @param {function} handler 数据回调句柄，参数：({@linkcode list}:Array<{@link Conversation}>) 。
+     */
+    queryRecentConversations(limit, handler) {
+        (async ()=> {
+            let list = [];
+
+            let result = await this.conversationStore.select([
+                { key: 'state', value: ConversationState.Normal, compare: '=' },
+                { key: 'state', value: ConversationState.Important, compare: '=', optional: true }
+            ]);
+
+            if (null != result) {
+                // 降序排序
+                result.sort((a, b) => {
+                    if (a.timestamp < b.timestamp) return -1;
+                    else if (a.timestamp > b.timestamp) return 1;
+                    else return 0;
+                });
+
+                result.forEach((value) => {
+                    let conversation = Conversation.create(value);
+                    list.push(conversation);
+                });
+            }
+
+            handler(list);
+        })();
     }
 
     /**

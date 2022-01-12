@@ -68,7 +68,19 @@ export class Conversation extends Entity {
          * 与会话相关的关键实体的 ID 。
          * @type {number}
          */
-        this.pivotal = 0;
+        this.pivotalId = 0;
+
+        /**
+         * 与会话相关的关键实体。
+         * @type {Entity}
+         */
+        this.pivotal = null;
+
+        /**
+         * 未读数量。
+         * @type {number}
+         */
+        this.unread = 0;
 
         /**
          * 最近的消息。
@@ -90,6 +102,25 @@ export class Conversation extends Entity {
     }
 
     /**
+     * @inheritdoc
+     */
+    toJSON() {
+        let json = super.toJSON();
+        json.ownerId = this.ownerId;
+        json.type = this.type;
+        json.state = this.state;
+        json.reminding = this.reminding;
+        json.pivotalId = this.pivotalId;
+        json.unread = this.unread;
+
+        if (null != this.recentMessage) {
+            json.recentMessage = this.recentMessage.toJSON();
+        }
+
+        return json;
+    }
+
+    /**
      * 从 JSON 数据创建 {@link Conversation} 对象。
      * @private
      * @param {JSON} json 符合格式的 JSON 对象。
@@ -97,11 +128,15 @@ export class Conversation extends Entity {
      */
     static create(json) {
         let conversation = new Conversation(json.id, json.timestamp);
-        conversation.ownerId = json.owner;
+        conversation.ownerId = (undefined !== json.owner) ? json.owner : json.ownerId;
         conversation.type = json.type;
         conversation.state = json.state;
-        conversation.reminding = json.remind;
-        conversation.pivotal = json.pivotal;
+        conversation.reminding = (undefined !== json.remind) ? json.remind : json.reminding;
+        conversation.pivotalId = (undefined !== json.pivotal) ? json.pivotal : json.pivotalId;
+
+        if (undefined !== json.unread) {
+            conversation.unread = json.unread;
+        }
 
         if (undefined !== json.recentMessage) {
             conversation.recentMessage = Message.create(json.recentMessage);
@@ -114,7 +149,7 @@ export class Conversation extends Entity {
         if (undefined !== json.avatarName) {
             conversation.avatarName = json.avatarName;
         }
-        
+
         return conversation;
     }
 }
