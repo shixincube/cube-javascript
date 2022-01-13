@@ -131,6 +131,10 @@ export class Conversation extends Entity {
         return this.state;
     }
 
+    getType() {
+        return this.type;
+    }
+
     /**
      * @inheritdoc
      */

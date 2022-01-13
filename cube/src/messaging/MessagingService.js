@@ -1404,6 +1404,13 @@ export class MessagingService extends Module {
 
                     if (this.conversations.length == list.length) {
                         setTimeout(() => {
+                            // 排序
+                            this.conversations.sort((a, b) => {
+                                if (a.timestamp > b.timestamp) return -1;
+                                else if (a.timestamp < b.timestamp) return 1;
+                                else return 0;
+                            });
+
                             handleSuccess(this.conversations);
                         }, 0);
                     }

@@ -225,8 +225,8 @@ export class MessagingStorage {
             if (null != result) {
                 // 降序排序
                 result.sort((a, b) => {
-                    if (a.timestamp < b.timestamp) return -1;
-                    else if (a.timestamp > b.timestamp) return 1;
+                    if (a.timestamp > b.timestamp) return -1;
+                    else if (a.timestamp < b.timestamp) return 1;
                     else return 0;
                 });
 
@@ -343,8 +343,8 @@ export class MessagingStorage {
             if (null != result) {
                 // 降序排序
                 result.sort((a, b) => {
-                    if (a.time < b.time) return -1;
-                    else if (a.time > b.time) return 1;
+                    if (a.time > b.time) return -1;
+                    else if (a.time < b.time) return 1;
                     else return 0;
                 });
             }

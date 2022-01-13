@@ -55,7 +55,27 @@ const CubeConversationState = {
      * 已销毁状态。
      * @type {number}
      */
-    Destroyed: 4
+    Destroyed: 4,
+
+    /**
+     * 解释状态码。
+     * @param {number} state 状态。
+     * @returns {string} 返回状态码描述。
+     */
+    toString: function(state) {
+        switch (state) {
+            case 1:
+                return 'Normal';
+            case 2:
+                return 'Important';
+            case 3:
+                return 'Deleted';
+            case 4:
+                return 'Destroyed';
+            default:
+                return '?';
+        }
+    }
 };
 
 export const ConversationState = CubeConversationState;

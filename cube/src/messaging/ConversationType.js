@@ -73,7 +73,29 @@ const CubeConversationType = {
      * 其他会话类型。
      * @type {number}
      */
-    Other: 9
+    Other: 9,
+
+    /**
+     * 转字符串形式的描述。
+     */
+    toString: function(state) {
+        switch (state) {
+            case 1:
+                return 'Contact';
+            case 2:
+                return 'Group';
+            case 3:
+                return 'Organization';
+            case 4:
+                return 'System';
+            case 5:
+                return 'Notifier';
+            case 6:
+                return 'Assistant';
+            default:
+                return 'Other';
+        }
+    }
 };
 
 export const ConversationType = CubeConversationType;

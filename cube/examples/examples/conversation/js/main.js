@@ -109,7 +109,18 @@ function getConversationList() {
 
         list.forEach(function(conversation) {
             var option = document.createElement('option');
-            option.text = conversation.getName() + '[' + conversation.getState() + ']';
+
+            var text = [
+                '[',
+                ConversationType.toString(conversation.getType()),
+                '] ',
+                conversation.getName(),
+                ' (',
+                ConversationState.toString(conversation.getState()),
+                ')'
+            ];
+
+            option.text = text.join('');
             option.value = conversation.getId();
             conversationList.options.add(option);
         });
