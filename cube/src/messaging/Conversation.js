@@ -115,6 +115,22 @@ export class Conversation extends Entity {
             return null;
     }
 
+    getName() {
+        if (this.type == ConversationType.Contact) {
+            return this.pivotal.getPriorityName();
+        }
+        else if (this.type == ConversationType.Group) {
+            return this.pivotal.getName();
+        }
+        else {
+            return '';
+        }
+    }
+
+    getState() {
+        return this.state;
+    }
+
     /**
      * @inheritdoc
      */

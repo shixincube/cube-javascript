@@ -33,22 +33,24 @@ const startCubeButton = document.querySelector('button#start');
 const stopCubeButton = document.querySelector('button#stop');
 
 const getListButton = document.querySelector('button#get');
-
+getListButton.setAttribute('disabled', 'disabled');
 
 startCubeButton.onclick = startCube;
 stopCubeButton.onclick = stopCube;
-getListButton.onclick = getList;
-
+getListButton.onclick = getConversationList;
 
 const contactIdInput = document.querySelector('input#contactId');
 const contactNameInput = document.querySelector('input#contactName');
+const conversationList = document.querySelector('select#conversationList');
 
 
 // 获取 Cube 实例
 const cube = window.cube();
 
 // 监听事件
-// cube.contact.on(ContactEvent.SignIn)
+// 消息服务就绪
+cube.messaging.on(MessagingEvent.Ready, onReady);
+
 
 function startCube() {
     if (contactIdInput.value.length < 3) {
@@ -68,8 +70,8 @@ function startCube() {
 
         startCubeButton.setAttribute('disabled', 'disabled');
         stopCubeButton.removeAttribute('disabled');
-        contactIdInput.setAttribute('readonly', 'readonly');
-        contactNameInput.setAttribute('readonly', 'readonly');
+        contactIdInput.setAttribute('disabled', 'disabled');
+        contactNameInput.setAttribute('disabled', 'disabled');
 
         if (contactNameInput.value.length == 0) {
             contactNameInput.value = '时信魔方-' + contactIdInput.value;
@@ -90,8 +92,30 @@ function stopCube() {
 
     startCubeButton.removeAttribute('disabled');
     stopCubeButton.setAttribute('disabled', 'disabled');
+    contactIdInput.removeAttribute('disabled');
+    contactNameInput.removeAttribute('disabled');
+
+    stateLabel.innerHTML = '已停止 Cube';
 }
 
-function getList() {
-    
+function getConversationList() {
+    // 获取最近的会话列表
+    cube.messaging.getRecentConversations(function(list) {
+        if (null == list) {
+            return;
+        }
+
+        conversationList.innerHTML = '';
+
+        list.forEach(function(conversation) {
+            var option = document.createElement('option');
+            option.text = conversation.getName() + '[' + conversation.getState() + ']';
+            option.value = conversation.getId();
+            conversationList.options.add(option);
+        });
+    });
+}
+
+function onReady() {
+    getListButton.removeAttribute('disabled');
 }

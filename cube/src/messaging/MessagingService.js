@@ -379,7 +379,7 @@ export class MessagingService extends Module {
         };
 
         if (this.conversations.length == 0) {
-            this.storage.queryRecentConversations(20, (list) => {
+            this.storage.queryRecentConversations(50, (list) => {
                 process(list);
             });
         }
@@ -1359,7 +1359,7 @@ export class MessagingService extends Module {
      * 查询远端服务器上的会话数据。
      * @param {number} limit 
      * @param {function} handleSuccess 
-     * @param {function} handleFailure
+     * @param {function} handleFailure 
      */
     queryRemoteConversations(limit, handleSuccess, handleFailure) {
         if (!this.pipeline.isReady()) {
