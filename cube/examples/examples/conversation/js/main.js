@@ -52,6 +52,10 @@ const cube = window.cube();
 cube.messaging.on(MessagingEvent.Ready, onReady);
 
 
+// 清空数据显示
+fillConversation(null);
+
+
 function startCube() {
     if (contactIdInput.value.length < 3) {
         stateLabel.innerHTML = '<span class="warning">请输入账号 ID</span>';
@@ -111,10 +115,10 @@ function getConversationList() {
             var option = document.createElement('option');
 
             var text = [
-                '[',
-                ConversationType.toString(conversation.getType()),
-                '] ',
                 conversation.getName(),
+                ' [',
+                ConversationType.toString(conversation.getType()),
+                ']',
                 ' (',
                 ConversationState.toString(conversation.getState()),
                 ')'
@@ -122,11 +126,41 @@ function getConversationList() {
 
             option.text = text.join('');
             option.value = conversation.getId();
+            option.onclick = onOptionClick;
             conversationList.options.add(option);
         });
     });
 }
 
+function fillConversation(conversation) {
+    if (null != conversation) {
+        document.querySelector('input#convId').value = conversation.getId();
+        document.querySelector('input#convName').value = conversation.getName();
+        document.querySelector('input#convTime').value = formatTime(conversation.getTimestamp());
+        document.querySelector('input#convType').value = ConversationType.toString(conversation.getType());
+        document.querySelector('input#convState').value = ConversationState.toString(conversation.getState());
+        document.querySelector('input#convReminding').value = ConversationReminding.toString(conversation.getReminding());
+    }
+    else {
+        document.querySelector('input#convId').value = '';
+        document.querySelector('input#convName').value = '';
+        document.querySelector('input#convTime').value = '';
+        document.querySelector('input#convType').value = '';
+        document.querySelector('input#convState').value = '';
+        document.querySelector('input#convReminding').value = '';
+    }
+}
+
 function onReady() {
     getListButton.removeAttribute('disabled');
+}
+
+function onOptionClick(e) {
+    var event = e || window.event || arguments.callee.caller.arguments[0];
+    var id = parseInt(event.target.value);
+    cube.messaging.getConversation(id, function(conversation) {
+        fillConversation(conversation);
+    }, function(error) {
+        console.log(error);
+    });
 }

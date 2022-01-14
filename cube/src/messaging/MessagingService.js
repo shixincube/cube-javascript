@@ -389,6 +389,44 @@ export class MessagingService extends Module {
     }
 
     /**
+     * 获取指定会话。
+     * @param {number} conversationId 指定会话 ID 。
+     * @param {function} handleSuccess 操作成功的回调方法。参数：({@linkcode conversation}:{@link Conversation}) 。
+     * @param {function} [handleFailure] 操作失败的回调方法。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    getConversation(conversationId, handleSuccess, handleFailure) {
+        let id = conversationId;
+        if (typeof conversationId == 'string') {
+            id = parseInt(conversationId);
+        }
+
+        if (this.conversations.length > 0) {
+            for (let i = 0; this.conversations.length; ++i) {
+                let conv = this.conversations[i];
+                if (conv.id == id) {
+                    handleSuccess(conv);
+                    return;
+                }
+            }
+        }
+
+        this.storage.readConversation(id, (conversation) => {
+            if (null == conversation) {
+                if (undefined !== handleFailure) {
+                    let error = new ModuleError(MessagingService.NAME, MessagingServiceState.StorageNoData, conversationId);
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            (async ()=> {
+                let conv = await this.fillConversation(conversation);
+                handleSuccess(conv);
+            })();
+        });
+    }
+
+    /**
      * 向指定的联系人或者群组发送消息。
      * @param {Contact|Group} destination 指定联系人或者群组。
      * @param {JSON|Message} message 指定消息实例或消息负载。

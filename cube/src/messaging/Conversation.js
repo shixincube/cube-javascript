@@ -135,6 +135,14 @@ export class Conversation extends Entity {
         return this.type;
     }
 
+    getReminding() {
+        return this.reminding;
+    }
+
+    getPivotal() {
+        return this.pivotal;
+    }
+
     /**
      * @inheritdoc
      */

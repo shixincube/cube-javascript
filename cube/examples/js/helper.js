@@ -75,6 +75,7 @@
     g.formatTime = function(timestamp) {
         var date = new Date(timestamp);
         var format = [
+            date.getFullYear(), '-',
             date.getMonth() + 1, '-',
             date.getDate(), ' ',
             date.getHours(), ':',

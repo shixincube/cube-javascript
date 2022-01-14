@@ -247,6 +247,32 @@ export class MessagingStorage {
     }
 
     /**
+     * 读取指定 ID 的会话。
+     * @param {number} conversationId 指定会话 ID 。
+     * @param {function} handler 数据回调。
+     * @returns {boolean} 返回是否执行了操作。
+     */
+    readConversation(conversationId, handler) {
+        if (null == this.db) {
+            handler(null)
+            return false;
+        }
+
+        (async ()=> {
+            let data = await this.conversationStore.get(conversationId);
+            if (null == data) {
+                handler(null);
+                return;
+            }
+
+            let conversation = Conversation.create(data);
+            handler(conversation);
+        })();
+
+        return true;
+    }
+
+    /**
      * 写入会话数据。
      * @param {Conversation} conversation 会话实例。
      * @returns {boolean} 返回是否执行了写入操作。

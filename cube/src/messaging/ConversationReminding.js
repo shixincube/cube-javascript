@@ -55,7 +55,27 @@ const CubeConversationReminding = {
      * 不接收。
      * @type {number}
      */
-    Refused: 4
+    Refused: 4,
+
+    /**
+     * 解释提醒代码。
+     * @param {number} state 
+     * @returns {string}
+     */
+    toString: function(state) {
+        switch (state) {
+            case 1:
+                return 'Normal';
+            case 2:
+                return 'Closed';
+            case 3:
+                return 'NotCare';
+            case 4:
+                return 'Refused';
+            default:
+                return '?';
+        }
+    }
 };
 
 export const ConversationReminding = CubeConversationReminding;
