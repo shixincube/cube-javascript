@@ -101,6 +101,10 @@ export class Conversation extends Entity {
         this.avatarName = null;
     }
 
+    /**
+     * 获取关联的联系人。
+     * @returns {Contact} 返回关联的联系人。
+     */
     getContact() {
         if (this.type == ConversationType.Contact)
             return this.pivotal;
@@ -108,6 +112,10 @@ export class Conversation extends Entity {
             return null;
     }
 
+    /**
+     * 获取关联的群组。
+     * @returns {Group} 返回关联的群组。
+     */
     getGroup() {
         if (this.type == ConversationType.Group)
             return this.pivotal;
@@ -115,6 +123,10 @@ export class Conversation extends Entity {
             return null;
     }
 
+    /**
+     * 获取会话名。
+     * @returns {string} 返回会话名称。
+     */
     getName() {
         if (this.type == ConversationType.Contact) {
             return this.pivotal.getPriorityName();
@@ -127,14 +139,29 @@ export class Conversation extends Entity {
         }
     }
 
+    /**
+     * 获取会话装填。
+     * @see ConversationState
+     * @returns {number} 返回会话状态，参看 {@link ConversationState} 。
+     */
     getState() {
         return this.state;
     }
 
+    /**
+     * 获取会话类型。
+     * @see ConversationType
+     * @returns {number} 返回会话类型，参看 {@link ConversationType} 。
+     */
     getType() {
         return this.type;
     }
 
+    /**
+     * 获取会话提醒类型。
+     * @see ConversationReminding
+     * @returns {number} 返回会话提醒类型，参看 {@link ConversationReminding} 。
+     */
     getReminding() {
         return this.reminding;
     }
