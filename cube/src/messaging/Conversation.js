@@ -200,7 +200,7 @@ export class Conversation extends Entity {
         conversation.ownerId = (undefined !== json.owner) ? json.owner : json.ownerId;
         conversation.type = json.type;
         conversation.state = json.state;
-        conversation.reminding = (undefined !== json.remind) ? json.remind : json.reminding;
+        conversation.reminding = json.reminding;
         conversation.pivotalId = (undefined !== json.pivotal) ? json.pivotal : json.pivotalId;
 
         if (undefined !== json.unread) {
