@@ -427,6 +427,21 @@ export class MessagingService extends Module {
     }
 
     /**
+     * 申请指定的会话。
+     * @param {number|Contact|Group} idOrEntity 指定实体 ID 或者联系人及群组。
+     * @param {function} handleSuccess 操作成功回调句柄，参数：({@linkcode conversation}:{@link Conversation}) 。
+     * @param {function} handleFailure 操作失败回调句柄，参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    applyConversation(idOrEntity, handleSuccess, handleFailure) {
+        let id = idOrEntity;
+        if (idOrEntity instanceof Contact || idOrEntity instanceof Group) {
+            id = idOrEntity.id;
+        }
+
+        // TODO
+    }
+
+    /**
      * 向指定的联系人或者群组发送消息。
      * @param {Contact|Group} destination 指定联系人或者群组。
      * @param {JSON|Message} message 指定消息实例或消息负载。
