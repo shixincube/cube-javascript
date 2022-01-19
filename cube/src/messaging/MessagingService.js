@@ -445,6 +445,10 @@ export class MessagingService extends Module {
         
     }
 
+    updateConversation(conversation, handleSuccess, handleFailure) {
+        
+    }
+
     /**
      * 向指定的联系人或者群组发送消息。
      * @param {Contact|Group} destination 指定联系人或者群组。
