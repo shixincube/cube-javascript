@@ -425,6 +425,15 @@ export class ContactService extends Module {
         this.contextProviderCallback = callback;
     }
 
+    getLocalContact(id, handler) {
+        if (id == this.self.id) {
+            handler(this.self);
+            return;
+        }
+
+        
+    }
+
     /**
      * 获取指定 ID 的联系人信息。
      * @param {number} contactId 指定联系人 ID 。

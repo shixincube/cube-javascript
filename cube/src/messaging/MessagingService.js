@@ -465,6 +465,9 @@ export class MessagingService extends Module {
                     this.updateConversation(conversation, (conversation) => {
                         (async () => {
                             let conv = await this.fillConversation(conversation);
+
+                            this._tryAddConversation(conv);
+
                             handleSuccess(conv);
                         })();
                     }, (error) => {
@@ -474,6 +477,9 @@ export class MessagingService extends Module {
                 else {
                     (async () => {
                         let conv = await this.fillConversation(conversation);
+
+                        this._tryAddConversation(conv);
+
                         handleSuccess(conv);
                     })();
                 }
@@ -482,7 +488,7 @@ export class MessagingService extends Module {
             }
 
             // 创建新会话
-
+            this.contactService;
         });
     }
 
@@ -506,6 +512,11 @@ export class MessagingService extends Module {
         this.conversations.push(conversation);
 
         // 排序
+        this.conversations.sort((a, b) => {
+            if (a.timestamp > b.timestamp) return -1;
+            else if (a.timestamp < b.timestamp) return 1;
+            else return 0;
+        });
     }
 
     /**
