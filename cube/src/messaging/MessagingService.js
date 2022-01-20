@@ -51,6 +51,7 @@ import { MessagePlugin } from "./MessagePlugin";
 import { MessageDraft } from "./MessageDraft";
 import { Conversation } from "./Conversation";
 import { ConversationType } from "./ConversationType";
+import { ConversationState } from "./ConversationState";
 
 /**
  * 消息服务模块接口。
@@ -438,7 +439,51 @@ export class MessagingService extends Module {
             id = idOrEntity.id;
         }
 
-        // TODO
+        for (let i = 0; i < this.conversations.length; ++i) {
+            let conversation = this.conversations[i];
+            if (conversation.id == id) {
+                handleSuccess(conversation);
+                return;
+            }
+        }
+
+        this.storage.readConversation(id, (conversation) => {
+            if (null != conversation) {
+                // 判断状态
+                if (conversation.state == ConversationState.Destroyed) {
+                    let error = new ModuleError(MessagingService.NAME, MessagingServiceState.Forbidden, conversation);
+                    handleFailure(error);
+                    return;
+                }
+
+                // 从删除状态恢复到标准状态
+                if (conversation.state == ConversationState.Deleted) {
+                    // 修改状态
+                    conversation.state = ConversationState.Normal;
+
+                    // 更新
+                    this.updateConversation(conversation, (conversation) => {
+                        (async () => {
+                            let conv = await this.fillConversation(conversation);
+                            handleSuccess(conv);
+                        })();
+                    }, (error) => {
+                        handleFailure(error);
+                    });
+                }
+                else {
+                    (async () => {
+                        let conv = await this.fillConversation(conversation);
+                        handleSuccess(conv);
+                    })();
+                }
+
+                return;
+            }
+
+            // 创建新会话
+
+        });
     }
 
     deleteConversation(idOrConversation, handleSuccess, handleFailure) {
@@ -447,6 +492,20 @@ export class MessagingService extends Module {
 
     updateConversation(conversation, handleSuccess, handleFailure) {
         
+    }
+
+    _tryAddConversation(conversation) {
+        for (let i = 0; i < this.conversations.length; ++i) {
+            let conv = this.conversations[i];
+            if (conv.id == conversation.id) {
+                return;
+            }
+        }
+
+        // 添加
+        this.conversations.push(conversation);
+
+        // 排序
     }
 
     /**
