@@ -428,18 +428,19 @@ export class ContactService extends Module {
     /**
      * 读取本地联系人数据。
      * @param {number} id 指定联系人的 ID 。
-     * @param {function} handler 指定数据回调句柄，参数：({@linkcode contact}:{@link Contact})。
+     * @param {function} handleSuccess 获取数据成功回调句柄，参数：({@linkcode contact}:{@link Contact})。
+     * @param {function} handleFailure 获取数据失败回调句柄，参数：({@linkcode error}:{@link ModuleError})。
      */
-    getLocalContact(id, handler) {
+    getLocalContact(id, handleSuccess, handleFailure) {
         if (id == this.self.id) {
-            handler(this.self);
+            handleSuccess(this.self);
             return;
         }
 
         // 从缓存内读取
         let contact = this.contacts.get(id);
         if (null != contact) {
-            handler(contact);
+            handleSuccess(contact);
             return;
         }
 
@@ -455,9 +456,9 @@ export class ContactService extends Module {
                             // 保存到内存
                             this.contacts.put(contact.id, contact);
 
-                            handler(contact);
+                            handleSuccess(contact);
                         }, (error) => {
-                            handler(null);
+                            handleFailure(error);
                         });
                     }));
                 }
@@ -469,14 +470,15 @@ export class ContactService extends Module {
                         // 保存到内存
                         this.contacts.put(contact.id, contact);
 
-                        handler(contact);
+                        handleSuccess(contact);
                     }, (error) => {
-                        handler(null);
+                        handleFailure(error);
                     });
                 }
             }
             else {
-                handler(null);
+                let error = new ModuleError(ContactService.NAME, ContactServiceState.NotFindContact, id);
+                handleFailure(error);
             }
         });
     }

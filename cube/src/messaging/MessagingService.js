@@ -447,8 +447,24 @@ export class MessagingService extends Module {
             }
         }
 
-        let create = () => {
+        let createHandler = (entity) => {
+            let conversation = new Conversation(entity.id);
+            conversation.pivotal = entity;
+            conversation.pivotalId = entity.id;
 
+            if (entity instanceof Contact) {
+                conversation.type = ConversationType.Contact;
+            }
+            else if (entity instanceof Group) {
+                conversation.type = ConversationType.Group;
+            }
+
+            // 写入数据
+            this.storage.writeConversation(conversation);
+
+            this._tryAddConversation(conversation);
+
+            handleSuccess(conversation);
         };
 
         this.storage.readConversation(id, (conversation) => {
@@ -493,15 +509,53 @@ export class MessagingService extends Module {
 
             // 创建新会话
             this.contactService.getLocalContact(id, (contact) => {
-
+                createHandler(contact);
+            }, (error) => {
+                this.contactService.getGroup(id, (group) => {
+                    createHandler(group);
+                }, (error) => {
+                    handleFailure(error);
+                });
             });
         });
     }
 
+    /**
+     * 删除指定会话。
+     * @param {number|Conversation} idOrConversation 指定会话 ID 或者会话实例。
+     * @param {function} handleSuccess 操作成功回调句柄，参数：({@linkcode conversation}:{@link Conversation}) 。
+     * @param {function} handleFailure 操作失败回调句柄，参数：({@linkcode error}:{@link ModuleError}) 。
+     */
     deleteConversation(idOrConversation, handleSuccess, handleFailure) {
-        
+        if (typeof idOrConversation === 'number') {
+            this.getConversation(idOrConversation, (conversation) => {
+                setTimeout(() => {
+                    this.deleteConversation(conversation);
+                }, 0);
+            }, (error) => {
+                handleFailure(error);
+            });
+            return;
+        }
+
+        // 设置删除状态
+        let conversation = idOrConversation;
+        conversation.state = ConversationState.Deleted;
+
+        // 更新
+        this.updateConversation(conversation, (conversation) => {
+            handleSuccess(conversation);
+        }, (error) => {
+            handleFailure(error);
+        });
     }
 
+    /**
+     * 更新会话数据。
+     * @param {Conversation} conversation 指定会话实例。
+     * @param {function} handleSuccess 操作成功回调句柄，参数：({@linkcode conversation}:{@link Conversation}) 。
+     * @param {function} handleFailure 操作失败回调句柄，参数：({@linkcode error}:{@link ModuleError}) 。
+     */
     updateConversation(conversation, handleSuccess, handleFailure) {
         
     }
