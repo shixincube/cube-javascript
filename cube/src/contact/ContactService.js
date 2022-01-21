@@ -425,13 +425,60 @@ export class ContactService extends Module {
         this.contextProviderCallback = callback;
     }
 
+    /**
+     * 读取本地联系人数据。
+     * @param {number} id 指定联系人的 ID 。
+     * @param {function} handler 指定数据回调句柄，参数：({@linkcode contact}:{@link Contact})。
+     */
     getLocalContact(id, handler) {
         if (id == this.self.id) {
             handler(this.self);
             return;
         }
 
-        
+        // 从缓存内读取
+        let contact = this.contacts.get(id);
+        if (null != contact) {
+            handler(contact);
+            return;
+        }
+
+        // 从数据库里读取
+        this.storage.readContact(id, (contact) => {
+            if (null != contact) {
+                if (null == contact.context && null != this.contextProviderCallback) {
+                    this.contextProviderCallback(contact, new ContactContextProvider(contact, (contact) => {
+                        // 获取附录
+                        this.getAppendix(contact, (appendix) => {
+                            contact.appendix = appendix;
+
+                            // 保存到内存
+                            this.contacts.put(contact.id, contact);
+
+                            handler(contact);
+                        }, (error) => {
+                            handler(null);
+                        });
+                    }));
+                }
+                else {
+                    // 获取附录
+                    this.getAppendix(contact, (appendix) => {
+                        contact.appendix = appendix;
+
+                        // 保存到内存
+                        this.contacts.put(contact.id, contact);
+
+                        handler(contact);
+                    }, (error) => {
+                        handler(null);
+                    });
+                }
+            }
+            else {
+                handler(null);
+            }
+        });
     }
 
     /**

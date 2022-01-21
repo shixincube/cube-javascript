@@ -447,6 +447,10 @@ export class MessagingService extends Module {
             }
         }
 
+        let create = () => {
+
+        };
+
         this.storage.readConversation(id, (conversation) => {
             if (null != conversation) {
                 // 判断状态
@@ -488,7 +492,9 @@ export class MessagingService extends Module {
             }
 
             // 创建新会话
-            this.contactService;
+            this.contactService.getLocalContact(id, (contact) => {
+
+            });
         });
     }
 
