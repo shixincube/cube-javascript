@@ -550,6 +550,10 @@ export class MessagingService extends Module {
         });
     }
 
+    destroyConversation() {
+
+    }
+
     /**
      * 更新会话数据。
      * @param {Conversation} conversation 指定会话实例。
@@ -557,6 +561,13 @@ export class MessagingService extends Module {
      * @param {function} handleFailure 操作失败回调句柄，参数：({@linkcode error}:{@link ModuleError}) 。
      */
     updateConversation(conversation, handleSuccess, handleFailure) {
+        if (!this.pipeline.isReady()) {
+            let error = new ModuleError(MessagingService.NAME, MessagingServiceState.PipelineFault, conversation);
+            handleFailure(error);
+            return;
+        }
+
+        let requestPacket = new Packet(MessagingAction.UpdateConversation, conversation.toCompactJSON());
         
     }
 

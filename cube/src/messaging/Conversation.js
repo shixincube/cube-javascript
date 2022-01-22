@@ -30,6 +30,7 @@
  import { ConversationState } from "./ConversationState";
  import { ConversationReminding } from "./ConversationReminding";
  import { Message } from "./Message";
+import { AuthService } from "../auth/AuthService";
 
 /**
  * 消息会话。
@@ -174,7 +175,8 @@ export class Conversation extends Entity {
      * @inheritdoc
      */
     toJSON() {
-        let json = super.toJSON();
+        let json = super.toCompactJSON();
+        json.domain = AuthService.DOMAIN;
         json.ownerId = this.ownerId;
         json.type = this.type;
         json.state = this.state;
@@ -186,6 +188,25 @@ export class Conversation extends Entity {
             json.recentMessage = this.recentMessage.toJSON();
         }
 
+        if (null != this.avatarName) {
+            json.avatarName = this.avatarName;
+        }
+
+        if (null != this.avatarURL) {
+            json.avatarURL = this.avatarURL;
+        }
+
+        return json;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    toCompactJSON() {
+        let json = this.toJSON();
+        if (undefined !== json.recentMessage) {
+            delete json.recentMessage;
+        }
         return json;
     }
 
