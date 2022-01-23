@@ -568,7 +568,19 @@ export class MessagingService extends Module {
         }
 
         let requestPacket = new Packet(MessagingAction.UpdateConversation, conversation.toCompactJSON());
-        
+        this.pipeline.send(MessagingService.NAME, requestPacket, (pipeline, source, packet) => {
+            if (packet.getStateCode() != PipelineState.OK) {
+
+                return;
+            }
+
+            let stateCode = packet.extractServiceStateCode();
+            if (stateCode != MessagingServiceState.Ok) {
+                return;
+            }
+
+            
+        });
     }
 
     _tryAddConversation(conversation) {
