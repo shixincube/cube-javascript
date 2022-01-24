@@ -695,12 +695,13 @@
             that.onItemMouseout(itemId);
         });
 
-        el.find('.item-state').on('mouseenter', function() {
-            el.find('.top-action').css('visibility', 'visible');
-        });
-        el.find('.item-top').on('mouseleave', function() {
-            el.find('.top-action').css('visibility', 'hidden');
-        });
+        // FIXME XJW 2022-01-24 置顶功能迁移到 Conversation 里
+        // el.find('.item-state').on('mouseenter', function() {
+        //     el.find('.top-action').css('visibility', 'visible');
+        // });
+        // el.find('.item-top').on('mouseleave', function() {
+        //     el.find('.top-action').css('visibility', 'hidden');
+        // });
     }
 
     g.MessageCatalogue = MessageCatalogue;
