@@ -99,6 +99,18 @@ const CubeMessagingEvent = {
     ReceiveBlocked: 'ReceiveBlocked',
 
     /**
+     * 会话数据被更新。
+     * @type {string}
+     */
+    ConversationUpdated: 'ConversationUpdated',
+
+    /**
+     * 与服务器完成会话同步。
+     * @type {string}
+     */
+    RemoteConversationsCompleted: 'RemoteConversationsCompleted',
+
+    /**
      * 消息处理故障。
      * @type {string}
      */

@@ -550,8 +550,59 @@ export class MessagingService extends Module {
         });
     }
 
-    destroyConversation() {
+    /**
+     * 销毁指定会话。
+     * @param {Conversation} conversation 指定会话实例。
+     * @param {function} handleSuccess 操作成功回调句柄，参数：({@linkcode conversation}:{@link Conversation}) 。
+     * @param {function} handleFailure 操作失败回调句柄，参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    destroyConversation(conversation, handleSuccess, handleFailure) {
+        if (conversation.type == ConversationType.Contact) {
+            // 设置销毁状态
+            conversation.state = ConversationState.Destroyed;
 
+            // 更新会话
+            this.updateConversation(conversation, handleSuccess, handleFailure);
+        }
+        else if (conversation.type == ConversationType.Group) {
+            // 退出或解散群组
+            this.contactService.quitGroup(conversation.getGroup(), (group) => {
+                // 已退出或解散群组
+                // 设置销毁状态
+                conversation.state = ConversationState.Destroyed;
+                // 更新会话
+                this.updateConversation(conversation, handleSuccess, handleFailure);
+            }, (error) => {
+                let currentError = new ModuleError(MessagingService.NAME, MessagingServiceState.Forbidden, conversation);
+                handleFailure(currentError);
+            });
+        }
+        else {
+            cell.Logger.w(MessagingService.NAME, '#destroyConversation - Not support conversation type : '
+                + ConversationType.toString(conversation.type));
+        }
+    }
+
+    /**
+     * 修改会话名称。该方法仅对基于群组的会话有效。
+     * @param {Conversation} conversation 指定会话实例。
+     * @param {string} newName 指定新会话名称。
+     * @param {function} handleSuccess 操作成功回调句柄，参数：({@linkcode conversation}:{@link Conversation}) 。
+     * @param {function} handleFailure 操作失败回调句柄，参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    changeConversationName(conversation, newName, handleSuccess, handleFailure) {
+        if (conversation.type == ConversationType.Contact) {
+            let error = new ModuleError(MessagingService.NAME, MessagingServiceState.Forbidden, conversation);
+            handleFailure(error);
+            return;
+        }
+
+        this.contactService.modifyGroup(conversation.getGroup(), null, newName, null, (group) => {
+            handleSuccess(conversation);
+        }, (error) => {
+            let current = new ModuleError(MessagingService.NAME, MessagingServiceState.NoGroup, conversation);
+            handleFailure(current);
+        });
     }
 
     /**
@@ -570,16 +621,47 @@ export class MessagingService extends Module {
         let requestPacket = new Packet(MessagingAction.UpdateConversation, conversation.toCompactJSON());
         this.pipeline.send(MessagingService.NAME, requestPacket, (pipeline, source, packet) => {
             if (packet.getStateCode() != PipelineState.OK) {
-
+                let error = new ModuleError(MessagingService.NAME, MessagingServiceState.ServerFault, conversation);
+                handleFailure(error);
                 return;
             }
 
             let stateCode = packet.extractServiceStateCode();
             if (stateCode != MessagingServiceState.Ok) {
+                let error = new ModuleError(MessagingService.NAME, stateCode, conversation);
+                handleFailure(error);
                 return;
             }
 
-            
+            let responseConversation = Conversation.create(packet.extractServiceData());
+            conversation.state = responseConversation.state;
+            conversation.reminding = responseConversation.reminding;
+            conversation.timestamp = responseConversation.timestamp;
+
+            // 更新数据库
+            this.storage.writeConversation(conversation);
+
+            if (conversation.state == ConversationState.Deleted
+                || conversation.state == ConversationState.Destroyed) {
+                // 从最近列表删除
+                for (let i = 0; i < this.conversations.length; ++i) {
+                    let conv = this.conversations[i];
+                    if (conv.id == conversation.id) {
+                        this.conversations.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+
+            if (conversation.state == ConversationState.Destroyed) {
+                // 从数据库里删除所有消息相关数据
+                this.storage.deleteConversation(conversation);
+            }
+
+            handleSuccess(conversation);
+
+            let event = new ObservableEvent(MessagingEvent.ConversationUpdated, conversation);
+            this.notifyObservers(event);
         });
     }
 

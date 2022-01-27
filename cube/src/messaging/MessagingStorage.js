@@ -289,6 +289,22 @@ export class MessagingStorage {
     }
 
     /**
+     * 删除会话。
+     * @param {Conversation} conversation 会话实例。
+     * @returns {boolean} 返回是否执行了删除操作。
+     */
+    deleteConversation(conversation) {
+        if (null == this.db) {
+            return false;
+        }
+
+        (async ()=> {
+            await this.conversationStore.delete(conversation.id);
+        })();
+        return true;
+    }
+
+    /**
      * 更新最近一条消息的时间戳。
      * @param {Message} message 消息实例。
      * @param {boolean} updateLastTime 是否更新最近消息时间。
