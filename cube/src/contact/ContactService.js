@@ -1762,7 +1762,7 @@ export class ContactService extends Module {
      * 添加群组成员。
      * @param {Group} group 指定群组。
      * @param {Array<Contact|number>} members 指定群组成员列表。
-     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode members}:Array, {@linkcode operator}:{@link Contact}) 。
+     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode bundle}:{@link GroupBundle}) 。
      * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError}) 。
      * @returns {boolean} 返回是否能执行该操作。
      */
@@ -1870,8 +1870,10 @@ export class ContactService extends Module {
             }
 
             if (handleSuccess) {
-                handleSuccess(bundle.group, bundle.modified, bundle.operator);
+                handleSuccess(bundle);
             }
+
+            this.notifyObservers(new ObservableEvent(ContactEvent.GroupMemberAdded, bundle));
         });
 
         return true;
@@ -1881,22 +1883,14 @@ export class ContactService extends Module {
      * 接收添加群成员数据。
      * @private
      * @param {JSON} payload 数据包数据。
-     * @param {object} context 数据包携带的上下文。
      */
-    triggerAddMember(payload, context) {
+    triggerAddMember(payload) {
         if (payload.code != ContactServiceState.Ok) {
             return;
         }
 
-        let response = (null != context);
-
-        if (response) {
-            // 如果是应答，则直接返回
-            return;
-        }
-
         // 读取群信息
-        let bundle = response ? context : GroupBundle.create(this, payload.data);
+        let bundle = GroupBundle.create(this, payload.data);
         let group = bundle.group;
 
         (new Promise((resolve, reject) => {
@@ -1921,11 +1915,7 @@ export class ContactService extends Module {
                 this.notifyObservers(new ObservableEvent(ContactEvent.GroupUpdated, group));
             }
             else {
-                this.notifyObservers(new ObservableEvent(ContactEvent.GroupMemberAdded, {
-                    group: group,
-                    modified: bundle.modified,
-                    operator: bundle.operator
-                }));
+                this.notifyObservers(new ObservableEvent(ContactEvent.GroupMemberAdded, bundle));
             }
         }).catch((error) => {
             // Nothing

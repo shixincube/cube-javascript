@@ -434,7 +434,11 @@ export class MessagingService extends Module {
      * @param {function} handleFailure 操作失败的回调方法。参数：({@linkcode error}:{@link ModuleError}) 。
      */
     createGroupConversation(memberList, handleSuccess, handleFailure) {
-        // this.contactService.createGroup('', memberList)
+        this.contactService.createGroup(this.contactService.getSelf().getName() + '创建的群组', memberList, (group) => {
+
+        }, (error) => {
+            handleFailure(error);
+        });
     }
 
     /**
