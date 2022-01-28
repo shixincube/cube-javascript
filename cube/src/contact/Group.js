@@ -421,12 +421,14 @@ export class Group extends AbstractContact {
      */
     toCompactJSON() {
         let json = super.toCompactJSON();
+
         json.domain = this.domain;
         json.ownerId = this.ownerId;
         json.tag = this.tag;
         json.creation = this.creationTime;
         json.lastActive = this.lastActiveTime;
         json.state = this.state;
+
         return json;
     }
 

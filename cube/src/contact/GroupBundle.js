@@ -35,16 +35,19 @@ export class GroupBundle {
 
     constructor() {
         /**
+         * 当前操作的群组。
          * @type {Group}
          */
         this.group = null;
 
         /**
+         * 当前被修改的群组成员列表。
          * @type {Array<Contact>}
          */
         this.modified = [];
 
         /**
+         * 当前操作的操作联系人。
          * @type {Contact}
          */
         this.operator = null;

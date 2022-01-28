@@ -428,6 +428,16 @@ export class MessagingService extends Module {
     }
 
     /**
+     * 创建关联群组的会话。
+     * @param {Array<Contact>} memberList 指定群成员列表。
+     * @param {function} handleSuccess 操作成功的回调方法。参数：({@linkcode conversation}:{@link Conversation}) 。
+     * @param {function} handleFailure 操作失败的回调方法。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    createGroupConversation(memberList, handleSuccess, handleFailure) {
+        // this.contactService.createGroup('', memberList)
+    }
+
+    /**
      * 申请指定的会话。
      * @param {number|Contact|Group} idOrEntity 指定实体 ID 或者联系人及群组。
      * @param {function} handleSuccess 操作成功回调句柄，参数：({@linkcode conversation}:{@link Conversation}) 。

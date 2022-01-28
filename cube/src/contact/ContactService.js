@@ -1278,11 +1278,18 @@ export class ContactService extends Module {
      * @param {Array<number|Contact>} members 指定初始成员列表或者初始成员 ID 列表。
      * @param {function} handleSuccess 成功创建群组回调该方法。参数：({@linkcode group}:{@link Group}) ，创建成功的群组实例。
      * @param {function} [handleFailure] 操作失败回调该方法。函数参数：({@linkcode error}:{@link ModuleError}) 。
-     * @returns {number} 返回待创建群组的创建预 ID ，如果返回 {@linkcode 0} 则表示参数错误。
      */
     createGroup(name, members, handleSuccess, handleFailure) {
         if (name.length == 0 || null == members) {
-            return 0;
+            let error = new ModuleError(ContactService.NAME, ContactServiceState.InvalidParameter, name);
+            handleFailure(error);
+            return;
+        }
+
+        if (!this.pipeline.isReady()) {
+            let error = new ModuleError(ContactService.NAME, ContactServiceState.NoNetwork, name);
+            handleFailure(error);
+            return;
         }
 
         let owner = this.self;
@@ -1293,33 +1300,18 @@ export class ContactService extends Module {
         for (let i = 0; i < members.length; ++i) {
             let member = members[i];
             if (member instanceof Contact) {
-                // memberList.push(member.toCompactJSON());
                 memberList.push(member.id);
             }
             else if (typeof member === 'number') {
-                // memberList.push({
-                //     "id": member,
-                //     "name": 'Cube-' + member
-                // });
                 memberList.push(member);
             }
             else if (typeof member === 'string') {
-                // memberList.push({
-                //     "id": parseInt(member),
-                //     "name": 'Cube-' + member
-                // });
                 memberList.push(parseInt(member));
             }
-            // else if (undefined !== member.id && undefined !== member.name) {
-            //     memberList.push({
-            //         "id": parseInt(member.id),
-            //         "name": member.name
-            //     });
-            // }
         }
 
         let payload = {
-            group: group.toJSON(),
+            group: group.toCompactJSON(),
             members: memberList
         };
         let packet = new Packet(ContactAction.CreateGroup, payload);
@@ -1354,8 +1346,6 @@ export class ContactService extends Module {
             // 解析返回的数据
             let data = responsePacket.getPayload().data;
             let newGroup = Group.create(this, data, owner);
-            // 设置上下文
-            responsePacket.context = newGroup;
 
             // 获取群组附录
             this.getAppendix(newGroup, (appendix, newGroup) => {
@@ -1366,24 +1356,23 @@ export class ContactService extends Module {
                 // 回调
                 setTimeout(() => {
                     handleSuccess(newGroup);
-                }, 1);
+
+                    this.notifyObservers(new ObservableEvent(ContactEvent.GroupCreated, group));
+                }, 0);
             }, (error) => {
                 if (handleFailure) {
                     handleFailure(error);
                 }
             });
         });
-
-        return group.getId();
     }
 
     /**
      * 处理接收到创建群数据。
      * @private
      * @param {JSON} payload 数据包数据。
-     * @param {object} context 数据包携带的上下文。
      */
-    triggerCreateGroup(payload, context) {
+    triggerCreateGroup(payload) {
         if (payload.code != ContactServiceState.Ok) {
             return;
         }
@@ -1469,8 +1458,6 @@ export class ContactService extends Module {
             }
 
             let updatedGroup = Group.create(this, responsePacket.getPayload().data, this.self);
-            // 设置上下文
-            responsePacket.context = updatedGroup;
 
             this.getAppendix(updatedGroup, () => {
                 // 更新内存
@@ -1479,8 +1466,10 @@ export class ContactService extends Module {
                 if (handleSuccess) {
                     setTimeout(() => {
                         handleSuccess(updatedGroup);
-                    }, 1);
+                    }, 0);
                 }
+
+                this.notifyObservers(new ObservableEvent(ContactEvent.GroupDismissed, updatedGroup));
             }, (error) => {
                 if (handleFailure) {
                     handleFailure(error);
@@ -1495,14 +1484,13 @@ export class ContactService extends Module {
      * 处理接收到解散群数据。
      * @private
      * @param {JSON} payload 数据包数据。
-     * @param {object} context 数据包携带的上下文。
      */
-    triggerDismissGroup(payload, context) {
+    triggerDismissGroup(payload) {
         if (payload.code != ContactServiceState.Ok) {
             return;
         }
 
-        let group = (null == context) ? Group.create(this, payload.data) : context;
+        let group = Group.create(this, payload.data);
 
         (new Promise((resolve, reject) => {
             if (null == group.appendix) {
@@ -1606,9 +1594,6 @@ export class ContactService extends Module {
                 group._removeMember(modified[i]);
             }
 
-            // 设置上下文
-            responsePacket.context = bundle;
-
             if (handleSuccess) {
                 handleSuccess(bundle.group);
             }
@@ -1621,7 +1606,7 @@ export class ContactService extends Module {
      * 移除群组成员。
      * @param {Group} group 指定群组。
      * @param {Array<Contact|number>} members 指定群组成员列表。
-     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode group}:{@link Group}, {@linkcode members}:Array<{@link Contact}>, {@linkcode operator}:{@link Contact}) 。
+     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode bundle}:{@link GroupBundle}) 。
      * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError}) 。
      * @returns {boolean} 返回是否能执行该操作。
      */
@@ -1718,12 +1703,11 @@ export class ContactService extends Module {
                 group._removeMember(modified[i]);
             }
 
-            // 设置上下文
-            responsePacket.context = bundle;
-
             if (handleSuccess) {
-                handleSuccess(bundle.group, bundle.modified, bundle.operator);
+                handleSuccess(bundle);
             }
+
+            this.notifyObservers(new ObservableEvent(ContactEvent.GroupMemberRemoved, bundle));
         });
 
         return true;
@@ -1733,22 +1717,14 @@ export class ContactService extends Module {
      * 接收移除群成员数据。
      * @private
      * @param {JSON} payload 数据包数据。
-     * @param {object} context 数据包携带的上下文。
      */
-    triggerRemoveMember(payload, context) {
+    triggerRemoveMember(payload) {
         if (payload.code != ContactServiceState.Ok) {
             return;
         }
 
-        let response = (null != context);
-
-        if (response) {
-            // 如果是应答，则直接返回
-            return;
-        }
-
         // 读取群信息
-        let bundle = response ? context : GroupBundle.create(this, payload.data);
+        let bundle = GroupBundle.create(this, payload.data);
         let group = bundle.group;
 
         (new Promise((resolve, reject) => {
@@ -1776,11 +1752,7 @@ export class ContactService extends Module {
             // 更新存储
             this.storage.writeGroup(group);
 
-            this.notifyObservers(new ObservableEvent(ContactEvent.GroupMemberRemoved, {
-                group: group,
-                modified: bundle.modified,
-                operator: bundle.operator
-            }));
+            this.notifyObservers(new ObservableEvent(ContactEvent.GroupMemberRemoved, bundle));
         }).catch((error) => {
             // Nothing
         });
@@ -1896,9 +1868,6 @@ export class ContactService extends Module {
             for (let i = 0; i < modified.length; ++i) {
                 group.memberList.push(modified[i]);
             }
-
-            // 设置上下文
-            responsePacket.context = bundle;
 
             if (handleSuccess) {
                 handleSuccess(bundle.group, bundle.modified, bundle.operator);
@@ -2031,12 +2000,11 @@ export class ContactService extends Module {
             group.context = modifiedGroup.context;
             group.lastActiveTime = modifiedGroup.lastActiveTime;
 
-            // 设置上下文
-            responsePacket.context = modifiedGroup;
-
             if (handleSuccess) {
                 handleSuccess(group);
             }
+
+            this.notifyObservers(new ObservableEvent(ContactEvent.GroupUpdated, group));
         });
 
         return true;
@@ -2046,14 +2014,13 @@ export class ContactService extends Module {
      * 接收修改群组数据。
      * @private
      * @param {JSON} payload 数据包数据。
-     * @param {object} context 数据包携带的上下文。
      */
-    triggerModifyGroup(payload, context) {
+    triggerModifyGroup(payload) {
         if (payload.code != ContactServiceState.Ok) {
             return;
         }
 
-        let group = (null == context) ? Group.create(this, payload.data) : context;
+        let group = Group.create(this, payload.data);
 
         (new Promise((resolve, reject) => {
             if (null == group.appendix) {
@@ -2134,9 +2101,6 @@ export class ContactService extends Module {
             group.lastActiveTime = bundle.group.lastActiveTime;
             group._replaceMember(modifiedMember);
 
-            // 设置上下文
-            responsePacket.context = bundle;
-
             if (handleSuccess) {
                 handleSuccess(group, modifiedMember);
             }
@@ -2149,14 +2113,13 @@ export class ContactService extends Module {
      * 接收修改群成员数据。
      * @private
      * @param {JSON} payload 数据包数据。
-     * @param {object} context 数据包携带的上下文。
      */
-    triggerModifyGroupMember(payload, context) {
+    triggerModifyGroupMember(payload) {
         if (payload.code != ContactServiceState.Ok) {
             return;
         }
 
-        let bundle = (null == context) ? GroupBundle.create(this, payload.data) : context;
+        let bundle = GroupBundle.create(this, payload.data);
 
         let modifiedGroup = bundle.group;
         let member = bundle.modified[0];
