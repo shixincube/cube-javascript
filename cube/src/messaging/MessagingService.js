@@ -435,7 +435,12 @@ export class MessagingService extends Module {
      */
     createGroupConversation(memberList, handleSuccess, handleFailure) {
         this.contactService.createGroup(this.contactService.getSelf().getName() + '创建的群组', memberList, (group) => {
-
+            this.applyConversation(group, (conversation) => {
+                // 创建会话
+                handleSuccess(conversation);
+            }, (error) => {
+                handleFailure(error);
+            });
         }, (error) => {
             handleFailure(error);
         });
