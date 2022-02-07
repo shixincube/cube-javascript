@@ -223,7 +223,7 @@
 
             // 启动 Cube
             cube.start(undefined === config ? {
-                address: '127.0.0.1',
+                address: server.address,
                 domain: 'shixincube.com',
                 appKey: 'shixin-cubeteam-opensource-appkey'
             } : config, function() {

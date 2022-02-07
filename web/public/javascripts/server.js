@@ -24,13 +24,38 @@
  * SOFTWARE.
  */
 
- (function (g, $) {
+/**
+ * 服务器配置信息。
+ */
+(function (g, $) {
 
+    /**
+     * 服务器地址。
+     * 请修改为您的服务器地址。
+     */
+    var address = '127.0.0.1';
+
+    /**
+     * 服务器端口。
+     * 填写 0 表示使用默认端口。
+     */
+    var port = 0;
+
+    /**
+     * 用于文件服务的 HTTP 链接。
+     */
     var httpURL = 'http://127.0.0.1:7777';
 
+    /**
+     * 用于文件服务的 HTTPS 链接。
+     */
     var httpsURL = 'https://127.0.0.1:7777';
 
     g.server = {
+        address: address,
+
+        port: 0,
+
         http: httpURL,
 
         https: httpsURL,
@@ -51,4 +76,4 @@
 
     $.server = g.server;
 
- })(window, jQuery);
+})(window, jQuery);
