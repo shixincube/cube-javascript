@@ -42,10 +42,11 @@ startCubeButton.onclick = startCube;
 stopCubeButton.onclick = stopCube;
 
 const loadRootButton = document.querySelector('button#loadRoot');
+const uploadButton = document.querySelector('button#upload');
 const myRoot = document.querySelector('select#myRoot');
 
 loadRootButton.onclick = loadRoot;
-
+uploadButton.onclick = uploadFile;
 
 function startCube() {
     if (contactIdInput.value.length < 3) {
@@ -122,6 +123,16 @@ function loadRoot() {
     }, function(error) {
         console.log(error);
         stateLabel.innerHTML = '发生错误：' + error;
+    });
+}
+
+function uploadFile() {
+    cube.fs.uploadFileWithSelector(function(anchor) {
+
+    }, function(label) {
+
+    }, function(error) {
+
     });
 }
 

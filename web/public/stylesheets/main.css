@@ -994,7 +994,10 @@ video {
 .select-file {
     position: absolute;
     float: left;
-    z-index: -99;
+    left: 0;
+    top: 0;
+    visibility: hidden;
+    z-index: -999;
 }
 
 .file-label {

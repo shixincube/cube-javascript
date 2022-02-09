@@ -220,6 +220,53 @@ export class FileStorage extends Module {
     }
 
     /**
+     * 使用文件选择对话框选择文件后上传。
+     * 该方法仅适用于 Web 浏览器。
+     * @param {function} handleProcessing 
+     * @param {function} handleSuccess 
+     * @param {function} handleFailure 
+     */
+    uploadFileWithSelector(handleProcessing, handleSuccess, handleFailure) {
+        if (undefined === window || undefined === document) {
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.Reject, null);
+            handleFailure(error);
+            return;
+        }
+
+        let selector = null;
+        let div = document.querySelector('div#cube_fs_selector');
+        if (null == div) {
+            // 插入 DOM
+            let domContent = [
+                    '<label for="cube_fs_selector_file"></label>',
+                    '<input id="cube_fs_selector_file" type="file" name="cube-select-file" accept="*.*" />'
+            ];
+            div = document.createElement('div');
+            div.id = 'cube_fs_selector';
+            div.style.position = 'absolute';
+            div.style.float = 'left';
+            div.style.left = '0';
+            div.style.top = '0';
+            div.style.visibility = 'hidden';
+            div.style.zIndex = '-999';
+            div.innerHTML = domContent.join('');
+            document.body.appendChild(div);
+
+            selector = div.querySelector('input#cube_fs_selector_file');
+            selector.addEventListener('change', (e) => {
+                let file = e.target.files[0];
+                // 进行文件上传
+                this.uploadFile(file, handleProcessing, handleSuccess, handleFailure);
+            });
+        }
+        else {
+            selector = div.querySelector('input#cube_fs_selector_file');
+        }
+
+        selector.click();
+    }
+
+    /**
      * 上传指定的文件。
      * @param {File} file 指定上传文件。
      * @param {function} [handleProcessing] 正在进行文件处理的回调函数。函数参数：({@linkcode fileAnchor}:{@link FileAnchor}) 。
