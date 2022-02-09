@@ -220,6 +220,43 @@ export class FileStorage extends Module {
     }
 
     /**
+     * 启动文件选择器。
+     * @param {function} handle 文件选择回调函数。参数：({@linkcode file}:{@link File}) 。
+     * @param {string} [accept] input 标签的 accept 属性值。
+     */
+    launchFileSelector(handle, accept) {
+        if (undefined === accept) {
+            accept = '*.*';
+        }
+
+        let el = document.querySelector('div#_cube_file_selector');
+        let inputEl = null;
+        if (null == el) {
+            el = document.createElement('div');
+            el.setAttribute('id', '_cube_file_selector');
+            el.style.position = 'absolute';
+            el.style.float = 'left';
+            el.style.left = '0';
+            el.style.top = '0';
+            el.style.zIndex = -999;
+            el.style.visibility = 'hidden';
+
+            let html = ['<label for="_cube_file_input"></label>',
+                '<input type="file" id="_cube_file_input" name="_cube_file_input" accept="', accept, '"></input>'];
+            el.innerHTML = html.join('');
+            document.body.appendChild(el);
+        }
+
+        inputEl = document.getElementById('_cube_file_input');
+        inputEl.setAttribute('accept', accept);
+        inputEl.onchange = (event) => {
+            let file = event.target.files[0];
+            handle(file);
+        };
+        inputEl.click();
+    }
+
+    /**
      * 使用文件选择对话框选择文件后上传。
      * 该方法仅适用于 Web 浏览器。
      * @param {function} handleProcessing 
@@ -953,6 +990,8 @@ export class FileStorage extends Module {
             let self = event.data;
             this.cid = self.getId();
             this.serviceReady = true;
+
+            
         }
         else if (event.name == ContactEvent.SignOut) {
             this.fileHierarchyMap.clear();

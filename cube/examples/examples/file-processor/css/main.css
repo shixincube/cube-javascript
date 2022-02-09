@@ -1,5 +1,6 @@
 /**
  * This file is part of Cube.
+ * https://shixincube.com
  * 
  * The MIT License (MIT)
  *
@@ -24,55 +25,36 @@
  * SOFTWARE.
  */
 
-/**
- * 文件存储模块事件。
- */
-export const FileStorageEvent = {
-    /**
-     * 文件存储服务就绪。
-     * @type {string}
-     */
-    Ready: 'Ready',
+section#contactSetting div {
+    display: inline-block;
+    margin-right: 2em;
+}
 
-    /**
-     * 正在进行文件上传。
-     * @type {string}
-     */
-    Uploading: 'Uploading',
+section#myFiles .wrap {
+    display: flex;
+}
+section#myFiles .col {
+    display: inline-block;
+    margin-right: 50px;
+}
 
-    /**
-     * 文件上传完成。
-     * @type {string}
-     */
-    UploadCompleted: 'UploadCompleted',
+section#myFiles .col label {
+    display: inline-block;
+    width: 80px;
+}
 
-    /**
-     * 文件上传失败。
-     * @type {string}
-     */
-    UploadFailed: 'UploadFailed',
+section#myFiles select {
+    width: 280px;
+}
 
-    /**
-     * 正在进行文件下载。
-     * @type {string}
-     */
-    Downloading: 'Downloading',
+hr {
+    height: 1px;
+    border: none;
+    border-top: 1px solid #fefefe;
+}
 
-    /**
-     * 文件下载完成。
-     * @type {string}
-     */
-    DownloadCompleted: 'DownloadCompleted',
-
-    /**
-     * 文件下载失败。
-     * @type {string}
-     */
-    DownloadFailed: 'DownloadFailed',
-
-    /**
-     * 文件已更新。
-     * @type {string}
-     */
-    FileUpdated: 'FileUpdated'
+.tip {
+    display: block !important;
+    font-size: 12px;
+    font-weight: bold;
 }
