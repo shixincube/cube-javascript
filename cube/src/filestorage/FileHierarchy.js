@@ -94,10 +94,8 @@ export class FileHierarchy {
      * @param {function} handleSuccess 
      * @param {function} [handleFailure] 
      */
-    uploadFileTo(file, directory, handleProcessing, handleSuccess, handleFailure) {
-        this.storage.uploadFile(file, (fileAnchor) => {
-            handleProcessing(fileAnchor);
-        }, (fileLabel) => {
+    uploadFile(file, directory, handleProcessing, handleSuccess, handleFailure) {
+        let successHandler = (fileLabel) => {
             // 将已上传文件插入到目录
             let request = new Packet(FileStorageAction.InsertFile, {
                 root: this.root.getId(),
@@ -108,7 +106,7 @@ export class FileHierarchy {
             this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
                 if (null == packet || packet.getStateCode() != PipelineState.OK) {
                     let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, fileLabel);
-                    cell.Logger.w('FileHierarchy', '#uploadFileTo() - ' + error);
+                    cell.Logger.w('FileHierarchy', '#uploadFile() - ' + error);
                     if (handleFailure) {
                         handleFailure(error);
                     }
@@ -117,7 +115,7 @@ export class FileHierarchy {
 
                 if (packet.getPayload().code != FileStorageState.Ok) {
                     let error = new ModuleError(FileStorage.NAME, packet.getPayload().code, fileLabel);
-                    cell.Logger.w('FileHierarchy', '#uploadFileTo() - ' + error);
+                    cell.Logger.w('FileHierarchy', '#uploadFile() - ' + error);
                     if (handleFailure) {
                         handleFailure(error);
                     }
@@ -126,18 +124,30 @@ export class FileHierarchy {
 
                 // let dirJson = packet.getPayload().data.directory;
                 let fileJson = packet.getPayload().data.file;
-                let fileLabel = FileLabel.create(fileJson);
-                directory.addFile(fileLabel);
+                let newFileLabel = FileLabel.create(fileJson);
+                directory.addFile(newFileLabel);
                 directory.numFiles += 1;
 
-                handleSuccess(directory, fileLabel);
+                handleSuccess(directory, newFileLabel);
             });
-        }, (error) => {
-            cell.Logger.w('FileHierarchy', '#uploadFileTo() - ' + error);
-            if (handleFailure) {
-                handleFailure(error);
-            }
-        });
+        };
+
+        if (null == file) {
+            this.storage.uploadFileWithSelector(handleProcessing, successHandler, (error) => {
+                cell.Logger.w('FileHierarchy', '#uploadFile() - ' + error);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+            });
+        }
+        else {
+            this.storage.uploadFile(file, handleProcessing, successHandler, (error) => {
+                cell.Logger.w('FileHierarchy', '#uploadFile() - ' + error);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+            });
+        }
     }
 
     /**

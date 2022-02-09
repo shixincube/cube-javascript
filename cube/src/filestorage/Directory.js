@@ -276,7 +276,17 @@ export class Directory {
      * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
     uploadFile(file, handleProcessing, handleSuccess, handleFailure) {
-        this.hierarchy.uploadFileTo(file, this, handleProcessing, handleSuccess, handleFailure);
+        this.hierarchy.uploadFile(file, this, handleProcessing, handleSuccess, handleFailure);
+    }
+
+    /**
+     * 使用文件选择界面选择文件后上传文件到该目录。
+     * @param {function} handleProcessing 正在上传文件回调。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode directory}:{@link Directory}, {@linkcode fileLabel}:{@link FileLabel}) 。
+     * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    uploadFileWithSelector(handleProcessing, handleSuccess, handleFailure) {
+        this.hierarchy.uploadFile(null, this, handleProcessing, handleSuccess, handleFailure);
     }
 
     /**

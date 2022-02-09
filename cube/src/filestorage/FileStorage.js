@@ -356,7 +356,7 @@ export class FileStorage extends Module {
                 // 将锚点上的回调函数置空
                 fileAnchor.finishCallback = null;
 
-                callback(fileAnchor);
+                callback(fileLabel);
 
                 this.fileAnchors.remove(fileAnchor.fileCode);
             }, (error) => {

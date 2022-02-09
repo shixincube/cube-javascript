@@ -29,6 +29,7 @@
 
 // 获取 Cube 实例
 const cube = window.cube();
+var rootDir = null;
 
 const stateLabel = document.querySelector('span#state');
 
@@ -92,10 +93,17 @@ function stopCube() {
     contactNameInput.removeAttribute('disabled');
 
     stateLabel.innerHTML = '已停止 Cube';
+
+    fillFileInfo(null);
+    myRoot.innerHTML = '';
 }
 
 function loadRoot() {
+    fillFileInfo(null);
+
     cube.fs.getSelfRoot(function(directory) {
+        rootDir = directory;
+
         myRoot.innerHTML = '';
 
         // 列出所有文件
@@ -127,20 +135,46 @@ function loadRoot() {
 }
 
 function uploadFile() {
-    cube.fs.uploadFileWithSelector(function(anchor) {
+    if (null == rootDir) {
+        alert('尚未启动魔方引擎');
+        return;
+    }
 
-    }, function(label) {
-
+    rootDir.uploadFileWithSelector(function(anchor) {
+        stateLabel.innerHTML = '正在上传：' + anchor.position + '/' + anchor.fileSize;
+    }, function(dir, fileLabel) {
+        stateLabel.innerHTML = '上传成功：' + fileLabel.getFileName();
+        setTimeout(function() {
+            loadRoot();
+        }, 10);
     }, function(error) {
-
+        console.log(error);
+        stateLabel.innerHTML = '发生错误：' + error;
     });
+}
+
+function fillFileInfo(fileLabel) {
+    if (null != fileLabel) {
+        document.querySelector('input#fileCode').value = fileLabel.getFileCode();
+        document.querySelector('input#fileName').value = fileLabel.getFileName();
+        document.querySelector('input#fileSize').value = fileLabel.getFileSize();
+        document.querySelector('input#lastModified').value = formatTime(fileLabel.getLastModified());
+        document.querySelector('input#fileType').value = fileLabel.getFileType();
+    }
+    else {
+        document.querySelector('input#fileCode').value = '';
+        document.querySelector('input#fileName').value = '';
+        document.querySelector('input#fileSize').value = '';
+        document.querySelector('input#lastModified').value = '';
+        document.querySelector('input#fileType').value = '';
+    }
 }
 
 function onRootListClick(e) {
     var event = e || window.event || arguments.callee.caller.arguments[0];
     var fileCode = event.target.value;
     cube.fs.getFileLabel(fileCode, function(fileLabel) {
-        
+        fillFileInfo(fileLabel);
     }, function(error) {
         console.log(error);
     });
