@@ -494,7 +494,9 @@ export class FileStorage extends Module {
      * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError})。
      */
     getRoot(idOrObject, handleSuccess, handleFailure) {
-        if (!this.started) {
+        if (!this.started || !this.serviceReady) {
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.NotReady, idOrObject);
+            handleFailure(error);
             return;
         }
 

@@ -72,7 +72,7 @@ function startCube() {
             contactNameInput.value = '时信魔方-' + contactIdInput.value;
         }
 
-        // 启动消息模块
+        // 启动文件存储模块
         cube.fs.start();
 
         // 签入账号
@@ -99,6 +99,11 @@ function loadRoot() {
 
         // 列出所有文件
         directory.listFiles(0, 49, function(dir, list, begin, end) {
+            if (list.length == 0) {
+                alert('没有找到文件');
+                return;
+            }
+
             list.forEach(function(fileLabel) {
                 var option = document.createElement('option');
 
