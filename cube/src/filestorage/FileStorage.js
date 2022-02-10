@@ -172,6 +172,10 @@ export class FileStorage extends Module {
 
         if (this.contactService.isReady()) {
             this.serviceReady = true;
+            // 通知就绪事件
+            setTimeout(() => {
+                this.notifyObservers(new ObservableEvent(FileStorageEvent.Ready));
+            }, 0);
         }
 
         return true;
@@ -987,11 +991,12 @@ export class FileStorage extends Module {
      */
     _fireContactEvent(event) {
         if (event.name == ContactEvent.SignIn) {
-            let self = event.data;
-            this.cid = self.getId();
             this.serviceReady = true;
 
-            
+            // 通知就绪事件
+            setTimeout(() => {
+                this.notifyObservers(new ObservableEvent(FileStorageEvent.Ready));
+            }, 0);
         }
         else if (event.name == ContactEvent.SignOut) {
             this.fileHierarchyMap.clear();

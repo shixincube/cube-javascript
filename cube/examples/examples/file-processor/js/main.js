@@ -42,11 +42,11 @@ const contactNameInput = document.querySelector('input#contactName');
 startCubeButton.onclick = startCube;
 stopCubeButton.onclick = stopCube;
 
-const loadRootButton = document.querySelector('button#loadRoot');
+const refreshButton = document.querySelector('button#refresh');
 const uploadButton = document.querySelector('button#upload');
 const myRoot = document.querySelector('select#myRoot');
 
-loadRootButton.onclick = loadRoot;
+refreshButton.onclick = refreshDir;
 uploadButton.onclick = uploadFile;
 
 function startCube() {
@@ -60,6 +60,11 @@ function startCube() {
         "domain": "shixincube.com",
         "appKey": "shixin-cubeteam-opensource-appkey"
     };
+
+    // 当文件存储服务就绪后加载根目录文件信息
+    cube.fs.attachWithName(FileStorageEvent.Ready, function() {
+        refreshDir();
+    });
 
     // 启动魔方引擎
     cube.start(config, function() {
@@ -98,7 +103,7 @@ function stopCube() {
     myRoot.innerHTML = '';
 }
 
-function loadRoot() {
+function refreshDir() {
     fillFileInfo(null);
 
     cube.fs.getSelfRoot(function(directory) {
@@ -122,7 +127,7 @@ function loadRoot() {
 
                 option.text = text.join('');
                 option.value = fileLabel.getFileCode();
-                option.onclick = onRootListClick;
+                option.onclick = onFileClick;
                 myRoot.options.add(option);
             });
         }, function(error) {
@@ -145,7 +150,7 @@ function uploadFile() {
     }, function(dir, fileLabel) {
         stateLabel.innerHTML = '上传成功：' + fileLabel.getFileName();
         setTimeout(function() {
-            loadRoot();
+            refreshDir();
         }, 10);
     }, function(error) {
         console.log(error);
@@ -170,7 +175,7 @@ function fillFileInfo(fileLabel) {
     }
 }
 
-function onRootListClick(e) {
+function onFileClick(e) {
     var event = e || window.event || arguments.callee.caller.arguments[0];
     var fileCode = event.target.value;
     cube.fs.getFileLabel(fileCode, function(fileLabel) {
