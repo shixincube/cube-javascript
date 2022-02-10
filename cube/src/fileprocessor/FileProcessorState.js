@@ -54,6 +54,12 @@ export const FileProcessorState = {
     OptTimeout: 12,
 
     /**
+     * 无文件。
+     * @type {number}
+     */
+    NoFile: 14,
+
+    /**
      * 与 CV 服务器无连接。
      * @type {number}
      */
