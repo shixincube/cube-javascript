@@ -30,6 +30,10 @@ section#contactSetting div {
     margin-right: 2em;
 }
 
+section#player div {
+    width: 100%;
+}
+
 hr {
     height: 1px;
     border: none;

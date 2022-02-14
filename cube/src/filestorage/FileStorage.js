@@ -261,6 +261,40 @@ export class FileStorage extends Module {
     }
 
     /**
+     * 精确查找文件。
+     * @param {File} file 
+     * @param {funciton} handleSuccess 
+     * @param {funciton} handleFailure 
+     */
+    findFile(file, handleSuccess, handleFailure) {
+        let payload = {
+            "fileName" : file.name,
+            "lastModified" : file.lastModified,
+            "fileSize" : file.size
+        };
+
+        let packet = new Packet(FileStorageAction.FindFile, payload);
+        this.pipeline.send(FileStorage.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
+                let error = new ModuleError(FileStorage.NAME, FileStorageState.NotFound, file);
+                handleFailure(error);
+                return;
+            }
+
+            let code = responsePacket.extractServiceStateCode();
+            if (code != FileStorageState.Ok) {
+                let error = new ModuleError(FileStorage.NAME, code, file);
+                handleFailure(error);
+                return;
+            }
+
+            let data = responsePacket.extractServiceData();
+            let fileLabel = FileLabel.create(data);
+            handleSuccess(fileLabel);
+        });
+    }
+
+    /**
      * 使用文件选择对话框选择文件后上传。
      * 该方法仅适用于 Web 浏览器。
      * @param {function} handleProcessing 

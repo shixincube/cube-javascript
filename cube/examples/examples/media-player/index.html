@@ -54,24 +54,28 @@
     </section>
 
     <section id="contactSetting">
-        <h2>账号设置</h2>
+        <h2>设置</h2>
         <div>
             <label for="contactId">账号ID：</label>
             <input id="contactId">
-        </div>
-        <div>
-            <label for="contactName">账号显示名：</label>
-            <input id="contactName">
         </div>
 
         <div>
             <button id="start">启动</button>
             <button id="stop" disabled>停止</button>
         </div>
+
+        <div>
+            <button id="load">加载文件</button>
+        </div>
     </section>
 
     <section id="player">
+        <div>
+            <video class="video-js" controls preload="none" width="800" height="600">
 
+            </video>
+        </div>
     </section>
 
     <div class="tip">状态：<span id="state">#</span></div>

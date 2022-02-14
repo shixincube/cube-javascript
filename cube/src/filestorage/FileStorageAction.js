@@ -110,5 +110,11 @@ export const FileStorageAction = {
      * 检索文件。
      * @type {string}
      */
-    SearchFile: 'searchFile'
+    SearchFile: 'searchFile',
+
+    /**
+     * 精确查找文件。
+     * @type {string}
+     */
+    FindFile: 'findFile'
 }

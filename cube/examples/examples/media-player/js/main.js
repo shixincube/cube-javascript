@@ -32,6 +32,16 @@ const cube = window.cube();
 
 const stateLabel = document.querySelector('span#state');
 
+const startCubeButton = document.querySelector('button#start');
+const stopCubeButton = document.querySelector('button#stop');
+const loadButton = document.querySelector('button#load');
+
+const contactIdInput = document.querySelector('input#contactId');
+
+startCubeButton.onclick = startCube;
+stopCubeButton.onclick = stopCube;
+loadButton.onclick = loadFile;
+
 function startCube() {
     if (contactIdInput.value.length < 3) {
         stateLabel.innerHTML = '<span class="warning">请输入账号 ID</span>';
@@ -43,8 +53,41 @@ function startCube() {
         "domain": "shixincube.com",
         "appKey": "shixin-cubeteam-opensource-appkey"
     };
+
+    // 启动魔方引擎
+    cube.start(config, function() {
+        stateLabel.innerHTML = '启动 Cube 成功';
+
+        startCubeButton.setAttribute('disabled', 'disabled');
+        stopCubeButton.removeAttribute('disabled');
+        contactIdInput.setAttribute('disabled', 'disabled');
+
+        // 启动文件存储模块
+        cube.fs.start();
+
+        // 签入账号
+        cube.signIn(contactIdInput.value, contactNameInput.value);
+    }, function() {
+        stateLabel.innerHTML = '启动 Cube 失败';
+    });
 }
 
 function stopCube() {
     cube.stop();
+
+    startCubeButton.removeAttribute('disabled');
+    stopCubeButton.setAttribute('disabled', 'disabled');
+    contactIdInput.removeAttribute('disabled');
+
+    stateLabel.innerHTML = '已停止 Cube';
+}
+
+function loadFile() {
+   cube.fs.launchFileSelector(function(file) {
+        cube.fs.findFild(file, function(fileLabel) {
+            // 找到文件
+        }, function(error) {
+            // 未找到文件
+        });
+   }, '*.mp4');
 }
