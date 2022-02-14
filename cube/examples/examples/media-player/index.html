@@ -1,0 +1,85 @@
+<!doctype html>
+<!--
+ * This file is part of Cube.
+ * https://shixincube.com
+ * 
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2020-2022 Cube Team.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+-->
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="时信魔方示例,入门教程">
+    <meta name="keywords" content="开源,开源软件,即时通信,IM,实时通信,团队协作,视频会议,音视频通话,SDK,多人协作,聊天软件,办公,WebRTC,RTC">
+    <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta id="theme-color" name="theme-color" content="#ffffff">
+    <base target="_blank">
+
+    <title>时信魔方示例 - 媒体播放器</title>
+
+    <link rel="icon" sizes="192x192" href="../../images/favicon.png">
+    <link rel="stylesheet" href="css/video-js.min.css">
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body>
+<div id="container">
+
+    <h1><a href="../../" title="时信魔方示例">时信魔方示例</a> <span>媒体播放器</span>
+    </h1>
+
+    <section id="blurb">
+        <p>该示例演示媒体播放器。</p>
+    </section>
+
+    <section id="contactSetting">
+        <h2>账号设置</h2>
+        <div>
+            <label for="contactId">账号ID：</label>
+            <input id="contactId">
+        </div>
+        <div>
+            <label for="contactName">账号显示名：</label>
+            <input id="contactName">
+        </div>
+
+        <div>
+            <button id="start">启动</button>
+            <button id="stop" disabled>停止</button>
+        </div>
+    </section>
+
+    <section id="player">
+
+    </section>
+
+    <div class="tip">状态：<span id="state">#</span></div>
+</div>
+
+<script type="text/javascript" src="../../js/cube.js"></script>
+<script type="text/javascript" src="js/video.min.js"></script>
+<script type="text/javascript" src="js/videojs-contrib-hls.min.js"></script>
+<script type="text/javascript" src="js/main.js"></script>
+</body>
+</html>
