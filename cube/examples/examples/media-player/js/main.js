@@ -119,8 +119,10 @@ function loadFile() {
 
 function playMedia(fileLabel) {
     cube.fp.getMediaSource(fileLabel, function(url) {
-        //var videoEl = document.querySelector('video#videoPlayer');
         alert(url);
+        player.src([{
+            type: "application/x-mpegURL", src: url
+        }]);
     }, function(error) {
         console.error(error.toString());
     });

@@ -124,7 +124,8 @@ export class FileProcessor extends Module {
             }
 
             let data = response.extractServiceData();
-            handleSuccess(data.url);
+            let url = data.url + "?t=" + this.kernel.getAuthToken().code;
+            handleSuccess(url);
         });
     }
 }

@@ -186,18 +186,16 @@ export class MessagingService extends Module {
 
         // 监听联系人模块
         this.contactService = this.kernel.getModule(ContactService.NAME);
-        let fun = (event) => {
+        this.contactEventFun = (event) => {
             this._fireContactEvent(event);
         };
-        this.contactService.attach(fun);
-        this.contactEventFun = fun;
+        this.contactService.attach(this.contactEventFun);
 
         // 监听文件存储模块
-        fun = (event) => {
+        this.fileStorageEventFun = (event) => {
             this._fireFileStorageEvent(event);
         };
-        this.kernel.getModule(FileStorage.NAME).attach(fun);
-        this.fileStorageEventFun = fun;
+        this.kernel.getModule(FileStorage.NAME).attach(this.fileStorageEventFun);
 
         // 添加数据通道的监听器
         this.pipeline.addListener(MessagingService.NAME, this.pipelineListener);
@@ -231,15 +229,13 @@ export class MessagingService extends Module {
         this.pipeline.removeListener(MessagingService.NAME, this.pipelineListener);
 
         if (null != this.contactService) {
-            let fun = this.contactEventFun;
-            this.contactService.detach(fun);
+            this.contactService.detach(this.contactEventFun);
             this.contactEventFun = null;
         }
 
         let fs = this.kernel.getModule(FileStorage.NAME);
         if (null != fs) {
-            let fun = this.fileStorageEventFun;
-            fs.detach(fun);
+            fs.detach(this.fileStorageEventFun);
             this.fileStorageEventFun = null;
         }
 
