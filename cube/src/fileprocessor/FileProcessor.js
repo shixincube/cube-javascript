@@ -94,4 +94,8 @@ export class FileProcessor extends Module {
             successCallback(cvResult);
         });
     }
+
+    getMediaSource(fileLabel, handleSuccess, handleFailure) {
+        
+    }
 }

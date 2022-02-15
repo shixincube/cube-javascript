@@ -42,6 +42,17 @@ startCubeButton.onclick = startCube;
 stopCubeButton.onclick = stopCube;
 loadButton.onclick = loadFile;
 
+var player = videojs('videopPlayer', {
+    bigPlayButton : false,
+    textTrackDisplay : false,
+    posterImage: true,
+    errorDisplay : false,
+    controlBar : false
+}, function() {
+    
+});
+
+
 function startCube() {
     if (contactIdInput.value.length < 3) {
         stateLabel.innerHTML = '<span class="warning">请输入账号 ID</span>';
@@ -66,7 +77,7 @@ function startCube() {
         cube.fs.start();
 
         // 签入账号
-        cube.signIn(contactIdInput.value, contactNameInput.value);
+        cube.signIn(contactIdInput.value);
     }, function() {
         stateLabel.innerHTML = '启动 Cube 失败';
     });
@@ -84,10 +95,29 @@ function stopCube() {
 
 function loadFile() {
    cube.fs.launchFileSelector(function(file) {
-        cube.fs.findFild(file, function(fileLabel) {
+        cube.fs.findFile(file, function(fileLabel) {
             // 找到文件
+            playMedia(fileLabel);
         }, function(error) {
             // 未找到文件
+            stateLabel.innerHTML = '上传文件：' + file.name;
+            cube.fs.uploadFile(file, function(anchor) {
+                '正在上传文件：' + anchor.position + '/' + anchor.fileSize;
+            }, function(label) {
+                stateLabel.innerHTML = '上传完成';
+                playMedia(label);
+            }, function(error) {
+                stateLabel.innerHTML = '上传文件失败：' + error.toString();
+            });
         });
-   }, '*.mp4');
+   }, 'video/mp4');
+}
+
+function playMedia(fileLabel) {
+    alert(fileLabel.fileName);
+    cube.fp.getMediaSource(fileLabel, function() {
+
+    }, function() {
+
+    });
 }

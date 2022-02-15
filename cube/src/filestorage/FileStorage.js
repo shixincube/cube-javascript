@@ -262,7 +262,7 @@ export class FileStorage extends Module {
 
     /**
      * 精确查找文件。
-     * @param {File} file 
+     * @param {File} file 指定文件。
      * @param {funciton} handleSuccess 
      * @param {funciton} handleFailure 
      */
@@ -276,7 +276,7 @@ export class FileStorage extends Module {
         let packet = new Packet(FileStorageAction.FindFile, payload);
         this.pipeline.send(FileStorage.NAME, packet, (pipeline, source, responsePacket) => {
             if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
-                let error = new ModuleError(FileStorage.NAME, FileStorageState.NotFound, file);
+                let error = new ModuleError(FileStorage.NAME, responsePacket.getStateCode(), file);
                 handleFailure(error);
                 return;
             }
@@ -435,6 +435,11 @@ export class FileStorage extends Module {
 
                 this.fileAnchors.remove(fileAnchor.fileCode);
             }, (error) => {
+                if (error.code == FileStorageState.Writing) {
+                    // 正在写入数据，客户端需要等待
+                    count = 0;
+                }
+
                 if (count >= 3) {
                     if (failureCallback) {
                         failureCallback(error);
