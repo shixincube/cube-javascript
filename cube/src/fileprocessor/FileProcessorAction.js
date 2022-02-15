@@ -29,6 +29,8 @@
  */
 export const FileProcessorAction = {
 
+    GetMediaSource: 'getMediaSource',
+
     /**
      * 检测图片里的物体。
      * @type {string}

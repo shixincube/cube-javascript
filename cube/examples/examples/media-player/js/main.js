@@ -41,6 +41,7 @@ const contactIdInput = document.querySelector('input#contactId');
 startCubeButton.onclick = startCube;
 stopCubeButton.onclick = stopCube;
 loadButton.onclick = loadFile;
+loadButton.setAttribute('disabled', 'disabled');
 
 var player = videojs('videopPlayer', {
     bigPlayButton : false,
@@ -78,6 +79,8 @@ function startCube() {
 
         // 签入账号
         cube.signIn(contactIdInput.value);
+
+        loadButton.removeAttribute('disabled');
     }, function() {
         stateLabel.innerHTML = '启动 Cube 失败';
     });
@@ -97,6 +100,7 @@ function loadFile() {
    cube.fs.launchFileSelector(function(file) {
         cube.fs.findFile(file, function(fileLabel) {
             // 找到文件
+            stateLabel.innerHTML = '文件已存在';
             playMedia(fileLabel);
         }, function(error) {
             // 未找到文件
@@ -114,10 +118,10 @@ function loadFile() {
 }
 
 function playMedia(fileLabel) {
-    alert(fileLabel.fileName);
-    cube.fp.getMediaSource(fileLabel, function() {
-
-    }, function() {
-
+    cube.fp.getMediaSource(fileLabel, function(url) {
+        //var videoEl = document.querySelector('video#videoPlayer');
+        alert(url);
+    }, function(error) {
+        console.error(error.toString());
     });
 }

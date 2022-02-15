@@ -95,7 +95,36 @@ export class FileProcessor extends Module {
         });
     }
 
+    /**
+     * 获取指定文件的媒体播放源。
+     * 
+     * @param {FileLabel} fileLabel 
+     * @param {function} handleSuccess 获取成功回调，参数：({@linkcode url}:{@linkcode string})。
+     * @param {function} handleFailure 获取失败回调，参数：({@linkcode error}:{@link ModuleError})。
+     */
     getMediaSource(fileLabel, handleSuccess, handleFailure) {
-        
+        let packet = new Packet(FileProcessorAction.GetMediaSource, {
+            "domain": AuthService.DOMAIN,
+            "fileCode": fileLabel.fileCode,
+            "secure": (window.location.protocol.toLowerCase().indexOf("https") >= 0)
+        });
+
+        this.pipeline.send(FileProcessor.NAME, packet, (pipeline, source, response) => {
+            if (response.getStateCode() != PipelineState.OK) {
+                let error = new ModuleError(FileProcessor.NAME, response.getStateCode(), fileLabel);
+                handleFailure(error);
+                return;
+            }
+
+            let code = response.extractServiceStateCode();
+            if (code != FileProcessorState.Ok) {
+                let error = new ModuleError(FileProcessor.NAME, code, fileLabel);
+                handleFailure(error);
+                return;
+            }
+
+            let data = response.extractServiceData();
+            handleSuccess(data.url);
+        });
     }
 }
