@@ -44,11 +44,9 @@ loadButton.onclick = loadFile;
 loadButton.setAttribute('disabled', 'disabled');
 
 var player = videojs('videopPlayer', {
-    bigPlayButton : false,
-    textTrackDisplay : false,
-    posterImage: true,
-    errorDisplay : false,
-    controlBar : false
+    controls: true,
+    autoplay: true,
+    preload: 'auto'
 }, function() {
     
 });
@@ -119,7 +117,6 @@ function loadFile() {
 
 function playMedia(fileLabel) {
     cube.fp.getMediaSource(fileLabel, function(url) {
-        alert(url);
         player.src([{
             type: "application/x-mpegURL", src: url
         }]);
