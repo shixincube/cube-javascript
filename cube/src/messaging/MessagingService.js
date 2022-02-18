@@ -300,6 +300,8 @@ export class MessagingService extends Module {
                     let event = new ObservableEvent(MessagingEvent.Ready, this);
                     this.notifyObservers(event);
                 }
+            }, (error) => {
+                cell.Logger.w('MessagingService', error.toString());
             });
         });
     }
