@@ -302,6 +302,13 @@ export class MessagingService extends Module {
                 }
             }, (error) => {
                 cell.Logger.w('MessagingService', error.toString());
+
+                gotConversations = true;
+                if (gotMessages) {
+                    this.serviceReady = true;
+                    let event = new ObservableEvent(MessagingEvent.Ready, this);
+                    this.notifyObservers(event);
+                }
             });
         });
     }
