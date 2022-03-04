@@ -24,62 +24,14 @@
  * SOFTWARE.
  */
 
+import { JSONable } from "../util/JSONable";
+
 /**
- * 文件处理服务状态描述。
+ * 文件操作工作。
+ * @extends JSONable
  */
-export const FileProcessorState = {
+export class OperationWork extends JSONable {
 
-    /**
-     * 成功。
-     * @type {number}
-     */
-    Ok: 0,
-
-    /**
-     * 未授权的请求。
-     * @type {number}
-     */
-    Unauthorized: 4,
-
-    /**
-     * 无效参数。
-     * @type {number}
-     */
-    InvalidParameter: 5,
-
-    /**
-     * 遇到故障。
-     * @type {number}
-     */
-    Failure: 9,
-
-    /**
-     * 无效域信息。
-     * @type {number}
-     */
-    InvalidDomain: 11,
-
-    /**
-     * 操作超时。
-     * @type {number}
-     */
-    OptTimeout: 12,
-
-    /**
-     * 无文件。
-     * @type {number}
-     */
-    NoFile: 14,
-
-    /**
-     * 与 CV 服务器无连接。
-     * @type {number}
-     */
-    NoCVConnection: 21,
-
-    /**
-     * 未知的状态。
-     * @type {number}
-     */
-    Unknown: 99
+    constructor() {
+    }
 }
