@@ -24,27 +24,20 @@
  * SOFTWARE.
  */
 
-import { JSONable } from "../util/JSONable";
+import { FileOperation } from "./FileOperation";
+import { FileProcessorAction } from "../FileProcessorAction";
 
 /**
- * 文件操作工作。
- * @extends JSONable
+ * 图片操作。
+ * @extends FileOperation
  */
-export class OperationWork extends JSONable {
+export class ImageOperation extends FileOperation {
 
     constructor() {
+
     }
 
-    toJSON() {
-        let json = super.toJSON();
-        return json;
-    }
-
-    /**
-     * 创建操作工作实例。
-     * @param {JSON} json 
-     */
-    static create(json) {
-        return null;
+    getProcessAction() {
+        return FileProcessorAction.Image;
     }
 }

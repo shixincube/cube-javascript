@@ -24,27 +24,18 @@
  * SOFTWARE.
  */
 
-import { JSONable } from "../util/JSONable";
+import { JSONable } from "../../util/JSONable";
 
 /**
- * 文件操作工作。
+ * 文件操作接口。
  * @extends JSONable
  */
-export class OperationWork extends JSONable {
+export class FileOperation extends JSONable {
 
     constructor() {
     }
 
-    toJSON() {
-        let json = super.toJSON();
-        return json;
-    }
-
-    /**
-     * 创建操作工作实例。
-     * @param {JSON} json 
-     */
-    static create(json) {
+    getProcessAction() {
         return null;
     }
 }

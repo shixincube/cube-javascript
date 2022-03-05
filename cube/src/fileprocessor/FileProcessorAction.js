@@ -29,7 +29,47 @@
  */
 export const FileProcessorAction = {
 
+    /**
+     * 获取媒体源地址。
+     * @type {string}
+     */
     GetMediaSource: 'getMediaSource',
+
+    /**
+     * 提交工作流。
+     * @type {string}
+     */
+    SubmitWorkflow: 'submitWorkflow',
+
+    /**
+     * 取消工作流。
+     * @type {string}
+     */
+    CancelWorkflow: 'cancelWorkflow',
+
+    /**
+     * 工作流操作中。
+     * @type {string}
+     */
+    WorkflowOperating: 'workflowOperating',
+
+    /**
+     * 图像文件操作。
+     * @type {string}
+     */
+    Image: 'image',
+
+    /**
+     * 视频文件操作。
+     * @type {string}
+     */
+    Video: 'video',
+
+    /**
+     * 字符识别。
+     * @type {string}
+     */
+    OCR: 'ocr',
 
     /**
      * 检测图片里的物体。

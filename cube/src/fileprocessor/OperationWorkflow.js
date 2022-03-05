@@ -99,6 +99,18 @@ export class OperationWorkflow extends JSONable {
      * @returns {OperationWorkflow} 返回 {@link OperationWorkflow} 实例。
      */
     static create(json) {
-        return null;
+        let workflow = new OperationWorkflow();
+        workflow.sn = json.sn;
+        workflow.domain = json.domain;
+        workflow.sourceFileCode = json.source;
+        workflow.contactId = json.contactId;
+
+        if (undefined !== json.works) {
+            json.works.forEach((value) => {
+                workflow.works.push(OperationWork.create(value));
+            });
+        }
+
+        return workflow;
     }
 }
