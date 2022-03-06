@@ -24,35 +24,22 @@
  * SOFTWARE.
  */
 
-import { FileOperation } from "./FileOperation";
-import { FileProcessorAction } from "../FileProcessorAction";
+import { PipelineListener } from "../core/PipelineListener";
 
 /**
- * 图片操作。
- * @extends FileOperation
+ * 文件处理器的管道监听器。
+ * @extends PipelineListener
  */
-export class ImageOperation extends FileOperation {
+export class FileProcessorPipelineListener extends PipelineListener {
 
-    constructor() {
-        super();
+    constructor(service) {
+        this.service = service;
     }
 
-    getOperation() {
-        return null;
-    }
-
-    getProcessAction() {
-        return FileProcessorAction.Image;
-    }
-
-    toJSON() {
-        let json = super.toJSON();
-        json.process = this.getProcessAction();
-        json.operation = this.getOperation();
-        return json;
-    }
-
-    toCompactJSON() {
-        return this.toJSON();
-    }
+    /**
+     * @inheritdoc
+     */
+     onReceived(pipeline, source, packet) {
+        super.onReceived(pipeline, source, packet);
+     }
 }

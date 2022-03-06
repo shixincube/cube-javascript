@@ -24,35 +24,27 @@
  * SOFTWARE.
  */
 
-import { FileOperation } from "./FileOperation";
-import { FileProcessorAction } from "../FileProcessorAction";
+import { ImageOperation } from "./ImageOperation";
 
 /**
- * 图片操作。
- * @extends FileOperation
+ * 反转颜色。
  */
-export class ImageOperation extends FileOperation {
+export class ReverseColorOperation extends ImageOperation {
+
+    static Operation() {
+        return 'ReverseColor';
+    }
 
     constructor() {
         super();
     }
 
     getOperation() {
-        return null;
+        return ReverseColorOperation.Operation();
     }
 
-    getProcessAction() {
-        return FileProcessorAction.Image;
-    }
-
-    toJSON() {
-        let json = super.toJSON();
-        json.process = this.getProcessAction();
-        json.operation = this.getOperation();
-        return json;
-    }
-
-    toCompactJSON() {
-        return this.toJSON();
+    static create(json) {
+        let result = new ReverseColorOperation();
+        return result;
     }
 }

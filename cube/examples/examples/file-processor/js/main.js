@@ -37,7 +37,6 @@ const startCubeButton = document.querySelector('button#start');
 const stopCubeButton = document.querySelector('button#stop');
 
 const contactIdInput = document.querySelector('input#contactId');
-const contactNameInput = document.querySelector('input#contactName');
 
 startCubeButton.onclick = startCube;
 stopCubeButton.onclick = stopCube;
@@ -73,17 +72,12 @@ function startCube() {
         startCubeButton.setAttribute('disabled', 'disabled');
         stopCubeButton.removeAttribute('disabled');
         contactIdInput.setAttribute('disabled', 'disabled');
-        contactNameInput.setAttribute('disabled', 'disabled');
-
-        if (contactNameInput.value.length == 0) {
-            contactNameInput.value = '时信魔方-' + contactIdInput.value;
-        }
 
         // 启动文件存储模块
         cube.fs.start();
 
         // 签入账号
-        cube.signIn(contactIdInput.value, contactNameInput.value);
+        cube.signIn(contactIdInput.value);
     }, function() {
         stateLabel.innerHTML = '启动 Cube 失败';
     });
@@ -95,7 +89,6 @@ function stopCube() {
     startCubeButton.removeAttribute('disabled');
     stopCubeButton.setAttribute('disabled', 'disabled');
     contactIdInput.removeAttribute('disabled');
-    contactNameInput.removeAttribute('disabled');
 
     stateLabel.innerHTML = '已停止 Cube';
 

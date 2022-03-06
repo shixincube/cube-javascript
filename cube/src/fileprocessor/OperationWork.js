@@ -25,6 +25,9 @@
  */
 
 import { JSONable } from "../util/JSONable";
+import { FileProcessorAction } from "./FileProcessorAction";
+import { FileOperation } from "./operation/FileOperation";
+import { ReverseColorOperation } from "./operation/ReverseColorOperation";
 
 /**
  * 文件操作工作。
@@ -32,19 +35,43 @@ import { JSONable } from "../util/JSONable";
  */
 export class OperationWork extends JSONable {
 
-    constructor() {
+    /**
+     * 构造函数。
+     * 
+     * @param {FileOperation} fileOperation 
+     */
+    constructor(fileOperation) {
+        this.fileOperation = fileOperation;
     }
 
     toJSON() {
         let json = super.toJSON();
+        json.operation = this.fileOperation.toJSON();
         return json;
     }
 
     /**
      * 创建操作工作实例。
      * @param {JSON} json 
+     * @returns {FileOperation}
      */
     static create(json) {
-        return null;
+        let result = null;
+        let process = json.process;
+
+        if (process == FileProcessorAction.Image) {
+            let operation = json.operation;
+            if (operation == ReverseColorOperation.Operation()) {
+                result = ReverseColorOperation.create(json);
+            }
+        }
+        else if (process == FileProcessorAction.Video) {
+            let operation = json.operation;
+        }
+        else if (process == FileProcessorAction.OCR) {
+
+        }
+
+        return result;
     }
 }
