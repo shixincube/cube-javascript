@@ -61,7 +61,7 @@ export class OperationWork extends JSONable {
 
         if (process == FileProcessorAction.Image) {
             let operation = json.operation;
-            if (operation == ReverseColorOperation.Operation()) {
+            if (operation == ReverseColorOperation.Operation) {
                 result = ReverseColorOperation.create(json);
             }
         }

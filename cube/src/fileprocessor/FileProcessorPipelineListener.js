@@ -24,7 +24,11 @@
  * SOFTWARE.
  */
 
+import { Packet } from "../core/Packet";
 import { PipelineListener } from "../core/PipelineListener";
+import { PipelineState } from "../core/PipelineState";
+import { FileProcessorAction } from "./FileProcessorAction";
+import { WorkflowOperatingEvent } from "./WorkflowOperatingEvent";
 
 /**
  * 文件处理器的管道监听器。
@@ -41,5 +45,16 @@ export class FileProcessorPipelineListener extends PipelineListener {
      */
      onReceived(pipeline, source, packet) {
         super.onReceived(pipeline, source, packet);
+
+        if (packet.getStateCode() != PipelineState.OK) {
+            cell.Logger.w('FileProcessorPipelineListener', 'Pipeline error: ' + packet.name + ' - ' + packet.getStateCode());
+            return;
+        }
+
+        if (packet.name == FileProcessorAction.WorkflowOperating) {
+            let data = packet.extractServiceData();
+            let event = new WorkflowOperatingEvent(data);
+            this.service._processEvent(event);
+        }
      }
 }

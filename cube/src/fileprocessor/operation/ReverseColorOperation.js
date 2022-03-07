@@ -31,16 +31,14 @@ import { ImageOperation } from "./ImageOperation";
  */
 export class ReverseColorOperation extends ImageOperation {
 
-    static Operation() {
-        return 'ReverseColor';
-    }
+    static Operation = 'ReverseColor';
 
     constructor() {
         super();
     }
 
     getOperation() {
-        return ReverseColorOperation.Operation();
+        return ReverseColorOperation.Operation;
     }
 
     static create(json) {

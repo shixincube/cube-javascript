@@ -24,6 +24,7 @@
  * SOFTWARE.
  */
 
+import cell from "@lib/cell-lib";
 import { AuthService } from "../auth/AuthService";
 import { ModuleError } from "../core/error/ModuleError";
 import { Module } from "../core/Module";
@@ -32,6 +33,8 @@ import { PipelineState } from "../core/PipelineState";
 import { FileLabel } from "../filestorage/FileLabel";
 import { FileProcessorAction } from "./FileProcessorAction";
 import { FileProcessorState } from "./FileProcessorState";
+import { FileProcessorPipelineListener } from "./FileProcessorPipelineListener";
+import { WorkflowOperatingEvent } from "./WorkflowOperatingEvent";
 import { CVResult } from "./CVResult";
 
 /**
@@ -44,6 +47,8 @@ export class FileProcessor extends Module {
 
     constructor() {
         super('FileProcessor');
+
+        this.pipelineListener = null;
     }
 
     /**
@@ -54,6 +59,10 @@ export class FileProcessor extends Module {
             return false;
         }
 
+        this.pipelineListener = new FileProcessorPipelineListener(this);
+        // 添加数据通道的监听器
+        this.pipeline.addListener(FileProcessor.NAME, this.pipelineListener);
+
         return true;
     }
 
@@ -61,7 +70,7 @@ export class FileProcessor extends Module {
      * @inheritdoc
      */
     stop() {
-
+        this.pipeline.removeListener(FileProcessor.NAME, this.pipelineListener);
     }
 
     /**
@@ -127,5 +136,13 @@ export class FileProcessor extends Module {
             let url = data.url + "?t=" + this.kernel.getAuthToken().code;
             handleSuccess(url);
         });
+    }
+
+    /**
+     * @private
+     * @param {WorkflowOperatingEvent} event 
+     */
+    _processEvent(event) {
+        cell.Logger.d('FileProcessor', 'event - ' + event.name);
     }
 }

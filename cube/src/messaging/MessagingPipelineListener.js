@@ -26,9 +26,9 @@
 
 import cell from "@lib/cell-lib";
 import { PipelineListener } from "../core/PipelineListener";
+import { PipelineState } from "../core/PipelineState";
 import { MessagingService } from "./MessagingService";
 import { MessagingAction } from "./MessagingAction";
-import { PipelineState } from "../core/PipelineState";
 
 /**
  * 消息模块数据管道监听器。
