@@ -26,6 +26,7 @@
 
 import { JSONable } from "../util/JSONable";
 import { FileProcessorAction } from "./FileProcessorAction";
+import { CropOperation } from "./operation/CropOperation";
 import { FileOperation } from "./operation/FileOperation";
 import { ReverseColorOperation } from "./operation/ReverseColorOperation";
 
@@ -61,7 +62,10 @@ export class OperationWork extends JSONable {
 
         if (process == FileProcessorAction.Image) {
             let operation = json.operation;
-            if (operation == ReverseColorOperation.Operation) {
+            if (operation == CropOperation.Operation) {
+                result = CropOperation.create(json);
+            }
+            else if (operation == ReverseColorOperation.Operation) {
                 result = ReverseColorOperation.create(json);
             }
         }

@@ -144,5 +144,8 @@ export class FileProcessor extends Module {
      */
     _processEvent(event) {
         cell.Logger.d('FileProcessor', 'event - ' + event.name);
+
+        let workflow = event.getWorkflow();
+        
     }
 }
