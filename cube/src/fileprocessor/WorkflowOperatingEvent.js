@@ -56,6 +56,10 @@ export class WorkflowOperatingEvent {
         this.work = (undefined !== json.work) ? OperationWork.create(json.work) : null;
     }
 
+    /**
+     * 获取事件名称。
+     * @returns {string} 返回事件名称。
+     */
     getName() {
         return this.name;
     }
