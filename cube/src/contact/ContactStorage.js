@@ -290,7 +290,7 @@ export class ContactStorage {
                     }
 
                     let included = false;
-                    if (json.owner.id != selfId) {
+                    if (json.ownerId != selfId) {
                         // 不是群组所有者
                         for (let n = 0; n < json.members.length; ++n) {
                             if (json.members[n].id == selfId) {

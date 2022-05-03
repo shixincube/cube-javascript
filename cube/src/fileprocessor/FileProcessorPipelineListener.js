@@ -27,6 +27,7 @@
 import { Packet } from "../core/Packet";
 import { PipelineListener } from "../core/PipelineListener";
 import { PipelineState } from "../core/PipelineState";
+import { FileProcessor } from "./FileProcessor";
 import { FileProcessorAction } from "./FileProcessorAction";
 import { WorkflowOperatingEvent } from "./WorkflowOperatingEvent";
 
@@ -37,6 +38,11 @@ import { WorkflowOperatingEvent } from "./WorkflowOperatingEvent";
 export class FileProcessorPipelineListener extends PipelineListener {
 
     constructor(service) {
+        super();
+
+        /**
+         * @type {FileProcessor}
+         */
         this.service = service;
     }
 
