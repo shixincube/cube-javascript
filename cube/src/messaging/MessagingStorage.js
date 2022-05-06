@@ -209,6 +209,21 @@ export class MessagingStorage {
     }
 
     /**
+     * 重置存储器的所有数据。
+     */
+    reset() {
+        if (null == this.db) {
+            return;
+        }
+
+        this.configStore.clear();
+        this.messageStore.clear();
+        this.conversationStore.clear();
+        this.draftStore.clear();
+        this.recentMessagerStore.clear();
+    }
+
+    /**
      * 查询最近的会话。
      * @param {number} limit 查询的最大数量。
      * @param {function} handler 数据回调句柄，参数：({@linkcode list}:Array<{@link Conversation}>) 。
