@@ -658,10 +658,10 @@
                     // 将内置的账号设置为该联系人的通讯录
                     $.get(server.url + '/account/buildin/', function(response, status, xhr) {
                         // 处理
-                        process(response);
+                        process(response.list);
 
                         // 依次添加到 Zone
-                        response.forEach(function(value, index) {
+                        response.list.forEach(function(value, index) {
                             if (value.id == account.id) {
                                 return;
                             }
@@ -695,11 +695,11 @@
                         // 将内置的账号设置为该联系人的通讯录
                         $.get(server.url + '/account/buildin/', function(response, status, xhr) {
                             // 处理
-                            process(response);
+                            process(response.list);
 
                             let contactIdList = [];
                             // 依次添加到 Zone
-                            response.forEach(function(value, index) {
+                            response.list.forEach(function(value, index) {
                                 if (value.id == account.id) {
                                     return;
                                 }
