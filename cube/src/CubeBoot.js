@@ -76,6 +76,7 @@ import { SearchItem } from "./filestorage/SearchItem";
 import { TrashFile } from "./filestorage/TrashFile";
 import { TrashDirectory } from "./filestorage/TrashDirectory";
 import { FileStorageEvent } from "./filestorage/FileStorageEvent";
+import { SharingTag } from "./filestorage/SharingTag";
 import { FileProcessor } from "./fileprocessor/FileProcessor";
 import { FileThumbnail } from "./fileprocessor/FileThumbnail";
 import { MultipointComm } from "./multipointcomm/MultipointComm";
@@ -162,6 +163,7 @@ import { Announcer } from "./util/Announcer";
     global.SearchItem = SearchItem;
     global.TrashFile = TrashFile;
     global.TrashDirectory = TrashDirectory;
+    global.SharingTag = SharingTag;
 
     global.FileProcessor = FileProcessor;
     global.FileThumbnail = FileThumbnail;
