@@ -56,12 +56,13 @@
 
     var fileDetails = null;
 
-    var filesCatalog = null;
-    var filesPanel = null;
+    var fileCatalog = null;
+    var filePanel = null;
+    var fileSharingPanel = null;
 
     var messagingCtrl = null;
     var callCtrl = null;
-    var filesCtrl = null;
+    var fileCtrl = null;
     var confCtrl = null;
     var contactsCtrl = null;
 
@@ -330,16 +331,20 @@
             // 文件
             var filesEl = $('#files');
             // 文件目录
-            filesCatalog = new FilesCatalogue(filesEl.find('.file-catalog'), filesEl.find('.file-trans-list'));
+            fileCatalog = new FileCatalogue(filesEl.find('.file-catalog'),
+                                                filesEl.find('.file-trans'),
+                                                filesEl.find('.file-sharing'));
             // 文件面板
-            filesPanel = new FilesPanel(filesEl.find('.files-panel'));
+            filePanel = new FilePanel(filesEl.find('.files-panel'));
+            // 文件分享面板
+            fileSharingPanel = new FileSharingPanel(filesEl.find('.files-sharing-panel'));
 
             // 消息控制器
             messagingCtrl = new MessagingController(cube);
             // 通话控制器
             callCtrl = new CallController(cube);
             // 文件控制器
-            filesCtrl = new FilesController(cube);
+            fileCtrl = new FileController(cube);
             // 会议控制器
             confCtrl = new ConferenceController(cube);
             // 联系人控制器
@@ -363,12 +368,13 @@
 
             that.fileDetails = fileDetails;
 
-            that.filesCatalog = filesCatalog;
-            that.filesPanel = filesPanel;
+            that.fileCatalog = fileCatalog;
+            that.filePanel = filePanel;
+            that.fileSharingPanel = fileSharingPanel;
 
             that.messagingCtrl = messagingCtrl;
             that.callCtrl = callCtrl;
-            that.filesCtrl = filesCtrl;
+            that.fileCtrl = fileCtrl;
             that.confCtrl = confCtrl;
             that.contactsCtrl = contactsCtrl;
 
@@ -576,7 +582,7 @@
                     messagingCtrl.ready();
 
                     // 文件目录准备
-                    filesCatalog.prepare();
+                    fileCatalog.prepare();
 
                     // 会议信息加载
                     confCtrl.ready();

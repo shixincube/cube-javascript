@@ -47,13 +47,13 @@
         }
 
         return [
-            '<tr onclick="app.filesPanel.toggleSelect(\'', id, '\')"',
-                    ' ondblclick="app.filesPanel.changeDirectory(\'', id, '\')" id="ftr_', id, '">',
+            '<tr onclick="app.filePanel.toggleSelect(\'', id, '\')"',
+                    ' ondblclick="app.filePanel.changeDirectory(\'', id, '\')" id="ftr_', id, '">',
                 '<td><div class="icheck-primary">',
                     '<input type="checkbox" data-type="folder" id="', id, '">',
                         '<label for="', id, '"></label></div></td>',
                 '<td class="file-icon"><i class="ci ci-file-directory"></i></td>',
-                '<td class="file-name"><a href="javascript:app.filesPanel.changeDirectory(\'', id, '\');">', name, '</a></td>',
+                '<td class="file-name"><a href="javascript:app.filePanel.changeDirectory(\'', id, '\');">', name, '</a></td>',
                 '<td class="file-size">--</td>',
                 '<td class="file-lastmodifed">', g.formatYMDHMS(time), '</td>',
             '</tr>'
@@ -73,13 +73,13 @@
 
         var id = fileLabel.getId();
         return [
-            '<tr onclick="app.filesPanel.toggleSelect(\'', id, '\')"',
-                    ' ondblclick="app.filesPanel.openFileDetails(\'', fileLabel.getFileCode(), '\')"', ' id="ftr_', id, '">',
+            '<tr onclick="app.filePanel.toggleSelect(\'', id, '\')"',
+                    ' ondblclick="app.filePanel.openFileDetails(\'', fileLabel.getFileCode(), '\')"', ' id="ftr_', id, '">',
                 '<td><div class="icheck-primary">',
                     '<input type="checkbox" data-type="file" id="', id, '">',
                         '<label for="', id, '"></label></div></td>',
                 '<td class="file-icon">', matchFileIcon(fileLabel), '</td>',
-                '<td class="file-name"><a href="javascript:app.filesPanel.openFile(\'', fileLabel.getFileCode(), '\');">', name, '</a></td>',
+                '<td class="file-name"><a href="javascript:app.filePanel.openFile(\'', fileLabel.getFileCode(), '\');">', name, '</a></td>',
                 '<td class="file-size">', g.formatSize(fileLabel.getFileSize()), '</td>',
                 '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getLastModified()), '</td>',
             '</tr>'
@@ -100,12 +100,12 @@
 
         var id = fileLabel.getId();
         return [
-            '<tr onclick="app.filesPanel.toggleSelect(\'', id, '\')" id="ftr_', id, '">',
+            '<tr onclick="app.filePanel.toggleSelect(\'', id, '\')" id="ftr_', id, '">',
                 '<td><div class="icheck-primary">',
                     '<input type="checkbox" data-type="file" id="', id, '">',
                         '<label for="', id, '"></label></div></td>',
                 '<td class="file-icon">', matchFileIcon(fileLabel), '</td>',
-                '<td class="file-name"><a href="javascript:app.filesPanel.openFile(\'', fileLabel.getFileCode(), '\',\'',
+                '<td class="file-name"><a href="javascript:app.filePanel.openFile(\'', fileLabel.getFileCode(), '\',\'',
                     directory.getId() , '\');">',
                         fileLabel.getFileName(), '</a>', '<span class="desc">所在目录: ', dirName, '</span>',
                 '</td>',
@@ -177,7 +177,7 @@
      * 文件表格。
      * @param {jQuery} el 
      */
-    var FilesTable = function(el) {
+    var FileTable = function(el) {
         tableEl = el;
         noFileBg = $('#table_files_nofile');
         surfaceA = el.find('tbody[data-target="surface-a"]');
@@ -190,7 +190,7 @@
      * @param {Array} list 数据列表。
      * @param {boolean} [extended] 是否在文件名后附加目录信息。
      */
-    FilesTable.prototype.updatePage = function(list, extended) {
+    FileTable.prototype.updatePage = function(list, extended) {
         if (list.length == 0) {
             surface[0].innerHTML = '';
             noFileBg.css('display', 'block');
@@ -225,8 +225,8 @@
      * 切换选择指定 ID 的行。
      * @param {string} id 指定 ID 。
      */
-    FilesTable.prototype.toggleSelect = function(id) {
-        g.app.filesPanel.resetSelectAllButton();
+    FileTable.prototype.toggleSelect = function(id) {
+        g.app.filePanel.resetSelectAllButton();
 
         var el = tableEl.find('#' + id);
         if (el.prop('checked')) {
@@ -243,7 +243,7 @@
      * 取消已选择的行。
      * @param {string} id 指定行 ID 。
      */
-    FilesTable.prototype.unselect = function(id) {
+    FileTable.prototype.unselect = function(id) {
         var el = tableEl.find('#' + id);
         if (el.prop('checked')) {
             el.prop('checked', false);
@@ -255,11 +255,11 @@
      * 在表格首行插入文件夹样式的行。
      * @param {Directory} dir 指定目录。
      */
-    FilesTable.prototype.insertFolder = function(dir) {
+    FileTable.prototype.insertFolder = function(dir) {
         var rowHtml = makeFolderRow(dir);
         surface.prepend($(rowHtml.join('')));
     }
 
-    g.FilesTable = FilesTable;
+    g.FileTable = FileTable;
 
 })(window);

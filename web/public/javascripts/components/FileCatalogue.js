@@ -31,6 +31,7 @@
 
     var catalogEl = null;
     var transEl = null;
+    var sharingEl = null;
 
     var btnAllFiles = null;
     var btnImageFiles = null;
@@ -41,16 +42,21 @@
     var btnDownloading = null;
     var btnComplete = null;
 
+    var btnSharing = null;
+    var btnSharingExpired = null;
+
     var activeBtn = null;
 
     /**
      * 我的文件主界面的引导目录。
      * @param {jQuery} catalog 主目录元素。
      * @param {jQuery} trans 传输列表元素。
+     * @param {jQuery} sharing 文件分享列表元素。
      */
-    var FilesCatalogue = function(catalog, trans) {
+    var FileCatalogue = function(catalog, trans, sharing) {
         catalogEl = catalog;
         transEl = trans;
+        sharingEl = sharing;
 
         btnAllFiles = catalogEl.find('#btn_all_files');
         btnImageFiles = catalogEl.find('#btn_image_files');
@@ -61,6 +67,9 @@
         btnDownloading = transEl.find('#btn_trans_download');
         btnComplete = transEl.find('#btn_trans_complete');
 
+        btnSharing = sharingEl.find('#btn_sharing');
+        btnSharingExpired = sharingEl.find('#btn_sharing_expired');
+
         activeBtn = btnAllFiles;
 
         that = this;
@@ -69,8 +78,8 @@
     /**
      * 初始化控件数据。
      */
-    FilesCatalogue.prototype.prepare = function() {
-        g.app.filesPanel.showRoot();
+    FileCatalogue.prototype.prepare = function() {
+        g.app.filePanel.showRoot();
 
         btnAllFiles.click(function() {
             that.select($(this).attr('id'));
@@ -84,13 +93,27 @@
         btnRecyclebin.click(function() {
             that.select($(this).attr('id'));
         });
+
+        btnUploading.click(function() {
+            dialog.launchToast(Toast.Warning, '开发中……');
+        });
+        btnDownloading.click(function() {
+            dialog.launchToast(Toast.Warning, '开发中……');
+        });
+        btnComplete.click(function() {
+            dialog.launchToast(Toast.Warning, '开发中……');
+        });
+
+        btnSharing.click(function() {
+            that.select($(this).attr('id'));
+        });
     }
 
     /**
      * 选择指定目录ID对应的数据进行显示。
      * @param {string} id 目录ID 。
      */
-    FilesCatalogue.prototype.select = function(id) {
+    FileCatalogue.prototype.select = function(id) {
         if (activeBtn.attr('id') == id) {
             return;
         }
@@ -99,27 +122,32 @@
 
         if (btnAllFiles.attr('id') == id) {
             activeBtn = btnAllFiles;
-            g.app.filesPanel.showRoot();
+            g.app.filePanel.showRoot();
         }
         else if (btnImageFiles.attr('id') == id) {
             activeBtn = btnImageFiles;
-            g.app.filesPanel.showImages();
+            g.app.filePanel.showImages();
         }
         else if (btnDocFiles.attr('id') == id) {
             activeBtn = btnDocFiles;
-            g.app.filesPanel.showDocuments();
+            g.app.filePanel.showDocuments();
         }
         else if (btnRecyclebin.attr('id') == id) {
             activeBtn = btnRecyclebin;
-            g.app.filesPanel.showRecyclebin();
+            g.app.filePanel.showRecyclebin();
+        }
+        else if (btnSharing.attr('id') == id) {
+            activeBtn = btnSharing;
+            g.app.filePanel.hide();
+            g.app.fileSharingPanel.showSharingPanel();
         }
 
         activeBtn.addClass('active');
 
         // 更新面板
-        g.app.filesPanel.setTitle(activeBtn.attr('title'));
+        g.app.filePanel.setTitle(activeBtn.attr('title'));
     }
 
-    g.FilesCatalogue = FilesCatalogue;
+    g.FileCatalogue = FileCatalogue;
 
 })(window);

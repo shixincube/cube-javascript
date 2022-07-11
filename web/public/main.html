@@ -387,6 +387,27 @@
                                 </ul>
                             </div>
                         </div>
+                        <div class="card card-info card-outline file-sharing">
+                            <div class="card-header">
+                                <h5 class="card-title">分享列表</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <ul class="nav nav-pills flex-column">
+                                    <li class="nav-item">
+                                        <a id="btn_sharing" href="javascript:;" class="nav-link" title="已分享的文件">
+                                            <i class="fas fa-share"></i>&nbsp;&nbsp;已分享的文件
+                                            <span class="badge bg-primary float-right"></span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a id="btn_sharing_expired" href="javascript:;" class="nav-link" title="已过期的分享">
+                                            <i class="fas fa-minus-circle"></i>&nbsp;&nbsp;已过期的分享
+                                            <span class="badge bg-primary float-right"></span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
                         <div class="card card-warning card-outline file-trans">
                             <div class="card-header">
                                 <h5 class="card-title">传输列表</h5>
@@ -487,6 +508,71 @@
                             </div>
                             <div id="table_files_nofile" class="no-file bg-nofile">
                                 <div>文件夹为空</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Sharing List -->
+                    <div class="col-md-9 files-sharing-panel files-hidden">
+                        <div class="card file-content">
+                            <div class="card-header">
+                                <h5 class="card-title">
+                                    <span class="fp-title">已分享的文件</span>
+                                    <span class="fp-path"></span>
+                                </h5>
+                                <div class="card-tools">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" class="form-control" placeholder="搜索">
+                                        <div class="input-group-append">
+                                            <div class="btn btn-primary">
+                                                <i class="fas fa-search"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Toolbar - begin -->
+                            <div class="file-controls">
+                                <button type="button" class="btn btn-default btn-sm" title="取消分享" data-target="cancel"><i class="fas fa-times-circle"></i> 取消分享</button>
+                            </div>
+                            <!-- Toolbar - end -->
+                            <div class="table-responsive table-header">
+                                <table class="table table-hover table-striped">
+                                    <thead>
+                                        <tr>
+                                            <td width="46"><button type="button" class="btn btn-default btn-sm checkbox-toggle" style="display:none;"><i class="far fa-square"></i></button></td>
+                                            <td width="38"></td>
+                                            <td>文件名</td>
+                                            <td width="100">大小</td>
+                                            <td width="140">文件时间</td>
+                                            <td width="200">分享链接</td>
+                                            <td width="140">到期日期</td>
+                                            <td width="100">访问密码</td>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                            <div class="table-responsive table-files">
+                                <table class="table table-hover table-striped">
+                                    <thead>
+                                        <tr>
+                                            <td width="46"></td>
+                                            <td width="38"></td>
+                                            <td></td>
+                                            <td width="100"></td>
+                                            <td width="140"></td>
+                                            <td width="200"></td>
+                                            <td width="140"></td>
+                                            <td width="100"></td>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-target="surface-a">
+                                    </tbody>
+                                    <tbody class="table-hidden" data-target="surface-b">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="table_files_nofile" class="no-file bg-nofile">
+                                <div>没有找到数据</div>
                             </div>
                         </div>
                     </div>
@@ -1663,7 +1749,7 @@
 
     <!-- Page Footer - begin -->
     <footer class="main-footer">
-        <span>Copyright &copy; 2015-2022 Shixin Cube. All rights reserved.</span>
+        <span>Copyright &copy; 2020-2022 Shixin Cube. All rights reserved.</span>
         <div class="float-right d-none d-sm-inline-block">
             <b>Version 3.0</b>
         </div>

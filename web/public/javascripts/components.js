@@ -7911,6 +7911,7 @@
 
     var catalogEl = null;
     var transEl = null;
+    var sharingEl = null;
 
     var btnAllFiles = null;
     var btnImageFiles = null;
@@ -7921,16 +7922,21 @@
     var btnDownloading = null;
     var btnComplete = null;
 
+    var btnSharing = null;
+    var btnSharingExpired = null;
+
     var activeBtn = null;
 
     /**
      * 我的文件主界面的引导目录。
      * @param {jQuery} catalog 主目录元素。
      * @param {jQuery} trans 传输列表元素。
+     * @param {jQuery} sharing 文件分享列表元素。
      */
-    var FilesCatalogue = function(catalog, trans) {
+    var FileCatalogue = function(catalog, trans, sharing) {
         catalogEl = catalog;
         transEl = trans;
+        sharingEl = sharing;
 
         btnAllFiles = catalogEl.find('#btn_all_files');
         btnImageFiles = catalogEl.find('#btn_image_files');
@@ -7941,6 +7947,9 @@
         btnDownloading = transEl.find('#btn_trans_download');
         btnComplete = transEl.find('#btn_trans_complete');
 
+        btnSharing = sharingEl.find('#btn_sharing');
+        btnSharingExpired = sharingEl.find('#btn_sharing_expired');
+
         activeBtn = btnAllFiles;
 
         that = this;
@@ -7949,8 +7958,8 @@
     /**
      * 初始化控件数据。
      */
-    FilesCatalogue.prototype.prepare = function() {
-        g.app.filesPanel.showRoot();
+    FileCatalogue.prototype.prepare = function() {
+        g.app.filePanel.showRoot();
 
         btnAllFiles.click(function() {
             that.select($(this).attr('id'));
@@ -7964,13 +7973,27 @@
         btnRecyclebin.click(function() {
             that.select($(this).attr('id'));
         });
+
+        btnUploading.click(function() {
+            dialog.launchToast(Toast.Warning, '开发中……');
+        });
+        btnDownloading.click(function() {
+            dialog.launchToast(Toast.Warning, '开发中……');
+        });
+        btnComplete.click(function() {
+            dialog.launchToast(Toast.Warning, '开发中……');
+        });
+
+        btnSharing.click(function() {
+            that.select($(this).attr('id'));
+        });
     }
 
     /**
      * 选择指定目录ID对应的数据进行显示。
      * @param {string} id 目录ID 。
      */
-    FilesCatalogue.prototype.select = function(id) {
+    FileCatalogue.prototype.select = function(id) {
         if (activeBtn.attr('id') == id) {
             return;
         }
@@ -7979,28 +8002,33 @@
 
         if (btnAllFiles.attr('id') == id) {
             activeBtn = btnAllFiles;
-            g.app.filesPanel.showRoot();
+            g.app.filePanel.showRoot();
         }
         else if (btnImageFiles.attr('id') == id) {
             activeBtn = btnImageFiles;
-            g.app.filesPanel.showImages();
+            g.app.filePanel.showImages();
         }
         else if (btnDocFiles.attr('id') == id) {
             activeBtn = btnDocFiles;
-            g.app.filesPanel.showDocuments();
+            g.app.filePanel.showDocuments();
         }
         else if (btnRecyclebin.attr('id') == id) {
             activeBtn = btnRecyclebin;
-            g.app.filesPanel.showRecyclebin();
+            g.app.filePanel.showRecyclebin();
+        }
+        else if (btnSharing.attr('id') == id) {
+            activeBtn = btnSharing;
+            g.app.filePanel.hide();
+            g.app.fileSharingPanel.showSharingPanel();
         }
 
         activeBtn.addClass('active');
 
         // 更新面板
-        g.app.filesPanel.setTitle(activeBtn.attr('title'));
+        g.app.filePanel.setTitle(activeBtn.attr('title'));
     }
 
-    g.FilesCatalogue = FilesCatalogue;
+    g.FileCatalogue = FileCatalogue;
 
 })(window);
 (function(g) {
@@ -8026,13 +8054,13 @@
         }
 
         return [
-            '<tr onclick="app.filesPanel.toggleSelect(\'', id, '\')"',
-                    ' ondblclick="app.filesPanel.changeDirectory(\'', id, '\')" id="ftr_', id, '">',
+            '<tr onclick="app.filePanel.toggleSelect(\'', id, '\')"',
+                    ' ondblclick="app.filePanel.changeDirectory(\'', id, '\')" id="ftr_', id, '">',
                 '<td><div class="icheck-primary">',
                     '<input type="checkbox" data-type="folder" id="', id, '">',
                         '<label for="', id, '"></label></div></td>',
                 '<td class="file-icon"><i class="ci ci-file-directory"></i></td>',
-                '<td class="file-name"><a href="javascript:app.filesPanel.changeDirectory(\'', id, '\');">', name, '</a></td>',
+                '<td class="file-name"><a href="javascript:app.filePanel.changeDirectory(\'', id, '\');">', name, '</a></td>',
                 '<td class="file-size">--</td>',
                 '<td class="file-lastmodifed">', g.formatYMDHMS(time), '</td>',
             '</tr>'
@@ -8052,13 +8080,13 @@
 
         var id = fileLabel.getId();
         return [
-            '<tr onclick="app.filesPanel.toggleSelect(\'', id, '\')"',
-                    ' ondblclick="app.filesPanel.openFileDetails(\'', fileLabel.getFileCode(), '\')"', ' id="ftr_', id, '">',
+            '<tr onclick="app.filePanel.toggleSelect(\'', id, '\')"',
+                    ' ondblclick="app.filePanel.openFileDetails(\'', fileLabel.getFileCode(), '\')"', ' id="ftr_', id, '">',
                 '<td><div class="icheck-primary">',
                     '<input type="checkbox" data-type="file" id="', id, '">',
                         '<label for="', id, '"></label></div></td>',
                 '<td class="file-icon">', matchFileIcon(fileLabel), '</td>',
-                '<td class="file-name"><a href="javascript:app.filesPanel.openFile(\'', fileLabel.getFileCode(), '\');">', name, '</a></td>',
+                '<td class="file-name"><a href="javascript:app.filePanel.openFile(\'', fileLabel.getFileCode(), '\');">', name, '</a></td>',
                 '<td class="file-size">', g.formatSize(fileLabel.getFileSize()), '</td>',
                 '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getLastModified()), '</td>',
             '</tr>'
@@ -8079,12 +8107,12 @@
 
         var id = fileLabel.getId();
         return [
-            '<tr onclick="app.filesPanel.toggleSelect(\'', id, '\')" id="ftr_', id, '">',
+            '<tr onclick="app.filePanel.toggleSelect(\'', id, '\')" id="ftr_', id, '">',
                 '<td><div class="icheck-primary">',
                     '<input type="checkbox" data-type="file" id="', id, '">',
                         '<label for="', id, '"></label></div></td>',
                 '<td class="file-icon">', matchFileIcon(fileLabel), '</td>',
-                '<td class="file-name"><a href="javascript:app.filesPanel.openFile(\'', fileLabel.getFileCode(), '\',\'',
+                '<td class="file-name"><a href="javascript:app.filePanel.openFile(\'', fileLabel.getFileCode(), '\',\'',
                     directory.getId() , '\');">',
                         fileLabel.getFileName(), '</a>', '<span class="desc">所在目录: ', dirName, '</span>',
                 '</td>',
@@ -8156,7 +8184,7 @@
      * 文件表格。
      * @param {jQuery} el 
      */
-    var FilesTable = function(el) {
+    var FileTable = function(el) {
         tableEl = el;
         noFileBg = $('#table_files_nofile');
         surfaceA = el.find('tbody[data-target="surface-a"]');
@@ -8169,7 +8197,7 @@
      * @param {Array} list 数据列表。
      * @param {boolean} [extended] 是否在文件名后附加目录信息。
      */
-    FilesTable.prototype.updatePage = function(list, extended) {
+    FileTable.prototype.updatePage = function(list, extended) {
         if (list.length == 0) {
             surface[0].innerHTML = '';
             noFileBg.css('display', 'block');
@@ -8204,8 +8232,8 @@
      * 切换选择指定 ID 的行。
      * @param {string} id 指定 ID 。
      */
-    FilesTable.prototype.toggleSelect = function(id) {
-        g.app.filesPanel.resetSelectAllButton();
+    FileTable.prototype.toggleSelect = function(id) {
+        g.app.filePanel.resetSelectAllButton();
 
         var el = tableEl.find('#' + id);
         if (el.prop('checked')) {
@@ -8222,7 +8250,7 @@
      * 取消已选择的行。
      * @param {string} id 指定行 ID 。
      */
-    FilesTable.prototype.unselect = function(id) {
+    FileTable.prototype.unselect = function(id) {
         var el = tableEl.find('#' + id);
         if (el.prop('checked')) {
             el.prop('checked', false);
@@ -8234,12 +8262,12 @@
      * 在表格首行插入文件夹样式的行。
      * @param {Directory} dir 指定目录。
      */
-    FilesTable.prototype.insertFolder = function(dir) {
+    FileTable.prototype.insertFolder = function(dir) {
         var rowHtml = makeFolderRow(dir);
         surface.prepend($(rowHtml.join('')));
     }
 
-    g.FilesTable = FilesTable;
+    g.FileTable = FileTable;
 
 })(window);
 (function(g) {
@@ -8281,9 +8309,9 @@
      * 我的文件主界面的文件表格面板。
      * @param {jQuery} el 界面元素。
      */
-    var FilesPanel = function(el) {
+    var FilePanel = function(el) {
         panelEl = el;
-        table = new FilesTable(el.find('.table-files'));
+        table = new FileTable(el.find('.table-files'));
 
         btnSelectAll = el.find('.checkbox-toggle');
         btnUpload = el.find('button[data-target="upload"]');
@@ -8310,7 +8338,7 @@
      * 初始化 UI 。
      * @private
      */
-    FilesPanel.prototype.initUI = function() {
+    FilePanel.prototype.initUI = function() {
         // 全选按钮
         btnSelectAll.click(function () {
             var clicks = $(this).data('clicks');
@@ -8389,7 +8417,7 @@
                 // 刷新回收站数据
                 that.showRecyclebin();
                 // 重置根目录分页数据
-                app.filesCtrl.resetPageData(root);
+                app.fileCtrl.resetPageData(root);
             }, function(error) {
                 g.dialog.launchToast(Toast.Error, '清空回收站失败: ' + error.code);
             });
@@ -8511,7 +8539,7 @@
                 }
 
                 currentFilter.end = currentFilter.begin;
-                currentFilter.begin = currentFilter.begin - g.app.filesCtrl.numPerPage;
+                currentFilter.begin = currentFilter.begin - g.app.fileCtrl.numPerPage;
 
                 if (currentFilter.begin == 0) {
                     btnPrev.attr('disabled', 'disabled');
@@ -8519,7 +8547,7 @@
 
                 // 搜索文件
                 window.cube().fs.searchFile(currentFilter, function(filter, list) {
-                    if (list.length < g.app.filesCtrl.numPerPage) {
+                    if (list.length < g.app.fileCtrl.numPerPage) {
                         btnNext.attr('disabled', 'disabled');
 
                         if (list.length == 0) {
@@ -8558,16 +8586,16 @@
             }
             else if (selectedSearch) {
                 currentFilter.begin = currentFilter.end;
-                currentFilter.end = currentFilter.end + g.app.filesCtrl.numPerPage;
+                currentFilter.end = currentFilter.end + g.app.fileCtrl.numPerPage;
 
                 // 搜索文件
                 window.cube().fs.searchFile(currentFilter, function(filter, list) {
-                    if (list.length < g.app.filesCtrl.numPerPage) {
+                    if (list.length < g.app.fileCtrl.numPerPage) {
                         btnNext.attr('disabled', 'disabled');
 
                         if (list.length == 0) {
-                            currentFilter.end = currentFilter.end - g.app.filesCtrl.numPerPage;
-                            currentFilter.begin = currentFilter.end - g.app.filesCtrl.numPerPage;
+                            currentFilter.end = currentFilter.end - g.app.fileCtrl.numPerPage;
+                            currentFilter.begin = currentFilter.end - g.app.fileCtrl.numPerPage;
                             return;
                         }
                     }
@@ -8581,7 +8609,7 @@
                 });
             }
             else {
-                g.app.filesCtrl.getPageData(currentDir, currentPage.page + 1, function(result) {
+                g.app.fileCtrl.getPageData(currentDir, currentPage.page + 1, function(result) {
                     if (null == result) {
                         // 没有新数据
                         btnNext.attr('disabled', 'disabled');
@@ -8602,17 +8630,24 @@
     }
 
     /**
+     * 隐藏文件数据面板。
+     */
+    FilePanel.prototype.hide = function() {
+        panelEl.css('display', 'none');
+    }
+
+    /**
      * 设置标题。
      * @param {string} title 标题。
      */
-    FilesPanel.prototype.setTitle = function(title) {
+    FilePanel.prototype.setTitle = function(title) {
         panelEl.find('.fp-title').text(title);
     }
 
     /**
      * 更新标题里的路径信息。
      */
-    FilesPanel.prototype.updateTitlePath = function() {
+    FilePanel.prototype.updateTitlePath = function() {
         if (null == currentDir) {
             return;
         }
@@ -8622,7 +8657,7 @@
 
         var rootActive = (dirList.length == 0) ? ' active' : '';
         var rootEl = (dirList.length == 0) ? '我的文件' :
-            '<a href="javascript:app.filesPanel.changeDirectory(\'' + rootDir.getId() + '\');">我的文件</a>';
+            '<a href="javascript:app.filePanel.changeDirectory(\'' + rootDir.getId() + '\');">我的文件</a>';
 
         var html = ['<ol class="breadcrumb float-sm-right">',
             '<li class="breadcrumb-item', rootActive, '">', rootEl, '</li>'];
@@ -8653,7 +8688,7 @@
      * @param {Array} list 列表。
      * @param {Directory} dir 起始目录。
      */
-    FilesPanel.prototype.recurseParent = function(list, dir) {
+    FilePanel.prototype.recurseParent = function(list, dir) {
         var parent = dir.getParent();
         if (null == parent) {
             return;
@@ -8667,12 +8702,12 @@
      * 使用当前目录数据刷新表格。
      * @param {boolean} reset 是否重置当前目录。
      */
-    FilesPanel.prototype.refreshTable = function(reset) {
+    FilePanel.prototype.refreshTable = function(reset) {
         if (reset) {
-            g.app.filesCtrl.resetPageData(currentDir);
+            g.app.fileCtrl.resetPageData(currentDir);
         }
 
-        g.app.filesCtrl.getPageData(currentDir, currentPage.page, function(result) {
+        g.app.fileCtrl.getPageData(currentDir, currentPage.page, function(result) {
             if (null == result) {
                 btnNext.attr('disabled', 'disabled');
                 table.updatePage([]);
@@ -8688,11 +8723,11 @@
             currentPage.loaded = result.length;
 
             // 更新数量信息
-            infoLoaded.text(currentPage.page * g.app.filesCtrl.numPerPage + result.length);
+            infoLoaded.text(currentPage.page * g.app.fileCtrl.numPerPage + result.length);
             infoTotal.text(currentDir.totalDirs() + currentDir.totalFiles());
 
             // 判断下一页
-            if (currentPage.loaded < g.app.filesCtrl.numPerPage) {
+            if (currentPage.loaded < g.app.fileCtrl.numPerPage) {
                 btnNext.attr('disabled', 'disabled');
             }
             else {
@@ -8709,7 +8744,7 @@
         }
 
         // 判断下一页
-        if (currentPage.loaded < g.app.filesCtrl.numPerPage) {
+        if (currentPage.loaded < g.app.fileCtrl.numPerPage) {
             btnNext.attr('disabled', 'disabled');
         }
         else {
@@ -8720,12 +8755,14 @@
     /**
      * 显示根目录。
      */
-    FilesPanel.prototype.showRoot = function() {
+    FilePanel.prototype.showRoot = function() {
+        panelEl.css('display', 'block');
+
         selectedSearch = false;
         selectedRecycleBin = false;
 
         if (null == currentDir) {
-            g.app.filesCtrl.getRoot(function(root) {
+            g.app.fileCtrl.getRoot(function(root) {
                 rootDir = root;
                 currentDir = root;
                 that.showRoot();
@@ -8747,7 +8784,9 @@
     /**
      * 显示图片文件
      */
-    FilesPanel.prototype.showImages = function() {
+    FilePanel.prototype.showImages = function() {
+        panelEl.css('display', 'block');
+
         selectedSearch = true;
         selectedRecycleBin = false;
         btnEmptyTrash.css('display', 'none');
@@ -8762,7 +8801,7 @@
 
         currentFilter = {
             begin: 0,
-            end: g.app.filesCtrl.numPerPage,
+            end: g.app.fileCtrl.numPerPage,
             type: ['jpg', 'png', 'gif', 'bmp']
         };
 
@@ -8771,7 +8810,7 @@
             table.updatePage(list);
             infoLoaded.text(list.length);
 
-            if (list.length == g.app.filesCtrl.numPerPage) {
+            if (list.length == g.app.fileCtrl.numPerPage) {
                 btnNext.removeAttr('disabled');
             }
         }, function(error) {
@@ -8784,7 +8823,9 @@
     /**
      * 显示文档文件。
      */
-    FilesPanel.prototype.showDocuments = function() {
+    FilePanel.prototype.showDocuments = function() {
+        panelEl.css('display', 'block');
+
         selectedSearch = true;
         selectedRecycleBin = false;
         btnEmptyTrash.css('display', 'none');
@@ -8799,7 +8840,7 @@
 
         currentFilter = {
             begin: 0,
-            end: g.app.filesCtrl.numPerPage,
+            end: g.app.fileCtrl.numPerPage,
             type: ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
                 'docm', 'dotm', 'dotx', 'ett', 'xlsm', 'xlt', 'dpt',
                 'ppsm', 'ppsx', 'pot', 'potm', 'potx', 'pps', 'ptm']
@@ -8810,7 +8851,7 @@
             table.updatePage(list);
             infoLoaded.text(list.length);
 
-            if (list.length == g.app.filesCtrl.numPerPage) {
+            if (list.length == g.app.fileCtrl.numPerPage) {
                 btnNext.removeAttr('disabled');
             }
         }, function(error) {
@@ -8823,7 +8864,9 @@
     /**
      * 显示回收站。
      */
-    FilesPanel.prototype.showRecyclebin = function() {
+    FilePanel.prototype.showRecyclebin = function() {
+        panelEl.css('display', 'block');
+
         selectedSearch = false;
         selectedRecycleBin = true;
         btnEmptyTrash.css('display', 'inline-block');
@@ -8852,7 +8895,7 @@
      * 切换选择指定 ID 的行。
      * @param {string} id 数据的 ID 。
      */
-    FilesPanel.prototype.toggleSelect = function(id) {
+    FilePanel.prototype.toggleSelect = function(id) {
         table.toggleSelect(id);
     }
 
@@ -8860,7 +8903,7 @@
      * 切换目录。
      * @param {number|Directory} idOrDir 指定切换的目录。
      */
-    FilesPanel.prototype.changeDirectory = function(idOrDir) {
+    FilePanel.prototype.changeDirectory = function(idOrDir) {
         if (selectedRecycleBin || selectedSearch) {
             return;
         }
@@ -8906,7 +8949,7 @@
      * @param {string} fileCode 文件码。
      * @param {number} directoryId 文件所在的目录 ID 。
      */
-    FilesPanel.prototype.openFile = function(fileCode, directoryId) {
+    FilePanel.prototype.openFile = function(fileCode, directoryId) {
         var fileLabel = null;
         var directory = null;
 
@@ -8943,7 +8986,7 @@
      * 打开对应文件的文件详情界面。
      * @param {stirng} fileCode 文件码。
      */
-    FilesPanel.prototype.openFileDetails = function(fileCode) {
+    FilePanel.prototype.openFileDetails = function(fileCode) {
         if (selectedRecycleBin) {
             return;
         }
@@ -8964,12 +9007,12 @@
      * 在当前表格里插入新的目录。
      * @param {string} dirName 新目录的名称。
      */
-    FilesPanel.prototype.newDirectory = function(dirName) {
+    FilePanel.prototype.newDirectory = function(dirName) {
         g.dialog.launchToast(Toast.Info, '新建文件夹“' + dirName + '”');
         currentDir.newDirectory(dirName, function(newDir) {
             table.insertFolder(newDir);
             // 重置分页数据
-            g.app.filesCtrl.resetPageData(currentDir);
+            g.app.fileCtrl.resetPageData(currentDir);
         }, function(error) {
             g.dialog.launchToast(Toast.Error, '新建文件夹失败: ' + error.code);
         });
@@ -8978,14 +9021,44 @@
     /**
      * 重置“全选”复选框。
      */
-    FilesPanel.prototype.resetSelectAllButton = function() {
+    FilePanel.prototype.resetSelectAllButton = function() {
         btnSelectAll.data('clicks', false);
         $('.checkbox-toggle .far.fa-check-square').removeClass('fa-check-square').addClass('fa-square');
     }
 
-    g.FilesPanel = FilesPanel;
+    g.FilePanel = FilePanel;
 
 })(window);
+ (function(g) {
+    'use strict';
+
+    var that;
+
+    var parentEl;
+
+    /**
+     * 我分享的文件内容界面。
+     * @param {jQuery} el 界面元素。
+     */
+    var FileSharingPanel = function(el) {
+        parentEl = el;
+
+        that = this;
+
+        this.initUI();
+    }
+
+    FileSharingPanel.prototype.initUI = function() {
+
+    }
+
+    FileSharingPanel.prototype.showSharingPanel = function() {
+        parentEl.removeClass('files-hidden');
+    }
+
+    g.FileSharingPanel = FileSharingPanel;
+
+ })(window);
 (function(g) {
     'use strict'
 
@@ -9073,7 +9146,7 @@
      * 文件控制器。
      * @param {Cube} cubeEngine 
      */
-    var FilesController = function(cubeEngine) {
+    var FileController = function(cubeEngine) {
         cube = cubeEngine;
         this.numPerPage = numPerPage;
     }
@@ -9082,7 +9155,7 @@
      * 获取当前用户的根目录。
      * @param {function} handler 回调函数，参数：({@linkcode root}:{@link Directory}) 。
      */
-    FilesController.prototype.getRoot = function(handler) {
+    FileController.prototype.getRoot = function(handler) {
         if (null != selfRoot) {
             handler(selfRoot);
             return;
@@ -9100,7 +9173,7 @@
      * 重置目录的分页数据。
      * @param {Directory} directory 目录。
      */
-    FilesController.prototype.resetPageData = function(directory) {
+    FileController.prototype.resetPageData = function(directory) {
         folderMap.remove(directory.getId());
     }
 
@@ -9110,7 +9183,7 @@
      * @param {number} page 页码索引。
      * @returns {number} 返回目录的指定页的数据量。
      */
-    FilesController.prototype.sizePage = function(directory, page) {
+    FileController.prototype.sizePage = function(directory, page) {
         var folder = folderMap.get(directory.getId());
         if (null == folder) {
             return 0;
@@ -9128,7 +9201,7 @@
      * @param {number} page 页码索引。
      * @param {function} callback 回调函数。参数：({@linkcode list}:Array<{@link FileLabel}|{@link Directory}>) 。
      */
-    FilesController.prototype.getPageData = function(directory, page, callback) {
+    FileController.prototype.getPageData = function(directory, page, callback) {
         var folder = folderMap.get(directory.getId());
         if (null == folder) {
             folder = new Folder();
@@ -9177,7 +9250,7 @@
         });
     }
 
-    g.FilesController = FilesController;
+    g.FileController = FileController;
 
 })(window);
  (function(g) {

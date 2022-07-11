@@ -332,6 +332,8 @@ export class ContactService extends Module {
 
         let trigger = () => {
             if (gotGroups && gotBlockList && gotTopList && gotAppendix) {
+                cell.Logger.d('ContactService', 'Self is ready');
+
                 (new Promise((resolve, reject) => {
                     resolve();
                 })).then(() => {

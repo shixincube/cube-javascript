@@ -204,7 +204,7 @@ export class MessagingService extends Module {
         this.resetTimer();
 
         let self = this.contactService.getSelf();
-        if (null != self) {
+        if (null != self && this.contactService.hasSignedIn()) {
             this._prepare(self);
         }
 

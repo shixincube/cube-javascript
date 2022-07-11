@@ -1070,7 +1070,6 @@ video {
 .file-catalog {
     margin-top: 0.6rem;
     margin-bottom: 0;
-    height: 199px;
     font-size: 14px;
 }
 .file-catalog .card-title {
@@ -1079,7 +1078,6 @@ video {
 .file-trans {
     margin-top: 1.0rem;
     margin-bottom: 0;
-    height: 161px;
     font-size: 14px;
 }
 .file-trans .card-title {
@@ -1091,6 +1089,12 @@ video {
 }
 .file-trans .nav-link {
     border-radius: 0;
+}
+
+.file-sharing {
+    margin-top: 1.0rem;
+    margin-bottom: 0;
+    font-size: 14px;
 }
 
 .file-content {

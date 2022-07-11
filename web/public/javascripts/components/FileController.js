@@ -111,7 +111,7 @@
      * 文件控制器。
      * @param {Cube} cubeEngine 
      */
-    var FilesController = function(cubeEngine) {
+    var FileController = function(cubeEngine) {
         cube = cubeEngine;
         this.numPerPage = numPerPage;
     }
@@ -120,7 +120,7 @@
      * 获取当前用户的根目录。
      * @param {function} handler 回调函数，参数：({@linkcode root}:{@link Directory}) 。
      */
-    FilesController.prototype.getRoot = function(handler) {
+    FileController.prototype.getRoot = function(handler) {
         if (null != selfRoot) {
             handler(selfRoot);
             return;
@@ -138,7 +138,7 @@
      * 重置目录的分页数据。
      * @param {Directory} directory 目录。
      */
-    FilesController.prototype.resetPageData = function(directory) {
+    FileController.prototype.resetPageData = function(directory) {
         folderMap.remove(directory.getId());
     }
 
@@ -148,7 +148,7 @@
      * @param {number} page 页码索引。
      * @returns {number} 返回目录的指定页的数据量。
      */
-    FilesController.prototype.sizePage = function(directory, page) {
+    FileController.prototype.sizePage = function(directory, page) {
         var folder = folderMap.get(directory.getId());
         if (null == folder) {
             return 0;
@@ -166,7 +166,7 @@
      * @param {number} page 页码索引。
      * @param {function} callback 回调函数。参数：({@linkcode list}:Array<{@link FileLabel}|{@link Directory}>) 。
      */
-    FilesController.prototype.getPageData = function(directory, page, callback) {
+    FileController.prototype.getPageData = function(directory, page, callback) {
         var folder = folderMap.get(directory.getId());
         if (null == folder) {
             folder = new Folder();
@@ -215,6 +215,6 @@
         });
     }
 
-    g.FilesController = FilesController;
+    g.FileController = FileController;
 
 })(window);
