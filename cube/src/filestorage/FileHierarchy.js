@@ -468,12 +468,12 @@ export class FileHierarchy {
      * @param {function} handleSuccess 成功回调。参数：({@linkcode workingDir}:{@link Directory}, {@linkcode deletedList}:{@linkcode Array<FileLabel>}) 。
      * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
-    deleteFile(workingDir, fileCodes, handleSuccess, handleFailure) {
+    deleteFiles(workingDir, fileCodes, handleSuccess, handleFailure) {
         // 校验根
         let root = this._recurseRoot(workingDir);
         if (root.getId() != this.root.getId()) {
             let error = new ModuleError(FileStorage.NAME, FileStorageState.NotFound, workingDir);
-            cell.Logger.w('FileHierarchy', '#deleteFile() - ' + error);
+            cell.Logger.w('FileHierarchy', '#deleteFiles() - ' + error);
             if (handleFailure) {
                 handleFailure(error);
             }
@@ -493,7 +493,7 @@ export class FileHierarchy {
         this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
             if (null == packet || packet.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, fileCodes);
-                cell.Logger.w('FileHierarchy', '#deleteFile() - ' + error);
+                cell.Logger.w('FileHierarchy', '#deleteFiles() - ' + error);
                 if (handleFailure) {
                     handleFailure(error);
                 }
@@ -502,7 +502,7 @@ export class FileHierarchy {
 
             if (packet.getPayload().code != FileStorageState.Ok) {
                 let error = new ModuleError(FileStorage.NAME, packet.getPayload().code, fileCodes);
-                cell.Logger.w('FileHierarchy', '#deleteFile() - ' + error);
+                cell.Logger.w('FileHierarchy', '#deleteFiles() - ' + error);
                 if (handleFailure) {
                     handleFailure(error);
                 }

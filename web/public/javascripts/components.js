@@ -8054,15 +8054,15 @@
         }
 
         return [
-            '<tr onclick="app.filePanel.toggleSelect(\'', id, '\')"',
-                    ' ondblclick="app.filePanel.changeDirectory(\'', id, '\')" id="ftr_', id, '">',
-                '<td><div class="icheck-primary">',
+            '<tr ondblclick="app.filePanel.changeDirectory(\'', id, '\')" id="ftr_', id, '">',
+                '<td onclick="app.filePanel.toggleSelect(\'', id, '\')">', '<div class="icheck-primary">',
                     '<input type="checkbox" data-type="folder" id="', id, '">',
                         '<label for="', id, '"></label></div></td>',
                 '<td class="file-icon"><i class="ci ci-file-directory"></i></td>',
                 '<td class="file-name"><a href="javascript:app.filePanel.changeDirectory(\'', id, '\');">', name, '</a></td>',
                 '<td class="file-size">--</td>',
                 '<td class="file-lastmodifed">', g.formatYMDHMS(time), '</td>',
+                '<td class="file-operate"></td>',
             '</tr>'
         ];
     }
@@ -8080,15 +8080,20 @@
 
         var id = fileLabel.getId();
         return [
-            '<tr onclick="app.filePanel.toggleSelect(\'', id, '\')"',
-                    ' ondblclick="app.filePanel.openFileDetails(\'', fileLabel.getFileCode(), '\')"', ' id="ftr_', id, '">',
-                '<td><div class="icheck-primary">',
+            '<tr ondblclick="app.filePanel.openFileDetails(\'', fileLabel.getFileCode(), '\')" id="ftr_', id, '">',
+                '<td onclick="app.filePanel.toggleSelect(\'', id, '\')">', '<div class="icheck-primary">',
                     '<input type="checkbox" data-type="file" id="', id, '">',
                         '<label for="', id, '"></label></div></td>',
                 '<td class="file-icon">', matchFileIcon(fileLabel), '</td>',
                 '<td class="file-name"><a href="javascript:app.filePanel.openFile(\'', fileLabel.getFileCode(), '\');">', name, '</a></td>',
                 '<td class="file-size">', g.formatSize(fileLabel.getFileSize()), '</td>',
                 '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getLastModified()), '</td>',
+                '<td class="file-operate">',
+                    '<button ', 'onclick="app.filePanel.openCreateSharingTagDialog(\'', fileLabel.getFileCode(), '\')"',
+                        ' type="button" class="btn btn-info btn-sm" title="分享" data-target="share-file"><i class="fas fa-share"></i></button>',
+                    '<button ', 'onclick="app.filePanel.promptDeleteFile(\'', fileLabel.getFileName(), '\', \'', fileLabel.getFileCode(), '\')"',
+                        ' type="button" class="btn btn-danger btn-sm" title="删除" data-target="recycle-file"><i class="far fa-trash-alt"></i></button>',
+                '</td>',
             '</tr>'
         ];
     }
@@ -8107,8 +8112,8 @@
 
         var id = fileLabel.getId();
         return [
-            '<tr onclick="app.filePanel.toggleSelect(\'', id, '\')" id="ftr_', id, '">',
-                '<td><div class="icheck-primary">',
+            '<tr id="ftr_', id, '">',
+                '<td onclick="app.filePanel.toggleSelect(\'', id, '\')"><div class="icheck-primary">',
                     '<input type="checkbox" data-type="file" id="', id, '">',
                         '<label for="', id, '"></label></div></td>',
                 '<td class="file-icon">', matchFileIcon(fileLabel), '</td>',
@@ -8118,6 +8123,7 @@
                 '</td>',
                 '<td class="file-size">', g.formatSize(fileLabel.getFileSize()), '</td>',
                 '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getLastModified()), '</td>',
+                '<td class="file-operate"></td>',
             '</tr>'
         ];
     }
@@ -8285,6 +8291,7 @@
     var btnRestore = null;
     var btnParent = null;
     var btnRecycle = null;
+    var btnShare = null;
 
     var infoLoaded = 0;
     var infoTotal = 0;
@@ -8305,6 +8312,8 @@
     var selectedSearch = false;
     var selectedRecycleBin = false;
 
+    var dialogCreateSharingTag;
+
     /**
      * 我的文件主界面的文件表格面板。
      * @param {jQuery} el 界面元素。
@@ -8320,6 +8329,7 @@
         btnNewDir = el.find('button[data-target="new-dir"]');
         btnParent = el.find('button[data-target="parent"]');
         btnRecycle = el.find('button[data-target="recycle"]');
+        btnShare = el.find('button[data-target="share"]');
 
         infoLoaded = el.find('.info-loaded');
         infoTotal = el.find('.info-total');
@@ -8339,6 +8349,8 @@
      * @private
      */
     FilePanel.prototype.initUI = function() {
+        dialogCreateSharingTag = $('#create_file_sharing_dialog');
+
         // 全选按钮
         btnSelectAll.click(function () {
             var clicks = $(this).data('clicks');
@@ -8515,7 +8527,7 @@
                             g.dialog.launchToast(Toast.Error, '删除文件夹失败: ' + error.code);
                         });
 
-                        currentDir.deleteFile(fileList, function(workingDir, resultList) {
+                        currentDir.deleteFiles(fileList, function(workingDir, resultList) {
                             fileCompleted = true;
                             if (dirCompleted) {
                                 that.refreshTable(true);
@@ -8525,6 +8537,36 @@
                         });
                     }
                 }, '删除');
+            }
+        });
+
+        // 分享文件
+        btnShare.click(function() {
+            var result = [];
+            var list = panelEl.find('.table-files input[type="checkbox"]');
+            for (var i = 0; i < list.length; ++i) {
+                var el = $(list.get(i));
+                if (el.prop('checked')) {
+                    result.push({
+                        id: parseInt(el.attr('id')),
+                        type: el.attr('data-type')
+                    });
+                }
+            }
+
+            if (result.length == 0) {
+                return;
+            }
+
+            if (result.length == 1) {
+                var item = currentDir.getFile(result[0].id);
+                if (null == item) {
+                    // 不是文件
+
+                    return;
+                }
+
+                that.openCreateSharingTagDialog(item);
             }
         });
 
@@ -9026,9 +9068,69 @@
         $('.checkbox-toggle .far.fa-check-square').removeClass('fa-check-square').addClass('fa-square');
     }
 
+    /**
+     * 打开创建文件分享对话框。
+     * @param {*} item 
+     */
+    FilePanel.prototype.openCreateSharingTagDialog = function(item) {
+        var el = dialogCreateSharingTag;
+
+        var show = function(fileLabel) {
+            el.find('#file-name').val(fileLabel.getFileName());
+            el.find('#file-size').val(g.formatSize(fileLabel.getFileSize()));
+
+            el.find('button[data-target="confirm"]').click(function() {
+                
+            });
+
+            el.find('.overlay').css('visibility', 'hidden');
+            el.modal('show');
+        };
+
+        if (typeof item === 'string') {
+            g.cube().fs.getFileLabel(item, function(fileLabel) {
+                show(fileLabel);
+            }, function(error) {
+
+            });
+        }
+        else {
+            show(item);
+        }
+    }
+
+    FilePanel.prototype.promptDeleteFile = function(fileName, fileCode) {
+        var text = ['您确定要删除文件 ', '“<span class="text-danger">', fileName, '</span>” 吗？'];
+        g.dialog.showConfirm('删除文件', text.join(''), function(ok) {
+            if (ok) {
+                currentDir.deleteFiles([ fileCode ], function(workingDir, resultList) {
+                    that.refreshTable(true);
+                }, function(error) {
+                    g.dialog.launchToast(Toast.Error, '删除文件失败: ' + error.code);
+                });
+            }
+        }, '删除');
+    }
+
     g.FilePanel = FilePanel;
 
 })(window);
+ (function(g) {
+    'use strict'
+
+    var tableEl;
+
+    /**
+     * 文件分享表格。
+     * @param {jQuery} el 
+     */
+    var FileSharingTable = function(el) {
+        tableEl = el;
+    }
+
+    g.FileSharingTable = FileSharingTable;
+
+ })(window);
  (function(g) {
     'use strict';
 
@@ -9049,7 +9151,7 @@
     }
 
     FileSharingPanel.prototype.initUI = function() {
-
+        
     }
 
     FileSharingPanel.prototype.showSharingPanel = function() {

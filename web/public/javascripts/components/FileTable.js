@@ -47,15 +47,15 @@
         }
 
         return [
-            '<tr onclick="app.filePanel.toggleSelect(\'', id, '\')"',
-                    ' ondblclick="app.filePanel.changeDirectory(\'', id, '\')" id="ftr_', id, '">',
-                '<td><div class="icheck-primary">',
+            '<tr ondblclick="app.filePanel.changeDirectory(\'', id, '\')" id="ftr_', id, '">',
+                '<td onclick="app.filePanel.toggleSelect(\'', id, '\')">', '<div class="icheck-primary">',
                     '<input type="checkbox" data-type="folder" id="', id, '">',
                         '<label for="', id, '"></label></div></td>',
                 '<td class="file-icon"><i class="ci ci-file-directory"></i></td>',
                 '<td class="file-name"><a href="javascript:app.filePanel.changeDirectory(\'', id, '\');">', name, '</a></td>',
                 '<td class="file-size">--</td>',
                 '<td class="file-lastmodifed">', g.formatYMDHMS(time), '</td>',
+                '<td class="file-operate"></td>',
             '</tr>'
         ];
     }
@@ -73,15 +73,20 @@
 
         var id = fileLabel.getId();
         return [
-            '<tr onclick="app.filePanel.toggleSelect(\'', id, '\')"',
-                    ' ondblclick="app.filePanel.openFileDetails(\'', fileLabel.getFileCode(), '\')"', ' id="ftr_', id, '">',
-                '<td><div class="icheck-primary">',
+            '<tr ondblclick="app.filePanel.openFileDetails(\'', fileLabel.getFileCode(), '\')" id="ftr_', id, '">',
+                '<td onclick="app.filePanel.toggleSelect(\'', id, '\')">', '<div class="icheck-primary">',
                     '<input type="checkbox" data-type="file" id="', id, '">',
                         '<label for="', id, '"></label></div></td>',
                 '<td class="file-icon">', matchFileIcon(fileLabel), '</td>',
                 '<td class="file-name"><a href="javascript:app.filePanel.openFile(\'', fileLabel.getFileCode(), '\');">', name, '</a></td>',
                 '<td class="file-size">', g.formatSize(fileLabel.getFileSize()), '</td>',
                 '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getLastModified()), '</td>',
+                '<td class="file-operate">',
+                    '<button ', 'onclick="app.filePanel.openCreateSharingTagDialog(\'', fileLabel.getFileCode(), '\')"',
+                        ' type="button" class="btn btn-info btn-sm" title="分享" data-target="share-file"><i class="fas fa-share"></i></button>',
+                    '<button ', 'onclick="app.filePanel.promptDeleteFile(\'', fileLabel.getFileName(), '\', \'', fileLabel.getFileCode(), '\')"',
+                        ' type="button" class="btn btn-danger btn-sm" title="删除" data-target="recycle-file"><i class="far fa-trash-alt"></i></button>',
+                '</td>',
             '</tr>'
         ];
     }
@@ -100,8 +105,8 @@
 
         var id = fileLabel.getId();
         return [
-            '<tr onclick="app.filePanel.toggleSelect(\'', id, '\')" id="ftr_', id, '">',
-                '<td><div class="icheck-primary">',
+            '<tr id="ftr_', id, '">',
+                '<td onclick="app.filePanel.toggleSelect(\'', id, '\')"><div class="icheck-primary">',
                     '<input type="checkbox" data-type="file" id="', id, '">',
                         '<label for="', id, '"></label></div></td>',
                 '<td class="file-icon">', matchFileIcon(fileLabel), '</td>',
@@ -111,6 +116,7 @@
                 '</td>',
                 '<td class="file-size">', g.formatSize(fileLabel.getFileSize()), '</td>',
                 '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getLastModified()), '</td>',
+                '<td class="file-operate"></td>',
             '</tr>'
         ];
     }

@@ -25,32 +25,18 @@
  */
 
  (function(g) {
-    'use strict';
+    'use strict'
 
-    var that;
-
-    var parentEl;
+    var tableEl;
 
     /**
-     * 我分享的文件内容界面。
-     * @param {jQuery} el 界面元素。
+     * 文件分享表格。
+     * @param {jQuery} el 
      */
-    var FileSharingPanel = function(el) {
-        parentEl = el;
-
-        that = this;
-
-        this.initUI();
+    var FileSharingTable = function(el) {
+        tableEl = el;
     }
 
-    FileSharingPanel.prototype.initUI = function() {
-        
-    }
-
-    FileSharingPanel.prototype.showSharingPanel = function() {
-        parentEl.removeClass('files-hidden');
-    }
-
-    g.FileSharingPanel = FileSharingPanel;
+    g.FileSharingTable = FileSharingTable;
 
  })(window);

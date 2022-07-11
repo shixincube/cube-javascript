@@ -464,7 +464,7 @@
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-default btn-sm" title="刷新" data-target="refresh"><i class="fas fa-sync-alt"></i></button>
                                     <button type="button" class="btn btn-default btn-sm" title="上一级" data-target="parent"><i class="fas fa-arrow-up"></i></button>
-                                    <!-- button type="button" class="btn btn-default btn-sm"><i class="fas fa-share"></i></button -->
+                                    <button type="button" class="btn btn-default btn-sm" title="分享文件" data-target="share"><i class="fas fa-share"></i></button>
                                     <button type="button" class="btn btn-default btn-sm" title="删除" data-target="recycle"><i class="far fa-trash-alt"></i></button>
                                 </div><!-- /.btn-group -->
                                 <div class="float-right">
@@ -485,6 +485,7 @@
                                             <td>文件名</td>
                                             <td width="100">大小</td>
                                             <td width="160">修改时间</td>
+                                            <td width="100"></td>
                                         </tr>
                                     </thead>
                                 </table>
@@ -498,6 +499,7 @@
                                             <td></td>
                                             <td width="100"></td>
                                             <td width="160"></td>
+                                            <td width="100"></td>
                                         </tr>
                                     </thead>
                                     <tbody data-target="surface-a">
@@ -1341,6 +1343,61 @@
         </div>
     </div>
     <!-- File Details - end -->
+
+    <!-- Create File Sharing Dialog - begin  -->
+    <div id="create_file_sharing_dialog" class="modal fade create-file-sharing-dialog" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">分享文件</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <from>
+                        <div class="form-group row">
+                            <label for="file-name" class="col-sm-2 col-form-label">文件名</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control form-control-sm" id="file-name" name="file-name" readonly />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="file-size" class="col-sm-2 col-form-label">文件大小</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control form-control-sm" id="file-size" name="file-size" readonly />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="file-sharing-duration" class="col-sm-2 col-form-label">有效期</label>
+                            <div class="col-sm-10">
+                                <select class="form-control form-control-sm" id="file-sharing-duration" name="file-sharing-duration">
+                                    <option value="24h">24小时</option>
+                                    <option value="48h">48小时</option>
+                                    <option value="72h">72小时</option>
+                                    <option value="7d">7天</option>
+                                    <option value="30d">30天</option>
+                                    <option value="0">永久</option>
+                                  </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="sharing-password" class="col-sm-2 col-form-label">提取码</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control form-control-sm" id="sharing-password" name="sharing-password" placeholder="无需提取码" />
+                            </div>
+                        </div>
+                    </from>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">关闭</button>
+                    <button class="btn btn-primary" type="button" data-target="confirm">确定</button>
+                </div>
+                <div class="overlay"><span><i class="fas fa-2x fa-sync-alt fa-spin"></i></span><span class="text">正在创建分享链接，请稍候……</span></div>
+            </div>
+        </div>
+    </div>
+    <!-- Create file sharing dialog - end  -->
 
     <!-- Conference UI - begin -->
     <div id="conference_window" class="modal fade modeless conference-panel">

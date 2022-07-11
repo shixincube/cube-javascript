@@ -395,7 +395,7 @@ export class Directory {
      * @param {function} handleSuccess 成功回调。参数：({@linkcode workingDir}:{@link Directory}, {@linkcode deletedList}:{@linkcode Array<FileLabel>}) 。
      * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
-    deleteFile(files, handleSuccess, handleFailure) {
+    deleteFiles(files, handleSuccess, handleFailure) {
         let fileCodes = [];
         files.forEach((value) => {
             if (typeof value === 'number') {
@@ -406,7 +406,7 @@ export class Directory {
             }
         });
 
-        this.hierarchy.deleteFile(this, fileCodes, handleSuccess, handleFailure);
+        this.hierarchy.deleteFiles(this, fileCodes, handleSuccess, handleFailure);
     }
 
     /**

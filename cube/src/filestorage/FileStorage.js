@@ -751,11 +751,11 @@ export class FileStorage extends Module {
      * @param {function} handleSuccess 成功回调。参数：({@linkcode workingDir}:{@link Directory}, {@linkcode deletedList}:{@linkcode Array<FileLabel>}) 。
      * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
-    deleteFile(workingDir, fileCodes, handleSuccess, handleFailure) {
+    deleteFiles(workingDir, fileCodes, handleSuccess, handleFailure) {
         let root = this._recurseRoot(workingDir);
         this.getRoot(root.getId(), (root) => {
             let hierarchy = this.fileHierarchyMap.get(root.getId());
-            hierarchy.deleteFile(workingDir, fileCodes, handleSuccess, handleFailure);
+            hierarchy.deleteFiles(workingDir, fileCodes, handleSuccess, handleFailure);
         }, (error) => {
             if (handleFailure) {
                 handleFailure(error);

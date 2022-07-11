@@ -1097,6 +1097,11 @@ video {
     font-size: 14px;
 }
 
+.file-operate button {
+    padding: .20rem .4rem;
+    margin-right: 4px;
+}
+
 .file-content {
     margin-top: 0.6rem;
     margin-bottom: 0rem;

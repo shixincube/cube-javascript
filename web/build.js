@@ -26,6 +26,7 @@ const fileList = [
     'FileCatalogue.js',
     'FileTable.js',
     'FilePanel.js',
+    'FileSharingTable.js',
     'FileSharingPanel.js',
     'FileController.js',
     'ContactsTable.js',
