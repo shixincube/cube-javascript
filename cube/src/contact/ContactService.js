@@ -240,11 +240,32 @@ export class ContactService extends Module {
             return false;
         }
 
-        // 激活令牌
+        let retryCount = 2;
+        // 激活令牌并签入
+        this._actvieAndSignIn(retryCount);
+
+        return true;
+    }
+
+    /**
+     * @private
+     */
+    _actvieAndSignIn(retryCount) {
         (async ()=> {
             let token = await this.kernel.activeToken(this.self.getId());
             if (null == token) {
-                cell.Logger.w('ContactService', 'Error auth token');
+                cell.Logger.w('ContactService', 'Auth token is null');
+
+                if (retryCount > 0) {
+                    --retryCount;
+
+                    cell.Logger.i('ContactService', 'Retry signin - ' + retryCount);
+
+                    setTimeout(() => {
+                        this._actvieAndSignIn(retryCount);
+                    }, 2000);
+                }
+
                 return;
             }
 
@@ -255,8 +276,6 @@ export class ContactService extends Module {
             let signInPacket = new Packet(ContactAction.SignIn, data);
             this.pipeline.send(ContactService.NAME, signInPacket);
         })();
-
-        return true;
     }
 
     /**

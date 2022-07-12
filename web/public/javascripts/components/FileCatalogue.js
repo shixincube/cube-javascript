@@ -123,23 +123,27 @@
         if (btnAllFiles.attr('id') == id) {
             activeBtn = btnAllFiles;
             g.app.filePanel.showRoot();
+            g.app.fileSharingPanel.hide();
         }
         else if (btnImageFiles.attr('id') == id) {
             activeBtn = btnImageFiles;
             g.app.filePanel.showImages();
+            g.app.fileSharingPanel.hide();
         }
         else if (btnDocFiles.attr('id') == id) {
             activeBtn = btnDocFiles;
             g.app.filePanel.showDocuments();
+            g.app.fileSharingPanel.hide();
         }
         else if (btnRecyclebin.attr('id') == id) {
             activeBtn = btnRecyclebin;
             g.app.filePanel.showRecyclebin();
+            g.app.fileSharingPanel.hide();
         }
         else if (btnSharing.attr('id') == id) {
             activeBtn = btnSharing;
-            g.app.filePanel.hide();
             g.app.fileSharingPanel.showSharingPanel();
+            g.app.filePanel.hide();
         }
 
         activeBtn.addClass('active');

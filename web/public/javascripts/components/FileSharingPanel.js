@@ -44,11 +44,19 @@
     }
 
     FileSharingPanel.prototype.initUI = function() {
-        
+        parentEl.removeClass('files-hidden');
+        parentEl.css('display', 'none');
     }
 
     FileSharingPanel.prototype.showSharingPanel = function() {
-        parentEl.removeClass('files-hidden');
+        parentEl.css('display', 'block');
+    }
+
+    /**
+     * 隐藏文件数据面板。
+     */
+     FileSharingPanel.prototype.hide = function() {
+        parentEl.css('display', 'none');
     }
 
     g.FileSharingPanel = FileSharingPanel;

@@ -101,6 +101,16 @@
         }
     }
 
+    // 定时心跳
+    function heartbeat() {
+        $.post(server.url + '/account/hb/', { "token": token }, function(response, status, xhr) {
+            var success = response.success;
+            if (!success) {
+                window.location.href = '/';
+            }
+        }, 'json');
+    }
+
     /**
      * 应用程序入口。
      */
@@ -130,16 +140,6 @@
                 setTimeout(function() {
                     g.app.toggle(tab);
                 }, 100);
-            }
-
-            // 定时心跳
-            function heartbeat() {
-                $.post(server.url + '/account/hb/', { "token": token }, function(response, status, xhr) {
-                    var success = response.success;
-                    if (!success) {
-                        window.location.href = '/';
-                    }
-                }, 'json');
             }
 
             $.ajax({

@@ -33,7 +33,7 @@
      * 服务器地址。
      * 请修改为您的服务器地址。
      */
-    var address = '127.0.0.1';
+    var address = '192.168.0.115';
 
     /**
      * 服务器端口。
@@ -44,12 +44,12 @@
     /**
      * 用于文件服务的 HTTP 链接。
      */
-    var httpURL = 'http://127.0.0.1:7777';
+    var httpURL = 'http://' + address + ':7777';
 
     /**
      * 用于文件服务的 HTTPS 链接。
      */
-    var httpsURL = 'https://127.0.0.1:7777';
+    var httpsURL = 'https://' + address + ':7777';
 
     g.server = {
         address: address,
