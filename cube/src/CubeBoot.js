@@ -206,4 +206,8 @@ import { Announcer } from "./util/Announcer";
         return global._cube_;
     }
 
+    if (undefined === global.engine) {
+        global.engine = global.cube();
+    }
+
 })(undefined === window.CubeNamespace ? window : window.CubeNamespace);

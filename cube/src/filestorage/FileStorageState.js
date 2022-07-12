@@ -126,6 +126,18 @@ export const FileStorageState = {
     GetFileLabelFailed: 105,
 
     /**
+     * 数据通道未就绪。
+     * @type {number}
+     */
+    PipelineNotReady: 106,
+
+    /**
+     * 数据格式错误。
+     * @type {number}
+     */
+    DataFormatError: 107,
+
+    /**
      * 未知的状态。
      * @type {number}
      */

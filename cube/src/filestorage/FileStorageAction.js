@@ -116,5 +116,29 @@ export const FileStorageAction = {
      * 精确查找文件。
      * @type {string}
      */
-    FindFile: 'findFile'
+    FindFile: 'findFile',
+
+    /**
+     * 清空所有数据。
+     * @type {string}
+     */
+    Cleanup: 'cleanup',
+
+    /**
+     * 创建分享标签。
+     * @type {string}
+     */
+    CreateSharingTag: 'createSharingTag',
+
+    /**
+     * 获取分享标签。
+     * @type {string}
+     */
+    GetSharingTag: 'getSharingTag',
+
+    /**
+     * 罗列当前联系人的所有分享标签。
+     * @type {string}
+     */
+    ListSharingTags: 'listSharingTags'
 }

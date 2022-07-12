@@ -48,6 +48,7 @@ import { FileStorageState } from "./FileStorageState";
 import { Directory } from "./Directory";
 import { FileHierarchy } from "./FileHierarchy";
 import { SearchItem } from "./SearchItem";
+import { SharingTag } from "./SharingTag";
 
 /**
  * 上传文件回调函数。
@@ -861,6 +862,56 @@ export class FileStorage extends Module {
         }
 
         return hierarchy.getSearchItem(parseInt(directoryId), fileCode);
+    }
+
+    /**
+     * 创建文件的分享标签。
+     * @param {FileLabel} fileLabel 指定文件标签。
+     * @param {number} duration 指定有效时长，单位：毫秒。设置 {@linkcode 0} 表示永久有效。
+     * @param {string} password 指定提取文件时的密码。设置 {@linkcode null} 值表示无需提取码。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode sharingTag}:{@link SharingTag}) 。
+     * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    createSharingTag(fileLabel, duration, password, handleSuccess, handleFailure) {
+        if (!this.hasStarted()) {
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.NotReady, fileLabel);
+            handleFailure(error);
+            return;
+        }
+
+        if (!this.pipeline.isReady()) {
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.PipelineNotReady, fileLabel);
+            handleFailure(error);
+            return;
+        }
+
+        let payload = {
+            "fileCode": fileLabel.getFileCode(),
+            "duration": duration
+        };
+        if (null != password) {
+            payload["password"] = password;
+        }
+
+        let packet = new Packet(FileStorageAction.CreateSharingTag, payload);
+        this.pipeline.send(FileStorage.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
+                let error = new ModuleError(FileStorage.NAME, responsePacket.getStateCode(), fileLabel);
+                handleFailure(error);
+                return;
+            }
+
+            let stateCode = responsePacket.extractServiceStateCode();
+            if (stateCode != FileStorageState.Ok) {
+                let error = new ModuleError(FileStorage.NAME, stateCode, fileLabel);
+                handleFailure(error);
+                return;
+            }
+
+            let data = responsePacket.extractServiceData();
+            let sharingTag = SharingTag.create(data);
+            handleSuccess(sharingTag);
+        });
     }
 
     /**

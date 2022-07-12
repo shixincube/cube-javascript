@@ -1196,7 +1196,7 @@ export class ContactService extends Module {
             clearTimeout(this.listGroupsContext.timer);
             this.listGroupsContext.handler([]);
             this.listGroupsContext = null;
-        }, 10000);
+        }, 15000);
 
         let packet = new Packet(ContactAction.ListGroups, {
             "beginning": beginning,

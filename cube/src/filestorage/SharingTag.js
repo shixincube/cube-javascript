@@ -24,7 +24,10 @@
  * SOFTWARE.
  */
 
+import { Contact } from "../contact/Contact";
+import { Device } from "../contact/Device";
 import { Entity } from "../core/Entity";
+import { FileLabel } from "./FileLabel";
 
 /**
  * 分享描述标签。
@@ -40,10 +43,75 @@ export class SharingTag extends Entity {
          * @type {string}
          */
         this.code = code;
+
+        /**
+         * 到期日期。
+         * @type {number}
+         */
+         this.expiryDate = 0;
+
+        /**
+         * 分享人。
+         * @type {Contact}
+         */
+        this.sharer = null;
+
+        /**
+         * 创建分享的设备。
+         * @type {Device}
+         */
+        this.device = null;
+
+        /**
+         * 文件标签。
+         * @type {FileLabel}
+         */
+        this.fileLabel = null;
+
+        /**
+         * 有效时长。
+         * @type {number}
+         */
+        this.duration = 0;
+
+        /**
+         * 提取文件密码。
+         * @type {string}
+         */
+        this.password = null;
+
+        this.httpURL = null;
+        this.httpsURL = null;
     }
 
+    /**
+     * 获取分享访问 URL 。
+     * @returns {string} 返回分享访问 URL 。
+     */
+    getURL() {
+        if (document.URL.startsWith('https')) {
+            return this.httpsURL;
+        }
+        else {
+            return this.httpURL;
+        }
+    }
+
+    /**
+     * 使用 JSON 格式数据创建 SharingTag 实例。
+     * @param {JSON} json 
+     * @returns 
+     */
     static create(json) {
         let tag = new SharingTag(json.id, json.code);
+        tag.expiryDate = json.expiryDate;
+        tag.sharer = (undefined !== json.config.contact) ? Contact.create(json.config.contact) : null;
+        tag.device = Device.create(json.config.device);
+        tag.fileLabel = FileLabel.create(json.config.fileLabel);
+        tag.duration = json.config.duration;
+        tag.password = (undefined !== json.config.password) ? json.config.password : null;
+        tag.httpURL = (undefined !== json.httpURL) ? json.httpURL : null;
+        tag.httpsURL = (undefined !== json.httpsURL) ? json.httpsURL : null;
         return tag;
     }
 }

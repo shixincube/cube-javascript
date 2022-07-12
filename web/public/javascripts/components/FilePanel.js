@@ -244,7 +244,7 @@
                     else {
                         name = item.getName();
                     }
-                    text = ['您确定要删除', result[0].type == 'folder' ? '文件夹' : '文件', '“<span class="text-danger">', name, '</span>”吗？'];
+                    text = ['您确定要删除', result[0].type == 'folder' ? '文件夹' : '文件', ' “<span class="text-danger">', name, '</span>” 吗？'];
                 }
                 else {
                     text = ['您确定要删除所选择的<b>', result.length, '</b>个项目吗？'];
@@ -828,7 +828,24 @@
             el.find('#file-size').val(g.formatSize(fileLabel.getFileSize()));
 
             el.find('button[data-target="confirm"]').click(function() {
-                
+                el.find('.overlay').css('visibility', 'visible');
+
+                var duration = el.find('#file-sharing-duration').val();
+                duration = toDurationLong(duration);
+
+                var password = el.find('#sharing-password').val().trim();
+                if (password.length == 0) {
+                    password = null;
+                }
+
+                setTimeout(function() {
+                    el.modal('hide');
+
+                    var url = 'https://shixincube.com';
+                    g.dialog.showAlert('<p>分享链接 <a href="' + url + '" target="_blank">' + url + '</a> 已复制到系统剪贴板。</p>');
+                }, 3000);
+
+                // g.engine.fs.createSharingTag(fileLabel);
             });
 
             el.find('.overlay').css('visibility', 'hidden');
@@ -858,6 +875,27 @@
                 });
             }
         }, '删除');
+    }
+
+    function toDurationLong(value) {
+        if (value == '24h') {
+            return 24 * 60 * 60 * 1000;
+        }
+        else if (value == '48h') {
+            return 48 * 60 * 60 * 1000;
+        }
+        else if (value == '72h') {
+            return 72 * 60 * 60 * 1000;
+        }
+        else if (value == '7d') {
+            return 7 * 24 * 60 * 60 * 1000;
+        }
+        else if (value == '30d') {
+            return 30 * 24 * 60 * 60 * 1000;
+        }
+        else {
+            return 0;
+        }
     }
 
     g.FilePanel = FilePanel;
