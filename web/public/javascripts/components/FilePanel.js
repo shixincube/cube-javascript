@@ -68,7 +68,7 @@
      */
     var FilePanel = function(el) {
         panelEl = el;
-        table = new FileTable(el.find('.table-files'));
+        table = new FileTable(el.find('.file-table'));
 
         btnSelectAll = el.find('.checkbox-toggle');
         btnUpload = el.find('button[data-target="upload"]');
@@ -104,12 +104,12 @@
             var clicks = $(this).data('clicks');
             if (clicks) {
                 // Uncheck all checkboxes
-                $('.table-files input[type="checkbox"]').prop('checked', false);
+                $('.file-table input[type="checkbox"]').prop('checked', false);
                 $('.checkbox-toggle .far.fa-check-square').removeClass('fa-check-square').addClass('fa-square');
             }
             else {
                 // Check all checkboxes
-                $('.table-files input[type="checkbox"]').prop('checked', true);
+                $('.file-table input[type="checkbox"]').prop('checked', true);
                 $('.checkbox-toggle .far.fa-square').removeClass('fa-square').addClass('fa-check-square');
             }
             $(this).data('clicks', !clicks);
@@ -161,7 +161,7 @@
         // 恢复文件
         btnRestore.click(function() {
             var idList = [];
-            var list = panelEl.find('.table-files input[type="checkbox"]');
+            var list = panelEl.find('.file-table input[type="checkbox"]');
             for (var i = 0; i < list.length; ++i) {
                 var el = $(list.get(i));
                 if (el.prop('checked')) {
@@ -196,7 +196,7 @@
         // 删除文件或文件夹
         btnRecycle.click(function() {
             var result = [];
-            var list = panelEl.find('.table-files input[type="checkbox"]');
+            var list = panelEl.find('.file-table input[type="checkbox"]');
             for (var i = 0; i < list.length; ++i) {
                 var el = $(list.get(i));
                 if (el.prop('checked')) {
@@ -291,7 +291,7 @@
         // 分享文件
         btnShare.click(function() {
             var result = [];
-            var list = panelEl.find('.table-files input[type="checkbox"]');
+            var list = panelEl.find('.file-table input[type="checkbox"]');
             for (var i = 0; i < list.length; ++i) {
                 var el = $(list.get(i));
                 if (el.prop('checked')) {

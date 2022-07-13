@@ -30,10 +30,7 @@
     var that;
 
     var parentEl;
-
-    function makeSharingTagRow() {
-        
-    }
+    var table;
 
     /**
      * 我分享的文件内容界面。
@@ -41,9 +38,9 @@
      */
     var FileSharingPanel = function(el) {
         parentEl = el;
+        table = new FileSharingTable(el.find('.sharing-table'));
 
         that = this;
-
         this.initUI();
     }
 
@@ -54,6 +51,8 @@
 
     FileSharingPanel.prototype.showSharingPanel = function() {
         parentEl.css('display', 'block');
+
+
     }
 
     /**

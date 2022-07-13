@@ -924,13 +924,13 @@ export class FileStorage extends Module {
      */
     listSharingTags(beginIndex, endIndex, inExpiry, handleSuccess, handleFailure) {
         if (!this.hasStarted()) {
-            let error = new ModuleError(FileStorage.NAME, FileStorageState.NotReady, fileLabel);
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.NotReady);
             handleFailure(error);
             return;
         }
 
         if (!this.pipeline.isReady()) {
-            let error = new ModuleError(FileStorage.NAME, FileStorageState.PipelineNotReady, fileLabel);
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.PipelineNotReady);
             handleFailure(error);
             return;
         }

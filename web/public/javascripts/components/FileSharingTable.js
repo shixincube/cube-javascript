@@ -29,6 +29,10 @@
 
     var tableEl;
 
+    function makeSharingTagRow() {
+        
+    }
+
     /**
      * 文件分享表格。
      * @param {jQuery} el 
