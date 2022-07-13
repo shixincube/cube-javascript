@@ -31,6 +31,10 @@
 
     var parentEl;
 
+    function makeSharingTagRow() {
+        
+    }
+
     /**
      * 我分享的文件内容界面。
      * @param {jQuery} el 界面元素。

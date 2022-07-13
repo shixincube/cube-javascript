@@ -838,14 +838,21 @@
                     password = null;
                 }
 
-                setTimeout(function() {
+                // 创建分享标签
+                g.engine.fs.createSharingTag(fileLabel, duration, password, (sharingTag) => {
                     el.modal('hide');
 
-                    var url = 'https://shixincube.com';
-                    g.dialog.showAlert('<p>分享链接 <a href="' + url + '" target="_blank">' + url + '</a> 已复制到系统剪贴板。</p>');
-                }, 3000);
+                    var url = sharingTag.getURL();
 
-                // g.engine.fs.createSharingTag(fileLabel);
+                    var html = [
+                        '<p>已创建 “', fileLabel.getFileName(), '” 的分享链接：</p>',
+                        '<input type="text" class="form-control form-control-sm" value="', url, '" />'
+                    ];
+
+                    g.dialog.showAlert(html.join(''));
+                }, (error) => {
+                    el.modal('hide');
+                });
             });
 
             el.find('.overlay').css('visibility', 'hidden');

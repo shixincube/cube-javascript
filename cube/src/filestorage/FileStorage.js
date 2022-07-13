@@ -915,6 +915,28 @@ export class FileStorage extends Module {
     }
 
     /**
+     * 列表分享标签。
+     * @param {number} beginIndex 
+     * @param {number} endIndex 
+     * @param {boolean} inExpiry 
+     * @param {funciton} handleSuccess 
+     * @param {funciton} handleFailure 
+     */
+    listSharingTags(beginIndex, endIndex, inExpiry, handleSuccess, handleFailure) {
+        if (!this.hasStarted()) {
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.NotReady, fileLabel);
+            handleFailure(error);
+            return;
+        }
+
+        if (!this.pipeline.isReady()) {
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.PipelineNotReady, fileLabel);
+            handleFailure(error);
+            return;
+        }
+    }
+
+    /**
      * 递归到根目录。
      * @private
      * @param {Directory} dir 

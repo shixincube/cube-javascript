@@ -209,7 +209,7 @@ export class AuthService extends Module {
         }
 
         // 设置通道信息
-        if (undefined !== address) {
+        if (undefined !== address && this.pipeline.address != address) {
             this.pipeline.setRemoteAddress(address);
         }
 
@@ -236,20 +236,24 @@ export class AuthService extends Module {
      */
     applyToken(domain, appKey) {
         return new Promise((resolve, reject) => {
+            let timer = 0;
             let count = 0;
-            let timer = setInterval(()=> {
+            let task = ()=> {
                 ++count;
-                if (count > 50) {
-                    clearInterval(timer);
+                if (count > 100) {
+                    cell.Logger.w('AuthService', 'Network timeout');
+                    clearTimeout(timer);
                     resolve(null);
                     return;
                 }
 
                 if (!this.pipeline.isReady()) {
+                    clearTimeout(timer);
+                    timer = setTimeout(task, 100);
                     return;
                 }
 
-                clearInterval(timer);
+                clearTimeout(timer);
 
                 let packet = new Packet(AuthAction.ApplyToken, {
                     domain: domain,
@@ -259,6 +263,7 @@ export class AuthService extends Module {
                 this.pipeline.send(AuthService.NAME, packet, (pipeline, source, responsePacket) => {
                     if (null == responsePacket) {
                         // 超时
+                        cell.Logger.w('AuthService', 'Pipeline timeout');
                         resolve(null);
                         return;
                     }
@@ -279,7 +284,10 @@ export class AuthService extends Module {
                         resolve(null);
                     }
                 });
-            }, 100);
+            };
+
+            // 启动定时器
+            timer = setTimeout(task, 100);
         });
     }
 

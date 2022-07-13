@@ -65,6 +65,12 @@ export class Kernel {
     static WORKER_URL_PATH = '/cube/';
 
     /**
+     * 配置信息。
+     * @type {KernelConfig}
+     */
+    static CONFIG = null;
+
+    /**
      * @private
      * @type {Kernel}
      */
@@ -116,6 +122,14 @@ export class Kernel {
     }
 
     /**
+     * 获取配置信息。
+     * @returns {KernelConfig} 返回配置信息。
+     */
+    getConfig() {
+        return this.config;
+    }
+
+    /**
      * 启动内核。
      * @param {KernelConfig} config 配置信息。
      * @param {function} handleSuccess 启动成功回调函数。
@@ -150,6 +164,8 @@ export class Kernel {
 
         // 配置
         this.config = config;
+
+        Kernel.CONFIG = config;
 
         // 启动实体周期管理器
         this.inspector.start();
