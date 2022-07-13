@@ -384,4 +384,6 @@
             offset += g.getElementLeft(e.offsetParent);
         return parseInt(offset);
     }
+
+    
 })(window);

@@ -1224,6 +1224,13 @@ video {
     display: none;
 }
 
+.file-table table {
+    table-layout: fixed !important;
+}
+.sharing-table table {
+    table-layout: fixed !important;
+}
+
 /* 文件界面 - 结束 */
 
 /* 文件详情界面 - 开始 */

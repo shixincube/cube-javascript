@@ -545,9 +545,9 @@
                                             <td width="38"></td>
                                             <td>文件名</td>
                                             <td width="100">大小</td>
-                                            <td width="140">文件时间</td>
-                                            <td width="200">分享链接</td>
-                                            <td width="140">到期日期</td>
+                                            <td width="140">修改日期</td>
+                                            <td width="220">分享链接</td>
+                                            <td width="130">到期日期</td>
                                             <td width="100">访问密码</td>
                                         </tr>
                                     </thead>
@@ -562,8 +562,8 @@
                                             <td></td>
                                             <td width="100"></td>
                                             <td width="140"></td>
-                                            <td width="200"></td>
-                                            <td width="140"></td>
+                                            <td width="220"></td>
+                                            <td width="130"></td>
                                             <td width="100"></td>
                                         </tr>
                                     </thead>
@@ -573,7 +573,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <div id="table_files_nofile" class="no-file bg-nofile">
+                            <div id="table_sharing_nodata" class="no-file bg-nofile">
                                 <div>没有找到数据</div>
                             </div>
                         </div>
@@ -1732,7 +1732,7 @@
                     <p>&hellip;</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" onclick="javascript:dialog.closeAlert();">确定</button>
+                    <button type="button" class="btn btn-default alert-confirm-button" onclick="javascript:dialog.closeAlert();">确定</button>
                 </div>
             </div>
         </div>
@@ -1836,6 +1836,7 @@
 <script type="text/javascript" src="javascripts/adminlte.min.js"></script>
 <script type="text/javascript" src="javascripts/viewer.min.js"></script>
 <script type="text/javascript" src="javascripts/wangEditor.min.js"></script>
+<script type="text/javascript" src="javascripts/clipboard.min.js"></script>
 <script type="text/javascript" src="javascripts/cube.js"></script>
 <script type="text/javascript" src="javascripts/utils.js"></script>
 <script type="text/javascript" src="javascripts/server.js"></script>

@@ -188,10 +188,10 @@
             el.find('.modal-body').html('<p>' + content + '</p>');
 
             if (buttonLabel) {
-                el.find('button.btn-default').text(buttonLabel);
+                el.find('button.alert-confirm-button').text(buttonLabel);
             }
             else {
-                el.find('button.btn-default').text('确定');
+                el.find('button.alert-confirm-button').text('确定');
             }
     
             if (undefined === callback) {
@@ -210,6 +210,7 @@
         closeAlert: function() {
             if (null != alertCallback) {
                 alertCallback();
+                alertCallback = null;
             }
             $('#modal_alert').modal('hide');
         },

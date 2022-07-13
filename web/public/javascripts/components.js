@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020-2022 Cube Team.
+ * Copyright (c) 2020 Shixin Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,68 @@
  * SOFTWARE.
  */
 
+(function(g) {
+
+    g.helper = g.helper || {};
+
+    /**
+     * 根据文件类型匹配文件图标。
+     * @param {FileLabel} fileLabel 
+     * @returns {string}
+     */
+    g.helper.matchFileIcon = function(fileLabel) {
+        var type = fileLabel.getFileType();
+        if (type == 'png' || type == 'jpeg' || type == 'gif' || type == 'jpg' || type == 'bmp') {
+            return '<i class="ci ci-file-image"></i>';
+        }
+        else if (type == 'xls' || type == 'xlsx') {
+            return '<i class="ci ci-file-excel"></i>';
+        }
+        else if (type == 'ppt' || type == 'pptx') {
+            return '<i class="ci ci-file-powerpoint"></i>';
+        }
+        else if (type == 'doc' || type == 'docx') {
+            return '<i class="ci ci-file-word"></i>';
+        }
+        else if (type == 'mp3' || type == 'ogg' || type == 'wav') {
+            return '<i class="ci ci-file-music"></i>';
+        }
+        else if (type == 'pdf') {
+            return '<i class="ci ci-file-pdf"></i>';
+        }
+        else if (type == 'rar') {
+            return '<i class="ci ci-file-rar"></i>';
+        }
+        else if (type == 'zip' || type == 'gz') {
+            return '<i class="ci ci-file-zip"></i>';
+        }
+        else if (type == 'txt' || type == 'log') {
+            return '<i class="ci ci-file-text"></i>';
+        }
+        else if (type == 'mp4' || type == 'mkv' || type == 'avi' || type == 'ts') {
+            return '<i class="ci ci-file-video"></i>';
+        }
+        else if (type == 'psd') {
+            return '<i class="ci ci-file-psd"></i>';
+        }
+        else if (type == 'exe' || type == 'dll') {
+            return '<i class="ci ci-file-windows"></i>';
+        }
+        else if (type == 'apk') {
+            return '<i class="ci ci-file-apk"></i>';
+        }
+        else if (type == 'dmg') {
+            return '<i class="ci ci-file-dmg"></i>';
+        }
+        else if (type == 'ipa') {
+            return '<i class="ci ci-file-ipa"></i>';
+        }
+        else {
+            return '<i class="fa fa-file-alt ci-fa-file"></i>';    //'<i class="ci ci-file-unknown"></i>';
+        }
+    }
+
+})(window);
 // 对话框组件
 (function(g) {
 
@@ -188,10 +250,10 @@
             el.find('.modal-body').html('<p>' + content + '</p>');
 
             if (buttonLabel) {
-                el.find('button.btn-default').text(buttonLabel);
+                el.find('button.alert-confirm-button').text(buttonLabel);
             }
             else {
-                el.find('button.btn-default').text('确定');
+                el.find('button.alert-confirm-button').text('确定');
             }
     
             if (undefined === callback) {
@@ -210,6 +272,7 @@
         closeAlert: function() {
             if (null != alertCallback) {
                 alertCallback();
+                alertCallback = null;
             }
             $('#modal_alert').modal('hide');
         },
@@ -8089,7 +8152,7 @@
                     '<input type="checkbox" data-type="file" id="', id, '">',
                         '<label for="', id, '"></label></div></td>',
                 '<td class="file-icon">', matchFileIcon(fileLabel), '</td>',
-                '<td class="file-name"><a href="javascript:app.filePanel.openFile(\'', fileLabel.getFileCode(), '\');">', name, '</a></td>',
+                '<td class="file-name" title="', name, '"><a href="javascript:app.filePanel.openFile(\'', fileLabel.getFileCode(), '\');">', name, '</a></td>',
                 '<td class="file-size">', g.formatSize(fileLabel.getFileSize()), '</td>',
                 '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getLastModified()), '</td>',
                 '<td class="file-operate">',
@@ -9099,13 +9162,29 @@
                     el.modal('hide');
 
                     var url = sharingTag.getURL();
+                    var id = sharingTag.id;
 
                     var html = [
                         '<p>已创建 “', fileLabel.getFileName(), '” 的分享链接：</p>',
-                        '<input type="text" class="form-control form-control-sm" value="', url, '" />'
+                        '<div class="input-group input-group-sm">',
+                            '<input id="url_', id, '" type="text" class="form-control" value="', url, '" />',
+                            '<span class="input-group-append">',
+                                '<button type="button" class="btn btn-default btn-flat alert-clippy-button" title="复制分享链接到剪贴板" data-clipboard-target="#url_', id, '"><i class="fas fa-clipboard"></i></button>',
+                            '</span>',
+                        '</div>',
                     ];
 
-                    g.dialog.showAlert(html.join(''));
+                    var clipboard = null;
+
+                    g.dialog.showAlert(html.join(''), function() {
+                        if (null != clipboard) {
+                            clipboard.destroy();
+                        }
+                    });
+
+                    setTimeout(function() {
+                        clipboard = new ClipboardJS('.alert-clippy-button');
+                    }, 500);
                 }, (error) => {
                     el.modal('hide');
                 });
@@ -9167,10 +9246,43 @@
  (function(g) {
     'use strict'
 
-    var tableEl;
+    var tableEl = null;
+    var noFileBg = null;
+    var surfaceA = null;
+    var surfaceB = null;
+    var surface = null;
 
-    function makeSharingTagRow() {
-        
+    var clipboardList = [];
+
+    function makeSharingTagRow(sharingTag) {
+        var id = sharingTag.id;
+        var fileLabel = sharingTag.fileLabel;
+        var password = (null != sharingTag.password) ? sharingTag.password : '<i>无</i>';
+
+        return [
+            '<tr>',
+                '<td>',
+                    '<div class="icheck-primary">',
+                        '<input type="checkbox" data-type="sharing" id="', id, '">',
+                        '<label for="', id, '"></label>',
+                    '</dv>',
+                '</td>',
+                '<td class="file-icon">', g.helper.matchFileIcon(fileLabel), '</td>',
+                '<td class="file-name ellipsis" title="', fileLabel.getFileName(), '">', fileLabel.getFileName(), '</td>',
+                '<td class="file-size">', g.formatSize(fileLabel.getFileSize()), '</td>',
+                '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getLastModified()), '</td>',
+                '<td class="sharing-url">',
+                    '<div class="input-group input-group-sm">',
+                        '<input id="url_', id, '" type="text" class="form-control" value="', sharingTag.getURL(), '" />',
+                        '<span class="input-group-append">',
+                            '<button id="clippy_', id, '" type="button" class="btn btn-default btn-flat" title="复制分享链接到剪贴板" data-clipboard-target="#url_', id, '"><i class="fas fa-clipboard"></i></button>',
+                        '</span>',
+                    '</div>',
+                '</td>',
+                '<td class="sharing-expire">', g.formatYMDHM(sharingTag.expiryDate), '</td>',
+                '<td class="sharing-password">', password, '</td>',
+            '</tr>'
+        ];
     }
 
     /**
@@ -9179,18 +9291,64 @@
      */
     var FileSharingTable = function(el) {
         tableEl = el;
+        noFileBg = $('#table_sharing_nodata');
+        surfaceA = el.find('tbody[data-target="surface-a"]');
+        surfaceB = el.find('tbody[data-target="surface-b"]');
+        surface = surfaceA;
+    }
+
+    /**
+     * 更新表格数据。
+     * @param {Array} list 数据列表。
+     */
+    FileSharingTable.prototype.updatePage = function(list) {
+        // 清理剪贴板操作按钮
+        clipboardList.forEach(function(clipboard) {
+            clipboard.destroy();
+        });
+        clipboardList.splice(0, clipboardList.length);
+
+        if (list.length == 0) {
+            surface[0].innerHTML = '';
+            noFileBg.css('display', 'block');
+            return;
+        }
+
+        var html = [];
+
+        list.forEach(function(sharingTag) {
+            html = html.concat(makeSharingTagRow(sharingTag));
+        });
+
+        if (html.length > 0) {
+            noFileBg.css('display', 'none');
+        }
+
+        surface[0].innerHTML = html.join('');
+
+        setTimeout(function() {
+            list.forEach(function(sharingTag) {
+                var clipboard = new ClipboardJS('#clippy_' + sharingTag.id);
+                clipboardList.push(clipboard);
+            });
+        }, 1000);
     }
 
     g.FileSharingTable = FileSharingTable;
 
  })(window);
- (function(g) {
+(function(g) {
     'use strict';
 
-    var that;
+    var that = null;
 
-    var parentEl;
-    var table;
+    var parentEl = null;
+    var table = null;
+
+    var currentPage = {
+        page: 0,
+        loaded: 0
+    };
 
     /**
      * 我分享的文件内容界面。
@@ -9212,7 +9370,13 @@
     FileSharingPanel.prototype.showSharingPanel = function() {
         parentEl.css('display', 'block');
 
-
+        var begin = currentPage.page * app.fileCtrl.numPerPage;
+        var end = begin + app.fileCtrl.numPerPage - 1;
+        g.cube().fs.listSharingTags(begin, end, true, function(list, beginIndex, endIndex, inExpiry) {
+            table.updatePage(list);
+        }, function(error) {
+            g.dialog.launchToast(Toast.Error, '获取分享列表失败：' + error.code);
+        });
     }
 
     /**

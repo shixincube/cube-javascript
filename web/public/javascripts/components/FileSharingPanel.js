@@ -24,13 +24,18 @@
  * SOFTWARE.
  */
 
- (function(g) {
+(function(g) {
     'use strict';
 
-    var that;
+    var that = null;
 
-    var parentEl;
-    var table;
+    var parentEl = null;
+    var table = null;
+
+    var currentPage = {
+        page: 0,
+        loaded: 0
+    };
 
     /**
      * 我分享的文件内容界面。
@@ -52,7 +57,13 @@
     FileSharingPanel.prototype.showSharingPanel = function() {
         parentEl.css('display', 'block');
 
-
+        var begin = currentPage.page * app.fileCtrl.numPerPage;
+        var end = begin + app.fileCtrl.numPerPage - 1;
+        g.cube().fs.listSharingTags(begin, end, true, function(list, beginIndex, endIndex, inExpiry) {
+            table.updatePage(list);
+        }, function(error) {
+            g.dialog.launchToast(Toast.Error, '获取分享列表失败：' + error.code);
+        });
     }
 
     /**

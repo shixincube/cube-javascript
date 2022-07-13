@@ -5,6 +5,7 @@ const UglifyJS = require("uglify-js");
 
 const filePath = 'public/javascripts/components/';
 const fileList = [
+    'UIHelper.js',
     'Dialog.js',
     'MainPanel.js',
     'EmojiPanel.js',

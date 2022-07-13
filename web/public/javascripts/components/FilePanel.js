@@ -843,13 +843,29 @@
                     el.modal('hide');
 
                     var url = sharingTag.getURL();
+                    var id = sharingTag.id;
 
                     var html = [
                         '<p>已创建 “', fileLabel.getFileName(), '” 的分享链接：</p>',
-                        '<input type="text" class="form-control form-control-sm" value="', url, '" />'
+                        '<div class="input-group input-group-sm">',
+                            '<input id="url_', id, '" type="text" class="form-control" value="', url, '" />',
+                            '<span class="input-group-append">',
+                                '<button type="button" class="btn btn-default btn-flat alert-clippy-button" title="复制分享链接到剪贴板" data-clipboard-target="#url_', id, '"><i class="fas fa-clipboard"></i></button>',
+                            '</span>',
+                        '</div>',
                     ];
 
-                    g.dialog.showAlert(html.join(''));
+                    var clipboard = null;
+
+                    g.dialog.showAlert(html.join(''), function() {
+                        if (null != clipboard) {
+                            clipboard.destroy();
+                        }
+                    });
+
+                    setTimeout(function() {
+                        clipboard = new ClipboardJS('.alert-clippy-button');
+                    }, 500);
                 }, (error) => {
                     el.modal('hide');
                 });

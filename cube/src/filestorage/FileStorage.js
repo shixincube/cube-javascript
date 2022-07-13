@@ -934,6 +934,34 @@ export class FileStorage extends Module {
             handleFailure(error);
             return;
         }
+
+        let payload = {
+            "begin": beginIndex,
+            "end": endIndex,
+            "inExpiry": inExpiry
+        };
+        let packet = new Packet(FileStorageAction.ListSharingTags, payload);
+        this.pipeline.send(FileStorage.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
+                let error = new ModuleError(FileStorage.NAME, responsePacket.getStateCode());
+                handleFailure(error);
+                return;
+            }
+
+            let stateCode = responsePacket.extractServiceStateCode();
+            if (stateCode != FileStorageState.Ok) {
+                let error = new ModuleError(FileStorage.NAME, stateCode);
+                handleFailure(error);
+                return;
+            }
+
+            let data = responsePacket.extractServiceData();
+            let list = [];
+            data.list.forEach((json) => {
+                list.push(SharingTag.create(json))
+            });
+            handleSuccess(list, beginIndex, endIndex, inExpiry);
+        });
     }
 
     /**

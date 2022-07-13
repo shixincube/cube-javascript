@@ -27,6 +27,7 @@
 import { Contact } from "../contact/Contact";
 import { Device } from "../contact/Device";
 import { Entity } from "../core/Entity";
+import { Kernel } from "../core/Kernel";
 import { FileLabel } from "./FileLabel";
 
 /**
@@ -89,7 +90,7 @@ export class SharingTag extends Entity {
      * @returns {string} 返回分享访问 URL 。
      */
     getURL() {
-        if (document.URL.startsWith('https')) {
+        if (document.URL.toLowerCase().startsWith('https')) {
             return this.httpsURL;
         }
         else {
@@ -112,6 +113,14 @@ export class SharingTag extends Entity {
         tag.password = (undefined !== json.config.password) ? json.config.password : null;
         tag.httpURL = (undefined !== json.httpURL) ? json.httpURL : null;
         tag.httpsURL = (undefined !== json.httpsURL) ? json.httpsURL : null;
+
+        if (null == tag.httpURL) {
+            tag.httpURL = 'http://' + Kernel.CONFIG.address + ':7010/sharing/' + tag.code;
+        }
+        if (null == tag.httpsURL) {
+            tag.httpsURL = 'https://' + Kernel.CONFIG.address + ':7017/sharing/' + tag.code;
+        }
+
         return tag;
     }
 }
