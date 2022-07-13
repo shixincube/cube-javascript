@@ -107,6 +107,9 @@
         btnSharing.click(function() {
             that.select($(this).attr('id'));
         });
+        btnSharingExpired.click(function() {
+            that.select($(this).attr('id'));
+        });
     }
 
     /**
@@ -143,6 +146,11 @@
         else if (btnSharing.attr('id') == id) {
             activeBtn = btnSharing;
             g.app.fileSharingPanel.showSharingPanel();
+            g.app.filePanel.hide();
+        }
+        else if (btnSharingExpired.attr('id') == id) {
+            activeBtn = btnSharingExpired;
+            g.app.fileSharingPanel.showExpiresPanel();
             g.app.filePanel.hide();
         }
 

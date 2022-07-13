@@ -32,7 +32,12 @@
     var parentEl = null;
     var table = null;
 
-    var currentPage = {
+    var sharingPage = {
+        page: 0,
+        loaded: 0
+    };
+
+    var expiredSharingPage = {
         page: 0,
         loaded: 0
     };
@@ -57,9 +62,21 @@
     FileSharingPanel.prototype.showSharingPanel = function() {
         parentEl.css('display', 'block');
 
-        var begin = currentPage.page * app.fileCtrl.numPerPage;
+        var begin = sharingPage.page * app.fileCtrl.numPerPage;
         var end = begin + app.fileCtrl.numPerPage - 1;
         g.cube().fs.listSharingTags(begin, end, true, function(list, beginIndex, endIndex, inExpiry) {
+            table.updatePage(list);
+        }, function(error) {
+            g.dialog.launchToast(Toast.Error, '获取分享列表失败：' + error.code);
+        });
+    }
+
+    FileSharingPanel.prototype.showExpiresPanel = function() {
+        parentEl.css('display', 'block');
+
+        var begin = expiredSharingPage.page * app.fileCtrl.numPerPage;
+        var end = begin + app.fileCtrl.numPerPage - 1;
+        g.cube().fs.listSharingTags(begin, end, false, function(list, beginIndex, endIndex, inExpiry) {
             table.updatePage(list);
         }, function(error) {
             g.dialog.launchToast(Toast.Error, '获取分享列表失败：' + error.code);
@@ -73,6 +90,10 @@
         parentEl.css('display', 'none');
     }
 
+    FileSharingPanel.prototype.openSharingDetails = function(sharingCode) {
+        $('#modal_sharing_details').modal('show');
+    }
+
     g.FileSharingPanel = FileSharingPanel;
 
- })(window);
+})(window);
