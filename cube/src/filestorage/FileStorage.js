@@ -49,6 +49,7 @@ import { Directory } from "./Directory";
 import { FileHierarchy } from "./FileHierarchy";
 import { SearchItem } from "./SearchItem";
 import { SharingTag } from "./SharingTag";
+import { VisitTrace } from "./VisitTrace";
 
 /**
  * 上传文件回调函数。
@@ -919,8 +920,8 @@ export class FileStorage extends Module {
      * @param {number} beginIndex 
      * @param {number} endIndex 
      * @param {boolean} inExpiry 
-     * @param {funciton} handleSuccess 
-     * @param {funciton} handleFailure 
+     * @param {funciton} handleSuccess 成功回调。参数：({@linkcode list}:{@link Array<SharingTag>}) 。
+     * @param {funciton} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
     listSharingTags(beginIndex, endIndex, inExpiry, handleSuccess, handleFailure) {
         if (!this.hasStarted()) {
@@ -961,6 +962,56 @@ export class FileStorage extends Module {
                 list.push(SharingTag.create(json))
             });
             handleSuccess(list, beginIndex, endIndex, inExpiry);
+        });
+    }
+
+    /**
+     * 列表分享访问痕迹。
+     * @param {string} sharingCode 
+     * @param {number} beginIndex 
+     * @param {number} endIndex 
+     * @param {funciton} handleSuccess 成功回调。参数：({@linkcode list}:{@link Array<VisitTrace>}) 。
+     * @param {funciton} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    listVisitTraces(sharingCode, beginIndex, endIndex, handleSuccess, handleFailure) {
+        if (!this.hasStarted()) {
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.NotReady, sharingCode);
+            handleFailure(error);
+            return;
+        }
+
+        if (!this.pipeline.isReady()) {
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.PipelineNotReady, sharingCode);
+            handleFailure(error);
+            return;
+        }
+
+        let payload = {
+            "sharingCode": sharingCode,
+            "begin": beginIndex,
+            "end": endIndex
+        };
+        let packet = new Packet(FileStorageAction.ListTraces, payload);
+        this.pipeline.send(FileStorage.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
+                let error = new ModuleError(FileStorage.NAME, responsePacket.getStateCode());
+                handleFailure(error);
+                return;
+            }
+
+            let stateCode = responsePacket.extractServiceStateCode();
+            if (stateCode != FileStorageState.Ok) {
+                let error = new ModuleError(FileStorage.NAME, stateCode);
+                handleFailure(error);
+                return;
+            }
+
+            let data = responsePacket.extractServiceData();
+            let list = [];
+            data.list.forEach((json) => {
+                list.push(VisitTrace.create(json))
+            });
+            handleSuccess(list, sharingCode, beginIndex, endIndex);
         });
     }
 

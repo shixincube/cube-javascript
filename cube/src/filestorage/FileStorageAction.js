@@ -140,5 +140,11 @@ export const FileStorageAction = {
      * 罗列当前联系人的所有分享标签。
      * @type {string}
      */
-    ListSharingTags: 'listSharingTags'
+    ListSharingTags: 'listSharingTags',
+
+    /**
+     * 获取监测数据。
+     * @type {string}
+     */
+    ListTraces: 'listTraces'
 }

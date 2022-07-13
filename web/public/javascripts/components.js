@@ -861,6 +861,32 @@
     'use strict';
 
     /**
+     * 访问痕迹清单。
+     * @param {jQuery} el 
+     */
+    var VisitTraceListDetails = function(el) {
+        this.initUI();
+    }
+
+    VisitTraceListDetails.prototype.initUI = function() {
+
+    }
+
+    VisitTraceListDetails.prototype.open = function() {
+
+    }
+
+    VisitTraceListDetails.prototype.close = function() {
+        
+    }
+
+    g.VisitTraceListDetails = VisitTraceListDetails;
+
+})(window);
+(function(g) {
+    'use strict';
+
+    /**
      * 侧边栏账号面板。
      * @param {jQuery} el 
      */
