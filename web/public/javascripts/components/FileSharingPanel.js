@@ -90,8 +90,8 @@
         parentEl.css('display', 'none');
     }
 
-    FileSharingPanel.prototype.openSharingDetails = function(sharingCode) {
-        $('#modal_sharing_details').modal('show');
+    FileSharingPanel.prototype.showTraceDialog = function(sharingCode) {
+        app.visitTraceDialog.open();
     }
 
     g.FileSharingPanel = FileSharingPanel;

@@ -860,27 +860,25 @@
 (function(g) {
     'use strict';
 
+    var dialogEl = null;
+
     /**
      * 访问痕迹清单。
      * @param {jQuery} el 
      */
-    var VisitTraceListDetails = function(el) {
-        this.initUI();
+    var VisitTraceListDialog = function(el) {
+        dialogEl = el;
     }
 
-    VisitTraceListDetails.prototype.initUI = function() {
-
+    VisitTraceListDialog.prototype.open = function() {
+        dialogEl.modal('show');
     }
 
-    VisitTraceListDetails.prototype.open = function() {
-
-    }
-
-    VisitTraceListDetails.prototype.close = function() {
+    VisitTraceListDialog.prototype.close = function() {
         
     }
 
-    g.VisitTraceListDetails = VisitTraceListDetails;
+    g.VisitTraceListDialog = VisitTraceListDialog;
 
 })(window);
 (function(g) {
@@ -9407,7 +9405,7 @@
         var password = (null != sharingTag.password) ? sharingTag.password : '<i>无</i>';
 
         return [
-            '<tr ondblclick="app.fileSharingPanel.openSharingDetails(\'', sharingTag.code, '\')">',
+            '<tr ondblclick="app.fileSharingPanel.showTraceDialog(\'', sharingTag.code, '\')">',
                 '<td>',
                     '<div class="icheck-primary">',
                         '<input type="checkbox" data-type="sharing" id="', id, '">',
@@ -9550,8 +9548,8 @@
         parentEl.css('display', 'none');
     }
 
-    FileSharingPanel.prototype.openSharingDetails = function(sharingCode) {
-        $('#modal_sharing_details').modal('show');
+    FileSharingPanel.prototype.showTraceDialog = function(sharingCode) {
+        app.visitTraceDialog.open();
     }
 
     g.FileSharingPanel = FileSharingPanel;

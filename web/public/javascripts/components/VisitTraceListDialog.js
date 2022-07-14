@@ -27,26 +27,24 @@
 (function(g) {
     'use strict';
 
+    var dialogEl = null;
+
     /**
      * 访问痕迹清单。
      * @param {jQuery} el 
      */
-    var VisitTraceListDetails = function(el) {
-        this.initUI();
+    var VisitTraceListDialog = function(el) {
+        dialogEl = el;
     }
 
-    VisitTraceListDetails.prototype.initUI = function() {
-
+    VisitTraceListDialog.prototype.open = function() {
+        dialogEl.modal('show');
     }
 
-    VisitTraceListDetails.prototype.open = function() {
-
-    }
-
-    VisitTraceListDetails.prototype.close = function() {
+    VisitTraceListDialog.prototype.close = function() {
         
     }
 
-    g.VisitTraceListDetails = VisitTraceListDetails;
+    g.VisitTraceListDialog = VisitTraceListDialog;
 
 })(window);

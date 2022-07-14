@@ -41,7 +41,7 @@
         var password = (null != sharingTag.password) ? sharingTag.password : '<i>无</i>';
 
         return [
-            '<tr ondblclick="app.fileSharingPanel.openSharingDetails(\'', sharingTag.code, '\')">',
+            '<tr ondblclick="app.fileSharingPanel.showTraceDialog(\'', sharingTag.code, '\')">',
                 '<td>',
                     '<div class="icheck-primary">',
                         '<input type="checkbox" data-type="sharing" id="', id, '">',

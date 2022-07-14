@@ -10,7 +10,7 @@ const fileList = [
     'MainPanel.js',
     'EmojiPanel.js',
     'FileDetails.js',
-    'VisitTraceListDetails.js',
+    'VisitTraceListDialog.js',
     'SidebarAccountPanel.js',
     'MessageCatalogue.js',
     'MessagePanel.js',

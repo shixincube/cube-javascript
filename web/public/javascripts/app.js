@@ -24,7 +24,6 @@
  * SOFTWARE.
  */
 
-
 "use strict";
 
 /**
@@ -55,6 +54,7 @@
     var newGroupDialog = null;
 
     var fileDetails = null;
+    var visitTraceDialog = null;
 
     var fileCatalog = null;
     var filePanel = null;
@@ -327,6 +327,7 @@
             newGroupDialog = new NewGroupDialog($('#new_group_dialog'));
 
             fileDetails = new FileDetails($('#modal_file_details'));
+            visitTraceDialog = new VisitTraceListDialog($('#modal_visit_trace_list'));
 
             // 文件
             var filesEl = $('#files');
@@ -367,6 +368,7 @@
             that.contactListDialog = new ContactListDialog();
 
             that.fileDetails = fileDetails;
+            that.visitTraceDialog = visitTraceDialog;
 
             that.fileCatalog = fileCatalog;
             that.filePanel = filePanel;
@@ -806,7 +808,7 @@
     app.contactZone = 'contacts';
 
     // 是否使用 Demo 数据
-    app.demo = true;
+    app.demo = false;
 
     that = app;
     g.app = app;
