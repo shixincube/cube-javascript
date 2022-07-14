@@ -74,7 +74,7 @@
          * 显示吐司提示。
          * @param {string} type 
          * @param {string} text 
-         * @param {boolean} [rb] 是否右下角
+         * @param {boolean} [rb] 是否右下角显示。
          */
         launchToast: function(type, text, rb) {
             if (rb) {
@@ -88,6 +88,21 @@
                     icon: type,
                     title: text
                 });
+            }
+        },
+
+        /**
+         * 显示吐司提示。
+         * @param {string} text 
+         * @param {string} [type] 
+         * @param {boolean} [rb] 是否右下角显示。
+         */
+        toast: function(text, type, rb) {
+            if (undefined !== type) {
+                g.dialog.launchToast(type, text, rb);
+            }
+            else {
+                g.dialog.launchToast(Toast.Info, text, rb);
             }
         },
 

@@ -164,6 +164,10 @@
                     }
                 } else if (key === 'Mac') {
                     data.osVersion = userAgent.split('Mac OS X ')[1].split(';')[0];
+                    if (data.osVersion.indexOf(')') > 0) {
+                        data.osVersion = userAgent.split('Mac OS X ')[1].split(')')[0];
+                        data.osVersion = data.osVersion.replaceAll('_', '.');
+                    }
                 } else if (key === 'iPhone') {
                     data.osVersion = userAgent.split('iPhone OS ')[1].split(' ')[0];
                 } else if (key === 'iPad') {
@@ -192,7 +196,11 @@
         'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.33 Safari/534.3 SE 2.X MetaSr 1.0',
         // QQ
         'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/13.0.782.41 Safari/535.1 QQBrowser/6.9.11079.201',
-        'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.1; WOW64; Trident/5.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; InfoPath.3; .NET4.0C; .NET4.0E) QQBrowser/6.9.11079.201'
+        'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.1; WOW64; Trident/5.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; InfoPath.3; .NET4.0C; .NET4.0E) QQBrowser/6.9.11079.201',
+
+        // Mac Chrome
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36',
+        'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Mobile Safari/537.36'
     ];
     uaTestData.forEach(function(ua) {
         console.log(g.helper.parseUserAgent(ua));
@@ -249,7 +257,7 @@
          * 显示吐司提示。
          * @param {string} type 
          * @param {string} text 
-         * @param {boolean} [rb] 是否右下角
+         * @param {boolean} [rb] 是否右下角显示。
          */
         launchToast: function(type, text, rb) {
             if (rb) {
@@ -263,6 +271,21 @@
                     icon: type,
                     title: text
                 });
+            }
+        },
+
+        /**
+         * 显示吐司提示。
+         * @param {string} text 
+         * @param {string} [type] 
+         * @param {boolean} [rb] 是否右下角显示。
+         */
+        toast: function(text, type, rb) {
+            if (undefined !== type) {
+                g.dialog.launchToast(type, text, rb);
+            }
+            else {
+                g.dialog.launchToast(Toast.Info, text, rb);
             }
         },
 
@@ -860,7 +883,49 @@
 (function(g) {
     'use strict';
 
+    var that = null;
     var dialogEl = null;
+    var tbody = null;
+
+    var currentPage = {
+        page: 0,
+        numEachPage: 20
+    };
+
+    /**
+     * 
+     * @param {number} sign 
+     * @param {VisitTrace} trace 
+     * @returns 
+     */
+    function makeTableRow(sign, trace) {
+        var ua = g.helper.parseUserAgent(trace.userAgent);
+        var eventSN = (null != trace.eventParam) ? trace.eventParam.sn || 0 : 0;
+
+        return [
+            '<tr>',
+                '<td>', sign, '</td>',
+                '<td>',
+                    g.formatYMDHMS(trace.time),
+                '</td>',
+                '<td>',
+                    trace.ip,
+                '</td>',
+                '<td>',
+                    ua.osName + ' / ' + ua.osVersion,
+                '</td>',
+                '<td>',
+                    ua.browserName + ' / ' + ua.browserVersion,
+                '</td>',
+                '<td>',
+                    trace.event,
+                '</td>',
+                '<td>',
+                    eventSN,
+                '</td>',
+            '</tr>'
+        ];
+    }
 
     /**
      * 访问痕迹清单。
@@ -868,14 +933,50 @@
      */
     var VisitTraceListDialog = function(el) {
         dialogEl = el;
+        tbody = el.find('.trace-tb');
+        that = this;
     }
 
-    VisitTraceListDialog.prototype.open = function() {
+    VisitTraceListDialog.prototype.open = function(sharingCode) {
         dialogEl.modal('show');
+        dialogEl.find('.overlay').css('visibility', 'visible');
+
+        // 防止界面超时
+        var timer = setTimeout(function() {
+            g.dialog.toast('数据超时');
+            that.close();
+        }, 10 * 1000);
+
+        var begin = currentPage.page * currentPage.numEachPage;
+        var end = begin + currentPage.numEachPage - 1;
+        g.engine.fs.listVisitTraces(sharingCode, begin, end, function(list) {
+            clearTimeout(timer);
+            dialogEl.find('.overlay').css('visibility', 'hidden');
+
+            that.updateTable(list);
+        }, function(error) {
+            clearTimeout(timer);
+            g.dialog.toast('加载数据出错：' + error.code);
+            that.close();
+        });
     }
 
     VisitTraceListDialog.prototype.close = function() {
-        
+        dialogEl.find('.overlay').css('visibility', 'hidden');
+        dialogEl.modal('hide');
+    }
+
+    VisitTraceListDialog.prototype.updateTable = function(list) {
+        var html = [];
+
+        var start = currentPage.page * currentPage.numEachPage + 1;
+        list.forEach(function(trace) {
+            var row = makeTableRow(start, trace);
+            html = html.concat(row);
+            ++start;
+        });
+
+        tbody[0].innerHTML = html.join('');
     }
 
     g.VisitTraceListDialog = VisitTraceListDialog;
@@ -9418,7 +9519,7 @@
                 '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getLastModified()), '</td>',
                 '<td class="sharing-url">',
                     '<div class="input-group input-group-sm">',
-                        '<input id="url_', id, '" type="text" class="form-control" value="', sharingTag.getURL(), '" />',
+                        '<input id="url_', id, '" type="text" class="form-control" value="', sharingTag.getURL(), '" readonly />',
                         '<span class="input-group-append">',
                             '<button id="clippy_', id, '" type="button" class="btn btn-default btn-flat" title="复制分享链接到剪贴板" data-clipboard-target="#url_', id, '"><i class="fas fa-clipboard"></i></button>',
                         '</span>',
@@ -9549,7 +9650,7 @@
     }
 
     FileSharingPanel.prototype.showTraceDialog = function(sharingCode) {
-        app.visitTraceDialog.open();
+        app.visitTraceDialog.open(sharingCode);
     }
 
     g.FileSharingPanel = FileSharingPanel;

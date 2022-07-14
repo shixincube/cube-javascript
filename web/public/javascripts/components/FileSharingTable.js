@@ -54,7 +54,7 @@
                 '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getLastModified()), '</td>',
                 '<td class="sharing-url">',
                     '<div class="input-group input-group-sm">',
-                        '<input id="url_', id, '" type="text" class="form-control" value="', sharingTag.getURL(), '" />',
+                        '<input id="url_', id, '" type="text" class="form-control" value="', sharingTag.getURL(), '" readonly />',
                         '<span class="input-group-append">',
                             '<button id="clippy_', id, '" type="button" class="btn btn-default btn-flat" title="复制分享链接到剪贴板" data-clipboard-target="#url_', id, '"><i class="fas fa-clipboard"></i></button>',
                         '</span>',

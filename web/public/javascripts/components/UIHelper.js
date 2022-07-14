@@ -164,6 +164,10 @@
                     }
                 } else if (key === 'Mac') {
                     data.osVersion = userAgent.split('Mac OS X ')[1].split(';')[0];
+                    if (data.osVersion.indexOf(')') > 0) {
+                        data.osVersion = userAgent.split('Mac OS X ')[1].split(')')[0];
+                        data.osVersion = data.osVersion.replaceAll('_', '.');
+                    }
                 } else if (key === 'iPhone') {
                     data.osVersion = userAgent.split('iPhone OS ')[1].split(' ')[0];
                 } else if (key === 'iPad') {
@@ -192,7 +196,11 @@
         'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.33 Safari/534.3 SE 2.X MetaSr 1.0',
         // QQ
         'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/13.0.782.41 Safari/535.1 QQBrowser/6.9.11079.201',
-        'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.1; WOW64; Trident/5.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; InfoPath.3; .NET4.0C; .NET4.0E) QQBrowser/6.9.11079.201'
+        'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.1; WOW64; Trident/5.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; InfoPath.3; .NET4.0C; .NET4.0E) QQBrowser/6.9.11079.201',
+
+        // Mac Chrome
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36',
+        'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Mobile Safari/537.36'
     ];
     uaTestData.forEach(function(ua) {
         console.log(g.helper.parseUserAgent(ua));

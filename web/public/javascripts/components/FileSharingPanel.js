@@ -91,7 +91,7 @@
     }
 
     FileSharingPanel.prototype.showTraceDialog = function(sharingCode) {
-        app.visitTraceDialog.open();
+        app.visitTraceDialog.open(sharingCode);
     }
 
     g.FileSharingPanel = FileSharingPanel;
