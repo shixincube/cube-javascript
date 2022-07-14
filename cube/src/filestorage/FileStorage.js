@@ -65,6 +65,15 @@ import { VisitTrace } from "./VisitTrace";
  */
 
 /**
+ * 文件分享标签配置。
+ * @typedef (object) SharingTagConfig
+ * @property {number} duration 指定有效时长，单位：毫秒。设置 {@linkcode 0} 表示永久有效。
+ * @property {string} password 指定提取文件时的密码。设置 {@linkcode null} 值表示无需提取码。
+ * @property {boolean} preview 指定是否为文档生成预览。
+ * @property {boolean} download 指定是否允许下载原始文件。
+ */
+
+/**
  * 云端文件存储模块。
  * @extends Module
  */
@@ -868,12 +877,11 @@ export class FileStorage extends Module {
     /**
      * 创建文件的分享标签。
      * @param {FileLabel} fileLabel 指定文件标签。
-     * @param {number} duration 指定有效时长，单位：毫秒。设置 {@linkcode 0} 表示永久有效。
-     * @param {string} password 指定提取文件时的密码。设置 {@linkcode null} 值表示无需提取码。
+     * @param {SharingTagConfig} config 指定分享的数据配置。
      * @param {function} handleSuccess 成功回调。参数：({@linkcode sharingTag}:{@link SharingTag}) 。
      * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
-    createSharingTag(fileLabel, duration, password, handleSuccess, handleFailure) {
+    createSharingTag(fileLabel, config, handleSuccess, handleFailure) {
         if (!this.hasStarted()) {
             let error = new ModuleError(FileStorage.NAME, FileStorageState.NotReady, fileLabel);
             handleFailure(error);
@@ -888,9 +896,11 @@ export class FileStorage extends Module {
 
         let payload = {
             "fileCode": fileLabel.getFileCode(),
-            "duration": duration
+            "duration": config.duration,
+            "preview": (undefined !== config.preview) ? config.preview : false,
+            "download": (undefined !== config.download) ? config.download : true
         };
-        if (null != password) {
+        if (undefined !== config.password && null != config.password) {
             payload["password"] = password;
         }
 

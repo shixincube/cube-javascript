@@ -61,6 +61,8 @@
     var selectedRecycleBin = false;
 
     var dialogCreateSharingTag;
+    var switchPreview;
+    var switchDownload;
 
     /**
      * 我的文件主界面的文件表格面板。
@@ -98,6 +100,13 @@
      */
     FilePanel.prototype.initUI = function() {
         dialogCreateSharingTag = $('#create_file_sharing_dialog');
+        switchPreview = dialogCreateSharingTag.find('#preview-switch');
+        switchPreview.change(function() {
+            if (!switchPreview.prop('checked')) {
+                switchDownload.prop('checked', true);
+            }
+        });
+        switchDownload = dialogCreateSharingTag.find('#download-switch');
 
         // 全选按钮
         btnSelectAll.click(function () {
@@ -310,7 +319,6 @@
                 var item = currentDir.getFile(result[0].id);
                 if (null == item) {
                     // 不是文件
-
                     return;
                 }
 
@@ -827,6 +835,15 @@
             el.find('#file-name').val(fileLabel.getFileName());
             el.find('#file-size').val(g.formatSize(fileLabel.getFileSize()));
 
+            if (fileLabel.isDocumentType()) {
+                switchPreview.parent().css('visibility', 'visible');
+                switchDownload.parent().css('visibility', 'visible');
+            }
+            else {
+                switchPreview.parent().css('visibility', 'hidden');
+                switchDownload.parent().css('visibility', 'hidden');
+            }
+
             el.find('button[data-target="confirm"]').click(function() {
                 el.find('.overlay').css('visibility', 'visible');
 
@@ -839,7 +856,12 @@
                 }
 
                 // 创建分享标签
-                g.engine.fs.createSharingTag(fileLabel, duration, password, (sharingTag) => {
+                g.engine.fs.createSharingTag(fileLabel, {
+                                                            "duration": duration,
+                                                            "password": password,
+                                                            "preview" : switchPreview.prop('checked'),
+                                                            "download": switchDownload.prop('checked')
+                                                        }, (sharingTag) => {
                     el.modal('hide');
 
                     var url = sharingTag.getURL();
@@ -879,7 +901,7 @@
             g.cube().fs.getFileLabel(item, function(fileLabel) {
                 show(fileLabel);
             }, function(error) {
-
+                g.dialog.toast('未找到文件：' + error.code);
             });
         }
         else {

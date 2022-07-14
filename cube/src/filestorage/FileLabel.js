@@ -237,6 +237,35 @@ export class FileLabel extends Entity {
     }
 
     /**
+     * 是否文档类型文件。
+     * @returns {boolean}
+     */
+    isDocumentType() {
+        let type = this.fileType;
+        if (type == 'doc' || type == 'docx' || type == 'ppt' || type == 'pptx' || type == 'pdf' ||
+            type == 'xls' || type == 'xlsx') {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
+     * 是否图片类型文件。
+     * @returns {boolean}
+     */
+    isImageType() {
+        let type = this.fileType;
+        if (type == 'png' || type == 'jpeg' || type == 'gif' || type == 'jpg' || type == 'bmp') {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
      * 序列化为 JSON 结构。
      * @returns {JSON} 返回 JSON 结构的 {@link FileLabel} 。
      */

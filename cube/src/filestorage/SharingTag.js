@@ -81,6 +81,18 @@ export class SharingTag extends Entity {
          */
         this.password = null;
 
+        /**
+         * 是否启用预览功能。
+         * @type {boolean}
+         */
+        this.preview = false;
+
+        /**
+         * 是否允许下载。
+         * @type {boolean}
+         */
+        this.download = true;
+
         this.httpURL = null;
         this.httpsURL = null;
     }
@@ -111,6 +123,8 @@ export class SharingTag extends Entity {
         tag.fileLabel = FileLabel.create(json.config.fileLabel);
         tag.duration = json.config.duration;
         tag.password = (undefined !== json.config.password) ? json.config.password : null;
+        tag.preview = json.config.preview;
+        tag.download = json.config.download;
         tag.httpURL = (undefined !== json.httpURL) ? json.httpURL : null;
         tag.httpsURL = (undefined !== json.httpsURL) ? json.httpsURL : null;
 
