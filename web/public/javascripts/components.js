@@ -9549,6 +9549,7 @@
                 '</td>',
                 '<td class="sharing-expire">', g.formatYMDHM(sharingTag.expiryDate), '</td>',
                 '<td class="sharing-password">', password, '</td>',
+                '<td class="sharing-preview">', sharingTag.preview ? '是' : '否', '</td>',
             '</tr>'
         ];
     }

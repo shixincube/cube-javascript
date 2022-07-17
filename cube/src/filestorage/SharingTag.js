@@ -95,6 +95,12 @@ export class SharingTag extends Entity {
 
         this.httpURL = null;
         this.httpsURL = null;
+
+        /**
+         * 预览文件列表。
+         * @type {Array<FileLabel>}
+         */
+        this.previewList = null;
     }
 
     /**
@@ -133,6 +139,14 @@ export class SharingTag extends Entity {
         }
         if (null == tag.httpsURL) {
             tag.httpsURL = 'https://' + Kernel.CONFIG.address + ':7017/sharing/' + tag.code;
+        }
+
+        if (json.previewList) {
+            tag.previewList = [];
+            json.previewList.forEach((item) => {
+                let fl = FileLabel.create(item);
+                tag.previewList.push(fl);
+            });
         }
 
         return tag;

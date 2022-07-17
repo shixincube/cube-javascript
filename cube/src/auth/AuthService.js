@@ -249,7 +249,7 @@ export class AuthService extends Module {
 
                 if (!this.pipeline.isReady()) {
                     clearTimeout(timer);
-                    timer = setTimeout(task, 100);
+                    timer = setTimeout(task, 200);
                     return;
                 }
 
@@ -287,7 +287,7 @@ export class AuthService extends Module {
             };
 
             // 启动定时器
-            timer = setTimeout(task, 100);
+            timer = setTimeout(task, 200);
         });
     }
 
