@@ -396,6 +396,9 @@ export class Kernel {
                 return;
             }
 
+            // 启动 Auth 服务
+            authService.start();
+
             let token = authService.check(config.domain, config.appKey, config.address);
             if (null == token) {
                 cell.Logger.w('Kernel', 'Auth token is invalid');

@@ -9538,7 +9538,7 @@
                 '<td class="file-icon">', g.helper.matchFileIcon(fileLabel), '</td>',
                 '<td class="file-name ellipsis" title="', fileLabel.getFileName(), '">', fileLabel.getFileName(), '</td>',
                 '<td class="file-size">', g.formatSize(fileLabel.getFileSize()), '</td>',
-                '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getLastModified()), '</td>',
+                '<td class="file-lastmodifed">', g.formatYMDHM(fileLabel.getLastModified()), '</td>',
                 '<td class="sharing-url">',
                     '<div class="input-group input-group-sm">',
                         '<input id="url_', id, '" type="text" class="form-control" value="', sharingTag.getURL(), '" readonly />',
