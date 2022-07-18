@@ -193,7 +193,7 @@
         return data;
     }
 
-    
+
     /*var uaTestData = [
         'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/14.0.835.163 Safari/535.1',
         'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:6.0) Gecko/20100101 Firefox/6.0',
@@ -8701,7 +8701,7 @@
 
         // 全选按钮
         btnSelectAll.click(function () {
-            var clicks = $(this).data('clicks');
+            /*var clicks = $(this).data('clicks');
             if (clicks) {
                 // Uncheck all checkboxes
                 $('.file-table input[type="checkbox"]').prop('checked', false);
@@ -8713,6 +8713,7 @@
                 $('.checkbox-toggle .far.fa-square').removeClass('fa-square').addClass('fa-check-square');
             }
             $(this).data('clicks', !clicks);
+            */
         });
 
         // 上传文件
@@ -9416,8 +9417,8 @@
      * 重置“全选”复选框。
      */
     FilePanel.prototype.resetSelectAllButton = function() {
-        btnSelectAll.data('clicks', false);
-        $('.checkbox-toggle .far.fa-check-square').removeClass('fa-check-square').addClass('fa-square');
+        // btnSelectAll.data('clicks', false);
+        // $('.checkbox-toggle .far.fa-check-square').removeClass('fa-check-square').addClass('fa-square');
     }
 
     /**
@@ -9564,12 +9565,11 @@
                     '<div class="icheck-primary">',
                         '<input type="checkbox" data-type="sharing" id="', id, '">',
                         '<label for="', id, '"></label>',
-                    '</dv>',
+                    '</div>',
                 '</td>',
                 '<td class="file-icon">', g.helper.matchFileIcon(fileLabel), '</td>',
                 '<td class="file-name ellipsis" title="', fileLabel.getFileName(), '">', fileLabel.getFileName(), '</td>',
                 '<td class="file-size">', g.formatSize(fileLabel.getFileSize()), '</td>',
-                '<td class="file-lastmodifed">', g.formatYMDHM(fileLabel.getLastModified()), '</td>',
                 '<td class="sharing-url">',
                     '<div class="input-group input-group-sm">',
                         '<input id="url_', id, '" type="text" class="form-control" value="', sharingTag.getURL(), '" readonly />',
@@ -9580,7 +9580,18 @@
                 '</td>',
                 '<td class="sharing-expire">', g.formatYMDHM(sharingTag.expiryDate), '</td>',
                 '<td class="sharing-password">', password, '</td>',
-                '<td class="sharing-preview">', sharingTag.preview ? '是' : '否', '</td>',
+                '<td class="sharing-preview">',
+                    '<div class="custom-control custom-checkbox">',
+                        '<input class="custom-control-input" type="checkbox" ', sharingTag.preview ? 'checked' : '', ' id="preview_', id, '" disabled />',
+                        '<label class="custom-control-label" for="preview_', id, '"></label>',
+                    '</div>',
+                '</td>',
+                '<td class="sharing-download">',
+                    '<div class="custom-control custom-checkbox">',
+                        '<input class="custom-control-input" type="checkbox" ', sharingTag.download ? 'checked' : '', ' id="download_', id, '" disabled />',
+                        '<label class="custom-control-label" for="download_', id, '"></label>',
+                    '</div>',
+                '</td>',
             '</tr>'
         ];
     }

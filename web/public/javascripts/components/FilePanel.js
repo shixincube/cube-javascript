@@ -110,7 +110,7 @@
 
         // 全选按钮
         btnSelectAll.click(function () {
-            var clicks = $(this).data('clicks');
+            /*var clicks = $(this).data('clicks');
             if (clicks) {
                 // Uncheck all checkboxes
                 $('.file-table input[type="checkbox"]').prop('checked', false);
@@ -122,6 +122,7 @@
                 $('.checkbox-toggle .far.fa-square').removeClass('fa-square').addClass('fa-check-square');
             }
             $(this).data('clicks', !clicks);
+            */
         });
 
         // 上传文件
@@ -825,8 +826,8 @@
      * 重置“全选”复选框。
      */
     FilePanel.prototype.resetSelectAllButton = function() {
-        btnSelectAll.data('clicks', false);
-        $('.checkbox-toggle .far.fa-check-square').removeClass('fa-check-square').addClass('fa-square');
+        // btnSelectAll.data('clicks', false);
+        // $('.checkbox-toggle .far.fa-check-square').removeClass('fa-check-square').addClass('fa-square');
     }
 
     /**

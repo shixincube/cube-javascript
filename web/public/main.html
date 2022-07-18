@@ -53,7 +53,7 @@
         <!-- Brand Logo -->
         <a class="brand-link" href="https://www.shixincube.com/" target="_blank">
             <img class="brand-image img-circle elevation-3" src="images/cube_256.png" alt="Cube Logo" style="opacity:.8"/>
-            <span class="brand-text font-weight-bold">魔方云信</span>
+            <span class="brand-text font-weight-bold">魔方讯盒</span>
         </a>
         <!-- Sidebar -->
         <div class="sidebar">
@@ -480,7 +480,12 @@
                                 <table class="table table-hover table-striped">
                                     <thead>
                                         <tr>
-                                            <td width="46"><button type="button" class="btn btn-default btn-sm checkbox-toggle" style="display:none;"><i class="far fa-square"></i></button></td>
+                                            <td width="46">
+                                                <div class="icheck-primary" style="margin:1px 0px -5px 0px !important;">
+                                                    <input type="checkbox" id="file-select-all" class="checkbox-toggle" />
+                                                    <label for="file-select-all"></label>
+                                                </div>
+                                            </td>
                                             <td width="38"></td>
                                             <td>文件名</td>
                                             <td width="100">大小</td>
@@ -541,15 +546,20 @@
                                 <table class="table table-hover table-striped">
                                     <thead>
                                         <tr>
-                                            <td width="46"><button type="button" class="btn btn-default btn-sm checkbox-toggle" style="display:none;"><i class="far fa-square"></i></button></td>
+                                            <td width="46">
+                                                <div class="icheck-primary" style="margin:1px 0px -5px 0px !important;">
+                                                    <input type="checkbox" id="sharing-select-all" class="checkbox-toggle" />
+                                                    <label for="sharing-select-all"></label>
+                                                </div>
+                                            </td>
                                             <td width="38"></td>
                                             <td>文件名</td>
                                             <td width="100">大小</td>
-                                            <td width="130">修改日期</td>
                                             <td width="220">分享链接</td>
                                             <td width="130">到期日期</td>
-                                            <td width="100">访问密码</td>
+                                            <td width="70">访问码</td>
                                             <td width="46">预览</td>
+                                            <td width="46">下载</td>
                                         </tr>
                                     </thead>
                                 </table>
@@ -562,10 +572,10 @@
                                             <td width="38"></td>
                                             <td></td>
                                             <td width="100"></td>
-                                            <td width="130"></td>
                                             <td width="220"></td>
                                             <td width="130"></td>
-                                            <td width="100"></td>
+                                            <td width="70"></td>
+                                            <td width="46"></td>
                                             <td width="46"></td>
                                         </tr>
                                     </thead>
@@ -1384,9 +1394,9 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="sharing-password" class="col-sm-2 col-form-label">提取码</label>
+                            <label for="sharing-password" class="col-sm-2 col-form-label">访问码</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control form-control-sm" id="sharing-password" name="sharing-password" placeholder="无需提取码" />
+                                <input type="text" class="form-control form-control-sm" id="sharing-password" name="sharing-password" placeholder="无需访问码" />
                             </div>
                         </div>
                         <div class="form-group row">
