@@ -115,7 +115,17 @@
             data.browserVersion = data.coreVersion;
         }
 
-        if (/MetaSr/.test(userAgent)) {
+        if (/WeChat/.test(userAgent)) {
+            data.browserName = 'WeChat';
+            var v = userAgent.split('MicroMessenger/');
+            if (v.length > 1) {
+                data.browserVersion = v[1].split(' ')[0];
+            }
+            else {
+                data.browserVersion = userAgent.split('Version/')[1].split(' ')[0];
+            }
+        }
+        else if (/MetaSr/.test(userAgent)) {
             // 搜狗
             data.browserName = 'Sougou';
             data.browserVersion = userAgent.split('MetaSr')[1].split(' ')[1];
@@ -139,7 +149,7 @@
         }
         else if (/Version\/([\d.]+).*Safari/.test(userAgent)) {
             data.browserName = 'Safari';
-            data.browserVersion = userAgent.split('Version/')[1].split(' ')[0]
+            data.browserVersion = userAgent.split('Version/')[1].split(' ')[0];
         }
         else if (/Chrome/.test(userAgent)) {
             data.browserName = 'Chrome';
@@ -170,6 +180,7 @@
                     }
                 } else if (key === 'iPhone') {
                     data.osVersion = userAgent.split('iPhone OS ')[1].split(' ')[0];
+                    data.osVersion = data.osVersion.replaceAll('_', '.');
                 } else if (key === 'iPad') {
                     data.osVersion = userAgent.split('iPad; CPU OS ')[1].split(' ')[0];
                 } else if (key === 'Android') {
@@ -182,8 +193,8 @@
         return data;
     }
 
-    /*
-    var uaTestData = [
+    
+    /*var uaTestData = [
         'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/14.0.835.163 Safari/535.1',
         'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:6.0) Gecko/20100101 Firefox/6.0',
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0) Gecko/20100101 Firefox/102.0',
@@ -200,7 +211,10 @@
 
         // Mac Chrome
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36',
-        'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Mobile Safari/537.36'
+        'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Mobile Safari/537.36',
+
+        // WeChat
+        'Mozilla/5.0 (Linux; Android 12; Mi 10 Build/SKQ1.211006.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/86.0.4240.99 XWEB/4263 MMWEBSDK/20220505 Mobile Safari/537.36 MMWEBID/8522 MicroMessenger/8.0.23.2160(0x28001757) WeChat/arm64 Weixin NetType/WIFI Language/zh_CN ABI/arm64'
     ];
     uaTestData.forEach(function(ua) {
         console.log(g.helper.parseUserAgent(ua));

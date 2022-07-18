@@ -156,6 +156,9 @@ export class Kernel {
                 else if (undefined !== config.securePort && secure) {
                     value.port = parseInt(config.securePort);
                 }
+
+                // 直接修改地址
+                value.address = config.address;
             }
         });
 
@@ -380,7 +383,7 @@ export class Kernel {
      */
     checkAuth(config) {
         return new Promise((resolve, reject) => {
-            let authService = this.getModule(AuthService.NAME);
+            const authService = this.getModule(AuthService.NAME);
 
             if (null == authService) {
                 // 没有安装授权模块
@@ -399,14 +402,16 @@ export class Kernel {
             // 启动 Auth 服务
             authService.start();
 
-            let token = authService.check(config.domain, config.appKey, config.address);
-            if (null == token) {
-                cell.Logger.w('Kernel', 'Auth token is invalid');
-                resolve(null);
-                return;
-            }
-
-            resolve(token);
+            // 校验令牌
+            authService.check(config.domain, config.appKey, (token) => {
+                if (null == token) {
+                    cell.Logger.w('Kernel', 'Auth token is invalid');
+                    resolve(null);
+                }
+                else {
+                    resolve(token);
+                }
+            }, config.address);
         });
     }
 

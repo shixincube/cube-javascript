@@ -126,14 +126,19 @@
 
         // 上传文件
         btnUpload.click(function() {
+            if (null == currentDir) {
+                g.dialog.toast('文件服务模块未就绪');
+                return;
+            }
+
             window.cube().launchFileSelector(function(event) {
-                let file = event.target.files[0];
-                currentDir.uploadFile(file, function(fileAnchor) {
+                const files = event.target.files;
+                currentDir.uploadFile(files[0], function(fileAnchor) {
                     // 正在加载
                 }, function(dir, fileLabel) {
                     that.refreshTable(true);
                 }, function(error) {
-
+                    g.dialog.toast('上传文件失败：' + error.code);
                 });
             });
         });

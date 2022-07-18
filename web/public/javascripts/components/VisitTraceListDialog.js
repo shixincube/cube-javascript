@@ -62,13 +62,25 @@
                     ua.browserName + ' / ' + ua.browserVersion,
                 '</td>',
                 '<td>',
-                    trace.event,
+                    parseEvent(trace.event),
                 '</td>',
                 '<td>',
                     eventSN,
                 '</td>',
             '</tr>'
         ];
+    }
+
+    function parseEvent(event) {
+        if (event == 'View') {
+            return '查看';
+        }
+        else if (event == 'Extract') {
+            return '下载';
+        }
+        else {
+            return event;
+        }
     }
 
     /**

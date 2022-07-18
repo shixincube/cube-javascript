@@ -189,10 +189,10 @@ export class AuthService extends Module {
      * 该方法先从本地获取本地令牌进行校验，如果本地令牌失效或者未找到本地令牌，则尝试从授权服务器获取有效的令牌。
      * @param {string} domain 令牌对应的域。
      * @param {string} appKey 令牌指定的 App Key 串。
+     * @param {function} callback 操作回调，参数：({@linkcode token}:{@link AuthToken}) 。如果无法获取到授权令牌 {@linkcode token} 为 {@linkcode null} 值。
      * @param {string} [address] 授权服务器地址。
-     * @returns {AuthToken} 返回令牌实例。如果无法获取到授权令牌返回 {@linkcode null} 值。
      */
-    async check(domain, appKey, address) {
+    check(domain, appKey, callback, address) {
         AuthService.DOMAIN = domain;
         this.domain = domain;
         this.appKey = appKey;
@@ -205,7 +205,8 @@ export class AuthService extends Module {
         // 判断令牌是否到有效期
         if (null != this.token && this.token.isValid()) {
             AuthService.TOKEN = this.token.code;
-            return this.token;
+            callback(this.token);
+            return;
         }
 
         // 设置通道信息
@@ -217,15 +218,16 @@ export class AuthService extends Module {
         this.pipeline.open();
 
         // 从授权服务器申请
-        this.token = await this.applyToken(domain, appKey);
+        (async ()=> {
+            this.token = await this.applyToken(domain, appKey);
+            if (null != this.token) {
+                AuthService.TOKEN = this.token.code;
+                // 保存令牌
+                storage.saveToken(this.token);
+            }
 
-        if (null != this.token) {
-            AuthService.TOKEN = this.token.code;
-            // 保存令牌
-            storage.saveToken(this.token);
-        }
-
-        return this.token;
+            callback(this.token);
+        })();
     }
 
     /**
