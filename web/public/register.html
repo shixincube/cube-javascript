@@ -32,40 +32,56 @@
                             <button id="select_avatar" type="button" class="btn btn-lg btn-default avatar"><img src="images/avatar01.png" title="选择头像"/></button>
                         </div>
                     </div>
-                    <div class="input-group mb-3">
-                        <input id="nickname" name="nickname" type="text" class="form-control" placeholder="昵称">
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-address-card"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="input-group mb-3">
-                        <input id="account" name="account" type="text" class="form-control" placeholder="账号">
+                    <div class="input-group input-group-sm mb-3">
+                        <input id="account" name="account" type="text" class="form-control" placeholder="账号（必填）">
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-user"></span>
                             </div>
                         </div>
                     </div>
-                    <div class="input-group mb-3">
-                        <input id="password" name="password" type="password" class="form-control" placeholder="密码">
+                    <div class="input-group input-group-sm mb-3">
+                        <input id="phone" name="phone" type="text" class="form-control" placeholder="手机号码（必填）">
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-phone"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group input-group-sm mb-3">
+                        <input id="nickname" name="nickname" type="text" class="form-control" placeholder="昵称（选填）">
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-address-card"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group input-group-sm mb-3">
+                        <input id="password" name="password" type="password" class="form-control" placeholder="密码（必填）">
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-lock"></span>
                             </div>
                         </div>
                     </div>
-                    <div class="input-group mb-3">
-                        <input id="retype_password" name="retype_password" type="password" class="form-control" placeholder="确认密码">
+                    <div class="input-group input-group-sm mb-3">
+                        <input id="retype_password" name="retype_password" type="password" class="form-control" placeholder="确认密码（必填）">
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-lock"></span>
                             </div>
                         </div>
                     </div>
-                    <button id="btn_register" class="btn btn-lg btn-primary btn-block" type="button">注 册</button>
-                    <a href="index.html" class="btn btn-lg btn-default btn-block">返 回</a>
+                    <div class="input-group input-group-sm mb-3">
+                        <input id="captcha" name="captcha" type="text" class="form-control" placeholder="验证码（必填）">
+                        <span class="input-group-append">
+                            <div style="margin-left:1px">
+                                <img id="captcha_image" width="140" height="31" title="点击刷新验证码" onclick="window.refreshCaptcha();" />
+                            </div>
+                        </span>
+                    </div>
+                    <button id="btn_register" class="btn btn-primary btn-block" type="button">注 册</button>
+                    <a href="index.html" class="btn btn-default btn-block">返 回</a>
                 </form>
                 <p class="mt-5 mb-3 text-muted copyright">版权所有 &copy; 2022 <a href="https://shixincube.com" target="_blank">时信魔方</a></p>
             </p>

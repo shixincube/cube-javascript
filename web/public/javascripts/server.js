@@ -42,12 +42,12 @@
     var port = 0;
 
     /**
-     * 用于文件服务的 HTTP 链接。
+     * REST 接口的 HTTP 链接。
      */
     var httpURL = 'http://' + address + ':7777';
 
     /**
-     * 用于文件服务的 HTTPS 链接。
+     * REST 接口的 HTTPS 链接。
      */
     var httpsURL = 'https://' + address + ':7777';
 

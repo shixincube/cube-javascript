@@ -33,9 +33,11 @@
 
     function register() {
         var avatar = $('#select_avatar img').attr('src');
-        var nickname = $('#nickname').val().trim();
         var account = $('#account').val().trim();
+        var phone = $('#phone').val().trim();
+        var nickname = $('#nickname').val().trim();
         var password = $('#password').val().trim();
+        var captcha = $('#captcha').val().trim();
 
         if (!validator.form()) {
             return;
@@ -49,9 +51,12 @@
 
         var data = {
             "account" : account,
+            "phone"   : phone,
             "password" : pwdMD5,
-            "nickname": nickname,
-            "avatar": avatar.substr(7, 8)
+            "nickname" : nickname,
+            "avatar"  : avatar.substr(7, 8),
+            "captcha" : captcha,
+            "device"  : 'Web'
         };
         $.post(server.url + '/account/register/', data, function(response, status, xhr) {
             $('#modal_register').modal('hide');
@@ -66,6 +71,17 @@
                 setTimeout(function() {
                     window.location.href = 'index.html?account=' + account;
                 }, 4200);
+            }
+            else if (response.code == 11) {
+                // 验证码不正确
+                $(document).Toasts('create', {
+                    class: 'bg-danger', 
+                    title: '提示',
+                    autohide: true,
+                    delay: 4000,
+                    body: '验证码错误，请重新输入验证码'
+                });
+                $('#captcha').val('');
             }
             else {
                 $(document).Toasts('create', {
@@ -93,7 +109,14 @@
         $('#modal_avatar').modal('hide');
     }
 
+    g.refreshCaptcha = function() {
+        $('#captcha_image').prop('src', g.server.url + '/captcha/?t=' + Date.now());
+    }
+
     $(document).ready(function() {
+        // 验证码
+        $('#captcha_image').prop('src', g.server.url + '/captcha/');
+
         // 选择头像
         $('#select_avatar').on('click', function(e) {
             $('#modal_avatar').modal('show');
@@ -124,15 +147,20 @@
 
         validator = $('.register').validate({
             rules: {
-                nickname: {
-                    required: true,
-                    minlength: 3
-                },
                 account: {
                     required: true,
                     minlength: 6,
                     maxlength: 30,
                     isAccount: true
+                },
+                phone: {
+                    required: true,
+                    minlength: 11,
+                    maxlength: 11
+                },
+                nickname: {
+                    required: false,
+                    minlength: 4
                 },
                 password: {
                     required: true,
@@ -140,6 +168,11 @@
                 },
                 retype_password: {
                     equalTo: "#password"
+                },
+                captcha: {
+                    required: true,
+                    minlength: 4,
+                    maxlength: 4
                 }
             },
             messages: {
@@ -147,10 +180,14 @@
                     required: "请正确填写您的昵称",
                     minlength: $.validator.format("昵称最少需要 {0} 个字符")
                 },
+                phone: {
+                    required: "请正确填写您的手机号码",
+                    minlength: $.validator.format("手机号码需要 {0} 个字符")
+                },
                 account: {
                     required: "请正确填写您的账号名",
                     minlength: $.validator.format("账号最少需要 {0} 个字符"),
-                    maxlength: $.validator.format("账号最多只能包含 {0} 个字符"),
+                    maxlength: $.validator.format("账号最多只能包含 {0} 个字符")
                 },
                 password: {
                     required: "请正确填写您的密码",
@@ -158,6 +195,9 @@
                 },
                 retype_password: {
                     equalTo: "请填写与上一项相同的密码"
+                },
+                captcha: {
+                    required: "请输入右侧4位验证码（点击图片更换验证码）"
                 }
             },
             errorElement: 'span',
