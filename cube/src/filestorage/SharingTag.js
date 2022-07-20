@@ -52,10 +52,10 @@ export class SharingTag extends Entity {
          this.expiryDate = 0;
 
         /**
-         * 分享人。
+         * 分享创建人。
          * @type {Contact}
          */
-        this.sharer = null;
+        this.creator = null;
 
         /**
          * 创建分享的设备。
@@ -124,7 +124,7 @@ export class SharingTag extends Entity {
     static create(json) {
         let tag = new SharingTag(json.id, json.code);
         tag.expiryDate = json.expiryDate;
-        tag.sharer = (undefined !== json.config.contact) ? Contact.create(json.config.contact) : null;
+        tag.creator = (undefined !== json.config.contact) ? Contact.create(json.config.contact) : null;
         tag.device = Device.create(json.config.device);
         tag.fileLabel = FileLabel.create(json.config.fileLabel);
         tag.duration = json.config.duration;

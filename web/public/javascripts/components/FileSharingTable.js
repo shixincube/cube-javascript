@@ -73,6 +73,8 @@
                         '<label class="custom-control-label" for="download_', id, '"></label>',
                     '</div>',
                 '</td>',
+                '<td class="sharing-operation">',
+                '</td>',
             '</tr>'
         ];
     }

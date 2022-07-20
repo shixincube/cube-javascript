@@ -82,6 +82,7 @@
                     body: '验证码错误，请重新输入验证码'
                 });
                 $('#captcha').val('');
+                g.refreshCaptcha();
             }
             else {
                 $(document).Toasts('create', {
