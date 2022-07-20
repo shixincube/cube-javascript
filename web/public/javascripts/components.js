@@ -9546,6 +9546,8 @@
  (function(g) {
     'use strict'
 
+    var that = null;
+
     var tableEl = null;
     var noFileBg = null;
     var surfaceA = null;
@@ -9592,6 +9594,8 @@
                         '<label class="custom-control-label" for="download_', id, '"></label>',
                     '</div>',
                 '</td>',
+                '<td class="sharing-operation">',
+                '</td>',
             '</tr>'
         ];
     }
@@ -9606,6 +9610,7 @@
         surfaceA = el.find('tbody[data-target="surface-a"]');
         surfaceB = el.find('tbody[data-target="surface-b"]');
         surface = surfaceA;
+        that = this;
     }
 
     /**
@@ -9640,9 +9645,14 @@
         setTimeout(function() {
             list.forEach(function(sharingTag) {
                 var clipboard = new ClipboardJS('#clippy_' + sharingTag.id);
+                clipboard.on('success', that.fireClipboard);
                 clipboardList.push(clipboard);
             });
         }, 1000);
+    }
+
+    FileSharingTable.prototype.fireClipboard = function() {
+        g.dialog.toast('链接地址已复制到剪贴板', Toast.Success);
     }
 
     g.FileSharingTable = FileSharingTable;

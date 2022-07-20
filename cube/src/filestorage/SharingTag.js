@@ -134,11 +134,13 @@ export class SharingTag extends Entity {
         tag.httpURL = (undefined !== json.httpURL) ? json.httpURL : null;
         tag.httpsURL = (undefined !== json.httpsURL) ? json.httpsURL : null;
 
+        let parent = json.parent["string"];
+
         if (null == tag.httpURL) {
-            tag.httpURL = 'http://' + Kernel.CONFIG.address + ':7010/sharing/' + tag.code;
+            tag.httpURL = 'http://' + Kernel.CONFIG.address + ':7010/sharing/' + tag.code + '?p=' + parent;
         }
         if (null == tag.httpsURL) {
-            tag.httpsURL = 'https://' + Kernel.CONFIG.address + ':7017/sharing/' + tag.code;
+            tag.httpsURL = 'https://' + Kernel.CONFIG.address + ':7017/sharing/' + tag.code + '?p=' + parent;
         }
 
         if (json.previewList) {
