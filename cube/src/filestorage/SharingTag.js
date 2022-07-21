@@ -119,13 +119,13 @@ export class SharingTag extends Entity {
     /**
      * 使用 JSON 格式数据创建 SharingTag 实例。
      * @param {JSON} json 
-     * @returns 
+     * @returns {SharingTag} 返回分享标签实例。
      */
     static create(json) {
         let tag = new SharingTag(json.id, json.code);
         tag.expiryDate = json.expiryDate;
         tag.creator = (undefined !== json.config.contact) ? Contact.create(json.config.contact) : null;
-        tag.device = Device.create(json.config.device);
+        tag.device = (undefined !== json.config.device) ? Device.create(json.config.device) : null;
         tag.fileLabel = FileLabel.create(json.config.fileLabel);
         tag.duration = json.config.duration;
         tag.password = (undefined !== json.config.password) ? json.config.password : null;
