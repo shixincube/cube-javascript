@@ -76,6 +76,9 @@
                     '</div>',
                 '</td>',
                 '<td class="sharing-operation">',
+                    '<button type="button" class="btn btn-info btn-sm">',
+                        '<i class="far fa-table"></i>',
+                    '</button>',
                 '</td>',
             '</tr>'
         ];

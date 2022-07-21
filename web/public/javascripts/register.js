@@ -50,13 +50,14 @@
         $('#retype_password').val('');
 
         var data = {
+            "domain" : 'shixincube.com',
             "account" : account,
             "phone"   : phone,
             "password" : pwdMD5,
             "nickname" : nickname,
             "avatar"  : avatar.substr(7, 8),
             "captcha" : captcha,
-            "device"  : 'Web'
+            "device"  : 'Web/' + navigator.userAgent
         };
         $.post(server.url + '/account/register/', data, function(response, status, xhr) {
             $('#modal_register').modal('hide');
@@ -142,17 +143,21 @@
         });
 
         $.validator.addMethod("isAccount", function(value, element) {   
-            var tel = /^\w+$/;
-            return this.optional(element) || (tel.test(value));
+            var reg = /^\w+$/;
+            return this.optional(element) || (reg.test(value));
         }, "请正确填写账号，只能使用字母、数字和下划线“_”");
+        $.validator.addMethod('isEmail', function(value, element) {
+            var reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+            return this.optional(element) || (reg.test(value));
+        }, '请正确填写电子邮箱地址');
 
         validator = $('.register').validate({
             rules: {
                 account: {
                     required: true,
                     minlength: 6,
-                    maxlength: 30,
-                    isAccount: true
+                    maxlength: 100,
+                    isEmail: true
                 },
                 phone: {
                     required: true,

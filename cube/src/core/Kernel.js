@@ -458,7 +458,6 @@ export class Kernel {
         let pipelines = this.pipelines.values();
         for (let i = 0; i < pipelines.length; ++i) {
             let pipeline = pipelines[i];
-            pipeline.setRemoteAddress(token.getDescription().getAddress());
             pipeline.setTokenCode(token.code);
         }
 

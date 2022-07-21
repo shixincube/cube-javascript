@@ -72,7 +72,7 @@
                 var date = new Date();
                 date.setTime(date.getTime() + 7 * 24 * 60 * 60 * 1000);
                 document.cookie = 'CubeAppToken=' + response.token + '; expires=' + date.toUTCString() + '; SameSite=None; Secure';
-                document.cookie = 'CubeTrace=' + response.trace + '; expires=' + date.toUTCString();
+                document.cookie = 'CubeTrace=' + response.trace + '; expires=' + date.toUTCString() + '; SameSite=None; Secure';
 
                 // window.location.href = 'main.html';
                 window.location.href = 'main.html?t=' + response.token;
@@ -126,7 +126,11 @@
 
         var cookie = window.readCookie('CubeAppToken');
 
-        if (null != cookie && cookie.length >= 32 && window.location.search.indexOf('c=logout') < 0) {
+        if (window.location.search.indexOf('account=') >= 0) {
+            var account = window.getQueryString('account');
+            $('#account').val(account);
+        }
+        else if (null != cookie && cookie.length >= 32 && window.location.search.indexOf('c=logout') < 0) {
             // 尝试使用 Cookie 登录
             $('#modal_login').modal('show');
 
@@ -188,11 +192,7 @@
         else if (window.location.search.indexOf('c=logout') >= 0) {
             var date = new Date();
             document.cookie = 'CubeAppToken=?; expires=' + date.toUTCString() + '; SameSite=None; Secure';
-            document.cookie = 'CubeTrace=?; expires=' + date.toUTCString();
-        }
-        else if (window.location.search.indexOf('account=') >= 0) {
-            var account = window.getQueryString('account');
-            $('#account').val(account);
+            document.cookie = 'CubeTrace=?; expires=' + date.toUTCString() + '; SameSite=None; Secure';
         }
     });
 

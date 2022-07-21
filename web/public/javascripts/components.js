@@ -8429,7 +8429,7 @@
                 '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getLastModified()), '</td>',
                 '<td class="file-operate">',
                     '<button ', 'onclick="app.filePanel.openCreateSharingTagDialog(\'', fileLabel.getFileCode(), '\')"',
-                        ' type="button" class="btn btn-info btn-sm" title="分享" data-target="share-file"><i class="fas fa-share"></i></button>',
+                        ' type="button" class="btn btn-info btn-sm" title="分享" data-target="share-file"><i class="fas fa-share-alt"></i></button>',
                     '<button ', 'onclick="app.filePanel.promptDeleteFile(\'', fileLabel.getFileName(), '\', \'', fileLabel.getFileCode(), '\')"',
                         ' type="button" class="btn btn-danger btn-sm" title="删除" data-target="recycle-file"><i class="far fa-trash-alt"></i></button>',
                 '</td>',
@@ -9595,6 +9595,9 @@
                     '</div>',
                 '</td>',
                 '<td class="sharing-operation">',
+                    '<button type="button" class="btn btn-info btn-sm">',
+                        '<i class="far fa-trash-alt"></i>',
+                    '</button>',
                 '</td>',
             '</tr>'
         ];
