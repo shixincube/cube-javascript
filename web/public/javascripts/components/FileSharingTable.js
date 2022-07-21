@@ -75,9 +75,9 @@
                         '<label class="custom-control-label" for="download_', id, '"></label>',
                     '</div>',
                 '</td>',
-                '<td class="sharing-operation">',
+                '<td class="sharing-operate">',
                     '<button type="button" class="btn btn-info btn-sm">',
-                        '<i class="far fa-table"></i>',
+                        '<i class="fas fa-share-square"></i>',
                     '</button>',
                 '</td>',
             '</tr>'
