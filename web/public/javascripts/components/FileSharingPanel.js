@@ -64,7 +64,7 @@
 
         var begin = sharingPage.page * app.fileCtrl.numPerPage;
         var end = begin + app.fileCtrl.numPerPage - 1;
-        g.cube().fs.listSharingTags(begin, end, true, function(list, beginIndex, endIndex, inExpiry) {
+        g.cube().fs.listSharingTags(begin, end, true, function(list, beginIndex, endIndex, valid) {
             table.updatePage(list);
         }, function(error) {
             g.dialog.launchToast(Toast.Error, '获取分享列表失败：' + error.code);
@@ -76,7 +76,7 @@
 
         var begin = expiredSharingPage.page * app.fileCtrl.numPerPage;
         var end = begin + app.fileCtrl.numPerPage - 1;
-        g.cube().fs.listSharingTags(begin, end, false, function(list, beginIndex, endIndex, inExpiry) {
+        g.cube().fs.listSharingTags(begin, end, false, function(list, beginIndex, endIndex, valid) {
             table.updatePage(list);
         }, function(error) {
             g.dialog.launchToast(Toast.Error, '获取分享列表失败：' + error.code);

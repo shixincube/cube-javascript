@@ -929,11 +929,11 @@ export class FileStorage extends Module {
      * 列表分享标签。
      * @param {number} beginIndex 
      * @param {number} endIndex 
-     * @param {boolean} inExpiry 
+     * @param {boolean} valid 
      * @param {funciton} handleSuccess 成功回调。参数：({@linkcode list}:{@link Array<SharingTag>}) 。
      * @param {funciton} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
-    listSharingTags(beginIndex, endIndex, inExpiry, handleSuccess, handleFailure) {
+    listSharingTags(beginIndex, endIndex, valid, handleSuccess, handleFailure) {
         if (!this.hasStarted()) {
             let error = new ModuleError(FileStorage.NAME, FileStorageState.NotReady);
             handleFailure(error);
@@ -949,7 +949,7 @@ export class FileStorage extends Module {
         let payload = {
             "begin": beginIndex,
             "end": endIndex,
-            "inExpiry": inExpiry
+            "valid": valid
         };
         let packet = new Packet(FileStorageAction.ListSharingTags, payload);
         this.pipeline.send(FileStorage.NAME, packet, (pipeline, source, responsePacket) => {
@@ -971,7 +971,7 @@ export class FileStorage extends Module {
             data.list.forEach((json) => {
                 list.push(SharingTag.create(json))
             });
-            handleSuccess(list, beginIndex, endIndex, inExpiry);
+            handleSuccess(list, beginIndex, endIndex, valid);
         });
     }
 
