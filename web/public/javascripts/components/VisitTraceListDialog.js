@@ -53,7 +53,7 @@
                     g.formatYMDHMS(trace.time),
                 '</td>',
                 '<td>',
-                    trace.ip,
+                    trace.address,
                 '</td>',
                 '<td>',
                     ua.osName + ' / ' + ua.osVersion,

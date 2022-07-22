@@ -42,10 +42,10 @@ export class VisitTrace extends Entity {
         this.time = 0;
 
         /**
-         * 访问 IP 。
+         * 访问地址。
          * @type {string}
          */
-        this.ip = null;
+        this.address = null;
 
         /**
          * 域名。
@@ -87,12 +87,6 @@ export class VisitTrace extends Entity {
         this.screenOrientation = null;
 
         /**
-         * Referrer
-         * @type {string}
-         */
-        this.referrer = null;
-
-        /**
          * 浏览器信息。
          * @type {string}
          */
@@ -131,7 +125,7 @@ export class VisitTrace extends Entity {
     static create(json) {
         let trace = new VisitTrace();
         trace.time = json.time;
-        trace.ip = json.ip;
+        trace.address = json.address;
         trace.url = json.url;
 
         trace.domain = (undefined !== json.domain) ? json.domain : null;
@@ -142,7 +136,6 @@ export class VisitTrace extends Entity {
         trace.screenColorDepth = json.screen.colorDepth;
         trace.screenOrientation = json.screen.orientation;
 
-        trace.referrer = json.referrer;
         trace.language = json.language;
         trace.userAgent = json.userAgent;
 
