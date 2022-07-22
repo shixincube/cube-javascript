@@ -32,8 +32,26 @@ import { Entity } from "../core/Entity";
  */
 export class VisitTrace extends Entity {
 
+    /**
+     * 浏览器。
+     * @type {string}
+     */
+    static PlatformBrowser = 'Browser';
+
+    /**
+     * 小程序。
+     * @type {string}
+     */
+    static PlatformAppletWeChat = 'AppletWeChat';
+
     constructor() {
         super();
+
+        /**
+         * 平台名称。
+         * @type {string}
+         */
+        this.platform = null;
 
         /**
          * 访问时间。
@@ -87,10 +105,16 @@ export class VisitTrace extends Entity {
         this.screenOrientation = null;
 
         /**
-         * 浏览器信息。
+         * 浏览器代理字符串。
          * @type {string}
          */
         this.userAgent = null;
+
+        /**
+         * 平台代理描述。
+         * @type {object}
+         */
+        this.agent = null;
 
         /**
          * 客户端语言。
@@ -124,6 +148,7 @@ export class VisitTrace extends Entity {
      */
     static create(json) {
         let trace = new VisitTrace();
+        trace.platform = json.platform;
         trace.time = json.time;
         trace.address = json.address;
         trace.url = json.url;
@@ -137,7 +162,10 @@ export class VisitTrace extends Entity {
         trace.screenOrientation = json.screen.orientation;
 
         trace.language = json.language;
-        trace.userAgent = json.userAgent;
+
+        trace.userAgent = (undefined !== json.userAgent) ? json.userAgent : null;
+
+        trace.agent = (undefined !== json.agent) ? json.agent : null;
 
         trace.event = (undefined !== json.event) ? json.event : null;
         trace.eventTag = (undefined !== json.eventTag) ? json.eventTag : null;
