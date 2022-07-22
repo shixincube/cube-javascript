@@ -142,11 +142,15 @@
             $.ajax({
                 type: "POST",
                 url: server.url + '/account/login/',
-                xhrFields: {
+                /*xhrFields: {
                     withCredentials: true
                 },
-                crossDomain: true,
+                crossDomain: true,*/
                 dataType: 'json',
+                data: {
+                    "device": 'Web/' + navigator.userAgent,
+                    "token": cookie
+                },
                 success: function(response, status, xhr) {
                     clearTimeout(timer);
 
