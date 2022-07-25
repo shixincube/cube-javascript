@@ -199,12 +199,10 @@ export class FileStorage extends Module {
     stop() {
         super.stop();
 
-        if (null == this.pipeline) {
-            return;
+        if (null != this.pipeline) {
+            // 移除数据管道的监听器
+            this.pipeline.removeListener(FileStorage.NAME, this.pipelineListener);
         }
-
-        // 移除数据管道的监听器
-        this.pipeline.removeListener(FileStorage.NAME, this.pipelineListener);
 
         // 关闭存储库
         this.storage.close();
@@ -622,7 +620,36 @@ export class FileStorage extends Module {
      * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError})。
      */
     getSelfRoot(handleSuccess, handleFailure) {
-        this.getRoot(this.contactService.getSelf().getId(), handleSuccess, handleFailure);
+        if (this.serviceReady) {
+            this.getRoot(this.contactService.getSelf().getId(), handleSuccess, handleFailure);
+        }
+        else {
+            const task = (count, handleSuccess, handleFailure) => {
+                if (this.serviceReady) {
+                    this.getRoot(this.contactService.getSelf().getId(), handleSuccess, handleFailure);
+                    return;
+                }
+
+                if (count >= 3) {
+                    // 重试 3 次
+                    let error = new ModuleError(FileStorage.NAME, FileStorageState.NotReady, null);
+                    handleFailure(error);
+                    return;
+                }
+
+                let timer = setTimeout(() => {
+                    clearTimeout(timer);
+
+                    task(++count, handleSuccess, handleFailure);
+                }, 500);
+            };
+
+            let timer = setTimeout(() => {
+                clearTimeout(timer);
+
+                task(1, handleSuccess, handleFailure);
+            }, 500);
+        }
     }
 
     /**

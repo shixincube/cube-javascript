@@ -235,14 +235,24 @@ export class ContactService extends Module {
             this.self.resetDevice(device);
         }
 
-        if (!this.pipeline.isReady()) {
-            cell.Logger.d('ContactService', 'Pipeline "' + this.pipeline.getName() + '" is no ready');
-            return false;
-        }
+        let task = () => {
+            if (!this.pipeline.isReady) {
+                cell.Logger.d('ContactService', 'Pipeline "' + this.pipeline.getName() + '" is no ready');
 
-        let retryCount = 2;
-        // 激活令牌并签入
-        this._actvieAndSignIn(retryCount);
+                // 等待后再试
+                let timer = setTimeout(() => {
+                    clearTimeout(timer);
+                    task();
+                }, 1000);
+            }
+            else {
+                let retryCount = 2;
+                // 激活令牌并签入
+                this._actvieAndSignIn(retryCount);
+            }
+        };
+
+        task();
 
         return true;
     }

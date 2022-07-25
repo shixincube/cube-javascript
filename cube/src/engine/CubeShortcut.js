@@ -151,8 +151,7 @@ export class CubeShortcut {
      * @returns {boolean} 如果已安装模块准备就绪返回 {@linkcode true} 。
      */
     isReady() {
-        return this.contact.isReady() && this.fileStorage.isReady() && this.fileProcessor.isReady()
-            && this.messaging.isReady() && this.mpComm.isReady();
+        return this.contact.isReady() && this.fileStorage.isReady() && this.fileProcessor.isReady() && this.mpComm.isReady();
     }
 
     /**

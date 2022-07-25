@@ -239,12 +239,20 @@
                 // 启用会议模块
                 cube.cs.start();
 
+                var count = 0;
+
                 var timer = setInterval(function() {
+                    if (++count > 10) {
+                        clearInterval(timer);
+                        g.dialog.toast('程序启动异常', Toast.Error);
+                        return;
+                    }
+
                     if (cube.isReady()) {
                         clearInterval(timer);
                         that.onReady();
                     }
-                }, 100);
+                }, 1000);
             }, function(error) {
                 console.log('Start Cube FAILED: ' + error);
             });
@@ -687,13 +695,15 @@
                             contactIds.push(list[i].contact.id);
                         }
 
-                        $.get(server.url + '/account/info/', {
-                            "list": contactIds.toString(),
-                            "token": token
-                        }, function(response, status, xhr) {
-                            // 处理
-                            process(response);
-                        });
+                        if (contactIds.length > 0) {
+                            $.get(server.url + '/account/info/', {
+                                "list": contactIds.toString(),
+                                "token": token
+                            }, function(response, status, xhr) {
+                                // 处理
+                                process(response);
+                            });
+                        }
                     });
                 }
             }, function(error) {
