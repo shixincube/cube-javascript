@@ -135,13 +135,6 @@
 
             //console.log('Cube App Token: ' + token);
 
-            var tab = g.getQueryString('tab');
-            if (null != tab) {
-                setTimeout(function() {
-                    g.app.toggle(tab);
-                }, 100);
-            }
-
             $.ajax({
                 type: 'GET',
                 url: server.url + '/account/info/',
@@ -394,6 +387,19 @@
 
             // 搜索对话框
             that.searchDialog = new SearchDialog();
+
+            // 进入默认的一级标签
+            var tab = g.getQueryString('tab');
+            if (null != tab) {
+                setTimeout(function() {
+                    g.app.toggle(tab);
+                }, 100);
+            }
+            else if (g.preference) {
+                setTimeout(function() {
+                    g.app.toggle(g.preference.tab)
+                }, 100);
+            }
         },
 
         /**
@@ -703,6 +709,9 @@
                                 // 处理
                                 process(response);
                             });
+                        }
+                        else {
+                            process([]);
                         }
                     });
                 }
