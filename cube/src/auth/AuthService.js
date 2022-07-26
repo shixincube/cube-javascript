@@ -133,6 +133,13 @@ export class AuthService extends Module {
     }
 
     /**
+     * @inheritdoc
+     */
+    isReady() {
+        return (null != this.token);
+    }
+
+    /**
      * 获取令牌实例。
      * @returns {AuthToken} 返回令牌实例。
      */

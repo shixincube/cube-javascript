@@ -235,8 +235,10 @@ export class ContactService extends Module {
             this.self.resetDevice(device);
         }
 
+        let authService = this.kernel.getModule(AuthService.NAME);
+
         let task = () => {
-            if (!this.pipeline.isReady) {
+            if (!this.pipeline.isReady() || !authService.isReady()) {
                 cell.Logger.d('ContactService', 'Pipeline "' + this.pipeline.getName() + '" is no ready');
 
                 // 等待后再试

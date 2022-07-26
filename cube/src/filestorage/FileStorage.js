@@ -630,8 +630,8 @@ export class FileStorage extends Module {
                     return;
                 }
 
-                if (count >= 3) {
-                    // 重试 3 次
+                if (count >= 10) {
+                    // 重试 10 次
                     let error = new ModuleError(FileStorage.NAME, FileStorageState.NotReady, null);
                     handleFailure(error);
                     return;
