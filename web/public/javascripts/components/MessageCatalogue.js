@@ -109,7 +109,7 @@
         }
         else if (value instanceof Contact) {
             id = value.getId();
-            thumb = 'images/' + value.getContext().avatar;
+            thumb = g.helper.getAvatarImage(value.getContext().avatar);
             if (value.getAppendix().hasRemarkName()) {
                 label = value.getAppendix().getRemarkName();
             }

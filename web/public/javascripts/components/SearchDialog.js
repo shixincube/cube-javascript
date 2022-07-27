@@ -121,11 +121,11 @@
     }
 
     SearchDialog.prototype.appendContact = function(contact) {
-        var avatar = contact.getContext().avatar;
+        var avatar = g.helper.getAvatarImage(contact.getContext().avatar);
 
         var html = [
             '<div class="row align-items-center" data="', contact.getId(), '">',
-                '<div class="col-2"><img src="images/', avatar, '" class="avatar"></div>',
+                '<div class="col-2"><img src="', avatar, '" class="avatar"></div>',
                 '<div class="col-7">',
                     '<span><a href="javascript:app.contactDetails.show(', contact.getId(), ');">', contact.getName(), '</a></span>',
                     '&nbsp;<span class="text-muted">(', contact.getId(), ')</span>',

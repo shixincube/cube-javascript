@@ -134,7 +134,7 @@
 
         for (var i = 0; i < entities.length; ++i) {
             var entity = entities[i];
-            var avatar = (entity instanceof Group) ? 'images/group-avatar.png' : 'images/' + entity.getContext().avatar;
+            var avatar = (entity instanceof Group) ? 'images/group-avatar.png' : g.helper.getAvatarImage(entity.getContext().avatar);
 
             var html = [
                 '<tr data-target="', i, '">',

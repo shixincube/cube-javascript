@@ -39,8 +39,8 @@
         });
     };
 
-    SidebarAccountPanel.prototype.updateAvatar = function(path) {
-        this.el.find('img[data-target="avatar"]').attr('src', 'images/' + path);
+    SidebarAccountPanel.prototype.updateAvatar = function(avatar) {
+        this.el.find('img[data-target="avatar"]').attr('src', g.helper.getAvatarImage(avatar));
     }
 
     SidebarAccountPanel.prototype.updateName = function(name) {

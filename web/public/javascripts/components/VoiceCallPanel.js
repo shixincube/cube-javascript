@@ -117,7 +117,7 @@
 
         var handler = function() {
             if (g.app.callCtrl.makeCall(target, false, audioDevice)) {
-                that.elPeerAvatar.attr('src', 'images/' + target.getContext().avatar);
+                that.elPeerAvatar.attr('src', g.helper.getAvatarImage(target.getContext().avatar));
                 that.elPeerName.text(target.getName());
                 that.elInfo.text('正在呼叫...');
 
@@ -176,7 +176,7 @@
     VoiceCallPanel.prototype.showAnswer = function(caller) {
         console.log('应答语音通话 ' + caller.getId());
 
-        this.elPeerAvatar.attr('src', 'images/' + caller.getContext().avatar);
+        this.elPeerAvatar.attr('src', g.helper.getAvatarImage(caller.getContext().avatar));
         this.elPeerName.text(caller.getName());
         this.elInfo.text('正在应答...');
 
@@ -268,7 +268,7 @@
         var body = [
             '<div class="toasts-info">\
                 <div class="info-box">\
-                    <span class="info-box-icon"><img src="images/', contact.getContext().avatar, '" /></span>\
+                    <span class="info-box-icon"><img src="', g.helper.getAvatarImage(contact.getContext().avatar), '" /></span>\
                     <div class="info-box-content">\
                         <span class="info-box-text">', contact.getName(), '</span>\
                         <span class="info-box-desc">邀请您参与语音通话</span>\

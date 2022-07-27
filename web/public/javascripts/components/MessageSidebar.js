@@ -408,7 +408,7 @@
                     ' onclick="javascript:app.messageSidebar.fireUpdateMemberRemark(', contact.getId(), ');"><i class="fas fa-edit"></i></button>' ];
                 var html = [
                     '<div class="group-member-cell" data-target="', contact.getId(), '" ondblclick="javascript:app.contactDetails.show(', contact.getId(), ');">',
-                        '<div class="member-avatar"><img class="img-size-32 img-round-rect" src="images/', contact.getContext().avatar, '" /></div>',
+                        '<div class="member-avatar"><img class="img-size-32 img-round-rect" src="', g.helper.getAvatarImage(contact.getContext().avatar), '" /></div>',
                         '<div class="member-name">',
                             group.getAppendix().hasMemberRemark(contact) ? group.getAppendix().getMemberRemark(contact) : contact.getPriorityName(),
                         '</div>',

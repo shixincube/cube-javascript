@@ -88,7 +88,7 @@
         for (var i = 0; i < contacts.length; ++i) {
             var contact = contacts[i];
             var id = contact.getId();
-            var avatar = contact.getContext().avatar;
+            var avatar = g.helper.getAvatarImage(contact.getContext().avatar);
             var name = contact.getPriorityName();
 
             var checked = undefined !== selectedList && selectedList.indexOf(id) >= 0;
@@ -97,7 +97,7 @@
                 '<div class="col-6"><div class="form-group"><div class="custom-control custom-checkbox select-group-member">',
                     '<input class="custom-control-input" type="checkbox"', checked ? ' checked="checked"' : '', ' id="group_member_', i, '" data="', id, '" />',
                     '<label class="custom-control-label" for="group_member_', i, '">',
-                        '<img src="images/', avatar, '" />',
+                        '<img src="', avatar, '" />',
                         '<span>', name, '</span>',
                     '</label>',
                 '</div></div></div>'

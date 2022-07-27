@@ -423,7 +423,7 @@
                         commField.getEndpoints().forEach(function(value) {
                             var contact = value.contact;
                             g.app.getContact(contact.getId(), function(contact) {
-                                html.push('<div class="col-3"><img src="images/' + contact.getContext().avatar + '" /></div>');
+                                html.push('<div class="col-3"><img src="' + g.helper.getAvatarImage(contact.getContext().avatar) + '" /></div>');
                             });
                         });
                         rowEl.html(html.join(''));
@@ -849,7 +849,7 @@
                     formatFullTime(time),
                 '</span></div>',
                 // 头像
-                '<img src="images/', sender.getContext().avatar, '" class="direct-chat-img">',
+                '<img src="', g.helper.getAvatarImage(sender.getContext().avatar), '" class="direct-chat-img">',
                 // 状态
                 stateDesc.join(''),
                 '<div data-id="', id, '" data-owner="', right.length > 0, '" class="direct-chat-text ', animationClass, '">', text, '</div></div>'
@@ -1436,7 +1436,7 @@
                 var name = group.getMemberName(contact);
                 var html = [
                     '<div class="row align-items-center" data="', contact.getId(), '">',
-                        '<div class="col-2 avatar"><img src="images/', contact.getContext().avatar, '" /></div>',
+                        '<div class="col-2 avatar"><img src="', g.helper.getAvatarImage(contact.getContext().avatar), '" /></div>',
                         '<div class="col-10">', name, '</div>',
                     '</div>'
                 ];

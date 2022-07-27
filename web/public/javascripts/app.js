@@ -487,9 +487,9 @@
                     }
 
                     // 头像使用 PNG
-                    if (!response.avatar.startsWith('http')) {
-                        response.avatar += '.png';
-                    }
+                    // if (!response.avatar.startsWith('http')) {
+                    //     response.avatar += '.png';
+                    // }
 
                     contact.setContext(response);
                     contact.setName(response.name);

@@ -29,6 +29,20 @@
     g.helper = g.helper || {};
 
     /**
+     * 获取图像访问地址。
+     * 
+     * @param {string} avatar 
+     */
+    g.helper.getAvatarImage = function(avatar) {
+        if (avatar.startsWith('avatar')) {
+            return 'avatars/' + avatar + (avatar.endsWith('png') ? '' : '.png');
+        }
+        else {
+            return 'avatars/default.png'
+        }
+    }
+
+    /**
      * 根据文件类型匹配文件图标。
      * @param {FileLabel} fileLabel 
      * @returns {string}

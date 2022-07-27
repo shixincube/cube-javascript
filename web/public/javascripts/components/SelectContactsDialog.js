@@ -111,7 +111,7 @@
         for (var i = 0; i < list.length; ++i) {
             var contact = list[i];
             var id = contact.getId();
-            var avatar = contact.getContext().avatar;
+            var avatar = g.helper.getAvatarImage(contact.getContext().avatar);
             var name = contact.getPriorityName();
 
             var disabled = disabledList.indexOf(id) >= 0;
@@ -120,7 +120,7 @@
                 '<div class="form-group"><div class="custom-control custom-checkbox select-group-member">',
                     '<input class="custom-control-input" type="checkbox" id="contact_', i, '" data="', id, '" ', disabled ? 'disabled="disabled"' : '', ' />',
                     '<label class="custom-control-label" for="contact_', i, '">',
-                        '<img src="images/', avatar, '" />',
+                        '<img src="', avatar, '" />',
                         '<span>', name, '</span>',
                     '</label>',
                 '</div></div>'
@@ -145,7 +145,7 @@
                         '<label for="selected_', id, '" class="custom-control-label">&nbsp;</label>',
                     '</div>',
                 '</td>',
-                '<td width="50">', '<img src="images/', contact.getContext().avatar, '" class="avatar" />', '</td>',
+                '<td width="50">', '<img src="', g.helper.getAvatarImage(contact.getContext().avatar), '" class="avatar" />', '</td>',
                 '<td>', contact.getPriorityName(), '</td>',
             '</tr>'
         ];

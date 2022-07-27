@@ -368,7 +368,7 @@
         var html = [
             '<div data="', contact.getId(), '" class="', col, '">',
                 '<div class="avatar">',
-                    '<img src="images/', contact.getContext().avatar, '" />',
+                    '<img src="', g.helper.getAvatarImage(contact.getContext().avatar), '" />',
                 '</div>',
                 '<div class="name">',
                     '<div>', contact.getName(), '</div>',
@@ -418,7 +418,7 @@
                 var chtml = [
                     '<div data="', contact.getId(), '" class="', col, '">',
                         '<div class="avatar">',
-                            '<img src="images/', contact.getContext().avatar, '" />',
+                            '<img src="', g.helper.getAvatarImage(contact.getContext().avatar), '" />',
                         '</div>',
                         '<div class="name">',
                             '<div>', contact.getName(), '</div>',

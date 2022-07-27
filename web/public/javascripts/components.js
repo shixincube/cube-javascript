@@ -29,6 +29,20 @@
     g.helper = g.helper || {};
 
     /**
+     * 获取图像访问地址。
+     * 
+     * @param {string} avatar 
+     */
+    g.helper.getAvatarImage = function(avatar) {
+        if (avatar.startsWith('avatar')) {
+            return 'avatars/' + avatar + (avatar.endsWith('png') ? '' : '.png');
+        }
+        else {
+            return 'avatars/default.png'
+        }
+    }
+
+    /**
      * 根据文件类型匹配文件图标。
      * @param {FileLabel} fileLabel 
      * @returns {string}
@@ -1023,8 +1037,8 @@
         });
     };
 
-    SidebarAccountPanel.prototype.updateAvatar = function(path) {
-        this.el.find('img[data-target="avatar"]').attr('src', 'images/' + path);
+    SidebarAccountPanel.prototype.updateAvatar = function(avatar) {
+        this.el.find('img[data-target="avatar"]').attr('src', g.helper.getAvatarImage(avatar));
     }
 
     SidebarAccountPanel.prototype.updateName = function(name) {
@@ -1123,7 +1137,7 @@
         }
         else if (value instanceof Contact) {
             id = value.getId();
-            thumb = 'images/' + value.getContext().avatar;
+            thumb = g.helper.getAvatarImage(value.getContext().avatar);
             if (value.getAppendix().hasRemarkName()) {
                 label = value.getAppendix().getRemarkName();
             }
@@ -2120,7 +2134,7 @@
                         commField.getEndpoints().forEach(function(value) {
                             var contact = value.contact;
                             g.app.getContact(contact.getId(), function(contact) {
-                                html.push('<div class="col-3"><img src="images/' + contact.getContext().avatar + '" /></div>');
+                                html.push('<div class="col-3"><img src="' + g.helper.getAvatarImage(contact.getContext().avatar) + '" /></div>');
                             });
                         });
                         rowEl.html(html.join(''));
@@ -2546,7 +2560,7 @@
                     formatFullTime(time),
                 '</span></div>',
                 // 头像
-                '<img src="images/', sender.getContext().avatar, '" class="direct-chat-img">',
+                '<img src="', g.helper.getAvatarImage(sender.getContext().avatar), '" class="direct-chat-img">',
                 // 状态
                 stateDesc.join(''),
                 '<div data-id="', id, '" data-owner="', right.length > 0, '" class="direct-chat-text ', animationClass, '">', text, '</div></div>'
@@ -3133,7 +3147,7 @@
                 var name = group.getMemberName(contact);
                 var html = [
                     '<div class="row align-items-center" data="', contact.getId(), '">',
-                        '<div class="col-2 avatar"><img src="images/', contact.getContext().avatar, '" /></div>',
+                        '<div class="col-2 avatar"><img src="', g.helper.getAvatarImage(contact.getContext().avatar), '" /></div>',
                         '<div class="col-10">', name, '</div>',
                     '</div>'
                 ];
@@ -3808,7 +3822,7 @@
                     ' onclick="javascript:app.messageSidebar.fireUpdateMemberRemark(', contact.getId(), ');"><i class="fas fa-edit"></i></button>' ];
                 var html = [
                     '<div class="group-member-cell" data-target="', contact.getId(), '" ondblclick="javascript:app.contactDetails.show(', contact.getId(), ');">',
-                        '<div class="member-avatar"><img class="img-size-32 img-round-rect" src="images/', contact.getContext().avatar, '" /></div>',
+                        '<div class="member-avatar"><img class="img-size-32 img-round-rect" src="', g.helper.getAvatarImage(contact.getContext().avatar), '" /></div>',
                         '<div class="member-name">',
                             group.getAppendix().hasMemberRemark(contact) ? group.getAppendix().getMemberRemark(contact) : contact.getPriorityName(),
                         '</div>',
@@ -3991,7 +4005,7 @@
 
         var handler = function() {
             if (g.app.callCtrl.makeCall(target, false, audioDevice)) {
-                that.elPeerAvatar.attr('src', 'images/' + target.getContext().avatar);
+                that.elPeerAvatar.attr('src', g.helper.getAvatarImage(target.getContext().avatar));
                 that.elPeerName.text(target.getName());
                 that.elInfo.text('正在呼叫...');
 
@@ -4050,7 +4064,7 @@
     VoiceCallPanel.prototype.showAnswer = function(caller) {
         console.log('应答语音通话 ' + caller.getId());
 
-        this.elPeerAvatar.attr('src', 'images/' + caller.getContext().avatar);
+        this.elPeerAvatar.attr('src', g.helper.getAvatarImage(caller.getContext().avatar));
         this.elPeerName.text(caller.getName());
         this.elInfo.text('正在应答...');
 
@@ -4142,7 +4156,7 @@
         var body = [
             '<div class="toasts-info">\
                 <div class="info-box">\
-                    <span class="info-box-icon"><img src="images/', contact.getContext().avatar, '" /></span>\
+                    <span class="info-box-icon"><img src="', g.helper.getAvatarImage(contact.getContext().avatar), '" /></span>\
                     <div class="info-box-content">\
                         <span class="info-box-text">', contact.getName(), '</span>\
                         <span class="info-box-desc">邀请您参与语音通话</span>\
@@ -4628,7 +4642,7 @@
         var body = [
             '<div class="toasts-info">\
                 <div class="info-box">\
-                    <span class="info-box-icon"><img src="images/', contact.getContext().avatar, '" /></span>\
+                    <span class="info-box-icon"><img src="', g.helper.getAvatarImage(contact.getContext().avatar), '" /></span>\
                     <div class="info-box-content">\
                         <span class="info-box-text">', contact.getName(), '</span>\
                         <span class="info-box-desc">邀请您参与视频通话</span>\
@@ -5107,7 +5121,7 @@
         var html = [
             '<div data="', contact.getId(), '" class="', col, '">',
                 '<div class="avatar">',
-                    '<img src="images/', contact.getContext().avatar, '" />',
+                    '<img src="', g.helper.getAvatarImage(contact.getContext().avatar), '" />',
                 '</div>',
                 '<div class="name">',
                     '<div>', contact.getName(), '</div>',
@@ -5157,7 +5171,7 @@
                 var chtml = [
                     '<div data="', contact.getId(), '" class="', col, '">',
                         '<div class="avatar">',
-                            '<img src="images/', contact.getContext().avatar, '" />',
+                            '<img src="', g.helper.getAvatarImage(contact.getContext().avatar), '" />',
                         '</div>',
                         '<div class="name">',
                             '<div>', contact.getName(), '</div>',
@@ -6071,7 +6085,7 @@
             var el = dialogEl;
             var name = contact.getAppendix().hasRemarkName() ? contact.getAppendix().getRemarkName() : contact.getName();
             el.find('.widget-user-username').text(name);
-            el.find('.user-avatar').attr('src', 'images/' + contact.getContext().avatar);
+            el.find('.user-avatar').attr('src', g.helper.getAvatarImage(contact.getContext().avatar));
             el.find('.user-id').text(contact.getId());
             el.find('.user-region').text(contact.getContext().region);
             el.find('.user-department').text(contact.getContext().department);
@@ -6327,7 +6341,7 @@
                 var html = [
                     '<tr>',
                         '<td>', (i + 1), '</td>',
-                        '<td><img class="table-avatar" src="images/', contact.getContext().avatar, '" /></td>',
+                        '<td><img class="table-avatar" src="', g.helper.getAvatarImage(contact.getContext().avatar), '" /></td>',
                         '<td>', contact.getPriorityName(), '</td>',
                         '<td>', contact.getId(), '</td>',
                         '<td>', contact.getContext().region, '</td>',
@@ -6410,7 +6424,7 @@
         for (var i = 0; i < contacts.length; ++i) {
             var contact = contacts[i];
             var id = contact.getId();
-            var avatar = contact.getContext().avatar;
+            var avatar = g.helper.getAvatarImage(contact.getContext().avatar);
             var name = contact.getPriorityName();
 
             var checked = undefined !== selectedList && selectedList.indexOf(id) >= 0;
@@ -6419,7 +6433,7 @@
                 '<div class="col-6"><div class="form-group"><div class="custom-control custom-checkbox select-group-member">',
                     '<input class="custom-control-input" type="checkbox"', checked ? ' checked="checked"' : '', ' id="group_member_', i, '" data="', id, '" />',
                     '<label class="custom-control-label" for="group_member_', i, '">',
-                        '<img src="images/', avatar, '" />',
+                        '<img src="', avatar, '" />',
                         '<span>', name, '</span>',
                     '</label>',
                 '</div></div></div>'
@@ -6558,7 +6572,7 @@
                             '<label class="custom-control-label" for="list_contact_', contact.getId(), '">', '</label>',
                         '</div>',
                     '</td>',
-                    '<td><img class="table-avatar" src="images/', contact.getContext().avatar, '" /></td>',
+                    '<td><img class="table-avatar" src="', g.helper.getAvatarImage(contact.getContext().avatar), '" /></td>',
                     '<td>', contact.getName(), '</td>',
                     '<td>', contact.getId(), '</td>',
                     '<td>', contact.getContext().region, '</td>',
@@ -10419,7 +10433,7 @@
 
         for (var i = 0; i < entities.length; ++i) {
             var entity = entities[i];
-            var avatar = (entity instanceof Group) ? 'images/group-avatar.png' : 'images/' + entity.getContext().avatar;
+            var avatar = (entity instanceof Group) ? 'images/group-avatar.png' : g.helper.getAvatarImage(entity.getContext().avatar);
 
             var html = [
                 '<tr data-target="', i, '">',
@@ -10634,7 +10648,7 @@
 
         for (var i = 0; i < entities.length; ++i) {
             var entity = entities[i];
-            var avatar = 'images/' + entity.getContext().avatar;
+            var avatar = g.helper.getAvatarImage(entity.getContext().avatar);
 
             var html = [
                 '<tr data-target="', i, '">',
@@ -11223,7 +11237,7 @@
                     if (null != contact) {
                         html = [
                             '<div class="participant" data="', contact.getId(), '">',
-                                '<div class="avatar"><img src="images/', contact.getContext().avatar, '"></div>',
+                                '<div class="avatar"><img src="', g.helper.getAvatarImage(contact.getContext().avatar), '"></div>',
                                 '<div class="name"><div>', contact.getName(), '</div></div>',
                                 state.join(''),
                             '</div>'
@@ -11342,7 +11356,7 @@
                 var html = [
                     '<div class="participant" data="', value.getId(), '">',
                         '<div class="avatar">',
-                            '<img src="images/', value.getContext().avatar, '" />',
+                            '<img src="', g.helper.getAvatarImage(value.getContext().avatar), '" />',
                         '</div>',
                         '<div class="name">',
                             '<div>', value.getPriorityName(), '</div>',
@@ -11586,7 +11600,7 @@
         for (var i = 0; i < list.length; ++i) {
             var contact = list[i];
             var id = contact.getId();
-            var avatar = contact.getContext().avatar;
+            var avatar = g.helper.getAvatarImage(contact.getContext().avatar);
             var name = contact.getPriorityName();
 
             var disabled = disabledList.indexOf(id) >= 0;
@@ -11595,7 +11609,7 @@
                 '<div class="form-group"><div class="custom-control custom-checkbox select-group-member">',
                     '<input class="custom-control-input" type="checkbox" id="contact_', i, '" data="', id, '" ', disabled ? 'disabled="disabled"' : '', ' />',
                     '<label class="custom-control-label" for="contact_', i, '">',
-                        '<img src="images/', avatar, '" />',
+                        '<img src="', avatar, '" />',
                         '<span>', name, '</span>',
                     '</label>',
                 '</div></div>'
@@ -11620,7 +11634,7 @@
                         '<label for="selected_', id, '" class="custom-control-label">&nbsp;</label>',
                     '</div>',
                 '</td>',
-                '<td width="50">', '<img src="images/', contact.getContext().avatar, '" class="avatar" />', '</td>',
+                '<td width="50">', '<img src="', g.helper.getAvatarImage(contact.getContext().avatar), '" class="avatar" />', '</td>',
                 '<td>', contact.getPriorityName(), '</td>',
             '</tr>'
         ];
@@ -11736,11 +11750,11 @@
     }
 
     SearchDialog.prototype.appendContact = function(contact) {
-        var avatar = contact.getContext().avatar;
+        var avatar = g.helper.getAvatarImage(contact.getContext().avatar);
 
         var html = [
             '<div class="row align-items-center" data="', contact.getId(), '">',
-                '<div class="col-2"><img src="images/', avatar, '" class="avatar"></div>',
+                '<div class="col-2"><img src="', avatar, '" class="avatar"></div>',
                 '<div class="col-7">',
                     '<span><a href="javascript:app.contactDetails.show(', contact.getId(), ');">', contact.getName(), '</a></span>',
                     '&nbsp;<span class="text-muted">(', contact.getId(), ')</span>',

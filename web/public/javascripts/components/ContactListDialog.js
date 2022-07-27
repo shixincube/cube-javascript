@@ -148,7 +148,7 @@
                             '<label class="custom-control-label" for="list_contact_', contact.getId(), '">', '</label>',
                         '</div>',
                     '</td>',
-                    '<td><img class="table-avatar" src="images/', contact.getContext().avatar, '" /></td>',
+                    '<td><img class="table-avatar" src="', g.helper.getAvatarImage(contact.getContext().avatar), '" /></td>',
                     '<td>', contact.getName(), '</td>',
                     '<td>', contact.getId(), '</td>',
                     '<td>', contact.getContext().region, '</td>',

@@ -184,7 +184,7 @@
 
         for (var i = 0; i < entities.length; ++i) {
             var entity = entities[i];
-            var avatar = 'images/' + entity.getContext().avatar;
+            var avatar = g.helper.getAvatarImage(entity.getContext().avatar);
 
             var html = [
                 '<tr data-target="', i, '">',
