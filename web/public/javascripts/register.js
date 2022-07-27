@@ -55,7 +55,7 @@
             "phone"   : phone,
             "password" : pwdMD5,
             "nickname" : nickname,
-            "avatar"  : avatar.substr(7, 8),
+            "avatar"  : avatar.substr(8, avatar.length - 8 - 4),
             "captcha" : captcha,
             "device"  : 'Web/' + navigator.userAgent
         };
@@ -100,10 +100,10 @@
 
     g.selectAvatar = function(num) {
         if (num < 10) {
-            avatar = 'images/avatar0' + num + '.png';
+            avatar = 'avatars/avatar0' + num + '.png';
         }
         else {
-            avatar = 'images/avatar' + num + '.png';
+            avatar = 'avatars/avatar' + num + '.png';
         }
 
         $('#select_avatar img').attr('src', avatar);
