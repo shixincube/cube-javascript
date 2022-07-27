@@ -399,6 +399,16 @@ export class Kernel {
                 return;
             }
 
+            const pipeline = this.pipelines.get('Cell');
+
+            // 设置通道信息
+            if (undefined !== config.address && pipeline.address != config.address) {
+                pipeline.setRemoteAddress(config.address);
+            }
+
+            // 开启通道
+            pipeline.open();
+
             // 启动 Auth 服务
             authService.start();
 
@@ -411,7 +421,7 @@ export class Kernel {
                 else {
                     resolve(token);
                 }
-            }, config.address);
+            });
         });
     }
 

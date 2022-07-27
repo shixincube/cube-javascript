@@ -89,6 +89,13 @@ export class ContactService extends Module {
         this.selfReady = false;
 
         /**
+         * 是否正在签入。
+         * @private
+         * @type {boolean}
+         */
+        this.signing = false;
+
+        /**
          * 联系人内存缓存。
          * @private
          * @type {OrderMap<number,Contact>}
@@ -210,6 +217,12 @@ export class ContactService extends Module {
             return false;
         }
 
+        if (this.signing) {
+            return true;
+        }
+
+        this.signing = true;
+
         if (!this.started) {
             this.start();
         }
@@ -237,8 +250,15 @@ export class ContactService extends Module {
 
         let authService = this.kernel.getModule(AuthService.NAME);
 
+        let count = 0;
+
         let task = () => {
             if (!this.pipeline.isReady() || !authService.isReady()) {
+                // 计数
+                if (++count >= 15) {
+                    return;
+                }
+
                 cell.Logger.d('ContactService', 'Pipeline "' + this.pipeline.getName() + '" is no ready');
 
                 // 等待后再试
@@ -343,6 +363,9 @@ export class ContactService extends Module {
      * @param {object} payload 来自服务器数据。
      */
     triggerSignIn(payload) {
+        // 退出正在签入状态
+        this.signing = false;
+
         if (payload.code != ContactServiceState.Ok) {
             cell.Logger.e('ContactService', 'SignIn failed: ' + payload.code);
             return;

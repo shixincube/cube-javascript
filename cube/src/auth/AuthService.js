@@ -197,9 +197,8 @@ export class AuthService extends Module {
      * @param {string} domain 令牌对应的域。
      * @param {string} appKey 令牌指定的 App Key 串。
      * @param {function} callback 操作回调，参数：({@linkcode token}:{@link AuthToken}) 。如果无法获取到授权令牌 {@linkcode token} 为 {@linkcode null} 值。
-     * @param {string} [address] 授权服务器地址。
      */
-    check(domain, appKey, callback, address) {
+    check(domain, appKey, callback) {
         AuthService.DOMAIN = domain;
         this.domain = domain;
         this.appKey = appKey;
@@ -215,14 +214,6 @@ export class AuthService extends Module {
             callback(this.token);
             return;
         }
-
-        // 设置通道信息
-        if (undefined !== address && this.pipeline.address != address) {
-            this.pipeline.setRemoteAddress(address);
-        }
-
-        // 开启通道
-        this.pipeline.open();
 
         // 从授权服务器申请
         (async ()=> {
