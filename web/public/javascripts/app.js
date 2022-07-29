@@ -147,7 +147,7 @@
                     }
 
                     // 修改标题
-                    document.title = response.name + ' - 时信魔方';
+                    document.title = response.name + ' - 司派讯盒';
                     // 启动
                     app.start(response);
                     heartbeat();
