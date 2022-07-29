@@ -37,7 +37,17 @@
     };
 
     g.preference = {
-        tab: g.UITab.File
+        /**
+         * 默认一级标签界面。
+         */
+        tab: g.UITab.File,
+
+        /**
+         * 被关闭的一级界面。
+         */
+        closedTabs: [
+            g.UITab.Conference
+        ]
     };
 
 })(window, jQuery);

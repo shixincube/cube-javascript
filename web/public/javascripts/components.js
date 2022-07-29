@@ -653,6 +653,18 @@
     }
 
     /**
+     * 隐藏指定的界面。
+     * @param {string} id 界面 ID 。
+     */
+    MainPanel.prototype.hide = function(id) {
+        var btnId = 'tab_' + id;
+        $('#' + btnId).parent().css('display', 'none');
+
+        $('#' + id).removeClass('content-wrapper-hidden');
+        $('#' + id).addClass('content-wrapper-hidden');
+    }
+
+    /**
      * 播放振铃音效。
      */
     MainPanel.prototype.playCallRing = function() {
@@ -9594,7 +9606,9 @@
                         '</span>',
                     '</div>',
                 '</td>',
-                '<td class="sharing-expire">', g.formatYMDHM(sharingTag.expiryDate), '</td>',
+                '<td class="sharing-expire" title="', sharingTag.expiryDate > 0 ? g.formatYMDHM(sharingTag.expiryDate) : '永久有效', '">',
+                    sharingTag.expiryDate > 0 ? g.formatYMD(sharingTag.expiryDate) : '<i>永久有效</i>',
+                '</td>',
                 '<td class="sharing-password">', password, '</td>',
                 '<td class="sharing-preview">',
                     '<div class="custom-control custom-checkbox">',

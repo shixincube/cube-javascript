@@ -124,6 +124,18 @@
     }
 
     /**
+     * 隐藏指定的界面。
+     * @param {string} id 界面 ID 。
+     */
+    MainPanel.prototype.hide = function(id) {
+        var btnId = 'tab_' + id;
+        $('#' + btnId).parent().css('display', 'none');
+
+        $('#' + id).removeClass('content-wrapper-hidden');
+        $('#' + id).addClass('content-wrapper-hidden');
+    }
+
+    /**
      * 播放振铃音效。
      */
     MainPanel.prototype.playCallRing = function() {

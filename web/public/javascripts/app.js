@@ -400,6 +400,13 @@
                     g.app.toggle(g.preference.tab)
                 }, 100);
             }
+
+            // 关闭配置里设置的标签
+            if (g.preference.closedTabs) {
+                g.preference.closedTabs.forEach(function(item) {
+                    that.mainPanel.hide(item);
+                });
+            }
         },
 
         /**
