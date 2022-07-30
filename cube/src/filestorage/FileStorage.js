@@ -957,7 +957,7 @@ export class FileStorage extends Module {
      * @param {number} beginIndex 
      * @param {number} endIndex 
      * @param {boolean} valid 
-     * @param {funciton} handleSuccess 成功回调。参数：({@linkcode list}:{@link Array<SharingTag>}) 。
+     * @param {funciton} handleSuccess 成功回调。参数：({@linkcode list}:{@link Array<SharingTag>}, {@linkcode total}:{@linkcode number}) 。
      * @param {funciton} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
     listSharingTags(beginIndex, endIndex, valid, handleSuccess, handleFailure) {
@@ -998,7 +998,7 @@ export class FileStorage extends Module {
             data.list.forEach((json) => {
                 list.push(SharingTag.create(json))
             });
-            handleSuccess(list, beginIndex, endIndex, valid);
+            handleSuccess(list, data.total, beginIndex, endIndex, valid);
         });
     }
 

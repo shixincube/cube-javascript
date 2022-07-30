@@ -9699,6 +9699,12 @@
     var parentEl = null;
     var table = null;
 
+    var infoLoaded = 0;
+    var infoTotal = 0;
+
+    var btnPrev = null;
+    var btnNext = null;
+
     var sharingPage = {
         page: 0,
         loaded: 0
@@ -9724,6 +9730,9 @@
     FileSharingPanel.prototype.initUI = function() {
         parentEl.removeClass('files-hidden');
         parentEl.css('display', 'none');
+
+        infoLoaded = parentEl.find('.info-loaded');
+        infoTotal = parentEl.find('.info-total');
     }
 
     FileSharingPanel.prototype.showSharingPanel = function() {
@@ -9731,8 +9740,10 @@
 
         var begin = sharingPage.page * numPerPage;
         var end = begin + numPerPage - 1;
-        g.cube().fs.listSharingTags(begin, end, true, function(list, beginIndex, endIndex, valid) {
+        g.cube().fs.listSharingTags(begin, end, true, function(list, total, beginIndex, endIndex, valid) {
             table.updatePage(list);
+
+            infoTotal.text(total);
         }, function(error) {
             g.dialog.launchToast(Toast.Error, '获取分享列表失败：' + error.code);
         });
@@ -9743,8 +9754,10 @@
 
         var begin = expiredSharingPage.page * numPerPage;
         var end = begin + numPerPage - 1;
-        g.cube().fs.listSharingTags(begin, end, false, function(list, beginIndex, endIndex, valid) {
+        g.cube().fs.listSharingTags(begin, end, false, function(list, total, beginIndex, endIndex, valid) {
             table.updatePage(list);
+
+            infoTotal.text(total);
         }, function(error) {
             g.dialog.launchToast(Toast.Error, '获取分享列表失败：' + error.code);
         });
