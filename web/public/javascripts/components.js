@@ -927,9 +927,11 @@
     var dialogEl = null;
     var tbody = null;
 
+    var paginationEl = null;
+
     var currentPage = {
         page: 0,
-        numEachPage: 20
+        numEachPage: 15
     };
 
     /**
@@ -940,7 +942,7 @@
      */
     function makeTableRow(sign, trace) {
         var ua = g.helper.parseUserAgent(trace.userAgent);
-        var eventSN = (null != trace.eventParam) ? trace.eventParam.sn || 0 : 0;
+        //var eventSN = (null != trace.eventParam) ? trace.eventParam.sn || 0 : 0;
 
         return [
             '<tr>',
@@ -961,7 +963,7 @@
                     parseEvent(trace.event),
                 '</td>',
                 '<td>',
-                    eventSN,
+                    parsePlatform(trace.platform),
                 '</td>',
             '</tr>'
         ];
@@ -979,6 +981,18 @@
         }
     }
 
+    function parsePlatform(platform) {
+        if (platform == VisitTrace.PlatformBrowser) {
+            return '浏览器';
+        }
+        else if (platform == VisitTrace.PlatformAppletWeChat) {
+            return '微信小程序';
+        }
+        else {
+            return '未知';
+        }
+    }
+
     /**
      * 访问痕迹清单。
      * @param {jQuery} el 
@@ -987,6 +1001,7 @@
         dialogEl = el;
         tbody = el.find('.trace-tb');
         that = this;
+        paginationEl = el.find('.pagination');
     }
 
     VisitTraceListDialog.prototype.open = function(sharingCode) {
@@ -1001,11 +1016,12 @@
 
         var begin = currentPage.page * currentPage.numEachPage;
         var end = begin + currentPage.numEachPage - 1;
-        g.engine.fs.listVisitTraces(sharingCode, begin, end, function(list) {
+        g.engine.fs.listVisitTraces(sharingCode, begin, end, function(list, total) {
             clearTimeout(timer);
             dialogEl.find('.overlay').css('visibility', 'hidden');
 
             that.updateTable(list);
+            that.updatePagination(total);
         }, function(error) {
             clearTimeout(timer);
             g.dialog.toast('加载数据出错：' + error.code);
@@ -1021,14 +1037,22 @@
     VisitTraceListDialog.prototype.updateTable = function(list) {
         var html = [];
 
-        var start = currentPage.page * currentPage.numEachPage + 1;
+        var sn = currentPage.page * currentPage.numEachPage + 1;
         list.forEach(function(trace) {
-            var row = makeTableRow(start, trace);
+            var row = makeTableRow(sn, trace);
             html = html.concat(row);
-            ++start;
+            ++sn;
         });
 
         tbody[0].innerHTML = html.join('');
+    }
+
+    VisitTraceListDialog.prototype.updatePagination = function(total) {
+        var prev = paginationEl.find('.page-prev');
+
+        var html = '<li class="page-item"><a class="page-link" href="#">6</a></li>';
+
+        prev.after($(html));
     }
 
     g.VisitTraceListDialog = VisitTraceListDialog;
@@ -8952,7 +8976,7 @@
         // 上一页
         btnPrev.click(function() {
             if (selectedRecycleBin) {
-
+                // TODO
             }
             else if (selectedSearch) {
                 if (currentFilter.begin == 0) {
@@ -9003,7 +9027,7 @@
         // 下一页
         btnNext.click(function() {
             if (selectedRecycleBin) {
-
+                // TODO
             }
             else if (selectedSearch) {
                 currentFilter.begin = currentFilter.end;
@@ -9623,7 +9647,7 @@
                     '</div>',
                 '</td>',
                 '<td class="sharing-operate">',
-                    '<button type="button" class="btn btn-info btn-sm">',
+                    '<button type="button" class="btn btn-info btn-sm" onclick="app.fileSharingPanel.showTraceDialog(\'', sharingTag.code, '\');">',
                         '<i class="fas fa-share-square"></i>',
                     '</button>',
                 '</td>',
@@ -9699,6 +9723,8 @@
     var parentEl = null;
     var table = null;
 
+    var selectedValid = true;
+
     var infoLoaded = 0;
     var infoTotal = 0;
 
@@ -9733,9 +9759,23 @@
 
         infoLoaded = parentEl.find('.info-loaded');
         infoTotal = parentEl.find('.info-total');
+
+        btnPrev = parentEl.find('button[data-target="prev"]');
+        btnPrev.attr('disabled', 'disabled');
+        btnNext = parentEl.find('button[data-target="next"]');
+        btnNext.attr('disabled', 'disabled');
+
+        btnPrev.click(function() {
+            that.prevPage();
+        });
+        btnNext.click(function() {
+            that.nextPage();
+        });
     }
 
     FileSharingPanel.prototype.showSharingPanel = function() {
+        this.selectedValid = true;
+
         parentEl.css('display', 'block');
 
         var begin = sharingPage.page * numPerPage;
@@ -9743,6 +9783,8 @@
         g.cube().fs.listSharingTags(begin, end, true, function(list, total, beginIndex, endIndex, valid) {
             table.updatePage(list);
 
+            sharingPage.loaded = list.length;
+            infoLoaded.text(list.length);
             infoTotal.text(total);
         }, function(error) {
             g.dialog.launchToast(Toast.Error, '获取分享列表失败：' + error.code);
@@ -9750,6 +9792,8 @@
     }
 
     FileSharingPanel.prototype.showExpiresPanel = function() {
+        this.selectedValid = false;
+
         parentEl.css('display', 'block');
 
         var begin = expiredSharingPage.page * numPerPage;
@@ -9757,6 +9801,8 @@
         g.cube().fs.listSharingTags(begin, end, false, function(list, total, beginIndex, endIndex, valid) {
             table.updatePage(list);
 
+            expiredSharingPage.loaded = list.length;
+            infoLoaded.text(list.length);
             infoTotal.text(total);
         }, function(error) {
             g.dialog.launchToast(Toast.Error, '获取分享列表失败：' + error.code);
@@ -9772,6 +9818,14 @@
 
     FileSharingPanel.prototype.showTraceDialog = function(sharingCode) {
         app.visitTraceDialog.open(sharingCode);
+    }
+
+    FileSharingPanel.prototype.prevPage = function() {
+
+    }
+
+    FileSharingPanel.prototype.nextPage = function() {
+
     }
 
     g.FileSharingPanel = FileSharingPanel;

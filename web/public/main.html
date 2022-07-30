@@ -1455,26 +1455,33 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div style="min-height:600px;">
-                        <table class="table table-bordered table-striped table-sm">
-                            <thead>
-                                <tr>
-                                    <th width="28">#</th>
-                                    <th>时间</th>
-                                    <th>IP</th>
-                                    <th>操作系统</th>
-                                    <th>浏览器</th>
-                                    <th>事件</th>
-                                    <th>事件序号</th>
-                                </tr>
-                            </thead>
-                            <tbody class="trace-tb">
-                            </tbody>
-                        </table>
+                    <div class="card">
+                        <div class="card-body" style="padding:0;">
+                            <table class="table table-bordered table-striped table-sm">
+                                <thead>
+                                    <tr>
+                                        <th width="28">#</th>
+                                        <th>时间</th>
+                                        <th>访问地址</th>
+                                        <th>操作系统</th>
+                                        <th>浏览器</th>
+                                        <th>事件</th>
+                                        <th>来源设备</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="trace-tb">
+                                </tbody>
+                            </table>
+                        </div><!-- /.card-body -->
+                        <div class="card-footer clearfix">
+                            <ul class="pagination pagination-sm m-0 float-right">
+                                <li class="page-item page-prev"><a class="page-link" href="#">&laquo;</a></li>
+                                <li class="page-item page-next"><a class="page-link" href="#">&raquo;</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-
                 </div>
                 <div class="overlay"><span><i class="fas fa-2x fa-sync-alt fa-spin"></i></span><span class="text">正在加载数据，请稍候……</span></div>
             </div>

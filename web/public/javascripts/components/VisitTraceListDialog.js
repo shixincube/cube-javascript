@@ -31,9 +31,11 @@
     var dialogEl = null;
     var tbody = null;
 
+    var paginationEl = null;
+
     var currentPage = {
         page: 0,
-        numEachPage: 20
+        numEachPage: 15
     };
 
     /**
@@ -44,7 +46,7 @@
      */
     function makeTableRow(sign, trace) {
         var ua = g.helper.parseUserAgent(trace.userAgent);
-        var eventSN = (null != trace.eventParam) ? trace.eventParam.sn || 0 : 0;
+        //var eventSN = (null != trace.eventParam) ? trace.eventParam.sn || 0 : 0;
 
         return [
             '<tr>',
@@ -65,7 +67,7 @@
                     parseEvent(trace.event),
                 '</td>',
                 '<td>',
-                    eventSN,
+                    parsePlatform(trace.platform),
                 '</td>',
             '</tr>'
         ];
@@ -83,6 +85,18 @@
         }
     }
 
+    function parsePlatform(platform) {
+        if (platform == VisitTrace.PlatformBrowser) {
+            return '浏览器';
+        }
+        else if (platform == VisitTrace.PlatformAppletWeChat) {
+            return '微信小程序';
+        }
+        else {
+            return '未知';
+        }
+    }
+
     /**
      * 访问痕迹清单。
      * @param {jQuery} el 
@@ -91,6 +105,7 @@
         dialogEl = el;
         tbody = el.find('.trace-tb');
         that = this;
+        paginationEl = el.find('.pagination');
     }
 
     VisitTraceListDialog.prototype.open = function(sharingCode) {
@@ -105,11 +120,12 @@
 
         var begin = currentPage.page * currentPage.numEachPage;
         var end = begin + currentPage.numEachPage - 1;
-        g.engine.fs.listVisitTraces(sharingCode, begin, end, function(list) {
+        g.engine.fs.listVisitTraces(sharingCode, begin, end, function(list, total) {
             clearTimeout(timer);
             dialogEl.find('.overlay').css('visibility', 'hidden');
 
             that.updateTable(list);
+            that.updatePagination(total);
         }, function(error) {
             clearTimeout(timer);
             g.dialog.toast('加载数据出错：' + error.code);
@@ -125,14 +141,22 @@
     VisitTraceListDialog.prototype.updateTable = function(list) {
         var html = [];
 
-        var start = currentPage.page * currentPage.numEachPage + 1;
+        var sn = currentPage.page * currentPage.numEachPage + 1;
         list.forEach(function(trace) {
-            var row = makeTableRow(start, trace);
+            var row = makeTableRow(sn, trace);
             html = html.concat(row);
-            ++start;
+            ++sn;
         });
 
         tbody[0].innerHTML = html.join('');
+    }
+
+    VisitTraceListDialog.prototype.updatePagination = function(total) {
+        var prev = paginationEl.find('.page-prev');
+
+        var html = '<li class="page-item"><a class="page-link" href="#">6</a></li>';
+
+        prev.after($(html));
     }
 
     g.VisitTraceListDialog = VisitTraceListDialog;

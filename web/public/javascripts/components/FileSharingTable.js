@@ -78,7 +78,7 @@
                     '</div>',
                 '</td>',
                 '<td class="sharing-operate">',
-                    '<button type="button" class="btn btn-info btn-sm">',
+                    '<button type="button" class="btn btn-info btn-sm" onclick="app.fileSharingPanel.showTraceDialog(\'', sharingTag.code, '\');">',
                         '<i class="fas fa-share-square"></i>',
                     '</button>',
                 '</td>',

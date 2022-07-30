@@ -34,6 +34,8 @@
     var parentEl = null;
     var table = null;
 
+    var selectedValid = true;
+
     var infoLoaded = 0;
     var infoTotal = 0;
 
@@ -68,9 +70,23 @@
 
         infoLoaded = parentEl.find('.info-loaded');
         infoTotal = parentEl.find('.info-total');
+
+        btnPrev = parentEl.find('button[data-target="prev"]');
+        btnPrev.attr('disabled', 'disabled');
+        btnNext = parentEl.find('button[data-target="next"]');
+        btnNext.attr('disabled', 'disabled');
+
+        btnPrev.click(function() {
+            that.prevPage();
+        });
+        btnNext.click(function() {
+            that.nextPage();
+        });
     }
 
     FileSharingPanel.prototype.showSharingPanel = function() {
+        this.selectedValid = true;
+
         parentEl.css('display', 'block');
 
         var begin = sharingPage.page * numPerPage;
@@ -78,6 +94,8 @@
         g.cube().fs.listSharingTags(begin, end, true, function(list, total, beginIndex, endIndex, valid) {
             table.updatePage(list);
 
+            sharingPage.loaded = list.length;
+            infoLoaded.text(list.length);
             infoTotal.text(total);
         }, function(error) {
             g.dialog.launchToast(Toast.Error, '获取分享列表失败：' + error.code);
@@ -85,6 +103,8 @@
     }
 
     FileSharingPanel.prototype.showExpiresPanel = function() {
+        this.selectedValid = false;
+
         parentEl.css('display', 'block');
 
         var begin = expiredSharingPage.page * numPerPage;
@@ -92,6 +112,8 @@
         g.cube().fs.listSharingTags(begin, end, false, function(list, total, beginIndex, endIndex, valid) {
             table.updatePage(list);
 
+            expiredSharingPage.loaded = list.length;
+            infoLoaded.text(list.length);
             infoTotal.text(total);
         }, function(error) {
             g.dialog.launchToast(Toast.Error, '获取分享列表失败：' + error.code);
@@ -107,6 +129,14 @@
 
     FileSharingPanel.prototype.showTraceDialog = function(sharingCode) {
         app.visitTraceDialog.open(sharingCode);
+    }
+
+    FileSharingPanel.prototype.prevPage = function() {
+
+    }
+
+    FileSharingPanel.prototype.nextPage = function() {
+
     }
 
     g.FileSharingPanel = FileSharingPanel;

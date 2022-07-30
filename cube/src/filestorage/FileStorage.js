@@ -1007,7 +1007,7 @@ export class FileStorage extends Module {
      * @param {string} sharingCode 
      * @param {number} beginIndex 
      * @param {number} endIndex 
-     * @param {funciton} handleSuccess 成功回调。参数：({@linkcode list}:{@link Array<VisitTrace>}) 。
+     * @param {funciton} handleSuccess 成功回调。参数：({@linkcode list}:{@link Array<VisitTrace>}, {@linkcode total}:{@linkcode number}) 。
      * @param {funciton} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
     listVisitTraces(sharingCode, beginIndex, endIndex, handleSuccess, handleFailure) {
@@ -1048,7 +1048,7 @@ export class FileStorage extends Module {
             data.list.forEach((json) => {
                 list.push(VisitTrace.create(json))
             });
-            handleSuccess(list, sharingCode, beginIndex, endIndex);
+            handleSuccess(list, data.total, sharingCode, beginIndex, endIndex);
         });
     }
 
