@@ -35,6 +35,7 @@
 
     var currentPage = {
         page: 0,
+        total: 0,
         numEachPage: 15
     };
 
@@ -106,6 +107,13 @@
         tbody = el.find('.trace-tb');
         that = this;
         paginationEl = el.find('.pagination');
+
+        dialogEl.on('hidden.bs.modal', function(e) {
+            // paginationEl.find('.page-goto').each(function(index) {
+            //     $(this).remove();
+            // });
+            paginationEl.find('.page-goto').remove();
+        });
     }
 
     VisitTraceListDialog.prototype.open = function(sharingCode) {
@@ -124,8 +132,10 @@
             clearTimeout(timer);
             dialogEl.find('.overlay').css('visibility', 'hidden');
 
+            currentPage.total = total;
+
             that.updateTable(list);
-            that.updatePagination(total);
+            that.updatePagination();
         }, function(error) {
             clearTimeout(timer);
             g.dialog.toast('加载数据出错：' + error.code);
@@ -151,12 +161,28 @@
         tbody[0].innerHTML = html.join('');
     }
 
-    VisitTraceListDialog.prototype.updatePagination = function(total) {
+    VisitTraceListDialog.prototype.updatePagination = function() {
+        var total = currentPage.total;
         var prev = paginationEl.find('.page-prev');
 
-        var html = '<li class="page-item"><a class="page-link" href="#">6</a></li>';
+        var num = Math.floor(total / currentPage.numEachPage);
+        var mod = total % currentPage.numEachPage;
+        if (mod != 0) {
+            num += 1;
+        }
 
-        prev.after($(html));
+        var html = [];
+        for (var i = 0; i < num; ++i) {
+            html.push('<li class="page-item page-goto');
+            if (i == currentPage.page) {
+                html.push(' page-active');
+            }
+            html.push('"><a class="page-link" href="#">');
+            html.push((i + 1));
+            html.push('</a></li>');
+        }
+
+        prev.after($(html.join('')));
     }
 
     g.VisitTraceListDialog = VisitTraceListDialog;

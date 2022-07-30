@@ -236,6 +236,11 @@ video {
     border-radius: 10%;
 }
 
+.page-active a {
+    color: white;
+    background-color: #007bff;
+}
+
 .account-panel .opt {
     border: none;
 }
