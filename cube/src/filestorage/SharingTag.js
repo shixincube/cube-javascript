@@ -123,6 +123,7 @@ export class SharingTag extends Entity {
      */
     static create(json) {
         let tag = new SharingTag(json.id, json.code);
+        tag.timestamp = json.timestamp;
         tag.expiryDate = json.expiryDate;
         tag.creator = (undefined !== json.config.contact) ? Contact.create(json.config.contact) : null;
         tag.device = (undefined !== json.config.device) ? Device.create(json.config.device) : null;

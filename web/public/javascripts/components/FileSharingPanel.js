@@ -29,7 +29,7 @@
 
     var that = null;
 
-    const numPerPage = 10;
+    const numPerPage = 15;
 
     var parentEl = null;
     var table = null;

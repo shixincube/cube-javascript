@@ -961,6 +961,12 @@ export class FileStorage extends Module {
      * @param {funciton} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
     listSharingTags(beginIndex, endIndex, valid, handleSuccess, handleFailure) {
+        if (endIndex < beginIndex) {
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.Reject);
+            handleFailure(error);
+            return;
+        }
+
         if (!this.hasStarted()) {
             let error = new ModuleError(FileStorage.NAME, FileStorageState.NotReady);
             handleFailure(error);
@@ -973,32 +979,75 @@ export class FileStorage extends Module {
             return;
         }
 
-        let payload = {
-            "begin": beginIndex,
-            "end": endIndex,
-            "valid": valid
-        };
-        let packet = new Packet(FileStorageAction.ListSharingTags, payload);
-        this.pipeline.send(FileStorage.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
-                let error = new ModuleError(FileStorage.NAME, responsePacket.getStateCode());
-                handleFailure(error);
-                return;
+        const step = 10;
+        let indexes = [];
+        let delta = endIndex - beginIndex;
+        if (delta > 9) {
+            let num = Math.floor((delta + 1) / step);
+            let mod = (delta + 1) % step;
+            let index = beginIndex;
+            for (let i = 0; i < num; ++i) {
+                index += step - 1;
+                indexes.push(index);
+                index += 1;
             }
 
-            let stateCode = responsePacket.extractServiceStateCode();
-            if (stateCode != FileStorageState.Ok) {
-                let error = new ModuleError(FileStorage.NAME, stateCode);
-                handleFailure(error);
-                return;
+            if (mod != 0) {
+                index += mod - 1;
+                indexes.push(index);
             }
+        }
+        else {
+            indexes.push(endIndex);
+        }
 
-            let data = responsePacket.extractServiceData();
-            let list = [];
-            data.list.forEach((json) => {
-                list.push(SharingTag.create(json))
+        let resultCount = indexes.length;
+        let resultList = [];
+
+        let begin = beginIndex;
+        let end = 0;
+        indexes.forEach((index) => {
+            end = index;
+
+            let payload = {
+                "begin": begin,
+                "end": end,
+                "order": "desc",
+                "valid": valid
+            };
+            let packet = new Packet(FileStorageAction.ListSharingTags, payload);
+            this.pipeline.send(FileStorage.NAME, packet, (pipeline, source, responsePacket) => {
+                // 更新计数
+                --resultCount;
+
+                if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
+                    let error = new ModuleError(FileStorage.NAME, responsePacket.getStateCode());
+                    handleFailure(error);
+                    return;
+                }
+    
+                let stateCode = responsePacket.extractServiceStateCode();
+                if (stateCode != FileStorageState.Ok) {
+                    let error = new ModuleError(FileStorage.NAME, stateCode);
+                    handleFailure(error);
+                    return;
+                }
+    
+                let data = responsePacket.extractServiceData();
+                data.list.forEach((json) => {
+                    resultList.push(SharingTag.create(json))
+                });
+
+                if (0 == resultCount) {
+                    resultList.sort((a, b) => {
+                        return b.timestamp - a.timestamp;
+                    });
+                    handleSuccess(resultList, data.total, beginIndex, endIndex, valid);
+                }
             });
-            handleSuccess(list, data.total, beginIndex, endIndex, valid);
+
+            // 更新索引
+            begin = index + 1;
         });
     }
 
