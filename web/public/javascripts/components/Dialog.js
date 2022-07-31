@@ -59,6 +59,8 @@
     var alertCallback = null;
 
     var loadingModal = null;
+    var loadingModalShown = false;
+    var loadingModalTimer = 0;
     var loading = false;
 
     var dialog = {
@@ -250,20 +252,27 @@
                 timeout = 8000;
             }
 
-            var timer = 0;
             var timeoutTimer = 0;
 
             if (null == loadingModal) {
                 loadingModal = $('#modal_loading');
                 loadingModal.on('hidden.bs.modal', function() {
-                    if (timer != 0) {
-                        clearInterval(timer);
+                    loadingModalShown = false;
+
+                    if (loadingModalTimer != 0) {
+                        clearInterval(loadingModalTimer);
+                        loadingModalTimer = 0;
                     }
                     if (timeoutTimer != 0) {
                         clearTimeout(timeoutTimer);
+                        timeoutTimer = 0;
                     }
 
                     loading = false;
+                });
+
+                loadingModal.on('shown.bs.modal', function() {
+                    loadingModalShown = true;
                 });
             }
 
@@ -274,9 +283,21 @@
             elElapsed.text('0 秒');
 
             var count = 0;
-            timer = setInterval(function() {
+            loadingModalTimer = setInterval(function() {
                 ++count;
                 elElapsed.text(count + ' 秒');
+
+                if (count * 1000 > timeout) {
+                    if (loadingModalTimer != 0) {
+                        clearInterval(loadingModalTimer);
+                        loadingModalTimer = 0;
+                    }
+                    if (timeoutTimer != 0) {
+                        clearTimeout(timeoutTimer);
+                        timeoutTimer = 0;
+                        el.modal('hide');
+                    }
+                }
             }, 1000);
 
             el.modal({
@@ -285,8 +306,8 @@
             });
 
             timeoutTimer = setTimeout(function() {
-                clearInterval(timer);
-                timer = 0;
+                clearInterval(loadingModalTimer);
+                loadingModalTimer = 0;
                 clearTimeout(timeoutTimer);
                 timeoutTimer = 0;
                 el.modal('hide');
@@ -299,11 +320,29 @@
          * 隐藏加载提示对话框。
          */
         hideLoading: function() {
+            if (0 != loadingModalTimer) {
+                clearInterval(loadingModalTimer);
+                loadingModalTimer = 0;
+            }
+
             if (null != loadingModal) {
                 loadingModal.modal('hide');
             }
             else {
                 $('#modal_loading').modal('hide');
+            }
+
+            if (!loadingModalShown) {
+                setTimeout(function() {
+                    if (loadingModalShown) {
+                        g.dialog.hideLoading();
+                    }
+                    else {
+                        setTimeout(function() {
+                            g.dialog.hideLoading();
+                        }, 1000);
+                    }
+                }, 1000);
             }
         },
 

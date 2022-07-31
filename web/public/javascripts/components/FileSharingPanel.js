@@ -34,22 +34,24 @@
     var parentEl = null;
     var table = null;
 
-    var selectedValid = true;
-
-    var infoLoaded = 0;
-    var infoTotal = 0;
+    var pageNum = 0;
+    var pageTotal = 0;
 
     var btnPrev = null;
     var btnNext = null;
 
-    var sharingPage = {
+    var selectedValid = true;
+
+    var validSharingPage = {
         page: 0,
-        loaded: 0
+        loaded: 0,
+        total: 0
     };
 
-    var expiredSharingPage = {
+    var invalidSharingPage = {
         page: 0,
-        loaded: 0
+        loaded: 0,
+        total: 0
     };
 
     /**
@@ -68,8 +70,8 @@
         parentEl.removeClass('files-hidden');
         parentEl.css('display', 'none');
 
-        infoLoaded = parentEl.find('.info-loaded');
-        infoTotal = parentEl.find('.info-total');
+        pageNum = parentEl.find('.page-num');
+        pageTotal = parentEl.find('.page-total');
 
         btnPrev = parentEl.find('button[data-target="prev"]');
         btnPrev.attr('disabled', 'disabled');
@@ -85,37 +87,47 @@
     }
 
     FileSharingPanel.prototype.showSharingPanel = function() {
-        this.selectedValid = true;
+        g.dialog.showLoading('正在加载分享标签数据');
+
+        selectedValid = true;
 
         parentEl.css('display', 'block');
 
-        var begin = sharingPage.page * numPerPage;
+        var begin = validSharingPage.page * numPerPage;
         var end = begin + numPerPage - 1;
         g.cube().fs.listSharingTags(begin, end, true, function(list, total, beginIndex, endIndex, valid) {
+            g.dialog.hideLoading();
+
             table.updatePage(list);
 
-            sharingPage.loaded = list.length;
-            infoLoaded.text(list.length);
-            infoTotal.text(total);
+            validSharingPage.loaded = list.length;
+            validSharingPage.total = total;
+            that.updatePagination();
         }, function(error) {
+            g.dialog.hideLoading();
             g.dialog.launchToast(Toast.Error, '获取分享列表失败：' + error.code);
         });
     }
 
     FileSharingPanel.prototype.showExpiresPanel = function() {
-        this.selectedValid = false;
+        g.dialog.showLoading('正在加载分享标签数据');
+
+        selectedValid = false;
 
         parentEl.css('display', 'block');
 
-        var begin = expiredSharingPage.page * numPerPage;
+        var begin = invalidSharingPage.page * numPerPage;
         var end = begin + numPerPage - 1;
         g.cube().fs.listSharingTags(begin, end, false, function(list, total, beginIndex, endIndex, valid) {
+            g.dialog.hideLoading();
+
             table.updatePage(list);
 
-            expiredSharingPage.loaded = list.length;
-            infoLoaded.text(list.length);
-            infoTotal.text(total);
+            invalidSharingPage.loaded = list.length;
+            invalidSharingPage.total = total;
+            that.updatePagination();
         }, function(error) {
+            g.dialog.hideLoading();
             g.dialog.launchToast(Toast.Error, '获取分享列表失败：' + error.code);
         });
     }
@@ -131,12 +143,83 @@
         app.visitTraceDialog.open(sharingCode);
     }
 
-    FileSharingPanel.prototype.prevPage = function() {
+    FileSharingPanel.prototype.updatePagination = function() {
+        var pageData = null;
+        if (selectedValid) {
+            pageData = validSharingPage;
+        }
+        else {
+            pageData = invalidSharingPage;
+        }
 
+        // 总页数
+        var totalPage = Math.ceil(pageData.total / numPerPage);
+        var page = pageData.page + 1;
+
+        pageNum.text(page);
+        pageTotal.text(totalPage);
+
+        if (page == 1 || totalPage == 1) {
+            btnPrev.attr('disabled', 'disabled');
+        }
+        else {
+            btnPrev.removeAttr('disabled');
+        }
+
+        if (page == totalPage || totalPage == 1) {
+            btnNext.attr('disabled', 'disabled');
+        }
+        else {
+            btnNext.removeAttr('disabled');
+        }
+    }
+
+    FileSharingPanel.prototype.prevPage = function() {
+        var pageData = null;
+        if (selectedValid) {
+            pageData = validSharingPage;
+        }
+        else {
+            pageData = invalidSharingPage;
+        }
+
+        // 总页数
+        var totalPage = Math.ceil(pageData.total / numPerPage);
+        var page = pageData.page + 1;
     }
 
     FileSharingPanel.prototype.nextPage = function() {
+        g.dialog.showLoading('正在加载分享标签数据');
 
+        var pageData = null;
+        if (selectedValid) {
+            pageData = validSharingPage;
+        }
+        else {
+            pageData = invalidSharingPage;
+        }
+
+        // 总页数
+        var totalPage = Math.ceil(pageData.total / numPerPage);
+        var page = pageData.page + 1;
+
+        // 下一页
+        pageData.page += 1;
+
+        var begin = pageData.page * numPerPage;
+        var end = begin + numPerPage - 1;
+        g.cube().fs.listSharingTags(begin, end, true, function(list, total, beginIndex, endIndex, valid) {
+            g.dialog.hideLoading();
+
+            table.updatePage(list);
+
+            pageData.loaded = list.length;
+            pageData.total = total;
+            that.updatePagination();
+        }, function(error) {
+            g.dialog.hideLoading();
+            g.dialog.launchToast(Toast.Error, '获取分享列表失败：' + error.code);
+        });
     }
 
     g.FileSharingPanel = FileSharingPanel;
