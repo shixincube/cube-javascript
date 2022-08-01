@@ -176,13 +176,30 @@
             html.push('<li class="page-item page-goto');
             if (i == currentPage.page) {
                 html.push(' page-active');
+                html.push('"><a class="page-link" href="javascript:;">');
             }
-            html.push('"><a class="page-link" href="#">');
+            else {
+                html.push('"><a class="page-link" href="javascript:app.visitTraceDialog.gotoPage(');
+                html.push((i + 1));
+                html.push(');">');
+            }
             html.push((i + 1));
             html.push('</a></li>');
         }
 
         prev.after($(html.join('')));
+    }
+
+    VisitTraceListDialog.prototype.gotoPage = function(page) {
+
+    }
+
+    VisitTraceListDialog.prototype.prevPage = function() {
+
+    }
+
+    VisitTraceListDialog.prototype.nextPage = function() {
+        
     }
 
     g.VisitTraceListDialog = VisitTraceListDialog;

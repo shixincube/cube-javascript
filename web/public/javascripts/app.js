@@ -277,8 +277,8 @@
 
                             // 修改 Cookie 数据
                             var date = new Date();
-                            document.cookie = 'CubeAppToken=?; expires=' + date.toUTCString() + '; SameSite=None; Secure';
-                            document.cookie = 'CubeTrace=?; expires=' + date.toUTCString() + '; SameSite=None; Secure';
+                            document.cookie = 'CubeAppToken=?; expires=' + date.toUTCString();
+                            document.cookie = 'CubeTrace=?; expires=' + date.toUTCString();
 
                             window.location.href = '/?c=logout';
                         }, 'json');

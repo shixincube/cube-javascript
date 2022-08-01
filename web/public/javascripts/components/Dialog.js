@@ -340,9 +340,9 @@
                     else {
                         setTimeout(function() {
                             g.dialog.hideLoading();
-                        }, 1000);
+                        }, 500);
                     }
-                }, 1000);
+                }, 500);
             }
         },
 

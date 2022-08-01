@@ -71,8 +71,8 @@
             if (response.code == 0) {
                 var date = new Date();
                 date.setTime(date.getTime() + 7 * 24 * 60 * 60 * 1000);
-                document.cookie = 'CubeAppToken=' + response.token + '; expires=' + date.toUTCString() + '; SameSite=None; Secure';
-                document.cookie = 'CubeTrace=' + response.trace + '; expires=' + date.toUTCString() + '; SameSite=None; Secure';
+                document.cookie = 'CubeAppToken=' + response.token + '; expires=' + date.toUTCString();
+                document.cookie = 'CubeTrace=' + response.trace + '; expires=' + date.toUTCString();
 
                 // window.location.href = 'main.html';
                 window.location.href = 'main.html?t=' + response.token;
@@ -195,8 +195,8 @@
         }
         else if (window.location.search.indexOf('c=logout') >= 0) {
             var date = new Date();
-            document.cookie = 'CubeAppToken=?; expires=' + date.toUTCString() + '; SameSite=None; Secure';
-            document.cookie = 'CubeTrace=?; expires=' + date.toUTCString() + '; SameSite=None; Secure';
+            document.cookie = 'CubeAppToken=?; expires=' + date.toUTCString();
+            document.cookie = 'CubeTrace=?; expires=' + date.toUTCString();
         }
     });
 

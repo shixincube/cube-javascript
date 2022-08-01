@@ -551,9 +551,9 @@
                     else {
                         setTimeout(function() {
                             g.dialog.hideLoading();
-                        }, 1000);
+                        }, 500);
                     }
-                }, 1000);
+                }, 500);
             }
         },
 
@@ -1111,13 +1111,22 @@
             html.push('<li class="page-item page-goto');
             if (i == currentPage.page) {
                 html.push(' page-active');
+                html.push('"><a class="page-link" href="javascript:;">');
             }
-            html.push('"><a class="page-link" href="#">');
+            else {
+                html.push('"><a class="page-link" href="javascript:app.visitTraceDialog.gotoPage(');
+                html.push((i + 1));
+                html.push(');">');
+            }
             html.push((i + 1));
             html.push('</a></li>');
         }
 
         prev.after($(html.join('')));
+    }
+
+    VisitTraceListDialog.prototype.gotoPage = function(page) {
+
     }
 
     g.VisitTraceListDialog = VisitTraceListDialog;
@@ -9940,11 +9949,28 @@
         // 总页数
         var totalPage = Math.ceil(pageData.total / numPerPage);
         var page = pageData.page + 1;
+
+        if (page == 1) {
+            return;
+        }
+
+        // 上一页
+        pageData.page -= 1;
+
+        var begin = pageData.page * numPerPage;
+        var end = begin + numPerPage - 1;
+        g.cube().fs.listSharingTags(begin, end, true, function(list, total, beginIndex, endIndex, valid) {
+            table.updatePage(list);
+
+            pageData.loaded = list.length;
+            pageData.total = total;
+            that.updatePagination();
+        }, function(error) {
+            g.dialog.launchToast(Toast.Error, '获取分享列表失败：' + error.code);
+        });
     }
 
     FileSharingPanel.prototype.nextPage = function() {
-        g.dialog.showLoading('正在加载分享标签数据');
-
         var pageData = null;
         if (selectedValid) {
             pageData = validSharingPage;
@@ -9957,21 +9983,22 @@
         var totalPage = Math.ceil(pageData.total / numPerPage);
         var page = pageData.page + 1;
 
+        if (page == totalPage) {
+            return;
+        }
+
         // 下一页
         pageData.page += 1;
 
         var begin = pageData.page * numPerPage;
         var end = begin + numPerPage - 1;
         g.cube().fs.listSharingTags(begin, end, true, function(list, total, beginIndex, endIndex, valid) {
-            g.dialog.hideLoading();
-
             table.updatePage(list);
 
             pageData.loaded = list.length;
             pageData.total = total;
             that.updatePagination();
         }, function(error) {
-            g.dialog.hideLoading();
             g.dialog.launchToast(Toast.Error, '获取分享列表失败：' + error.code);
         });
     }
