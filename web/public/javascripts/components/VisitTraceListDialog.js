@@ -36,8 +36,14 @@
     var currentPage = {
         page: 0,
         total: 0,
-        numEachPage: 15
+        numEachPage: 15,
+        totalPage: 0
     };
+
+    // 是否正在加载数据
+    var loading = false;
+
+    var sharingCode = null;
 
     /**
      * 
@@ -116,7 +122,10 @@
         });
     }
 
-    VisitTraceListDialog.prototype.open = function(sharingCode) {
+    VisitTraceListDialog.prototype.open = function(code) {
+        // 赋值
+        sharingCode = code;
+
         dialogEl.modal('show');
         dialogEl.find('.overlay').css('visibility', 'visible');
 
@@ -124,7 +133,10 @@
         var timer = setTimeout(function() {
             g.dialog.toast('数据超时');
             that.close();
+            loading = false;
         }, 10 * 1000);
+
+        loading = true;
 
         var begin = currentPage.page * currentPage.numEachPage;
         var end = begin + currentPage.numEachPage - 1;
@@ -136,7 +148,10 @@
 
             that.updateTable(list);
             that.updatePagination();
+
+            loading = false;
         }, function(error) {
+            loading = false;
             clearTimeout(timer);
             g.dialog.toast('加载数据出错：' + error.code);
             that.close();
@@ -170,36 +185,74 @@
         if (mod != 0) {
             num += 1;
         }
+        currentPage.totalPage = num;
 
         var html = [];
         for (var i = 0; i < num; ++i) {
+            var pn = i + 1;
             html.push('<li class="page-item page-goto');
             if (i == currentPage.page) {
                 html.push(' page-active');
-                html.push('"><a class="page-link" href="javascript:;">');
             }
-            else {
-                html.push('"><a class="page-link" href="javascript:app.visitTraceDialog.gotoPage(');
-                html.push((i + 1));
-                html.push(');">');
-            }
-            html.push((i + 1));
+            html.push('" data-target="');
+            html.push(pn);
+            html.push('">');
+            html.push('<a class="page-link" href="javascript:app.visitTraceDialog.gotoPage(');
+            html.push(pn);
+            html.push(');">');
+            html.push(pn);
             html.push('</a></li>');
         }
 
         prev.after($(html.join('')));
     }
 
-    VisitTraceListDialog.prototype.gotoPage = function(page) {
+    VisitTraceListDialog.prototype.gotoPage = function(pageNum) {
+        var pageIndex = pageNum - 1;
+        if (currentPage.page == pageIndex) {
+            return;
+        }
 
+        if (loading) {
+            return;
+        }
+
+        loading = true;
+
+        var activeEl = paginationEl.find('.page-active');
+        activeEl.removeClass('page-active');
+
+        paginationEl.find('li[data-target="' + pageNum + '"]').addClass('page-active');
+
+        // 更新页码
+        currentPage.page = pageIndex;
+
+        var begin = currentPage.page * currentPage.numEachPage;
+        var end = begin + currentPage.numEachPage - 1;
+        g.engine.fs.listVisitTraces(sharingCode, begin, end, function(list, total) {
+            currentPage.total = total;
+            that.updateTable(list);
+            loading = false;
+        }, function(error) {
+            loading = false;
+            g.dialog.toast('加载数据出错：' + error.code);
+        });
     }
 
     VisitTraceListDialog.prototype.prevPage = function() {
+        if (currentPage.page == 0) {
+            return;
+        }
 
+        this.gotoPage(currentPage.page - 1 + 1);
     }
 
     VisitTraceListDialog.prototype.nextPage = function() {
-        
+        if (currentPage.page + 1 >= currentPage.totalPage) {
+            return;
+        }
+
+        this.gotoPage(currentPage.page + 1 + 1);
     }
 
     g.VisitTraceListDialog = VisitTraceListDialog;
