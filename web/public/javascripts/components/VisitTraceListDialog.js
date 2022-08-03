@@ -52,32 +52,72 @@
      * @returns 
      */
     function makeTableRow(sign, trace) {
-        var ua = g.helper.parseUserAgent(trace.userAgent);
-        //var eventSN = (null != trace.eventParam) ? trace.eventParam.sn || 0 : 0;
+        if (null != trace.userAgent) {
+            var ua = g.helper.parseUserAgent(trace.userAgent);
 
-        return [
-            '<tr>',
-                '<td>', sign, '</td>',
-                '<td>',
-                    g.formatYMDHMS(trace.time),
-                '</td>',
-                '<td>',
-                    trace.address,
-                '</td>',
-                '<td>',
-                    ua.osName + ' / ' + ua.osVersion,
-                '</td>',
-                '<td>',
-                    ua.browserName + ' / ' + ua.browserVersion,
-                '</td>',
-                '<td>',
-                    parseEvent(trace.event),
-                '</td>',
-                '<td>',
-                    parsePlatform(trace.platform),
-                '</td>',
-            '</tr>'
-        ];
+            return [
+                '<tr>',
+                    '<td>', sign, '</td>',
+                    '<td>',
+                        g.formatYMDHMS(trace.time),
+                    '</td>',
+                    '<td>',
+                        trace.address,
+                    '</td>',
+                    '<td>',
+                        ua.osName + ' / ' + ua.osVersion,
+                    '</td>',
+                    '<td>',
+                        ua.browserName + ' / ' + ua.browserVersion,
+                    '</td>',
+                    '<td>',
+                        parseEvent(trace.event),
+                    '</td>',
+                    '<td>',
+                        parsePlatform(trace.platform),
+                    '</td>',
+                '</tr>'
+            ];
+        }
+        else if (null != trace.agent) {
+            var agent = trace.agent;
+            return [
+                '<tr>',
+                    '<td>', sign, '</td>',
+                    '<td>',
+                        g.formatYMDHMS(trace.time),
+                    '</td>',
+                    '<td>',
+                        trace.address,
+                    '</td>',
+                    '<td>',
+                        agent.model + ' / ' + agent.osVersion,
+                    '</td>',
+                    '<td>',
+                        agent.hostName + ' / ' + agent.hostVersion,
+                    '</td>',
+                    '<td>',
+                        parseEvent(trace.event),
+                    '</td>',
+                    '<td>',
+                        parsePlatform(trace.platform),
+                    '</td>',
+                '</tr>'
+            ];
+        }
+        else {
+            return [
+                '<tr>',
+                    '<td>','</td>',
+                    '<td>','</td>',
+                    '<td>','</td>',
+                    '<td>','</td>',
+                    '<td>','</td>',
+                    '<td>','</td>',
+                    '<td>','</td>',
+                '</tr>'
+            ];
+        }
     }
 
     function parseEvent(event) {
