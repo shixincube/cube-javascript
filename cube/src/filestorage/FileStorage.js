@@ -1072,32 +1072,79 @@ export class FileStorage extends Module {
             return;
         }
 
-        let payload = {
-            "sharingCode": sharingCode,
-            "begin": beginIndex,
-            "end": endIndex
-        };
-        let packet = new Packet(FileStorageAction.ListTraces, payload);
-        this.pipeline.send(FileStorage.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
-                let error = new ModuleError(FileStorage.NAME, responsePacket.getStateCode());
-                handleFailure(error);
-                return;
+        const step = 10;
+        let indexes = [];
+        let delta = endIndex - beginIndex;
+        if (delta > 9) {
+            let num = Math.floor((delta + 1) / step);
+            let mod = (delta + 1) % step;
+            let index = beginIndex;
+            for (let i = 0; i < num; ++i) {
+                index += step - 1;
+                indexes.push(index);
+                index += 1;
             }
 
-            let stateCode = responsePacket.extractServiceStateCode();
-            if (stateCode != FileStorageState.Ok) {
-                let error = new ModuleError(FileStorage.NAME, stateCode);
-                handleFailure(error);
-                return;
+            if (mod != 0) {
+                index += mod - 1;
+                indexes.push(index);
             }
+        }
+        else {
+            indexes.push(endIndex);
+        }
 
-            let data = responsePacket.extractServiceData();
-            let list = [];
-            data.list.forEach((json) => {
-                list.push(VisitTrace.create(json))
+        let resultCount = indexes.length;
+        let resultList = [];
+
+        let begin = beginIndex;
+        let end = 0;
+        let total = 0;
+        indexes.forEach((index) => {
+            end = index;
+
+            let payload = {
+                "sharingCode": sharingCode,
+                "begin": begin,
+                "end": end
+            };
+            let packet = new Packet(FileStorageAction.ListTraces, payload);
+            this.pipeline.send(FileStorage.NAME, packet, (pipeline, source, responsePacket) => {
+                // 更新计数
+                --resultCount;
+
+                if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
+                    let error = new ModuleError(FileStorage.NAME, responsePacket.getStateCode());
+                    handleFailure(error);
+                    return;
+                }
+
+                let stateCode = responsePacket.extractServiceStateCode();
+                if (stateCode != FileStorageState.Ok) {
+                    let error = new ModuleError(FileStorage.NAME, stateCode);
+                    handleFailure(error);
+                    return;
+                }
+
+                let data = responsePacket.extractServiceData();
+                data.list.forEach((json) => {
+                    resultList.push(VisitTrace.create(json))
+                });
+
+                if (0 == total) {
+                    total = data.total;
+                }
+
+                if (0 == resultCount) {
+                    resultList.sort((a, b) => {
+                        return b.time - a.time;
+                    });
+                    handleSuccess(resultList, total, sharingCode, beginIndex, endIndex);
+                }
             });
-            handleSuccess(list, data.total, sharingCode, beginIndex, endIndex);
+
+            // 更新索引
+            begin = index + 1;
         });
     }
 
