@@ -60,9 +60,71 @@
     var selectedSearch = false;
     var selectedRecycleBin = false;
 
+    var activeFileLabel = null;
     var dialogCreateSharingTag;
     var switchPreview;
+    var switchWatermark;
     var switchDownload;
+    var switchDownloadTrace;
+
+    function refreshCreateSharingTagDialogOption(prepare, previewChanged) {
+        if (prepare) {
+            if (activeFileLabel.isDocumentType()) {
+                switchPreview.prop('disabled', false);
+                switchPreview.prop('checked', false);
+                switchWatermark.prop('disabled', true);
+                switchWatermark.prop('checked', false);
+                switchDownload.prop('disabled', false);
+                switchDownload.prop('checked', true);
+                switchDownloadTrace.prop('disabled', false);
+                switchDownloadTrace.prop('checked', true);
+            }
+            else if (activeFileLabel.isImageType()) {
+                switchPreview.prop('disabled', false);
+                switchPreview.prop('checked', true);
+                switchWatermark.prop('disabled', false);
+                switchWatermark.prop('checked', true);
+                switchDownload.prop('disabled', false);
+                switchDownload.prop('checked', true);
+                switchDownloadTrace.prop('disabled', false);
+                switchDownloadTrace.prop('checked', true);
+            }
+            else {
+                switchPreview.prop('disabled', true);
+                switchPreview.prop('checked', false);
+                switchWatermark.prop('disabled', true);
+                switchWatermark.prop('checked', false);
+                switchDownload.prop('disabled', true);
+                switchDownload.prop('checked', true);
+                switchDownloadTrace.prop('disabled', false);
+                switchDownloadTrace.prop('checked', true);
+            }
+        }
+        else {
+            if (previewChanged) {
+                if (activeFileLabel.isDocumentType() || activeFileLabel.isImageType()) {
+                    if (!switchPreview.prop('checked')) {
+                        switchWatermark.prop('checked', false);
+                        switchWatermark.prop('disabled', true);
+                    }
+                    else {
+                        switchWatermark.prop('checked', activeFileLabel.isImageType());
+                        switchWatermark.prop('disabled', false);
+                    }
+                }
+            }
+            else {
+                if (!switchDownload.prop('checked')) {
+                    switchDownloadTrace.prop('disabled', true);
+                    switchDownloadTrace.prop('checked', true);
+                }
+                else {
+                    switchDownloadTrace.prop('disabled', false);
+                    switchDownloadTrace.prop('checked', true);
+                }
+            }
+        }
+    }
 
     /**
      * 我的文件主界面的文件表格面板。
@@ -102,11 +164,14 @@
         dialogCreateSharingTag = $('#create_file_sharing_dialog');
         switchPreview = dialogCreateSharingTag.find('#preview-switch');
         switchPreview.change(function() {
-            if (!switchPreview.prop('checked')) {
-                switchDownload.prop('checked', true);
-            }
+            refreshCreateSharingTagDialogOption(false, true);
         });
+        switchWatermark = dialogCreateSharingTag.find('#watermark-switch');
         switchDownload = dialogCreateSharingTag.find('#download-switch');
+        switchDownload.change(function() {
+            refreshCreateSharingTagDialogOption(false, false);
+        });
+        switchDownloadTrace = dialogCreateSharingTag.find('#download-trace-switch');
 
         // 全选按钮
         btnSelectAll.click(function () {
@@ -841,14 +906,9 @@
             el.find('#file-name').val(fileLabel.getFileName());
             el.find('#file-size').val(g.formatSize(fileLabel.getFileSize()));
 
-            if (fileLabel.isDocumentType()) {
-                switchPreview.parent().css('visibility', 'visible');
-                switchDownload.parent().css('visibility', 'visible');
-            }
-            else {
-                switchPreview.parent().css('visibility', 'hidden');
-                switchDownload.parent().css('visibility', 'hidden');
-            }
+            // 更新选项
+            activeFileLabel = fileLabel;
+            refreshCreateSharingTagDialogOption(true);
 
             el.find('button[data-target="confirm"]').click(function() {
                 el.find('.overlay').css('visibility', 'visible');

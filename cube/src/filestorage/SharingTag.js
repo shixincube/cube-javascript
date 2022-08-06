@@ -93,6 +93,12 @@ export class SharingTag extends Entity {
          */
         this.download = true;
 
+        /**
+         * 是否跟踪下载动作。
+         * @type {boolean}
+         */
+        this.traceDownload = true;
+
         this.httpURL = null;
         this.httpsURL = null;
 
@@ -132,6 +138,7 @@ export class SharingTag extends Entity {
         tag.password = (undefined !== json.config.password) ? json.config.password : null;
         tag.preview = json.config.preview;
         tag.download = json.config.download;
+        tag.traceDownload = json.config.traceDownload;
         tag.httpURL = (undefined !== json.httpURL) ? json.httpURL : null;
         tag.httpsURL = (undefined !== json.httpsURL) ? json.httpsURL : null;
 

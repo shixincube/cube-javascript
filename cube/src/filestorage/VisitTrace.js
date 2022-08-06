@@ -139,6 +139,30 @@ export class VisitTrace extends Entity {
          * @type {object}
          */
         this.eventParam = null;
+
+        /**
+         * 触发记录的联系人 ID 。
+         * @type {number}
+         */
+        this.contactId = 0;
+
+        /**
+         * 触发记录的联系人域。
+         * @type {string}
+         */
+        this.contactDomain = null;
+
+        /**
+         * 分享人 ID 。
+         * @type {number}
+         */
+        this.sharerId = 0;
+
+        /**
+         * 上一级分享人 ID 。
+         * @type {number}
+         */
+        this.parentId = 0;
     }
 
     /**
@@ -170,6 +194,12 @@ export class VisitTrace extends Entity {
         trace.event = (undefined !== json.event) ? json.event : null;
         trace.eventTag = (undefined !== json.eventTag) ? json.eventTag : null;
         trace.eventParam = (undefined !== json.eventParam) ? json.eventParam : null;
+
+        trace.contactId = json.contactId;
+        trace.contactDomain = (undefined !== json.contactDomain) ? json.contactDomain : null;
+
+        trace.sharerId = json.sharerId;
+        trace.parentId = json.parentId;
 
         return trace;
     }

@@ -70,7 +70,9 @@ import { VisitTrace } from "./VisitTrace";
  * @property {number} duration 指定有效时长，单位：毫秒。设置 {@linkcode 0} 表示永久有效。
  * @property {string} password 指定提取文件时的密码。设置 {@linkcode null} 值表示无需提取码。
  * @property {boolean} preview 指定是否为文档生成预览。
+ * @property {string} watermark 指定水印内容。
  * @property {boolean} download 指定是否允许下载原始文件。
+ * @property {boolean} traceDownload 指定是否跟踪下载操作。
  */
 
 /**
@@ -449,7 +451,7 @@ export class FileStorage extends Module {
                     count = 0;
                 }
 
-                if (count >= 3) {
+                if (count > 5) {
                     if (failureCallback) {
                         failureCallback(error);
                     }
@@ -904,7 +906,7 @@ export class FileStorage extends Module {
     /**
      * 创建文件的分享标签。
      * @param {FileLabel} fileLabel 指定文件标签。
-     * @param {SharingTagConfig} config 指定分享的数据配置。
+     * @param {SharingTagConfig} config 指定分享操作配置。
      * @param {function} handleSuccess 成功回调。参数：({@linkcode sharingTag}:{@link SharingTag}) 。
      * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
@@ -925,10 +927,14 @@ export class FileStorage extends Module {
             "fileCode": fileLabel.getFileCode(),
             "duration": config.duration,
             "preview": (undefined !== config.preview) ? config.preview : false,
-            "download": (undefined !== config.download) ? config.download : true
+            "download": (undefined !== config.download) ? config.download : true,
+            "traceDownload": (undefined !== config.traceDownload) ? config.traceDownload : true
         };
         if (undefined !== config.password && null != config.password) {
             payload["password"] = password;
+        }
+        if (undefined !== config.watermark && null != config.watermark) {
+            payload["watermark"] = config.watermark;
         }
 
         let packet = new Packet(FileStorageAction.CreateSharingTag, payload);
