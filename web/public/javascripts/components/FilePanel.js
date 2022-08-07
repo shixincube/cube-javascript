@@ -921,12 +921,23 @@
                     password = null;
                 }
 
+                var watermark = null;
+                var previewWatermark = switchWatermark.prop('checked');
+                if (previewWatermark) {
+                    watermark = g.app.account.name;
+                    if (g.app.account.phone) {
+                        watermark = watermark + "_" + g.app.account.phone.substr(g.app.account.phone.length - 4, 4);
+                    }
+                }
+
                 // 创建分享标签
                 g.engine.fs.createSharingTag(fileLabel, {
                                                             "duration": duration,
                                                             "password": password,
                                                             "preview" : switchPreview.prop('checked'),
-                                                            "download": switchDownload.prop('checked')
+                                                            "watermark": watermark,
+                                                            "download": switchDownload.prop('checked'),
+                                                            "traceDownload": switchDownloadTrace.prop('checked')
                                                         }, (sharingTag) => {
                     el.modal('hide');
 

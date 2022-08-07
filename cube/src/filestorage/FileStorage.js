@@ -931,7 +931,7 @@ export class FileStorage extends Module {
             "traceDownload": (undefined !== config.traceDownload) ? config.traceDownload : true
         };
         if (undefined !== config.password && null != config.password) {
-            payload["password"] = password;
+            payload["password"] = config.password;
         }
         if (undefined !== config.watermark && null != config.watermark) {
             payload["watermark"] = config.watermark;

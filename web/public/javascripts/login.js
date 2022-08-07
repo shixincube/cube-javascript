@@ -27,6 +27,8 @@
 (function ($) {
     'use strict';
 
+    var jumpTarget = null;
+
     function login() {
         var account = $('#account').val();
         var password = $('#password').val();
@@ -74,8 +76,13 @@
                 document.cookie = 'CubeAppToken=' + response.token + '; expires=' + date.toUTCString();
                 document.cookie = 'CubeTrace=' + response.trace + '; expires=' + date.toUTCString();
 
-                // window.location.href = 'main.html';
-                window.location.href = 'main.html?t=' + response.token;
+                if (null != jumpTarget) {
+                    window.location.href = jumpTarget + '&t=' + response.token;
+                }
+                else {
+                    // window.location.href = 'main.html';
+                    window.location.href = 'main.html?t=' + response.token;
+                }
             }
             else if (response.code == 1) {
                 $('#modal_login').modal('hide');
@@ -118,6 +125,16 @@
             login();
         });
 
+        // 注册按钮
+        $('#btn_register').on('click', function(e) {
+            var href = 'register.html';
+            if (null != jumpTarget) {
+                href += '?jump=' + jumpTarget;
+            }
+
+            window.location.href = href;
+        });
+
         $('#password').on('keypress', function(e) {
             if (e.keyCode == 13) {
                 login();
@@ -129,6 +146,10 @@
         if (window.location.search.indexOf('account=') >= 0) {
             var account = window.getQueryString('account');
             $('#account').val(account);
+        }
+        else if (window.location.search.indexOf('jump=') >= 0) {
+            var tmp = window.location.search.split('jump=');
+            jumpTarget = tmp[1];
         }
         else if (null != cookie && cookie.length >= 32 && window.location.search.indexOf('c=logout') < 0) {
             // 尝试使用 Cookie 登录
