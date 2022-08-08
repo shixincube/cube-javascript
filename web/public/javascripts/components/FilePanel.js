@@ -112,6 +112,10 @@
                         switchWatermark.prop('disabled', false);
                     }
                 }
+
+                if (!switchPreview.prop('checked') && !switchDownload.prop('checked')) {
+                    switchDownload.prop('checked', true);
+                }
             }
             else {
                 if (!switchDownload.prop('checked')) {
@@ -121,6 +125,10 @@
                 else {
                     switchDownloadTrace.prop('disabled', false);
                     switchDownloadTrace.prop('checked', true);
+                }
+
+                if (!switchPreview.prop('checked') && !switchDownload.prop('checked')) {
+                    switchPreview.prop('checked', true);
                 }
             }
         }

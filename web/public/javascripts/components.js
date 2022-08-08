@@ -8928,6 +8928,10 @@
                         switchWatermark.prop('disabled', false);
                     }
                 }
+
+                if (!switchPreview.prop('checked') && !switchDownload.prop('checked')) {
+                    switchDownload.prop('checked', true);
+                }
             }
             else {
                 if (!switchDownload.prop('checked')) {
@@ -8937,6 +8941,10 @@
                 else {
                     switchDownloadTrace.prop('disabled', false);
                     switchDownloadTrace.prop('checked', true);
+                }
+
+                if (!switchPreview.prop('checked') && !switchDownload.prop('checked')) {
+                    switchPreview.prop('checked', true);
                 }
             }
         }
@@ -9896,8 +9904,11 @@
                     '</div>',
                 '</td>',
                 '<td class="sharing-operate">',
-                    '<button type="button" class="btn btn-info btn-sm" onclick="app.fileSharingPanel.showTraceDialog(\'', sharingTag.code, '\');">',
+                    '<button type="button" title="查看分享记录" class="btn btn-info btn-sm" onclick="app.fileSharingPanel.showTraceDialog(\'', sharingTag.code, '\');">',
                         '<i class="fas fa-share-square"></i>',
+                    '</button>',
+                    '<button type="button" title="取消分享" class="btn btn-danger btn-sm" onclick="app.fileSharingPanel.promptCancelSharing(\'', sharingTag.code, '\');">',
+                        '<i class="fas fa-times-circle"></i>',
                     '</button>',
                 '</td>',
             '</tr>'
@@ -10079,6 +10090,10 @@
 
     FileSharingPanel.prototype.showTraceDialog = function(sharingCode) {
         app.visitTraceDialog.open(sharingCode);
+    }
+
+    FileSharingPanel.prototype.promptCancelSharing = function(sharingCode) {
+        alert(sharingCode);
     }
 
     FileSharingPanel.prototype.updatePagination = function() {

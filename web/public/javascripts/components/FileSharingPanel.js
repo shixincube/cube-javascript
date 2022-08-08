@@ -143,6 +143,10 @@
         app.visitTraceDialog.open(sharingCode);
     }
 
+    FileSharingPanel.prototype.promptCancelSharing = function(sharingCode) {
+        alert(sharingCode);
+    }
+
     FileSharingPanel.prototype.updatePagination = function() {
         var pageData = null;
         if (selectedValid) {
