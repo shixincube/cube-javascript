@@ -147,10 +147,6 @@
             var account = window.getQueryString('account');
             $('#account').val(account);
         }
-        else if (window.location.search.indexOf('jump=') >= 0) {
-            var tmp = window.location.search.split('jump=');
-            jumpTarget = tmp[1];
-        }
         else if (null != cookie && cookie.length >= 32 && window.location.search.indexOf('c=logout') < 0) {
             // 尝试使用 Cookie 登录
             $('#modal_login').modal('show');
@@ -218,6 +214,12 @@
             var date = new Date();
             document.cookie = 'CubeAppToken=?; expires=' + date.toUTCString();
             document.cookie = 'CubeTrace=?; expires=' + date.toUTCString();
+        }
+
+        // 获取跳转目标
+        if (window.location.search.indexOf('jump=') >= 0) {
+            var tmp = window.location.search.split('jump=');
+            jumpTarget = tmp[1];
         }
     });
 

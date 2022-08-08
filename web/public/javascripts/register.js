@@ -31,6 +31,8 @@
 
     var avatar = 'images/avatar01.png';
 
+    var jumpTarget = null;
+
     function register() {
         var avatar = $('#select_avatar img').attr('src');
         var account = $('#account').val().trim();
@@ -70,7 +72,11 @@
                     body: '账号 "' + account + '" 注册成功，即将返回首页'
                 });
                 setTimeout(function() {
-                    window.location.href = 'index.html?account=' + account;
+                    var href = 'index.html?account=' + account;
+                    if (null != jumpTarget) {
+                        href += '&jump=' + jumpTarget;
+                    }
+                    window.location.href = href;
                 }, 4200);
             }
             else if (response.code == 11) {
@@ -97,6 +103,15 @@
         }, 'json');
     }
 
+    function back() {
+        var href = 'index.html';
+        if (null != jumpTarget) {
+            href += '?jump=' + jumpTarget;
+        }
+
+        window.location.href = href;
+    }
+
 
     g.selectAvatar = function(num) {
         if (num < 10) {
@@ -116,6 +131,11 @@
     }
 
     $(document).ready(function() {
+        var query = window.location.search.substring(1);
+        var vars = query.split('jump=');
+        jumpTarget = vars[1];
+        console.log(jumpTarget);
+
         // 验证码
         $('#captcha_image').prop('src', g.server.url + '/captcha/');
 
@@ -127,6 +147,10 @@
         // 注册按钮
         $('#btn_register').on('click', function(e) {
             register();
+        });
+        // 返回按钮
+        $('#btn_back').on('click', function(e) {
+            back();
         });
 
         // 密码输入框
