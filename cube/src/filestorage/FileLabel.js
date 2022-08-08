@@ -25,6 +25,7 @@
  */
 
 import { Entity } from "../core/Entity";
+import { Kernel } from "../core/Kernel";
 
 /**
  * 文件标签。
@@ -225,6 +226,17 @@ export class FileLabel extends Entity {
      * @returns {string} 返回文件的访问 URL 地址。
      */
     getFileURL() {
+        if (this.fileURL.indexOf(Kernel.CONFIG.address) < 0) {
+            let substr = this.fileURL.substring(7);
+            let index = substr.indexOf(':');
+            let host = substr.substring(0, index);
+            this.fileURL = this.fileURL.replace(host, Kernel.CONFIG.address);
+        }
+
+        if (this.fileURL.indexOf('&type=') < 0) {
+            this.fileURL += '&type=' + this.fileType;
+        }
+
         return this.fileURL;
     }
 
@@ -233,6 +245,17 @@ export class FileLabel extends Entity {
      * @returns {string} 返回文件的访问 SSL URL 地址。
      */
     getFileSecureURL() {
+        if (this.fileSecureURL.indexOf(Kernel.CONFIG.address) < 0) {
+            let substr = this.fileSecureURL.substring(8);
+            let index = substr.indexOf(':');
+            let host = substr.substring(0, index);
+            this.fileSecureURL = this.fileSecureURL.replace(host, Kernel.CONFIG.address);
+        }
+
+        if (this.fileSecureURL.indexOf('&type=') < 0) {
+            this.fileSecureURL += '&type=' + this.fileType;
+        }
+
         return this.fileSecureURL;
     }
 

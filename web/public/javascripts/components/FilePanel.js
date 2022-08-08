@@ -960,10 +960,13 @@
                         if (null != clipboard) {
                             clipboard.destroy();
                         }
-                    });
+                    }, '关闭');
 
                     setTimeout(function() {
                         clipboard = new ClipboardJS('.alert-clippy-button');
+                        clipboard.on('success', function() {
+                            g.dialog.toast('链接地址已复制到剪贴板', Toast.Success);
+                        });
                     }, 500);
                 }, (error) => {
                     el.modal('hide');

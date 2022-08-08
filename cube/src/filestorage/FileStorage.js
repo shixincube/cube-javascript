@@ -529,11 +529,9 @@ export class FileStorage extends Module {
         if (fileCodeOrLabel instanceof FileLabel) {
             let url = [ fileCodeOrLabel.getFileURL(),
                 '&token=', this.filePipeline.tokenCode
-                //, '&type=', fileCodeOrLabel.fileType
             ];
             let surl = [ fileCodeOrLabel.getFileSecureURL(),
                 '&token=', this.filePipeline.tokenCode
-                //, '&type=', fileCodeOrLabel.fileType
             ];
             handler(fileCodeOrLabel, url.join(''), surl.join(''));
         }
@@ -541,11 +539,9 @@ export class FileStorage extends Module {
             this.getFileLabel(fileCodeOrLabel, (fileLabel) => {
                 let url = [ fileLabel.getFileURL(),
                     '&token=', this.filePipeline.tokenCode
-                    //, '&type=', fileLabel.fileType
                 ];
                 let surl = [ fileLabel.getFileSecureURL(),
                     '&token=', this.filePipeline.tokenCode
-                    //, '&type=', fileLabel.fileType
                 ];
                 handler(fileLabel, url.join(''), surl.join(''));
             }, (fileCode) => {
