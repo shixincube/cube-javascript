@@ -208,7 +208,8 @@
             window.cube().launchFileSelector(function(event) {
                 const files = event.target.files;
                 currentDir.uploadFile(files[0], function(fileAnchor) {
-                    // 正在加载
+                    // 正在上传
+                    g.app.fileCatalog.onFileUploading(fileAnchor);
                 }, function(dir, fileLabel) {
                     that.refreshTable(true);
                 }, function(error) {

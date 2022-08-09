@@ -8494,6 +8494,10 @@
 
     var activeBtn = null;
 
+    var numUploading = 0;
+    var numDownloading = 0;
+    var numCompleted = 0;
+
     /**
      * 我的文件主界面的引导目录。
      * @param {jQuery} catalog 主目录元素。
@@ -8542,13 +8546,13 @@
         });
 
         btnUploading.click(function() {
-            dialog.launchToast(Toast.Warning, '开发中……');
+            //dialog.launchToast(Toast.Warning, '开发中……');
         });
         btnDownloading.click(function() {
-            dialog.launchToast(Toast.Warning, '开发中……');
+            //dialog.launchToast(Toast.Warning, '开发中……');
         });
         btnComplete.click(function() {
-            dialog.launchToast(Toast.Warning, '开发中……');
+            //dialog.launchToast(Toast.Warning, '开发中……');
         });
 
         btnSharing.click(function() {
@@ -8605,6 +8609,14 @@
 
         // 更新面板
         g.app.filePanel.setTitle(activeBtn.attr('title'));
+    }
+
+    FileCatalogue.prototype.onFileUploading = function(fileAnchor) {
+
+    }
+
+    FileCatalogue.prototype.onFileUploaded = function(fileLabel) {
+
     }
 
     g.FileCatalogue = FileCatalogue;
@@ -9039,7 +9051,8 @@
             window.cube().launchFileSelector(function(event) {
                 const files = event.target.files;
                 currentDir.uploadFile(files[0], function(fileAnchor) {
-                    // 正在加载
+                    // 正在上传
+                    g.app.fileCatalog.onFileUploading(fileAnchor);
                 }, function(dir, fileLabel) {
                     that.refreshTable(true);
                 }, function(error) {
