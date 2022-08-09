@@ -36,6 +36,18 @@ import { FileLabel } from "./FileLabel";
  */
 export class SharingTag extends Entity {
 
+    /**
+     * 一般状态。
+     * @type {number}
+     */
+    static STATE_NORMAL = 0;
+
+    /**
+     * 已取消状态。
+     * @type {number}
+     */
+    static STATE_CANCEL = 1;
+
     constructor(id, code) {
         super(id);
 
@@ -107,6 +119,12 @@ export class SharingTag extends Entity {
          * @type {Array<FileLabel>}
          */
         this.previewList = null;
+
+        /**
+         * 状态描述。
+         * @type {number}
+         */
+        this.state = 0;
     }
 
     /**
@@ -141,6 +159,7 @@ export class SharingTag extends Entity {
         tag.traceDownload = json.config.traceDownload;
         tag.httpURL = (undefined !== json.httpURL) ? json.httpURL : null;
         tag.httpsURL = (undefined !== json.httpsURL) ? json.httpsURL : null;
+        tag.state = json.state;
 
         let parent = json.parent["string"];
 

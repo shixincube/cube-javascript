@@ -145,6 +145,7 @@
 
     FileSharingPanel.prototype.promptCancelSharing = function(sharingCode) {
         alert(sharingCode);
+        
     }
 
     FileSharingPanel.prototype.updatePagination = function() {
