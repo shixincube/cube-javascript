@@ -25,6 +25,7 @@
  */
 
 import cell from "@lib/cell-lib";
+import { Kernel } from "../core/Kernel";
 import { PipelineState } from "../core/PipelineState";
 import { Module } from "../core/Module";
 import { ModuleError } from "../core/error/ModuleError";
@@ -231,6 +232,13 @@ export class FileStorage extends Module {
             if (config.fileURL) {
                 this.fileURL = config.fileURL;
             }
+        }
+
+        if (this.fileURL.indexOf(Kernel.CONFIG.address) < 0) {
+            let substr = this.fileURL.substring(this.secure ? 8 : 7);
+            let index = substr.indexOf(':');
+            let host = substr.substring(0, index);
+            this.fileURL = this.fileURL.replace(host, Kernel.CONFIG.address);
         }
     }
 
