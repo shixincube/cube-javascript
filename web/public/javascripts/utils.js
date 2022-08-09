@@ -402,5 +402,9 @@
         return parseInt(offset);
     }
 
-    
+    // 是否包含元素。
+    Array.prototype.contains = function(value) {
+        return this.indexOf(value) >= 0;
+    }
+
 })(window);

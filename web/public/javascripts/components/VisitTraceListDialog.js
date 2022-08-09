@@ -61,6 +61,7 @@
                     '<td>',
                         g.formatYMDHMS(trace.time),
                     '</td>',
+                    '<td data-target="', trace.contactId, '"><i class="text-muted text-xs">未知</i>','</td>',
                     '<td>',
                         trace.address,
                     '</td>',
@@ -87,6 +88,7 @@
                     '<td>',
                         g.formatYMDHMS(trace.time),
                     '</td>',
+                    '<td data-target="', trace.contactId, '"><i class="text-muted text-xs">未知</i>','</td>',
                     '<td>',
                         trace.address,
                     '</td>',
@@ -115,6 +117,7 @@
                     '<td>','</td>',
                     '<td>','</td>',
                     '<td>','</td>',
+                    '<td>','</td>',
                 '</tr>'
             ];
         }
@@ -122,10 +125,10 @@
 
     function parseEvent(event) {
         if (event == 'View') {
-            return '查看';
+            return '<span class="text-success">查看</span>';
         }
         else if (event == 'Extract') {
-            return '下载';
+            return '<span class="text-primary">下载</span>';
         }
         else {
             return event;
@@ -205,15 +208,27 @@
 
     VisitTraceListDialog.prototype.updateTable = function(list) {
         var html = [];
+        var contactIdList = [];
 
         var sn = currentPage.page * currentPage.numEachPage + 1;
         list.forEach(function(trace) {
             var row = makeTableRow(sn, trace);
             html = html.concat(row);
             ++sn;
+
+            if (trace.contactId > 0 && !contactIdList.contains(trace.contactId)) {
+                contactIdList.push(trace.contactId);
+            }
         });
 
         tbody[0].innerHTML = html.join('');
+
+        // 填写访问人名称
+        contactIdList.forEach(function(id) {
+            g.app.getContact(id, function(contact) {
+                dialogEl.find('td[data-target="' + id + '"]').text(contact.getPriorityName());
+            });
+        });
     }
 
     VisitTraceListDialog.prototype.updatePagination = function() {
