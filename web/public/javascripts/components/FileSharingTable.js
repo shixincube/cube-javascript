@@ -37,12 +37,12 @@
 
     var clipboardList = [];
 
-    function makeSharingTagRow(sharingTag) {
+    function makeSharingTagRow(sharingTag, valid) {
         var id = sharingTag.id;
         var fileLabel = sharingTag.fileLabel;
         var password = (null != sharingTag.password) ? sharingTag.password : '<i>无</i>';
 
-        return [
+        var html = [
             '<tr ondblclick="app.fileSharingPanel.showTraceDialog(\'', sharingTag.code, '\')">',
                 '<td>',
                     '<div class="icheck-primary">',
@@ -80,13 +80,20 @@
                 '<td class="sharing-operate">',
                     '<button type="button" title="查看分享记录" class="btn btn-info btn-sm" onclick="app.fileSharingPanel.showTraceDialog(\'', sharingTag.code, '\');">',
                         '<i class="fas fa-share-square"></i>',
-                    '</button>',
-                    '<button type="button" title="取消分享" class="btn btn-danger btn-sm" onclick="app.fileSharingPanel.promptCancelSharing(\'', sharingTag.code, '\');">',
-                        '<i class="fas fa-times-circle"></i>',
-                    '</button>',
-                '</td>',
-            '</tr>'
+                    '</button>'
         ];
+
+        if (valid) {
+            html.push('<button type="button" title="取消分享" class="btn btn-danger btn-sm" onclick="app.fileSharingPanel.promptCancelSharing(\'');
+            html.push(sharingTag.code);
+            html.push('\');">');
+            html.push('<i class="fas fa-times-circle"></i>');
+            html.push('</button>');
+        }
+
+        html.push('</td></tr>');
+
+        return html;
     }
 
     /**
@@ -105,8 +112,9 @@
     /**
      * 更新表格数据。
      * @param {Array} list 数据列表。
+     * @param {boolean} valid 是否是有效的分享标签。
      */
-    FileSharingTable.prototype.updatePage = function(list) {
+    FileSharingTable.prototype.updatePage = function(list, valid) {
         // 清理剪贴板操作按钮
         clipboardList.forEach(function(clipboard) {
             clipboard.destroy();
@@ -122,7 +130,7 @@
         var html = [];
 
         list.forEach(function(sharingTag) {
-            html = html.concat(makeSharingTagRow(sharingTag));
+            html = html.concat(makeSharingTagRow(sharingTag, valid));
         });
 
         if (html.length > 0) {

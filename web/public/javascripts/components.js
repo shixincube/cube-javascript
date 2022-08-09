@@ -9863,12 +9863,12 @@
 
     var clipboardList = [];
 
-    function makeSharingTagRow(sharingTag) {
+    function makeSharingTagRow(sharingTag, valid) {
         var id = sharingTag.id;
         var fileLabel = sharingTag.fileLabel;
         var password = (null != sharingTag.password) ? sharingTag.password : '<i>无</i>';
 
-        return [
+        var html = [
             '<tr ondblclick="app.fileSharingPanel.showTraceDialog(\'', sharingTag.code, '\')">',
                 '<td>',
                     '<div class="icheck-primary">',
@@ -9906,13 +9906,20 @@
                 '<td class="sharing-operate">',
                     '<button type="button" title="查看分享记录" class="btn btn-info btn-sm" onclick="app.fileSharingPanel.showTraceDialog(\'', sharingTag.code, '\');">',
                         '<i class="fas fa-share-square"></i>',
-                    '</button>',
-                    '<button type="button" title="取消分享" class="btn btn-danger btn-sm" onclick="app.fileSharingPanel.promptCancelSharing(\'', sharingTag.code, '\');">',
-                        '<i class="fas fa-times-circle"></i>',
-                    '</button>',
-                '</td>',
-            '</tr>'
+                    '</button>'
         ];
+
+        if (valid) {
+            html.push('<button type="button" title="取消分享" class="btn btn-danger btn-sm" onclick="app.fileSharingPanel.promptCancelSharing(\'');
+            html.push(sharingTag.code);
+            html.push('\');">');
+            html.push('<i class="fas fa-times-circle"></i>');
+            html.push('</button>');
+        }
+
+        html.push('</td></tr>');
+
+        return html;
     }
 
     /**
@@ -9931,8 +9938,9 @@
     /**
      * 更新表格数据。
      * @param {Array} list 数据列表。
+     * @param {boolean} valid 是否是有效的分享标签。
      */
-    FileSharingTable.prototype.updatePage = function(list) {
+    FileSharingTable.prototype.updatePage = function(list, valid) {
         // 清理剪贴板操作按钮
         clipboardList.forEach(function(clipboard) {
             clipboard.destroy();
@@ -9948,7 +9956,7 @@
         var html = [];
 
         list.forEach(function(sharingTag) {
-            html = html.concat(makeSharingTagRow(sharingTag));
+            html = html.concat(makeSharingTagRow(sharingTag, valid));
         });
 
         if (html.length > 0) {
@@ -10047,7 +10055,7 @@
         g.cube().fs.listSharingTags(begin, end, true, function(list, total, beginIndex, endIndex, valid) {
             g.dialog.hideLoading();
 
-            table.updatePage(list);
+            table.updatePage(list, valid);
 
             validSharingPage.loaded = list.length;
             validSharingPage.total = total;
@@ -10070,7 +10078,7 @@
         g.cube().fs.listSharingTags(begin, end, false, function(list, total, beginIndex, endIndex, valid) {
             g.dialog.hideLoading();
 
-            table.updatePage(list);
+            table.updatePage(list, valid);
 
             invalidSharingPage.loaded = list.length;
             invalidSharingPage.total = total;
@@ -10093,7 +10101,39 @@
     }
 
     FileSharingPanel.prototype.promptCancelSharing = function(sharingCode) {
-        alert(sharingCode);
+        g.cube().fs.getSharingTag(sharingCode, function(sharingTag) {
+            // 提示
+            var content = [
+                '您确定要取消该分享码？<p>取消的分享不可恢复。</p>',
+                '<p style="margin-left:1rem;">',
+                    '<span class="text-muted ellipsis">文件名：', sharingTag.fileLabel.fileName, '</span><br/>',
+                    '<span class="text-muted">有效期：', sharingTag.expiryDate > 0 ? g.formatYMDHM(sharingTag.expiryDate) : '永久有效', '</span><br/>',
+                    '<span class="text-muted">访问码：', null == sharingTag.password ? '<i>无</i>' : sharingTag.password, '</span>',
+                '</p>'
+            ];
+            g.dialog.showConfirm('取消分享', content.join(''), function(yesOrNo) {
+                if (yesOrNo) {
+                    g.dialog.showLoading('正在取消标签');
+
+                    g.cube().fs.cancelSharingTag(sharingCode, function(sharingTag) {
+                        g.dialog.hideLoading();
+
+                        setTimeout(function() {
+                            if (selectedValid) {
+                                that.showSharingPanel();
+                            }
+                            else {
+                                that.showExpiresPanel();
+                            }
+                        }, 100);
+                    }, function(error) {
+                        alert('访问出错: ' + error.code);
+                    });
+                }
+            });
+        }, function(error) {
+            alert('访问出错: ' + error.code);
+        });
     }
 
     FileSharingPanel.prototype.updatePagination = function() {

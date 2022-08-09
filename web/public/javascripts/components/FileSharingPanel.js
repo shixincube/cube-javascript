@@ -98,7 +98,7 @@
         g.cube().fs.listSharingTags(begin, end, true, function(list, total, beginIndex, endIndex, valid) {
             g.dialog.hideLoading();
 
-            table.updatePage(list);
+            table.updatePage(list, valid);
 
             validSharingPage.loaded = list.length;
             validSharingPage.total = total;
@@ -121,7 +121,7 @@
         g.cube().fs.listSharingTags(begin, end, false, function(list, total, beginIndex, endIndex, valid) {
             g.dialog.hideLoading();
 
-            table.updatePage(list);
+            table.updatePage(list, valid);
 
             invalidSharingPage.loaded = list.length;
             invalidSharingPage.total = total;
@@ -144,8 +144,39 @@
     }
 
     FileSharingPanel.prototype.promptCancelSharing = function(sharingCode) {
-        alert(sharingCode);
-        
+        g.cube().fs.getSharingTag(sharingCode, function(sharingTag) {
+            // 提示
+            var content = [
+                '您确定要取消该分享码？<p>取消的分享不可恢复。</p>',
+                '<p style="margin-left:1rem;">',
+                    '<span class="text-muted ellipsis">文件名：', sharingTag.fileLabel.fileName, '</span><br/>',
+                    '<span class="text-muted">有效期：', sharingTag.expiryDate > 0 ? g.formatYMDHM(sharingTag.expiryDate) : '永久有效', '</span><br/>',
+                    '<span class="text-muted">访问码：', null == sharingTag.password ? '<i>无</i>' : sharingTag.password, '</span>',
+                '</p>'
+            ];
+            g.dialog.showConfirm('取消分享', content.join(''), function(yesOrNo) {
+                if (yesOrNo) {
+                    g.dialog.showLoading('正在取消标签');
+
+                    g.cube().fs.cancelSharingTag(sharingCode, function(sharingTag) {
+                        g.dialog.hideLoading();
+
+                        setTimeout(function() {
+                            if (selectedValid) {
+                                that.showSharingPanel();
+                            }
+                            else {
+                                that.showExpiresPanel();
+                            }
+                        }, 100);
+                    }, function(error) {
+                        alert('访问出错: ' + error.code);
+                    });
+                }
+            });
+        }, function(error) {
+            alert('访问出错: ' + error.code);
+        });
     }
 
     FileSharingPanel.prototype.updatePagination = function() {

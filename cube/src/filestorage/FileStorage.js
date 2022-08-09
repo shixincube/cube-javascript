@@ -900,6 +900,50 @@ export class FileStorage extends Module {
     }
 
     /**
+     * 获取指定分享码的分享标签。
+     * @param {string} sharingCode 指定分享码。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode sharingTag}:{@link SharingTag}) 。
+     * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    getSharingTag(sharingCode, handleSuccess, handleFailure) {
+        if (!this.hasStarted()) {
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.NotReady, sharingCode);
+            handleFailure(error);
+            return;
+        }
+
+        if (!this.pipeline.isReady()) {
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.PipelineNotReady, sharingCode);
+            handleFailure(error);
+            return;
+        }
+
+        let payload = {
+            "code": sharingCode,
+            "refresh": true
+        };
+        let packet = new Packet(FileStorageAction.GetSharingTag, payload);
+        this.pipeline.send(FileStorage.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
+                let error = new ModuleError(FileStorage.NAME, responsePacket.getStateCode(), sharingCode);
+                handleFailure(error);
+                return;
+            }
+
+            let stateCode = responsePacket.extractServiceStateCode();
+            if (stateCode != FileStorageState.Ok) {
+                let error = new ModuleError(FileStorage.NAME, stateCode, sharingCode);
+                handleFailure(error);
+                return;
+            }
+
+            let data = responsePacket.extractServiceData();
+            let sharingTag = SharingTag.create(data);
+            handleSuccess(sharingTag);
+        });
+    }
+
+    /**
      * 创建文件的分享标签。
      * @param {FileLabel} fileLabel 指定文件标签。
      * @param {SharingTagConfig} config 指定分享操作配置。
