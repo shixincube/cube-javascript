@@ -198,7 +198,7 @@
          * 显示提示框。
          * @param {string} content 内容。
          * @param {function} [callback] 回调函数。
-         * @param {string} [buttonLabel] 按钮显示的文本，默认：“确定”
+         * @param {string} [buttonLabel] 按钮显示的文本，默认：“我知道了”
          */
         showAlert: function(content, callback, buttonLabel) {
             var el = $('#modal_alert');
@@ -208,7 +208,7 @@
                 el.find('button.alert-confirm-button').text(buttonLabel);
             }
             else {
-                el.find('button.alert-confirm-button').text('确定');
+                el.find('button.alert-confirm-button').text('我知道了');
             }
     
             if (undefined === callback) {

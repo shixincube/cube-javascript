@@ -49,7 +49,7 @@
     /**
      * REST 接口的 HTTPS 链接。
      */
-    var httpsURL = 'https://' + address + ':7777';
+    var httpsURL = 'https://' + address + ':8140';
 
     g.server = {
         address: address,

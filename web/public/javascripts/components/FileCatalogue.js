@@ -165,7 +165,7 @@
     }
 
     FileCatalogue.prototype.onFileUploading = function(fileAnchor) {
-
+        //btnUploading.find('.badge');
     }
 
     FileCatalogue.prototype.onFileUploaded = function(fileLabel) {

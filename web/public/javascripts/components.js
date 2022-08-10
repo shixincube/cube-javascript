@@ -409,7 +409,7 @@
          * 显示提示框。
          * @param {string} content 内容。
          * @param {function} [callback] 回调函数。
-         * @param {string} [buttonLabel] 按钮显示的文本，默认：“确定”
+         * @param {string} [buttonLabel] 按钮显示的文本，默认：“我知道了”
          */
         showAlert: function(content, callback, buttonLabel) {
             var el = $('#modal_alert');
@@ -419,7 +419,7 @@
                 el.find('button.alert-confirm-button').text(buttonLabel);
             }
             else {
-                el.find('button.alert-confirm-button').text('确定');
+                el.find('button.alert-confirm-button').text('我知道了');
             }
     
             if (undefined === callback) {
@@ -8612,7 +8612,7 @@
     }
 
     FileCatalogue.prototype.onFileUploading = function(fileAnchor) {
-
+        //btnUploading.find('.badge');
     }
 
     FileCatalogue.prototype.onFileUploaded = function(fileLabel) {
@@ -8868,7 +8868,9 @@
 
 })(window);
 (function(g) {
-    'use strict'
+    'use strict';
+
+    var maxFileSize = 200 * 1024 * 1024;
 
     var that = null;
 
@@ -9050,10 +9052,17 @@
 
             window.cube().launchFileSelector(function(event) {
                 const files = event.target.files;
+                if (files[0].size > maxFileSize) {
+                    g.dialog.showAlert('为了文档分享体验更加便捷，我们不建议分享超过 200MB 大小的文件。');
+                    return;
+                }
+
                 currentDir.uploadFile(files[0], function(fileAnchor) {
                     // 正在上传
                     g.app.fileCatalog.onFileUploading(fileAnchor);
                 }, function(dir, fileLabel) {
+                    // 已上传
+                    g.app.fileCatalog.onFileUploaded(fileLabel);
                     that.refreshTable(true);
                 }, function(error) {
                     g.dialog.toast('上传文件失败：' + error.code);

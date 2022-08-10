@@ -161,8 +161,8 @@
                 url: server.url + '/account/login/',
                 /*xhrFields: {
                     withCredentials: true
-                },
-                crossDomain: true,*/
+                },*/
+                crossDomain: true,
                 dataType: 'json',
                 data: {
                     "device": 'Web/' + navigator.userAgent,
