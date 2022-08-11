@@ -1060,10 +1060,13 @@
 
     function parseEvent(event) {
         if (event == 'View') {
-            return '<span class="text-success">查看</span>';
+            return '<span class="text-primary">查看</span>';
         }
         else if (event == 'Extract') {
-            return '<span class="text-primary">下载</span>';
+            return '<span class="text-success">下载</span>';
+        }
+        else if (event == 'Share') {
+            return '<span class="text-danger">分享</span>';
         }
         else {
             return event;
