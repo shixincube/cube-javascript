@@ -73,6 +73,10 @@ video {
     height: auto;
 }
 
+.tooltip-inner {
+    max-width: 240px !important;
+}
+
 .form-control {
     font-size: 14px;
 }
@@ -1109,6 +1113,10 @@ video {
     padding-top: 6px;
     margin-bottom: 1px;
     font-size: 14px;
+}
+.file-sharing-qrcode-img {
+    width: 200px;
+    height: 200px;
 }
 
 .file-operate button {

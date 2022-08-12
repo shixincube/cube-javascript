@@ -146,8 +146,15 @@ export class Kernel {
             config.address = '127.0.0.1';
         }
 
+        if (undefined === config.port) {
+            config.port = 7070;
+        }
+        if (undefined === config.securePort) {
+            config.securePort = 7077;
+        }
+
         // 为通道配置端口
-        let secure = window.location.protocol.toLowerCase().indexOf("https") >= 0;
+        let secure = window.location.protocol.toLowerCase().startsWith("https");
         this.pipelines.values().forEach((value) => {
             if (value instanceof CellPipeline) {
                 if (undefined !== config.port && !secure) {

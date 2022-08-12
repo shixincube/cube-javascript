@@ -88,6 +88,9 @@ export class FileStorage extends Module {
      */
     static NAME = 'FileStorage';
 
+    static HTTP_PORT = 7010;
+    static HTTPS_PORT = 7017;
+
     constructor() {
         super('FileStorage');
 
@@ -122,7 +125,7 @@ export class FileStorage extends Module {
          * 是否是安全连接。
          * @type {boolean}
          */
-        this.secure = (window.location.protocol.toLowerCase().indexOf("https") >= 0);
+        this.secure = window.location.protocol.toLowerCase().startsWith("https");
 
         /**
          * 主机 URL 地址。
@@ -239,6 +242,16 @@ export class FileStorage extends Module {
             let index = substr.indexOf(':');
             let host = substr.substring(0, index);
             this.fileURL = this.fileURL.replace(host, Kernel.CONFIG.address);
+        }
+
+        let substr = this.fileURL.substring(this.secure ? 8 : 7);
+        let index = substr.indexOf(':');
+        let end = substr.indexOf('/');
+        if (this.secure) {
+            FileStorage.HTTPS_PORT = parseInt(substr.substring(index + 1, end));
+        }
+        else {
+            FileStorage.HTTP_PORT = parseInt(substr.substring(index + 1, end));
         }
     }
 

@@ -123,7 +123,7 @@ export class Pipeline {
          * @type {number}
          */
         this.port = 7070;
-        if (window.location.protocol.toLowerCase().indexOf("https") >= 0) {
+        if (window.location.protocol.toLowerCase().startsWith("https")) {
             this.port = 7077;
         }
 

@@ -29,6 +29,7 @@ import { Device } from "../contact/Device";
 import { Entity } from "../core/Entity";
 import { Kernel } from "../core/Kernel";
 import { FileLabel } from "./FileLabel";
+import { FileStorage } from "./FileStorage";
 
 /**
  * 分享描述标签。
@@ -125,6 +126,12 @@ export class SharingTag extends Entity {
          * @type {number}
          */
         this.state = 0;
+
+        /**
+         * 是否安全链接。
+         * @type {boolean}
+         */
+        this.secure = window.location.protocol.toLowerCase().startsWith("https");
     }
 
     /**
@@ -132,11 +139,38 @@ export class SharingTag extends Entity {
      * @returns {string} 返回分享访问 URL 。
      */
     getURL() {
-        if (document.URL.toLowerCase().startsWith('https')) {
+        if (this.secure) {
             return this.httpsURL;
         }
         else {
             return this.httpURL;
+        }
+    }
+
+    /**
+     * 获取二维码 URL 。
+     * @returns {string} 返回二维码图片的访问链接。
+     */
+    getQRCodeURL() {
+        if (this.secure) {
+            return [
+                'https://',
+                Kernel.CONFIG.address,
+                ':',
+                FileStorage.HTTPS_PORT,
+                '/sharing/qrcode/',
+                this.code
+            ].join('');
+        }
+        else {
+            return [
+                'http://',
+                Kernel.CONFIG.address,
+                ':',
+                FileStorage.HTTP_PORT,
+                '/sharing/qrcode/',
+                this.code
+            ].join('');
         }
     }
 
@@ -164,10 +198,10 @@ export class SharingTag extends Entity {
         let parent = json.parent["string"];
 
         if (null == tag.httpURL) {
-            tag.httpURL = 'http://' + Kernel.CONFIG.address + ':7010/sharing/' + tag.code + '?p=' + parent;
+            tag.httpURL = 'http://' + Kernel.CONFIG.address + ':' + FileStorage.HTTP_PORT + '/sharing/' + tag.code + '?p=' + parent;
         }
         if (null == tag.httpsURL) {
-            tag.httpsURL = 'https://' + Kernel.CONFIG.address + ':7017/sharing/' + tag.code + '?p=' + parent;
+            tag.httpsURL = 'https://' + Kernel.CONFIG.address + ':' + FileStorage.HTTPS_PORT + '/sharing/' + tag.code + '?p=' + parent;
         }
 
         if (json.previewList) {
