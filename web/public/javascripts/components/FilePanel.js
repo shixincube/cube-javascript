@@ -214,6 +214,9 @@
                     return;
                 }
 
+                // 回调启动上传
+                g.app.fileCatalog.onFileUpload(files[0]);
+
                 currentDir.uploadFile(files[0], function(fileAnchor) {
                     // 正在上传
                     g.app.fileCatalog.onFileUploading(fileAnchor);

@@ -8497,8 +8497,8 @@
 
     var activeBtn = null;
 
-    var numUploading = 0;
-    var numDownloading = 0;
+    var uploadingMap = new OrderMap();
+    var downloadingMap = new OrderMap();
     var numCompleted = 0;
 
     /**
@@ -8614,12 +8614,25 @@
         g.app.filePanel.setTitle(activeBtn.attr('title'));
     }
 
+    FileCatalogue.prototype.onFileUpload = function(file) {
+        uploadingMap.put(file.name, file);
+        btnUploading.find('.badge').text(uploadingMap.size());
+    }
+
     FileCatalogue.prototype.onFileUploading = function(fileAnchor) {
-        //btnUploading.find('.badge');
     }
 
     FileCatalogue.prototype.onFileUploaded = function(fileLabel) {
+        ++numCompleted;
+        btnComplete.find('.badge').text(numCompleted);
 
+        uploadingMap.remove(fileLabel.getFileName());
+        if (uploadingMap.size() > 0) {
+            btnUploading.find('.badge').text(uploadingMap.size());
+        }
+        else {
+            btnUploading.find('.badge').text('');
+        }
     }
 
     g.FileCatalogue = FileCatalogue;
@@ -8683,6 +8696,7 @@
                 '<td class="file-size">', g.formatSize(fileLabel.getFileSize()), '</td>',
                 '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getLastModified()), '</td>',
                 '<td class="file-operate">',
+                    '<button type="button" class="btn btn-primary btn-sm"', '><i class="fas fa-download"></i></button>',
                     '<button ', 'onclick="app.filePanel.openCreateSharingTagDialog(\'', fileLabel.getFileCode(), '\')"',
                         ' type="button" class="btn btn-info btn-sm" title="分享" data-target="share-file"><i class="fas fa-share-alt"></i></button>',
                     '<button ', 'onclick="app.filePanel.promptDeleteFile(\'', fileLabel.getFileName(), '\', \'', fileLabel.getFileCode(), '\')"',
@@ -9059,6 +9073,9 @@
                     g.dialog.showAlert('为了文档分享体验更加便捷，我们不建议分享超过 200MB 大小的文件。');
                     return;
                 }
+
+                // 回调启动上传
+                g.app.fileCatalog.onFileUpload(files[0]);
 
                 currentDir.uploadFile(files[0], function(fileAnchor) {
                     // 正在上传

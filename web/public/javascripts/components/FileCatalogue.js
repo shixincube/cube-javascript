@@ -47,8 +47,8 @@
 
     var activeBtn = null;
 
-    var numUploading = 0;
-    var numDownloading = 0;
+    var uploadingMap = new OrderMap();
+    var downloadingMap = new OrderMap();
     var numCompleted = 0;
 
     /**
@@ -164,12 +164,25 @@
         g.app.filePanel.setTitle(activeBtn.attr('title'));
     }
 
+    FileCatalogue.prototype.onFileUpload = function(file) {
+        uploadingMap.put(file.name, file);
+        btnUploading.find('.badge').text(uploadingMap.size());
+    }
+
     FileCatalogue.prototype.onFileUploading = function(fileAnchor) {
-        //btnUploading.find('.badge');
     }
 
     FileCatalogue.prototype.onFileUploaded = function(fileLabel) {
+        ++numCompleted;
+        btnComplete.find('.badge').text(numCompleted);
 
+        uploadingMap.remove(fileLabel.getFileName());
+        if (uploadingMap.size() > 0) {
+            btnUploading.find('.badge').text(uploadingMap.size());
+        }
+        else {
+            btnUploading.find('.badge').text('');
+        }
     }
 
     g.FileCatalogue = FileCatalogue;
