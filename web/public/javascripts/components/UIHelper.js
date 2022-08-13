@@ -99,6 +99,59 @@
         }
     }
 
+    /**
+     * 匹配文件头像。
+     * @param {FileLabel} fileLabel 
+     */
+    g.helper.matchFileAvatar = function(fileLabel) {
+        var type = fileLabel.getFileType();
+        if (type == 'png' || type == 'jpeg' || type == 'gif' || type == 'jpg' || type == 'bmp') {
+            return 'images/icon/file-avatar-image.png';
+        }
+        else if (type == 'xls' || type == 'xlsx') {
+            return 'images/icon/file-avatar-excel.png';
+        }
+        else if (type == 'ppt' || type == 'pptx') {
+            return 'images/icon/file-avatar-powerpoint.png';
+        }
+        else if (type == 'doc' || type == 'docx') {
+            return 'images/icon/file-avatar-word.png';
+        }
+        else if (type == 'mp3' || type == 'ogg' || type == 'wav') {
+            return 'images/icon/file-avatar-music.png';
+        }
+        else if (type == 'pdf') {
+            return 'images/icon/file-avatar-pdf.png';
+        }
+        else if (type == 'rar') {
+            return 'images/icon/file-avatar-rar.png';
+        }
+        else if (type == 'zip' || type == 'gz') {
+            return 'images/icon/file-avatar-zip.png';
+        }
+        else if (type == 'txt' || type == 'log') {
+            return 'images/icon/file-avatar-txt.png';
+        }
+        else if (type == 'mp4' || type == 'mkv' || type == 'avi' || type == 'ts') {
+            return 'images/icon/file-avatar-video.png';
+        }
+        else if (type == 'psd') {
+            return 'images/icon/file-avatar-psd.png';
+        }
+        else if (type == 'exe' || type == 'dll') {
+            return 'images/icon/file-avatar-windows.png';
+        }
+        else if (type == 'apk') {
+            return 'images/icon/file-avatar-apk.png';
+        }
+        else if (type == 'dmg') {
+            return 'images/icon/file-avatar-dmg.png';
+        }
+        else {
+            return 'images/icon/file-avatar-unknown.png';
+        }
+    }
+
     var deviceReg = {
         iPhone: /iPhone/,
         iPad: /iPad/,

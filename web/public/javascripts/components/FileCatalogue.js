@@ -48,7 +48,7 @@
     var activeBtn = null;
 
     var uploadingMap = new OrderMap();
-    var downloadingMap = new OrderMap();
+    var downloadingArray = [];
     var numCompleted = 0;
 
     /**
@@ -186,21 +186,23 @@
     }
 
     FileCatalogue.prototype.onFileDownload = function(fileCode) {
-        downloadingMap.put(fileCode, fileCode);
-        btnDownloading.find('.badge').text(downloadingMap.size());
+        if (!downloadingArray.contains(fileCode)) {
+            downloadingArray.push(fileCode);
+        }
+        btnDownloading.find('.badge').text(downloadingArray.length);
     }
 
     FileCatalogue.prototype.onFileDownloaded = function(fileLabel) {
         ++numCompleted;
         btnComplete.find('.badge').text(numCompleted);
 
-        var fileCode = (typeof fileLabel === 'string') ? fileLabel : fileLabel.getFileCode();
-        downloadingMap.remove(fileCode);
-        if (downloadingMap.size() > 0) {
-            downloadingMap.find('.badge').text(downloadingMap.size());
+        var fileCode = (typeof fileLabel == 'string') ? fileLabel : fileLabel.getFileCode();
+        downloadingArray.remove(fileCode);
+        if (downloadingArray.length > 0) {
+            btnDownloading.find('.badge').text(downloadingArray.length);
         }
         else {
-            downloadingMap.find('.badge').text('');
+            btnDownloading.find('.badge').text('');
         }
     }
 

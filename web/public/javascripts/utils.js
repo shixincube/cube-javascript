@@ -406,5 +406,12 @@
     Array.prototype.contains = function(value) {
         return this.indexOf(value) >= 0;
     }
+    // 删除元素。
+    Array.prototype.remove = function(value) {
+        var index = this.indexOf(value);
+        if (index >= 0) {
+            this.splice(index, 1);
+        }
+    }
 
 })(window);

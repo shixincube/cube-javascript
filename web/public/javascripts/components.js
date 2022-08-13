@@ -99,6 +99,59 @@
         }
     }
 
+    /**
+     * 匹配文件头像。
+     * @param {FileLabel} fileLabel 
+     */
+    g.helper.matchFileAvatar = function(fileLabel) {
+        var type = fileLabel.getFileType();
+        if (type == 'png' || type == 'jpeg' || type == 'gif' || type == 'jpg' || type == 'bmp') {
+            return 'images/icon/file-avatar-image.png';
+        }
+        else if (type == 'xls' || type == 'xlsx') {
+            return 'images/icon/file-avatar-excel.png';
+        }
+        else if (type == 'ppt' || type == 'pptx') {
+            return 'images/icon/file-avatar-powerpoint.png';
+        }
+        else if (type == 'doc' || type == 'docx') {
+            return 'images/icon/file-avatar-word.png';
+        }
+        else if (type == 'mp3' || type == 'ogg' || type == 'wav') {
+            return 'images/icon/file-avatar-music.png';
+        }
+        else if (type == 'pdf') {
+            return 'images/icon/file-avatar-pdf.png';
+        }
+        else if (type == 'rar') {
+            return 'images/icon/file-avatar-rar.png';
+        }
+        else if (type == 'zip' || type == 'gz') {
+            return 'images/icon/file-avatar-zip.png';
+        }
+        else if (type == 'txt' || type == 'log') {
+            return 'images/icon/file-avatar-txt.png';
+        }
+        else if (type == 'mp4' || type == 'mkv' || type == 'avi' || type == 'ts') {
+            return 'images/icon/file-avatar-video.png';
+        }
+        else if (type == 'psd') {
+            return 'images/icon/file-avatar-psd.png';
+        }
+        else if (type == 'exe' || type == 'dll') {
+            return 'images/icon/file-avatar-windows.png';
+        }
+        else if (type == 'apk') {
+            return 'images/icon/file-avatar-apk.png';
+        }
+        else if (type == 'dmg') {
+            return 'images/icon/file-avatar-dmg.png';
+        }
+        else {
+            return 'images/icon/file-avatar-unknown.png';
+        }
+    }
+
     var deviceReg = {
         iPhone: /iPhone/,
         iPad: /iPad/,
@@ -905,14 +958,33 @@
 (function(g) {
     'use strict'
 
+    var that = null;
     var dialogEl = null;
+
+    var currentFileLabel = null;
 
     /**
      * 文件详情对话框。
      * @param {jQuery} el 
      */
     var FileDetails = function(el) {
+        that = this;
         dialogEl = el;
+
+        el.find('button[data-target="file-download"]').click(function() {
+            g.app.filePanel.downloadFile(currentFileLabel.getFileCode());
+            that.close();
+        });
+
+        el.find('button[data-target="file-share"]').click(function() {
+            g.app.filePanel.openCreateSharingTagDialog(currentFileLabel.getFileCode());
+            that.close();
+        });
+
+        el.find('button[data-target="file-delete"]').click(function() {
+            g.app.filePanel.promptDeleteFile(currentFileLabel.getFileName(), currentFileLabel.getFileCode());
+            that.close();
+        });
     }
 
     /**
@@ -921,10 +993,14 @@
      * @param {Directory} [directory] 文件所在的目录。
      */
     FileDetails.prototype.open = function(fileLabel, directory) {
+        currentFileLabel = fileLabel;
+
         dialogEl.find('h3[data-target="file-name"]').text(fileLabel.getFileName());
         dialogEl.find('h5[data-target="file-type"]').text(fileLabel.getFileType().toUpperCase());
         dialogEl.find('h5[data-target="file-size"]').text(g.formatSize(fileLabel.getFileSize()));
         dialogEl.find('h5[data-target="file-date"]').text(g.formatYMDHMS(fileLabel.getLastModified()));
+
+        dialogEl.find('.file-type-avatar').prop('src', g.helper.matchFileAvatar(fileLabel));
 
         if (directory) {
             var path = [];
@@ -8498,7 +8574,7 @@
     var activeBtn = null;
 
     var uploadingMap = new OrderMap();
-    var downloadingMap = new OrderMap();
+    var downloadingArray = [];
     var numCompleted = 0;
 
     /**
@@ -8636,21 +8712,23 @@
     }
 
     FileCatalogue.prototype.onFileDownload = function(fileCode) {
-        downloadingMap.put(fileCode, fileCode);
-        btnDownloading.find('.badge').text(downloadingMap.size());
+        if (!downloadingArray.contains(fileCode)) {
+            downloadingArray.push(fileCode);
+        }
+        btnDownloading.find('.badge').text(downloadingArray.length);
     }
 
     FileCatalogue.prototype.onFileDownloaded = function(fileLabel) {
         ++numCompleted;
         btnComplete.find('.badge').text(numCompleted);
 
-        var fileCode = (typeof fileLabel === 'string') ? fileLabel : fileLabel.getFileCode();
-        downloadingMap.remove(fileCode);
-        if (downloadingMap.size() > 0) {
-            downloadingMap.find('.badge').text(downloadingMap.size());
+        var fileCode = (typeof fileLabel == 'string') ? fileLabel : fileLabel.getFileCode();
+        downloadingArray.remove(fileCode);
+        if (downloadingArray.length > 0) {
+            btnDownloading.find('.badge').text(downloadingArray.length);
         }
         else {
-            downloadingMap.find('.badge').text('');
+            btnDownloading.find('.badge').text('');
         }
     }
 
@@ -8751,7 +8829,14 @@
                 '</td>',
                 '<td class="file-size">', g.formatSize(fileLabel.getFileSize()), '</td>',
                 '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getLastModified()), '</td>',
-                '<td class="file-operate"></td>',
+                '<td class="file-operate">',
+                    '<button ', 'onclick="app.filePanel.downloadFile(\'', fileLabel.getFileCode(), '\')"',
+                        ' type="button" class="btn btn-primary btn-sm" title="下载"><i class="fas fa-download"></i></button>',
+                    '<button ', 'onclick="app.filePanel.openCreateSharingTagDialog(\'', fileLabel.getFileCode(), '\')"',
+                        ' type="button" class="btn btn-info btn-sm" title="分享" data-target="share-file"><i class="fas fa-share-alt"></i></button>',
+                    '<button ', 'onclick="app.filePanel.promptDeleteFile(\'', fileLabel.getFileName(), '\', \'', fileLabel.getFileCode(), '\')"',
+                        ' type="button" class="btn btn-danger btn-sm" title="删除" data-target="recycle-file"><i class="far fa-trash-alt"></i></button>',
+                '</td>',
             '</tr>'
         ];
     }

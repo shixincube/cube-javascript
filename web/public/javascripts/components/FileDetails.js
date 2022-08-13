@@ -27,14 +27,33 @@
 (function(g) {
     'use strict'
 
+    var that = null;
     var dialogEl = null;
+
+    var currentFileLabel = null;
 
     /**
      * 文件详情对话框。
      * @param {jQuery} el 
      */
     var FileDetails = function(el) {
+        that = this;
         dialogEl = el;
+
+        el.find('button[data-target="file-download"]').click(function() {
+            g.app.filePanel.downloadFile(currentFileLabel.getFileCode());
+            that.close();
+        });
+
+        el.find('button[data-target="file-share"]').click(function() {
+            g.app.filePanel.openCreateSharingTagDialog(currentFileLabel.getFileCode());
+            that.close();
+        });
+
+        el.find('button[data-target="file-delete"]').click(function() {
+            g.app.filePanel.promptDeleteFile(currentFileLabel.getFileName(), currentFileLabel.getFileCode());
+            that.close();
+        });
     }
 
     /**
@@ -43,10 +62,14 @@
      * @param {Directory} [directory] 文件所在的目录。
      */
     FileDetails.prototype.open = function(fileLabel, directory) {
+        currentFileLabel = fileLabel;
+
         dialogEl.find('h3[data-target="file-name"]').text(fileLabel.getFileName());
         dialogEl.find('h5[data-target="file-type"]').text(fileLabel.getFileType().toUpperCase());
         dialogEl.find('h5[data-target="file-size"]').text(g.formatSize(fileLabel.getFileSize()));
         dialogEl.find('h5[data-target="file-date"]').text(g.formatYMDHMS(fileLabel.getLastModified()));
+
+        dialogEl.find('.file-type-avatar').prop('src', g.helper.matchFileAvatar(fileLabel));
 
         if (directory) {
             var path = [];
