@@ -8635,6 +8635,25 @@
         }
     }
 
+    FileCatalogue.prototype.onFileDownload = function(fileCode) {
+        downloadingMap.put(fileCode, fileCode);
+        btnDownloading.find('.badge').text(downloadingMap.size());
+    }
+
+    FileCatalogue.prototype.onFileDownloaded = function(fileLabel) {
+        ++numCompleted;
+        btnComplete.find('.badge').text(numCompleted);
+
+        var fileCode = (typeof fileLabel === 'string') ? fileLabel : fileLabel.getFileCode();
+        downloadingMap.remove(fileCode);
+        if (downloadingMap.size() > 0) {
+            downloadingMap.find('.badge').text(downloadingMap.size());
+        }
+        else {
+            downloadingMap.find('.badge').text('');
+        }
+    }
+
     g.FileCatalogue = FileCatalogue;
 
 })(window);
@@ -8696,7 +8715,7 @@
                 '<td class="file-size">', g.formatSize(fileLabel.getFileSize()), '</td>',
                 '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getLastModified()), '</td>',
                 '<td class="file-operate">',
-                    '<button ', 'onclick="dialog.downloadFile(\'', fileLabel.getFileCode(), '\')"',
+                    '<button ', 'onclick="app.filePanel.downloadFile(\'', fileLabel.getFileCode(), '\')"',
                         ' type="button" class="btn btn-primary btn-sm" title="下载"><i class="fas fa-download"></i></button>',
                     '<button ', 'onclick="app.filePanel.openCreateSharingTagDialog(\'', fileLabel.getFileCode(), '\')"',
                         ' type="button" class="btn btn-info btn-sm" title="分享" data-target="share-file"><i class="fas fa-share-alt"></i></button>',
@@ -9882,6 +9901,17 @@
                 });
             }
         }, '删除');
+    }
+
+    FilePanel.prototype.downloadFile = function(fileCode) {
+        // 触发 Download 事件
+        g.app.fileCatalog.onFileDownload(fileCode);
+
+        cube().fs.downloadFileWithHyperlink(fileCode, function(fileLabel) {
+            g.app.fileCatalog.onFileDownloaded(fileLabel);
+        }, function(error) {
+            g.app.fileCatalog.onFileDownloaded(fileCode);
+        });
     }
 
     function toDurationLong(value) {

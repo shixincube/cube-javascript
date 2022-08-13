@@ -185,6 +185,25 @@
         }
     }
 
+    FileCatalogue.prototype.onFileDownload = function(fileCode) {
+        downloadingMap.put(fileCode, fileCode);
+        btnDownloading.find('.badge').text(downloadingMap.size());
+    }
+
+    FileCatalogue.prototype.onFileDownloaded = function(fileLabel) {
+        ++numCompleted;
+        btnComplete.find('.badge').text(numCompleted);
+
+        var fileCode = (typeof fileLabel === 'string') ? fileLabel : fileLabel.getFileCode();
+        downloadingMap.remove(fileCode);
+        if (downloadingMap.size() > 0) {
+            downloadingMap.find('.badge').text(downloadingMap.size());
+        }
+        else {
+            downloadingMap.find('.badge').text('');
+        }
+    }
+
     g.FileCatalogue = FileCatalogue;
 
 })(window);

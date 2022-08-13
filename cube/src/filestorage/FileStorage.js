@@ -505,18 +505,21 @@ export class FileStorage extends Module {
             a.style.zIndex = '-1';
             a.download = fileLabel.getFileName();
 
-            this.getFileURL(fileLabel, (fileCode, url, secureUrl) => {
-                a.href = this.secure ? secureUrl : url;
+            this.getFileURL(fileLabel, (fileCode, httpURL, httpsURL) => {
+                let url = this.secure ? httpsURL : httpURL;
+                url = StringUtil.removeURLParameter(url, 'type');
+                url += '&type=ignore';
+                a.href = url;
             });
 
             document.body.appendChild(a);
             a.click();
 
-            if (handleSuccess) {
-                handleSuccess(fileLabel);
-            }
-
             setTimeout(() => {
+                if (handleSuccess) {
+                    handleSuccess(fileLabel);
+                }
+
                 a.parentElement.removeChild(a);
             }, 1000);
         };

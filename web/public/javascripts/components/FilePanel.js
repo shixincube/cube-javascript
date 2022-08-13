@@ -1023,6 +1023,17 @@
         }, '删除');
     }
 
+    FilePanel.prototype.downloadFile = function(fileCode) {
+        // 触发 Download 事件
+        g.app.fileCatalog.onFileDownload(fileCode);
+
+        cube().fs.downloadFileWithHyperlink(fileCode, function(fileLabel) {
+            g.app.fileCatalog.onFileDownloaded(fileLabel);
+        }, function(error) {
+            g.app.fileCatalog.onFileDownloaded(fileCode);
+        });
+    }
+
     function toDurationLong(value) {
         if (value == '24h') {
             return 24 * 60 * 60 * 1000;
