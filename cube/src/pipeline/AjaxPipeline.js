@@ -75,7 +75,7 @@ class AjaxRequest {
     }
 
     /**
-     * 
+     * 设置数据。
      * @param {object} value 
      * @param {string} [dataType] 数据类型。
      */
@@ -87,7 +87,7 @@ class AjaxRequest {
         return this;
     }
 
-    send(responseCallback) {
+    send(responseCallback, progressCallback) {
         // 设置应答类型
         this.xhr.responseType = this.responseType;
 
@@ -119,6 +119,15 @@ class AjaxRequest {
 
         if (undefined !== responseCallback) {
             let _xhr = this.xhr;
+
+            if (undefined !== progressCallback) {
+                _xhr.onprogress = function(event) {
+                    if (event.lengthComputable) {
+                        progressCallback.call(null, event.loaded, event.total);
+                    }
+                };
+            }
+
             _xhr.onreadystatechange = function () {
                 if (_xhr.readyState === XMLHttpRequest.DONE) {
                     responseCallback.call(null, _xhr.status, _xhr.response);
@@ -202,7 +211,7 @@ export class AjaxPipeline extends Pipeline {
     /**
      * @inheritdoc
      */
-    send(destination, packet, handleResponse) {
+    send(destination, packet, handleResponse, handleProgress) {
         let tokenCode = this.tokenCode.toString();
         let request = this.newRequest(destination);
 
@@ -282,7 +291,7 @@ export class AjaxPipeline extends Pipeline {
 
                     super.triggerListeners(destination, null);
                 }
-            });
+            }, handleProgress);
         }
     }
 

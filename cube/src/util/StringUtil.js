@@ -36,5 +36,31 @@ export const StringUtil = {
             hash += c * 3 + hash * 3;
         }
         return Math.abs(hash);
+    },
+
+    /**
+     * 删除 URL 参数。
+     * @param {string} url URL 串。
+     * @param {string} param 参数名。
+     */
+    removeURLParameter: (url, param) => {
+        let index = url.indexOf(param + '=');
+        let head = url.substring(0, index - 1);
+        let tail = url.substring(index, url.length);
+        let append = [];
+        let tmp = tail.split('&');
+        for (let i = 0; i < tmp.length; ++i) {
+            let pair = tmp[i].split('=');
+            if (pair.length == 2) {
+                if (pair[0] != 'type') {
+                    append.push('&');
+                    append.push(tmp[i]);
+                }
+            }
+            else {
+                append.push(pair);
+            }
+        }
+        return head + append.join('');
     }
 }

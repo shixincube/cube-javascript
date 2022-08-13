@@ -51,6 +51,7 @@ import { FileHierarchy } from "./FileHierarchy";
 import { SearchItem } from "./SearchItem";
 import { SharingTag } from "./SharingTag";
 import { VisitTrace } from "./VisitTrace";
+import { StringUtil } from "../util/StringUtil";
 
 /**
  * 上传文件回调函数。
@@ -488,10 +489,62 @@ export class FileStorage extends Module {
     }
 
     /**
+     * 使用超链接方式下载文件。
+     * @param {string|FileLabel} fileOrFileCode 
+     * @param {function} handleSuccess 
+     * @param {function} handleFailure 
+     */
+    downloadFileWithHyperlink(fileOrFileCode, handleSuccess, handleFailure) {
+        let handle = (fileLabel) => {
+            // 创建标签
+            let a = document.createElement('a');
+            a.style.display = 'inline';
+            a.style.position = 'absolute';
+            a.style.cssFloat = 'left';
+            a.style.visibility = 'hidden';
+            a.style.zIndex = '-1';
+            a.download = fileLabel.getFileName();
+
+            this.getFileURL(fileLabel, (fileCode, url, secureUrl) => {
+                a.href = this.secure ? secureUrl : url;
+            });
+
+            document.body.appendChild(a);
+            a.click();
+
+            if (handleSuccess) {
+                handleSuccess(fileLabel);
+            }
+
+            setTimeout(() => {
+                a.parentElement.removeChild(a);
+            }, 1000);
+        };
+
+        if (fileOrFileCode instanceof FileLabel) {
+            handle(fileOrFileCode);
+        }
+        else {
+            this.getFileLabel(fileOrFileCode, (fileLabel) => {
+                handle(fileLabel);
+            }, (fileCode) => {
+                let error = new ModuleError(FileStorage.NAME, FileStorageState.GetFileLabelFailed, fileCode);
+                this.notifyObservers(new ObservableEvent(FileStorageEvent.DownloadFailed, error));
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+            });
+        }
+    }
+
+    /**
      * 下载文件。
      * @param {FileLabel|string} fileOrFileCode 文件标签或文件码。
+     * @param {funciton} [handleProcessing] 
+     * @param {funciton} [handleSuccess] 
+     * @param {funciton} [handleFailure] 
      */
-    downloadFile(fileOrFileCode) {
+    downloadFile(fileOrFileCode, handleProcessing, handleSuccess, handleFailure) {
         let handle = (fileLabel) => {
             let packet = new Packet('GET', null);
             packet.responseType = 'blob';
@@ -500,12 +553,17 @@ export class FileStorage extends Module {
             this.notifyObservers(new ObservableEvent(FileStorageEvent.Downloading, fileLabel));
 
             let url = this.secure ? fileLabel.getFileSecureURL() : fileLabel.getFileURL();
+            url = StringUtil.removeURLParameter(url, 'type');
             url += '&type=ignore';
             this.filePipeline.send(url, packet, (pipeline, source, packet) => {
                 let blob = packet.data;
                 let reader = new FileReader();
                 reader.readAsDataURL(blob);
                 reader.onload = (e) => {
+                    if (handleSuccess) {
+                        handleSuccess(fileLabel);
+                    }
+
                     // 事件通知
                     this.notifyObservers(new ObservableEvent(FileStorageEvent.DownloadCompleted, fileLabel));
 
@@ -521,6 +579,10 @@ export class FileStorage extends Module {
                     a.click();
                     a.parentElement.removeChild(a);
                 }
+            }, (loaded, total) => {
+                if (handleProcessing) {
+                    handleProcessing(fileLabel, loaded, total);
+                }
             });
         };
 
@@ -533,6 +595,9 @@ export class FileStorage extends Module {
             }, (fileCode) => {
                 let error = new ModuleError(FileStorage.NAME, FileStorageState.GetFileLabelFailed, fileCode);
                 this.notifyObservers(new ObservableEvent(FileStorageEvent.DownloadFailed, error));
+                if (handleFailure) {
+                    handleFailure(error);
+                }
             });
         }
     }
