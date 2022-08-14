@@ -362,8 +362,43 @@
                 viewer.show();
             };
 
-            g.cube().fileStorage.getFileURL(file, function(fileLabel, url, surl) {
-                show(url);
+            g.cube().fileStorage.getFileURL(file, function(fileLabel, httpURL, httpsURL) {
+                show(g.cube().fileStorage.secure ? httpsURL : httpURL);
+            });
+        },
+
+        /**
+         * 显示数组里的图片文件。
+         * @param {Array} fileList 文件数组。
+         * @param {number} [initIndex] 初始化索引。
+         */
+        showImages: function(fileList, initIndex) {
+            var el = document.createElement('div');
+
+            var show = function() {
+                var viewer = new Viewer(el, {
+                    initialViewIndex: (undefined !== initIndex) ? initIndex : 0,
+                    hidden: function () {
+                        viewer.destroy();
+                    }
+                });
+                viewer.show();
+            };
+
+            var count = fileList.length;
+            var secure = g.cube().fileStorage.secure;
+            fileList.forEach(function(item) {
+                g.cube().fileStorage.getFileURL(item, function(fileLabel, httpURL, httpsURL) {
+                    var url = secure ? httpsURL : httpURL;
+                    var image = new Image();
+                    image.src = url;
+                    el.appendChild(image);
+
+                    --count;
+                    if (0 == count) {
+                        show();
+                    }
+                });
             });
         },
 

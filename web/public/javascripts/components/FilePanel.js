@@ -40,6 +40,7 @@
     var btnEmptyTrash = null;
     var btnRestore = null;
     var btnParent = null;
+    var btnRefresh = null;
     var btnRecycle = null;
     var btnShare = null;
 
@@ -58,6 +59,7 @@
         loaded: 0
     };
     var currentFilter = null;
+    var currentFileList = null;
 
     var selectedSearch = false;
     var selectedRecycleBin = false;
@@ -149,6 +151,7 @@
         btnEmptyTrash = el.find('button[data-target="empty-trash"]');
         btnRestore = el.find('button[data-target="restore"]');
         btnNewDir = el.find('button[data-target="new-dir"]');
+        btnRefresh = el.find('button[data-target="refresh"]');
         btnParent = el.find('button[data-target="parent"]');
         btnRecycle = el.find('button[data-target="recycle"]');
         btnShare = el.find('button[data-target="share"]');
@@ -185,19 +188,13 @@
 
         // 全选按钮
         btnSelectAll.click(function () {
-            /*var clicks = $(this).data('clicks');
-            if (clicks) {
-                // Uncheck all checkboxes
-                $('.file-table input[type="checkbox"]').prop('checked', false);
-                $('.checkbox-toggle .far.fa-check-square').removeClass('fa-check-square').addClass('fa-square');
+            var clicked = $(this).prop('checked');
+            if (clicked) {
+                $('.file-table input[type="checkbox"]').prop('checked', true);
             }
             else {
-                // Check all checkboxes
-                $('.file-table input[type="checkbox"]').prop('checked', true);
-                $('.checkbox-toggle .far.fa-square').removeClass('fa-square').addClass('fa-check-square');
+                $('.file-table input[type="checkbox"]').prop('checked', false);
             }
-            $(this).data('clicks', !clicks);
-            */
         });
 
         // 上传文件
@@ -292,6 +289,17 @@
 
             var parent = currentDir.getParent();
             that.changeDirectory(parent);
+        });
+
+        // 刷新当前页
+        btnRefresh.click(function() {
+            g.dialog.showLoading('正在刷新数据……');
+
+            that.refreshTable(false, function() {
+                g.dialog.hideLoading();
+            });
+
+            btnSelectAll.prop('checked', false);
         });
 
         // 删除文件或文件夹
@@ -404,10 +412,14 @@
             }
 
             if (result.length == 0) {
+                g.dialog.toast('请选择一个您需要分享的文件。');
                 return;
             }
-
-            if (result.length == 1) {
+            else if (result.length > 1) {
+                g.dialog.toast('请选择一个您需要分享的文件。');
+                return;
+            }
+            else if (result.length == 1) {
                 var item = currentDir.getFile(result[0].id);
                 if (null == item) {
                     // 不是文件
@@ -524,6 +536,7 @@
      */
     FilePanel.prototype.hide = function() {
         panelEl.css('display', 'none');
+        currentFileList = null;
     }
 
     /**
@@ -591,8 +604,9 @@
     /**
      * 使用当前目录数据刷新表格。
      * @param {boolean} reset 是否重置当前目录。
+     * @param {function} [completion] 完成。
      */
-    FilePanel.prototype.refreshTable = function(reset) {
+    FilePanel.prototype.refreshTable = function(reset, completion) {
         if (reset) {
             g.app.fileCtrl.resetPageData(currentDir);
         }
@@ -603,6 +617,11 @@
                 table.updatePage([]);
                 infoLoaded.text(0);
                 infoTotal.text(0);
+
+                if (completion) {
+                    completion.call(null);
+                }
+
                 return;
             }
 
@@ -622,6 +641,10 @@
             }
             else {
                 btnNext.removeAttr('disabled');
+            }
+
+            if (completion) {
+                completion.call(null);
             }
         });
 
@@ -646,10 +669,12 @@
      * 显示根目录。
      */
     FilePanel.prototype.showRoot = function() {
+        btnSelectAll.prop('checked', false);
         panelEl.css('display', 'block');
 
         selectedSearch = false;
         selectedRecycleBin = false;
+        currentFileList = null;
 
         if (null == currentDir) {
             g.app.fileCtrl.getRoot(function(root) {
@@ -675,6 +700,7 @@
      * 显示图片文件
      */
     FilePanel.prototype.showImages = function() {
+        btnSelectAll.prop('checked', false);
         panelEl.css('display', 'block');
 
         selectedSearch = true;
@@ -697,6 +723,12 @@
 
         // 搜索文件
         window.cube().fs.searchFile(currentFilter, function(filter, list) {
+            // 记录文件
+            currentFileList = [];
+            list.forEach(function(item) {
+                currentFileList.push(item.file);
+            });
+
             table.updatePage(list);
             infoLoaded.text(list.length);
 
@@ -714,10 +746,13 @@
      * 显示文档文件。
      */
     FilePanel.prototype.showDocuments = function() {
+        btnSelectAll.prop('checked', false);
         panelEl.css('display', 'block');
 
         selectedSearch = true;
         selectedRecycleBin = false;
+        currentFileList = null;
+
         btnEmptyTrash.css('display', 'none');
         btnRestore.css('display', 'none');
 
@@ -755,10 +790,13 @@
      * 显示回收站。
      */
     FilePanel.prototype.showRecyclebin = function() {
+        btnSelectAll.prop('checked', false);
         panelEl.css('display', 'block');
 
         selectedSearch = false;
         selectedRecycleBin = true;
+        currentFileList = null;
+
         btnEmptyTrash.css('display', 'inline-block');
         btnRestore.css('display', 'inline-block');
 
@@ -864,7 +902,19 @@
         var type = fileLabel.getFileType();
         if (type == 'png' || type == 'jpeg' || type == 'gif' || type == 'jpg' || type == 'bmp') {
             table.unselect(fileCode);
-            g.dialog.showImage(fileLabel);
+            if (null == currentFileList) {
+                g.dialog.showImage(fileLabel);
+            }
+            else {
+                var index = 0;
+                for (var i = 0; i < currentFileList.length; ++i) {
+                    if (currentFileList[i].getFileCode() == fileLabel.getFileCode()) {
+                        index = i;
+                        break;
+                    }
+                }
+                g.dialog.showImages(currentFileList, index);
+            }
         }
         else {
             table.unselect(fileCode);

@@ -608,7 +608,7 @@ export class FileStorage extends Module {
     /**
      * 获取文件的访问 URL 。
      * @param {string} fileCodeOrLabel 文件码。
-     * @param {function} handler 回调函数，函数参数：({@linkcode fileCode}:string, {@linkcode fileURL}:string, {@linkcode fileSecureURL}:string) 。
+     * @param {function} handler 回调函数，函数参数：({@linkcode fileLabel}:{@link FileLabel}, {@linkcode fileURL}:string, {@linkcode fileSecureURL}:string) 。
      */
     getFileURL(fileCodeOrLabel, handler) {
         if (!this.started) {
@@ -633,8 +633,8 @@ export class FileStorage extends Module {
                     '&token=', this.filePipeline.tokenCode
                 ];
                 handler(fileLabel, url.join(''), surl.join(''));
-            }, (fileCode) => {
-                handler(fileLabel, null, null);
+            }, (error) => {
+                handler(null, null, null);
             });
         }
     }
