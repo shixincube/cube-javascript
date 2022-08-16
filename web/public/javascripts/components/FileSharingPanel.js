@@ -40,6 +40,8 @@
     var btnPrev = null;
     var btnNext = null;
 
+    var btnSelectAll = null;
+
     var selectedValid = true;
 
     var validSharingPage = {
@@ -73,10 +75,23 @@
         pageNum = parentEl.find('.page-num');
         pageTotal = parentEl.find('.page-total');
 
+        btnSelectAll = parentEl.find('.checkbox-toggle');
+
         btnPrev = parentEl.find('button[data-target="prev"]');
         btnPrev.attr('disabled', 'disabled');
         btnNext = parentEl.find('button[data-target="next"]');
         btnNext.attr('disabled', 'disabled');
+
+        // 全选按钮
+        btnSelectAll.click(function () {
+            var clicked = $(this).prop('checked');
+            if (clicked) {
+                $('.sharing-table input[type="checkbox"]').prop('checked', true);
+            }
+            else {
+                $('.sharing-table input[type="checkbox"]').prop('checked', false);
+            }
+        });
 
         btnPrev.click(function() {
             that.prevPage();
