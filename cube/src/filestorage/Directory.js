@@ -409,6 +409,10 @@ export class Directory {
         this.hierarchy.deleteFiles(this, fileCodes, handleSuccess, handleFailure);
     }
 
+    rename(newName) {
+
+    }
+
     /**
      * 搜索文件。
      * @param {SearchFilter} filter 

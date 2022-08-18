@@ -867,6 +867,8 @@ export class FileStorage extends Module {
      */
     renameDirectory(workingDir, pendingDir, newDirName, handleSuccess, handleFailure) {
         // TODO
+        let root = this._recurseRoot(workingDir);
+        
     }
 
     /**
