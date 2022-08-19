@@ -389,6 +389,10 @@ export class Directory {
         this.hierarchy.deleteDirectory(this, dirs, recursive, handleSuccess, handleFailure);
     }
 
+    renameDirectory(dir, newName, handleSuccess, handleFailure) {
+        
+    }
+
     /**
      * 删除文件。
      * @param {Array} files 指定待删除的文件码列表。
@@ -407,10 +411,6 @@ export class Directory {
         });
 
         this.hierarchy.deleteFiles(this, fileCodes, handleSuccess, handleFailure);
-    }
-
-    rename(newName) {
-
     }
 
     /**

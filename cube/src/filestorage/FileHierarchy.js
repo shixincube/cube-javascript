@@ -461,6 +461,10 @@ export class FileHierarchy {
         });
     }
 
+    renameDirectory() {
+
+    }
+
     /**
      * 删除文件。
      * @param {Directory} workingDir 指定当前工作目录。

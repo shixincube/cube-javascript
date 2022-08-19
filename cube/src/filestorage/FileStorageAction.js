@@ -77,6 +77,12 @@ export const FileStorageAction = {
     DeleteDir: 'deleteDir',
 
     /**
+     * 重命名目录。
+     * @type {string}
+     */
+    RenameDir: 'renameDir',
+
+    /**
      * 删除文件。
      * @type {string}
      */
