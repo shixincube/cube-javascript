@@ -461,7 +461,26 @@ export class FileHierarchy {
         });
     }
 
-    renameDirectory() {
+    /**
+     * 重命名目录。
+     * @param {Directory} workingDir 
+     * @param {Directory} pendingDir 
+     * @param {string} newName 
+     * @param {function} handleSuccess 
+     * @param {function} handleFailure 
+     */
+    renameDirectory(workingDir, pendingDir, newName, handleSuccess, handleFailure) {
+        // 校验根
+        let root = this._recurseRoot(workingDir);
+        if (root.getId() != this.root.getId()) {
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.NotFound, workingDir);
+            cell.Logger.w('FileHierarchy', '#deleteDirectory() - ' + error);
+            if (handleFailure) {
+                handleFailure(error);
+            }
+            return;
+        }
+
 
     }
 

@@ -389,8 +389,15 @@ export class Directory {
         this.hierarchy.deleteDirectory(this, dirs, recursive, handleSuccess, handleFailure);
     }
 
+    /**
+     * 重命名目录。
+     * @param {Directory} dir 
+     * @param {string} newName 
+     * @param {function} handleSuccess 
+     * @param {function} handleFailure 
+     */
     renameDirectory(dir, newName, handleSuccess, handleFailure) {
-        
+        this.hierarchy.renameDirectory(this, dir, newName, handleSuccess, handleFailure);
     }
 
     /**

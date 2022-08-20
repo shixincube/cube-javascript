@@ -866,9 +866,15 @@ export class FileStorage extends Module {
      * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
     renameDirectory(workingDir, pendingDir, newDirName, handleSuccess, handleFailure) {
-        // TODO
         let root = this._recurseRoot(workingDir);
-        
+        this.getRoot(root.getId(), (root) => {
+            let hierarchy = this.fileHierarchyMap.get(root.getId());
+            hierarchy.renameDirectory(workingDir, pendingDir, newDirName, handleSuccess, handleFailure);
+        }, (error) => {
+            if (handleFailure) {
+                handleFailure(error);
+            }
+        });
     }
 
     /**
