@@ -859,17 +859,16 @@ export class FileStorage extends Module {
 
     /**
      * 重命名目录。
-     * @param {Directory} workingDir 当前工作目录。
-     * @param {Directory} pendingDir 待处理目录。
+     * @param {Directory} workingDir 工作目录。
      * @param {string} newDirName 新的目录名。
      * @param {function} handleSuccess 成功回调。参数：({@linkcode workingDir}:{@link Directory}) 。
      * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
-    renameDirectory(workingDir, pendingDir, newDirName, handleSuccess, handleFailure) {
+    renameDirectory(workingDir, newDirName, handleSuccess, handleFailure) {
         let root = this._recurseRoot(workingDir);
         this.getRoot(root.getId(), (root) => {
             let hierarchy = this.fileHierarchyMap.get(root.getId());
-            hierarchy.renameDirectory(workingDir, pendingDir, newDirName, handleSuccess, handleFailure);
+            hierarchy.renameDirectory(workingDir, newDirName, handleSuccess, handleFailure);
         }, (error) => {
             if (handleFailure) {
                 handleFailure(error);

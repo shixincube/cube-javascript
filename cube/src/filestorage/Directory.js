@@ -24,9 +24,12 @@
  * SOFTWARE.
  */
 
+import { ModuleError } from "../core/error/ModuleError";
 import { OrderMap } from "../util/OrderMap";
 import { FileHierarchy } from "./FileHierarchy";
 import { FileLabel } from "./FileLabel";
+import { FileStorage } from "./FileStorage";
+import { FileStorageState } from "./FileStorageState";
 
 /**
  * 文件目录。
@@ -391,13 +394,20 @@ export class Directory {
 
     /**
      * 重命名目录。
-     * @param {Directory} dir 
-     * @param {string} newName 
-     * @param {function} handleSuccess 
-     * @param {function} handleFailure 
+     * @param {string} newName 新的目录名。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode workingDir}:{@link Directory}) 。
+     * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
-    renameDirectory(dir, newName, handleSuccess, handleFailure) {
-        this.hierarchy.renameDirectory(this, dir, newName, handleSuccess, handleFailure);
+    rename(newName, handleSuccess, handleFailure) {
+        if (this.getName() == newName) {
+            if (handleFailure) {
+                let error = new ModuleError(FileStorage.NAME, FileStorageState.DuplicationOfName, this);
+                handleFailure(error);
+            }
+            return;
+        }
+
+        this.hierarchy.renameDirectory(this, newName, handleSuccess, handleFailure);
     }
 
     /**
