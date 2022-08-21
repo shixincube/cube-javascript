@@ -959,11 +959,17 @@
     }
 
     /**
-     * 重置“全选”复选框。
+     * 重命名目录。
+     * @param {number} dirId 
      */
-    FilePanel.prototype.resetSelectAllButton = function() {
-        // btnSelectAll.data('clicks', false);
-        // $('.checkbox-toggle .far.fa-check-square').removeClass('fa-check-square').addClass('fa-square');
+    FilePanel.prototype.renameDirectory = function(dirId) {
+        var dir = g.cube().fs.querySelfDirectory(dirId);
+        if (null == dir) {
+            alert('查找目录出错');
+            return;
+        }
+
+        
     }
 
     /**

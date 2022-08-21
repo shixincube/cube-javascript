@@ -35,8 +35,8 @@
 
     /**
      * 生成文件夹的行界面。
-     * @param {*} folder 
-     * @param {*} extended 
+     * @param {Directory} folder 
+     * @param {boolean} extended 
      */
     function makeFolderRow(folder, extended) {
         var id = folder.getId();
@@ -55,7 +55,12 @@
                 '<td class="file-name"><a href="javascript:app.filePanel.changeDirectory(\'', id, '\');">', name, '</a></td>',
                 '<td class="file-size">--</td>',
                 '<td class="file-lastmodifed">', g.formatYMDHMS(time), '</td>',
-                '<td class="file-operate"></td>',
+                '<td class="file-operate">',
+                    '<button onclick="app.filePanel.renameDirectory(', id, ')"',
+                        ' type="button" class="btn btn-secondary btn-sm" title="重命名"><i class="fas fa-edit"></i></button>',
+                    '<button',
+                        ' type="button" class="btn btn-danger btn-sm" title="删除"><i class="far fa-trash-alt"></i></button>',
+                '</td>',
             '</tr>'
         ];
     }
@@ -241,8 +246,6 @@
      * @param {string} id 指定 ID 。
      */
     FileTable.prototype.toggleSelect = function(id) {
-        g.app.filePanel.resetSelectAllButton();
-
         var el = tableEl.find('#' + id);
         if (el.prop('checked')) {
             el.prop('checked', false);

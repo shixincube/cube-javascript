@@ -8792,8 +8792,8 @@
 
     /**
      * 生成文件夹的行界面。
-     * @param {*} folder 
-     * @param {*} extended 
+     * @param {Directory} folder 
+     * @param {boolean} extended 
      */
     function makeFolderRow(folder, extended) {
         var id = folder.getId();
@@ -8812,7 +8812,12 @@
                 '<td class="file-name"><a href="javascript:app.filePanel.changeDirectory(\'', id, '\');">', name, '</a></td>',
                 '<td class="file-size">--</td>',
                 '<td class="file-lastmodifed">', g.formatYMDHMS(time), '</td>',
-                '<td class="file-operate"></td>',
+                '<td class="file-operate">',
+                    '<button onclick="app.filePanel.renameDirectory(', id, ')"',
+                        ' type="button" class="btn btn-secondary btn-sm" title="重命名"><i class="fas fa-edit"></i></button>',
+                    '<button',
+                        ' type="button" class="btn btn-danger btn-sm" title="删除"><i class="far fa-trash-alt"></i></button>',
+                '</td>',
             '</tr>'
         ];
     }
@@ -8998,8 +9003,6 @@
      * @param {string} id 指定 ID 。
      */
     FileTable.prototype.toggleSelect = function(id) {
-        g.app.filePanel.resetSelectAllButton();
-
         var el = tableEl.find('#' + id);
         if (el.prop('checked')) {
             el.prop('checked', false);
@@ -9970,11 +9973,17 @@
     }
 
     /**
-     * 重置“全选”复选框。
+     * 重命名目录。
+     * @param {number} dirId 
      */
-    FilePanel.prototype.resetSelectAllButton = function() {
-        // btnSelectAll.data('clicks', false);
-        // $('.checkbox-toggle .far.fa-check-square').removeClass('fa-check-square').addClass('fa-square');
+    FilePanel.prototype.renameDirectory = function(dirId) {
+        var dir = g.cube().fs.querySelfDirectory(dirId);
+        if (null == dir) {
+            alert('查找目录出错');
+            return;
+        }
+
+        
     }
 
     /**
@@ -10271,6 +10280,8 @@
     var btnPrev = null;
     var btnNext = null;
 
+    var btnSelectAll = null;
+
     var selectedValid = true;
 
     var validSharingPage = {
@@ -10304,10 +10315,23 @@
         pageNum = parentEl.find('.page-num');
         pageTotal = parentEl.find('.page-total');
 
+        btnSelectAll = parentEl.find('.checkbox-toggle');
+
         btnPrev = parentEl.find('button[data-target="prev"]');
         btnPrev.attr('disabled', 'disabled');
         btnNext = parentEl.find('button[data-target="next"]');
         btnNext.attr('disabled', 'disabled');
+
+        // 全选按钮
+        btnSelectAll.click(function () {
+            var clicked = $(this).prop('checked');
+            if (clicked) {
+                $('.sharing-table input[type="checkbox"]').prop('checked', true);
+            }
+            else {
+                $('.sharing-table input[type="checkbox"]').prop('checked', false);
+            }
+        });
 
         btnPrev.click(function() {
             that.prevPage();

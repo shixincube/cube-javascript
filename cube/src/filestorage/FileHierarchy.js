@@ -508,11 +508,11 @@ export class FileHierarchy {
             let data = packet.getPayload().data;
             // 创建数据实例
             let dir = Directory.create(data, this);
-            // 回调
-            handleSuccess(dir);
-
             // 缓存
             this.dirMap.put(workingDir.getId(), dir);
+
+            // 回调
+            handleSuccess(dir);
         });
     }
 
