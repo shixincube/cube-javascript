@@ -487,7 +487,32 @@ export class FileHierarchy {
         });
         this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
             if (null == packet || packet.getStateCode() != PipelineState.OK) {
+                let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, workingDir);
+                cell.Logger.w('FileHierarchy', '#renameDirectory() - ' + error);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
             }
+
+            if (packet.getPayload().code != FileStorageState.Ok) {
+                let error = new ModuleError(FileStorage.NAME, packet.getPayload().code, workingDir);
+                cell.Logger.w('FileHierarchy', '#renameDirectory() - ' + error);
+                if (handleFailure) {
+                    handleFailure(error);
+                }
+                return;
+            }
+
+            // 解析数据
+            let data = packet.getPayload().data;
+            // 创建数据实例
+            let dir = Directory.create(data, this);
+            // 回调
+            handleSuccess(dir);
+
+            // 缓存
+            this.dirMap.put(workingDir.getId(), dir);
         });
     }
 
