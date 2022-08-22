@@ -185,7 +185,7 @@ export class FileLabel extends Entity {
      * 获取文件的上传完成时间。
      * @returns {number} 返回文件完成时间。
      */
-    getCompletedTime() {
+    getCompletionTime() {
         return this.completedTime;
     }
 
