@@ -9035,6 +9035,21 @@
         surface.prepend($(rowHtml.join('')));
     }
 
+    /**
+     * 更新文件夹数据。
+     * @param {Directory} dir 指定目录。
+     */
+    FileTable.prototype.updateFolder = function(dir) {
+        var row = tableEl.find('#ftr_' + dir.getId());
+        var colName = row.find('.file-name');
+        var html = [
+            '<a href="javascript:app.filePanel.changeDirectory(', dir.getId(), ');">',
+                dir.getName()
+            , '</a>'
+        ];
+        colName.html(html.join(''));
+    }
+
     g.FileTable = FileTable;
 
 })(window);
@@ -9983,7 +9998,27 @@
             return;
         }
 
-        
+        g.dialog.showPrompt('重命名文件夹', '请输入文件夹 “' + dir.getName() + '” 的新名称：', function(ok, input) {
+            if (ok) {
+                if (input.length == 0) {
+                    g.dialog.launchToast(Toast.Warning, '请输入正确的文件夹名称');
+                    return false;
+                }
+                else if (input == dir.getName()) {
+                    g.dialog.launchToast(Toast.Warning, '请输入新的文件夹名称');
+                    return false;
+                }
+
+                dir.rename(input, function(workingDir) {
+                    // 更新目录
+                    table.updateFolder(workingDir);
+                }, function(error) {
+                    g.dialog.launchToast(Toast.Error, '重命名文件夹失败: ' + error.code);
+                });
+
+                return true;
+            }
+        }, dir.getName());
     }
 
     /**

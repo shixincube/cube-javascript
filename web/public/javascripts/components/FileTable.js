@@ -278,6 +278,21 @@
         surface.prepend($(rowHtml.join('')));
     }
 
+    /**
+     * 更新文件夹数据。
+     * @param {Directory} dir 指定目录。
+     */
+    FileTable.prototype.updateFolder = function(dir) {
+        var row = tableEl.find('#ftr_' + dir.getId());
+        var colName = row.find('.file-name');
+        var html = [
+            '<a href="javascript:app.filePanel.changeDirectory(', dir.getId(), ');">',
+                dir.getName()
+            , '</a>'
+        ];
+        colName.html(html.join(''));
+    }
+
     g.FileTable = FileTable;
 
 })(window);
