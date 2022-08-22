@@ -8813,9 +8813,9 @@
                 '<td class="file-size">--</td>',
                 '<td class="file-lastmodifed">', g.formatYMDHMS(time), '</td>',
                 '<td class="file-operate">',
-                    '<button onclick="app.filePanel.renameDirectory(', id, ')"',
+                    '<button onclick="javascript:app.filePanel.renameDirectory(', id, ');"',
                         ' type="button" class="btn btn-secondary btn-sm" title="重命名"><i class="fas fa-edit"></i></button>',
-                    '<button',
+                    '<button onclick="javascript:app.filePanel.promptDeleteDirectory(', id, ');"',
                         ' type="button" class="btn btn-danger btn-sm" title="删除"><i class="far fa-trash-alt"></i></button>',
                 '</td>',
             '</tr>'
@@ -10009,16 +10009,49 @@
                     return false;
                 }
 
+                g.dialog.showLoading('重命名文件夹');
+
                 dir.rename(input, function(workingDir) {
+                    g.dialog.hideLoading();
+
                     // 更新目录
                     table.updateFolder(workingDir);
                 }, function(error) {
+                    g.dialog.hideLoading();
+
                     g.dialog.launchToast(Toast.Error, '重命名文件夹失败: ' + error.code);
                 });
 
                 return true;
             }
         }, dir.getName());
+    }
+
+    /**
+     * 删除文件夹。
+     * @param {number} dirId 
+     */
+    FilePanel.prototype.promptDeleteDirectory = function(dirId) {
+        var dir = g.cube().fs.querySelfDirectory(dirId);
+        if (null == dir) {
+            alert('查找目录出错');
+            return;
+        }
+
+        var text = ['您确定要删除文件夹 ', '“<span class="text-danger">', dir.getName(), '</span>” 及该文件夹内的',
+                    '<span class="text-danger">全部文件</span>',
+                    '吗？'];
+        g.dialog.showConfirm('删除文件夹', text.join(''), function(ok) {
+            if (ok) {
+                currentDir.deleteDirectory([ dir ], true, function(workingDir, resultList) {
+                    g.dialog.launchToast(Toast.Success, '已删除文件夹“' + dir.getName() + "”");
+
+                    that.refreshTable(true);
+                }, function(error) {
+                    g.dialog.launchToast(Toast.Error, '删除文件夹失败: ' + error.code);
+                });
+            }
+        }, '删除文件夹');
     }
 
     /**

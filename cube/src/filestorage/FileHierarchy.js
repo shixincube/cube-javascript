@@ -335,6 +335,11 @@ export class FileHierarchy {
      * @param {function} [handleFailure] 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
     deleteDirectory(workingDir, pendingDir, recursive, handleSuccess, handleFailure) {
+        if (typeof recursive === 'function') {
+            cell.Logger.e('FileHierarchy', '#deleteDirectory() - parameter "recursive" type is error');
+            return;
+        }
+
         // 校验根
         let root = this._recurseRoot(workingDir);
         if (root.getId() != this.root.getId()) {

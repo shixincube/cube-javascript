@@ -56,9 +56,9 @@
                 '<td class="file-size">--</td>',
                 '<td class="file-lastmodifed">', g.formatYMDHMS(time), '</td>',
                 '<td class="file-operate">',
-                    '<button onclick="app.filePanel.renameDirectory(', id, ')"',
+                    '<button onclick="javascript:app.filePanel.renameDirectory(', id, ');"',
                         ' type="button" class="btn btn-secondary btn-sm" title="重命名"><i class="fas fa-edit"></i></button>',
-                    '<button',
+                    '<button onclick="javascript:app.filePanel.promptDeleteDirectory(', id, ');"',
                         ' type="button" class="btn btn-danger btn-sm" title="删除"><i class="far fa-trash-alt"></i></button>',
                 '</td>',
             '</tr>'
