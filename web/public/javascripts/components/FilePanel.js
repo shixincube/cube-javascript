@@ -1035,14 +1035,13 @@
         var show = function(fileLabel) {
             el.find('#file-name').val(fileLabel.getFileName());
             el.find('#file-size').val(g.formatSize(fileLabel.getFileSize()));
+            el.find('#sharing-password').val('');
 
             // 更新选项
             activeFileLabel = fileLabel;
             refreshCreateSharingTagDialogOption(true);
 
             el.find('button[data-target="confirm"]').click(function() {
-                el.find('.overlay').css('visibility', 'visible');
-
                 var duration = el.find('#file-sharing-duration').val();
                 duration = toDurationLong(duration);
 
@@ -1050,6 +1049,13 @@
                 if (password.length == 0) {
                     password = null;
                 }
+                else if (password.length != 6) {
+                    alert('访问码长度不正确，请输入6位访问码或不输入访问码。');
+                    return;
+                }
+
+                // 显示遮罩
+                el.find('.overlay').css('visibility', 'visible');
 
                 var watermark = null;
                 var previewWatermark = switchWatermark.prop('checked');

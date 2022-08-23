@@ -89,10 +89,16 @@ export class SharingTag extends Entity {
         this.duration = 0;
 
         /**
-         * 提取文件密码。
+         * 访问码。
          * @type {string}
          */
         this.password = null;
+
+        /**
+         * 是否需要访问码。
+         * @type {boolean}
+         */
+        this.hasPassword = false;
 
         /**
          * 是否启用预览功能。
@@ -188,6 +194,7 @@ export class SharingTag extends Entity {
         tag.fileLabel = FileLabel.create(json.config.fileLabel);
         tag.duration = json.config.duration;
         tag.password = (undefined !== json.config.password) ? json.config.password : null;
+        tag.hasPassword = json.config.hasPassword;
         tag.preview = json.config.preview;
         tag.download = json.config.download;
         tag.traceDownload = json.config.traceDownload;
