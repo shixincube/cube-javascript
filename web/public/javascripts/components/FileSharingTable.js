@@ -41,6 +41,8 @@
         var id = sharingTag.id;
         var fileLabel = sharingTag.fileLabel;
         var password = (null != sharingTag.password) ? sharingTag.password : '<i>无</i>';
+        var sharingURL = [ '[文件] ', fileLabel.getFileName(), '\r\n', sharingTag.getURL(), '\r\n',
+                            '【来自司派讯盒的文件分享链接】' ].join('');
 
         var html = [
             '<tr ondblclick="app.fileSharingPanel.showTraceDialog(\'', sharingTag.code, '\')">',
@@ -57,8 +59,8 @@
                     '<div class="input-group input-group-sm">',
                         '<input id="url_', id, '" type="text" class="form-control" value="', sharingTag.getURL(), '" readonly />',
                         '<span class="input-group-append">',
-                            '<button id="clippy_', id, '" type="button" class="btn btn-default btn-flat" title="复制分享链接到剪贴板" data-clipboard-target="#url_', id, '"><i class="fas fa-clipboard"></i></button>',
-                            '<button id="qrcode_', id, '" type="button" class="btn btn-default btn-flat" data-toggle="tooltip" data-placement="top" data-html="true" title="'
+                            '<button id="clippy_', id, '" type="button" class="btn btn-default btn-flat" title="复制分享链接到剪贴板" data-clipboard-text="', sharingURL, '"><i class="fas fa-clipboard"></i></button>',
+                            '<button id="qrcode_', id, '" type="button" class="btn btn-default btn-flat" data-toggle="tooltip" data-placement="bottom" data-html="true" title="'
                                 , '<img class=\'file-sharing-qrcode-img\' src=\'', sharingTag.getQRCodeURL(), '\'/>'
                                 , '"><i class="fas fa-qrcode"></i></button>',
                         '</span>',
