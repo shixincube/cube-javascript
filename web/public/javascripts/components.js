@@ -8602,8 +8602,9 @@
     var that = null;
 
     var catalogEl = null;
-    var transEl = null;
     var sharingEl = null;
+    var transEl = null;
+    var performanceEl = null;
 
     var btnAllFiles = null;
     var btnImageFiles = null;
@@ -8628,23 +8629,25 @@
      * @param {jQuery} catalog 主目录元素。
      * @param {jQuery} trans 传输列表元素。
      * @param {jQuery} sharing 文件分享列表元素。
+     * @param {jQuery} performance
      */
-    var FileCatalogue = function(catalog, trans, sharing) {
+    var FileCatalogue = function(catalog, sharing, trans, performance) {
         catalogEl = catalog;
-        transEl = trans;
         sharingEl = sharing;
+        transEl = trans;
+        performanceEl = performance;
 
         btnAllFiles = catalogEl.find('#btn_all_files');
         btnImageFiles = catalogEl.find('#btn_image_files');
         btnDocFiles = catalogEl.find('#btn_doc_files');
         btnRecyclebin = catalogEl.find('#btn_recyclebin');
 
+        btnSharing = sharingEl.find('#btn_sharing');
+        btnSharingExpired = sharingEl.find('#btn_sharing_expired');
+
         btnUploading = transEl.find('#btn_trans_upload');
         btnDownloading = transEl.find('#btn_trans_download');
         btnComplete = transEl.find('#btn_trans_complete');
-
-        btnSharing = sharingEl.find('#btn_sharing');
-        btnSharingExpired = sharingEl.find('#btn_sharing_expired');
 
         activeBtn = btnAllFiles;
 
@@ -8686,6 +8689,36 @@
         btnSharingExpired.click(function() {
             that.select($(this).attr('id'));
         });
+
+        // 刷新存储空间数据显示
+        this.refreshSpaceSize();
+    }
+
+    FileCatalogue.prototype.refreshSpaceSize = function() {
+        if (g.cube().fs.getMaxFileSpaceSize() == 0) {
+            setTimeout(function() {
+                that.refreshSpaceSize();
+            }, 5000);
+            return;
+        }
+
+        var dataText = [
+            g.formatSize(g.cube().fs.getFileSpaceSize()),
+            ' / ',
+            g.formatSize(g.cube().fs.getMaxFileSpaceSize())
+        ];
+
+        performanceEl.find('.file-space-desc').text(dataText.join(''));
+
+        var progress = g.cube().fs.getFileSpaceSize() / g.cube().fs.getMaxFileSpaceSize() * 100.0;
+        performanceEl.find('.progress-bar').width(progress + '%');
+
+        dataText = [
+            '已用空间：', g.formatSize(g.cube().fs.getFileSpaceSize()),
+            '，',
+            '可用空间：', g.formatSize(g.cube().fs.getMaxFileSpaceSize())
+        ];
+        performanceEl.find('.file-space-size').attr('title', dataText.join(''));
     }
 
     /**

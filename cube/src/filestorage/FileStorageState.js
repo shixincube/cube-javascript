@@ -138,6 +138,12 @@ export const FileStorageState = {
     DataFormatError: 107,
 
     /**
+     * 空间超限。
+     * @type {number}
+     */
+    OverSize: 110,
+
+    /**
      * 未知的状态。
      * @type {number}
      */

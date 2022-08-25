@@ -334,9 +334,8 @@
             // 文件
             var filesEl = $('#files');
             // 文件目录
-            fileCatalog = new FileCatalogue(filesEl.find('.file-catalog'),
-                                                filesEl.find('.file-trans'),
-                                                filesEl.find('.file-sharing'));
+            fileCatalog = new FileCatalogue(filesEl.find('.file-catalog'), filesEl.find('.file-sharing'),
+                                            filesEl.find('.file-trans'), filesEl.find('.file-storage-performance'));
             // 文件面板
             filePanel = new FilePanel(filesEl.find('.files-panel'));
             // 文件分享面板

@@ -163,6 +163,18 @@ export class FileStorage extends Module {
          * @type {boolean}
          */
         this.serviceReady = false;
+
+        /**
+         * 已使用的文件存储空间大小。
+         * @type {number}
+         */
+        this.fileSpaceSize = 0;
+
+        /**
+         * 最大允许使用的文件存储空间大小。
+         * @type {number}
+         */
+        this.maxFileSpaceSize = 0;
     }
 
     /**
@@ -254,6 +266,22 @@ export class FileStorage extends Module {
         else {
             FileStorage.HTTP_PORT = parseInt(substr.substring(index + 1, end));
         }
+    }
+
+    /**
+     * 获取已使用的文件空间大小。
+     * @returns {number} 返回已使用的文件空间大小。
+     */
+    getFileSpaceSize() {
+        return this.fileSpaceSize;
+    }
+
+    /**
+     * 获取最大允许使用的文件空间大小。
+     * @returns {number} 返回最大允许使用的文件空间大小。
+     */
+    getMaxFileSpaceSize() {
+        return this.maxFileSpaceSize;
     }
 
     /**
@@ -384,6 +412,19 @@ export class FileStorage extends Module {
      */
     uploadFile(file, handleProcessing, handleSuccess, handleFailure) {
         let fileSize = file.size;
+
+        // 检查空间
+        if (this.fileSpaceSize > 0 && this.maxFileSpaceSize > 0) {
+            if (fileSize > this.maxFileSpaceSize - this.fileSpaceSize) {
+                if (handleFailure) {
+                    // 无可用空间
+                    let error = new ModuleError(FileStorage.NAME, FileStorageState.OverSize, file);
+                    handleFailure(error);
+                }
+                return null;
+            }
+        }
+
         let fileAnchor = new FileAnchor();
         let reader = new FileReader();
 
@@ -413,7 +454,6 @@ export class FileStorage extends Module {
 
                 // 实例化错误
                 let error = new ModuleError(FileStorage.NAME, FileStorageState.TransmitFailed, fileAnchor);
-
                 if (handleFailure) {
                     handleFailure(error);
                 }
@@ -1504,9 +1544,8 @@ export class FileStorage extends Module {
             return;
         }
 
-        let spaceSize = payload.data.spaceSize;
-        let maxSpaceSize = payload.data.maxSpaceSize;
-        console.log('SIZE: ' + spaceSize + '/' + maxSpaceSize);
+        this.fileSpaceSize = payload.data.spaceSize;
+        this.maxFileSpaceSize = payload.data.maxSpaceSize;
     }
 
     /**
