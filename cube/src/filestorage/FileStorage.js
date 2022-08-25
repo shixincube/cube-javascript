@@ -1461,7 +1461,7 @@ export class FileStorage extends Module {
      * @param {object} context 
      */
     triggerPutFile(payload, context) {
-        if (payload.code != 0) {
+        if (payload.code != FileStorageState.Ok) {
             return;
         }
 
@@ -1492,6 +1492,21 @@ export class FileStorage extends Module {
 
         // 通知事件
         this.notifyObservers(new ObservableEvent(FileStorageEvent.FileUpdated, fileLabel));
+    }
+
+    /**
+     * 处理 Performance 数据
+     * @param {object} payload 
+     * @returns 
+     */
+    triggerPerformance(payload) {
+        if (payload.code != FileStorageState.Ok) {
+            return;
+        }
+
+        let spaceSize = payload.data.spaceSize;
+        let maxSpaceSize = payload.data.maxSpaceSize;
+        console.log('SIZE: ' + spaceSize + '/' + maxSpaceSize);
     }
 
     /**

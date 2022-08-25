@@ -58,5 +58,8 @@ export class FileStoragePipeListener extends PipelineListener {
         if (packet.name == FileStorageAction.PutFile) {
             this.fileStorage.triggerPutFile(packet.data);
         }
+        else if (packet.name == FileStorageAction.Performance) {
+            this.fileStorage.triggerPerformance(packet.data);
+        }
     }
 }

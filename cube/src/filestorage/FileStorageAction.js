@@ -28,6 +28,13 @@
  * 文件存储动作。
  */
 export const FileStorageAction = {
+
+    /**
+     * 相关配置参数。
+     * @type {string}
+     */
+    Performance: 'performance',
+
     /**
      * 文件放置到存储中。
      * @type {string}
