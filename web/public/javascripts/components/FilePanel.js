@@ -609,6 +609,8 @@
     FilePanel.prototype.refreshTable = function(reset, completion) {
         if (reset) {
             g.app.fileCtrl.resetPageData(currentDir);
+            // 更新空间显示数据
+            g.app.fileCatalog.refreshSpaceSize();
         }
 
         g.app.fileCtrl.getPageData(currentDir, currentPage.page, function(result) {

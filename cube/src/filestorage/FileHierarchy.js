@@ -436,6 +436,7 @@ export class FileHierarchy {
             // 解析数据
             let data = packet.getPayload().data;
             let deletedList = data.deletedList;
+            let dirJson = data.workingDir;
 
             // 更新目录
             let findDir = (dir) => {
@@ -454,10 +455,17 @@ export class FileHierarchy {
                 if (findDir(dir)) {
                     workingDir.removeChild(dir);
                     resultList.push(dir);
-                }   
+                }
             }
             // 更新数量
             workingDir.numDirs -= resultList.length;
+            workingDir.lastModified = dirJson.lastModified;
+
+            // 计算大小
+            let delta = workingDir.size - dirJson.size;
+            this.storage.fileSpaceSize -= delta;
+
+            workingDir.size = dirJson.size;
 
             handleSuccess(workingDir, resultList);
 
@@ -572,14 +580,21 @@ export class FileHierarchy {
             // 解析数据
             let data = packet.getPayload().data;
             let deletedList = data.deletedList;
+            let dirJson = data.workingDir;
+
             let deletedFile = [];
             deletedList.forEach((json) => {
                 let fileLabel = FileLabel.create(json);
                 workingDir.removeFile(fileLabel);
                 deletedFile.push(fileLabel);
+
+                // 计算空间大小
+                this.storage.fileSpaceSize -= fileLabel.fileSize;
             });
             // 更新数量
             workingDir.numFiles -= deletedList.length;
+            workingDir.size = dirJson.size;
+            workingDir.lastModified = dirJson.lastModified;
 
             handleSuccess(workingDir, deletedFile);
 

@@ -501,6 +501,9 @@ export class FileStorage extends Module {
         let callback = fileAnchor.finishCallback;
         if (callback) {
             this.getFileLabel(fileAnchor.fileCode, (fileLabel) => {
+                // 更新空间大小
+                this.fileSpaceSize += fileAnchor.fileSize;
+
                 // 将锚点上的回调函数置空
                 fileAnchor.finishCallback = null;
 
