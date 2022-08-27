@@ -58,7 +58,7 @@
                 '<td class="file-completion">--</td>',
                 '<td class="file-operate">',
                     '<button onclick="javascript:app.filePanel.renameDirectory(', id, ');"',
-                        ' type="button" class="btn btn-secondary btn-sm" title="重命名"><i class="fas fa-edit"></i></button>',
+                        ' type="button" class="btn btn-primary btn-sm" title="重命名"><i class="fas fa-edit"></i></button>',
                     '<button onclick="javascript:app.filePanel.promptDeleteDirectory(', id, ');"',
                         ' type="button" class="btn btn-danger btn-sm" title="删除"><i class="far fa-trash-alt"></i></button>',
                 '</td>',
@@ -93,11 +93,21 @@
                         ' type="button" class="btn btn-primary btn-sm" title="下载"><i class="fas fa-download"></i></button>',
                     '<button ', 'onclick="app.filePanel.openCreateSharingTagDialog(\'', fileLabel.getFileCode(), '\')"',
                         ' type="button" class="btn btn-info btn-sm" title="分享" data-target="share-file"><i class="fas fa-share-alt"></i></button>',
-                    '<button ', 'onclick="app.filePanel.promptDeleteFile(\'', fileLabel.getFileName(), '\', \'', fileLabel.getFileCode(), '\')"',
-                        ' type="button" class="btn btn-danger btn-sm" title="删除" data-target="recycle-file"><i class="far fa-trash-alt"></i></button>',
+                    '<div class="btn-group">',
+                        '<button type="button" class="btn btn-secondary btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown">',
+                        '</button>',
+                        '<div class="dropdown-menu">',
+                            '<a class="dropdown-item text-sm" href="javascript:;"><i class="far fa-folder"></i>&nbsp;&nbsp;移动文件</a>',
+                            '<a class="dropdown-item text-sm" href="javascript:app.filePanel.promptDeleteFile(\'', fileLabel.getFileName(), '\', \'', fileLabel.getFileCode(), '\')', 
+                                ';"><span class="text-danger"><i class="far fa-trash-alt"></i>&nbsp;&nbsp;删除文件<span></a>',
+                        '</div>',
+                    '</div>',
                 '</td>',
             '</tr>'
         ];
+
+        //'<button ', 'onclick="app.filePanel.promptDeleteFile(\'', fileLabel.getFileName(), '\', \'', fileLabel.getFileCode(), '\')"',
+        //' type="button" class="btn btn-danger btn-sm" title="删除" data-target="recycle-file"><i class="far fa-trash-alt"></i></button>',
     }
 
     /**
