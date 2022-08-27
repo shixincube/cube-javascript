@@ -40,6 +40,7 @@ const fileList = [
     'ConferenceController.js',
     'SelectContactsDialog.js',
     'SearchDialog.js',
+    'FolderTreeDialog.js',
     'AppEventCenter.js'
 ];
 

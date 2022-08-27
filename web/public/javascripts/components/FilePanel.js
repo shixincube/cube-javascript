@@ -853,7 +853,7 @@
                 var dir = currentDir.getDirectory(dirId);
                 if (null == dir) {
                     // 从 FS 模块直接查询目录
-                    dir = g.cube().fs.querySelfDirectory(dirId);
+                    dir = g.cube().fs.queryDirectory(dirId);
                 }
                 currentDir = dir;
             }
@@ -965,7 +965,7 @@
      * @param {number} dirId 
      */
     FilePanel.prototype.renameDirectory = function(dirId) {
-        var dir = g.cube().fs.querySelfDirectory(dirId);
+        var dir = g.cube().fs.queryDirectory(dirId);
         if (null == dir) {
             alert('查找目录出错');
             return;
@@ -1005,7 +1005,7 @@
      * @param {number} dirId 
      */
     FilePanel.prototype.promptDeleteDirectory = function(dirId) {
-        var dir = g.cube().fs.querySelfDirectory(dirId);
+        var dir = g.cube().fs.queryDirectory(dirId);
         if (null == dir) {
             alert('查找目录出错');
             return;
@@ -1138,6 +1138,17 @@
                 });
             }
         }, '删除');
+    }
+
+    /**
+     * 打开文件夹对话框。
+     */
+    FilePanel.prototype.openFolderDialog = function(fileName, fileCode) {
+        g.cube().fs.getSelfRoot(function(root) {
+            g.app.folderTreeDialog.open(root);
+        }, function(error) {
+
+        });
     }
 
     FilePanel.prototype.downloadFile = function(fileCode) {

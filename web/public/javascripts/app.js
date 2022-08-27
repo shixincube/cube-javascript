@@ -387,6 +387,9 @@
             // 搜索对话框
             that.searchDialog = new SearchDialog();
 
+            // 文件夹树形对话框
+            that.folderTreeDialog = new FolderTreeDialog();
+
             // 进入默认的一级标签
             var tab = g.getQueryString('tab');
             if (null != tab) {

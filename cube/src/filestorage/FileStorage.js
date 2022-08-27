@@ -852,7 +852,7 @@ export class FileStorage extends Module {
      * @param {number|string} id 目录 ID 。
      * @returns {Directory} 返回指定 ID 的目录。
      */
-    querySelfDirectory(id) {
+    queryDirectory(id) {
         let hierarchy = this.fileHierarchyMap.get(this.contactService.getSelf().getId());
         if (null == hierarchy) {
             return null;

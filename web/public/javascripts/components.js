@@ -8887,7 +8887,8 @@
                         '<button type="button" class="btn btn-secondary btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown">',
                         '</button>',
                         '<div class="dropdown-menu">',
-                            '<a class="dropdown-item text-sm" href="#"><i class="far fa-folder"></i>&nbsp;&nbsp;移动文件</a>',
+                            '<a class="dropdown-item text-sm" href="javascript:app.filePanel.openFolderDialog(\'', fileLabel.getFileName(), '\', \'', fileLabel.getFileCode(), '\')',
+                                ';"><i class="far fa-folder"></i>&nbsp;&nbsp;移动文件</a>',
                             '<a class="dropdown-item text-sm" href="javascript:app.filePanel.promptDeleteFile(\'', fileLabel.getFileName(), '\', \'', fileLabel.getFileCode(), '\')', 
                                 ';"><span class="text-danger"><i class="far fa-trash-alt"></i>&nbsp;&nbsp;删除文件<span></a>',
                         '</div>',
@@ -9928,7 +9929,7 @@
                 var dir = currentDir.getDirectory(dirId);
                 if (null == dir) {
                     // 从 FS 模块直接查询目录
-                    dir = g.cube().fs.querySelfDirectory(dirId);
+                    dir = g.cube().fs.queryDirectory(dirId);
                 }
                 currentDir = dir;
             }
@@ -10040,7 +10041,7 @@
      * @param {number} dirId 
      */
     FilePanel.prototype.renameDirectory = function(dirId) {
-        var dir = g.cube().fs.querySelfDirectory(dirId);
+        var dir = g.cube().fs.queryDirectory(dirId);
         if (null == dir) {
             alert('查找目录出错');
             return;
@@ -10080,7 +10081,7 @@
      * @param {number} dirId 
      */
     FilePanel.prototype.promptDeleteDirectory = function(dirId) {
-        var dir = g.cube().fs.querySelfDirectory(dirId);
+        var dir = g.cube().fs.queryDirectory(dirId);
         if (null == dir) {
             alert('查找目录出错');
             return;
@@ -10213,6 +10214,17 @@
                 });
             }
         }, '删除');
+    }
+
+    /**
+     * 打开文件夹对话框。
+     */
+    FilePanel.prototype.openFolderDialog = function(fileName, fileCode) {
+        g.cube().fs.getSelfRoot(function(root) {
+            g.app.folderTreeDialog.open(root);
+        }, function(error) {
+
+        });
     }
 
     FilePanel.prototype.downloadFile = function(fileCode) {
@@ -12733,6 +12745,60 @@
     g.SearchDialog = SearchDialog;
     
  })(window);
+(function(g) {
+    'use strict';
+
+    var dialogEl = null;
+    var rootEl = null;
+
+    var selectedEl = null;
+    var selectedDirId = 0;
+
+    function makeFolderLevel(directory) {
+        var html = [
+            '<li class="nav-item">',
+                '<a href="javascript:app.folderTreeDialog.selectFolder(', directory.getId(), ');" id="', directory.getId(), '" class="nav-link">',
+                    '<i class="fas fa-folder nav-icon"></i>',
+                    '<p>', directory.getName(), '</p>',
+                '</a>',
+            '</li>'
+        ];
+        return $(html.join(''));
+    }
+
+    function FolderTreeDialog() {
+        dialogEl = $('#modal_folder_tree');
+        rootEl = dialogEl.find('.folder-root');
+    }
+
+    FolderTreeDialog.prototype.open = function(root) {
+        root.listDirectories(function(dir, list) {
+            list.forEach(function(item) {
+                var el = makeFolderLevel(item);
+                rootEl.append(el);
+            });
+        }, function(error) {
+
+        });
+
+        dialogEl.modal('show');
+    }
+
+    FolderTreeDialog.prototype.selectFolder = function(id) {
+        if (null != selectedEl) {
+            selectedEl.removeClass('active');
+        }
+
+        selectedDirId = id;
+        selectedEl = dialogEl.find('#' + id);
+        if (!selectedEl.hasClass('active')) {
+            selectedEl.addClass('active');
+        }
+    }
+
+    g.FolderTreeDialog = FolderTreeDialog;
+
+})(window);
 /**
  * 事件监听器。
  */
