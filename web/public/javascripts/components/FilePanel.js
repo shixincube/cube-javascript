@@ -1145,7 +1145,9 @@
      */
     FilePanel.prototype.openFolderDialog = function(fileName, fileCode) {
         g.cube().fs.getSelfRoot(function(root) {
-            g.app.folderTreeDialog.open(root);
+            g.app.folderTreeDialog.open(root, function(directory) {
+                
+            });
         }, function(error) {
 
         });
