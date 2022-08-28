@@ -1146,10 +1146,39 @@
     FilePanel.prototype.openFolderDialog = function(fileName, fileCode) {
         g.cube().fs.getSelfRoot(function(root) {
             g.app.folderTreeDialog.open(root, function(directory) {
-                
+                if (null != directory) {
+                    g.dialog.showConfirm('移动文件', '是否确认将文件 “' + fileName + '” 移动到目录 “' + directory.getName() + '” 吗？',
+                        function(yesOrNo) {
+                            if (yesOrNo) {
+                                g.dialog.showLoading('正在移动文件');
+
+                                g.cube().fs.moveFile(fileCode, currentDir, directory, function(fileLabel, srcDir, destDir) {
+                                    // 关闭对话框
+                                    g.app.folderTreeDialog.close();
+
+                                    setTimeout(function() {
+                                        g.dialog.hideLoading();
+
+                                        that.refreshTable(true);
+                                    }, 100);
+                                }, function(error) {
+                                    // 关闭对话框
+                                    g.app.folderTreeDialog.close();
+
+                                    g.dialog.toast('移动文件失败：' + error.code, Toast.Error);
+                                });
+                            }
+                        });
+
+                    // 不关闭对话框
+                    return false;
+                }
+                else {
+                    g.dialog.toast('您没有选择目标文件夹');
+                }
             });
         }, function(error) {
-
+            g.dialog.toast('发生错误：' + error, Toast.Error);
         });
     }
 

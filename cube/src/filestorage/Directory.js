@@ -204,16 +204,16 @@ export class Directory {
     }
 
     /**
-     * 合计包含的同级目录数量。
-     * @returns {number} 返回包含的同级目录数量。
+     * 合计包含的子目录数量。
+     * @returns {number} 返回包含的子目录数量。
      */
     totalDirs() {
         return this.numDirs;
     }
 
     /**
-     * 合计包含的同级文件数量。
-     * @returns {number} 返回包含的同级文件数量。
+     * 合计包含的文件数量。
+     * @returns {number} 返回包含的文件数量。
      */
     totalFiles() {
         return this.numFiles;
@@ -486,6 +486,19 @@ export class Directory {
      */
     removeFile(fileLabel) {
         this.files.remove(fileLabel.getFileCode());
+    }
+
+    /**
+     * @private
+     * @param {object} json 
+     */
+    update(json) {
+        this.name = json.name;
+        this.lastModified = json.lastModified;
+        this.size = json.size;
+        this.hidden = json.hidden;
+        this.numDirs = json.numDirs;
+        this.numFiles = json.numFiles;
     }
 
     /**

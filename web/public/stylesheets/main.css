@@ -1148,6 +1148,9 @@ video {
 .foler-tree-level-2 {
     padding-left: 28px;
 }
+.foler-tree-level-3 {
+    padding-left: 56px;
+}
 
 .fp-path {
     color: #6c757d;
@@ -1193,6 +1196,7 @@ video {
 
 .file-content .table-files {
     font-size: 12px;
+    height: 100%;
 }
 .table-files .table {
     margin-bottom: 2px;

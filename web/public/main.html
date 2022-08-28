@@ -1356,32 +1356,18 @@
                 </div>
                 <div class="modal-body">
                     <p class="tips">请选择文件夹：</p>
-                    <ul class="nav nav-pills nav-sidebar flex-column folder-root" data-widget="treeview" role="menu" data-accordion="false">
-                        <!--
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="fas fa-folder nav-icon"></i>
-                                <p>Level 1</p>
-                            </a>
-                        </li>
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         <li class="nav-item has-treeview">
-                            <a href="#" class="nav-link">
+                            <a href="javascript:;" class="nav-link" data-target="root">
                                 <i class="nav-icon fas fa-folder"></i>
                                 <p>
-                                    Level 1
+                                    我的文件
                                     <i class="right fas fa-angle-left"></i>
                                 </p>
                             </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item foler-tree-level-2">
-                                    <a href="#" class="nav-link">
-                                        <i class="far fa-folder nav-icon"></i>
-                                        <p>Level 2</p>
-                                    </a>
-                                </li>
+                            <ul class="nav nav-treeview folder-root">
                             </ul>
                         </li>
-                        -->
                     </ul>
                 </div>
                 <div class="modal-footer">
@@ -2067,7 +2053,7 @@
         window.app.launch();
     });
 
-    window.dialog.showLoading('正在加载用户数据', 10000);
+    window.dialog.showLoading('正在加载用户数据', 15000);
     $('#cube_version').html(Kernel.VERSION);
 })(jQuery);
 </script>

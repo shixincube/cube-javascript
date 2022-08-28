@@ -60,6 +60,12 @@ export const FileStorageAction = {
     InsertFile: 'insertFile',
 
     /**
+     * 移动文件到指定目录。
+     * @type {string}
+     */
+    MoveFile: 'moveFile',
+
+    /**
      * 罗列目录清单。
      * @type {string}
      */

@@ -123,6 +123,12 @@ export class FileStorage extends Module {
         this.fileHierarchyMap = new OrderMap();
 
         /**
+         * 当前联系人的根目录。
+         * @type {FileHierarchy}
+         */
+        this.hierarchyRoot = null;
+
+        /**
          * 是否是安全连接。
          * @type {boolean}
          */
@@ -225,6 +231,8 @@ export class FileStorage extends Module {
 
         // 关闭存储库
         this.storage.close();
+
+        this.hierarchyRoot = null;
     }
 
     /**
@@ -843,6 +851,10 @@ export class FileStorage extends Module {
             hierarchy.root = root;
             this.fileHierarchyMap.put(root.getId(), hierarchy);
 
+            if (this.contactService.getSelf().getId() == id) {
+                this.hierarchyRoot = root;
+            }
+
             handleSuccess(root);
         });
     }
@@ -916,6 +928,64 @@ export class FileStorage extends Module {
             if (handleFailure) {
                 handleFailure(error);
             }
+        });
+    }
+
+    /**
+     * 移动文件到指定目录。
+     * @param {string} fileCode 指定文件码。
+     * @param {Directory} srcDirectory 指定源目录。
+     * @param {Directory} destDirectory 指定目标目录。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode fileLabel}:{@link FileLabel}, {@linkcode srcDirectory}:{@link Directory}, {@linkcode destDirectory}:{@link Directory}) 。
+     * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    moveFile(fileCode, srcDirectory, destDirectory, handleSuccess, handleFailure) {
+        if (null == this.hierarchyRoot) {
+            this.getSelfRoot((root) => {
+                this.hierarchyRoot = root;
+                this.moveFile(fileCode, srcDirectory, destDirectory, handleSuccess, handleFailure);
+            }, (error) => {
+                handleFailure(error);
+            });
+
+            return;
+        }
+
+        this.getFileLabel(fileCode, (fileLabel) => {
+            // 调用 MoveFile
+            let requestPacket = new Packet(FileStorageAction.MoveFile, {
+                root: this.hierarchyRoot.id,
+                srcDirId: srcDirectory.id,
+                destDirId: destDirectory.id,
+                fileCode: fileCode
+            });
+            this.pipeline.send(FileStorage.NAME, requestPacket, (pipeline, source, packet) => {
+                if (null == packet || packet.getStateCode() != PipelineState.OK) {
+                    let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, fileLabel);
+                    handleFailure(error);
+                    return;
+                }
+
+                if (packet.getPayload().code != FileStorageState.Ok) {
+                    let error = new ModuleError(FileStorage.NAME, packet.getPayload().code, fileLabel);
+                    handleFailure(error);
+                    return;
+                }
+
+                let data = packet.extractServiceData();
+                // 更新基础数据
+                srcDirectory.update(data.srcDirectory);
+                destDirectory.update(data.destDirectory);
+
+                // 从源删除
+                srcDirectory.removeFile(fileLabel);
+                // 添加到目标
+                destDirectory.addFile(fileLabel);
+
+                handleSuccess(fileLabel, srcDirectory, destDirectory);
+            });
+        }, (error) => {
+            handleFailure(error);
         });
     }
 
