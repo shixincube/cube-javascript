@@ -485,14 +485,14 @@
             else {
                 el.find('button.alert-confirm-button').text('我知道了');
             }
-    
+
             if (undefined === callback) {
                 alertCallback = null;
             }
             else {
                 alertCallback = callback;
             }
-    
+
             el.modal();
         },
 

@@ -2054,11 +2054,21 @@
 <script type="text/javascript" src="javascripts/app.js"></script>
 <script type="text/javascript">
 (function ($) {
-    $(document).ready(function() {
-        window.app.launch();
-    });
+    if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+        window.dialog.showAlert('请使用桌面电脑以获得更好的用户体验！', function() {
+            setTimeout(function() {
+                window.location.href = 'index.html?c=logout';
+            }, 500);
+        });
+    }
+    else {
+        $(document).ready(function() {
+            window.app.launch();
+        });
 
-    window.dialog.showLoading('正在加载用户数据', 15000);
+        window.dialog.showLoading('正在加载用户数据', 15000);
+    }
+
     $('#cube_version').html(Kernel.VERSION);
 })(jQuery);
 </script>
