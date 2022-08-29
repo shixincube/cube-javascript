@@ -10329,7 +10329,7 @@
                         '<input id="url_', id, '" type="text" class="form-control" value="', sharingTag.getURL(), '" readonly />',
                         '<span class="input-group-append">',
                             '<button id="clippy_', id, '" type="button" class="btn btn-default btn-flat" title="复制分享链接到剪贴板" data-clipboard-text="', sharingURL, '"><i class="fas fa-clipboard"></i></button>',
-                            '<button id="qrcode_', id, '" type="button" class="btn btn-default btn-flat" data-toggle="tooltip" data-placement="bottom" data-html="true" title="'
+                            '<button id="qrcode_', id, '" type="button" class="btn btn-default btn-flat" data-toggle="tooltip" data-placement="top" data-html="true" title="'
                                 , '<img class=\'file-sharing-qrcode-img\' src=\'', sharingTag.getQRCodeURL(), '\'/>'
                                 , '"><i class="fas fa-qrcode"></i></button>',
                         '</span>',
