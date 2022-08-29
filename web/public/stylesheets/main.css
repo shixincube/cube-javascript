@@ -1271,6 +1271,12 @@ video {
     table-layout: fixed !important;
 }
 
+.search-input-clear {
+    position: absolute !important;
+    right: 31px;
+    display: none;
+}
+
 /* 文件界面 - 结束 */
 
 /* 文件详情界面 - 开始 */

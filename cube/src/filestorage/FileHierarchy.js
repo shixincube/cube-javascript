@@ -41,9 +41,10 @@ import { SearchItem } from "./SearchItem";
 /**
  * 搜索过滤器定义。
  * @typedef {object} SearchFilter
- * @property {Array} type 包含检索的文件类型。
  * @property {number} begin 检索的起始索引。
  * @property {number} end 检索的结束索引。
+ * @property {Array} [types] 包含检索的文件类型。
+ * @property {Array} [nameKeywords] 包含检索的名称关键词。
  * @property {boolean} [inverseOrder] 是否安排时间倒序返回结果。
  */
 
@@ -812,11 +813,14 @@ export class FileHierarchy {
             let list = [];
             result.forEach((item) => {
                 let dir = this._toDirectory(item.directory);
-                let file = FileLabel.create(item.file);
-                let sitem = new SearchItem(dir, file);
-                list.push(sitem);
+                let file = null;
+                if (item.file) {
+                    file = FileLabel.create(item.file);
+                }
+                let searchItem = new SearchItem(dir, file);
+                list.push(searchItem);
 
-                this._putSearchItem(sitem);
+                this._putSearchItem(searchItem);
             });
 
             handleSuccess(filter, list);

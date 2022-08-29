@@ -33,6 +33,11 @@
 
     var panelEl = null;
 
+    var searchInput = null;
+    var searchClear = null;
+    var searchButton = null;
+    var searchFilter = null;
+
     var btnSelectAll = null;
 
     var btnUpload = null;
@@ -146,6 +151,10 @@
         panelEl = el;
         table = new FileTable(el.find('.file-table'));
 
+        searchInput = el.find('.file-search-box').find('input');
+        searchClear = el.find('.file-search-box').find('.search-input-clear');
+        searchButton = el.find('.file-search-box').find('.search-input-submit');
+
         btnSelectAll = el.find('.checkbox-toggle');
         btnUpload = el.find('button[data-target="upload"]');
         btnEmptyTrash = el.find('button[data-target="empty-trash"]');
@@ -185,6 +194,36 @@
             refreshCreateSharingTagDialogOption(false, false);
         });
         switchDownloadTrace = dialogCreateSharingTag.find('#download-trace-switch');
+
+        var inputTimer = 0;
+        // 输入框事件
+        searchInput.val('');
+        searchInput.on('change keyup paste', function() {
+            if (inputTimer > 0) {
+                clearTimeout(inputTimer);
+            }
+            inputTimer = setTimeout(function() {
+                clearTimeout(inputTimer);
+                inputTimer = 0;
+
+                var value = searchInput.val();
+                if (value.length > 0) {
+                    searchClear.css('display', 'inline-block');
+                }
+                else {
+                    searchClear.css('display', 'none');
+                    that.clearSearch();
+                }
+            }, 100);
+        });
+        searchClear.click(function() {
+            searchInput.val('');
+            searchClear.css('display', 'none');
+            that.clearSearch();
+        });
+        searchButton.click(function() {
+            that.searchFile();
+        });
 
         // 全选按钮
         btnSelectAll.click(function () {
@@ -720,7 +759,7 @@
         currentFilter = {
             begin: 0,
             end: g.app.fileCtrl.numPerPage,
-            type: ['jpg', 'png', 'gif', 'bmp']
+            types: ['jpg', 'png', 'gif', 'bmp']
         };
 
         // 搜索文件
@@ -768,7 +807,7 @@
         currentFilter = {
             begin: 0,
             end: g.app.fileCtrl.numPerPage,
-            type: ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
+            types: ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
                 'docm', 'dotm', 'dotx', 'ett', 'xlsm', 'xlt', 'dpt',
                 'ppsm', 'ppsx', 'pot', 'potm', 'potx', 'pps', 'ptm']
         };
@@ -1147,7 +1186,9 @@
         g.cube().fs.getSelfRoot(function(root) {
             g.app.folderTreeDialog.open(root, function(directory) {
                 if (null != directory) {
-                    g.dialog.showConfirm('移动文件', '是否确认将文件 “' + fileName + '” 移动到目录 “' + directory.getName() + '” 吗？',
+                    var dirName = (directory.getName() == 'root') ? '根目录' : directory.getName();
+
+                    g.dialog.showConfirm('移动文件', '是否确认将文件 “' + fileName + '” 移动到目录 “' + dirName + '” 吗？',
                         function(yesOrNo) {
                             if (yesOrNo) {
                                 g.dialog.showLoading('正在移动文件');
@@ -1182,6 +1223,10 @@
         });
     }
 
+    /**
+     * 下载文件。
+     * @param {string} fileCode 
+     */
     FilePanel.prototype.downloadFile = function(fileCode) {
         // 触发 Download 事件
         g.app.fileCatalog.onFileDownload(fileCode);
@@ -1192,6 +1237,45 @@
             g.app.fileCatalog.onFileDownloaded(fileCode);
         });
     }
+
+    /**
+     * 根据指定关键词搜索文件。
+     */
+    FilePanel.prototype.searchFile = function() {
+        var keyword = searchInput.val();
+        if (keyword.length == 0) {
+            return;
+        }
+
+        g.dialog.showLoading('正在检索目录和文件');
+
+        var words = keyword.split(' ');
+
+        searchFilter = {
+            begin: 0,
+            end: 14,
+            nameKeywords: words
+        };
+        g.cube().fs.searchFile(searchFilter, function(filter, searchItemList) {
+            g.dialog.hideLoading();
+
+            searchItemList.forEach(function(item) {
+                console.log('Dir: ' + item.isDirectory() + ' - ' + item.directory.getName() +
+                    (item.isDirectory() ? '' : (' - ' + item.file.getFileName())));
+            });
+        }, function(error) {
+            g.dialog.hideLoading();
+            g.dialog.toast('检索目录和文件出错：' + error.code, Toast.Error);
+        });
+    }
+
+    /**
+     * 清空搜索。
+     */
+    FilePanel.prototype.clearSearch = function() {
+        searchFilter = null;
+    }
+
 
     function toDurationLong(value) {
         if (value == '24h') {
