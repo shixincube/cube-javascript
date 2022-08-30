@@ -8910,30 +8910,75 @@
             dirName = '/';
         }
 
-        var id = fileLabel.getId();
-        return [
-            '<tr id="ftr_', id, '">',
-                '<td onclick="app.filePanel.toggleSelect(\'', id, '\')"><div class="icheck-primary">',
-                    '<input type="checkbox" data-type="file" id="', id, '">',
-                        '<label for="', id, '"></label></div></td>',
-                '<td class="file-icon">', matchFileIcon(fileLabel), '</td>',
-                '<td class="file-name"><a href="javascript:app.filePanel.openFile(\'', fileLabel.getFileCode(), '\',\'',
-                    directory.getId() , '\');">',
-                        fileLabel.getFileName(), '</a>', '<span class="desc">所在目录: ', dirName, '</span>',
-                '</td>',
-                '<td class="file-size">', g.formatSize(fileLabel.getFileSize()), '</td>',
-                '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getLastModified()), '</td>',
-                '<td class="file-completion">', g.formatYMDHMS(fileLabel.getCompletionTime()), '</td>',
-                '<td class="file-operate">',
-                    '<button ', 'onclick="app.filePanel.downloadFile(\'', fileLabel.getFileCode(), '\')"',
-                        ' type="button" class="btn btn-primary btn-sm" title="下载"><i class="fas fa-download"></i></button>',
-                    '<button ', 'onclick="app.filePanel.openCreateSharingTagDialog(\'', fileLabel.getFileCode(), '\')"',
-                        ' type="button" class="btn btn-info btn-sm" title="分享" data-target="share-file"><i class="fas fa-share-alt"></i></button>',
-                    '<button ', 'onclick="app.filePanel.promptDeleteFile(\'', fileLabel.getFileName(), '\', \'', fileLabel.getFileCode(), '\')"',
-                        ' type="button" class="btn btn-danger btn-sm" title="删除" data-target="recycle-file"><i class="far fa-trash-alt"></i></button>',
-                '</td>',
-            '</tr>'
-        ];
+        if (fileLabel) {
+            var id = fileLabel.getId();
+            return [
+                '<tr id="ftr_', id, '">',
+                    '<td onclick="app.filePanel.toggleSelect(\'', id, '\')"><div class="icheck-primary">',
+                        '<input type="checkbox" data-type="file" id="', id, '">',
+                            '<label for="', id, '"></label></div></td>',
+                    '<td class="file-icon">', matchFileIcon(fileLabel), '</td>',
+                    '<td class="file-name"><a href="javascript:app.filePanel.openFile(\'', fileLabel.getFileCode(), '\',\'',
+                        directory.getId() , '\');">',
+                            fileLabel.getFileName(), '</a>', '<span class="desc">所在目录: ', dirName, '</span>',
+                    '</td>',
+                    '<td class="file-size">', g.formatSize(fileLabel.getFileSize()), '</td>',
+                    '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getLastModified()), '</td>',
+                    '<td class="file-completion">', g.formatYMDHMS(fileLabel.getCompletionTime()), '</td>',
+                    '<td class="file-operate">',
+                        '<button ', 'onclick="app.filePanel.downloadFile(\'', fileLabel.getFileCode(), '\')"',
+                            ' type="button" class="btn btn-primary btn-sm" title="下载"><i class="fas fa-download"></i></button>',
+                        '<button ', 'onclick="app.filePanel.openCreateSharingTagDialog(\'', fileLabel.getFileCode(), '\')"',
+                            ' type="button" class="btn btn-info btn-sm" title="分享" data-target="share-file"><i class="fas fa-share-alt"></i></button>',
+                        '<button ', 'onclick="app.filePanel.promptDeleteFile(\'', fileLabel.getFileName(), '\', \'', fileLabel.getFileCode(), '\')"',
+                            ' type="button" class="btn btn-danger btn-sm" title="删除" data-target="recycle-file"><i class="far fa-trash-alt"></i></button>',
+                    '</td>',
+                '</tr>'
+            ];
+        }
+        else {
+            var id = directory.getId();
+            var name = directory.getName();
+            var time = directory.getLastModified();
+
+            var parents = [];
+            var parent = directory.getParent();
+            while (null != parent) {
+                parents.push(parent);
+                parent = parent.getParent();
+            }
+            var pathDesc = [ '路径：/' ];
+            for (var i = parents.length - 1; i >= 0; --i) {
+                var dir = parents[i];
+                if (dir.getName() == 'root') {
+                    continue;
+                }
+
+                pathDesc.push(dir.getName());
+                pathDesc.push('/');
+            }
+
+            return [
+                '<tr ondblclick="app.filePanel.changeDirectory(\'', id, '\')" id="ftr_', id, '">',
+                    '<td onclick="app.filePanel.toggleSelect(\'', id, '\')">', '<div class="icheck-primary">',
+                        '<input type="checkbox" data-type="folder" id="', id, '">',
+                            '<label for="', id, '"></label></div></td>',
+                    '<td class="file-icon"><i class="ci ci-file-directory"></i></td>',
+                    '<td class="file-name"><a href="javascript:app.filePanel.changeDirectory(\'', id, '\');">', name, '</a>',
+                        '<span class="desc">', pathDesc.join(''), '</span>',
+                    '</td>',
+                    '<td class="file-size">--</td>',
+                    '<td class="file-lastmodifed">', g.formatYMDHMS(time), '</td>',
+                    '<td class="file-completion">--</td>',
+                    '<td class="file-operate">',
+                        '<button onclick="javascript:app.filePanel.renameDirectory(', id, ');"',
+                            ' type="button" class="btn btn-primary btn-sm" title="重命名"><i class="fas fa-edit"></i></button>',
+                        '<button onclick="javascript:app.filePanel.promptDeleteDirectory(', id, ');"',
+                            ' type="button" class="btn btn-danger btn-sm" title="删除"><i class="far fa-trash-alt"></i></button>',
+                    '</td>',
+                '</tr>'
+            ];
+        }
     }
 
     /**
@@ -9123,8 +9168,7 @@
     var btnRecycle = null;
     var btnShare = null;
 
-    var infoLoaded = 0;
-    var infoTotal = 0;
+    var pageInfoBar = null;
 
     var btnPrev = null;
     var btnNext = null;
@@ -9219,6 +9263,15 @@
         }
     }
 
+    function refreshPageInfoBar(numLoaded, numTotal) {
+        if (undefined !== numTotal) {
+            pageInfoBar.text('当前页 ' + numLoaded + ' 个，共 ' + numTotal + ' 个');
+        }
+        else {
+            pageInfoBar.text('当前页 ' + numLoaded + ' 个');
+        }
+    }
+
     /**
      * 我的文件主界面的文件表格面板。
      * @param {jQuery} el 界面元素。
@@ -9242,8 +9295,7 @@
         btnRecycle = el.find('button[data-target="recycle"]');
         btnShare = el.find('button[data-target="share"]');
 
-        infoLoaded = el.find('.info-loaded');
-        infoTotal = el.find('.info-total');
+        pageInfoBar = el.find('.load-info');
 
         btnPrev = el.find('button[data-target="prev"]');
         btnPrev.attr('disabled', 'disabled');
@@ -9275,10 +9327,18 @@
         var inputTimer = 0;
         // 输入框事件
         searchInput.val('');
-        searchInput.on('change keyup paste', function() {
-            if (inputTimer > 0) {
-                clearTimeout(inputTimer);
+        searchInput.on('change keyup paste', function(e) {
+            if (e.keyCode == 13 && searchInput.val().length > 0) {
+                searchClear.css('display', 'inline-block');
+                searchInput.blur();
+                searchButton.click();
+                return;
             }
+
+            if (inputTimer > 0) {
+                return;
+            }
+
             inputTimer = setTimeout(function() {
                 clearTimeout(inputTimer);
                 inputTimer = 0;
@@ -9574,7 +9634,8 @@
                     }
 
                     table.updatePage(list);
-                    infoLoaded.text(list.length);
+
+                    refreshPageInfoBar(list.length);
 
                     btnNext.removeAttr('disabled');
                 }, function(error) {
@@ -9621,7 +9682,7 @@
                     btnPrev.removeAttr('disabled');
 
                     table.updatePage(list);
-                    infoLoaded.text(list.length);
+                    refreshPageInfoBar(list.length);
                 }, function(error) {
                     g.dialog.launchToast(Toast.Error, '过滤文件错误: ' + error.code);
                 });
@@ -9729,30 +9790,52 @@
             g.app.fileCatalog.refreshSpaceSize();
         }
 
-        g.app.fileCtrl.getPageData(currentDir, currentPage.page, function(result) {
-            if (null == result) {
-                btnNext.attr('disabled', 'disabled');
-                table.updatePage([]);
-                infoLoaded.text(0);
-                infoTotal.text(0);
+        if (!selectedFilter && !selectedRecycleBin) {
+            g.app.fileCtrl.getPageData(currentDir, currentPage.page, function(result) {
+                if (null == result) {
+                    btnNext.attr('disabled', 'disabled');
+                    table.updatePage([]);
 
+                    refreshPageInfoBar(0);
+    
+                    if (completion) {
+                        completion.call(null);
+                    }
+    
+                    return;
+                }
+    
+                // 更新表格
+                table.updatePage(result);
+    
+                // 当前加载的数量
+                currentPage.loaded = result.length;
+
+                // 更新数量信息
+                refreshPageInfoBar(currentPage.page * g.app.fileCtrl.numPerPage + result.length,
+                    currentDir.totalDirs() + currentDir.totalFiles());
+
+                // 判断下一页
+                if (currentPage.loaded < g.app.fileCtrl.numPerPage) {
+                    btnNext.attr('disabled', 'disabled');
+                }
+                else {
+                    btnNext.removeAttr('disabled');
+                }
+    
                 if (completion) {
                     completion.call(null);
                 }
-
-                return;
+            });
+    
+            // 判断上一页
+            if (currentPage.page == 0) {
+                btnPrev.attr('disabled', 'disabled');
             }
-
-            // 更新表格
-            table.updatePage(result);
-
-            // 当前加载的数量
-            currentPage.loaded = result.length;
-
-            // 更新数量信息
-            infoLoaded.text(currentPage.page * g.app.fileCtrl.numPerPage + result.length);
-            infoTotal.text(currentDir.totalDirs() + currentDir.totalFiles());
-
+            else {
+                btnPrev.removeAttr('disabled');
+            }
+    
             // 判断下一页
             if (currentPage.loaded < g.app.fileCtrl.numPerPage) {
                 btnNext.attr('disabled', 'disabled');
@@ -9760,26 +9843,14 @@
             else {
                 btnNext.removeAttr('disabled');
             }
-
+        }
+        else if (selectedRecycleBin) {
+            this.showRecyclebin(completion);
+        }
+        else {
             if (completion) {
-                completion.call(null);
+                completion(null);
             }
-        });
-
-        // 判断上一页
-        if (currentPage.page == 0) {
-            btnPrev.attr('disabled', 'disabled');
-        }
-        else {
-            btnPrev.removeAttr('disabled');
-        }
-
-        // 判断下一页
-        if (currentPage.loaded < g.app.fileCtrl.numPerPage) {
-            btnNext.attr('disabled', 'disabled');
-        }
-        else {
-            btnNext.removeAttr('disabled');
         }
     }
 
@@ -9808,6 +9879,7 @@
 
         btnUpload.css('display', 'inline-block');
         btnNewDir.css('display', 'inline-block');
+        btnRefresh.css('display', 'inline-block');
         btnParent.css('display', 'block');
         btnEmptyTrash.css('display', 'none');
         btnRestore.css('display', 'none');
@@ -9835,6 +9907,7 @@
         panelEl.find('.fp-path').html('');
         btnUpload.css('display', 'none');
         btnNewDir.css('display', 'none');
+        btnRefresh.css('display', 'none');
         btnParent.css('display', 'none');
         btnPrev.attr('disabled', 'disabled');
         btnNext.attr('disabled', 'disabled');
@@ -9854,7 +9927,8 @@
             });
 
             table.updatePage(list);
-            infoLoaded.text(list.length);
+
+            refreshPageInfoBar(list.length);
 
             if (list.length == g.app.fileCtrl.numPerPage) {
                 btnNext.removeAttr('disabled');
@@ -9862,8 +9936,6 @@
         }, function(error) {
             g.dialog.launchToast(Toast.Error, '过滤图片文件: ' + error.code);
         });
-
-        infoTotal.text('--');
     }
 
     /**
@@ -9886,6 +9958,7 @@
         panelEl.find('.fp-path').html('');
         btnUpload.css('display', 'none');
         btnNewDir.css('display', 'none');
+        btnRefresh.css('display', 'none');
         btnParent.css('display', 'none');
         btnPrev.attr('disabled', 'disabled');
         btnNext.attr('disabled', 'disabled');
@@ -9901,7 +9974,8 @@
         // 搜索文件
         window.cube().fs.searchFile(currentFilter, function(filter, list) {
             table.updatePage(list);
-            infoLoaded.text(list.length);
+
+            refreshPageInfoBar(list.length);
 
             if (list.length == g.app.fileCtrl.numPerPage) {
                 btnNext.removeAttr('disabled');
@@ -9909,14 +9983,12 @@
         }, function(error) {
             g.dialog.launchToast(Toast.Error, '过滤文档文件: ' + error.code);
         });
-
-        infoTotal.text('--');
     }
 
     /**
      * 显示回收站。
      */
-    FilePanel.prototype.showRecyclebin = function() {
+    FilePanel.prototype.showRecyclebin = function(completion) {
         btnSelectAll.prop('checked', false);
         panelEl.css('display', 'block');
 
@@ -9933,19 +10005,28 @@
         panelEl.find('.fp-path').html('');
         btnUpload.css('display', 'none');
         btnNewDir.css('display', 'none');
+        btnRefresh.css('display', 'inline-block');
         btnParent.css('display', 'none');
         btnPrev.attr('disabled', 'disabled');
         btnNext.attr('disabled', 'disabled');
 
         window.cube().fs.listTrash(0, 20, function(root, list, begin, end) {
             table.updatePage(list, true);
-            infoLoaded.text(list.length);
-            infoTotal.text('--');
+
+            refreshPageInfoBar(list.length);
+
+            if (completion) {
+                completion(list);
+            }
         }, function(error) {
             g.dialog.launchToast(Toast.Error, '读取回收站数据错误: ' + error.code);
             table.updatePage([]);
-            infoLoaded.text(0);
-            infoTotal.text('--');
+
+            refreshPageInfoBar(0);
+
+            if (completion) {
+                completion(null);
+            }
         });
     }
 
@@ -10000,6 +10081,11 @@
         this.refreshTable();
 
         this.updateTitlePath();
+
+        // 退出搜索模式
+        if (null != searchFilter) {
+            this.finishSearch();
+        }
     }
 
     /**
@@ -10341,10 +10427,13 @@
 
         g.dialog.showLoading('正在检索目录和文件');
 
+        this.setTitle('搜索结果');
+
         panelEl.find('.fp-path').html('');
         btnUpload.css('display', 'none');
         btnNewDir.css('display', 'none');
-        btnParent.css('display', 'none');
+        btnRefresh.css('display', 'none');
+        btnParent.css('display', 'inline-block');
         btnPrev.attr('disabled', 'disabled');
         btnNext.attr('disabled', 'disabled');
 
@@ -10356,12 +10445,24 @@
         g.cube().fs.searchFile(searchFilter, function(filter, searchItemList) {
             g.dialog.hideLoading();
 
-            searchItemList.forEach(function(item) {
-                console.log('Dir: ' + item.isDirectory() + ' - ' + item.directory.getName() +
-                    (item.isDirectory() ? '' : (' - ' + item.file.getFileName())));
-                // 更新表格
-                table.updatePage(list);
-            });
+            if (searchItemList.length == 0) {
+                g.dialog.toast('没有找到匹配条件的结果');
+                that.clearSearch();
+                return;
+            }
+
+            // searchItemList.forEach(function(item) {
+            //     console.log('Dir: ' + item.isDirectory() + ' - ' + item.directory.getName() +
+            //         (item.isDirectory() ? '' : (' - ' + item.file.getFileName())));
+            // });
+
+            // 将当前目录设置为根目录
+            currentDir = rootDir;
+
+            // 更新表格
+            table.updatePage(searchItemList);
+
+            refreshPageInfoBar(searchItemList.length);
         }, function(error) {
             g.dialog.hideLoading();
             g.dialog.toast('检索目录和文件出错：' + error.code, Toast.Error);
@@ -10372,8 +10473,32 @@
      * 清空搜索。
      */
     FilePanel.prototype.clearSearch = function() {
+        if (null != searchFilter) {
+            this.setTitle('全部文件');
+            // 将当前目录设置为根目录
+            currentDir = rootDir;
+            this.showRoot();
+        }
+
+        searchInput.val('');
         searchFilter = null;
-        this.showRoot();
+    }
+
+    /**
+     * 结束搜索模式。
+     */
+    FilePanel.prototype.finishSearch = function() {
+        this.setTitle('全部文件');
+        searchFilter = null;
+        searchInput.val('');
+        searchClear.css('display', 'none');
+
+        btnUpload.css('display', 'inline-block');
+        btnNewDir.css('display', 'inline-block');
+        btnRefresh.css('display', 'inline-block');
+        btnParent.css('display', 'block');
+        btnEmptyTrash.css('display', 'none');
+        btnRestore.css('display', 'none');
     }
 
 

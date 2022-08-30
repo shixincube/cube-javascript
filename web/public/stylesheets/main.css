@@ -1178,7 +1178,7 @@ video {
     color: #6c757d;
 }
 .file-controls {
-    padding: 5px;
+    padding: 5px 18px 5px 18px;
 }
 .file-controls .btn-sm {
     font-size: 12px;

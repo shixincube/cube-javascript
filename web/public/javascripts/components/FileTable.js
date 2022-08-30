@@ -120,30 +120,75 @@
             dirName = '/';
         }
 
-        var id = fileLabel.getId();
-        return [
-            '<tr id="ftr_', id, '">',
-                '<td onclick="app.filePanel.toggleSelect(\'', id, '\')"><div class="icheck-primary">',
-                    '<input type="checkbox" data-type="file" id="', id, '">',
-                        '<label for="', id, '"></label></div></td>',
-                '<td class="file-icon">', matchFileIcon(fileLabel), '</td>',
-                '<td class="file-name"><a href="javascript:app.filePanel.openFile(\'', fileLabel.getFileCode(), '\',\'',
-                    directory.getId() , '\');">',
-                        fileLabel.getFileName(), '</a>', '<span class="desc">所在目录: ', dirName, '</span>',
-                '</td>',
-                '<td class="file-size">', g.formatSize(fileLabel.getFileSize()), '</td>',
-                '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getLastModified()), '</td>',
-                '<td class="file-completion">', g.formatYMDHMS(fileLabel.getCompletionTime()), '</td>',
-                '<td class="file-operate">',
-                    '<button ', 'onclick="app.filePanel.downloadFile(\'', fileLabel.getFileCode(), '\')"',
-                        ' type="button" class="btn btn-primary btn-sm" title="下载"><i class="fas fa-download"></i></button>',
-                    '<button ', 'onclick="app.filePanel.openCreateSharingTagDialog(\'', fileLabel.getFileCode(), '\')"',
-                        ' type="button" class="btn btn-info btn-sm" title="分享" data-target="share-file"><i class="fas fa-share-alt"></i></button>',
-                    '<button ', 'onclick="app.filePanel.promptDeleteFile(\'', fileLabel.getFileName(), '\', \'', fileLabel.getFileCode(), '\')"',
-                        ' type="button" class="btn btn-danger btn-sm" title="删除" data-target="recycle-file"><i class="far fa-trash-alt"></i></button>',
-                '</td>',
-            '</tr>'
-        ];
+        if (fileLabel) {
+            var id = fileLabel.getId();
+            return [
+                '<tr id="ftr_', id, '">',
+                    '<td onclick="app.filePanel.toggleSelect(\'', id, '\')"><div class="icheck-primary">',
+                        '<input type="checkbox" data-type="file" id="', id, '">',
+                            '<label for="', id, '"></label></div></td>',
+                    '<td class="file-icon">', matchFileIcon(fileLabel), '</td>',
+                    '<td class="file-name"><a href="javascript:app.filePanel.openFile(\'', fileLabel.getFileCode(), '\',\'',
+                        directory.getId() , '\');">',
+                            fileLabel.getFileName(), '</a>', '<span class="desc">所在目录: ', dirName, '</span>',
+                    '</td>',
+                    '<td class="file-size">', g.formatSize(fileLabel.getFileSize()), '</td>',
+                    '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getLastModified()), '</td>',
+                    '<td class="file-completion">', g.formatYMDHMS(fileLabel.getCompletionTime()), '</td>',
+                    '<td class="file-operate">',
+                        '<button ', 'onclick="app.filePanel.downloadFile(\'', fileLabel.getFileCode(), '\')"',
+                            ' type="button" class="btn btn-primary btn-sm" title="下载"><i class="fas fa-download"></i></button>',
+                        '<button ', 'onclick="app.filePanel.openCreateSharingTagDialog(\'', fileLabel.getFileCode(), '\')"',
+                            ' type="button" class="btn btn-info btn-sm" title="分享" data-target="share-file"><i class="fas fa-share-alt"></i></button>',
+                        '<button ', 'onclick="app.filePanel.promptDeleteFile(\'', fileLabel.getFileName(), '\', \'', fileLabel.getFileCode(), '\')"',
+                            ' type="button" class="btn btn-danger btn-sm" title="删除" data-target="recycle-file"><i class="far fa-trash-alt"></i></button>',
+                    '</td>',
+                '</tr>'
+            ];
+        }
+        else {
+            var id = directory.getId();
+            var name = directory.getName();
+            var time = directory.getLastModified();
+
+            var parents = [];
+            var parent = directory.getParent();
+            while (null != parent) {
+                parents.push(parent);
+                parent = parent.getParent();
+            }
+            var pathDesc = [ '路径：/' ];
+            for (var i = parents.length - 1; i >= 0; --i) {
+                var dir = parents[i];
+                if (dir.getName() == 'root') {
+                    continue;
+                }
+
+                pathDesc.push(dir.getName());
+                pathDesc.push('/');
+            }
+
+            return [
+                '<tr ondblclick="app.filePanel.changeDirectory(\'', id, '\')" id="ftr_', id, '">',
+                    '<td onclick="app.filePanel.toggleSelect(\'', id, '\')">', '<div class="icheck-primary">',
+                        '<input type="checkbox" data-type="folder" id="', id, '">',
+                            '<label for="', id, '"></label></div></td>',
+                    '<td class="file-icon"><i class="ci ci-file-directory"></i></td>',
+                    '<td class="file-name"><a href="javascript:app.filePanel.changeDirectory(\'', id, '\');">', name, '</a>',
+                        '<span class="desc">', pathDesc.join(''), '</span>',
+                    '</td>',
+                    '<td class="file-size">--</td>',
+                    '<td class="file-lastmodifed">', g.formatYMDHMS(time), '</td>',
+                    '<td class="file-completion">--</td>',
+                    '<td class="file-operate">',
+                        '<button onclick="javascript:app.filePanel.renameDirectory(', id, ');"',
+                            ' type="button" class="btn btn-primary btn-sm" title="重命名"><i class="fas fa-edit"></i></button>',
+                        '<button onclick="javascript:app.filePanel.promptDeleteDirectory(', id, ');"',
+                            ' type="button" class="btn btn-danger btn-sm" title="删除"><i class="far fa-trash-alt"></i></button>',
+                    '</td>',
+                '</tr>'
+            ];
+        }
     }
 
     /**
