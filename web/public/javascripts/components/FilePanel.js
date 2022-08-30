@@ -33,6 +33,7 @@
 
     var panelEl = null;
 
+    var searchBox = null;
     var searchInput = null;
     var searchClear = null;
     var searchButton = null;
@@ -66,7 +67,9 @@
     var currentFilter = null;
     var currentFileList = null;
 
-    var selectedSearch = false;
+    // 使用过滤器方式显示数据
+    var selectedFilter = false;
+    // 显示回收站
     var selectedRecycleBin = false;
 
     var activeFileLabel = null;
@@ -151,9 +154,10 @@
         panelEl = el;
         table = new FileTable(el.find('.file-table'));
 
-        searchInput = el.find('.file-search-box').find('input');
-        searchClear = el.find('.file-search-box').find('.search-input-clear');
-        searchButton = el.find('.file-search-box').find('.search-input-submit');
+        searchBox = el.find('.file-search-box');
+        searchInput = searchBox.find('input');
+        searchClear = searchBox.find('.search-input-clear');
+        searchButton = searchBox.find('.search-input-submit');
 
         btnSelectAll = el.find('.checkbox-toggle');
         btnUpload = el.find('button[data-target="upload"]');
@@ -474,7 +478,7 @@
             if (selectedRecycleBin) {
                 // TODO
             }
-            else if (selectedSearch) {
+            else if (selectedFilter) {
                 if (currentFilter.begin == 0) {
                     return;
                 }
@@ -525,7 +529,7 @@
             if (selectedRecycleBin) {
                 // TODO
             }
-            else if (selectedSearch) {
+            else if (selectedFilter) {
                 currentFilter.begin = currentFilter.end;
                 currentFilter.end = currentFilter.end + g.app.fileCtrl.numPerPage;
 
@@ -713,7 +717,10 @@
         btnSelectAll.prop('checked', false);
         panelEl.css('display', 'block');
 
-        selectedSearch = false;
+        // 显示搜索框
+        searchBox.css('visibility', 'visible');
+
+        selectedFilter = false;
         selectedRecycleBin = false;
         currentFileList = null;
 
@@ -744,7 +751,10 @@
         btnSelectAll.prop('checked', false);
         panelEl.css('display', 'block');
 
-        selectedSearch = true;
+        // 隐藏搜索框
+        searchBox.css('visibility', 'hidden');
+
+        selectedFilter = true;
         selectedRecycleBin = false;
         btnEmptyTrash.css('display', 'none');
         btnRestore.css('display', 'none');
@@ -790,7 +800,10 @@
         btnSelectAll.prop('checked', false);
         panelEl.css('display', 'block');
 
-        selectedSearch = true;
+        // 隐藏搜索框
+        searchBox.css('visibility', 'hidden');
+
+        selectedFilter = true;
         selectedRecycleBin = false;
         currentFileList = null;
 
@@ -834,7 +847,10 @@
         btnSelectAll.prop('checked', false);
         panelEl.css('display', 'block');
 
-        selectedSearch = false;
+        // 隐藏搜索框
+        searchBox.css('visibility', 'hidden');
+
+        selectedFilter = false;
         selectedRecycleBin = true;
         currentFileList = null;
 
@@ -873,7 +889,7 @@
      * @param {number|Directory} idOrDir 指定切换的目录。
      */
     FilePanel.prototype.changeDirectory = function(idOrDir) {
-        if (selectedRecycleBin || selectedSearch) {
+        if (selectedRecycleBin || selectedFilter) {
             return;
         }
 
@@ -924,7 +940,7 @@
 
         if (selectedRecycleBin) {
         }
-        else if (selectedSearch) {
+        else if (selectedFilter) {
             var searchItem = window.cube().fs.querySearch(directoryId, fileCode);
             if (null != searchItem) {
                 directory = searchItem.directory;
@@ -971,7 +987,7 @@
         if (selectedRecycleBin) {
             return;
         }
-        else if (selectedSearch) {
+        else if (selectedFilter) {
             return;
         }
 
@@ -1247,9 +1263,17 @@
             return;
         }
 
+        // 检索词
+        var words = keyword.split(' ');
+
         g.dialog.showLoading('正在检索目录和文件');
 
-        var words = keyword.split(' ');
+        panelEl.find('.fp-path').html('');
+        btnUpload.css('display', 'none');
+        btnNewDir.css('display', 'none');
+        btnParent.css('display', 'none');
+        btnPrev.attr('disabled', 'disabled');
+        btnNext.attr('disabled', 'disabled');
 
         searchFilter = {
             begin: 0,
@@ -1262,6 +1286,8 @@
             searchItemList.forEach(function(item) {
                 console.log('Dir: ' + item.isDirectory() + ' - ' + item.directory.getName() +
                     (item.isDirectory() ? '' : (' - ' + item.file.getFileName())));
+                // 更新表格
+                table.updatePage(list);
             });
         }, function(error) {
             g.dialog.hideLoading();
@@ -1274,6 +1300,7 @@
      */
     FilePanel.prototype.clearSearch = function() {
         searchFilter = null;
+        this.showRoot();
     }
 
 

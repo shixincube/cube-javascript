@@ -44,7 +44,7 @@ export class TrashFile extends FileLabel {
         this.fileName = file.fileName;
         this.fileSize = file.fileSize;
         this.lastModified = file.lastModified;
-        this.completedTime = file.completed;
+        this.completedTime = file.completedTime;
         this.expiryTime = file.expiry;
         this.fileType = file.fileType;
         this.md5Code = (undefined !== file.md5) ? file.md5 : null;

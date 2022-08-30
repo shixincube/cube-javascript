@@ -106,9 +106,6 @@
                 '</td>',
             '</tr>'
         ];
-
-        //'<button ', 'onclick="app.filePanel.promptDeleteFile(\'', fileLabel.getFileName(), '\', \'', fileLabel.getFileCode(), '\')"',
-        //' type="button" class="btn btn-danger btn-sm" title="删除" data-target="recycle-file"><i class="far fa-trash-alt"></i></button>',
     }
 
     /**
