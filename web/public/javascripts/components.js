@@ -13015,18 +13015,21 @@
     var that = null;
 
     var dialogEl = null;
+    var treeViewEl = null;
     var rootEl = null;
 
     var selectedEl = null;
     var selectedDirId = 0;
 
+    var loadedDirIdList = [];
+
     var confirmCallback = null;
 
-    function makeFolderLevel(directory) {
+    function makeFolderLevel(directory, level) {
         var html = [
-            '<li class="nav-item foler-tree-level-2">',
-                '<a href="javascript:app.folderTreeDialog.selectFolder(', directory.getId(), ');" id="', directory.getId(), '" class="nav-link">',
-                    '<i class="fas fa-folder nav-icon"></i>',
+            '<li id="d_', directory.getId(), '" class="nav-item foler-tree-level-', level, '" data-level="', level, '">',
+                '<a href="javascript:;" onclick="app.folderTreeDialog.selectFolder(', directory.getId(), ',', level,');" id="', directory.getId(), '" class="nav-link">',
+                    '<i class="nav-icon fas fa-folder"></i>',
                     '<p>', directory.getName(), '</p>',
                 '</a>',
             '</li>'
@@ -13034,25 +13037,26 @@
         return $(html.join(''));
     }
 
-    function makeFolderSublevel(directory, children) {
+    function makeFolderSublevel(directory, children, level) {
         var html = [
-            '<li class="nav-item has-treeview">',
-                '<a href="javascript:;" class="nav-link">',
+            '<li id="d_', directory.getId(), '" class="nav-item has-treeview foler-tree-level-', level, '" data-level="', level, '">',
+                '<a href="javascript:;" onclick="app.folderTreeDialog.selectFolder(', directory.getId(), ',', level, ');" id="', directory.getId(), '" class="nav-link">',
                     '<i class="nav-icon fas fa-folder"></i>',
                     '<p>',
                         directory.getName(),
                         '<i class="right fas fa-angle-left"></i>',
                     '</p>',
                 '</a>',
-                '<ul class="nav nav-treeview">'
+                '<ul class="nav nav-treeview treeview-menu">'
         ];
 
         children.forEach(function(child) {
+            var childLevel = level + 1;
             var childHtml = [
-                '<li class="nav-item foler-tree-level-2">',
-                    '<a href="#" class="nav-link">',
-                        '<i class="far fa-folder nav-icon"></i>',
-                        '<p>Level 2</p>',
+                '<li id="d_', child.getId(), '" class="nav-item foler-tree-level-', childLevel, '" data-level="', childLevel, '">',
+                    '<a href="javascript:;" onclick="app.folderTreeDialog.selectFolder(', child.getId(), ',', childLevel, ');" id="', child.getId(), '" class="nav-link">',
+                        '<i class="nav-icon fas fa-folder"></i>',
+                        '<p>', child.getName(), '</p>',
                     '</a>',
                 '</li>'
             ];
@@ -13067,6 +13071,7 @@
     function FolderTreeDialog() {
         that = this;
         dialogEl = $('#modal_folder_tree');
+        treeViewEl = dialogEl.find('ul[data-widget="treeview"]');
         rootEl = dialogEl.find('.folder-root');
 
         dialogEl.find('button[data-target="confirm"]').click(function() {
@@ -13099,11 +13104,16 @@
 
         root.listDirectories(function(dir, list) {
             list.forEach(function(item) {
-                var el = makeFolderLevel(item);
+                // 添加 Level 1
+                var el = makeFolderLevel(item, 1);
                 rootEl.append(el);
+
+                if (loadedDirIdList.indexOf(item.getId()) < 0) {
+                    loadedDirIdList.push(item.getId());
+                }
             });
         }, function(error) {
-
+            g.dialog.toast('加载目录出错：' + error.code);
         });
 
         dialogEl.modal('show');
@@ -13125,11 +13135,11 @@
         g.cube().fs.getSelfRoot(function(dir) {
             selectedDirId = dir.getId();
         }, function(error) {
-            // TODO
+            g.dialog.toast('加载目录出错：' + error.code);
         });
     }
 
-    FolderTreeDialog.prototype.selectFolder = function(id) {
+    FolderTreeDialog.prototype.selectFolder = function(id, level) {
         if (null != selectedEl) {
             selectedEl.removeClass('active');
         }
@@ -13140,13 +13150,36 @@
             selectedEl.addClass('active');
         }
 
-        if (!selectedEl.hasClass('has-treeview')) {
+        // 节点
+        var treeNode = selectedEl.parent();
+
+        if (!treeNode.hasClass('has-treeview')) {
             // 读取下一级目录
             var directory = g.cube().fs.queryDirectory(id);
             if (directory.totalDirs() > 0) {
+                directory.listDirectories(function(dir, list) {
 
+                    treeNode.addClass('has-treeview');
+
+                    treeNode.replaceWith(makeFolderSublevel(dir, list, level));
+
+                    list.forEach(function(item) {
+                        if (loadedDirIdList.indexOf(item.getId()) < 0) {
+                            loadedDirIdList.push(item.getId());
+                        }
+                    });
+
+                    that.updateView();
+                }, function(error) {
+                    g.dialog.toast('加载目录出错：' + error.code);
+                });
             }
         }
+    }
+
+    FolderTreeDialog.prototype.updateView = function() {
+        //treeViewEl.Treeview({ accordion: false });
+        rootEl.css('height', (loadedDirIdList.length * 40) + 'px');
     }
 
     g.FolderTreeDialog = FolderTreeDialog;

@@ -1145,11 +1145,14 @@ video {
     padding-top: 2px;
 }
 
+.foler-tree-level-1 {
+    padding-left: 28px;
+}
 .foler-tree-level-2 {
     padding-left: 28px;
 }
 .foler-tree-level-3 {
-    padding-left: 56px;
+    padding-left: 28px;
 }
 
 .fp-path {
