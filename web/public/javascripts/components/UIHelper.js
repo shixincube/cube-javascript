@@ -152,6 +152,19 @@
         }
     }
 
+    /**
+     * 提取文件的文件名，即移除文件的扩展名。
+     * @param {*} filename 
+     */
+    g.helper.extractFilename = function(filename) {
+        var index = filename.lastIndexOf('.');
+        if (index > 0) {
+            return filename.substring(0, index);
+        }
+
+        return filename;
+    }
+
     var deviceReg = {
         iPhone: /iPhone/,
         iPad: /iPad/,

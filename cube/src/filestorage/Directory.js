@@ -490,6 +490,15 @@ export class Directory {
 
     /**
      * @private
+     * @param {FileLabel} fileLabel 
+     */
+    updateFile(fileLabel) {
+        this.files.remove(fileLabel.getFileCode());
+        this.files.put(fileLabel.getFileCode(), fileLabel);
+    }
+
+    /**
+     * @private
      * @param {object} json 
      */
     update(json) {

@@ -152,6 +152,19 @@
         }
     }
 
+    /**
+     * 提取文件的文件名，即移除文件的扩展名。
+     * @param {*} filename 
+     */
+    g.helper.extractFilename = function(filename) {
+        var index = filename.lastIndexOf('.');
+        if (index > 0) {
+            return filename.substring(0, index);
+        }
+
+        return filename;
+    }
+
     var deviceReg = {
         iPhone: /iPhone/,
         iPad: /iPad/,
@@ -8884,13 +8897,14 @@
                     '<button ', 'onclick="app.filePanel.openCreateSharingTagDialog(\'', fileLabel.getFileCode(), '\')"',
                         ' type="button" class="btn btn-info btn-sm" title="分享" data-target="share-file"><i class="fas fa-share-alt"></i></button>',
                     '<div class="btn-group">',
-                        '<button type="button" class="btn btn-secondary btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown">',
-                        '</button>',
+                        '<button type="button" class="btn btn-secondary btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown" title="更多操作">','</button>',
                         '<div class="dropdown-menu">',
-                            '<a class="dropdown-item text-sm" href="javascript:app.filePanel.openFolderDialog(\'', fileLabel.getFileName(), '\', \'', fileLabel.getFileCode(), '\')',
-                                ';"><i class="far fa-folder"></i>&nbsp;&nbsp;移动文件</a>',
-                            '<a class="dropdown-item text-sm" href="javascript:app.filePanel.promptDeleteFile(\'', fileLabel.getFileName(), '\', \'', fileLabel.getFileCode(), '\')', 
-                                ';"><span class="text-danger"><i class="far fa-trash-alt"></i>&nbsp;&nbsp;删除文件<span></a>',
+                            '<a class="dropdown-item text-sm" href="javascript:app.filePanel.renameFile(\'', fileLabel.getFileName(), '\',\'', fileLabel.getFileCode(), '\');">',
+                                '<i class="far fa-edit"></i>&nbsp;&nbsp;重命名</a>',
+                            '<a class="dropdown-item text-sm" href="javascript:app.filePanel.openFolderDialog(\'', fileLabel.getFileName(), '\',\'', fileLabel.getFileCode(), '\');">',
+                                '<i class="far fa-folder"></i>&nbsp;&nbsp;移动文件</a>',
+                            '<a class="dropdown-item text-sm" href="javascript:app.filePanel.promptDeleteFile(\'', fileLabel.getFileName(), '\',\'', fileLabel.getFileCode(), '\');">', 
+                                '<span class="text-danger"><i class="far fa-trash-alt"></i>&nbsp;&nbsp;删除文件<span></a>',
                         '</div>',
                     '</div>',
                 '</td>',
@@ -9130,13 +9144,27 @@
      */
     FileTable.prototype.updateFolder = function(dir) {
         var row = tableEl.find('#ftr_' + dir.getId());
-        var colName = row.find('.file-name');
+        var nameCol = row.find('.file-name');
         var html = [
             '<a href="javascript:app.filePanel.changeDirectory(', dir.getId(), ');">',
                 dir.getName()
             , '</a>'
         ];
-        colName.html(html.join(''));
+        nameCol.html(html.join(''));
+    }
+
+    /**
+     * 更新文件数据。
+     * @param {FileLabel} fileLabel 指定文件。
+     */
+    FileTable.prototype.updateFile = function(fileLabel) {
+        var row = tableEl.find('#ftr_' + fileLabel.getId());
+        var nameCol = row.find('.file-name');
+        var html = [
+            '<a href="javascript:app.filePanel.openFile(\'', fileLabel.getFileCode(), '\');">', fileLabel.getFileName(), '</a>'
+        ];
+        nameCol.html(html.join(''));
+        nameCol.attr('title', fileLabel.getFileName());
     }
 
     g.FileTable = FileTable;
@@ -10206,12 +10234,47 @@
                 }, function(error) {
                     g.dialog.hideLoading();
 
-                    g.dialog.launchToast(Toast.Error, '重命名文件夹失败: ' + error.code);
+                    g.dialog.launchToast(Toast.Error, '重命名文件夹出错: ' + error.code);
                 });
 
                 return true;
             }
         }, dir.getName());
+    }
+
+    /**
+     * 重命名文件。
+     * @param {*} fileName 
+     * @param {*} fileCode 
+     */
+    FilePanel.prototype.renameFile = function(fileName, fileCode) {
+        var filename = helper.extractFilename(fileName);
+        g.dialog.showPrompt('重命名文件', '请输入文件 “' + fileName + '” 的新名称：', function(ok, input) {
+            if (ok) {
+                if (input.length == 0) {
+                    g.dialog.launchToast(Toast.Warning, '请输入正确的文件名称');
+                    return false;
+                }
+                else if (input == filename) {
+                    g.dialog.launchToast(Toast.Warning, '请输入新的文件名称');
+                    return false;
+                }
+
+                g.dialog.showLoading('重命名文件');
+
+                g.cube().fs.renameFile(currentDir, fileCode, input, function(dir, fileLabel) {
+                    g.dialog.hideLoading();
+
+                    // 更新文件行
+                    table.updateFile(fileLabel);
+                }, function(error) {
+                    g.dialog.hideLoading();
+                    g.dialog.launchToast(Toast.Error, '重命名文件出错: ' + error.code);
+                });
+
+                return true;
+            }
+        }, filename);
     }
 
     /**
@@ -13021,7 +13084,7 @@
     var selectedEl = null;
     var selectedDirId = 0;
 
-    var loadedDirIdList = [];
+    var expandedCount = 1;
 
     var confirmCallback = null;
 
@@ -13091,9 +13154,17 @@
         dialogEl.find('a[data-target="root"]').click(function() {
             that.selectRoot();
         });
+
+        treeViewEl.on('expanded.lte.treeview', function(e) {
+            expandedCount += e.isTrigger;
+        });
+        treeViewEl.on('collapsed.lte.treeview', function(e) {
+            expandedCount -= e.isTrigger;
+        });
     }
 
     FolderTreeDialog.prototype.open = function(root, callback) {
+        expandedCount = 1;
         confirmCallback = callback;
 
         rootEl.empty();
@@ -13107,10 +13178,6 @@
                 // 添加 Level 1
                 var el = makeFolderLevel(item, 1);
                 rootEl.append(el);
-
-                if (loadedDirIdList.indexOf(item.getId()) < 0) {
-                    loadedDirIdList.push(item.getId());
-                }
             });
         }, function(error) {
             g.dialog.toast('加载目录出错：' + error.code);
@@ -13163,12 +13230,6 @@
 
                     treeNode.replaceWith(makeFolderSublevel(dir, list, level));
 
-                    list.forEach(function(item) {
-                        if (loadedDirIdList.indexOf(item.getId()) < 0) {
-                            loadedDirIdList.push(item.getId());
-                        }
-                    });
-
                     that.updateView();
                 }, function(error) {
                     g.dialog.toast('加载目录出错：' + error.code);
@@ -13179,7 +13240,7 @@
 
     FolderTreeDialog.prototype.updateView = function() {
         //treeViewEl.Treeview({ accordion: false });
-        rootEl.css('height', (loadedDirIdList.length * 40) + 'px');
+        rootEl.css('height', (expandedCount * 40) + 'px');
     }
 
     g.FolderTreeDialog = FolderTreeDialog;

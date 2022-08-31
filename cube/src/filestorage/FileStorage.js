@@ -124,9 +124,9 @@ export class FileStorage extends Module {
 
         /**
          * 当前联系人的根目录。
-         * @type {FileHierarchy}
+         * @type {Directory}
          */
-        this.hierarchyRoot = null;
+        this.rootDirectory = null;
 
         /**
          * 是否是安全连接。
@@ -232,7 +232,7 @@ export class FileStorage extends Module {
         // 关闭存储库
         this.storage.close();
 
-        this.hierarchyRoot = null;
+        this.rootDirectory = null;
     }
 
     /**
@@ -852,7 +852,7 @@ export class FileStorage extends Module {
             this.fileHierarchyMap.put(root.getId(), hierarchy);
 
             if (this.contactService.getSelf().getId() == id) {
-                this.hierarchyRoot = root;
+                this.rootDirectory = root;
             }
 
             handleSuccess(root);
@@ -940,9 +940,9 @@ export class FileStorage extends Module {
      * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
     moveFile(fileCode, srcDirectory, destDirectory, handleSuccess, handleFailure) {
-        if (null == this.hierarchyRoot) {
+        if (null == this.rootDirectory) {
             this.getSelfRoot((root) => {
-                this.hierarchyRoot = root;
+                this.rootDirectory = root;
                 this.moveFile(fileCode, srcDirectory, destDirectory, handleSuccess, handleFailure);
             }, (error) => {
                 handleFailure(error);
@@ -954,7 +954,7 @@ export class FileStorage extends Module {
         this.getFileLabel(fileCode, (fileLabel) => {
             // 调用 MoveFile
             let requestPacket = new Packet(FileStorageAction.MoveFile, {
-                root: this.hierarchyRoot.id,
+                root: this.rootDirectory.id,
                 srcDirId: srcDirectory.id,
                 destDirId: destDirectory.id,
                 fileCode: fileCode
@@ -986,6 +986,52 @@ export class FileStorage extends Module {
             });
         }, (error) => {
             handleFailure(error);
+        });
+    }
+
+    /**
+     * 重命名文件。
+     * @param {Directory} directory 文件所在的目录。
+     * @param {FileLabel|string} fileLabelOrFileCode 待重命名的文件或文件的文件码。
+     * @param {string} newFileName 指定新的文件名。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode directory}:{@link Directory}, {@linkcode fileLabel}:{@link FileLabel}) 。
+     * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    renameFile(directory, fileLabelOrFileCode, newFileName, handleSuccess, handleFailure) {
+        if (null == this.rootDirectory) {
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.NotReady, fileLabelOrFileCode);
+            handleFailure(error);
+            return;
+        }
+
+        let fileCode = (typeof fileLabelOrFileCode === 'string') ? fileLabelOrFileCode : fileLabelOrFileCode.getFileCode();
+
+        let requestPacket = new Packet(FileStorageAction.RenameFile, {
+            root: this.rootDirectory.id,
+            dirId: directory.id,
+            fileCode: fileCode,
+            fileName: newFileName
+        });
+        this.pipeline.send(FileStorage.NAME, requestPacket, (pipeline, source, packet) => {
+            if (null == packet || packet.getStateCode() != PipelineState.OK) {
+                let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, fileLabelOrFileCode);
+                handleFailure(error);
+                return;
+            }
+
+            if (packet.getPayload().code != FileStorageState.Ok) {
+                let error = new ModuleError(FileStorage.NAME, packet.getPayload().code, fileLabelOrFileCode);
+                handleFailure(error);
+                return;
+            }
+
+            // 更新目录里的文件
+            let data = packet.extractServiceData();
+            let newFileLabel = FileLabel.create(data);
+            directory.updateFile(newFileLabel);
+
+            // 回调
+            handleSuccess(directory, newFileLabel);
         });
     }
 
@@ -1608,9 +1654,9 @@ export class FileStorage extends Module {
     }
 
     /**
-     * 处理 Performance 数据
+     * 处理 Performance 数据。
+     * @private
      * @param {object} payload 
-     * @returns 
      */
     triggerPerformance(payload) {
         if (payload.code != FileStorageState.Ok) {

@@ -84,6 +84,12 @@ export const FileStorageState = {
     Writing: 17,
 
     /**
+     * 没有目录。
+     * @type {number}
+     */
+    NoDirectory: 18,
+
+    /**
      * 重名。
      * @type {number}
      */

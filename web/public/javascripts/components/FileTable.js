@@ -94,13 +94,14 @@
                     '<button ', 'onclick="app.filePanel.openCreateSharingTagDialog(\'', fileLabel.getFileCode(), '\')"',
                         ' type="button" class="btn btn-info btn-sm" title="分享" data-target="share-file"><i class="fas fa-share-alt"></i></button>',
                     '<div class="btn-group">',
-                        '<button type="button" class="btn btn-secondary btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown">',
-                        '</button>',
+                        '<button type="button" class="btn btn-secondary btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown" title="更多操作">','</button>',
                         '<div class="dropdown-menu">',
-                            '<a class="dropdown-item text-sm" href="javascript:app.filePanel.openFolderDialog(\'', fileLabel.getFileName(), '\', \'', fileLabel.getFileCode(), '\')',
-                                ';"><i class="far fa-folder"></i>&nbsp;&nbsp;移动文件</a>',
-                            '<a class="dropdown-item text-sm" href="javascript:app.filePanel.promptDeleteFile(\'', fileLabel.getFileName(), '\', \'', fileLabel.getFileCode(), '\')', 
-                                ';"><span class="text-danger"><i class="far fa-trash-alt"></i>&nbsp;&nbsp;删除文件<span></a>',
+                            '<a class="dropdown-item text-sm" href="javascript:app.filePanel.renameFile(\'', fileLabel.getFileName(), '\',\'', fileLabel.getFileCode(), '\');">',
+                                '<i class="far fa-edit"></i>&nbsp;&nbsp;重命名</a>',
+                            '<a class="dropdown-item text-sm" href="javascript:app.filePanel.openFolderDialog(\'', fileLabel.getFileName(), '\',\'', fileLabel.getFileCode(), '\');">',
+                                '<i class="far fa-folder"></i>&nbsp;&nbsp;移动文件</a>',
+                            '<a class="dropdown-item text-sm" href="javascript:app.filePanel.promptDeleteFile(\'', fileLabel.getFileName(), '\',\'', fileLabel.getFileCode(), '\');">', 
+                                '<span class="text-danger"><i class="far fa-trash-alt"></i>&nbsp;&nbsp;删除文件<span></a>',
                         '</div>',
                     '</div>',
                 '</td>',
@@ -340,13 +341,27 @@
      */
     FileTable.prototype.updateFolder = function(dir) {
         var row = tableEl.find('#ftr_' + dir.getId());
-        var colName = row.find('.file-name');
+        var nameCol = row.find('.file-name');
         var html = [
             '<a href="javascript:app.filePanel.changeDirectory(', dir.getId(), ');">',
                 dir.getName()
             , '</a>'
         ];
-        colName.html(html.join(''));
+        nameCol.html(html.join(''));
+    }
+
+    /**
+     * 更新文件数据。
+     * @param {FileLabel} fileLabel 指定文件。
+     */
+    FileTable.prototype.updateFile = function(fileLabel) {
+        var row = tableEl.find('#ftr_' + fileLabel.getId());
+        var nameCol = row.find('.file-name');
+        var html = [
+            '<a href="javascript:app.filePanel.openFile(\'', fileLabel.getFileCode(), '\');">', fileLabel.getFileName(), '</a>'
+        ];
+        nameCol.html(html.join(''));
+        nameCol.attr('title', fileLabel.getFileName());
     }
 
     g.FileTable = FileTable;

@@ -36,7 +36,7 @@
     var selectedEl = null;
     var selectedDirId = 0;
 
-    var loadedDirIdList = [];
+    var expandedCount = 1;
 
     var confirmCallback = null;
 
@@ -106,9 +106,17 @@
         dialogEl.find('a[data-target="root"]').click(function() {
             that.selectRoot();
         });
+
+        treeViewEl.on('expanded.lte.treeview', function(e) {
+            expandedCount += e.isTrigger;
+        });
+        treeViewEl.on('collapsed.lte.treeview', function(e) {
+            expandedCount -= e.isTrigger;
+        });
     }
 
     FolderTreeDialog.prototype.open = function(root, callback) {
+        expandedCount = 1;
         confirmCallback = callback;
 
         rootEl.empty();
@@ -122,10 +130,6 @@
                 // 添加 Level 1
                 var el = makeFolderLevel(item, 1);
                 rootEl.append(el);
-
-                if (loadedDirIdList.indexOf(item.getId()) < 0) {
-                    loadedDirIdList.push(item.getId());
-                }
             });
         }, function(error) {
             g.dialog.toast('加载目录出错：' + error.code);
@@ -178,12 +182,6 @@
 
                     treeNode.replaceWith(makeFolderSublevel(dir, list, level));
 
-                    list.forEach(function(item) {
-                        if (loadedDirIdList.indexOf(item.getId()) < 0) {
-                            loadedDirIdList.push(item.getId());
-                        }
-                    });
-
                     that.updateView();
                 }, function(error) {
                     g.dialog.toast('加载目录出错：' + error.code);
@@ -194,7 +192,7 @@
 
     FolderTreeDialog.prototype.updateView = function() {
         //treeViewEl.Treeview({ accordion: false });
-        rootEl.css('height', (loadedDirIdList.length * 40) + 'px');
+        rootEl.css('height', (expandedCount * 40) + 'px');
     }
 
     g.FolderTreeDialog = FolderTreeDialog;

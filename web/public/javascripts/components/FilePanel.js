@@ -1088,12 +1088,47 @@
                 }, function(error) {
                     g.dialog.hideLoading();
 
-                    g.dialog.launchToast(Toast.Error, '重命名文件夹失败: ' + error.code);
+                    g.dialog.launchToast(Toast.Error, '重命名文件夹出错: ' + error.code);
                 });
 
                 return true;
             }
         }, dir.getName());
+    }
+
+    /**
+     * 重命名文件。
+     * @param {*} fileName 
+     * @param {*} fileCode 
+     */
+    FilePanel.prototype.renameFile = function(fileName, fileCode) {
+        var filename = helper.extractFilename(fileName);
+        g.dialog.showPrompt('重命名文件', '请输入文件 “' + fileName + '” 的新名称：', function(ok, input) {
+            if (ok) {
+                if (input.length == 0) {
+                    g.dialog.launchToast(Toast.Warning, '请输入正确的文件名称');
+                    return false;
+                }
+                else if (input == filename) {
+                    g.dialog.launchToast(Toast.Warning, '请输入新的文件名称');
+                    return false;
+                }
+
+                g.dialog.showLoading('重命名文件');
+
+                g.cube().fs.renameFile(currentDir, fileCode, input, function(dir, fileLabel) {
+                    g.dialog.hideLoading();
+
+                    // 更新文件行
+                    table.updateFile(fileLabel);
+                }, function(error) {
+                    g.dialog.hideLoading();
+                    g.dialog.launchToast(Toast.Error, '重命名文件出错: ' + error.code);
+                });
+
+                return true;
+            }
+        }, filename);
     }
 
     /**

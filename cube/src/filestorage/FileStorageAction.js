@@ -66,6 +66,12 @@ export const FileStorageAction = {
     MoveFile: 'moveFile',
 
     /**
+     * 文件重命名。
+     * @type {string}
+     */
+    RenameFile: 'renameFile',
+
+    /**
      * 罗列目录清单。
      * @type {string}
      */
