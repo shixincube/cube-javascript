@@ -96,6 +96,18 @@ export const FileStorageState = {
     DuplicationOfName: 20,
 
     /**
+     * 数据过期。
+     * @type {number}
+     */
+    DataExpired: 21,
+
+    /**
+     * 存储空间溢出。
+     * @type {number}
+     */
+    SpaceSizeOverflow: 23,
+
+    /**
      * 搜索条件错误。
      * @type {number}
      */
