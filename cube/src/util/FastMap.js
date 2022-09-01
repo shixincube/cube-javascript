@@ -97,6 +97,7 @@ export class FastMap {
      * 根据给定的键删除对应的值。
      * 
      * @param {string} key 指定键。
+     * @returns {*} 返回被删除的值。
      */
     remove(key) {
         if (this.containsKey(key)) {

@@ -73,6 +73,11 @@ export class FileHierarchy {
         this.dirMap = new FastMap();
 
         /**
+         * @type {FastMap<number, TrashFile|TrashDirectory>}
+         */
+        this.trashMap = new FastMap();
+
+        /**
          * 搜索结果。
          * @type {Array}
          */
@@ -605,7 +610,33 @@ export class FileHierarchy {
     }
 
     /**
-     * 罗列回收站内的废弃数据。
+     * 获取已加载的回收站数据。
+     * @param {number|string} id 废弃数据的 ID 。
+     * @returns {TrashFile|TrashDirectory} 返回废弃数据实例。
+     */
+    getTrash(id) {
+        return this.trashMap.get(parseInt(id));
+    }
+
+    /**
+     * 获取已加载的废弃文件实例。
+     * @param {string} fileCode 指定文件码。
+     * @returns {TrashFile} 返回废弃数据实例。
+     */
+    getTrashFile(fileCode) {
+        let array = this.trashMap.values();
+        for (let i = 0; i < array.length; ++i) {
+            let value = array[i];
+            if (value.fileCode == fileCode) {
+                return value;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * 检索回收站内的废弃数据。
      * @param {number} beginIndex 
      * @param {number} endIndex 
      * @param {function} handleSuccess 
@@ -642,10 +673,16 @@ export class FileHierarchy {
             let list = data.list;
             list.forEach((json) => {
                 if (undefined !== json.directory) {
-                    result.push(new TrashDirectory(json));
+                    let trash = new TrashDirectory(json);
+                    result.push(trash);
+
+                    this.trashMap.put(trash.getId(), trash);
                 }
                 else if (undefined !== json.file) {
-                    result.push(new TrashFile(json));
+                    let trash = new TrashFile(json);
+                    result.push(trash);
+
+                    this.trashMap.put(trash.getId(), trash);
                 }
             });
             handleSuccess(this.root, result, begin, end);
@@ -655,7 +692,7 @@ export class FileHierarchy {
     /**
      * 抹除回收站里的指定废弃数据。
      * @param {Array<number>} list 
-     * @param {function} handleSuccess 成功回调。参数：({@linkcode root}:{@link Directory}) 。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode root}:{@link Directory}, {@linkcode list}:{@linkcode Array<TrashFile|TrashDirectory>}) 。
      * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
     eraseTrash(list, handleSuccess, handleFailure) {
@@ -687,7 +724,16 @@ export class FileHierarchy {
                 return;
             }
 
-            handleSuccess(this.root);
+            let eraseItem = [];
+            // 删除缓存
+            trashIdList.forEach((tid) => {
+                let item = this.trashMap.remove(tid);
+                if (null != item) {
+                    eraseItem.push(item);
+                }
+            });
+
+            handleSuccess(this.root, eraseItem);
         });
     }
 

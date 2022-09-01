@@ -52,6 +52,8 @@ import { SearchItem } from "./SearchItem";
 import { SharingTag } from "./SharingTag";
 import { VisitTrace } from "./VisitTrace";
 import { StringUtil } from "../util/StringUtil";
+import { TrashFile } from "./TrashFile";
+import { TrashDirectory } from "./TrashDirectory";
 
 /**
  * 上传文件回调函数。
@@ -1052,6 +1054,34 @@ export class FileStorage extends Module {
                 handleFailure(error);
             }
         });
+    }
+
+    /**
+     * 查询已加载的废弃数据。
+     * @param {number} id 指定废弃数据的 ID 。
+     * @returns {TrashFile|TrashDirectory} 返回回收站里的废弃数据实例。
+     */
+    queryTrash(id) {
+        let hierarchy = this.fileHierarchyMap.get(this.contactService.getSelf().getId());
+        if (null == hierarchy) {
+            return null;
+        }
+
+        return hierarchy.getTrash(id);
+    }
+
+    /**
+     * 查询已加载的废弃文件数据。
+     * @param {string} fileCode 指定文件码。
+     * @returns {TrashFile} 返回指定的废弃文件实例。
+     */
+    queryTrashFile(fileCode) {
+        let hierarchy = this.fileHierarchyMap.get(this.contactService.getSelf().getId());
+        if (null == hierarchy) {
+            return null;
+        }
+
+        return hierarchy.getTrashFile(fileCode);
     }
 
     /**

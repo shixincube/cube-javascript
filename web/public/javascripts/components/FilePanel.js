@@ -663,7 +663,7 @@
     /**
      * 使用当前目录数据刷新表格。
      * @param {boolean} reset 是否重置当前目录。
-     * @param {function} [completion] 完成。
+     * @param {function} [completion] 完成操作回调。
      */
     FilePanel.prototype.refreshTable = function(reset, completion) {
         if (reset) {
@@ -892,8 +892,8 @@
         btnPrev.attr('disabled', 'disabled');
         btnNext.attr('disabled', 'disabled');
 
-        window.cube().fs.listTrash(0, 20, function(root, list, begin, end) {
-            table.updatePage(list, true);
+        window.cube().fs.listTrash(0, 19, function(root, list, begin, end) {
+            table.updatePage(list);
 
             refreshPageInfoBar(list.length);
 
@@ -980,6 +980,9 @@
         var directory = null;
 
         if (selectedRecycleBin) {
+            // 回收站里的文件
+            //fileLabel = g.cube().fs.queryTrashFile(fileCode);
+            return;
         }
         else if (selectedFilter) {
             var searchItem = window.cube().fs.querySearch(directoryId, fileCode);
@@ -1136,26 +1139,56 @@
      * @param {number} dirId 
      */
     FilePanel.prototype.promptDeleteDirectory = function(dirId) {
-        var dir = g.cube().fs.queryDirectory(dirId);
-        if (null == dir) {
-            alert('查找目录出错');
-            return;
-        }
-
-        var text = ['您确定要删除文件夹 ', '“<span class="text-danger">', dir.getName(), '</span>” 及该文件夹内的',
-                    '<span class="text-danger">全部文件</span>',
-                    '吗？'];
-        g.dialog.showConfirm('删除文件夹', text.join(''), function(ok) {
-            if (ok) {
-                currentDir.deleteDirectory([ dir ], true, function(workingDir, resultList) {
-                    g.dialog.launchToast(Toast.Success, '已删除文件夹“' + dir.getName() + "”");
-
-                    that.refreshTable(true);
-                }, function(error) {
-                    g.dialog.launchToast(Toast.Error, '删除文件夹失败: ' + error.code);
-                });
+        if (selectedRecycleBin) {
+            var trashDir = g.cube().fs.queryTrash(dirId);
+            if (null == trashDir) {
+                alert('查找废弃目录出错');
+                return;
             }
-        }, '删除文件夹');
+
+            var text = ['您确定要删除文件夹 ', '“<span class="text-danger">', trashDir.getName(), '</span>” 及该文件夹内的',
+                        '<span class="text-danger">全部文件</span>',
+                        '吗？<p class="text-danger">该操作不可撤销！</p>'];
+            g.dialog.showConfirm('删除文件夹', text.join(''), function(ok) {
+                if (ok) {
+                    g.dialog.showLoading('删除文件夹');
+
+                    // 删除废弃文件
+                    g.cube().fs.eraseTrash([ dirId ], function(root, list) {
+                        g.dialog.launchToast(Toast.Success, '已删除文件夹“' + trashDir.getName() + "”");
+
+                        that.refreshTable(true, function() {
+                            g.dialog.hideLoading();
+                        });
+                    }, function(error) {
+                        g.dialog.hideLoading();
+                        g.dialog.launchToast(Toast.Error, '删除文件夹失败: ' + error.code);
+                    });
+                }
+            }, '删除文件夹');
+        }
+        else {
+            var dir = g.cube().fs.queryDirectory(dirId);
+            if (null == dir) {
+                alert('查找目录出错');
+                return;
+            }
+    
+            var text = ['您确定要删除文件夹 ', '“<span class="text-danger">', dir.getName(), '</span>” 及该文件夹内的',
+                        '<span class="text-danger">全部文件</span>',
+                        '吗？'];
+            g.dialog.showConfirm('删除文件夹', text.join(''), function(ok) {
+                if (ok) {
+                    currentDir.deleteDirectory([ dir ], true, function(workingDir, resultList) {
+                        g.dialog.launchToast(Toast.Success, '已删除文件夹“' + dir.getName() + "”");
+    
+                        that.refreshTable(true);
+                    }, function(error) {
+                        g.dialog.launchToast(Toast.Error, '删除文件夹失败: ' + error.code);
+                    });
+                }
+            }, '删除文件夹');
+        }
     }
 
     /**
@@ -1258,17 +1291,50 @@
         }
     }
 
+    /**
+     * 提示删除文件。
+     * @param {string} fileName 
+     * @param {string} fileCode 
+     */
     FilePanel.prototype.promptDeleteFile = function(fileName, fileCode) {
-        var text = ['您确定要删除文件 ', '“<span class="text-danger">', fileName, '</span>” 吗？'];
-        g.dialog.showConfirm('删除文件', text.join(''), function(ok) {
-            if (ok) {
-                currentDir.deleteFiles([ fileCode ], function(workingDir, resultList) {
-                    that.refreshTable(true);
-                }, function(error) {
-                    g.dialog.launchToast(Toast.Error, '删除文件失败: ' + error.code);
-                });
+        if (selectedRecycleBin) {
+            var trashFile = g.cube().fs.queryTrashFile(fileCode);
+            if (null == trashFile) {
+                return;
             }
-        }, '删除');
+
+            var text = ['您确定要删除文件 ', '“<span class="text-danger">', fileName, '</span>” 吗？',
+                        '<p class="text-danger">该操作不可撤销！</p>'];
+            g.dialog.showConfirm('删除文件', text.join(''), function(ok) {
+                if (ok) {
+                    g.dialog.showLoading('删除文件');
+
+                    g.cube().fs.eraseTrash([ trashFile.getId() ], function(root, list) {
+                        that.refreshTable(false);
+                        g.dialog.hideLoading();
+                    }, function(error) {
+                        g.dialog.hideLoading();
+                        g.dialog.launchToast(Toast.Error, '删除文件失败: ' + error.code);
+                    });
+                }
+            }, '删除');
+        }
+        else {
+            var text = ['您确定要删除文件 ', '“<span class="text-danger">', fileName, '</span>” 吗？'];
+            g.dialog.showConfirm('删除文件', text.join(''), function(ok) {
+                if (ok) {
+                    g.dialog.showLoading('删除文件');
+
+                    currentDir.deleteFiles([ fileCode ], function(workingDir, resultList) {
+                        that.refreshTable(true);
+                        g.dialog.hideLoading();
+                    }, function(error) {
+                        g.dialog.hideLoading();
+                        g.dialog.launchToast(Toast.Error, '删除文件失败: ' + error.code);
+                    });
+                }
+            }, '删除');
+        }
     }
 
     /**

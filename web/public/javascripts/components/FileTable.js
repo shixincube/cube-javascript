@@ -35,18 +35,17 @@
 
     /**
      * 生成文件夹的行界面。
-     * @param {Directory} folder 
-     * @param {boolean} extended 
+     * @param {Directory|TrashDirectory} folder 
      */
-    function makeFolderRow(folder, extended) {
+    function makeFolderRow(folder) {
         var id = folder.getId();
         var name = folder.getName();
         var time = folder.getLastModified();
-        if (extended) {
+        if (folder instanceof TrashDirectory) {
             name = name + ' （于 ' + g.formatYMDHMS(folder.getTrashTimestamp()) + '）';
         }
 
-        return [
+        var html = [
             '<tr ondblclick="app.filePanel.changeDirectory(\'', id, '\')" id="ftr_', id, '">',
                 '<td onclick="app.filePanel.toggleSelect(\'', id, '\')">', '<div class="icheck-primary">',
                     '<input type="checkbox" data-type="folder" id="', id, '">',
@@ -56,29 +55,38 @@
                 '<td class="file-size">--</td>',
                 '<td class="file-lastmodifed">', g.formatYMDHMS(time), '</td>',
                 '<td class="file-completion">--</td>',
-                '<td class="file-operate">',
-                    '<button onclick="javascript:app.filePanel.renameDirectory(', id, ');"',
-                        ' type="button" class="btn btn-primary btn-sm" title="重命名"><i class="fas fa-edit"></i></button>',
-                    '<button onclick="javascript:app.filePanel.promptDeleteDirectory(', id, ');"',
-                        ' type="button" class="btn btn-danger btn-sm" title="删除"><i class="far fa-trash-alt"></i></button>',
-                '</td>',
-            '</tr>'
+                '<td class="file-operate">'
         ];
+
+        if (!(folder instanceof TrashDirectory)) {
+            html = html.concat([
+                '<button onclick="javascript:app.filePanel.renameDirectory(', id, ');"',
+                    ' type="button" class="btn btn-primary btn-sm" title="重命名"><i class="fas fa-edit"></i></button>'
+            ]);
+        }
+
+        html = html.concat([
+            '<button onclick="javascript:app.filePanel.promptDeleteDirectory(', id, ');"',
+                ' type="button" class="btn btn-danger btn-sm" title="删除"><i class="far fa-trash-alt"></i></button>'
+        ]);
+
+        html.push('</td></tr>');
+
+        return html;
     }
 
     /**
      * 生成文件的行界面。
      * @param {*} fileLabel 
-     * @param {*} extended 
      */
-    function makeFileRow(fileLabel, extended) {
+    function makeFileRow(fileLabel) {
+        var id = fileLabel.getId();
         var name = fileLabel.getFileName();
-        if (extended) {
+        if (fileLabel instanceof TrashFile) {
             name = name + ' （于 ' + g.formatYMDHMS(fileLabel.getTrashTimestamp()) + '）';
         }
 
-        var id = fileLabel.getId();
-        return [
+        var html = [
             '<tr ondblclick="app.filePanel.openFileDetails(\'', fileLabel.getFileCode(), '\')" id="ftr_', id, '">',
                 '<td onclick="app.filePanel.toggleSelect(\'', id, '\')">', '<div class="icheck-primary">',
                     '<input type="checkbox" data-type="file" id="', id, '">',
@@ -88,25 +96,38 @@
                 '<td class="file-size">', g.formatSize(fileLabel.getFileSize()), '</td>',
                 '<td class="file-lastmodifed">', g.formatYMDHMS(fileLabel.getLastModified()), '</td>',
                 '<td class="file-completion">', g.formatYMDHMS(fileLabel.getCompletionTime()), '</td>',
-                '<td class="file-operate">',
-                    '<button ', 'onclick="app.filePanel.downloadFile(\'', fileLabel.getFileCode(), '\')"',
+                '<td class="file-operate">'
+        ];
+
+        if (fileLabel instanceof TrashFile) {
+            html = html.concat([
+                '<button ', 'onclick="app.filePanel.promptDeleteFile(\'', fileLabel.getFileName(), '\',\'', fileLabel.getFileCode(), '\')"',
+                    ' type="button" class="btn btn-danger btn-sm" title="删除文件" data-target="recycle-file"><i class="far fa-trash-alt"></i></button>'
+            ]);
+        }
+        else {
+            html = html.concat([
+                '<button ', 'onclick="app.filePanel.downloadFile(\'', fileLabel.getFileCode(), '\')"',
                         ' type="button" class="btn btn-primary btn-sm" title="下载"><i class="fas fa-download"></i></button>',
                     '<button ', 'onclick="app.filePanel.openCreateSharingTagDialog(\'', fileLabel.getFileCode(), '\')"',
                         ' type="button" class="btn btn-info btn-sm" title="分享" data-target="share-file"><i class="fas fa-share-alt"></i></button>',
-                    '<div class="btn-group">',
-                        '<button type="button" class="btn btn-secondary btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown" title="更多操作">','</button>',
-                        '<div class="dropdown-menu">',
-                            '<a class="dropdown-item text-sm" href="javascript:app.filePanel.renameFile(\'', fileLabel.getFileName(), '\',\'', fileLabel.getFileCode(), '\');">',
-                                '<i class="far fa-edit"></i>&nbsp;&nbsp;重命名</a>',
-                            '<a class="dropdown-item text-sm" href="javascript:app.filePanel.openFolderDialog(\'', fileLabel.getFileName(), '\',\'', fileLabel.getFileCode(), '\');">',
-                                '<i class="far fa-folder"></i>&nbsp;&nbsp;移动文件</a>',
-                            '<a class="dropdown-item text-sm" href="javascript:app.filePanel.promptDeleteFile(\'', fileLabel.getFileName(), '\',\'', fileLabel.getFileCode(), '\');">', 
-                                '<span class="text-danger"><i class="far fa-trash-alt"></i>&nbsp;&nbsp;删除文件<span></a>',
-                        '</div>',
+                '<div class="btn-group">',
+                    '<button type="button" class="btn btn-secondary btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown" title="更多操作">','</button>',
+                    '<div class="dropdown-menu">',
+                        '<a class="dropdown-item text-sm" href="javascript:app.filePanel.renameFile(\'', fileLabel.getFileName(), '\',\'', fileLabel.getFileCode(), '\');">',
+                            '<i class="far fa-edit"></i>&nbsp;&nbsp;重命名</a>',
+                        '<a class="dropdown-item text-sm" href="javascript:app.filePanel.openFolderDialog(\'', fileLabel.getFileName(), '\',\'', fileLabel.getFileCode(), '\');">',
+                            '<i class="far fa-folder"></i>&nbsp;&nbsp;移动文件</a>',
+                        '<a class="dropdown-item text-sm" href="javascript:app.filePanel.promptDeleteFile(\'', fileLabel.getFileName(), '\',\'', fileLabel.getFileCode(), '\');">', 
+                            '<span class="text-danger"><i class="far fa-trash-alt"></i>&nbsp;&nbsp;删除文件<span></a>',
                     '</div>',
-                '</td>',
-            '</tr>'
-        ];
+                '</div>'
+            ]);
+        }
+
+        html.push('</td></tr>');
+
+        return html;
     }
 
     /**
@@ -265,9 +286,8 @@
     /**
      * 更新表格数据。
      * @param {Array} list 数据列表。
-     * @param {boolean} [extended] 是否在文件名后附加目录信息。
      */
-    FileTable.prototype.updatePage = function(list, extended) {
+    FileTable.prototype.updatePage = function(list) {
         if (list.length == 0) {
             surface[0].innerHTML = '';
             noFileBg.css('display', 'block');
@@ -279,13 +299,13 @@
         list.forEach(function(element) {
             var rowHtml = null;
             if (element instanceof FileLabel || element instanceof TrashFile) {
-                rowHtml = makeFileRow(element, extended);
+                rowHtml = makeFileRow(element);
             }
             else if (element instanceof SearchItem) {
-                rowHtml = makeSearchItemRow(element, extended);
+                rowHtml = makeSearchItemRow(element);
             }
             else {
-                rowHtml = makeFolderRow(element, extended);
+                rowHtml = makeFolderRow(element);
             }
 
             html = html.concat(rowHtml);
