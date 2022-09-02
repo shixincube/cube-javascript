@@ -147,7 +147,7 @@ export class FileStorage extends Module {
          * 文件分块大小。
          * @type {number}
          */
-        this.block = 10 * 1024;
+        this.block = 100 * 1024;
 
         /**
          * 上传数据度量器。
