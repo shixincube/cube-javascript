@@ -54,6 +54,7 @@ import { VisitTrace } from "./VisitTrace";
 import { StringUtil } from "../util/StringUtil";
 import { TrashFile } from "./TrashFile";
 import { TrashDirectory } from "./TrashDirectory";
+import { Measurer } from "./Measurer";
 
 /**
  * 上传文件回调函数。
@@ -146,7 +147,13 @@ export class FileStorage extends Module {
          * 文件分块大小。
          * @type {number}
          */
-        this.block = 512 * 1024;
+        this.block = 10 * 1024;
+
+        /**
+         * 上传数据度量器。
+         * @type {Measurer}
+         */
+        this.measurer = new Measurer();
 
         /**
          * 默认管道的监听器。
@@ -437,6 +444,8 @@ export class FileStorage extends Module {
 
         let fileAnchor = new FileAnchor();
         let reader = new FileReader();
+
+        this.measurer.reset();
 
         reader.onload = (e) => {
             fileAnchor.position += e.total;
@@ -1110,7 +1119,7 @@ export class FileStorage extends Module {
      */
     eraseTrash(trashIdList, handleSuccess, handleFailure) {
         this.getSelfRoot((root) => {
-            let hierarchy = this.fileHierarchyMap.get(this.contactService.getSelf().getId());
+            let hierarchy = root.hierarchy;
             hierarchy.eraseTrash(trashIdList, handleSuccess, handleFailure);
         }, (error) => {
             if (handleFailure) {
@@ -1126,7 +1135,7 @@ export class FileStorage extends Module {
      */
     emptyTrash(handleSuccess, handleFailure) {
         this.getSelfRoot((root) => {
-            let hierarchy = this.fileHierarchyMap.get(this.contactService.getSelf().getId());
+            let hierarchy = root.hierarchy;
             hierarchy.emptyTrash(handleSuccess, handleFailure);
         }, (error) => {
             if (handleFailure) {
@@ -1569,7 +1578,7 @@ export class FileStorage extends Module {
                 let payload = packet.getPayload();
 
                 // 检测回包状态
-                if (payload.code == 0) {
+                if (payload.code == FileStorageState.Ok) {
                     cell.Logger.d(FileStorage.NAME, 'File cursor: ' + fileAnchor + '/' + fileSize);
 
                     let anchor = FileAnchor.create(payload.data);
@@ -1578,9 +1587,9 @@ export class FileStorage extends Module {
                     this.notifyObservers(event);
 
                     if (fileAnchor.position < fileSize) {
-                        setTimeout(() => {
+                        this.measurer.tick(filePacket.size).then(() => {
                             this._serialReadAndUpload(reader, file, fileAnchor, fileSize, completed, processing);
-                        }, 0);
+                        });
                     }
                     else {
                         completed(anchor);

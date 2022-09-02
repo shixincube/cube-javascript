@@ -112,7 +112,7 @@ export class FileHierarchy {
             this.storage.pipeline.send(FileStorage.NAME, request, (pipeline, source, packet) => {
                 if (null == packet || packet.getStateCode() != PipelineState.OK) {
                     let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, fileLabel);
-                    cell.Logger.w('FileHierarchy', '#uploadFile() - ' + error);
+                    cell.Logger.w('FileHierarchy', '#uploadFile() - InsertFile - ' + error);
                     if (handleFailure) {
                         handleFailure(error);
                     }
@@ -121,7 +121,7 @@ export class FileHierarchy {
 
                 if (packet.getPayload().code != FileStorageState.Ok) {
                     let error = new ModuleError(FileStorage.NAME, packet.getPayload().code, fileLabel);
-                    cell.Logger.w('FileHierarchy', '#uploadFile() - ' + error);
+                    cell.Logger.w('FileHierarchy', '#uploadFile() - InsertFile - ' + error);
                     if (handleFailure) {
                         handleFailure(error);
                     }

@@ -57,5 +57,7 @@ export class AjaxFileChunkPacket extends Packet {
         formData.append('file', blob, fileName);
 
         this.data = formData;
+
+        this.size = size;
     }
 }
