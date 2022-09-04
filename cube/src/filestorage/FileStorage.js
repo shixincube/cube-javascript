@@ -56,6 +56,16 @@ import { TrashFile } from "./TrashFile";
 import { TrashDirectory } from "./TrashDirectory";
 import { Measurer } from "./Measurer";
 
+
+/**
+ * 配置描述消息。
+ * @typedef {object} FileServicePerformance
+ * @property {number} spaceSize 当前联系人已使用的存储空间大小，单位：字节。
+ * @property {number} maxSpaceSize 最大允许使用的存储空间大小，单位：字节。
+ * @property {number} uploadThreshold 上传数据速率阀值，单位：字节/秒。
+ * @property {number} downloadThreshold 下载数据速率阀值，单位：字节/秒。
+ */
+
 /**
  * 上传文件回调函数。
  * @callback UploadCallback
@@ -186,10 +196,14 @@ export class FileStorage extends Module {
         this.fileSpaceSize = 0;
 
         /**
-         * 最大允许使用的文件存储空间大小。
-         * @type {number}
+         * 偏好配置。
+         * @type {FileServicePerformance}
          */
-        this.maxFileSpaceSize = 0;
+        this.performance = {
+            maxSpaceSize: 0,
+            uploadThreshold: 0,
+            downloadThreshold: 0
+        };
     }
 
     /**
@@ -298,7 +312,7 @@ export class FileStorage extends Module {
      * @returns {number} 返回最大允许使用的文件空间大小。
      */
     getMaxFileSpaceSize() {
-        return this.maxFileSpaceSize;
+        return this.performance.maxSpaceSize;
     }
 
     /**
@@ -431,8 +445,8 @@ export class FileStorage extends Module {
         let fileSize = file.size;
 
         // 检查空间
-        if (this.fileSpaceSize > 0 && this.maxFileSpaceSize > 0) {
-            if (fileSize > this.maxFileSpaceSize - this.fileSpaceSize) {
+        if (this.fileSpaceSize > 0 && this.getMaxFileSpaceSize() > 0) {
+            if (fileSize > this.getMaxFileSpaceSize() - this.fileSpaceSize) {
                 if (handleFailure) {
                     // 无可用空间
                     let error = new ModuleError(FileStorage.NAME, FileStorageState.OverSize, file);
@@ -1703,7 +1717,9 @@ export class FileStorage extends Module {
         }
 
         this.fileSpaceSize = payload.data.spaceSize;
-        this.maxFileSpaceSize = payload.data.maxSpaceSize;
+        this.performance.maxSpaceSize = payload.data.maxSpaceSize;
+        this.performance.uploadThreshold = payload.data.uploadThreshold;
+        this.performance.downloadThreshold = payload.data.downloadThreshold;
     }
 
     /**
