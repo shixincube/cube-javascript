@@ -25,6 +25,7 @@
  */
 
 import { Entity } from "../core/Entity";
+import { Contact } from "./Contact";
 import { ContactService } from "./ContactService";
 import { ContactZoneParticipant } from "./ContactZoneParticipant";
 
@@ -152,5 +153,21 @@ export class ContactZone extends Entity {
         }
 
         resultHandler();
+    }
+
+    /**
+     * 指定的联系人是否包含在该联系人分区里。
+     * @param {Contact} contact 指定联系人。
+     * @returns {boolean} 如果该分区有该联系人返回 {@linkcode true} ，否则返回 {@linkcode false} 。
+     */
+    contains(contact) {
+        for (let i = 0; i < this.participants.length; ++i) {
+            let participant = this.participants[i];
+            if (participant.id == contact.id) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

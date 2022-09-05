@@ -108,7 +108,7 @@
      * 显示对话框。
      * @param {Contact|number} contact 
      */
-    ContactDetails.prototype.show = function(contact) {
+    ContactDetails.prototype.show = function(contact, readOnly) {
         var handler = function(contact) {
             var el = dialogEl;
             var name = contact.getAppendix().hasRemarkName() ? contact.getAppendix().getRemarkName() : contact.getName();
@@ -119,14 +119,25 @@
             el.find('.user-department').text(contact.getContext().department);
 
             if (contact.getId() == g.app.getSelf().getId()) {
-                // btnEditName.css('visibility', 'hidden');
+                btnEditName.css('visibility', 'visible');
                 btnEditName.attr('title', '修改昵称');
                 el.find('.widget-user-desc').text('');
             }
             else {
-                // btnEditName.css('visibility', 'visible');
-                btnEditName.attr('title', '修改备注');
-                el.find('.widget-user-desc').text(contact.getName());
+                // 判断是否是通讯录的好友
+                g.cube().contact.getDefaultContactZone(function(zone) {
+                    if (zone.contains(contact)) {
+                        btnEditName.css('visibility', 'visible');
+                        btnEditName.attr('title', '修改备注');
+                        el.find('.widget-user-desc').text(contact.getName());
+                    }
+                    else {
+                        btnEditName.css('visibility', 'hidden');
+                        el.find('.widget-user-desc').text('');
+                    }
+                }, function(error) {
+                    g.dialog.toast('通讯录数据出错：' + error.code);
+                });
             }
 
             el.modal('show');

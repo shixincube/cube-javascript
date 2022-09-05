@@ -523,7 +523,7 @@
         getContact: function(id, callback) {
             cube.contact.getContact(parseInt(id), function(contact) {
                 var localContact = queryContact(contact.getId());
-                if (null != localContact) {
+                if (null != localContact && null == contact.getContext()) {
                     contact.setContext(localContact.getContext());
                     callback(contact);
                 }
