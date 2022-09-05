@@ -1181,6 +1181,52 @@
     </div>
     <!-- Search Dialog - end -->
 
+    <!-- Sharing Details - begin -->
+    <div id="modal_visit_trace_list" class="modal fade visit-trace-list" data-backdrop="static">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">分享数据访问记录</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-body" style="padding:0;min-height:508px;">
+                            <table class="table table-bordered table-striped table-sm">
+                                <thead>
+                                    <tr>
+                                        <th width="38">#</th>
+                                        <th>时间</th>
+                                        <th>访问人</th>
+                                        <th>访问地址</th>
+                                        <th>操作系统</th>
+                                        <th>浏览器（应用）</th>
+                                        <th>事件</th>
+                                        <th>来源设备</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="trace-tb">
+                                </tbody>
+                            </table>
+                        </div><!-- /.card-body -->
+                        <div class="card-footer clearfix">
+                            <ul class="pagination pagination-sm m-0 float-right">
+                                <li class="page-item page-prev"><a class="page-link" href="javascript:app.visitTraceDialog.prevPage();">&laquo;</a></li>
+                                <li class="page-item page-next"><a class="page-link" href="javascript:app.visitTraceDialog.nextPage();">&raquo;</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- div class="modal-footer">
+                </div -->
+                <div class="overlay"><span><i class="fas fa-2x fa-sync-alt fa-spin"></i></span><span class="text">正在加载数据，请稍候……</span></div>
+            </div>
+        </div>
+    </div>
+    <!-- Sharing Details - end -->
+
     <!-- Contact Details - begin -->
     <div id="modal_contact_details" class="modal fade">
         <div class="modal-dialog">
@@ -1564,52 +1610,6 @@
         </div>
     </div>
     <!-- Create file sharing dialog - end  -->
-
-    <!-- Sharing Details - begin -->
-    <div id="modal_visit_trace_list" class="modal fade visit-trace-list" data-backdrop="static">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">分享数据访问记录</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="card">
-                        <div class="card-body" style="padding:0;min-height:508px;">
-                            <table class="table table-bordered table-striped table-sm">
-                                <thead>
-                                    <tr>
-                                        <th width="38">#</th>
-                                        <th>时间</th>
-                                        <th>访问人</th>
-                                        <th>访问地址</th>
-                                        <th>操作系统</th>
-                                        <th>浏览器（应用）</th>
-                                        <th>事件</th>
-                                        <th>来源设备</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="trace-tb">
-                                </tbody>
-                            </table>
-                        </div><!-- /.card-body -->
-                        <div class="card-footer clearfix">
-                            <ul class="pagination pagination-sm m-0 float-right">
-                                <li class="page-item page-prev"><a class="page-link" href="javascript:app.visitTraceDialog.prevPage();">&laquo;</a></li>
-                                <li class="page-item page-next"><a class="page-link" href="javascript:app.visitTraceDialog.nextPage();">&raquo;</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <!-- div class="modal-footer">
-                </div -->
-                <div class="overlay"><span><i class="fas fa-2x fa-sync-alt fa-spin"></i></span><span class="text">正在加载数据，请稍候……</span></div>
-            </div>
-        </div>
-    </div>
-    <!-- Sharing Details - end -->
 
     <!-- Conference UI - begin -->
     <div id="conference_window" class="modal fade modeless conference-panel">

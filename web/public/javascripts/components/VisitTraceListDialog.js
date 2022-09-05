@@ -61,7 +61,7 @@
                     '<td>',
                         g.formatYMDHMS(trace.time),
                     '</td>',
-                    '<td data-target="', trace.contactId, '"><i class="text-muted text-xs">未知</i>','</td>',
+                    '<td data-target="', trace.contactId, '"><i class="text-muted text-xs">--</i>','</td>',
                     '<td>',
                         trace.address,
                     '</td>',
@@ -88,7 +88,7 @@
                     '<td>',
                         g.formatYMDHMS(trace.time),
                     '</td>',
-                    '<td data-target="', trace.contactId, '"><i class="text-muted text-xs">未知</i>','</td>',
+                    '<td data-target="', trace.contactId, '"><i class="text-muted text-xs">--</i>','</td>',
                     '<td>',
                         trace.address,
                     '</td>',
@@ -229,7 +229,12 @@
         // 填写访问人名称
         contactIdList.forEach(function(id) {
             g.app.getContact(id, function(contact) {
-                dialogEl.find('td[data-target="' + id + '"]').text(contact.getPriorityName());
+                var contactHtml = [
+                    '<a href="javascript:app.contactDetails.show(', id, ');">',
+                        contact.getPriorityName(),
+                    '</a>'
+                ];
+                dialogEl.find('td[data-target="' + id + '"]').html(contactHtml.join(''));
             });
         });
     }

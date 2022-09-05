@@ -685,7 +685,7 @@
             };
 
             // 从 Cube 里获取指定的联系人分组
-            cube.contact.getContactZone(app.contactZone, function(zone) {
+            cube.contact.getDefaultContactZone(function(zone) {
                 if (zone.numParticipants() == 0 && that.demo) {
                     // 将内置的账号设置为该联系人的通讯录
                     $.get(server.url + '/account/buildin/', function(response, status, xhr) {
@@ -725,6 +725,10 @@
                     });
                 }
             }, function(error) {
+                console.log(error);
+                process([]);
+
+                /* FIXME XJW 20220904 服务器会自动创建默认分区
                 if (error.code == ContactServiceState.NotFindContactZone) {
                     // 创建分区
 
@@ -767,7 +771,7 @@
                 else {
                     console.log(error);
                     process([]);
-                }
+                }*/
             });
         },
 

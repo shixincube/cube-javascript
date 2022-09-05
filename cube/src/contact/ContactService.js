@@ -143,6 +143,27 @@ export class ContactService extends Module {
          * @type {ContactContextProviderCallback}
          */
         this.contextProviderCallback = null;
+
+        /**
+         * 默认提供的联系人分区名称。
+         * @private
+         * @type {string}
+         */
+        this.defaultContactZoneName = 'contacts';
+
+        /**
+         * 默认提供的群组分区名称。
+         * @private
+         * @type {string}
+         */
+        this.defaultGroupZoneName = 'groups';
+
+        /**
+         * 默认联系人分区。
+         * @private
+         * @type {ContactZone}
+         */
+        this.defaultContactZone = null;
     }
 
     /**
@@ -690,6 +711,25 @@ export class ContactService extends Module {
         else {
             return promise;
         }
+    }
+
+    /**
+     * 获取默认群组分区。
+     * @param {function} handleSuccess 操作成功回调该方法，参数：({@linkcode contactZone}:{@link ContactZone})。
+     * @param {function} handleFailure 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
+     */
+    getDefaultContactZone(handleSuccess, handleFailure) {
+        if (null != this.defaultContactZone) {
+            handleSuccess(this.defaultContactZone);
+            return;
+        }
+
+        this.getContactZone(this.defaultContactZoneName, (contactZone) => {
+            this.defaultContactZone = contactZone;
+            handleSuccess(contactZone);
+        }, (error) => {
+            handleFailure(error);
+        });
     }
 
     /**
