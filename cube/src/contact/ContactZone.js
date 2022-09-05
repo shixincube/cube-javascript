@@ -156,6 +156,29 @@ export class ContactZone extends Entity {
     }
 
     /**
+     * 获取参与人列表。
+     * @param {number} excludedState 指定排除的参与人状态。
+     * @param {function} handler 数据回调句柄，参数：({@linkcode list}:Array<{@link ContactZoneParticipant}>}) 。
+     */
+    getParticipantsByExcluding(excludedState, handler) {
+        let resultList = [];
+
+        this.getParticipants((list) => {
+            for (let i = 0; i < list.length; ++i) {
+                let participant = list[i];
+                if (participant.state != excludedState) {
+                    resultList.push(participant);
+                }
+            }
+
+            // 时间倒序
+            resultList.sort((a, b) => b.timestamp - a.timestamp);
+
+            handler(resultList);
+        });
+    }
+
+    /**
      * 指定的联系人是否包含在该联系人分区里。
      * @param {Contact} contact 指定联系人。
      * @returns {boolean} 如果该分区有该联系人返回 {@linkcode true} ，否则返回 {@linkcode false} 。

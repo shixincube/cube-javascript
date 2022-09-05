@@ -400,13 +400,14 @@ export class ContactService extends Module {
 
         cell.Logger.d('ContactService', 'Trigger SignIn: ' + this.self.getId());
 
+        let gotContext = false;
         let gotGroups = false;
         let gotBlockList = false;
         let gotTopList = false;
         let gotAppendix = false;
 
         let trigger = () => {
-            if (gotGroups && gotBlockList && gotTopList && gotAppendix) {
+            if (gotContext && gotGroups && gotBlockList && gotTopList && gotAppendix) {
                 cell.Logger.d('ContactService', 'Self is ready');
 
                 (new Promise((resolve, reject) => {
@@ -458,6 +459,17 @@ export class ContactService extends Module {
 
         if (data["context"] !== undefined) {
             this.self.setContext(data["context"]);
+        }
+
+        // 更新 Self 的上下文数据
+        if (null != this.contextProviderCallback) {
+            this.contextProviderCallback(this.self, new ContactContextProvider(this.self, (contact) => {
+                gotContext = true;
+                trigger();
+            }));
+        }
+        else {
+            gotContext = true;
         }
 
         // 获取附录
@@ -794,15 +806,15 @@ export class ContactService extends Module {
         });
     }
 
-    /**
+    /*
      * FIXME XJW 可作废的接口
      * 获取指定名称的待处理联系人分区。
      * @param {string} name 分区名。
      * @param {function} handleSuccess 操作成功回调该方法，参数：({@linkcode contactZone}:{@link ContactZone})。
      * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
      */
-    getPendingZone(name, handleSuccess, handleFailure) {
-        /*let packet = new Packet(ContactAction.GetContactZone, {
+    /*getPendingZone(name, handleSuccess, handleFailure) {
+        let packet = new Packet(ContactAction.GetContactZone, {
             "name": name,
             "pending": true
         });
@@ -822,8 +834,8 @@ export class ContactService extends Module {
                     handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.ServerError, name));
                 }
             }
-        });*/
-    }
+        });
+    }*/
 
     /**
      * 指定分区是否包含指定联系人。

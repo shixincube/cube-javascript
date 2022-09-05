@@ -120,6 +120,7 @@
      * @param {function} [callback]
      */
     ContactsController.prototype.ready = function(callback) {
+        // 重置列表
         pendingList = [];
 
         // XJW getPendingZone 已作废
@@ -145,6 +146,19 @@
         }, function(error) {
             console.log(error);
         });*/
+
+        // 获取待处理列表
+        cube.contact.getDefaultContactZone(function(zone) {
+            zone.getParticipantsByExcluding(ContactZoneParticipantState.Normal, function(list) {
+                list.forEach(function(participant) {
+                    that.addPending(participant);
+                });
+
+                if (callback) {
+                    callback();
+                }
+            });
+        });
 
         // 更新阻止清单
         cube.contact.queryBlockList(function(list) {
@@ -230,14 +244,13 @@
     ContactsController.prototype.addPending = function(entity) {
         pendingList.push(entity);
 
-        if (pendingTimer > 0) {
-            clearTimeout(pendingTimer);
+        if (pendingTimer == 0) {
+            pendingTimer = setTimeout(function() {
+                clearTimeout(pendingTimer);
+                pendingTimer = 0;
+                pendingTable.update(pendingList);
+            }, 1000);
         }
-        pendingTimer = setTimeout(function() {
-            clearTimeout(pendingTimer);
-            pendingTimer = 0;
-            pendingTable.update(pendingList);
-        }, 1000);
     }
 
     /**

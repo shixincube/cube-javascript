@@ -134,13 +134,22 @@
 
         for (var i = 0; i < entities.length; ++i) {
             var entity = entities[i];
-            var avatar = (entity instanceof Group) ? 'images/group-avatar.png' : g.helper.getAvatarImage(entity.getContext().avatar);
+            var name = null;
+            var avatar = null;
+            if (entity instanceof ContactZoneParticipant) {
+                name = entity.getName();
+                avatar = (null != entity.contact) ? g.helper.getAvatarImage(entity.contact.getContext().avatar) : 'images/group-avatar.png';
+            }
+            else {
+                name = entity.getName();
+                avatar = (entity instanceof Group) ? 'images/group-avatar.png' : g.helper.getAvatarImage(entity.getContext().avatar);
+            }
 
             var html = [
                 '<tr data-target="', i, '">',
                     '<td>', (page - 1) * 10 + (i + 1), '</td>',
                     '<td><img class="table-avatar" src="', avatar, '" /></td>',
-                    '<td>', entity.getName(), '</td>',
+                    '<td>', name, '</td>',
                     '<td class="text-muted">', entity.getId(), '</td>',
                     '<td>', entity.postscript, '</td>',
                     '<td class="text-right">',

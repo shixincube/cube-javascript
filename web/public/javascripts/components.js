@@ -6459,8 +6459,6 @@
             el.find('.user-region').text(contact.getContext().region);
             el.find('.user-department').text(contact.getContext().department);
 
-            console.log(contact.getContext());
-
             if (contact.getId() == g.app.getSelf().getId()) {
                 btnEditName.css('visibility', 'visible');
                 btnEditName.attr('title', '修改昵称');
@@ -11786,13 +11784,22 @@
 
         for (var i = 0; i < entities.length; ++i) {
             var entity = entities[i];
-            var avatar = (entity instanceof Group) ? 'images/group-avatar.png' : g.helper.getAvatarImage(entity.getContext().avatar);
+            var name = null;
+            var avatar = null;
+            if (entity instanceof ContactZoneParticipant) {
+                name = entity.getName();
+                avatar = (null != entity.contact) ? g.helper.getAvatarImage(entity.contact.getContext().avatar) : 'images/group-avatar.png';
+            }
+            else {
+                name = entity.getName();
+                avatar = (entity instanceof Group) ? 'images/group-avatar.png' : g.helper.getAvatarImage(entity.getContext().avatar);
+            }
 
             var html = [
                 '<tr data-target="', i, '">',
                     '<td>', (page - 1) * 10 + (i + 1), '</td>',
                     '<td><img class="table-avatar" src="', avatar, '" /></td>',
-                    '<td>', entity.getName(), '</td>',
+                    '<td>', name, '</td>',
                     '<td class="text-muted">', entity.getId(), '</td>',
                     '<td>', entity.postscript, '</td>',
                     '<td class="text-right">',
@@ -12141,6 +12148,7 @@
      * @param {function} [callback]
      */
     ContactsController.prototype.ready = function(callback) {
+        // 重置列表
         pendingList = [];
 
         // XJW getPendingZone 已作废
@@ -12166,6 +12174,19 @@
         }, function(error) {
             console.log(error);
         });*/
+
+        // 获取待处理列表
+        cube.contact.getDefaultContactZone(function(zone) {
+            zone.getParticipantsByExcluding(ContactZoneParticipantState.Normal, function(list) {
+                list.forEach(function(participant) {
+                    that.addPending(participant);
+                });
+
+                if (callback) {
+                    callback();
+                }
+            });
+        });
 
         // 更新阻止清单
         cube.contact.queryBlockList(function(list) {
@@ -12251,14 +12272,13 @@
     ContactsController.prototype.addPending = function(entity) {
         pendingList.push(entity);
 
-        if (pendingTimer > 0) {
-            clearTimeout(pendingTimer);
+        if (pendingTimer == 0) {
+            pendingTimer = setTimeout(function() {
+                clearTimeout(pendingTimer);
+                pendingTimer = 0;
+                pendingTable.update(pendingList);
+            }, 1000);
         }
-        pendingTimer = setTimeout(function() {
-            clearTimeout(pendingTimer);
-            pendingTimer = 0;
-            pendingTable.update(pendingList);
-        }, 1000);
     }
 
     /**

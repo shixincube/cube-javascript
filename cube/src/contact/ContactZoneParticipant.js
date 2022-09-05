@@ -86,6 +86,23 @@ import { ContactService } from "./ContactService";
     }
 
     /**
+     * 获取参与人名称。
+     * @returns {string} 返回参与人名称。
+     */
+    getName() {
+        if (this.type == ContactZoneParticipantType.Contact) {
+            return (null != this.contact) ? this.contact.getName() : '';
+        }
+        else if (this.type == ContactZoneParticipantType.Group) {
+            return (null != this.group) ? this.group.getName() : '';
+        }
+        else {
+            return '';
+        }
+    }
+
+    /**
+     * @private
      * @param {ContactService} service 
      * @param {function} [callback]
      */
