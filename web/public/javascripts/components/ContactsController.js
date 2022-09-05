@@ -45,6 +45,7 @@
     var currentTable = null;
 
     var contactDelayTimer = 0;
+    var contactDelayLast = 0;
     var groupDelayTimer = 0;
     var pendingTimer = 0;
 
@@ -181,14 +182,28 @@
     ContactsController.prototype.addContact = function(contact) {
         contactList.push(contact);
 
-        if (contactDelayTimer > 0) {
-            clearTimeout(contactDelayTimer);
+        contactDelayLast = Date.now();
+
+        if (contactDelayTimer == 0) {
+            var task = function() {
+                clearTimeout(contactDelayTimer);
+                contactDelayTimer = 0;
+
+                if (Date.now() - contactDelayLast < 1000) {
+                    contactDelayTimer = setTimeout(function() {
+                        task();
+                    }, 1000);
+                }
+                else {
+                    contactsTable.update(contactList);
+                    contactDelayLast = 0;
+                }
+            }
+
+            contactDelayTimer = setTimeout(function() {
+                task();
+            }, 1000);
         }
-        contactDelayTimer = setTimeout(function() {
-            clearTimeout(contactDelayTimer);
-            contactDelayTimer = 0;
-            contactsTable.update(contactList);
-        }, 1000);
     }
 
     ContactsController.prototype.removeContact = function(contact) {
@@ -271,7 +286,7 @@
      * 跳转到消息界面。
      * @param {number} index 
      */
-    ContactsController.prototype.goToMessaging = function(index) {
+    ContactsController.prototype.gotoMessaging = function(index) {
         var entity = currentTable.getCurrentContact(index);
         if (undefined === entity) {
             return;

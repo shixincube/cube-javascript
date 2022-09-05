@@ -6371,6 +6371,13 @@
 
     var btnEditName = null;
 
+    var barActionAdd = null;
+    var btnAdd = null;
+
+    var barActionOperation = null;
+    var btnMessaging = null;
+    var btnBlock = null;
+
     var currentContact = null;
 
     var editName = function() {
@@ -6435,6 +6442,20 @@
         }
     }
 
+
+    var addContact = function(e) {
+
+    }
+
+    var gotoMessaging = function(e) {
+
+    }
+
+    var blockContact = function(e) {
+
+    }
+
+
     /**
      * 联系人详情对话框。
      * @param {jQuery} el 
@@ -6443,6 +6464,16 @@
         dialogEl = el;
         btnEditName = el.find('button[data-target="edit-remarkname"]');
         btnEditName.click(editName);
+
+        barActionAdd = el.find('.action-add-contact');
+        btnAdd = barActionAdd.find('button[data-action="add"]');
+        btnAdd.click(addContact);
+
+        barActionOperation = el.find('.action-operation');
+        btnMessaging = barActionOperation.find('button[data-action="messaging"]');
+        btnMessaging.click(gotoMessaging);
+        btnBlock = barActionOperation.find('button[data-action="block"]');
+        btnBlock.click(blockContact);
     }
 
     /**
@@ -6450,6 +6481,9 @@
      * @param {Contact|number} contact 
      */
     ContactDetails.prototype.show = function(contact, readOnly) {
+        barActionAdd.css('display', 'none');
+        barActionOperation.css('display', 'none');
+
         var handler = function(contact) {
             var el = dialogEl;
             var name = contact.getAppendix().hasRemarkName() ? contact.getAppendix().getRemarkName() : contact.getName();
@@ -6468,13 +6502,17 @@
                 // 判断是否是通讯录的好友
                 g.cube().contact.getDefaultContactZone(function(zone) {
                     if (zone.contains(contact)) {
+                        // 好友
                         btnEditName.css('visibility', 'visible');
                         btnEditName.attr('title', '修改备注');
                         el.find('.widget-user-desc').text(contact.getName());
+                        barActionOperation.css('display', 'block');
                     }
                     else {
+                        // 非好友
                         btnEditName.css('visibility', 'hidden');
                         el.find('.widget-user-desc').text('');
+                        barActionAdd.css('display', 'block');
                     }
                 }, function(error) {
                     g.dialog.toast('通讯录数据出错：' + error.code);
@@ -11343,7 +11381,7 @@
         for (var i = 0; i < pageSize && i < contactList.length; ++i) {
             currentPage.push(contactList[i]);
         }
-        
+
         // 分页
         maxPagination = Math.ceil(contactList.length / pageSize);
         this.paging(maxPagination);
@@ -11423,7 +11461,7 @@
                     '<td>', ctx.region, '</td>',
                     '<td>', ctx.department, '</td>',
                     '<td class="text-right">',
-                        '<a class="btn btn-primary btn-sm" href="javascript:app.contactsCtrl.goToMessaging(', i, ');"><i class="fas fa-comments"></i> 发消息</a>',
+                        '<a class="btn btn-primary btn-sm" href="javascript:app.contactsCtrl.gotoMessaging(', i, ');"><i class="fas fa-comments"></i> 发消息</a>',
                         '<a class="btn btn-info btn-sm" href="javascript:app.contactsCtrl.editRemark(', i, ');" style="margin-left:8px;"><i class="fas fa-pencil-alt"></i> 备注</a>',
                         '<a class="btn btn-danger btn-sm" href="javascript:app.contactsCtrl.remove(', i, ');" style="margin-left:8px;"><i class="fas fa-user-minus"></i> 删除</a>',
                         '<a class="btn btn-secondary btn-sm" href="javascript:app.contactsCtrl.blockContact(', i, ');" style="margin-left:8px;"><i class="fas fa-user-slash"></i> 黑名单</a>',
@@ -11628,7 +11666,7 @@
                     '<td>', appendix.getNotice(), '</td>',
                     '<td class="members">', '</td>',
                     '<td class="text-right">',
-                        '<a class="btn btn-primary btn-sm" href="javascript:app.contactsCtrl.goToMessaging(', i, ');"><i class="fas fa-comments"></i> 发消息</a>',
+                        '<a class="btn btn-primary btn-sm" href="javascript:app.contactsCtrl.gotoMessaging(', i, ');"><i class="fas fa-comments"></i> 发消息</a>',
                         '<a class="btn btn-info btn-sm" href="javascript:app.contactsCtrl.editRemark(', i, ');" style="margin-left:8px;"><i class="fas fa-pencil-alt"></i> 备注</a>',
                     '</td>',
                 '</tr>'
@@ -12073,6 +12111,7 @@
     var currentTable = null;
 
     var contactDelayTimer = 0;
+    var contactDelayLast = 0;
     var groupDelayTimer = 0;
     var pendingTimer = 0;
 
@@ -12209,14 +12248,28 @@
     ContactsController.prototype.addContact = function(contact) {
         contactList.push(contact);
 
-        if (contactDelayTimer > 0) {
-            clearTimeout(contactDelayTimer);
+        contactDelayLast = Date.now();
+
+        if (contactDelayTimer == 0) {
+            var task = function() {
+                clearTimeout(contactDelayTimer);
+                contactDelayTimer = 0;
+
+                if (Date.now() - contactDelayLast < 1000) {
+                    contactDelayTimer = setTimeout(function() {
+                        task();
+                    }, 1000);
+                }
+                else {
+                    contactsTable.update(contactList);
+                    contactDelayLast = 0;
+                }
+            }
+
+            contactDelayTimer = setTimeout(function() {
+                task();
+            }, 1000);
         }
-        contactDelayTimer = setTimeout(function() {
-            clearTimeout(contactDelayTimer);
-            contactDelayTimer = 0;
-            contactsTable.update(contactList);
-        }, 1000);
     }
 
     ContactsController.prototype.removeContact = function(contact) {
@@ -12299,7 +12352,7 @@
      * 跳转到消息界面。
      * @param {number} index 
      */
-    ContactsController.prototype.goToMessaging = function(index) {
+    ContactsController.prototype.gotoMessaging = function(index) {
         var entity = currentTable.getCurrentContact(index);
         if (undefined === entity) {
             return;

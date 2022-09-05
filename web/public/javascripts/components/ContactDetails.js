@@ -30,6 +30,13 @@
 
     var btnEditName = null;
 
+    var barActionAdd = null;
+    var btnAdd = null;
+
+    var barActionOperation = null;
+    var btnMessaging = null;
+    var btnBlock = null;
+
     var currentContact = null;
 
     var editName = function() {
@@ -94,6 +101,20 @@
         }
     }
 
+
+    var addContact = function(e) {
+
+    }
+
+    var gotoMessaging = function(e) {
+
+    }
+
+    var blockContact = function(e) {
+
+    }
+
+
     /**
      * 联系人详情对话框。
      * @param {jQuery} el 
@@ -102,6 +123,16 @@
         dialogEl = el;
         btnEditName = el.find('button[data-target="edit-remarkname"]');
         btnEditName.click(editName);
+
+        barActionAdd = el.find('.action-add-contact');
+        btnAdd = barActionAdd.find('button[data-action="add"]');
+        btnAdd.click(addContact);
+
+        barActionOperation = el.find('.action-operation');
+        btnMessaging = barActionOperation.find('button[data-action="messaging"]');
+        btnMessaging.click(gotoMessaging);
+        btnBlock = barActionOperation.find('button[data-action="block"]');
+        btnBlock.click(blockContact);
     }
 
     /**
@@ -109,6 +140,9 @@
      * @param {Contact|number} contact 
      */
     ContactDetails.prototype.show = function(contact, readOnly) {
+        barActionAdd.css('display', 'none');
+        barActionOperation.css('display', 'none');
+
         var handler = function(contact) {
             var el = dialogEl;
             var name = contact.getAppendix().hasRemarkName() ? contact.getAppendix().getRemarkName() : contact.getName();
@@ -127,13 +161,17 @@
                 // 判断是否是通讯录的好友
                 g.cube().contact.getDefaultContactZone(function(zone) {
                     if (zone.contains(contact)) {
+                        // 好友
                         btnEditName.css('visibility', 'visible');
                         btnEditName.attr('title', '修改备注');
                         el.find('.widget-user-desc').text(contact.getName());
+                        barActionOperation.css('display', 'block');
                     }
                     else {
+                        // 非好友
                         btnEditName.css('visibility', 'hidden');
                         el.find('.widget-user-desc').text('');
+                        barActionAdd.css('display', 'block');
                     }
                 }, function(error) {
                     g.dialog.toast('通讯录数据出错：' + error.code);
