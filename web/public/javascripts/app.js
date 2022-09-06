@@ -646,57 +646,6 @@
                 that.prepareGroups(function() {
                     callback();
                 });
-
-                /*contactList.forEach(function(item) {
-                    if (!item.avatar.startsWith('http')) {
-                        item.avatar += '.png';
-                    }
-
-                    if (item.id != account.id) {
-                        itemMap[item.id.toString()] = item;
-
-                        that.getContact(item.id, function(contact) {
-                            // 将 App 的账号数据设置为 Cube 联系人的上下文
-                            var account = itemMap[contact.getId().toString()];
-                            contact.setContext(account);
-                            contact.setName(account.name);
-
-                            // 向联系人表格添加联系人
-                            contactsCtrl.addContact(contact);
-
-                            itemMap.count += 1;
-                            console.debug('Debug #getContact: ' + contact.getId() + ' - ' + itemMap.count);
-                        });
-                    }
-                    else {
-                        // 自己
-                        itemMap.count += 1;
-                    }
-                });
-
-                var promise = new Promise(function(resolve, reject) {
-                    var timer = setInterval(function() {
-                        if (itemMap.count == list.length) {
-                            clearInterval(timer);
-                            resolve();
-                        }
-                    }, 500);
-                });
-
-                promise.then(function() {
-                    // 添加自己
-                    cubeContacts.push(cube.contact.getSelf());
-
-                    // 加载群组信息
-                    that.prepareGroups(function() {
-                        callback();
-                    });
-                }).catch(function() {
-                    // 隐藏进度提示
-                    setTimeout(function() {
-                        dialog.hideLoading();
-                    }, 500);
-                });*/
             };
 
             // 从 Cube 里获取默认的联系人分组
@@ -711,7 +660,7 @@
                         if (participant.state == ContactZoneParticipantState.Normal) {
                             contactList.push(participant);
                         }
-                        else if (participant.state == ContactZoneParticipantState.Pending) {
+                        else {
                             pendingList.push(participant);
                         }
                     }

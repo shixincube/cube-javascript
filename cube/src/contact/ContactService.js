@@ -921,8 +921,8 @@ export class ContactService extends Module {
         participant.state = state;
 
         let requestPacket = new Packet(ContactAction.ModifyZoneParticipant, {
-            name: zone.name,
-            participant: participant.toCompactJSON()
+            "name": zone.name,
+            "participant": participant.toCompactJSON()
         });
         this.pipeline.send(ContactService.NAME, requestPacket, (pipeline, source, responsePacket) => {
             if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {

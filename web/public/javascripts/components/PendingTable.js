@@ -144,17 +144,37 @@
                     avatar = g.helper.getAvatarImage(entity.contact.getContext().avatar);
                     if (entity.isInviter()) {
                         // 本人发出的邀请
-                        action = [
-                            '<span class="text-muted">等待对方同意</span>'
-                        ];
+                        if (entity.state == ContactZoneParticipantState.Pending) {
+                            action = [
+                                '<span class="text-muted">等待对方同意</span>'
+                            ];
+                        }
+                        else if (entity.state == ContactZoneParticipantState.Reject) {
+                            action = [
+                                '<span class="text-danger">对方拒绝邀请</span>'
+                            ];
+                        }
+                        else {
+                            action = [];
+                        }
                     }
                     else {
                         // 其他人发来的
-                        action = [
-                            '<button class="btn btn-primary btn-sm" onclick="app.contactsCtrl.acceptPendingContact(', i, ');"><i class="fas fa-user-check"></i> 添加联系人</button>',
-                            '&nbsp;&nbsp;',
-                            '<button class="btn btn-secondary btn-sm" onclick="app.contactsCtrl.rejectPendingContact(', i, ');"><i class="fas fa-user-minus"></i> 拒绝邀请</button>'
-                        ];
+                        if (entity.state == ContactZoneParticipantState.Pending) {
+                            action = [
+                                '<button class="btn btn-primary btn-sm" onclick="app.contactsCtrl.acceptPendingContact(', i, ');"><i class="fas fa-user-check"></i> 添加联系人</button>',
+                                '&nbsp;&nbsp;',
+                                '<button class="btn btn-secondary btn-sm" onclick="app.contactsCtrl.rejectPendingContact(', i, ');"><i class="fas fa-user-minus"></i> 拒绝邀请</button>'
+                            ];
+                        }
+                        else if (entity.state == ContactZoneParticipantState.Reject) {
+                            action = [
+                                '<span class="text-muted">已拒绝</span>'
+                            ];
+                        }
+                        else {
+                            action = [];
+                        }
                     }
                 }
                 else {

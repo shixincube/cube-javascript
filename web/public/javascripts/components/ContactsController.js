@@ -367,6 +367,8 @@
         var contact = currentTable.getCurrentContact(index);
         g.dialog.showConfirm('添加联系人', '您确认要添加联系人“<b>' + contact.getName() + '</b>”吗？', function(yesOrNo) {
             if (yesOrNo) {
+                g.dialog.showLoading('正在添加联系人');
+
                 cube.contact.getDefaultContactZone(function(contactZone) {
                     contactZone.modifyParticipantState(contact, ContactZoneParticipantState.Normal, function(zone, participant) {
                         // 更新列表
@@ -376,10 +378,14 @@
                         that.ready(function() {
                             that.update();
                         });
+
+                        g.dialog.hideLoading();
                     }, function(error) {
+                        g.dialog.hideLoading();
                         g.dialog.toast('修改联系人数据出错：' + error.code, Toast.Error);
                     });
                 }, function(error) {
+                    g.dialog.hideLoading();
                     g.dialog.toast('读取分区数据出错：' + error.code, Toast.Error);
                 });
             }
@@ -390,6 +396,24 @@
         var contact = currentTable.getCurrentContact(index);
         g.dialog.showConfirm('拒绝邀请', '您确认要拒绝“<b>' + contact.getName() + '</b>”的添加联系人邀请吗？', function(yesOrNo) {
             if (yesOrNo) {
+                g.dialog.showLoading('正在拒绝邀请');
+
+                cube.contact.getDefaultContactZone(function(contactZone) {
+                    contactZone.modifyParticipantState(contact, ContactZoneParticipantState.Reject, function(zone, participant) {
+                        // 更新数据
+                        that.ready(function() {
+                            that.update();
+                        });
+
+                        g.dialog.hideLoading();
+                    }, function(error) {
+                        g.dialog.hideLoading();
+                        g.dialog.toast('修改联系人数据出错：' + error.code, Toast.Error);
+                    });
+                }, function(error) {
+                    g.dialog.hideLoading();
+                    g.dialog.toast('读取分区数据出错：' + error.code, Toast.Error);
+                });
             }
         });
     }
