@@ -103,6 +103,10 @@ export class ContactZone extends Entity {
         }
     }
 
+    getName() {
+        return this.name;
+    }
+
     /**
      * 获取分区参与人数量。
      * @returns {number} 返回分区参与人数量。

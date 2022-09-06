@@ -6444,7 +6444,7 @@
 
 
     var addContact = function(e) {
-
+        
     }
 
     var gotoMessaging = function(e) {
@@ -13185,15 +13185,35 @@
                     '<span><a href="javascript:app.contactDetails.show(', contact.getId(), ');">', contact.getName(), '</a></span>',
                     '&nbsp;<span class="text-muted">(', contact.getId(), ')</span>',
                 '</div>',
-                '<div class="col-3" data-target="action">',
-                '</div>',
+                '<div class="col-3" data-target="action">','</div>',
             '</div>'
         ];
         var rowEl = $(html.join(''));
 
         this.resultEl.append(rowEl);
 
-        g.cube().contact.containsContactInZone(g.app.contactZone, contact, function(contained, zoneName, contactId) {
+        const current = contact;
+
+        if (current.getId() == app.account.id) {
+            rowEl.find('div[data-target="action"]').html('<span></span>');
+        }
+        else {
+            g.cube().contact.getDefaultContactZone(function(zone) {
+                var action = null;
+                if (zone.contains(current)) {
+                    action = '<span class="text-muted">已添加</span>';
+                }
+                else {
+                    action = '<button class="btn btn-sm btn-default" onclick="app.searchDialog.fireAddContactToZone(\''
+                                + zone.getName() + '\',' + current.getId() + ')">添加联系人</button>';
+                }
+                rowEl.find('div[data-target="action"]').html(action);
+            }, function(error) {
+                console.log('Contact zone error: ' + error.code);
+            });
+        }
+
+        /*g.cube().contact.containsContactInZone(g.app.contactZone, contact, function(contained, zoneName, contactId) {
             var action = null;
 
             if (contained) {
@@ -13205,7 +13225,7 @@
             }
 
             rowEl.find('div[data-target="action"]').html(action);
-        });
+        });*/
     }
 
     SearchDialog.prototype.appendGroup = function(group) {

@@ -875,15 +875,21 @@ export class ContactService extends Module {
 
     /**
      * 添加联系人到分区。
-     * @param {string} name 分区名。
-     * @param {number|Contact} contactId 指定联系人 ID 。
+     * @param {ContactZone|string} zoneOrName 指定分区或分区名。
+     * @param {number|Contact} contactOrId 指定联系人或联系人 ID 。
      * @param {string} postscript 指定附言。
-     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode zoneName}:{@linkcode string}, {@linkcode contactId}:{@linkcode number})。
+     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode zoneOrName}:{@link ContactZone}|{@linkcode string}, {@linkcode contactOrId}:{@link Contact}|{@linkcode number})。
      * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
      */
-    addContactToZone(name, contactId, postscript, handleSuccess, handleFailure) {
-        if (contactId instanceof Contact) {
-            contactId = contactId.getId();
+    addContactToZone(zoneOrName, contactOrId, postscript, handleSuccess, handleFailure) {
+        let name = (zoneOrName instanceof ContactZone) ? zoneOrName.name : zoneOrName;
+        let contactId = 0;
+
+        if (contactOrId instanceof Contact) {
+            contactId = contactOrId.getId();
+        }
+        else {
+            contactId = contactOrId;
         }
 
         if (contactId == this.self.getId()) {
@@ -906,7 +912,7 @@ export class ContactService extends Module {
             if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
                 if (responsePacket.data.code == ContactServiceState.Ok) {
                     if (handleSuccess) {
-                        handleSuccess(name, contactId);
+                        handleSuccess(zoneOrName, contactOrId);
                     }
                 }
                 else {
@@ -2693,7 +2699,7 @@ export class ContactService extends Module {
 
     /**
      * 搜索指定关键字的联系人或群组。
-     * @param {string} keyword 
+     * @param {string} keyword 指定待检索的关键字。
      * @param {function} handleSuccess 搜索执行成功回调。参数：({@linkcode result}:{@link ContactSearchResult}) 。
      * @param {function} handleFailure 搜索执行失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
