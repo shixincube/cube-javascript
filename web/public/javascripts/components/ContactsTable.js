@@ -147,7 +147,7 @@
             var html = [
                 '<tr data-target="', i, '">',
                     '<td>', (page - 1) * 10 + (i + 1), '</td>',
-                    '<td><img class="table-avatar" src="images/', ctx.avatar, '" /></td>',
+                    '<td><img class="table-avatar" src="', g.helper.getAvatarImage(ctx.avatar), '" /></td>',
                     '<td>', contact.getName(), '</td>',
                     '<td class="text-muted">', appendix.hasRemarkName() ? appendix.getRemarkName() : '', '</td>',
                     '<td>', contact.getId(), '</td>',

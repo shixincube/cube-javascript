@@ -25,9 +25,13 @@
  */
 
 import { Entity } from "../core/Entity";
+import { ModuleError } from "../core/error/ModuleError";
 import { Contact } from "./Contact";
 import { ContactService } from "./ContactService";
+import { ContactServiceState } from "./ContactServiceState";
 import { ContactZoneParticipant } from "./ContactZoneParticipant";
+import { ContactZoneParticipantType } from "./ContactZoneParticipantType";
+import { ContactZoneParticipantState } from "./ContactZoneParticipantState";
 
 /**
  * 联系人分区数据。
@@ -103,8 +107,20 @@ export class ContactZone extends Entity {
         }
     }
 
+    /**
+     * 获取分区名。
+     * @returns {string} 返回字符串形式的分区名。
+     */
     getName() {
         return this.name;
+    }
+
+    /**
+     * 获取分区显示名。
+     * @returns {string} 返回字符串形式的分区显示名。
+     */
+    getDisplayName() {
+        return this.displayName;
     }
 
     /**
@@ -121,9 +137,10 @@ export class ContactZone extends Entity {
      * @returns {ContactZoneParticipant} 返回指定参与人。
      */
     getParticipant(contactId) {
-        let index = this.contacts.indexOf(contactId);
-        if (index >= 0) {
-            return this.participants[index];
+        for (let i = 0; i < this.participants.length; ++i) {
+            if (this.participants[i].id == contactId) {
+                return this.participants[i];
+            }
         }
 
         return null;
@@ -149,7 +166,7 @@ export class ContactZone extends Entity {
                 ++readyCount;
             }
             else {
-                participant._assigns(this.service, (participant) => {
+                participant._assigns((participant) => {
                     ++readyCount;
                     resultHandler();
                 });
@@ -196,5 +213,82 @@ export class ContactZone extends Entity {
         }
 
         return false;
+    }
+
+    /**
+     * 添加联系人为分区的参与人。
+     * @param {Contact|number} contactOrId 指定联系人或联系人 ID 。
+     * @param {string} postscript 加入分区的附言信息。
+     * @param {function} handleSuccess 操作成功回调该方法，参数：({@linkcode zone}:{@link ContactZone}, {@linkcode participant}:{@link ContactZoneParticipant})。
+     * @param {function} handleFailure 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
+     */
+    addParticipant(contactOrId, postscript, handleSuccess, handleFailure) {
+        if (contactOrId instanceof ContactZoneParticipant) {
+            for (let i = 0; i < this.participants.length; ++i) {
+                let p = this.participants[i];
+                if (p.id == contactOrId.id) {
+                    // 已添加
+                    return;
+                }
+            }
+
+            // 添加
+            this.participants.push(contactOrId);
+        }
+        else {
+            let contactId = (typeof contactOrId === 'number') ? contactOrId : contactOrId.id;
+            for (let i = 0; i < this.participants.length; ++i) {
+                let participant = this.participants[i];
+                if (participant.id == contactId) {
+                    // 已包含
+                    handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.NotAllowed, this));
+                    return;
+                }
+            }
+
+            if (null == postscript) {
+                postscript = '';
+            }
+
+            let participant = new ContactZoneParticipant({
+                id: contactId,
+                timestamp: Date.now(),
+                type: ContactZoneParticipantType.Contact,
+                state: ContactZoneParticipantState.Pending,
+                inviterId: this.service.getSelf().id,
+                postscript: postscript
+            }, this.service);
+
+            // 添加操作
+            this.service.addParticipantToZone(this, participant, handleSuccess, handleFailure);
+        }
+    }
+
+    /**
+     * 修改参与人状态。
+     * @param {Contact|ContactZoneParticipant} contactOrParticipant 指定联系人或者参与人。
+     * @param {ContactZoneParticipantState} state 指定状态。
+     * @param {function} handleSuccess 操作成功回调该方法，参数：({@linkcode zone}:{@link ContactZone}, {@linkcode participant}:{@link ContactZoneParticipant})。
+     * @param {function} handleFailure 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
+     */
+    modifyParticipantState(contactOrParticipant, state, handleSuccess, handleFailure) {
+        let participant = null;
+        if (contactOrParticipant instanceof Contact) {
+            participant = this.getParticipant(contactOrParticipant.id);
+        }
+        else if (contactOrParticipant instanceof ContactZoneParticipant) {
+            participant = contactOrParticipant;
+        }
+        else {
+            participant = this.getParticipant(contactOrParticipant);
+        }
+
+        if (null == participant) {
+            handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.InvalidParameter, contactOrParticipant));
+            return;
+        }
+
+        // 修改参与人状态
+        this.service.modifyParticipantState(this, participant, state, handleSuccess, handleFailure);
     }
 }

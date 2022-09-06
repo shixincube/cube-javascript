@@ -27,8 +27,9 @@
 import { Entity } from "../core/Entity";
 import { Contact } from "./Contact";
 import { Group } from "./Group";
-import { ContactZoneParticipantType } from "./ContactZoneParticipantType";
 import { ContactService } from "./ContactService";
+import { ContactZoneParticipantType } from "./ContactZoneParticipantType";
+import { ContactZoneParticipantState } from "./ContactZoneParticipantState";
 
 /**
  * 联系人分区数据。
@@ -81,8 +82,16 @@ import { ContactService } from "./ContactService";
          */
         this.group = null;
 
-        // 赋值操作
-        this._assigns(service);
+        /**
+         * @private
+         * @type {ContactService}
+         */
+        this.service = service;
+
+        if (service) {
+            // 赋值操作
+            this._assigns();
+        }
     }
 
     /**
@@ -102,13 +111,20 @@ import { ContactService } from "./ContactService";
     }
 
     /**
+     * 当前签入的联系人是否是该参与者的邀请人。
+     * @returns {boolean}
+     */
+    isInviter() {
+        return this.service.getSelf().id == this.inviterId;
+    }
+
+    /**
      * @private
-     * @param {ContactService} service 
      * @param {function} [callback]
      */
-    _assigns(service, callback) {
+    _assigns(callback) {
         if (this.type == ContactZoneParticipantType.Contact) {
-            service.getContact(this.id, (contact) => {
+            this.service.getContact(this.id, (contact) => {
                 this.contact = contact;
 
                 if (undefined !== callback) {
@@ -121,7 +137,7 @@ import { ContactService } from "./ContactService";
             });
         }
         else if (this.type == ContactZoneParticipantType.Group) {
-            service.getGroup(this.id, (group) => {
+            this.service.getGroup(this.id, (group) => {
                 this.group = group;
 
                 if (undefined !== callback) {
@@ -146,4 +162,24 @@ import { ContactService } from "./ContactService";
             return true;
         }
     }
+
+    /**
+     * @inheritdoc
+     */
+     toJSON() {
+        let json = this.toCompactJSON();
+        json.postscript = this.postscript;
+        return json;
+     }
+
+     /**
+     * @inheritdoc
+     */
+     toCompactJSON() {
+        let json = super.toCompactJSON();
+        json.type = this.type;
+        json.state = this.state;
+        json.inviterId = this.inviterId;
+        return json;
+     }
  }

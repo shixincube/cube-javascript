@@ -625,14 +625,29 @@
          * 进行数据加载和界面信息更新。
          */
         prepare: function(callback) {
-            var itemMap = {
-                count: 0
-            };
+            //var itemMap = {
+            //    count: 0
+            //};
 
             // 处理函数
-            var process = function(list) {
-                // list - Array<object>
-                list.forEach(function(item) {
+            var process = function(contactList, pendingList) {
+                // contactList | pendingList - Array<ContactZoneParticipant>
+                contactList.forEach(function(value) {
+                    contactsCtrl.addContact(value);
+                });
+
+                // 添加自己
+                cubeContacts.push(cube.contact.getSelf());
+
+                pendingList.forEach(function(value) {
+                    contactsCtrl.addPending(value);
+                });
+
+                that.prepareGroups(function() {
+                    callback();
+                });
+
+                /*contactList.forEach(function(item) {
                     if (!item.avatar.startsWith('http')) {
                         item.avatar += '.png';
                     }
@@ -681,97 +696,45 @@
                     setTimeout(function() {
                         dialog.hideLoading();
                     }, 500);
-                });
+                });*/
             };
 
-            // 从 Cube 里获取指定的联系人分组
+            // 从 Cube 里获取默认的联系人分组
             cube.contact.getDefaultContactZone(function(zone) {
-                if (zone.numParticipants() == 0 && that.demo) {
-                    // 将内置的账号设置为该联系人的通讯录
-                    $.get(server.url + '/account/buildin/', function(response, status, xhr) {
-                        // 处理
-                        process(response.list);
+                // 获取分区里所有参与人
+                zone.getParticipants(function(list) {
+                    var contactList = [];
+                    var pendingList = [];
 
-                        // 依次添加到 Zone
-                        response.list.forEach(function(value, index) {
-                            if (value.id == account.id) {
-                                return;
-                            }
-
-                            cube.contact.addContactToZone(app.contactZone, value.id);
-                        });
-                    });
-                }
-                else {
-                    // 获取分区里所有参与人
-                    zone.getParticipants(function(list) {
-                        var contactIds = [];
-                        for (var i = 0; i < list.length; ++i) {
-                            contactIds.push(list[i].contact.id);
+                    for (var i = 0; i < list.length; ++i) {
+                        var participant = list[i];
+                        if (participant.state == ContactZoneParticipantState.Normal) {
+                            contactList.push(participant);
                         }
-
-                        if (contactIds.length > 0) {
-                            $.get(server.url + '/account/info/', {
-                                "list": contactIds.toString(),
-                                "token": token
-                            }, function(response, status, xhr) {
-                                // 处理
-                                process(response);
-                            });
+                        else if (participant.state == ContactZoneParticipantState.Pending) {
+                            pendingList.push(participant);
                         }
-                        else {
-                            process([]);
-                        }
-                    });
-                }
-            }, function(error) {
-                console.log(error);
-                process([]);
+                    }
 
-                /* FIXME XJW 20220904 服务器会自动创建默认分区
-                if (error.code == ContactServiceState.NotFindContactZone) {
-                    // 创建分区
+                    process(contactList, pendingList);
 
-                    if (that.demo) {
-                        // 将内置的账号设置为该联系人的通讯录
-                        $.get(server.url + '/account/buildin/', function(response, status, xhr) {
+                    // FIXME 引擎会自行调用获取上下文数据的回调函数。
+                    /*if (contactIds.length > 0) {
+                        $.get(server.url + '/account/info/', {
+                            "list": contactIds.toString(),
+                            "token": token
+                        }, function(response, status, xhr) {
                             // 处理
-                            process(response.list);
-
-                            let contactIdList = [];
-                            // 依次添加到 Zone
-                            response.list.forEach(function(value, index) {
-                                if (value.id == account.id) {
-                                    return;
-                                }
-
-                                contactIdList.push(value.id);
-                            });
-
-                            // 创建通讯录分区
-                            cube.contact.createContactZone(app.contactZone, null, contactIdList, function(zone) {
-                                console.log('Create contact zone : ' + zone.name);
-                            }, function(error) {
-                                console.log(error);
-                            });
+                            process(response);
                         });
                     }
                     else {
-                        let contactIdList = [ that.account.id ];
-                        // 创建通讯录分区
-                        cube.contact.createContactZone(app.contactZone, null, contactIdList, function(zone) {
-                            console.log('Create contact zone : ' + zone.name);
-                            process([]);
-                        }, function(error) {
-                            console.log(error);
-                            process([]);
-                        });
-                    }
-                }
-                else {
-                    console.log(error);
-                    process([]);
-                }*/
+                        process([]);
+                    }*/
+                });
+            }, function(error) {
+                console.log(error);
+                process([], []);
             });
         },
 

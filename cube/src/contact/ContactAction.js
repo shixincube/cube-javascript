@@ -31,7 +31,7 @@
 export const ContactAction = {
 
     /**
-     * 指定当前客户端对应的联系人信息并签入。
+     * 指定当前客户端对应的联系人信息并签入。
      * @type {string}
      */
     SignIn: 'signIn',
@@ -85,22 +85,28 @@ export const ContactAction = {
     DeleteContactZone: 'deleteContactZone',
 
     /**
-     * 联系人是否在分区。
+     * 指定分区是否包含指定参与人。
      * @type {string}
      */
-    ContainsContactInZone: 'containsContactInZone',
+    ContainsParticipantInZone: 'containsParticipantInZone',
 
     /**
-     * 添加联系人到分区。
+     * 添加参与人到分区。
      * @type {string}
      */
-    AddContactToZone: 'addContactToZone',
+    AddParticipantToZone: 'addParticipantToZone',
  
     /**
-     * 从分区移除联系人。
+     * 从分区移除参与人。
      * @type {string}
      */
-    RemoveContactFromZone: 'removeContactFromZone',
+    RemoveParticipantFromZone: 'removeParticipantFromZone',
+
+    /**
+     * 修改分区参与人信息。
+     * @type {string}
+     */
+    ModifyZoneParticipant: 'modifyZoneParticipant',
 
     /**
      * 获取指定群组的信息。

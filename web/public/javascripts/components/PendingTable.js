@@ -50,7 +50,7 @@
     }
 
     PendingTable.prototype.getCurrentContact = function(index) {
-        return currentPage[index];
+        return currentPage[index].contact;
     }
 
     PendingTable.prototype.update = function(entities) {
@@ -136,13 +136,38 @@
             var entity = entities[i];
             var name = null;
             var avatar = null;
+            var action = null;
+
             if (entity instanceof ContactZoneParticipant) {
                 name = entity.getName();
-                avatar = (null != entity.contact) ? g.helper.getAvatarImage(entity.contact.getContext().avatar) : 'images/group-avatar.png';
+                if (null != entity.contact) {
+                    avatar = g.helper.getAvatarImage(entity.contact.getContext().avatar);
+                    if (entity.isInviter()) {
+                        // 本人发出的邀请
+                        action = [
+                            '<span class="text-muted">等待对方同意</span>'
+                        ];
+                    }
+                    else {
+                        // 其他人发来的
+                        action = [
+                            '<button class="btn btn-primary btn-sm" onclick="app.contactsCtrl.acceptPendingContact(', i, ');"><i class="fas fa-user-check"></i> 添加联系人</button>',
+                            '&nbsp;&nbsp;',
+                            '<button class="btn btn-secondary btn-sm" onclick="app.contactsCtrl.rejectPendingContact(', i, ');"><i class="fas fa-user-minus"></i> 拒绝邀请</button>'
+                        ];
+                    }
+                }
+                else {
+                    avatar = 'images/group-avatar.png';
+                    action = [];
+                }
             }
             else {
                 name = entity.getName();
                 avatar = (entity instanceof Group) ? 'images/group-avatar.png' : g.helper.getAvatarImage(entity.getContext().avatar);
+                action = [
+                    '<a class="btn btn-primary btn-sm" href="javascript:app.contactsCtrl.acceptPendingContact(', i, ');"><i class="fas fa-user-check"></i> 添加联系人</a>'
+                ];
             }
 
             var html = [
@@ -152,9 +177,7 @@
                     '<td>', name, '</td>',
                     '<td class="text-muted">', entity.getId(), '</td>',
                     '<td>', entity.postscript, '</td>',
-                    '<td class="text-right">',
-                        '<a class="btn btn-primary btn-sm" href="javascript:app.contactsCtrl.acceptPendingContact(', i, ');"><i class="fas fa-user-check"></i> 添加联系人</a>',
-                    '</td>',
+                    '<td class="text-center">', action.join(''), '</td>',
                 '</tr>'
             ];
             tbodyEl.append($(html.join('')));

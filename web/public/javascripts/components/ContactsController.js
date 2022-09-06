@@ -33,6 +33,8 @@
 
     var contactList = [];
     var groupList = [];
+
+    // 数据实体为 ContactZoneParticipant
     var pendingList = [];
 
     var tabEl = null;
@@ -124,30 +126,6 @@
         // 重置列表
         pendingList = [];
 
-        // XJW getPendingZone 已作废
-        /*cube.contact.getPendingZone(g.app.contactZone, function(zone) {
-            var count = zone.contacts.length;
-
-            zone.contacts.forEach(function(value) {
-                app.getContact(value, function(contact) {
-                    var ps = zone.getPostscript(contact.getId());
-                    contact.postscript = ps;
-                    that.addPending(contact);
-                    --count;
-
-                    if (count == 0 && callback) {
-                        callback();
-                    }
-                });
-            });
-
-            if (count == 0 && callback) {
-                callback();
-            }
-        }, function(error) {
-            console.log(error);
-        });*/
-
         // 获取待处理列表
         cube.contact.getDefaultContactZone(function(zone) {
             zone.getParticipantsByExcluding(ContactZoneParticipantState.Normal, function(list) {
@@ -177,9 +155,11 @@
 
     /**
      * 添加联系人数据。
-     * @param {Contact} contact 
+     * @param {Contact|ContactZoneParticipant} contactOrParticipant 
      */
-    ContactsController.prototype.addContact = function(contact) {
+    ContactsController.prototype.addContact = function(contactOrParticipant) {
+        var contact = (contactOrParticipant instanceof Contact) ? contactOrParticipant : contactOrParticipant.contact;
+
         contactList.push(contact);
 
         contactDelayLast = Date.now();
@@ -387,14 +367,29 @@
         var contact = currentTable.getCurrentContact(index);
         g.dialog.showConfirm('添加联系人', '您确认要添加联系人“<b>' + contact.getName() + '</b>”吗？', function(yesOrNo) {
             if (yesOrNo) {
-                cube.contact.addContactToZone(g.app.contactZone, contact.getId(), null, function() {
-                    // 将其添加到联系人列表
-                    contactList.push(contact);
+                cube.contact.getDefaultContactZone(function(contactZone) {
+                    contactZone.modifyParticipantState(contact, ContactZoneParticipantState.Normal, function(zone, participant) {
+                        // 更新列表
+                        contactList.push(participant.contact);
 
-                    that.ready(function() {
-                        that.update();
+                        // 更新数据
+                        that.ready(function() {
+                            that.update();
+                        });
+                    }, function(error) {
+                        g.dialog.toast('修改联系人数据出错：' + error.code, Toast.Error);
                     });
+                }, function(error) {
+                    g.dialog.toast('读取分区数据出错：' + error.code, Toast.Error);
                 });
+            }
+        });
+    }
+
+    ContactsController.prototype.rejectPendingContact = function(index) {
+        var contact = currentTable.getCurrentContact(index);
+        g.dialog.showConfirm('拒绝邀请', '您确认要拒绝“<b>' + contact.getName() + '</b>”的添加联系人邀请吗？', function(yesOrNo) {
+            if (yesOrNo) {
             }
         });
     }
@@ -407,18 +402,24 @@
      * @param {function} [callback]
      */
     ContactsController.prototype.addContactToZone = function(zoneName, contactId, postscript, callback) {
-        cube.contact.addContactToZone(zoneName, contactId, postscript, function(zoneName, contactId) {
-            g.app.getContact(contactId, function(contact) {
-                that.addContact(contact);
-                if (callback) {
-                    callback(contact);
+        cube.contact.getContactZone(zoneName, function(contactZone) {
+            contactZone.addParticipant(contactId, postscript, function(zone, participant) {
+                // 更新表格
+                if (participant.state == ContactZoneParticipantState.Pending) {
+                    that.addPending(participant);
                 }
+                else if (participant.state == ContactZoneParticipantState.Normal) {
+                    that.addContact(participant.contact);
+                }
+
+                if (callback) {
+                    callback();
+                }
+            }, function(error) {
+                g.dialog.toast('申请添加联系人出错：' + error.code, Toast.Error);
             });
         }, function(error) {
-            console.log(error);
-            if (callback) {
-                callback(null);
-            }
+            g.dialog.toast('申请添加联系人出错 (getContactZone)：' + error.code, Toast.Error);
         });
     }
 

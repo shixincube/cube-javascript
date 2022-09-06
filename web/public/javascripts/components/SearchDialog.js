@@ -164,7 +164,7 @@
 
         var html = [
             '<div class="row align-items-center" data="', group.getId(), '">',
-                '<div class="col-2"><img src="images/', avatar, '" class="avatar"></div>',
+                '<div class="col-2 text-right"><img src="images/', avatar, '" class="avatar"></div>',
                 '<div class="col-7">',
                     '<span><a href="javascript:;">', group.getName(), '</a></span>',
                     '&nbsp;<span class="text-muted">(', group.getId(), ')</span>',
@@ -178,9 +178,8 @@
 
         this.resultEl.append(rowEl);
 
-        g.cube().contact.getGroup(group.getId(), function(group) {
-
-        });
+        // g.cube().contact.getGroup(group.getId(), function(group) {
+        // });
     }
 
     SearchDialog.prototype.fireAddContactToZone = function(zoneName, contactId) {

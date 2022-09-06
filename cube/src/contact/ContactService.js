@@ -46,6 +46,8 @@ import { ContactServiceState } from "./ContactServiceState";
 import { ContactAppendix } from "./ContactAppendix";
 import { GroupAppendix } from "./GroupAppendix";
 import { ContactZone } from "./ContactZone";
+import { ContactZoneParticipant } from "./ContactZoneParticipant";
+import { ContactZoneParticipantState } from "./ContactZoneParticipantState";
 import { ContactContextProvider } from "./ContactContextProvider";
 
 
@@ -748,9 +750,14 @@ export class ContactService extends Module {
      * 获取指定名称的联系人分区。
      * @param {string} name 分区名。
      * @param {function} handleSuccess 操作成功回调该方法，参数：({@linkcode contactZone}:{@link ContactZone})。
-     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
+     * @param {function} handleFailure 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
      */
     getContactZone(name, handleSuccess, handleFailure) {
+        if (name == this.defaultContactZoneName && null != this.defaultContactZone) {
+            handleSuccess(this.defaultContactZone);
+            return;
+        }
+
         let packet = new Packet(ContactAction.GetContactZone, {
             "name": name
         });
@@ -806,50 +813,19 @@ export class ContactService extends Module {
         });
     }
 
-    /*
-     * FIXME XJW 可作废的接口
-     * 获取指定名称的待处理联系人分区。
-     * @param {string} name 分区名。
-     * @param {function} handleSuccess 操作成功回调该方法，参数：({@linkcode contactZone}:{@link ContactZone})。
-     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
-     */
-    /*getPendingZone(name, handleSuccess, handleFailure) {
-        let packet = new Packet(ContactAction.GetContactZone, {
-            "name": name,
-            "pending": true
-        });
-        this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
-                if (responsePacket.data.code == ContactServiceState.Ok) {
-                    handleSuccess(new ContactZone(responsePacket.data.data, this));
-                }
-                else {
-                    if (handleFailure) {
-                        handleFailure(new ModuleError(ContactService.NAME, responsePacket.data.code, name));
-                    }
-                }
-            }
-            else {
-                if (handleFailure) {
-                    handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.ServerError, name));
-                }
-            }
-        });
-    }*/
-
-    /**
+    /* FIXME XJW 20220906 暂时没有时间修改的接口
      * 指定分区是否包含指定联系人。
      * @param {string} name 分区名。
      * @param {number|Contact} contactId 指定联系人 ID 。
      * @param {function} handleSuccess 操作成功回调该方法，参数：({@linkcode contained}:{@linkcode boolean}, {@linkcode zoneName}:{@linkcode string}, {@linkcode contactId}:{@linkcode number})。
      * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
      */
-    containsContactInZone(name, contactId, handleSuccess, handleFailure) {
+    /*containsContactInZone(name, contactId, handleSuccess, handleFailure) {
         if (contactId instanceof Contact) {
             contactId = contactId.getId();
         }
 
-        let packet = new Packet(ContactAction.ContainsContactInZone, {
+        let packet = new Packet(ContactAction.ContainsParticipantInZone, {
             "name": name,
             "contactId": contactId
         });
@@ -871,72 +847,111 @@ export class ContactService extends Module {
                 }
             }
         });
-    }
+    }*/
 
     /**
-     * 添加联系人到分区。
-     * @param {ContactZone|string} zoneOrName 指定分区或分区名。
-     * @param {number|Contact} contactOrId 指定联系人或联系人 ID 。
-     * @param {string} postscript 指定附言。
-     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode zoneOrName}:{@link ContactZone}|{@linkcode string}, {@linkcode contactOrId}:{@link Contact}|{@linkcode number})。
-     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
+     * 添加参与人到分区。
+     * @private
+     * @param {ContactZone} zone 指定分区。
+     * @param {ContactZoneParticipant} participant 指定分区参与人。
+     * @param {function} handleSuccess 操作成功回调该方法，参数：({@linkcode zone}:{@link ContactZone}, {@linkcode participant}:{@link ContactZoneParticipant})。
+     * @param {function} handleFailure 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
      */
-    addContactToZone(zoneOrName, contactOrId, postscript, handleSuccess, handleFailure) {
-        let name = (zoneOrName instanceof ContactZone) ? zoneOrName.name : zoneOrName;
-        let contactId = 0;
-
-        if (contactOrId instanceof Contact) {
-            contactId = contactOrId.getId();
-        }
-        else {
-            contactId = contactOrId;
-        }
-
-        if (contactId == this.self.getId()) {
-            if (handleFailure) {
-                handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.IllegalOperation, name));
-            }
+    addParticipantToZone(zone, participant, handleSuccess, handleFailure) {
+        if (participant.id == this.self.getId()) {
+            handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.IllegalOperation, zone));
             return;
         }
 
-        if (undefined === postscript || null == postscript) {
-            postscript = '';
-        }
-
-        let packet = new Packet(ContactAction.AddContactToZone, {
-            "name": name,
-            "contactId": contactId,
-            "postscript": postscript
+        let packet = new Packet(ContactAction.AddParticipantToZone, {
+            "name": zone.name,
+            "participant": participant.toJSON()
         });
         this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
             if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
                 if (responsePacket.data.code == ContactServiceState.Ok) {
-                    if (handleSuccess) {
-                        handleSuccess(zoneOrName, contactOrId);
-                    }
+                    let data = responsePacket.extractServiceData();
+                    let timestamp = data.timestamp;
+
+                    // 添加
+                    zone.addParticipant(participant);
+                    zone.timestamp = timestamp;
+
+                    // 赋值
+                    participant._assigns(() => {
+                        handleSuccess(zone, participant);
+                    });
                 }
                 else {
-                    if (handleFailure) {
-                        handleFailure(new ModuleError(ContactService.NAME, responsePacket.data.code, name));
-                    }
+                    handleFailure(new ModuleError(ContactService.NAME, responsePacket.data.code, zone));
                 }
             }
             else {
-                if (handleFailure) {
-                    handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.ServerError, name));
-                }
+                handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.ServerError, zone));
             }
         });
     }
 
     /**
+     * 修改参与人状态。
+     * @private
+     * @param {ContactZone} zone 指定分区。
+     * @param {ContactZoneParticipant} participant 指定分区参与人。
+     * @param {ContactZoneParticipantState} state 指定新的状态。
+     * @param {function} handleSuccess 操作成功回调该方法，参数：({@linkcode zone}:{@link ContactZone}, {@linkcode participant}:{@link ContactZoneParticipant})。
+     * @param {function} handleFailure 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
+     */
+    modifyParticipantState(zone, participant, state, handleSuccess, handleFailure) {
+        if (participant.isInviter()) {
+            // "我"是邀请人不能修改状态
+            handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.IllegalOperation, zone));
+            return;
+        }
+
+        // 原状态
+        let currentState = participant.state;
+
+        // 如果状态相同，则返回成功
+        if (state == currentState) {
+            handleSuccess(zone, participant);
+            return;
+        }
+
+        // 设置新状态
+        participant.state = state;
+
+        let requestPacket = new Packet(ContactAction.ModifyZoneParticipant, {
+            name: zone.name,
+            participant: participant.toCompactJSON()
+        });
+        this.pipeline.send(ContactService.NAME, requestPacket, (pipeline, source, responsePacket) => {
+            if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
+                handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.ServerError, zone));
+                return;
+            }
+
+            let stateCode = responsePacket.extractServiceStateCode();
+            if (stateCode != ContactServiceState.Ok) {
+                handleFailure(new ModuleError(ContactService.NAME, stateCode, zone));
+                return;
+            }
+
+            let response = new ContactZoneParticipant(responsePacket.extractServiceData());
+            participant.state = response.state;
+            participant.timestamp = response.timestamp;
+
+            handleSuccess(zone, participant);
+        });
+    }
+
+    /*
      * 从分区中移除联系人。
      * @param {string} name 分区名。
      * @param {number|Contact} contactId 指定联系人 ID 。
      * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode zoneName}:{@linkcode string}, {@linkcode contactId}:{@linkcode number})。
      * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
      */
-    removeContactFromZone(name, contactId, handleSuccess, handleFailure) {
+    /*removeContactFromZone(name, contactId, handleSuccess, handleFailure) {
         if (contactId instanceof Contact) {
             contactId = contactId.getId();
         }
@@ -964,7 +979,7 @@ export class ContactService extends Module {
                 }
             }
         });
-    }
+    }*/
 
     /**
      * 修改当前签入联系人的信息。

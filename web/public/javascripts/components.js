@@ -11454,7 +11454,7 @@
             var html = [
                 '<tr data-target="', i, '">',
                     '<td>', (page - 1) * 10 + (i + 1), '</td>',
-                    '<td><img class="table-avatar" src="images/', ctx.avatar, '" /></td>',
+                    '<td><img class="table-avatar" src="', g.helper.getAvatarImage(ctx.avatar), '" /></td>',
                     '<td>', contact.getName(), '</td>',
                     '<td class="text-muted">', appendix.hasRemarkName() ? appendix.getRemarkName() : '', '</td>',
                     '<td>', contact.getId(), '</td>',
@@ -11738,7 +11738,7 @@
     }
 
     PendingTable.prototype.getCurrentContact = function(index) {
-        return currentPage[index];
+        return currentPage[index].contact;
     }
 
     PendingTable.prototype.update = function(entities) {
@@ -11824,13 +11824,38 @@
             var entity = entities[i];
             var name = null;
             var avatar = null;
+            var action = null;
+
             if (entity instanceof ContactZoneParticipant) {
                 name = entity.getName();
-                avatar = (null != entity.contact) ? g.helper.getAvatarImage(entity.contact.getContext().avatar) : 'images/group-avatar.png';
+                if (null != entity.contact) {
+                    avatar = g.helper.getAvatarImage(entity.contact.getContext().avatar);
+                    if (entity.isInviter()) {
+                        // 本人发出的邀请
+                        action = [
+                            '<span class="text-muted">等待对方同意</span>'
+                        ];
+                    }
+                    else {
+                        // 其他人发来的
+                        action = [
+                            '<button class="btn btn-primary btn-sm" onclick="app.contactsCtrl.acceptPendingContact(', i, ');"><i class="fas fa-user-check"></i> 添加联系人</button>',
+                            '&nbsp;&nbsp;',
+                            '<button class="btn btn-secondary btn-sm" onclick="app.contactsCtrl.rejectPendingContact(', i, ');"><i class="fas fa-user-minus"></i> 拒绝邀请</button>'
+                        ];
+                    }
+                }
+                else {
+                    avatar = 'images/group-avatar.png';
+                    action = [];
+                }
             }
             else {
                 name = entity.getName();
                 avatar = (entity instanceof Group) ? 'images/group-avatar.png' : g.helper.getAvatarImage(entity.getContext().avatar);
+                action = [
+                    '<a class="btn btn-primary btn-sm" href="javascript:app.contactsCtrl.acceptPendingContact(', i, ');"><i class="fas fa-user-check"></i> 添加联系人</a>'
+                ];
             }
 
             var html = [
@@ -11840,9 +11865,7 @@
                     '<td>', name, '</td>',
                     '<td class="text-muted">', entity.getId(), '</td>',
                     '<td>', entity.postscript, '</td>',
-                    '<td class="text-right">',
-                        '<a class="btn btn-primary btn-sm" href="javascript:app.contactsCtrl.acceptPendingContact(', i, ');"><i class="fas fa-user-check"></i> 添加联系人</a>',
-                    '</td>',
+                    '<td class="text-center">', action.join(''), '</td>',
                 '</tr>'
             ];
             tbodyEl.append($(html.join('')));
@@ -12099,6 +12122,8 @@
 
     var contactList = [];
     var groupList = [];
+
+    // 数据实体为 ContactZoneParticipant
     var pendingList = [];
 
     var tabEl = null;
@@ -12190,30 +12215,6 @@
         // 重置列表
         pendingList = [];
 
-        // XJW getPendingZone 已作废
-        /*cube.contact.getPendingZone(g.app.contactZone, function(zone) {
-            var count = zone.contacts.length;
-
-            zone.contacts.forEach(function(value) {
-                app.getContact(value, function(contact) {
-                    var ps = zone.getPostscript(contact.getId());
-                    contact.postscript = ps;
-                    that.addPending(contact);
-                    --count;
-
-                    if (count == 0 && callback) {
-                        callback();
-                    }
-                });
-            });
-
-            if (count == 0 && callback) {
-                callback();
-            }
-        }, function(error) {
-            console.log(error);
-        });*/
-
         // 获取待处理列表
         cube.contact.getDefaultContactZone(function(zone) {
             zone.getParticipantsByExcluding(ContactZoneParticipantState.Normal, function(list) {
@@ -12243,9 +12244,11 @@
 
     /**
      * 添加联系人数据。
-     * @param {Contact} contact 
+     * @param {Contact|ContactZoneParticipant} contactOrParticipant 
      */
-    ContactsController.prototype.addContact = function(contact) {
+    ContactsController.prototype.addContact = function(contactOrParticipant) {
+        var contact = (contactOrParticipant instanceof Contact) ? contactOrParticipant : contactOrParticipant.contact;
+
         contactList.push(contact);
 
         contactDelayLast = Date.now();
@@ -12453,14 +12456,29 @@
         var contact = currentTable.getCurrentContact(index);
         g.dialog.showConfirm('添加联系人', '您确认要添加联系人“<b>' + contact.getName() + '</b>”吗？', function(yesOrNo) {
             if (yesOrNo) {
-                cube.contact.addContactToZone(g.app.contactZone, contact.getId(), null, function() {
-                    // 将其添加到联系人列表
-                    contactList.push(contact);
+                cube.contact.getDefaultContactZone(function(contactZone) {
+                    contactZone.modifyParticipantState(contact, ContactZoneParticipantState.Normal, function(zone, participant) {
+                        // 更新列表
+                        contactList.push(participant.contact);
 
-                    that.ready(function() {
-                        that.update();
+                        // 更新数据
+                        that.ready(function() {
+                            that.update();
+                        });
+                    }, function(error) {
+                        g.dialog.toast('修改联系人数据出错：' + error.code, Toast.Error);
                     });
+                }, function(error) {
+                    g.dialog.toast('读取分区数据出错：' + error.code, Toast.Error);
                 });
+            }
+        });
+    }
+
+    ContactsController.prototype.rejectPendingContact = function(index) {
+        var contact = currentTable.getCurrentContact(index);
+        g.dialog.showConfirm('拒绝邀请', '您确认要拒绝“<b>' + contact.getName() + '</b>”的添加联系人邀请吗？', function(yesOrNo) {
+            if (yesOrNo) {
             }
         });
     }
@@ -12473,18 +12491,24 @@
      * @param {function} [callback]
      */
     ContactsController.prototype.addContactToZone = function(zoneName, contactId, postscript, callback) {
-        cube.contact.addContactToZone(zoneName, contactId, postscript, function(zoneName, contactId) {
-            g.app.getContact(contactId, function(contact) {
-                that.addContact(contact);
-                if (callback) {
-                    callback(contact);
+        cube.contact.getContactZone(zoneName, function(contactZone) {
+            contactZone.addParticipant(contactId, postscript, function(zone, participant) {
+                // 更新表格
+                if (participant.state == ContactZoneParticipantState.Pending) {
+                    that.addPending(participant);
                 }
+                else if (participant.state == ContactZoneParticipantState.Normal) {
+                    that.addContact(participant.contact);
+                }
+
+                if (callback) {
+                    callback();
+                }
+            }, function(error) {
+                g.dialog.toast('申请添加联系人出错：' + error.code, Toast.Error);
             });
         }, function(error) {
-            console.log(error);
-            if (callback) {
-                callback(null);
-            }
+            g.dialog.toast('申请添加联系人出错 (getContactZone)：' + error.code, Toast.Error);
         });
     }
 
@@ -13212,20 +13236,6 @@
                 console.log('Contact zone error: ' + error.code);
             });
         }
-
-        /*g.cube().contact.containsContactInZone(g.app.contactZone, contact, function(contained, zoneName, contactId) {
-            var action = null;
-
-            if (contained) {
-                action = '<span class="text-muted">已添加</span>';
-            }
-            else {
-                action = '<button class="btn btn-sm btn-default" onclick="app.searchDialog.fireAddContactToZone(\''
-                            + zoneName + '\', ' + contactId + ')">添加联系人</button>'
-            }
-
-            rowEl.find('div[data-target="action"]').html(action);
-        });*/
     }
 
     SearchDialog.prototype.appendGroup = function(group) {
@@ -13233,7 +13243,7 @@
 
         var html = [
             '<div class="row align-items-center" data="', group.getId(), '">',
-                '<div class="col-2"><img src="images/', avatar, '" class="avatar"></div>',
+                '<div class="col-2 text-right"><img src="images/', avatar, '" class="avatar"></div>',
                 '<div class="col-7">',
                     '<span><a href="javascript:;">', group.getName(), '</a></span>',
                     '&nbsp;<span class="text-muted">(', group.getId(), ')</span>',
@@ -13247,9 +13257,8 @@
 
         this.resultEl.append(rowEl);
 
-        g.cube().contact.getGroup(group.getId(), function(group) {
-
-        });
+        // g.cube().contact.getGroup(group.getId(), function(group) {
+        // });
     }
 
     SearchDialog.prototype.fireAddContactToZone = function(zoneName, contactId) {
@@ -13263,7 +13272,7 @@
                     }
                 });
             }
-        }, '我是“' + g.app.account.name + '”。');
+        }, '您好，我是“' + g.app.account.name + '”。');
     }
 
     g.SearchDialog = SearchDialog;
