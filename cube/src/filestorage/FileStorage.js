@@ -503,7 +503,7 @@ export class FileStorage extends Module {
 
         this.uploading = true;
 
-        let fileAnchor = new FileAnchor();
+        let fileAnchor = new FileAnchor(cell.Utils.generateSerialNumber());
         let reader = new FileReader();
 
         this.measurer.reset();
@@ -594,6 +594,9 @@ export class FileStorage extends Module {
 
             // 将锚点上的回调函数置空
             fileAnchor.finishCallback = null;
+
+            // 同步 SN
+            fileLabel.sn = fileAnchor.sn;
 
             callback(fileLabel);
 
@@ -1671,7 +1674,7 @@ export class FileStorage extends Module {
                 if (payload.code == FileStorageState.Ok) {
                     cell.Logger.d(FileStorage.NAME, 'File cursor: ' + fileAnchor + '/' + fileSize);
 
-                    let anchor = FileAnchor.create(payload.data);
+                    let anchor = FileAnchor.create(payload.data, fileAnchor.sn);
 
                     let event = new ObservableEvent(FileStorageEvent.Uploading, anchor);
                     this.notifyObservers(event);

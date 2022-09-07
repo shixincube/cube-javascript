@@ -420,19 +420,19 @@
                             <div class="card-body p-0">
                                 <ul class="nav nav-pills flex-column">
                                     <li class="nav-item">
-                                        <a id="btn_trans_upload" href="javascript:;" class="nav-link" title="上传列表">
+                                        <a id="btn_trans_upload" href="javascript:;" class="nav-link">
                                             <i class="fas fa-upload"></i>&nbsp;&nbsp;正在上传
                                             <span class="badge badge-primary float-right"></span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a id="btn_trans_download" href="javascript:;" class="nav-link" title="下载列表">
+                                        <a id="btn_trans_download" href="javascript:;" class="nav-link">
                                             <i class="fas fa-download"></i>&nbsp;&nbsp;正在下载
                                             <span class="badge badge-primary float-right"></span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a id="btn_trans_complete" href="javascript:;" class="nav-link" title="传输完成列表">
+                                        <a id="btn_trans_complete" href="javascript:;" class="nav-link">
                                             <i class="far fa-check-circle"></i>&nbsp;&nbsp;传输完成
                                             <span class="badge badge-success float-right"></span>
                                         </a>
@@ -640,10 +640,14 @@
             <p style="margin-top:1rem;">没有传输记录。</p>
         </div>
         <div class="card-body file-content">
+            <div class="text-right pb-2">
+                <a class="text-muted" title="关闭" href="javascript:;" data-widget="close"><i class="fas fa-times"></i></a>
+            </div>
             <div class="table-responsive table-header">
                 <table class="table table-hover">
                     <thead>
                         <tr>
+                            <td width="60"></td>
                             <td width="145">开始时间</td>
                             <td width="145">结束时间</td>
                             <td>文件名</td>
@@ -654,9 +658,10 @@
                 </table>
             </div>
             <div class="table-responsive table-files">
-                <table class="table table-hover table-striped">
+                <table class="table table-hover">
                     <thead>
                         <tr>
+                            <td width="60"></td>
                             <td width="145"></td>
                             <td width="145"></td>
                             <td></td>
@@ -665,6 +670,14 @@
                         </tr>
                     </thead>
                     <tbody data-target="surface">
+                        <tr>
+                            <td class="text-center">11%</td>
+                            <td>2022-09-07 18:02:43</td>
+                            <td>2022-09-07 18:12:19</td>
+                            <td>人工智能之卷积神经网络.doc</td>
+                            <td>1.45 MB</td>
+                            <td>243 KB/s</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

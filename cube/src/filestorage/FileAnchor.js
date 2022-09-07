@@ -34,9 +34,16 @@ export class FileAnchor extends JSONable {
 
     /**
      * 构造函数。
+     * @param {number} [sn] 序号。
      */
-    constructor() {
+    constructor(sn) {
         super();
+
+        /**
+         * 当前在客户端处理的序号。
+         * @type {number}
+         */
+        this.sn = (undefined !== sn) ? sn : Date.now();
 
         /**
          * 当前数据的游标位置。
@@ -134,10 +141,11 @@ export class FileAnchor extends JSONable {
      * 从 JSON 数据创建 {@link FileAnchor} 对象。
      * @private
      * @param {JSON} json 符合 {@link FileAnchor} 格式的 JSON 对象。
+     * @param {number} [sn] 序号。
      * @returns {FileAnchor} 返回 {@link FileAnchor} 实例。
      */
-    static create(json) {
-        let anchor = new FileAnchor();
+    static create(json, sn) {
+        let anchor = new FileAnchor(sn);
         anchor.fileName = json.fileName;
         anchor.fileSize = json.fileSize;
         anchor.fileCode = json.fileCode;

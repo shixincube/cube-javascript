@@ -8868,7 +8868,7 @@
      */
     FileCatalogue.prototype.showUpload = function() {
         btnDownloading.popover('hide');
-        transPanel.show();
+        transPanel.show(btnUploading);
     }
 
     /**
@@ -8876,18 +8876,21 @@
      */
     FileCatalogue.prototype.showDownload = function() {
         btnUploading.popover('hide');
-        transPanel.show();
+        transPanel.show(btnDownloading);
     }
 
-    FileCatalogue.prototype.onFileUpload = function(file) {
-        uploadingMap.put(file.name, file);
+    FileCatalogue.prototype.onFileUpload = function(fileAnchor) {
+        uploadingMap.put(fileAnchor.getFileName(), fileAnchor);
         btnUploading.find('.badge').text(uploadingMap.size());
+
+        transPanel.fireUploadStart(fileAnchor);
     }
 
     FileCatalogue.prototype.onFileUploading = function(fileAnchor) {
+        transPanel.fireUploading(fileAnchor);
     }
 
-    FileCatalogue.prototype.onFileUploaded = function(fileLabel) {
+    FileCatalogue.prototype.onFileUploaded = function(folder, fileLabel) {
         ++numCompleted;
         btnComplete.find('.badge').text(numCompleted);
 
@@ -8898,6 +8901,8 @@
         else {
             btnUploading.find('.badge').text('');
         }
+
+        transPanel.fireUploadEnd(folder, fileLabel);
     }
 
     FileCatalogue.prototype.onFileDownload = function(fileCode) {
@@ -9290,7 +9295,7 @@
 (function(g) {
     'use strict';
 
-    var maxFileSize = 200 * 1024 * 1024;
+    var maxFileSize = 500 * 1024 * 1024;
 
     var that = null;
 
@@ -9528,22 +9533,22 @@
             window.cube().launchFileSelector(function(event) {
                 const files = event.target.files;
                 if (files[0].size > maxFileSize) {
-                    g.dialog.showAlert('为了文档分享体验更加便捷，我们不建议分享超过 200MB 大小的文件。');
+                    g.dialog.showAlert('为了文档分享体验更加便捷，我们不建议分享超过 500MB 大小的文件。');
                     return;
                 }
 
-                // 回调启动上传
-                g.app.fileCatalog.onFileUpload(files[0]);
-
                 currentDir.uploadFile(files[0], function(fileAnchor) {
+                    // 回调启动上传
+                    g.app.fileCatalog.onFileUpload(fileAnchor);
+                }, function(fileAnchor) {
                     // 正在上传
                     g.app.fileCatalog.onFileUploading(fileAnchor);
                 }, function(dir, fileLabel) {
                     // 已上传
-                    g.app.fileCatalog.onFileUploaded(fileLabel);
+                    g.app.fileCatalog.onFileUploaded(dir, fileLabel);
                     that.refreshTable(true);
                 }, function(error) {
-                    g.dialog.toast('上传文件失败：' + error.code);
+                    g.dialog.toast('上传文件失败：' + error.code, Toast.Error);
                 });
             });
         });
@@ -11376,18 +11381,58 @@
 })(window);
 (function(g) {
 
+    var popover = null;
+
     var panelEl = null;
+    var tableEl = null;
+
+    var makeTableRow = function(fileAnchor) {
+        return [
+            '<tr data-sn="', fileAnchor.sn, '">',
+                '<td>', Math.round(fileAnchor.position / fileAnchor.fileSize), '%</td>',
+                '<td>', g.formatYMDHMS(Date.now()), '</td>',
+                '<td class="file-finish-time">--</td>',
+                '<td>', fileAnchor.fileName, '</td>',
+                '<td>', g.formatSize(fileAnchor.fileSize), '</td>',
+                '<td class="speed-rate">--</td>',
+            '</tr>'
+        ];
+    }
 
     var FileTransferPanel = function() {
         panelEl = $('.file-trans-panel');
+        tableEl = panelEl.find('tbody[data-target="surface"]');
+
+        panelEl.find('a[data-widget="close"]').click(function() {
+            popover.popover('hide');
+        });
     }
 
-    FileTransferPanel.prototype.show = function() {
+    FileTransferPanel.prototype.show = function(activePopover) {
+        popover = activePopover;
         panelEl.css('display', 'block');
+
+        // panelEl.find('.no-data').css('display', 'none');
+        // panelEl.find('.file-content').css('display', 'block');
     }
 
     FileTransferPanel.prototype.hide = function() {
         panelEl.css('display', 'none');
+    }
+
+    FileTransferPanel.prototype.fireUploadStart = function(fileAnchor) {
+        panelEl.find('.no-data').css('display', 'none');
+        panelEl.find('.file-content').css('display', 'block');
+
+        tableEl.append($(makeTableRow(fileAnchor).join('')));
+    }
+
+    FileTransferPanel.prototype.fireUploading = function(fileAnchor) {
+
+    }
+
+    FileTransferPanel.prototype.fireUploadEnd = function(folder, fileLabel) {
+
     }
 
     g.FileTransferPanel = FileTransferPanel;

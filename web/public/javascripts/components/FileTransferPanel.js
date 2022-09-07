@@ -26,21 +26,57 @@
 
 (function(g) {
 
+    var popover = null;
+
     var panelEl = null;
+    var tableEl = null;
+
+    var makeTableRow = function(fileAnchor) {
+        return [
+            '<tr data-sn="', fileAnchor.sn, '">',
+                '<td>', Math.round(fileAnchor.position / fileAnchor.fileSize), '%</td>',
+                '<td>', g.formatYMDHMS(Date.now()), '</td>',
+                '<td class="file-finish-time">--</td>',
+                '<td>', fileAnchor.fileName, '</td>',
+                '<td>', g.formatSize(fileAnchor.fileSize), '</td>',
+                '<td class="speed-rate">--</td>',
+            '</tr>'
+        ];
+    }
 
     var FileTransferPanel = function() {
         panelEl = $('.file-trans-panel');
+        tableEl = panelEl.find('tbody[data-target="surface"]');
+
+        panelEl.find('a[data-widget="close"]').click(function() {
+            popover.popover('hide');
+        });
     }
 
-    FileTransferPanel.prototype.show = function() {
+    FileTransferPanel.prototype.show = function(activePopover) {
+        popover = activePopover;
         panelEl.css('display', 'block');
+
+        // panelEl.find('.no-data').css('display', 'none');
+        // panelEl.find('.file-content').css('display', 'block');
     }
 
     FileTransferPanel.prototype.hide = function() {
         panelEl.css('display', 'none');
     }
 
-    FileTransferPanel.prototype.fireUploadStart = function() {
+    FileTransferPanel.prototype.fireUploadStart = function(fileAnchor) {
+        panelEl.find('.no-data').css('display', 'none');
+        panelEl.find('.file-content').css('display', 'block');
+
+        tableEl.append($(makeTableRow(fileAnchor).join('')));
+    }
+
+    FileTransferPanel.prototype.fireUploading = function(fileAnchor) {
+
+    }
+
+    FileTransferPanel.prototype.fireUploadEnd = function(folder, fileLabel) {
 
     }
 

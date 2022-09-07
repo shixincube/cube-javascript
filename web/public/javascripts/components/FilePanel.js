@@ -269,20 +269,18 @@
                     return;
                 }
 
-                // 回调启动上传
-                g.app.fileCatalog.onFileUpload(files[0]);
-
-                currentDir.uploadFile(files[0], function() {
-                    
+                currentDir.uploadFile(files[0], function(fileAnchor) {
+                    // 回调启动上传
+                    g.app.fileCatalog.onFileUpload(fileAnchor);
                 }, function(fileAnchor) {
                     // 正在上传
                     g.app.fileCatalog.onFileUploading(fileAnchor);
                 }, function(dir, fileLabel) {
                     // 已上传
-                    g.app.fileCatalog.onFileUploaded(fileLabel);
+                    g.app.fileCatalog.onFileUploaded(dir, fileLabel);
                     that.refreshTable(true);
                 }, function(error) {
-                    g.dialog.toast('上传文件失败：' + error.code);
+                    g.dialog.toast('上传文件失败：' + error.code, Toast.Error);
                 });
             });
         });

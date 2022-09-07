@@ -123,6 +123,12 @@ export class FileLabel extends Entity {
          * @type {string}
          */
         this.fileSecureURL = null;
+
+        /**
+         * 操作序号。
+         * @type {number}
+         */
+        this.sn = 0;
     }
 
     /**

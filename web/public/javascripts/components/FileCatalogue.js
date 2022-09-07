@@ -224,7 +224,7 @@
      */
     FileCatalogue.prototype.showUpload = function() {
         btnDownloading.popover('hide');
-        transPanel.show();
+        transPanel.show(btnUploading);
     }
 
     /**
@@ -232,18 +232,21 @@
      */
     FileCatalogue.prototype.showDownload = function() {
         btnUploading.popover('hide');
-        transPanel.show();
+        transPanel.show(btnDownloading);
     }
 
-    FileCatalogue.prototype.onFileUpload = function(file) {
-        uploadingMap.put(file.name, file);
+    FileCatalogue.prototype.onFileUpload = function(fileAnchor) {
+        uploadingMap.put(fileAnchor.getFileName(), fileAnchor);
         btnUploading.find('.badge').text(uploadingMap.size());
+
+        transPanel.fireUploadStart(fileAnchor);
     }
 
     FileCatalogue.prototype.onFileUploading = function(fileAnchor) {
+        transPanel.fireUploading(fileAnchor);
     }
 
-    FileCatalogue.prototype.onFileUploaded = function(fileLabel) {
+    FileCatalogue.prototype.onFileUploaded = function(folder, fileLabel) {
         ++numCompleted;
         btnComplete.find('.badge').text(numCompleted);
 
@@ -254,6 +257,8 @@
         else {
             btnUploading.find('.badge').text('');
         }
+
+        transPanel.fireUploadEnd(folder, fileLabel);
     }
 
     FileCatalogue.prototype.onFileDownload = function(fileCode) {

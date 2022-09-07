@@ -1233,9 +1233,10 @@ video {
 }
 .file-trans-panel .file-content {
     height: auto;
-    min-width: 600px;
+    min-width: 700px;
     margin-top: 0rem;
-    padding: 1rem !important;
+    padding: 0.5rem;
+    padding-top: 0.25rem;
     display: none;
 }
 
