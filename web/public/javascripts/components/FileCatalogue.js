@@ -49,7 +49,12 @@
     var activeBtn = null;
 
     var transPanelEl = null;
+
+    /**
+     * @type {FileTransferPanel}
+     */
     var transPanel = null;
+    var autoCloseTransPanelTimer = 0;
 
     var uploadingMap = new OrderMap();
     var downloadingArray = [];
@@ -225,6 +230,20 @@
     FileCatalogue.prototype.showUpload = function() {
         btnDownloading.popover('hide');
         transPanel.show(btnUploading);
+
+        if (autoCloseTransPanelTimer > 0) {
+            clearTimeout(autoCloseTransPanelTimer);
+            autoCloseTransPanelTimer = 0;
+        }
+
+        if (transPanel.numUploadHistory() == 0) {
+            // 自动关闭
+            autoCloseTransPanelTimer = setTimeout(function() {
+                btnUploading.popover('hide');
+                clearTimeout(autoCloseTransPanelTimer);
+                autoCloseTransPanelTimer = 0;
+            }, 3000);
+        }
     }
 
     /**
@@ -233,6 +252,20 @@
     FileCatalogue.prototype.showDownload = function() {
         btnUploading.popover('hide');
         transPanel.show(btnDownloading);
+
+        if (autoCloseTransPanelTimer > 0) {
+            clearTimeout(autoCloseTransPanelTimer);
+            autoCloseTransPanelTimer = 0;
+        }
+
+        if (transPanel.numDownloadHistory() == 0) {
+            // 自动关闭
+            autoCloseTransPanelTimer = setTimeout(function() {
+                btnDownloading.popover('hide');
+                clearTimeout(autoCloseTransPanelTimer);
+                autoCloseTransPanelTimer = 0;
+            }, 3000);
+        }
     }
 
     FileCatalogue.prototype.onFileUpload = function(fileAnchor) {

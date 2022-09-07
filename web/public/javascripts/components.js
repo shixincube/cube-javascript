@@ -8693,7 +8693,12 @@
     var activeBtn = null;
 
     var transPanelEl = null;
+
+    /**
+     * @type {FileTransferPanel}
+     */
     var transPanel = null;
+    var autoCloseTransPanelTimer = 0;
 
     var uploadingMap = new OrderMap();
     var downloadingArray = [];
@@ -8869,6 +8874,20 @@
     FileCatalogue.prototype.showUpload = function() {
         btnDownloading.popover('hide');
         transPanel.show(btnUploading);
+
+        if (autoCloseTransPanelTimer > 0) {
+            clearTimeout(autoCloseTransPanelTimer);
+            autoCloseTransPanelTimer = 0;
+        }
+
+        if (transPanel.numUploadHistory() == 0) {
+            // 自动关闭
+            autoCloseTransPanelTimer = setTimeout(function() {
+                btnUploading.popover('hide');
+                clearTimeout(autoCloseTransPanelTimer);
+                autoCloseTransPanelTimer = 0;
+            }, 3000);
+        }
     }
 
     /**
@@ -8877,6 +8896,20 @@
     FileCatalogue.prototype.showDownload = function() {
         btnUploading.popover('hide');
         transPanel.show(btnDownloading);
+
+        if (autoCloseTransPanelTimer > 0) {
+            clearTimeout(autoCloseTransPanelTimer);
+            autoCloseTransPanelTimer = 0;
+        }
+
+        if (transPanel.numDownloadHistory() == 0) {
+            // 自动关闭
+            autoCloseTransPanelTimer = setTimeout(function() {
+                btnDownloading.popover('hide');
+                clearTimeout(autoCloseTransPanelTimer);
+                autoCloseTransPanelTimer = 0;
+            }, 3000);
+        }
     }
 
     FileCatalogue.prototype.onFileUpload = function(fileAnchor) {
@@ -11386,10 +11419,14 @@
     var panelEl = null;
     var tableEl = null;
 
+    var uploadFileAnchorList = [];
+
+    var downloadFileLabelList = [];
+
     var makeTableRow = function(fileAnchor) {
         return [
             '<tr data-sn="', fileAnchor.sn, '">',
-                '<td>', Math.round(fileAnchor.position / fileAnchor.fileSize), '%</td>',
+                '<td class="text-center">', Math.round(fileAnchor.position / fileAnchor.fileSize), '%</td>',
                 '<td>', g.formatYMDHMS(Date.now()), '</td>',
                 '<td class="file-finish-time">--</td>',
                 '<td>', fileAnchor.fileName, '</td>',
@@ -11420,7 +11457,17 @@
         panelEl.css('display', 'none');
     }
 
+    FileTransferPanel.prototype.numUploadHistory = function() {
+        return uploadFileAnchorList.length;
+    }
+
+    FileTransferPanel.prototype.numDownloadHistory = function() {
+        return downloadFileLabelList.length;
+    }
+
     FileTransferPanel.prototype.fireUploadStart = function(fileAnchor) {
+        uploadFileAnchorList.push(fileAnchor);
+
         panelEl.find('.no-data').css('display', 'none');
         panelEl.find('.file-content').css('display', 'block');
 

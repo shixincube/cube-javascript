@@ -31,10 +31,14 @@
     var panelEl = null;
     var tableEl = null;
 
+    var uploadFileAnchorList = [];
+
+    var downloadFileLabelList = [];
+
     var makeTableRow = function(fileAnchor) {
         return [
             '<tr data-sn="', fileAnchor.sn, '">',
-                '<td>', Math.round(fileAnchor.position / fileAnchor.fileSize), '%</td>',
+                '<td class="text-center">', Math.round(fileAnchor.position / fileAnchor.fileSize), '%</td>',
                 '<td>', g.formatYMDHMS(Date.now()), '</td>',
                 '<td class="file-finish-time">--</td>',
                 '<td>', fileAnchor.fileName, '</td>',
@@ -65,7 +69,17 @@
         panelEl.css('display', 'none');
     }
 
+    FileTransferPanel.prototype.numUploadHistory = function() {
+        return uploadFileAnchorList.length;
+    }
+
+    FileTransferPanel.prototype.numDownloadHistory = function() {
+        return downloadFileLabelList.length;
+    }
+
     FileTransferPanel.prototype.fireUploadStart = function(fileAnchor) {
+        uploadFileAnchorList.push(fileAnchor);
+
         panelEl.find('.no-data').css('display', 'none');
         panelEl.find('.file-content').css('display', 'block');
 
