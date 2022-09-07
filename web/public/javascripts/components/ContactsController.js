@@ -358,15 +358,15 @@
     }
 
     /**
-     * 
-     * @param {*} zoneName 
-     * @param {*} contactId 
+     * 提示添加联系人。
+     * @param {number} contactId 
+     * @param {function} callback
      */
-    ContactsController.prototype.promptAddContactToZone = function(contactId) {
+    ContactsController.prototype.promptAddContact = function(contactId, callback) {
         g.dialog.showPrompt('添加联系人', '附言', function(ok, value) {
             if (ok) {
-                g.app.contactsCtrl.addContactToZone(contactId, value, function(contact) {
-                    
+                that.addContactToZone(contactId, value, function(contact) {
+                    callback(contact);
                 });
             }
         }, '您好，我是“' + g.app.account.name + '”。');
@@ -443,7 +443,7 @@
                         g.dialog.hideLoading();
                     }, function(error) {
                         g.dialog.hideLoading();
-                        g.dialog.toast('修改联系人数据出错：' + error.code, Toast.Error);
+                        g.dialog.toast('修改参与人数据出错：' + error.code, Toast.Error);
                     });
                 }, function(error) {
                     g.dialog.hideLoading();
@@ -453,6 +453,10 @@
         });
     }
 
+    /**
+     * 拒绝添加联系人。
+     * @param {number} index 
+     */
     ContactsController.prototype.rejectPendingContact = function(index) {
         var contact = currentTable.getCurrentContact(index);
         g.dialog.showConfirm('拒绝邀请', '您确认要拒绝“<b>' + contact.getName() + '</b>”的添加联系人邀请吗？', function(yesOrNo) {
@@ -469,7 +473,43 @@
                         g.dialog.hideLoading();
                     }, function(error) {
                         g.dialog.hideLoading();
-                        g.dialog.toast('修改联系人数据出错：' + error.code, Toast.Error);
+                        g.dialog.toast('拒绝邀请数据出错：' + error.code, Toast.Error);
+                    });
+                }, function(error) {
+                    g.dialog.hideLoading();
+                    g.dialog.toast('读取分区数据出错：' + error.code, Toast.Error);
+                });
+            }
+        });
+    }
+
+    /**
+     * 撤回待添加的联系人。
+     * @param {number} index 
+     */
+    ContactsController.prototype.retractPendingContact = function(index) {
+        var contact = currentTable.getCurrentContact(index);
+        g.dialog.showConfirm('撤回邀请', '您确认要撤回添加联系人“<b>' + contact.getName() + '</b>”的邀请吗？', function(yesOrNo) {
+            if (yesOrNo) {
+                g.dialog.showLoading('正在撤回邀请');
+
+                cube.contact.getDefaultContactZone(function(contactZone) {
+                    contactZone.removeParticipant(contact, function(zone, participant) {
+                        // 更新表格
+                        for (var i = 0; i < pendingList.length; ++i) {
+                            var p = pendingList[i];
+                            if (p.id == participant.id) {
+                                pendingList.splice(i, 1);
+                                break;
+                            }
+                        }
+
+                        pendingTable.update(pendingList);
+
+                        g.dialog.hideLoading();
+                    }, function(error) {
+                        g.dialog.hideLoading();
+                        g.dialog.toast('撤回邀请数据出错：' + error.code, Toast.Error);
                     });
                 }, function(error) {
                     g.dialog.hideLoading();
@@ -553,12 +593,17 @@
      */
     ContactsController.prototype.update = function(reload) {
         if (undefined !== reload && reload) {
+            g.dialog.showLoading('刷新数据');
 
+            this.ready(function() {
+                g.dialog.hideLoading();
+            });
         }
-
-        contactsTable.update(contactList);
-        groupsTable.update(groupList);
-        pendingTable.update(pendingList);
+        else {
+            contactsTable.update(contactList);
+            groupsTable.update(groupList);
+            pendingTable.update(pendingList);
+        }
     }
 
     /**

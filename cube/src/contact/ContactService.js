@@ -733,7 +733,7 @@ export class ContactService extends Module {
      * @param {function} handleFailure 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
      */
     getDefaultContactZone(handleSuccess, handleFailure) {
-        if (null != this.defaultContactZone) {
+        if (null != this.defaultContactZone && Date.now() - this.defaultContactZone.last < 60000) {
             handleSuccess(this.defaultContactZone);
             return;
         }
@@ -876,6 +876,7 @@ export class ContactService extends Module {
                     // 添加
                     zone.addParticipant(participant);
                     zone.timestamp = timestamp;
+                    zone.last = Date.now();
 
                     // 赋值
                     participant._assigns(() => {
@@ -914,6 +915,7 @@ export class ContactService extends Module {
                     // 移除
                     zone.removeParticipant(participant);
                     zone.timestamp = timestamp;
+                    zone.last = Date.now();
 
                     handleSuccess(zone, participant);
                 }
@@ -975,46 +977,11 @@ export class ContactService extends Module {
             participant.state = response.state;
             participant.timestamp = response.timestamp;
 
+            zone.last = Date.now();
+
             handleSuccess(zone, participant);
         });
     }
-
-    /*
-     * 从分区中移除联系人。
-     * @param {string} name 分区名。
-     * @param {number|Contact} contactId 指定联系人 ID 。
-     * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode zoneName}:{@linkcode string}, {@linkcode contactId}:{@linkcode number})。
-     * @param {function} [handleFailure] 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
-     */
-    /*removeContactFromZone(name, contactId, handleSuccess, handleFailure) {
-        if (contactId instanceof Contact) {
-            contactId = contactId.getId();
-        }
-
-        let packet = new Packet(ContactAction.RemoveContactFromZone, {
-            "name": name,
-            "contactId": contactId
-        });
-        this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
-            if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
-                if (responsePacket.data.code == ContactServiceState.Ok) {
-                    if (handleSuccess) {
-                        handleSuccess(name, contactId);
-                    }
-                }
-                else {
-                    if (handleFailure) {
-                        handleFailure(new ModuleError(ContactService.NAME, responsePacket.data.code, name));
-                    }
-                }
-            }
-            else {
-                if (handleFailure) {
-                    handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.ServerError, name));
-                }
-            }
-        });
-    }*/
 
     /**
      * 修改当前签入联系人的信息。

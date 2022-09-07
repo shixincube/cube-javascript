@@ -137,6 +137,7 @@
             var name = null;
             var avatar = null;
             var action = null;
+            var stateDesc = null;
 
             if (entity instanceof ContactZoneParticipant) {
                 name = entity.getName();
@@ -145,22 +146,32 @@
                     if (entity.isInviter()) {
                         // 本人发出的邀请
                         if (entity.state == ContactZoneParticipantState.Pending) {
+                            stateDesc = [
+                                '<span>等待对方同意</span>'
+                            ];
                             action = [
-                                '<span class="text-muted">等待对方同意</span>'
+                                '<button class="btn btn-sm btn-danger" onclick="app.contactsCtrl.retractPendingContact(', i, ')">', '<i class="fas fa-times"></i> 撤回联系人申请</button>'
                             ];
                         }
                         else if (entity.state == ContactZoneParticipantState.Reject) {
-                            action = [
+                            stateDesc = [
                                 '<span class="text-danger">对方拒绝邀请</span>'
+                            ];
+                            action = [
+                                '<button class="btn btn-sm btn-danger" onclick="app.contactsCtrl.retractPendingContact(', i, ')">', '<i class="fas fa-times"></i> 撤回联系人申请</button>'
                             ];
                         }
                         else {
+                            stateDesc = [];
                             action = [];
                         }
                     }
                     else {
                         // 其他人发来的
                         if (entity.state == ContactZoneParticipantState.Pending) {
+                            stateDesc = [
+                                '待处理的联系人邀请'
+                            ];
                             action = [
                                 '<button class="btn btn-primary btn-sm" onclick="app.contactsCtrl.acceptPendingContact(', i, ');"><i class="fas fa-user-check"></i> 添加联系人</button>',
                                 '&nbsp;&nbsp;',
@@ -168,23 +179,27 @@
                             ];
                         }
                         else if (entity.state == ContactZoneParticipantState.Reject) {
-                            action = [
+                            stateDesc = [
                                 '<span class="text-muted">已拒绝</span>'
                             ];
+                            action = [];
                         }
                         else {
+                            stateDesc = [];
                             action = [];
                         }
                     }
                 }
                 else {
                     avatar = 'images/group-avatar.png';
+                    stateDesc = [];
                     action = [];
                 }
             }
             else {
                 name = entity.getName();
                 avatar = (entity instanceof Group) ? 'images/group-avatar.png' : g.helper.getAvatarImage(entity.getContext().avatar);
+                stateDesc = [];
                 action = [
                     '<a class="btn btn-primary btn-sm" href="javascript:app.contactsCtrl.acceptPendingContact(', i, ');"><i class="fas fa-user-check"></i> 添加联系人</a>'
                 ];
@@ -197,6 +212,7 @@
                     '<td>', name, '</td>',
                     '<td class="text-muted">', entity.getId(), '</td>',
                     '<td>', entity.postscript, '</td>',
+                    '<td class="text-muted">', stateDesc.join(''), '</td>',
                     '<td class="text-center">', action.join(''), '</td>',
                 '</tr>'
             ];

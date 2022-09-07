@@ -133,10 +133,12 @@ export class ContactZone extends Entity {
 
     /**
      * 获取指定的参与人。
-     * @param {number} contactId 指定参与人的 ID 。
+     * @param {number|Contact} contactOrId 指定参与人的 ID 。
      * @returns {ContactZoneParticipant} 返回指定参与人。
      */
-    getParticipant(contactId) {
+    getParticipant(contactOrId) {
+        let contactId = typeof contactOrId == 'number' ? contactOrId : contactOrId.id;
+
         for (let i = 0; i < this.participants.length; ++i) {
             if (this.participants[i].id == contactId) {
                 return this.participants[i];

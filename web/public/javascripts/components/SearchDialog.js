@@ -177,6 +177,7 @@
 
         this.resultEl.append(rowEl);
 
+        // TODO XJW
         // g.cube().contact.getGroup(group.getId(), function(group) {
         // });
     }

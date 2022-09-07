@@ -26,6 +26,7 @@
 
 (function(g) {
 
+    var that = null;
     var dialogEl = null;
 
     var btnEditName = null;
@@ -103,7 +104,9 @@
 
 
     var addContact = function(e) {
-        // app.contactsCtrl.
+        app.contactsCtrl.promptAddContact(currentContact.id, function() {
+            barActionAdd.css('display', 'none');
+        });
     }
 
     var gotoMessaging = function(e) {
@@ -120,6 +123,7 @@
      * @param {jQuery} el 
      */
     var ContactDetails = function(el) {
+        that = this;
         dialogEl = el;
         btnEditName = el.find('button[data-target="edit-remarkname"]');
         btnEditName.click(editName);
@@ -165,13 +169,17 @@
                         btnEditName.css('visibility', 'visible');
                         btnEditName.attr('title', '修改备注');
                         el.find('.widget-user-desc').text(contact.getName());
-                        barActionOperation.css('display', 'block');
+
+                        var participant = zone.getParticipant(contact);
+                        if (participant.state == ContactZoneParticipantState.Normal) {
+                            barActionOperation.css('display', 'flex');
+                        }
                     }
                     else {
                         // 非好友
                         btnEditName.css('visibility', 'hidden');
                         el.find('.widget-user-desc').text('');
-                        barActionAdd.css('display', 'block');
+                        barActionAdd.css('display', 'flex');
                     }
                 }, function(error) {
                     g.dialog.toast('通讯录数据出错：' + error.code);

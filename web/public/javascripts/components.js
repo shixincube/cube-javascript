@@ -6364,6 +6364,7 @@
 })(window);
 (function(g) {
 
+    var that = null;
     var dialogEl = null;
 
     var btnEditName = null;
@@ -6441,7 +6442,9 @@
 
 
     var addContact = function(e) {
-        // app.contactsCtrl.
+        app.contactsCtrl.promptAddContact(currentContact.id, function() {
+            barActionAdd.css('display', 'none');
+        });
     }
 
     var gotoMessaging = function(e) {
@@ -6458,6 +6461,7 @@
      * @param {jQuery} el 
      */
     var ContactDetails = function(el) {
+        that = this;
         dialogEl = el;
         btnEditName = el.find('button[data-target="edit-remarkname"]');
         btnEditName.click(editName);
@@ -6503,13 +6507,17 @@
                         btnEditName.css('visibility', 'visible');
                         btnEditName.attr('title', '修改备注');
                         el.find('.widget-user-desc').text(contact.getName());
-                        barActionOperation.css('display', 'block');
+
+                        var participant = zone.getParticipant(contact);
+                        if (participant.state == ContactZoneParticipantState.Normal) {
+                            barActionOperation.css('display', 'flex');
+                        }
                     }
                     else {
                         // 非好友
                         btnEditName.css('visibility', 'hidden');
                         el.find('.widget-user-desc').text('');
-                        barActionAdd.css('display', 'block');
+                        barActionAdd.css('display', 'flex');
                     }
                 }, function(error) {
                     g.dialog.toast('通讯录数据出错：' + error.code);
@@ -11822,6 +11830,7 @@
             var name = null;
             var avatar = null;
             var action = null;
+            var stateDesc = null;
 
             if (entity instanceof ContactZoneParticipant) {
                 name = entity.getName();
@@ -11830,22 +11839,32 @@
                     if (entity.isInviter()) {
                         // 本人发出的邀请
                         if (entity.state == ContactZoneParticipantState.Pending) {
+                            stateDesc = [
+                                '<span>等待对方同意</span>'
+                            ];
                             action = [
-                                '<span class="text-muted">等待对方同意</span>'
+                                '<button class="btn btn-sm btn-danger" onclick="app.contactsCtrl.retractPendingContact(', i, ')">', '<i class="fas fa-times"></i> 撤回联系人申请</button>'
                             ];
                         }
                         else if (entity.state == ContactZoneParticipantState.Reject) {
-                            action = [
+                            stateDesc = [
                                 '<span class="text-danger">对方拒绝邀请</span>'
+                            ];
+                            action = [
+                                '<button class="btn btn-sm btn-danger" onclick="app.contactsCtrl.retractPendingContact(', i, ')">', '<i class="fas fa-times"></i> 撤回联系人申请</button>'
                             ];
                         }
                         else {
+                            stateDesc = [];
                             action = [];
                         }
                     }
                     else {
                         // 其他人发来的
                         if (entity.state == ContactZoneParticipantState.Pending) {
+                            stateDesc = [
+                                '待处理的联系人邀请'
+                            ];
                             action = [
                                 '<button class="btn btn-primary btn-sm" onclick="app.contactsCtrl.acceptPendingContact(', i, ');"><i class="fas fa-user-check"></i> 添加联系人</button>',
                                 '&nbsp;&nbsp;',
@@ -11853,23 +11872,27 @@
                             ];
                         }
                         else if (entity.state == ContactZoneParticipantState.Reject) {
-                            action = [
+                            stateDesc = [
                                 '<span class="text-muted">已拒绝</span>'
                             ];
+                            action = [];
                         }
                         else {
+                            stateDesc = [];
                             action = [];
                         }
                     }
                 }
                 else {
                     avatar = 'images/group-avatar.png';
+                    stateDesc = [];
                     action = [];
                 }
             }
             else {
                 name = entity.getName();
                 avatar = (entity instanceof Group) ? 'images/group-avatar.png' : g.helper.getAvatarImage(entity.getContext().avatar);
+                stateDesc = [];
                 action = [
                     '<a class="btn btn-primary btn-sm" href="javascript:app.contactsCtrl.acceptPendingContact(', i, ');"><i class="fas fa-user-check"></i> 添加联系人</a>'
                 ];
@@ -11882,6 +11905,7 @@
                     '<td>', name, '</td>',
                     '<td class="text-muted">', entity.getId(), '</td>',
                     '<td>', entity.postscript, '</td>',
+                    '<td class="text-muted">', stateDesc.join(''), '</td>',
                     '<td class="text-center">', action.join(''), '</td>',
                 '</tr>'
             ];
@@ -12464,15 +12488,15 @@
     }
 
     /**
-     * 
-     * @param {*} zoneName 
-     * @param {*} contactId 
+     * 提示添加联系人。
+     * @param {number} contactId 
+     * @param {function} callback
      */
-    ContactsController.prototype.promptAddContactToZone = function(contactId) {
+    ContactsController.prototype.promptAddContact = function(contactId, callback) {
         g.dialog.showPrompt('添加联系人', '附言', function(ok, value) {
             if (ok) {
-                g.app.contactsCtrl.addContactToZone(contactId, value, function(contact) {
-                    
+                that.addContactToZone(contactId, value, function(contact) {
+                    callback(contact);
                 });
             }
         }, '您好，我是“' + g.app.account.name + '”。');
@@ -12549,7 +12573,7 @@
                         g.dialog.hideLoading();
                     }, function(error) {
                         g.dialog.hideLoading();
-                        g.dialog.toast('修改联系人数据出错：' + error.code, Toast.Error);
+                        g.dialog.toast('修改参与人数据出错：' + error.code, Toast.Error);
                     });
                 }, function(error) {
                     g.dialog.hideLoading();
@@ -12559,6 +12583,10 @@
         });
     }
 
+    /**
+     * 拒绝添加联系人。
+     * @param {number} index 
+     */
     ContactsController.prototype.rejectPendingContact = function(index) {
         var contact = currentTable.getCurrentContact(index);
         g.dialog.showConfirm('拒绝邀请', '您确认要拒绝“<b>' + contact.getName() + '</b>”的添加联系人邀请吗？', function(yesOrNo) {
@@ -12575,7 +12603,43 @@
                         g.dialog.hideLoading();
                     }, function(error) {
                         g.dialog.hideLoading();
-                        g.dialog.toast('修改联系人数据出错：' + error.code, Toast.Error);
+                        g.dialog.toast('拒绝邀请数据出错：' + error.code, Toast.Error);
+                    });
+                }, function(error) {
+                    g.dialog.hideLoading();
+                    g.dialog.toast('读取分区数据出错：' + error.code, Toast.Error);
+                });
+            }
+        });
+    }
+
+    /**
+     * 撤回待添加的联系人。
+     * @param {number} index 
+     */
+    ContactsController.prototype.retractPendingContact = function(index) {
+        var contact = currentTable.getCurrentContact(index);
+        g.dialog.showConfirm('撤回邀请', '您确认要撤回添加联系人“<b>' + contact.getName() + '</b>”的邀请吗？', function(yesOrNo) {
+            if (yesOrNo) {
+                g.dialog.showLoading('正在撤回邀请');
+
+                cube.contact.getDefaultContactZone(function(contactZone) {
+                    contactZone.removeParticipant(contact, function(zone, participant) {
+                        // 更新表格
+                        for (var i = 0; i < pendingList.length; ++i) {
+                            var p = pendingList[i];
+                            if (p.id == participant.id) {
+                                pendingList.splice(i, 1);
+                                break;
+                            }
+                        }
+
+                        pendingTable.update(pendingList);
+
+                        g.dialog.hideLoading();
+                    }, function(error) {
+                        g.dialog.hideLoading();
+                        g.dialog.toast('撤回邀请数据出错：' + error.code, Toast.Error);
                     });
                 }, function(error) {
                     g.dialog.hideLoading();
@@ -12659,12 +12723,17 @@
      */
     ContactsController.prototype.update = function(reload) {
         if (undefined !== reload && reload) {
+            g.dialog.showLoading('刷新数据');
 
+            this.ready(function() {
+                g.dialog.hideLoading();
+            });
         }
-
-        contactsTable.update(contactList);
-        groupsTable.update(groupList);
-        pendingTable.update(pendingList);
+        else {
+            contactsTable.update(contactList);
+            groupsTable.update(groupList);
+            pendingTable.update(pendingList);
+        }
     }
 
     /**
@@ -13361,6 +13430,7 @@
 
         this.resultEl.append(rowEl);
 
+        // TODO XJW
         // g.cube().contact.getGroup(group.getId(), function(group) {
         // });
     }
