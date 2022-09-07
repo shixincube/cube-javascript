@@ -27,7 +27,7 @@
 (function(g) {
     'use strict';
 
-    var maxFileSize = 200 * 1024 * 1024;
+    var maxFileSize = 500 * 1024 * 1024;
 
     var that = null;
 
@@ -265,14 +265,16 @@
             window.cube().launchFileSelector(function(event) {
                 const files = event.target.files;
                 if (files[0].size > maxFileSize) {
-                    g.dialog.showAlert('为了文档分享体验更加便捷，我们不建议分享超过 200MB 大小的文件。');
+                    g.dialog.showAlert('为了文档分享体验更加便捷，我们不建议分享超过 500MB 大小的文件。');
                     return;
                 }
 
                 // 回调启动上传
                 g.app.fileCatalog.onFileUpload(files[0]);
 
-                currentDir.uploadFile(files[0], function(fileAnchor) {
+                currentDir.uploadFile(files[0], function() {
+                    
+                }, function(fileAnchor) {
                     // 正在上传
                     g.app.fileCatalog.onFileUploading(fileAnchor);
                 }, function(dir, fileLabel) {

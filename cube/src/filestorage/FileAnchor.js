@@ -83,6 +83,14 @@ export class FileAnchor extends JSONable {
     }
 
     /**
+     * 获取文件名。
+     * @returns {string} 返回文件名。
+     */
+    getFileName() {
+        return this.fileName;
+    }
+
+    /**
      * 获取文件扩展名。
      * @returns {string} 返回文件扩展名。
      */

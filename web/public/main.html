@@ -551,6 +551,7 @@
                                     <span class="fp-title">已分享的文件</span>
                                     <span class="fp-path"></span>
                                 </h5>
+                                <!--
                                 <div class="card-tools">
                                     <div class="input-group input-group-sm">
                                         <input type="text" class="form-control" placeholder="搜索">
@@ -561,6 +562,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                -->
                             </div>
                             <!-- Toolbar - begin -->
                             <div class="file-controls">
@@ -626,23 +628,49 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Trans List -->
-                    <div class="col-md-9 file-trans-list files-hidden">
-                        <div class="card file-content">
-                            <div class="card-header">
-                                <h5 class="card-title">
-                                    <span class="">全部文件</span>
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
     </div>
     <!-- Files Page - end -->
+
+    <!-- File Transfer History - begin -->
+    <div class="file-trans-panel">
+        <div class="text-center no-data" style="width:200px;">
+            <p style="margin-top:1rem;">没有传输记录。</p>
+        </div>
+        <div class="card-body file-content">
+            <div class="table-responsive table-header">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <td width="145">开始时间</td>
+                            <td width="145">结束时间</td>
+                            <td>文件名</td>
+                            <td width="100">文件大小</td>
+                            <td width="100">平均速率</td>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="table-responsive table-files">
+                <table class="table table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <td width="145"></td>
+                            <td width="145"></td>
+                            <td></td>
+                            <td width="100"></td>
+                            <td width="100"></td>
+                        </tr>
+                    </thead>
+                    <tbody data-target="surface">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- File Transfer History - end -->
 
     <!-- Conference Page - begin -->
     <div id="conference" class="content-wrapper content-wrapper-hidden conference">

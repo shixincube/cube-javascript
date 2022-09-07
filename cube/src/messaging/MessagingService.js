@@ -2228,16 +2228,15 @@ export class MessagingService extends Module {
         fs.start();
 
         // 上传数据
-        let anchor = fs.uploadFile(message.attachment.file, (fileAnchor) => {
-            // 正在发送文件
-            message.attachment.anchor = fileAnchor;
-
-            this.notifyObservers(new ObservableEvent(MessagingEvent.Processing, message));
-        }, (fileAnchor) => {
-            // 文件发送完成
-
+        fs.uploadFile(message.attachment.file, (fileAnchor) => {
+            // 开始上传
             // 设置锚点
             message.attachment.anchor = fileAnchor;
+        }, (fileAnchor) => {
+            // 正在发送文件
+            this.notifyObservers(new ObservableEvent(MessagingEvent.Processing, message));
+        }, (fileLabel) => {
+            // 文件发送完成
 
             // 发送到服务器
             let packet = new Packet(MessagingAction.Push, message.toJSON());
@@ -2245,13 +2244,11 @@ export class MessagingService extends Module {
                 // 处理服务返回的数据
                 this._processPushResult(message, responsePacket);
             });
-        }, (fileAnchor) => {
+        }, (error) => {
             // 错误处理
-            let error = new ModuleError(MessagingService.NAME, MessagingServiceState.AttachmentError, fileAnchor);
-            this.notifyObservers(new ObservableEvent(MessagingEvent.Fault, error));
+            let moduleError = new ModuleError(MessagingService.NAME, MessagingServiceState.AttachmentError, error);
+            this.notifyObservers(new ObservableEvent(MessagingEvent.Fault, moduleError));
         });
-
-        message.attachment.anchor = anchor;
 
         // 事件通知
         if (message.scope == 0) {

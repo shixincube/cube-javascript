@@ -166,6 +166,18 @@ export class FileStorage extends Module {
         this.measurer = new Measurer();
 
         /**
+         * 是否正在上传数据。
+         * @type {boolean}
+         */
+        this.uploading = false;
+
+        /**
+         * 上传队列。
+         * @type {Array}
+         */
+        this.uploadQueue = [];
+
+        /**
          * 默认管道的监听器。
          * @type {FileStoragePipeListener}
          */
@@ -389,6 +401,7 @@ export class FileStorage extends Module {
     /**
      * 使用文件选择对话框选择文件后上传。
      * 该方法仅适用于 Web 浏览器。
+     * @param {function} handleStart
      * @param {function} handleProcessing 
      * @param {function} handleSuccess 
      * @param {function} handleFailure 
@@ -423,7 +436,7 @@ export class FileStorage extends Module {
             selector.addEventListener('change', (e) => {
                 let file = e.target.files[0];
                 // 进行文件上传
-                this.uploadFile(file, handleProcessing, handleSuccess, handleFailure);
+                this.uploadFile(file, handleStart, handleProcessing, handleSuccess, handleFailure);
             });
         }
         else {
@@ -436,14 +449,13 @@ export class FileStorage extends Module {
     /**
      * 上传指定的文件。
      * @param {File} file 指定上传文件。
-     * @param {function} [handleProcessing] 正在进行文件处理的回调函数。函数参数：({@linkcode fileAnchor}:{@link FileAnchor}) 。
-     * @param {function} [handleSuccess] 上传文件成功的回调函数。函数参数：({@linkcode fileLabel}:{@link FileLabel}) 。
-     * @param {function} [handleFailure] 上传文件失败的回调函数。函数参数：({@linkcode error}:{@link ModuleError}) 。
-     * @returns {FileAnchor} 返回文件锚。
+     * @param {funciton} handleStart 开始上传时的回调函数。函数参数：({@linkcode fileAnchor}:{@link FileAnchor}) 。
+     * @param {function} handleProcessing 正在进行文件处理的回调函数。函数参数：({@linkcode fileAnchor}:{@link FileAnchor}) 。
+     * @param {function} handleSuccess 上传文件成功的回调函数。函数参数：({@linkcode fileLabel}:{@link FileLabel}) 。
+     * @param {function} handleFailure 上传文件失败的回调函数。函数参数：({@linkcode error}:{@link ModuleError}) 。
      */
-    uploadFile(file, handleProcessing, handleSuccess, handleFailure) {
+    uploadFile(file, handleStart, handleProcessing, handleSuccess, handleFailure) {
         let fileSize = file.size;
-
         // 检查空间
         if (this.fileSpaceSize > 0 && this.getMaxFileSpaceSize() > 0) {
             if (fileSize > this.getMaxFileSpaceSize() - this.fileSpaceSize) {
@@ -452,14 +464,52 @@ export class FileStorage extends Module {
                     let error = new ModuleError(FileStorage.NAME, FileStorageState.OverSize, file);
                     handleFailure(error);
                 }
-                return null;
+                return;
             }
         }
+
+        let record = {
+            file: file,
+            handleStart: handleStart,
+            handleProcessing: handleProcessing,
+            handleSuccess: handleSuccess,
+            handleFailure: handleFailure
+        };
+        // 插入队列
+        this.uploadQueue.push(record);
+
+        if (!this.uploading) {
+            // 进行传输
+            let task = this.uploadQueue[0];
+            this.uploadQueue.splice(0, 1);
+            this._uploadFile(task.file, task.handleStart, task.handleProcessing,
+                task.handleSuccess, task.handleFailure);
+        }
+    }
+
+    /**
+     * @private
+     * @param {File} file 指定上传文件。
+     * @param {funciton} handleStart 开始上传时的回调函数。函数参数：({@linkcode fileAnchor}:{@link FileAnchor}) 。
+     * @param {function} handleProcessing 正在进行文件处理的回调函数。函数参数：({@linkcode fileAnchor}:{@link FileAnchor}) 。
+     * @param {function} handleSuccess 上传文件成功的回调函数。函数参数：({@linkcode fileLabel}:{@link FileLabel}) 。
+     * @param {function} handleFailure 上传文件失败的回调函数。函数参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    _uploadFile(file, handleStart, handleProcessing, handleSuccess, handleFailure) {
+        if (this.uploading) {
+            // 正在上传
+            return;
+        }
+
+        this.uploading = true;
 
         let fileAnchor = new FileAnchor();
         let reader = new FileReader();
 
         this.measurer.reset();
+
+        // 文件大小
+        let fileSize = file.size;
 
         reader.onload = (e) => {
             fileAnchor.position += e.total;
@@ -478,6 +528,9 @@ export class FileStorage extends Module {
         // 记录回调函数
         fileAnchor.finishCallback = handleSuccess;
 
+        // 开始
+        handleStart(fileAnchor);
+
         // 串行方式上传数据
         this._serialReadAndUpload(reader, file, fileAnchor, fileSize, (anchor) => {
             if (null == anchor) {
@@ -485,11 +538,20 @@ export class FileStorage extends Module {
                 fileAnchor.fileCode = null;
                 fileAnchor.success = false;
 
+                this.uploading = false;
+
+                if (this.uploadQueue.length > 0) {
+                    setTimeout(() => {
+                        let record = this.uploadQueue[0];
+                        this.uploadQueue.splice(0, 1);
+                        this._uploadFile(record.file, record.handleStart, record.handleProcessing,
+                            record.handleSuccess, record.handleFailure);
+                    }, 10);
+                }
+
                 // 实例化错误
                 let error = new ModuleError(FileStorage.NAME, FileStorageState.TransmitFailed, fileAnchor);
-                if (handleFailure) {
-                    handleFailure(error);
-                }
+                handleFailure(error);
 
                 let event = new ObservableEvent(FileStorageEvent.UploadFailed, error);
                 this.notifyObservers(event);
@@ -503,9 +565,7 @@ export class FileStorage extends Module {
                 fileAnchor.fileCode = anchor.fileCode;
                 fileAnchor.success = true;
 
-                if (handleProcessing) {
-                    handleProcessing(fileAnchor);
-                }
+                handleProcessing(fileAnchor);
 
                 let event = new ObservableEvent(FileStorageEvent.UploadCompleted, fileAnchor);
                 this.notifyObservers(event);
@@ -515,13 +575,8 @@ export class FileStorage extends Module {
             }
         }, (fileAnchor) => {
             // 正在上传
-            if (handleProcessing) {
-                handleProcessing(fileAnchor);
-            }
+            handleProcessing(fileAnchor);
         });
-
-        // 返回文件锚
-        return fileAnchor;
     }
 
     /**
@@ -532,36 +587,57 @@ export class FileStorage extends Module {
      */
     _queryFileLabel(fileAnchor, count, failureCallback) {
         let callback = fileAnchor.finishCallback;
-        if (callback) {
-            this.getFileLabel(fileAnchor.fileCode, (fileLabel) => {
-                // 更新空间大小
-                this.fileSpaceSize += fileAnchor.fileSize;
 
-                // 将锚点上的回调函数置空
-                fileAnchor.finishCallback = null;
+        this.getFileLabel(fileAnchor.fileCode, (fileLabel) => {
+            // 更新空间大小
+            this.fileSpaceSize += fileAnchor.fileSize;
 
-                callback(fileLabel);
+            // 将锚点上的回调函数置空
+            fileAnchor.finishCallback = null;
 
-                this.fileAnchors.remove(fileAnchor.fileCode);
-            }, (error) => {
-                if (error.code == FileStorageState.Writing) {
-                    // 正在写入数据，客户端需要等待
-                    count = 0;
-                }
+            callback(fileLabel);
 
-                if (count > 5) {
-                    if (failureCallback) {
-                        failureCallback(error);
-                    }
-                    return;
-                }
+            this.fileAnchors.remove(fileAnchor.fileCode);
 
+            // 重置状态
+            this.uploading = false;
+
+            if (this.uploadQueue.length > 0) {
                 setTimeout(() => {
-                    let newCount = count + 1;
-                    this._queryFileLabel(fileAnchor, newCount, failureCallback);
-                }, 1000);
-            });
-        }
+                    let record = this.uploadQueue[0];
+                    this.uploadQueue.splice(0, 1);
+                    this._uploadFile(record.file, record.handleStart, record.handleProcessing,
+                        record.handleSuccess, record.handleFailure);
+                }, 10);
+            }
+        }, (error) => {
+            if (error.code == FileStorageState.Writing) {
+                // 正在写入数据，客户端需要等待
+                count = 0;
+            }
+
+            if (count > 5) {
+                // 重置状态
+                this.uploading = false;
+
+                if (this.uploadQueue.length > 0) {
+                    setTimeout(() => {
+                        let record = this.uploadQueue[0];
+                        this.uploadQueue.splice(0, 1);
+                        this._uploadFile(record.file, record.handleStart, record.handleProcessing,
+                            record.handleSuccess, record.handleFailure);
+                    }, 10);
+                }
+
+                failureCallback(error);
+                return;
+            }
+
+            setTimeout(() => {
+                let newCount = count + 1;
+                this._queryFileLabel(fileAnchor, newCount, failureCallback);
+            }, 1000);
+        });
     }
 
     /**

@@ -96,11 +96,12 @@ export class FileHierarchy {
      * 
      * @param {File} file 
      * @param {Directory} directory 
+     * @param {function} handleStart
      * @param {function} handleProcessing
      * @param {function} handleSuccess 
-     * @param {function} [handleFailure] 
+     * @param {function} handleFailure 
      */
-    uploadFile(file, directory, handleProcessing, handleSuccess, handleFailure) {
+    uploadFile(file, directory, handleStart, handleProcessing, handleSuccess, handleFailure) {
         let successHandler = (fileLabel) => {
             // 将已上传文件插入到目录
             let request = new Packet(FileStorageAction.InsertFile, {
@@ -139,19 +140,15 @@ export class FileHierarchy {
         };
 
         if (null == file) {
-            this.storage.uploadFileWithSelector(handleProcessing, successHandler, (error) => {
+            this.storage.uploadFileWithSelector(handleStart, handleProcessing, successHandler, (error) => {
                 cell.Logger.w('FileHierarchy', '#uploadFile() - ' + error);
-                if (handleFailure) {
-                    handleFailure(error);
-                }
+                handleFailure(error);
             });
         }
         else {
-            this.storage.uploadFile(file, handleProcessing, successHandler, (error) => {
+            this.storage.uploadFile(file, handleStart, handleProcessing, successHandler, (error) => {
                 cell.Logger.w('FileHierarchy', '#uploadFile() - ' + error);
-                if (handleFailure) {
-                    handleFailure(error);
-                }
+                handleFailure(error);
             });
         }
     }

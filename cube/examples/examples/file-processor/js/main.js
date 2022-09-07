@@ -139,6 +139,8 @@ function uploadFile() {
     }
 
     rootDir.uploadFileWithSelector(function(anchor) {
+        stateLabel.innerHTML = '开始上传：' + anchor.getFileName();
+    }, function(anchor) {
         stateLabel.innerHTML = '正在上传：' + anchor.position + '/' + anchor.fileSize;
     }, function(dir, fileLabel) {
         stateLabel.innerHTML = '上传成功：' + fileLabel.getFileName();

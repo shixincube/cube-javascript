@@ -8669,7 +8669,7 @@
 
 })(window);
 (function(g) {
-    'use strict'
+    'use strict';
 
     var that = null;
 
@@ -8691,6 +8691,9 @@
     var btnSharingExpired = null;
 
     var activeBtn = null;
+
+    var transPanelEl = null;
+    var transPanel = null;
 
     var uploadingMap = new OrderMap();
     var downloadingArray = [];
@@ -8723,6 +8726,9 @@
 
         activeBtn = btnAllFiles;
 
+        transPanelEl = $('.file-trans-panel');
+        transPanel = new FileTransferPanel();
+
         that = this;
     }
 
@@ -8745,12 +8751,28 @@
             that.select($(this).attr('id'));
         });
 
-        btnUploading.click(function() {
-            //dialog.launchToast(Toast.Warning, '开发中……');
+        btnUploading.popover({
+            html: true,
+            placement: 'right',
+            trigger: 'click',
+            content: transPanelEl
+        }).on('show.bs.popover', function() {
+            that.showUpload();
+        }).on('shown.bs.popover', function() {
+            transPanelEl.parent().parent().css('maxWidth', '800px');
         });
-        btnDownloading.click(function() {
-            //dialog.launchToast(Toast.Warning, '开发中……');
+
+        btnDownloading.popover({
+            html: true,
+            placement: 'right',
+            trigger: 'click',
+            content: transPanelEl
+        }).on('show.bs.popover', function() {
+            that.showDownload();
+        }).on('shown.bs.popover', function() {
+            transPanelEl.parent().parent().css('maxWidth', '800px');
         });
+
         btnComplete.click(function() {
             //dialog.launchToast(Toast.Warning, '开发中……');
         });
@@ -8839,6 +8861,22 @@
 
         // 更新面板
         g.app.filePanel.setTitle(activeBtn.attr('title'));
+    }
+
+    /**
+     * Upload List
+     */
+    FileCatalogue.prototype.showUpload = function() {
+        btnDownloading.popover('hide');
+        transPanel.show();
+    }
+
+    /**
+     * Download List
+     */
+    FileCatalogue.prototype.showDownload = function() {
+        btnUploading.popover('hide');
+        transPanel.show();
     }
 
     FileCatalogue.prototype.onFileUpload = function(file) {
@@ -11334,6 +11372,25 @@
     }
 
     g.FileController = FileController;
+
+})(window);
+(function(g) {
+
+    var panelEl = null;
+
+    var FileTransferPanel = function() {
+        panelEl = $('.file-trans-panel');
+    }
+
+    FileTransferPanel.prototype.show = function() {
+        panelEl.css('display', 'block');
+    }
+
+    FileTransferPanel.prototype.hide = function() {
+        panelEl.css('display', 'none');
+    }
+
+    g.FileTransferPanel = FileTransferPanel;
 
 })(window);
  (function(g) {

@@ -104,7 +104,9 @@ function loadFile() {
             // 未找到文件
             stateLabel.innerHTML = '上传文件：' + file.name;
             cube.fs.uploadFile(file, function(anchor) {
-                '正在上传文件：' + anchor.position + '/' + anchor.fileSize;
+                stateLabel.innerHTML = '开始上传：' + anchor.getFileName();
+            }, function(anchor) {
+                stateLabel.innerHTML = '正在上传文件：' + anchor.position + '/' + anchor.fileSize;
             }, function(label) {
                 stateLabel.innerHTML = '上传完成';
                 playMedia(label);

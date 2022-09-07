@@ -274,22 +274,24 @@ export class Directory {
     /**
      * 上传文件到该目录。
      * @param {File} file 指定文件。
-     * @param {function} handleProcessing 正在上传文件回调。
-     * @param {function} handleSuccess 成功回调。参数：({@linkcode directory}:{@link Directory}, {@linkcode fileLabel}:{@link FileLabel}) 。
-     * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     * @param {function} handleStart 上传文件开始回调。函数参数：({@linkcode fileAnchor}:{@link FileAnchor}) 。
+     * @param {function} handleProcessing 正在上传文件回调。函数参数：({@linkcode fileAnchor}:{@link FileAnchor}) 。
+     * @param {function} handleSuccess 成功回调。函数参数：({@linkcode directory}:{@link Directory}, {@linkcode fileLabel}:{@link FileLabel}) 。
+     * @param {function} handleFailure 失败回调。函数参数：({@linkcode error}:{@link ModuleError}) 。
      */
-    uploadFile(file, handleProcessing, handleSuccess, handleFailure) {
-        this.hierarchy.uploadFile(file, this, handleProcessing, handleSuccess, handleFailure);
+    uploadFile(file, handleStart, handleProcessing, handleSuccess, handleFailure) {
+        this.hierarchy.uploadFile(file, this, handleStart, handleProcessing, handleSuccess, handleFailure);
     }
 
     /**
      * 使用文件选择界面选择文件后上传文件到该目录。
-     * @param {function} handleProcessing 正在上传文件回调。
-     * @param {function} handleSuccess 成功回调。参数：({@linkcode directory}:{@link Directory}, {@linkcode fileLabel}:{@link FileLabel}) 。
-     * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     * @param {function} handleStart 上传文件开始回调。函数参数：({@linkcode fileAnchor}:{@link FileAnchor}) 。
+     * @param {function} handleProcessing 正在上传文件回调。函数参数：({@linkcode fileAnchor}:{@link FileAnchor}) 。
+     * @param {function} handleSuccess 成功回调。函数参数：({@linkcode directory}:{@link Directory}, {@linkcode fileLabel}:{@link FileLabel}) 。
+     * @param {function} handleFailure 失败回调。函数参数：({@linkcode error}:{@link ModuleError}) 。
      */
-    uploadFileWithSelector(handleProcessing, handleSuccess, handleFailure) {
-        this.hierarchy.uploadFile(null, this, handleProcessing, handleSuccess, handleFailure);
+    uploadFileWithSelector(handleStart, handleProcessing, handleSuccess, handleFailure) {
+        this.hierarchy.uploadFile(null, this, handleStart, handleProcessing, handleSuccess, handleFailure);
     }
 
     /**

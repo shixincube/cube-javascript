@@ -629,48 +629,6 @@
 
                 callback();
             });
-
-            /*var process = function(contactList, pendingList) {
-                // contactList | pendingList - Array<ContactZoneParticipant>
-                contactList.forEach(function(value) {
-                    contactsCtrl.addContact(value);
-                });
-
-                // 添加自己
-                cubeContacts.push(cube.contact.getSelf());
-
-                pendingList.forEach(function(value) {
-                    contactsCtrl.addPending(value);
-                });
-
-                that.prepareGroups(function() {
-                    callback();
-                });
-            };
-
-            // 从 Cube 里获取默认的联系人分组
-            cube.contact.getDefaultContactZone(function(zone) {
-                // 获取分区里所有参与人
-                zone.getParticipants(function(list) {
-                    var contactList = [];
-                    var pendingList = [];
-
-                    for (var i = 0; i < list.length; ++i) {
-                        var participant = list[i];
-                        if (participant.state == ContactZoneParticipantState.Normal) {
-                            contactList.push(participant);
-                        }
-                        else {
-                            pendingList.push(participant);
-                        }
-                    }
-
-                    process(contactList, pendingList);
-                });
-            }, function(error) {
-                console.log(error);
-                process([], []);
-            });*/
         },
 
         /**

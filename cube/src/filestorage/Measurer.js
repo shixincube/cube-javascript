@@ -47,11 +47,34 @@ export class Measurer {
          * 每次记录的数据大小。
          */
         this.sizeList = [];
+
+        /**
+         * 速率记录。
+         */
+        this.rateList = [];
     }
 
     reset() {
         this.timestampList = [];
         this.sizeList = [];
+        this.rateList = [];
+    }
+
+    /**
+     * 传输的平均速率。
+     * @returns {number}
+     */
+    averageRate() {
+        if (this.rateList.length == 0) {
+            return 0;
+        }
+
+        let total = 0;
+        for (let i = 0; i < this.rateList.length; ++i) {
+            total += this.rateList[i];
+        }
+
+        return total / this.rateList.length;
     }
 
     /**
@@ -63,22 +86,27 @@ export class Measurer {
         this.timestampList.push(Date.now());
         this.sizeList.push(size);
 
-        let realtime = this._calc();
-        if (realtime < 0) {
+        let rate = this._calc();
+        if (rate < 0) {
             return new Promise((resolve, reject) => {
                 resolve();
             });
         }
 
-        cell.Logger.d('Measurer', 'Rate: ' + (realtime / 1024) + ' / ' + (this.threshold / 1024));
+        this.rateList.push(rate);
+        if (this.rateList.length > 20) {
+            this.rateList.splice(0, 1);
+        }
 
-        if (realtime <= this.threshold) {
+        cell.Logger.d('Measurer', 'Rate: ' + (rate / 1024) + ' / ' + (this.threshold / 1024));
+
+        if (rate <= this.threshold) {
             return new Promise((resolve, reject) => {
                 resolve();
             });
         }
         else {
-            let d = realtime - this.threshold;
+            let d = rate - this.threshold;
             return new Promise((resolve, reject) => {
                 let time = d / this.threshold;
                 time = time * 1000; // 转为毫秒

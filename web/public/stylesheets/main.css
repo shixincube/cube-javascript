@@ -1228,6 +1228,17 @@ video {
     font-size: 10px;
 }
 
+.file-trans-panel {
+    display: none;
+}
+.file-trans-panel .file-content {
+    height: auto;
+    min-width: 600px;
+    margin-top: 0rem;
+    padding: 1rem !important;
+    display: none;
+}
+
 .no-file {
     position: absolute;
     float: left;

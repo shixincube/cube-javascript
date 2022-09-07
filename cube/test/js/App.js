@@ -207,7 +207,15 @@ var App = Class({
 
                 that.fileName = file.name;
 
-                fileStorage.uploadFile(file);
+                fileStorage.uploadFile(file, function(anchor) {
+
+                }, function(anchor) {
+
+                }, function(fileLabel) {
+
+                }, function(error) {
+
+                });
             };
         }
         else {
