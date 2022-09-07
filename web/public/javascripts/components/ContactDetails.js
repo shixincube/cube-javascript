@@ -103,7 +103,7 @@
 
 
     var addContact = function(e) {
-        
+        // app.contactsCtrl.
     }
 
     var gotoMessaging = function(e) {

@@ -613,9 +613,6 @@
                     // 会议信息加载
                     confCtrl.ready();
 
-                    // 联系人控制器就绪
-                    contactsCtrl.ready();
-
                     console.log('Cube WebApp Ready');
                 });
             });
@@ -625,12 +622,15 @@
          * 进行数据加载和界面信息更新。
          */
         prepare: function(callback) {
-            //var itemMap = {
-            //    count: 0
-            //};
+            // 联系人控制器就绪
+            contactsCtrl.ready(function() {
+                // 添加自己
+                cubeContacts.push(cube.contact.getSelf());
 
-            // 处理函数
-            var process = function(contactList, pendingList) {
+                callback();
+            });
+
+            /*var process = function(contactList, pendingList) {
                 // contactList | pendingList - Array<ContactZoneParticipant>
                 contactList.forEach(function(value) {
                     contactsCtrl.addContact(value);
@@ -666,39 +666,11 @@
                     }
 
                     process(contactList, pendingList);
-
-                    // FIXME 引擎会自行调用获取上下文数据的回调函数。
-                    /*if (contactIds.length > 0) {
-                        $.get(server.url + '/account/info/', {
-                            "list": contactIds.toString(),
-                            "token": token
-                        }, function(response, status, xhr) {
-                            // 处理
-                            process(response);
-                        });
-                    }
-                    else {
-                        process([]);
-                    }*/
                 });
             }, function(error) {
                 console.log(error);
                 process([], []);
-            });
-        },
-
-        /**
-         * 准备群组数据。
-         */
-        prepareGroups: function(callback) {
-            cube.contact.queryGroups(function(groups) {
-                for (var i = 0; i < groups.length; ++i) {
-                    var group = groups[i];
-                    contactsCtrl.updateGroup(group);
-                }
-
-                callback();
-            });
+            });*/
         },
 
         /**

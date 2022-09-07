@@ -161,9 +161,6 @@
         paginationEl = el.find('.pagination');
 
         dialogEl.on('hidden.bs.modal', function(e) {
-            // paginationEl.find('.page-goto').each(function(index) {
-            //     $(this).remove();
-            // });
             paginationEl.find('.page-goto').remove();
         });
     }

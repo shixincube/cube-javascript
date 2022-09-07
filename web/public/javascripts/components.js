@@ -1231,9 +1231,6 @@
         paginationEl = el.find('.pagination');
 
         dialogEl.on('hidden.bs.modal', function(e) {
-            // paginationEl.find('.page-goto').each(function(index) {
-            //     $(this).remove();
-            // });
             paginationEl.find('.page-goto').remove();
         });
     }
@@ -6444,7 +6441,7 @@
 
 
     var addContact = function(e) {
-        
+        // app.contactsCtrl.
     }
 
     var gotoMessaging = function(e) {
@@ -12221,7 +12218,7 @@
 
         btnRefresh = $('.contacts-card').find('button[data-target="refresh"]');
         btnRefresh.on('click', function() {
-            that.update();
+            that.update(true);
         });
 
         currentTable = contactsTable;
@@ -12233,19 +12230,51 @@
      */
     ContactsController.prototype.ready = function(callback) {
         // 重置列表
+        contactList = [];
+        groupList = [];
         pendingList = [];
 
-        // 获取待处理列表
-        cube.contact.getDefaultContactZone(function(zone) {
-            zone.getParticipantsByExcluding(ContactZoneParticipantState.Normal, function(list) {
-                list.forEach(function(participant) {
-                    that.addPending(participant);
-                });
+        var gotContacts = false;
+        var gotGroups = false;
 
+        var fireCallback = function() {
+            if (gotContacts && gotGroups) {
                 if (callback) {
                     callback();
                 }
+            }
+        };
+
+        // 从 Cube 里获取默认的联系人分组
+        cube.contact.getDefaultContactZone(function(zone) {
+            // 获取分区里所有参与人
+            zone.getParticipants(function(list) {
+                for (var i = 0; i < list.length; ++i) {
+                    var participant = list[i];
+                    if (participant.state == ContactZoneParticipantState.Normal) {
+                        that.addContact(participant);
+                    }
+                    else {
+                        that.addPending(participant);
+                    }
+                }
+
+                gotContacts = true;
+                fireCallback();
             });
+        }, function(error) {
+            console.log(error);
+            process([], []);
+        });
+
+        cube.contact.queryGroups(function(groups) {
+            for (var i = 0; i < groups.length; ++i) {
+                var group = groups[i];
+                that.updateGroup(group);
+            }
+
+            gotGroups = true;
+            fireCallback();
         });
 
         // 更新阻止清单
@@ -12435,6 +12464,21 @@
     }
 
     /**
+     * 
+     * @param {*} zoneName 
+     * @param {*} contactId 
+     */
+    ContactsController.prototype.promptAddContactToZone = function(contactId) {
+        g.dialog.showPrompt('添加联系人', '附言', function(ok, value) {
+            if (ok) {
+                g.app.contactsCtrl.addContactToZone(contactId, value, function(contact) {
+                    
+                });
+            }
+        }, '您好，我是“' + g.app.account.name + '”。');
+    }
+
+    /**
      * 删除联系人。
      * @param {number} index 
      */
@@ -12543,13 +12587,12 @@
 
     /**
      * 添加联系人到指定分区。
-     * @param {string} zoneName
      * @param {number} contactId 
      * @param {string} postscript
      * @param {function} [callback]
      */
-    ContactsController.prototype.addContactToZone = function(zoneName, contactId, postscript, callback) {
-        cube.contact.getContactZone(zoneName, function(contactZone) {
+    ContactsController.prototype.addContactToZone = function(contactId, postscript, callback) {
+        cube.contact.getDefaultContactZone(function(contactZone) {
             contactZone.addParticipant(contactId, postscript, function(zone, participant) {
                 // 更新表格
                 if (participant.state == ContactZoneParticipantState.Pending) {
@@ -12560,7 +12603,7 @@
                 }
 
                 if (callback) {
-                    callback();
+                    callback(participant.contact);
                 }
             }, function(error) {
                 g.dialog.toast('申请添加联系人出错：' + error.code, Toast.Error);
@@ -12582,7 +12625,7 @@
                     // 更新黑名单
                     blockTable.update(blockList);
                     // 添加到 Zone
-                    that.addContactToZone(g.app.contactZone, id, '');
+                    // TODO that.addContactToZone(id, '');
                 });
             }
         });
@@ -12614,7 +12657,11 @@
     /**
      * 更新数据。
      */
-    ContactsController.prototype.update = function() {
+    ContactsController.prototype.update = function(reload) {
+        if (undefined !== reload && reload) {
+
+        }
+
         contactsTable.update(contactList);
         groupsTable.update(groupList);
         pendingTable.update(pendingList);
@@ -13262,7 +13309,7 @@
 
         var html = [
             '<div class="row align-items-center" data="', contact.getId(), '">',
-                '<div class="col-2"><img src="', avatar, '" class="avatar"></div>',
+                '<div class="col-2 text-right"><img src="', avatar, '" class="avatar"></div>',
                 '<div class="col-7">',
                     '<span><a href="javascript:app.contactDetails.show(', contact.getId(), ');">', contact.getName(), '</a></span>',
                     '&nbsp;<span class="text-muted">(', contact.getId(), ')</span>',
@@ -13286,8 +13333,7 @@
                     action = '<span class="text-muted">已添加</span>';
                 }
                 else {
-                    action = '<button class="btn btn-sm btn-default" onclick="app.searchDialog.fireAddContactToZone(\''
-                                + zone.getName() + '\',' + current.getId() + ')">添加联系人</button>';
+                    action = '<button class="btn btn-sm btn-default" onclick="app.searchDialog.promptAddContact(' + current.getId() + ')">添加联系人</button>';
                 }
                 rowEl.find('div[data-target="action"]').html(action);
             }, function(error) {
@@ -13319,11 +13365,11 @@
         // });
     }
 
-    SearchDialog.prototype.fireAddContactToZone = function(zoneName, contactId) {
+    SearchDialog.prototype.promptAddContact = function(contactId) {
         var that = this;
         g.dialog.showPrompt('添加联系人', '附言', function(ok, value) {
             if (ok) {
-                g.app.contactsCtrl.addContactToZone(zoneName, contactId, value, function(contact) {
+                g.app.contactsCtrl.addContactToZone(contactId, value, function(contact) {
                     if (null != contact) {
                         var el = that.resultEl.find('div[data="' + contactId + '"]');
                         el.find('div[data-target="action"]').html('<span class="text-muted">已添加</span>');

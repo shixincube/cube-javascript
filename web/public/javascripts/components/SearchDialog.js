@@ -125,7 +125,7 @@
 
         var html = [
             '<div class="row align-items-center" data="', contact.getId(), '">',
-                '<div class="col-2"><img src="', avatar, '" class="avatar"></div>',
+                '<div class="col-2 text-right"><img src="', avatar, '" class="avatar"></div>',
                 '<div class="col-7">',
                     '<span><a href="javascript:app.contactDetails.show(', contact.getId(), ');">', contact.getName(), '</a></span>',
                     '&nbsp;<span class="text-muted">(', contact.getId(), ')</span>',
@@ -149,8 +149,7 @@
                     action = '<span class="text-muted">已添加</span>';
                 }
                 else {
-                    action = '<button class="btn btn-sm btn-default" onclick="app.searchDialog.fireAddContactToZone(\''
-                                + zone.getName() + '\',' + current.getId() + ')">添加联系人</button>';
+                    action = '<button class="btn btn-sm btn-default" onclick="app.searchDialog.promptAddContact(' + current.getId() + ')">添加联系人</button>';
                 }
                 rowEl.find('div[data-target="action"]').html(action);
             }, function(error) {
@@ -182,11 +181,11 @@
         // });
     }
 
-    SearchDialog.prototype.fireAddContactToZone = function(zoneName, contactId) {
+    SearchDialog.prototype.promptAddContact = function(contactId) {
         var that = this;
         g.dialog.showPrompt('添加联系人', '附言', function(ok, value) {
             if (ok) {
-                g.app.contactsCtrl.addContactToZone(zoneName, contactId, value, function(contact) {
+                g.app.contactsCtrl.addContactToZone(contactId, value, function(contact) {
                     if (null != contact) {
                         var el = that.resultEl.find('div[data="' + contactId + '"]');
                         el.find('div[data-target="action"]').html('<span class="text-muted">已添加</span>');
