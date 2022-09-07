@@ -156,7 +156,7 @@
                     '<td class="text-right">',
                         '<a class="btn btn-primary btn-sm" href="javascript:app.contactsCtrl.gotoMessaging(', i, ');"><i class="fas fa-comments"></i> 发消息</a>',
                         '<a class="btn btn-info btn-sm" href="javascript:app.contactsCtrl.editRemark(', i, ');" style="margin-left:8px;"><i class="fas fa-pencil-alt"></i> 备注</a>',
-                        '<a class="btn btn-danger btn-sm" href="javascript:app.contactsCtrl.remove(', i, ');" style="margin-left:8px;"><i class="fas fa-user-minus"></i> 删除</a>',
+                        '<a class="btn btn-danger btn-sm" href="javascript:app.contactsCtrl.promptRemove(', i, ');" style="margin-left:8px;"><i class="fas fa-user-minus"></i> 删除</a>',
                         '<a class="btn btn-secondary btn-sm" href="javascript:app.contactsCtrl.blockContact(', i, ');" style="margin-left:8px;"><i class="fas fa-user-slash"></i> 黑名单</a>',
                     '</td>',
                 '</tr>'

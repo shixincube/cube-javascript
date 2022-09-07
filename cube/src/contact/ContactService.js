@@ -893,6 +893,41 @@ export class ContactService extends Module {
     }
 
     /**
+     * 从指定分区里移除参与人。
+     * @private
+     * @param {ContactZone} zone 指定分区。
+     * @param {ContactZoneParticipant} participant 指定分区参与人。
+     * @param {function} handleSuccess 操作成功回调该方法，参数：({@linkcode zone}:{@link ContactZone}, {@linkcode participant}:{@link ContactZoneParticipant})。
+     * @param {function} handleFailure 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
+     */
+    removeParticipantFromZone(zone, participant, handleSuccess, handleFailure) {
+        let packet = new Packet(ContactAction.RemoveParticipantFromZone, {
+            "name": zone.name,
+            "participant": participant.toCompactJSON()
+        });
+        this.pipeline.send(ContactService.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null != responsePacket && responsePacket.getStateCode() == PipelineState.OK) {
+                if (responsePacket.data.code == ContactServiceState.Ok) {
+                    let data = responsePacket.extractServiceData();
+                    let timestamp = data.timestamp;
+
+                    // 移除
+                    zone.removeParticipant(participant);
+                    zone.timestamp = timestamp;
+
+                    handleSuccess(zone, participant);
+                }
+                else {
+                    handleFailure(new ModuleError(ContactService.NAME, responsePacket.data.code, zone));
+                }
+            }
+            else {
+                handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.ServerError, zone));
+            }
+        });
+    }
+
+    /**
      * 修改参与人状态。
      * @private
      * @param {ContactZone} zone 指定分区。

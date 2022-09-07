@@ -265,6 +265,50 @@ export class ContactZone extends Entity {
     }
 
     /**
+     * 移除参与人。
+     * @param {Contact|number} contactOrId 指定联系人或联系人 ID 。
+     * @param {function} handleSuccess 操作成功回调该方法，参数：({@linkcode zone}:{@link ContactZone}, {@linkcode participant}:{@link ContactZoneParticipant})。
+     * @param {function} handleFailure 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
+     */
+    removeParticipant(contactOrId, handleSuccess, handleFailure) {
+        if (contactOrId instanceof ContactZoneParticipant) {
+            let index = -1;
+            for (let i = 0; i < this.participants.length; ++i) {
+                let p = this.participants[i];
+                if (p.id == contactOrId.id) {
+                    index = i;
+                    break;
+                }
+            }
+
+            // 移除
+            if (index >= 0) {
+                this.participants.splice(index, 1);
+            }
+        }
+        else {
+            let participant = null;
+
+            let contactId = (typeof contactOrId === 'number') ? contactOrId : contactOrId.id;
+            for (let i = 0; i < this.participants.length; ++i) {
+                let p = this.participants[i];
+                if (p.id == contactId) {
+                    participant = p;
+                    break;
+                }
+            }
+
+            if (null == participant) {
+                handleFailure(new ModuleError(ContactService.NAME, ContactServiceState.NotAllowed, this));
+                return;
+            }
+
+            // 移除操作
+            this.service.removeParticipantFromZone(this, participant, handleSuccess, handleFailure);
+        }
+     }
+
+    /**
      * 修改参与人状态。
      * @param {Contact|ContactZoneParticipant} contactOrParticipant 指定联系人或者参与人。
      * @param {ContactZoneParticipantState} state 指定状态。

@@ -11463,7 +11463,7 @@
                     '<td class="text-right">',
                         '<a class="btn btn-primary btn-sm" href="javascript:app.contactsCtrl.gotoMessaging(', i, ');"><i class="fas fa-comments"></i> 发消息</a>',
                         '<a class="btn btn-info btn-sm" href="javascript:app.contactsCtrl.editRemark(', i, ');" style="margin-left:8px;"><i class="fas fa-pencil-alt"></i> 备注</a>',
-                        '<a class="btn btn-danger btn-sm" href="javascript:app.contactsCtrl.remove(', i, ');" style="margin-left:8px;"><i class="fas fa-user-minus"></i> 删除</a>',
+                        '<a class="btn btn-danger btn-sm" href="javascript:app.contactsCtrl.promptRemove(', i, ');" style="margin-left:8px;"><i class="fas fa-user-minus"></i> 删除</a>',
                         '<a class="btn btn-secondary btn-sm" href="javascript:app.contactsCtrl.blockContact(', i, ');" style="margin-left:8px;"><i class="fas fa-user-slash"></i> 黑名单</a>',
                     '</td>',
                 '</tr>'
@@ -12438,13 +12438,27 @@
      * 删除联系人。
      * @param {number} index 
      */
-    ContactsController.prototype.remove = function(index) {
+    ContactsController.prototype.promptRemove = function(index) {
         var contact = contactsTable.getCurrentContact(index);
         g.dialog.showConfirm('删除联系人', '您确认要从“我的联系人”里删除“<b>' + contact.getPriorityName() + '</b>”？', function(yesOrNo) {
             if (yesOrNo) {
-                cube.contact.removeContactFromZone(g.app.contactZone, contact.getId(), function(zoneName, contactId) {
-                    that.removeContact(contact);
-                    g.app.messagingCtrl.removeContact(contact);
+                g.dialog.showLoading('删除联系人');
+
+                cube.contact.getDefaultContactZone(function(contactZone) {
+                    contactZone.removeParticipant(contact, function(zone, participant) {
+                        // 从表格里删除
+                        that.removeContact(participant.contact);
+                        // 从消息目录里删除
+                        g.app.messagingCtrl.removeContact(contact);
+
+                        g.dialog.hideLoading();
+                    }, function(error) {
+                        g.dialog.hideLoading();
+                        g.dialog.toast('移除联系人出错：' + error.code, Toast.Error);
+                    });
+                }, function(error) {
+                    g.dialog.hideLoading();
+                    g.dialog.toast('读取联系人分区出错：' + error.code, Toast.Error);
                 });
             }
         });
