@@ -129,6 +129,12 @@ export class FileLabel extends Entity {
          * @type {number}
          */
         this.sn = 0;
+
+        /**
+         * 传输速率。
+         * @type {number}
+         */
+        this.averageSpeed = 0;
     }
 
     /**

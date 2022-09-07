@@ -597,6 +597,8 @@ export class FileStorage extends Module {
 
             // 同步 SN
             fileLabel.sn = fileAnchor.sn;
+            // 速率
+            fileLabel.averageSpeed = this.measurer.averageRate();
 
             callback(fileLabel);
 

@@ -48,6 +48,16 @@
         ];
     }
 
+    var refreshTableRow = function(fileAnchor) {
+        var row = tableEl.find('tr[data-sn="' + fileAnchor.sn + '"]');
+        var cols = row.find('td');
+        cols.eq(0).text(Math.round(fileAnchor.position / fileAnchor.fileSize) + '%');
+    }
+
+    var markFinishRow = function(fileLabel) {
+
+    }
+
     var FileTransferPanel = function() {
         panelEl = $('.file-trans-panel');
         tableEl = panelEl.find('tbody[data-target="surface"]');
@@ -87,11 +97,11 @@
     }
 
     FileTransferPanel.prototype.fireUploading = function(fileAnchor) {
-
+        refreshTableRow(fileAnchor);
     }
 
     FileTransferPanel.prototype.fireUploadEnd = function(folder, fileLabel) {
-
+        markFinishRow(fileLabel);
     }
 
     g.FileTransferPanel = FileTransferPanel;
