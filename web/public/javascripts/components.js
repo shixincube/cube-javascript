@@ -8942,21 +8942,26 @@
         transPanel.fireUploadEnd(folder, fileLabel);
     }
 
-    FileCatalogue.prototype.onFileDownload = function(fileCode) {
+    FileCatalogue.prototype.onFileDownload = function(fileLabel, fileAnchor) {
+        var fileCode = fileLabel.getFileCode();
+
         if (!downloadingArray.contains(fileCode)) {
             downloadingArray.push(fileCode);
         }
         btnDownloading.find('.badge').text(downloadingArray.length);
 
-        transPanel.fireDownloadStart(fileCode);
+        transPanel.fireDownloadStart(fileLabel, fileAnchor);
     }
 
-    FileCatalogue.prototype.onFileDownloaded = function(fileLabel) {
+    FileCatalogue.prototype.onFileDownloading = function(fileLabel, fileAnchor) {
+        transPanel.fireDownloading(fileLabel, fileAnchor);
+    }
+
+    FileCatalogue.prototype.onFileDownloaded = function(fileLabel, fileAnchor) {
         ++numCompleted;
         btnComplete.find('.badge').text(numCompleted);
 
-        var fileCode = (typeof fileLabel == 'string') ? fileLabel : fileLabel.getFileCode();
-        downloadingArray.remove(fileCode);
+        downloadingArray.remove(fileLabel.getFileCode());
         if (downloadingArray.length > 0) {
             btnDownloading.find('.badge').text(downloadingArray.length);
         }
@@ -8964,9 +8969,7 @@
             btnDownloading.find('.badge').text('');
         }
 
-        if (fileLabel instanceof FileLabel) {
-            transPanel.fireDownloadEnd(fileLabel);
-        }
+        transPanel.fireDownloadEnd(fileLabel, fileAnchor);
     }
 
     g.FileCatalogue = FileCatalogue;
@@ -10699,19 +10702,41 @@
      * @param {string} fileCode 
      */
     FilePanel.prototype.downloadFile = function(fileCode) {
-        if (simpleDownload) {
-            // 触发 Download 事件
-            g.app.fileCatalog.onFileDownload(fileCode);
-
-            cube().fs.downloadFileWithHyperlink(fileCode, function(fileLabel) {
-                g.app.fileCatalog.onFileDownloaded(fileLabel);
-            }, function(error) {
-                g.app.fileCatalog.onFileDownloaded(fileCode);
-            });
-        }
-        else {
-            alert(fileCode);
-        }
+        cube().fs.getFileLabel(fileCode, function(fileLabel) {
+            if (fileLabel.getFileSize() < 100 * 1024 * 1024) {
+                // 小于 100 MB 文件使用下载器下载
+                cube().fs.downloadFile(fileLabel, function(fileLabel, fileAnchor) {
+                    // 开始
+                    g.app.fileCatalog.onFileDownload(fileLabel, fileAnchor);
+                }, function(fileLabel, fileAnchor) {
+                    // 下载中
+                    g.app.fileCatalog.onFileDownloading(fileLabel, fileAnchor);
+                }, function(fileLabel, fileAnchor) {
+                    // 下载成功
+                    g.app.fileCatalog.onFileDownloaded(fileLabel, fileAnchor);
+                }, function(error) {
+                    // 下载出错
+                    g.dialog.toast('下载文件出错：' + error.code, Toast.Error);
+                });
+            }
+            else {
+                // 大于 100 MB 文件
+                cube().fs.downloadFileWithHyperlink(fileLabel, function(fileLabel, fileAnchor) {
+                    // 开始
+                    g.app.fileCatalog.onFileDownload(fileLabel, fileAnchor);
+                }, function(fileLabel, fileAnchor) {
+                    // 触发 Downloading 事件
+                    g.app.fileCatalog.onFileDownloading(fileLabel, fileAnchor);
+                }, function(fileLabel, fileAnchor) {
+                    // 触发事件
+                    g.app.fileCatalog.onFileDownloaded(fileLabel, fileAnchor);
+                }, function(error) {
+                    g.dialog.toast('下载文件出错：' + error.code, Toast.Error);
+                });
+            }
+        }, function(error) {
+            g.dialog.toast('查找文件出错：' + error.code, Toast.Error);
+        });
     }
 
     /**
@@ -11440,14 +11465,14 @@
     var currentPage = 0;
 
     var uploadFileAnchorList = [];
-    var downloadFileLabelList = [];
+    var downloadFileAnchorList = [];
 
     var fileLabelMap = new OrderMap();
 
     var makeTableRowWithFileAnchor = function(fileAnchor) {
         var progress = Math.round(fileAnchor.position / fileAnchor.fileSize * 100);
         if (progress == 100) {
-            progress = '<span class="text-success" title="已上传"><i class="far fa-check-circle"></i></span>';
+            progress = '<span class="text-success" title="已完成"><i class="far fa-check-circle"></i></span>';
         }
         else {
             progress = progress + '%';
@@ -11461,7 +11486,7 @@
         var rate = '--';
         if (null != fileAnchor.fileCode) {
             var fileLabel = fileLabelMap.get(fileAnchor.fileCode);
-            if (null != fileLabel) {
+            if (null != fileLabel && 0 != fileLabel.averageSpeed) {
                 rate = g.formatSize(fileLabel.averageSpeed) + '/s';
             }
         }
@@ -11504,8 +11529,10 @@
         else {
             var fileLabel = fileAnchorOrLabel;
 
-            var row = tableEl.find('tr[data-sn="' + fileLabel.sn + '"]');
-            row.find('.speed-rate').html(g.formatSize(fileLabel.averageSpeed) + '/s');
+            if (0 != fileLabel.averageSpeed) {
+                var row = tableEl.find('tr[data-sn="' + fileLabel.sn + '"]');
+                row.find('.speed-rate').html(g.formatSize(fileLabel.averageSpeed) + '/s');
+            }
         }
     }
 
@@ -11525,11 +11552,16 @@
 
         popover = activePopover;
         panelEl.css('display', 'block');
+        panelEl.find('.list-title').text('上传列表');
 
         if (uploadFileAnchorList.length > 0) {
             panelEl.find('.no-data').css('display', 'none');
             panelEl.find('.file-content').css('display', 'block');
             this.updateUpload();
+        }
+        else {
+            panelEl.find('.no-data').css('display', 'block');
+            panelEl.find('.file-content').css('display', 'none');
         }
     }
 
@@ -11538,19 +11570,21 @@
 
         popover = activePopover;
         panelEl.css('display', 'block');
+        panelEl.find('.list-title').text('下载列表');
 
-        if (downloadFileLabelList.length > 0) {
+        if (downloadFileAnchorList.length > 0) {
             panelEl.find('.no-data').css('display', 'none');
             panelEl.find('.file-content').css('display', 'block');
             this.updateDownload();
+        }
+        else {
+            panelEl.find('.no-data').css('display', 'block');
+            panelEl.find('.file-content').css('display', 'none');
         }
     }
 
     FileTransferPanel.prototype.hide = function() {
         currentPage = 0;
-
-        panelEl.find('.no-data').css('display', 'block');
-        panelEl.find('.file-content').css('display', 'none');
     }
 
     FileTransferPanel.prototype.numUploadHistory = function() {
@@ -11558,9 +11592,12 @@
     }
 
     FileTransferPanel.prototype.numDownloadHistory = function() {
-        return downloadFileLabelList.length;
+        return downloadFileAnchorList.length;
     }
 
+    /**
+     * 更新上传记录表格。
+     */
     FileTransferPanel.prototype.updateUpload = function() {
         tableEl.html('');
 
@@ -11569,10 +11606,21 @@
         });
     }
 
+    /**
+     * 更新下载记录表格。
+     */
     FileTransferPanel.prototype.updateDownload = function() {
         tableEl.html('');
+
+        downloadFileAnchorList.forEach(function(fileAnchor) {
+            tableEl.append($(makeTableRowWithFileAnchor(fileAnchor).join('')));
+        });
     }
 
+    /**
+     * Fire Upload Start Event
+     * @param {FileAnchor} fileAnchor 
+     */
     FileTransferPanel.prototype.fireUploadStart = function(fileAnchor) {
         uploadFileAnchorList.push(fileAnchor);
 
@@ -11585,12 +11633,21 @@
         }
     }
 
+    /**
+     * Fire Uploading Event
+     * @param {FileAnchor} fileAnchor 
+     */
     FileTransferPanel.prototype.fireUploading = function(fileAnchor) {
         if (currentPage == 1) {
             refreshTableRow(fileAnchor);
         }
     }
 
+    /**
+     * Fire Upload End Event
+     * @param {Directory} folder 
+     * @param {FileLabel} fileLabel 
+     */
     FileTransferPanel.prototype.fireUploadEnd = function(folder, fileLabel) {
         fileLabelMap.put(fileLabel.fileCode, fileLabel);
 
@@ -11599,16 +11656,43 @@
         }
     }
 
-    FileTransferPanel.prototype.fireDownloadStart = function(fileCode) {
-        g.cube().fs.getFileLabel(fileCode, function(fileLabel) {
-            
-        }, function(error) {
+    /**
+     * Fire Download Start Event
+     * @param {FileLabel} fileLabel 
+     */
+    FileTransferPanel.prototype.fireDownloadStart = function(fileLabel, fileAnchor) {
+        downloadFileAnchorList.push(fileAnchor);
 
-        });
+        if (currentPage == 2) {
+            if (downloadFileAnchorList.length > 0) {
+                panelEl.find('.no-data').css('display', 'none');
+                panelEl.find('.file-content').css('display', 'block');
+                this.updateDownload();
+            }
+        }
     }
 
-    FileTransferPanel.prototype.fireDownloadEnd = function(fileLabel) {
+    /**
+     * Fire Downloading Event
+     * @param {FileLabel} fileLabel 
+     * @param {FileAnchor} fileAnchor 
+     */
+    FileTransferPanel.prototype.fireDownloading = function(fileLabel, fileAnchor) {
+        if (currentPage == 2) {
+            refreshTableRow(fileAnchor);
+        }
+    }
 
+    /**
+     * Fire Download End Event
+     * @param {FileLabel} fileLabel 
+     */
+    FileTransferPanel.prototype.fireDownloadEnd = function(fileLabel, fileAnchor) {
+        fileLabelMap.put(fileLabel.fileCode, fileLabel);
+
+        if (currentPage == 2) {
+            refreshTableRow(fileLabel);
+        }
     }
 
     g.FileTransferPanel = FileTransferPanel;

@@ -1388,19 +1388,41 @@
      * @param {string} fileCode 
      */
     FilePanel.prototype.downloadFile = function(fileCode) {
-        if (simpleDownload) {
-            // 触发 Download 事件
-            g.app.fileCatalog.onFileDownload(fileCode);
-
-            cube().fs.downloadFileWithHyperlink(fileCode, function(fileLabel) {
-                g.app.fileCatalog.onFileDownloaded(fileLabel);
-            }, function(error) {
-                g.app.fileCatalog.onFileDownloaded(fileCode);
-            });
-        }
-        else {
-            alert(fileCode);
-        }
+        cube().fs.getFileLabel(fileCode, function(fileLabel) {
+            if (fileLabel.getFileSize() < 100 * 1024 * 1024) {
+                // 小于 100 MB 文件使用下载器下载
+                cube().fs.downloadFile(fileLabel, function(fileLabel, fileAnchor) {
+                    // 开始
+                    g.app.fileCatalog.onFileDownload(fileLabel, fileAnchor);
+                }, function(fileLabel, fileAnchor) {
+                    // 下载中
+                    g.app.fileCatalog.onFileDownloading(fileLabel, fileAnchor);
+                }, function(fileLabel, fileAnchor) {
+                    // 下载成功
+                    g.app.fileCatalog.onFileDownloaded(fileLabel, fileAnchor);
+                }, function(error) {
+                    // 下载出错
+                    g.dialog.toast('下载文件出错：' + error.code, Toast.Error);
+                });
+            }
+            else {
+                // 大于 100 MB 文件
+                cube().fs.downloadFileWithHyperlink(fileLabel, function(fileLabel, fileAnchor) {
+                    // 开始
+                    g.app.fileCatalog.onFileDownload(fileLabel, fileAnchor);
+                }, function(fileLabel, fileAnchor) {
+                    // 触发 Downloading 事件
+                    g.app.fileCatalog.onFileDownloading(fileLabel, fileAnchor);
+                }, function(fileLabel, fileAnchor) {
+                    // 触发事件
+                    g.app.fileCatalog.onFileDownloaded(fileLabel, fileAnchor);
+                }, function(error) {
+                    g.dialog.toast('下载文件出错：' + error.code, Toast.Error);
+                });
+            }
+        }, function(error) {
+            g.dialog.toast('查找文件出错：' + error.code, Toast.Error);
+        });
     }
 
     /**

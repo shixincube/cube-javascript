@@ -128,7 +128,7 @@ export class FileLabel extends Entity {
          * 操作序号。
          * @type {number}
          */
-        this.sn = 0;
+        this.sn = id;
 
         /**
          * 传输速率。

@@ -2916,7 +2916,7 @@
 
     
 
-    <h4 class="name" id="downloadFile"><span class="type-signature"></span>downloadFile<span class="signature">(fileOrFileCode, handleProcessing<span class="signature-attributes">opt</span>, handleSuccess<span class="signature-attributes">opt</span>, handleFailure<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="downloadFile"><span class="type-signature"></span>downloadFile<span class="signature">(fileOrFileCode, handleStart<span class="signature-attributes">opt</span>, handleProcessing<span class="signature-attributes">opt</span>, handleSuccess<span class="signature-attributes">opt</span>, handleFailure<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
 
     
 
@@ -3037,6 +3037,39 @@
 
         <tr>
             
+                <td class="name"><code>handleStart</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>下载开始时回调。参数：(<code>fileLabel</code>:<a href="FileLabel.html">FileLabel</a>, <code>fileAnchor</code>:<a href="FileAnchor.html">FileAnchor</a>)。</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>handleProcessing</code></td>
             
 
@@ -3063,7 +3096,7 @@
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>下载数据正在接收时回调。参数：(<code>fileLabel</code>:<a href="FileLabel.html">FileLabel</a>, <code>fileAnchor</code>:<a href="FileAnchor.html">FileAnchor</a>)。</p></td>
         </tr>
 
     
@@ -3096,7 +3129,7 @@
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>下载成功时回调。参数：(<code>fileLabel</code>:<a href="FileLabel.html">FileLabel</a>, <code>fileAnchor</code>:<a href="FileAnchor.html">FileAnchor</a>)。</p></td>
         </tr>
 
     
@@ -3129,7 +3162,7 @@
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>下载失败时回调。参数：(<code>error</code>:<a href="ModuleError.html">ModuleError</a>)。</p></td>
         </tr>
 
     
@@ -3159,7 +3192,7 @@
 
     
 
-    <h4 class="name" id="downloadFileWithHyperlink"><span class="type-signature"></span>downloadFileWithHyperlink<span class="signature">(fileOrFileCode, handleSuccess, handleFailure)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="downloadFileWithHyperlink"><span class="type-signature"></span>downloadFileWithHyperlink<span class="signature">(fileOrFileCode, handleStart, handleProcessing, handleSuccess, handleFailure)</span><span class="type-signature"></span></h4>
 
     
 
@@ -3263,7 +3296,53 @@
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>指定文件标签或者文件码。</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>handleStart</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>下载开始时回调。参数：(<code>fileLabel</code>:<a href="FileLabel.html">FileLabel</a>, <code>fileAnchor</code>:<a href="FileAnchor.html">FileAnchor</a>)。</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>handleProcessing</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">funciton</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>下载数据正在接收时回调。参数：(<code>fileLabel</code>:<a href="FileLabel.html">FileLabel</a>, <code>fileAnchor</code>:<a href="FileAnchor.html">FileAnchor</a>)。</p></td>
         </tr>
 
     
@@ -3276,7 +3355,7 @@
             <td class="type">
             
                 
-<span class="param-type">function</span>
+<span class="param-type">funciton</span>
 
 
             
@@ -3286,7 +3365,7 @@
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>下载成功时回调。参数：(<code>fileLabel</code>:<a href="FileLabel.html">FileLabel</a>, <code>fileAnchor</code>:<a href="FileAnchor.html">FileAnchor</a>)。</p></td>
         </tr>
 
     
@@ -3299,7 +3378,7 @@
             <td class="type">
             
                 
-<span class="param-type">function</span>
+<span class="param-type">funciton</span>
 
 
             
@@ -3309,7 +3388,7 @@
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>下载失败时回调。参数：(<code>error</code>:<a href="ModuleError.html">ModuleError</a>)。</p></td>
         </tr>
 
     

@@ -650,11 +650,21 @@ export class FileStorage extends Module {
     /**
      * 使用超链接方式下载文件。
      * @param {string|FileLabel} fileOrFileCode 指定文件标签或者文件码。
-     * @param {function} handleSuccess 操作成功回调。参数：({@linkcode fileLabel}:{@link FileLabel}) 。
-     * @param {function} handleFailure 操作失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     * @param {function} handleStart 下载开始时回调。参数：({@linkcode fileLabel}:{@link FileLabel}, {@linkcode fileAnchor}:{@link FileAnchor})。
+     * @param {funciton} handleProcessing 下载数据正在接收时回调。参数：({@linkcode fileLabel}:{@link FileLabel}, {@linkcode fileAnchor}:{@link FileAnchor})。
+     * @param {funciton} handleSuccess 下载成功时回调。参数：({@linkcode fileLabel}:{@link FileLabel}, {@linkcode fileAnchor}:{@link FileAnchor})。
+     * @param {funciton} handleFailure 下载失败时回调。参数：({@linkcode error}:{@link ModuleError})。
      */
-    downloadFileWithHyperlink(fileOrFileCode, handleSuccess, handleFailure) {
+    downloadFileWithHyperlink(fileOrFileCode, handleStart, handleProcessing, handleSuccess, handleFailure) {
         let handle = (fileLabel) => {
+            let anchor = new FileAnchor(fileLabel.sn);
+            anchor.fileCode = fileLabel.fileCode;
+            anchor.fileName = fileLabel.fileName;
+            anchor.fileSize = fileLabel.fileSize;
+            anchor.lastModified = fileLabel.lastModified;
+
+            handleStart(fileLabel, anchor);
+
             // 创建标签
             let a = document.createElement('a');
             a.style.display = 'inline';
@@ -674,10 +684,12 @@ export class FileStorage extends Module {
             document.body.appendChild(a);
             a.click();
 
+            handleProcessing(fileLabel, anchor);
+
             setTimeout(() => {
-                if (handleSuccess) {
-                    handleSuccess(fileLabel);
-                }
+                anchor._markSuccess();
+
+                handleSuccess(fileLabel, anchor);
 
                 a.parentElement.removeChild(a);
             }, 1000);
@@ -692,9 +704,7 @@ export class FileStorage extends Module {
             }, (e) => {
                 let error = new ModuleError(FileStorage.NAME, FileStorageState.GetFileLabelFailed, e);
                 this.notifyObservers(new ObservableEvent(FileStorageEvent.DownloadFailed, error));
-                if (handleFailure) {
-                    handleFailure(error);
-                }
+                handleFailure(error);
             });
         }
     }
@@ -702,13 +712,19 @@ export class FileStorage extends Module {
     /**
      * 下载文件。
      * @param {FileLabel|string} fileOrFileCode 文件标签或文件码。
-     * @param {function} [handleStart] 下载开始时回调。参数：({@linkcode fileLabel}:{@link FileLabel})。
-     * @param {funciton} [handleProcessing] 下载数据正在接收时回调。参数：({@linkcode fileLabel}:{@link FileLabel}, {@linkcode loadedSize}:number, {@linkcode totalSize}:number)。
-     * @param {funciton} [handleSuccess] 下载成功时回调。参数：({@linkcode fileLabel}:{@link FileLabel})。
+     * @param {function} [handleStart] 下载开始时回调。参数：({@linkcode fileLabel}:{@link FileLabel}, {@linkcode fileAnchor}:{@link FileAnchor})。
+     * @param {funciton} [handleProcessing] 下载数据正在接收时回调。参数：({@linkcode fileLabel}:{@link FileLabel}, {@linkcode fileAnchor}:{@link FileAnchor})。
+     * @param {funciton} [handleSuccess] 下载成功时回调。参数：({@linkcode fileLabel}:{@link FileLabel}, {@linkcode fileAnchor}:{@link FileAnchor})。
      * @param {funciton} [handleFailure] 下载失败时回调。参数：({@linkcode error}:{@link ModuleError})。
      */
     downloadFile(fileOrFileCode, handleStart, handleProcessing, handleSuccess, handleFailure) {
         let handle = (fileLabel) => {
+            let anchor = new FileAnchor(fileLabel.sn);
+            anchor.fileCode = fileLabel.fileCode;
+            anchor.fileName = fileLabel.fileName;
+            anchor.fileSize = fileLabel.fileSize;
+            anchor.lastModified = fileLabel.lastModified;
+
             var fileURL = null;
             this.getFileURL(fileLabel, (fileLabel, httpURL, httpsURL) => {
                 let url = this.secure ? httpsURL : httpURL;
@@ -718,7 +734,7 @@ export class FileStorage extends Module {
             });
 
             if (handleStart) {
-                handleStart(fileLabel);
+                handleStart(fileLabel, anchor);
             }
 
             let packet = new Packet('GET', null);
@@ -729,7 +745,10 @@ export class FileStorage extends Module {
 
             this.filePipeline.send(fileURL, packet, (pipeline, source, packet) => {
                 if (null == packet) {
-                    let error = new ModuleError(FileStorage.NAME, FileStorageState.DownloadFailed, fileLabel);
+                    // 标记
+                    anchor._markFailure();
+
+                    let error = new ModuleError(FileStorage.NAME, FileStorageState.DownloadFailed, anchor);
                     cell.Logger.e('FileStorage', '#downloadFile - Read data from pipeline failed - ' + fileLabel.fileName);
                     if (handleFailure) {
                         handleFailure(error);
@@ -741,8 +760,14 @@ export class FileStorage extends Module {
                 let reader = new FileReader();
                 reader.readAsDataURL(blob);
                 reader.onload = (e) => {
+                    // 标记
+                    anchor._markSuccess();
+
+                    // 计算速率
+                    fileLabel.averageSpeed = anchor.fileSize / ((anchor.endTime - anchor.timestamp) / 1000.0);
+
                     if (handleSuccess) {
-                        handleSuccess(fileLabel);
+                        handleSuccess(fileLabel, anchor);
                     }
 
                     // 事件通知
@@ -761,8 +786,11 @@ export class FileStorage extends Module {
                     a.parentElement.removeChild(a);
                 }
             }, (loaded, total) => {
+                // 更新进度
+                anchor.position = loaded;
+
                 if (handleProcessing) {
-                    handleProcessing(fileLabel, loaded, total);
+                    handleProcessing(fileLabel, anchor);
                 }
             });
         };

@@ -298,21 +298,26 @@
         transPanel.fireUploadEnd(folder, fileLabel);
     }
 
-    FileCatalogue.prototype.onFileDownload = function(fileCode) {
+    FileCatalogue.prototype.onFileDownload = function(fileLabel, fileAnchor) {
+        var fileCode = fileLabel.getFileCode();
+
         if (!downloadingArray.contains(fileCode)) {
             downloadingArray.push(fileCode);
         }
         btnDownloading.find('.badge').text(downloadingArray.length);
 
-        transPanel.fireDownloadStart(fileCode);
+        transPanel.fireDownloadStart(fileLabel, fileAnchor);
     }
 
-    FileCatalogue.prototype.onFileDownloaded = function(fileLabel) {
+    FileCatalogue.prototype.onFileDownloading = function(fileLabel, fileAnchor) {
+        transPanel.fireDownloading(fileLabel, fileAnchor);
+    }
+
+    FileCatalogue.prototype.onFileDownloaded = function(fileLabel, fileAnchor) {
         ++numCompleted;
         btnComplete.find('.badge').text(numCompleted);
 
-        var fileCode = (typeof fileLabel == 'string') ? fileLabel : fileLabel.getFileCode();
-        downloadingArray.remove(fileCode);
+        downloadingArray.remove(fileLabel.getFileCode());
         if (downloadingArray.length > 0) {
             btnDownloading.find('.badge').text(downloadingArray.length);
         }
@@ -320,9 +325,7 @@
             btnDownloading.find('.badge').text('');
         }
 
-        if (fileLabel instanceof FileLabel) {
-            transPanel.fireDownloadEnd(fileLabel);
-        }
+        transPanel.fireDownloadEnd(fileLabel, fileAnchor);
     }
 
     g.FileCatalogue = FileCatalogue;
