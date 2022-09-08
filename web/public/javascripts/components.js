@@ -402,6 +402,15 @@
             }
         },
 
+        alert: function(text) {
+            Swal.fire({
+                icon: 'info',
+                title: text,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        },
+
         /**
          * 显示提示输入框。
          * @param {string} title 标题。
@@ -8800,6 +8809,10 @@
             transPanelEl.parent().parent().css('maxWidth', '800px');
         }).on('hide.bs.popover', function() {
             transPanel.hide();
+            if (autoCloseTransPanelTimer > 0) {
+                clearTimeout(autoCloseTransPanelTimer);
+                autoCloseTransPanelTimer = 0;
+            }
             app.globalPopover = null;
         });
 
@@ -8814,11 +8827,24 @@
             transPanelEl.parent().parent().css('maxWidth', '800px');
         }).on('hide.bs.popover', function() {
             transPanel.hide();
+            if (autoCloseTransPanelTimer > 0) {
+                clearTimeout(autoCloseTransPanelTimer);
+                autoCloseTransPanelTimer = 0;
+            }
             app.globalPopover = null;
         });
 
         btnComplete.click(function() {
-            //dialog.launchToast(Toast.Warning, '开发中……');
+            if (null != app.globalPopover) {
+                app.globalPopover.popover('hide');
+            }
+
+            if (0 == numCompleted) {
+                dialog.alert('没有传输记录');
+            }
+            else {
+                dialog.alert('已传输 ' + numCompleted + ' 个文件');
+            }
         });
 
         btnSharing.click(function() {

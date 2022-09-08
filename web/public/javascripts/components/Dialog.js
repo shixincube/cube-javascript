@@ -114,6 +114,15 @@
             }
         },
 
+        alert: function(text) {
+            Swal.fire({
+                icon: 'info',
+                title: text,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        },
+
         /**
          * 显示提示输入框。
          * @param {string} title 标题。
