@@ -1196,6 +1196,10 @@
      * @param {*} item 
      */
     FilePanel.prototype.openCreateSharingTagDialog = function(item) {
+        if (null != app.globalPopover) {
+            app.globalPopover.popover('hide');
+        }
+
         var el = dialogCreateSharingTag;
 
         var show = function(fileLabel) {

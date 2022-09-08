@@ -95,6 +95,11 @@
      * @param {string} id 界面 ID 。
      */
     MainPanel.prototype.toggle = function(id) {
+        if (null != app.globalPopover) {
+            // 关闭全局 Popover 层
+            app.globalPopover.popover('hide');
+        }
+
         if (tabId == id) {
             return;
         }

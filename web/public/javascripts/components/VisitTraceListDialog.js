@@ -166,6 +166,10 @@
     }
 
     VisitTraceListDialog.prototype.open = function(code) {
+        if (null != app.globalPopover) {
+            app.globalPopover.popover('hide');
+        }
+
         // 赋值
         sharingCode = code;
 

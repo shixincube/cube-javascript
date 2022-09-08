@@ -144,6 +144,10 @@
      * @param {Contact|number} contact 
      */
     ContactDetails.prototype.show = function(contact, readOnly) {
+        if (null != app.globalPopover) {
+            app.globalPopover.popover('hide');
+        }
+
         barActionAdd.css('display', 'none');
         barActionOperation.css('display', 'none');
 

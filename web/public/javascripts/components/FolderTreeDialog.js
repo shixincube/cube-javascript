@@ -116,6 +116,10 @@
     }
 
     FolderTreeDialog.prototype.open = function(root, callback) {
+        if (null != app.globalPopover) {
+            app.globalPopover.popover('hide');
+        }
+
         expandedCount = 1;
         confirmCallback = callback;
 

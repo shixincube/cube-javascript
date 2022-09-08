@@ -63,6 +63,12 @@
     var loadingModalTimer = 0;
     var loading = false;
 
+    var prepare = function() {
+        if (null != app.globalPopover) {
+            app.globalPopover.popover('hide');
+        }
+    }
+
     var dialog = {
 
         /**
@@ -116,6 +122,8 @@
          * @param {string} [prevalue] 预置输入框内的文本。
          */
         showPrompt: function(title, label, callback, prevalue) {
+            prepare();
+
             var el = $('#modal_prompt');
             el.find('.modal-title').text(title);
             el.find('.prompt-label').text(label);
@@ -171,6 +179,8 @@
          * @param {string} [okButtonLabel] 确认按钮的显示文本，默认：“确定”。
          */
         showConfirm: function(title, content, callback, okButtonLabel) {
+            prepare();
+
             var el = $('#modal_confirm');
             el.find('.modal-title').text(title);
             el.find('.modal-body').html('<p>' + content + '</p>');
@@ -201,6 +211,8 @@
          * @param {string} [buttonLabel] 按钮显示的文本，默认：“我知道了”
          */
         showAlert: function(content, callback, buttonLabel) {
+            prepare();
+
             var el = $('#modal_alert');
             el.find('.modal-body').html('<p>' + content + '</p>');
 
@@ -242,6 +254,8 @@
          * @param {number} timeout 超时时长。单位：毫秒。
          */
         showLoading: function(content, timeout) {
+            prepare();
+
             if (loading) {
                 return;
             }
@@ -351,6 +365,8 @@
          * @param {FileLabel} file 文件标签。
          */
         showImage: function(file) {
+            prepare();
+
             var show = function(url) {
                 var image = new Image();
                 image.src = url;
@@ -373,6 +389,8 @@
          * @param {number} [initIndex] 初始化索引。
          */
         showImages: function(fileList, initIndex) {
+            prepare();
+
             var el = document.createElement('div');
 
             var show = function() {
@@ -407,6 +425,8 @@
          * @param {string} fileCode 指定下载文件的文件码。
          */
         downloadFile: function(fileCode) {
+            prepare();
+            
             g.cube().fileStorage.downloadFile(fileCode);
         }
     };

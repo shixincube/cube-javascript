@@ -123,6 +123,7 @@
             transPanelEl.parent().parent().css('maxWidth', '800px');
         }).on('hide.bs.popover', function() {
             transPanel.hide();
+            app.globalPopover = null;
         });
 
         btnDownloading.popover({
@@ -136,6 +137,7 @@
             transPanelEl.parent().parent().css('maxWidth', '800px');
         }).on('hide.bs.popover', function() {
             transPanel.hide();
+            app.globalPopover = null;
         });
 
         btnComplete.click(function() {
@@ -185,6 +187,10 @@
      * @param {string} id 目录ID 。
      */
     FileCatalogue.prototype.select = function(id) {
+        if (null != app.globalPopover) {
+            app.globalPopover.popover('hide');
+        }
+
         if (activeBtn.attr('id') == id) {
             return;
         }
@@ -234,6 +240,7 @@
     FileCatalogue.prototype.showUpload = function() {
         btnDownloading.popover('hide');
         transPanel.showUploadTable(btnUploading);
+        app.globalPopover = btnUploading;
 
         if (autoCloseTransPanelTimer > 0) {
             clearTimeout(autoCloseTransPanelTimer);
@@ -256,6 +263,7 @@
     FileCatalogue.prototype.showDownload = function() {
         btnUploading.popover('hide');
         transPanel.showDownloadTable(btnDownloading);
+        app.globalPopover = btnDownloading;
 
         if (autoCloseTransPanelTimer > 0) {
             clearTimeout(autoCloseTransPanelTimer);

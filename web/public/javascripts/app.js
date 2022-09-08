@@ -679,8 +679,7 @@
     app.queryContact = queryContact;
     app.updateContact = updateContact;
 
-    // 默认的联系人组
-    app.contactZone = 'contacts';
+    app.globalPopover = null;
 
     // 是否使用 Demo 数据
     app.demo = false;
