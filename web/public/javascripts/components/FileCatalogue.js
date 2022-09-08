@@ -148,17 +148,17 @@
             app.globalPopover = null;
         });
 
-        btnComplete.click(function() {
-            if (null != app.globalPopover) {
-                app.globalPopover.popover('hide');
-            }
-
-            if (0 == numCompleted) {
-                dialog.alert('没有传输记录');
-            }
-            else {
-                dialog.alert('已传输 ' + numCompleted + ' 个文件');
-            }
+        btnComplete.popover({
+            content: function() {
+                if (0 == numCompleted) {
+                    return '没有传输记录';
+                }
+                else {
+                    return '已传输 ' + numCompleted + ' 个文件';
+                }
+            },
+            placement: 'bottom',
+            trigger: 'hover'
         });
 
         btnSharing.click(function() {

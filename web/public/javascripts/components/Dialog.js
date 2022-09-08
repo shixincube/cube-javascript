@@ -116,6 +116,7 @@
 
         alert: function(text) {
             Swal.fire({
+                toast: true,
                 icon: 'info',
                 title: text,
                 showConfirmButton: false,
