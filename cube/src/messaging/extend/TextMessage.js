@@ -44,13 +44,8 @@ export class TextMessage extends TypeableMessage {
         else if (undefined === param || null == param) {
             this.payload = { "type" : "text" };
         }
-    }
 
-    /**
-     * @inheritdoc
-     */
-    getSummary() {
-        return this.getText();
+        this.summary = this.getText();
     }
 
     /**

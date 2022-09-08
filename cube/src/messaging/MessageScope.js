@@ -24,55 +24,27 @@
  * SOFTWARE.
  */
 
-import { TypeableMessage } from "./TypeableMessage";
 
 /**
- * 文件消息。
+ * 消息作用域。
+ * @readonly
+ * @enum {number}
+ * @alias MessageScope
  */
-export class FileMessage extends TypeableMessage {
-
-    constructor(param) {
-        super(param);
-
-        if (undefined === this.payload.type) {
-            this.payload.type = "file";
-        }
-
-        this.summary = '[文件] ' + this.getFileName();
-    }
+const CubeMessageScope = {
 
     /**
-     * 获取文件名。
-     * @returns {string} 返回文件名。
+     * 无限制。
+     * @type {number}
      */
-    getFileName() {
-        return this.attachment.getFileName();
-    }
+    Unlimited: 0,
 
     /**
-     * 获取文件大小。
-     * @returns {number} 返回文件大小。
+     * 仅自己可见。
+     * @type {number}
      */
-    getFileSize() {
-        return this.attachment.getFileSize();
-    }
+    Private: 1
 
-    /**
-     * 获取文件扩展名。
-     * @returns {string} 返回文件扩展名。
-     */
-    getExtension() {
-        if (!this.hasAttachment()) {
-            return null;
-        }
+};
 
-        let name = this.attachment.getFileName();
-        let index = name.lastIndexOf('.');
-        if (index > 0) {
-            return name.substring(index + 1, name.length);
-        }
-        else {
-            return null;
-        }
-    }
-}
+export const MessageScope = CubeMessageScope;

@@ -753,7 +753,8 @@ export class ContactService extends Module {
      * @param {function} handleFailure 操作失败回调该方法，参数：({@linkcode error}:{@link ModuleError})。
      */
     getContactZone(name, handleSuccess, handleFailure) {
-        if (name == this.defaultContactZoneName && null != this.defaultContactZone) {
+        if (name == this.defaultContactZoneName && null != this.defaultContactZone
+            && Date.now() - this.defaultContactZone.last < 60000) {
             handleSuccess(this.defaultContactZone);
             return;
         }

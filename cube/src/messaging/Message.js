@@ -150,6 +150,12 @@ export class Message extends Entity {
         }
 
         /**
+         * 消息的摘要内容。
+         * @type {string}
+         */
+        this.summary = '';
+
+        /**
          * 消息状态描述。
          * @type {number}
          * @see MessageState
@@ -162,6 +168,7 @@ export class Message extends Entity {
          * 1 - 仅作用于发件人
          * @private
          * @type {number}
+         * @see MessageScope
          */
         this.scope = cloning ? payload.scope : 0;
     }
@@ -259,7 +266,7 @@ export class Message extends Entity {
      * @returns {string} 返回消息的摘要。
      */
     getSummary() {
-        return this.payload.toString();
+        return this.summary;
     }
 
     /**
@@ -352,7 +359,23 @@ export class Message extends Entity {
         this.state = src.state;
         this.scope = src.scope;
         this.payload = src.payload;
+        this.summary = src.summary;
         this.attachment = src.attachment;
+    }
+
+    /**
+     * @private
+     * @param {number} owner 
+     * @param {number} to 
+     * @param {number} source 
+     */
+    _assign(owner, to, source) {
+        this.owner = owner;
+        this.from = owner;
+        this.to = to;
+        this.source = source;
+        this.localTS = this.timestamp;
+        this.remoteTS = this.localTS;
     }
 
     /**
@@ -372,9 +395,12 @@ export class Message extends Entity {
         json["scope"] = this.scope;
         json["payload"] = this.payload;
 
+        json["summary"] = this.summary;
+
         if (null != this.attachment) {
             json["attachment"] = this.attachment.toJSON();
         }
+
         return json;
     }
 
@@ -399,6 +425,10 @@ export class Message extends Entity {
 
         if (json.payload !== undefined) {
             message.payload = json.payload;
+        }
+
+        if (json.summary !== undefined) {
+            message.summary = json.summary;
         }
 
         if (json.attachment !== undefined) {

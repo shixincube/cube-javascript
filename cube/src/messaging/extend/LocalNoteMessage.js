@@ -58,13 +58,8 @@ export class LocalNoteMessage extends TypeableMessage {
         }
 
         this.markOnlyOwner();
-    }
 
-    /**
-     * @inheritdoc
-     */
-    getSummary() {
-        return this.getText();
+        this.summary = this.getText();
     }
 
     /**

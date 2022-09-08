@@ -304,7 +304,7 @@
             return;
         }
 
-        // 向消息目录添加联系人
+        // 消息目录添加会话
         app.messageCatalog.appendItem(entity, true);
 
         // 切换到消息面板

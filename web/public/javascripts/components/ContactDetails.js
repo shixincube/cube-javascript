@@ -110,7 +110,20 @@
     }
 
     var gotoMessaging = function(e) {
+        cube().messaging.applyConversation(currentContact, function(conversation) {
+            // 添加会话到消息目录
+            app.messageCatalog.appendItem(conversation, true);
 
+            // 切换到消息面板
+            app.toggle('messaging');
+
+            setTimeout(function() {
+                // 跳转到指定会话
+                app.messagingCtrl.toggle(conversation.getId());
+            }, 1000);
+        }, function(error) {
+            g.dialog.toast('激活会话出错：' + error.code, Toast.Error);
+        });
     }
 
     var blockContact = function(e) {

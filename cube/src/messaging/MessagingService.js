@@ -42,6 +42,7 @@ import { MessagingPipelineListener } from "./MessagingPipelineListener";
 import { MessagingEvent } from "./MessagingEvent";
 import { MessagingServiceState } from "./MessagingServiceState";
 import { MessagingStorage } from "./MessagingStorage";
+import { NullMessage } from "./NullMessage";
 import { FileStorage } from "../filestorage/FileStorage";
 import { FileStorageEvent } from "../filestorage/FileStorageEvent";
 import { ObservableEvent } from "../core/ObservableEvent";
@@ -476,6 +477,8 @@ export class MessagingService extends Module {
             conversation.pivotal = entity;
             conversation.pivotalId = entity.id;
 
+            conversation.setRecentMessage(new NullMessage(this.contactService.getSelf(), entity));
+
             if (entity instanceof Contact) {
                 conversation.type = ConversationType.Contact;
             }
@@ -527,20 +530,24 @@ export class MessagingService extends Module {
                         handleSuccess(conv);
                     })();
                 }
-
-                return;
             }
+            else {
+                if (typeof idOrEntity === 'number') {
+                    handleFailure(new ModuleError(MessagingService.NAME, MessagingServiceState.IllegalOperation, idOrEntity));
+                    return;
+                }
 
-            // 创建新会话
-            this.contactService.getLocalContact(id, (contact) => {
-                createHandler(contact);
-            }, (error) => {
-                this.contactService.getGroup(id, (group) => {
-                    createHandler(group);
+                // 创建新会话
+                this.contactService.getLocalContact(id, (contact) => {
+                    createHandler(contact);
                 }, (error) => {
-                    handleFailure(error);
+                    this.contactService.getGroup(id, (group) => {
+                        createHandler(group);
+                    }, (error) => {
+                        handleFailure(error);
+                    });
                 });
-            });
+            }
         });
     }
 

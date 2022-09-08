@@ -462,7 +462,7 @@
     /**
      * 切换面板。
      * @param {number} id 面板 ID 。
-     * @param {Contact|Group} entity 对应的联系人或者群组。
+     * @param {Conversation|Contact|Group} entity 对应的会话。
      */
     MessagePanel.prototype.changePanel = function(id, entity) {
         var panel = this.panels[id.toString()];
@@ -471,11 +471,12 @@
             panel = {
                 id: id,
                 el: el,
-                entity: entity,
+                entity: entity.getPivotal(),
+                conversation: entity,
                 messageIds: [],
                 messageTimes: [],
-                unreadCount: 0,
-                groupable: (entity instanceof Group)
+                unreadCount: 0, // 需要作废
+                groupable: (entity instanceof Group) || (entity.getType() == ConversationType.Group)    // 需要作废
             };
             this.panels[id.toString()] = panel;
         }

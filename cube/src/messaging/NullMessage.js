@@ -24,55 +24,30 @@
  * SOFTWARE.
  */
 
-import { TypeableMessage } from "./TypeableMessage";
+import { Message } from "./Message";
+import { Group } from "../contact/Group";
+import { MessageScope } from "./MessageScope";
 
 /**
- * 文件消息。
+ * 空消息，仅用于数据管理的消息。
+ * @extends Message
  */
-export class FileMessage extends TypeableMessage {
+class NullMessage extends Message {
 
-    constructor(param) {
-        super(param);
+    constructor(sender, receiver) {
+        super();
 
-        if (undefined === this.payload.type) {
-            this.payload.type = "file";
-        }
-
-        this.summary = '[文件] ' + this.getFileName();
-    }
-
-    /**
-     * 获取文件名。
-     * @returns {string} 返回文件名。
-     */
-    getFileName() {
-        return this.attachment.getFileName();
-    }
-
-    /**
-     * 获取文件大小。
-     * @returns {number} 返回文件大小。
-     */
-    getFileSize() {
-        return this.attachment.getFileSize();
-    }
-
-    /**
-     * 获取文件扩展名。
-     * @returns {string} 返回文件扩展名。
-     */
-    getExtension() {
-        if (!this.hasAttachment()) {
-            return null;
-        }
-
-        let name = this.attachment.getFileName();
-        let index = name.lastIndexOf('.');
-        if (index > 0) {
-            return name.substring(index + 1, name.length);
+        if (receiver instanceof Group) {
+            super._assign(sender.id, 0, receiver.id);
+            this.sender = sender;
+            this.sourecGroup = receiver;
         }
         else {
-            return null;
+            super._assign(sender.id, receiver.id, 0);
+            this.sender = sender;
+            this.receiver = receiver;
         }
+
+        this.scope = MessageScope.Private;
     }
 }

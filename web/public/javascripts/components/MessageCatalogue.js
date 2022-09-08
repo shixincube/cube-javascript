@@ -27,6 +27,22 @@
 (function(g) {
     'use strict';
 
+    /*
+    item: {
+        index: index,
+        id: id,
+        el: el,
+        entity: value,
+        thumb: thumb,
+        label: label,
+        desc: desc,
+        lastDesc: lastDesc,
+        timeBadge: timeBadge,
+        time: time,
+        top: false
+    }
+    */
+
     function sortItem(a, b) {
         if (b.time == 0 && a.time == 0) {
             return b.label.localeCompare(a.label);
@@ -85,23 +101,36 @@
 
     /**
      * 追加菜单项。
-     * @param {Contact|Group|object} value 数据值。
+     * @param {Conversation|Contact|Group|object} value 会话实例。
      * @param {boolean} [first] 是否插入到队列首位。
      * @returns {boolean} 返回 {@linkcode true} 表示追加成功。
      */
     MessageCatalogue.prototype.appendItem = function(value, first) {
         var index = this.items.length;
         var id = 0;
-        var el = null;
-        var thumb = 'images/group-avatar.png';
+        var thumb = 'images/default.png';
         var label = null;
         var desc = null;
         var lastDesc = '　';
         var timeBadge = null;
         var time = 0;
 
-        if (value instanceof Group) {
+        if (value instanceof Conversation) {
             id = value.getId();
+            if (value.getType() == ConversationType.Contact) {
+                thumb = g.helper.getAvatarImage(value.getContext().avatar);
+            }
+            else if (value.getType() == ConversationType.Group) {
+                thumb = 'images/group-avatar.png';
+            }
+            label = value.getName();
+            desc = value.getRecentMessage().getSummary();
+            timeBadge = formatShortTime(value.getTimestamp());
+            time = value.getTimestamp();
+        }
+        else if (value instanceof Group) {
+            id = value.getId();
+            thumb = 'images/group-avatar.png';
             label = value.getName();
             desc = '　';
             timeBadge = formatShortTime(value.getLastActiveTime());
@@ -136,23 +165,6 @@
             return false;
         }
 
-        // 隐藏无消息提示
-        this.noMsgEl.css('display', 'none');
-
-        item = {
-            index: index,
-            id: id,
-            el: el,
-            entity: value,
-            thumb: thumb,
-            label: label,
-            desc: desc,
-            lastDesc: lastDesc,
-            timeBadge: timeBadge,
-            time: time,
-            top: false
-        };
-
         var html = [
             '<li id="mc_item_', index, '" class="item pl-2 pr-2" data="', id, '">',
                 '<div class="item-img" style="background-image:url(', thumb, ');">',
@@ -180,7 +192,19 @@
 
         var el = $(html.join(''));
 
-        item.el = el;
+        item = {
+            index: index,
+            id: id,
+            el: el,
+            entity: value,
+            thumb: thumb,
+            label: label,
+            desc: desc,
+            lastDesc: lastDesc,
+            timeBadge: timeBadge,
+            time: time,
+            top: false
+        };
 
         if (first) {
             if (this.items.length == 0) {
@@ -205,6 +229,9 @@
             this.el.append(el);
             this.items.push(item);
         }
+
+        // 隐藏无消息提示
+        this.noMsgEl.css('display', 'none');
 
         // 绑定事件
         this.bindEvent(el);

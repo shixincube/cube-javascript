@@ -455,6 +455,38 @@
             g.app.messageCatalog.updateBadge(id, 0);
         }
 
+        g.cube().messaging.getConversation(id, function(conversation) {
+            if (conversation.type == ConversationType.Contact) {
+                // 更新数据
+                handle(conversation);
+
+                g.app.messageSidebar.update(conversation.getContact());
+
+                if (contactSidebar) {
+                    that.showSidebar();
+                }
+                else {
+                    that.hideSidebar();
+                }
+            }
+            else if (conversation.type == ConversationType.Group) {
+                // 更新数据
+                handle(conversation);
+
+                g.app.messageSidebar.update(conversation.getGroup());
+
+                if (groupSidebar) {
+                    that.showSidebar();
+                }
+                else {
+                    that.hideSidebar();
+                }
+            }
+        }, function(error) {
+            g.dialog.toast('获取会话出错：' + error.code, Toast.Error);
+        });
+
+        /* FIXME XJW 20220908 不再使用下面的方式判断会话
         g.app.getGroup(id, function(group) {
             if (null == group) {
                 g.app.getContact(id, function(contact) {
@@ -478,7 +510,7 @@
                     that.hideSidebar();
                 }
             }
-        });
+        });*/
     }
 
     /**

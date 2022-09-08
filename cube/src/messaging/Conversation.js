@@ -24,12 +24,12 @@
  * SOFTWARE.
  */
 
- import cell from "@lib/cell-lib";
- import { Entity } from "../core/Entity";
- import { ConversationType } from "./ConversationType";
- import { ConversationState } from "./ConversationState";
- import { ConversationReminding } from "./ConversationReminding";
- import { Message } from "./Message";
+import cell from "@lib/cell-lib";
+import { Entity } from "../core/Entity";
+import { ConversationType } from "./ConversationType";
+import { ConversationState } from "./ConversationState";
+import { ConversationReminding } from "./ConversationReminding";
+import { Message } from "./Message";
 import { AuthService } from "../auth/AuthService";
 
 /**
@@ -165,6 +165,25 @@ export class Conversation extends Entity {
      */
     getReminding() {
         return this.reminding;
+    }
+
+    /**
+     * 设置最近一条消息。
+     * @param {Message} message 
+     */
+    setRecentMessage(message) {
+        this.recentMessage = message;
+        if (this.recentMessage.timestamp > this.timestamp) {
+            this.timestamp = this.recentMessage.timestamp;
+        }
+    }
+
+    /**
+     * 获取最近一条消息。
+     * @returns {Message} 返回最近一条消息记录。
+     */
+    getRecentMessage() {
+        return this.recentMessage;
     }
 
     getPivotal() {

@@ -45,13 +45,8 @@ export class ImageMessage extends TypeableMessage {
         if (undefined === this.payload.type) {
             this.payload.type = "image";
         }
-    }
 
-    /**
-     * @inheritdoc
-     */
-    getSummary() {
-        return '[图片] ' + this.getFileName();
+        this.summary = '[图片] ' + this.getFileName();
     }
 
     /**

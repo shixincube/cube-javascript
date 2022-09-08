@@ -58,13 +58,8 @@ export class CallRecordMessage extends TypeableMessage {
                 this.payload.type = "call";
             }
         }
-    }
 
-    /**
-     * @inheritdoc
-     */
-    getSummary() {
-        return this.getConstraint().video ? '[视频通话]' : '[语音通话]';
+        this.summary = this.getConstraint().video ? '[视频通话]' : '[语音通话]';
     }
 
     /**

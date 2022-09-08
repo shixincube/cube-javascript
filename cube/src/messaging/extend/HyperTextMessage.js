@@ -66,13 +66,8 @@ export class HyperTextMessage extends TypeableMessage {
 
         // 解析
         this.parse(this.payload.content);
-    }
 
-    /**
-     * @inheritdoc
-     */
-    getSummary() {
-        return this.plaintext;
+        this.summary = this.plaintext;
     }
 
     /**
