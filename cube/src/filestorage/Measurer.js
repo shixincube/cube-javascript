@@ -66,7 +66,7 @@ export class Measurer {
      */
     averageRate() {
         if (this.rateList.length == 0) {
-            return 0;
+            return this.threshold;
         }
 
         let total = 0;
@@ -74,7 +74,8 @@ export class Measurer {
             total += this.rateList[i];
         }
 
-        return total / this.rateList.length;
+        let rate = total / this.rateList.length;
+        return (0 == rate) ? this.threshold : rate;
     }
 
     /**

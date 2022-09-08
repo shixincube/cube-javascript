@@ -31,32 +31,79 @@
     var panelEl = null;
     var tableEl = null;
 
-    var uploadFileAnchorList = [];
+    // 1- 上传页面，2 - 下载页面，3 - 传输完成，0 - 未加载
+    var currentPage = 0;
 
+    var uploadFileAnchorList = [];
     var downloadFileLabelList = [];
 
-    var makeTableRow = function(fileAnchor) {
+    var fileLabelMap = new OrderMap();
+
+    var makeTableRowWithFileAnchor = function(fileAnchor) {
+        var progress = Math.round(fileAnchor.position / fileAnchor.fileSize * 100);
+        if (progress == 100) {
+            progress = '<span class="text-success" title="已上传"><i class="far fa-check-circle"></i></span>';
+        }
+        else {
+            progress = progress + '%';
+        }
+
+        var endTime = '--';
+        if (fileAnchor.endTime > 0) {
+            endTime = g.formatYMDHMS(fileAnchor.endTime);
+        }
+
+        var rate = '--';
+        if (null != fileAnchor.fileCode) {
+            var fileLabel = fileLabelMap.get(fileAnchor.fileCode);
+            if (null != fileLabel) {
+                rate = g.formatSize(fileLabel.averageSpeed) + '/s';
+            }
+        }
+
         return [
             '<tr data-sn="', fileAnchor.sn, '">',
-                '<td class="text-center">', Math.round(fileAnchor.position / fileAnchor.fileSize), '%</td>',
-                '<td>', g.formatYMDHMS(Date.now()), '</td>',
-                '<td class="file-finish-time">--</td>',
+                '<td class="text-center">', progress, '</td>',
+                '<td>', g.formatYMDHMS(fileAnchor.timestamp), '</td>',
+                '<td class="file-end-time">', endTime, '</td>',
                 '<td>', fileAnchor.fileName, '</td>',
                 '<td>', g.formatSize(fileAnchor.fileSize), '</td>',
-                '<td class="speed-rate">--</td>',
+                '<td class="speed-rate">', rate, '</td>',
             '</tr>'
         ];
     }
 
-    var refreshTableRow = function(fileAnchor) {
-        var row = tableEl.find('tr[data-sn="' + fileAnchor.sn + '"]');
-        var cols = row.find('td');
-        cols.eq(0).text(Math.round(fileAnchor.position / fileAnchor.fileSize) + '%');
+    var refreshTableRow = function(fileAnchorOrLabel) {
+        if (fileAnchorOrLabel instanceof FileAnchor) {
+            var fileAnchor = fileAnchorOrLabel;
+
+            var progress = Math.round(fileAnchor.position / fileAnchor.fileSize * 100);
+            if (progress == 100) {
+                progress = '<span class="text-success" title="已上传"><i class="far fa-check-circle"></i></span>';
+            }
+            else {
+                progress = progress + '%';
+            }
+
+            var row = tableEl.find('tr[data-sn="' + fileAnchor.sn + '"]');
+            var cols = row.find('td');
+            // 进度
+            cols.eq(0).html(progress);
+
+            // 结束时间
+            if (fileAnchor.endTime > 0) {
+                var endTime = g.formatYMDHMS(fileAnchor.endTime);
+                cols.eq(2).html(endTime);
+            }
+        }
+        else {
+            var fileLabel = fileAnchorOrLabel;
+
+            var row = tableEl.find('tr[data-sn="' + fileLabel.sn + '"]');
+            row.find('.speed-rate').html(g.formatSize(fileLabel.averageSpeed) + '/s');
+        }
     }
 
-    var markFinishRow = function(fileLabel) {
-
-    }
 
     var FileTransferPanel = function() {
         panelEl = $('.file-trans-panel');
@@ -64,19 +111,41 @@
 
         panelEl.find('a[data-widget="close"]').click(function() {
             popover.popover('hide');
+            currentPage = 0;
         });
     }
 
-    FileTransferPanel.prototype.show = function(activePopover) {
+    FileTransferPanel.prototype.showUploadTable = function(activePopover) {
+        currentPage = 1;
+
         popover = activePopover;
         panelEl.css('display', 'block');
 
-        // panelEl.find('.no-data').css('display', 'none');
-        // panelEl.find('.file-content').css('display', 'block');
+        if (uploadFileAnchorList.length > 0) {
+            panelEl.find('.no-data').css('display', 'none');
+            panelEl.find('.file-content').css('display', 'block');
+            this.updateUpload();
+        }
+    }
+
+    FileTransferPanel.prototype.showDownloadTable = function(activePopover) {
+        currentPage = 2;
+
+        popover = activePopover;
+        panelEl.css('display', 'block');
+
+        if (downloadFileLabelList.length > 0) {
+            panelEl.find('.no-data').css('display', 'none');
+            panelEl.find('.file-content').css('display', 'block');
+            this.updateDownload();
+        }
     }
 
     FileTransferPanel.prototype.hide = function() {
-        panelEl.css('display', 'none');
+        currentPage = 0;
+
+        panelEl.find('.no-data').css('display', 'block');
+        panelEl.find('.file-content').css('display', 'none');
     }
 
     FileTransferPanel.prototype.numUploadHistory = function() {
@@ -87,21 +156,54 @@
         return downloadFileLabelList.length;
     }
 
+    FileTransferPanel.prototype.updateUpload = function() {
+        tableEl.html('');
+
+        uploadFileAnchorList.forEach(function(fileAnchor) {
+            tableEl.append($(makeTableRowWithFileAnchor(fileAnchor).join('')));
+        });
+    }
+
+    FileTransferPanel.prototype.updateDownload = function() {
+        tableEl.html('');
+    }
+
     FileTransferPanel.prototype.fireUploadStart = function(fileAnchor) {
         uploadFileAnchorList.push(fileAnchor);
 
-        panelEl.find('.no-data').css('display', 'none');
-        panelEl.find('.file-content').css('display', 'block');
-
-        tableEl.append($(makeTableRow(fileAnchor).join('')));
+        if (currentPage == 1) {
+            if (uploadFileAnchorList.length > 0) {
+                panelEl.find('.no-data').css('display', 'none');
+                panelEl.find('.file-content').css('display', 'block');
+                this.updateUpload();
+            }
+        }
     }
 
     FileTransferPanel.prototype.fireUploading = function(fileAnchor) {
-        refreshTableRow(fileAnchor);
+        if (currentPage == 1) {
+            refreshTableRow(fileAnchor);
+        }
     }
 
     FileTransferPanel.prototype.fireUploadEnd = function(folder, fileLabel) {
-        markFinishRow(fileLabel);
+        fileLabelMap.put(fileLabel.fileCode, fileLabel);
+
+        if (currentPage == 1) {
+            refreshTableRow(fileLabel);
+        }
+    }
+
+    FileTransferPanel.prototype.fireDownloadStart = function(fileCode) {
+        g.cube().fs.getFileLabel(fileCode, function(fileLabel) {
+            
+        }, function(error) {
+
+        });
+    }
+
+    FileTransferPanel.prototype.fireDownloadEnd = function(fileLabel) {
+
     }
 
     g.FileTransferPanel = FileTransferPanel;

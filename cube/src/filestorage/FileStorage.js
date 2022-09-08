@@ -536,7 +536,8 @@ export class FileStorage extends Module {
             if (null == anchor) {
                 // 上传失败
                 fileAnchor.fileCode = null;
-                fileAnchor.success = false;
+                // 标记失败
+                fileAnchor._markFailure();
 
                 this.uploading = false;
 
@@ -563,7 +564,8 @@ export class FileStorage extends Module {
                 fileAnchor.fileName = anchor.fileName;
                 fileAnchor.fileSize = anchor.fileSize;
                 fileAnchor.fileCode = anchor.fileCode;
-                fileAnchor.success = true;
+                // 标记成功
+                fileAnchor._markSuccess();
 
                 handleProcessing(fileAnchor);
 
@@ -586,9 +588,9 @@ export class FileStorage extends Module {
      * @param {function} failureCallback
      */
     _queryFileLabel(fileAnchor, count, failureCallback) {
-        let callback = fileAnchor.finishCallback;
-
         this.getFileLabel(fileAnchor.fileCode, (fileLabel) => {
+            let callback = fileAnchor.finishCallback;
+
             // 更新空间大小
             this.fileSpaceSize += fileAnchor.fileSize;
 
@@ -647,9 +649,9 @@ export class FileStorage extends Module {
 
     /**
      * 使用超链接方式下载文件。
-     * @param {string|FileLabel} fileOrFileCode 
-     * @param {function} handleSuccess 
-     * @param {function} handleFailure 
+     * @param {string|FileLabel} fileOrFileCode 指定文件标签或者文件码。
+     * @param {function} handleSuccess 操作成功回调。参数：({@linkcode fileLabel}:{@link FileLabel}) 。
+     * @param {function} handleFailure 操作失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
     downloadFileWithHyperlink(fileOrFileCode, handleSuccess, handleFailure) {
         let handle = (fileLabel) => {
@@ -662,7 +664,7 @@ export class FileStorage extends Module {
             a.style.zIndex = '-1';
             a.download = fileLabel.getFileName();
 
-            this.getFileURL(fileLabel, (fileCode, httpURL, httpsURL) => {
+            this.getFileURL(fileLabel, (fileLabel, httpURL, httpsURL) => {
                 let url = this.secure ? httpsURL : httpURL;
                 url = StringUtil.removeURLParameter(url, 'type');
                 url += '&type=ignore';
@@ -687,8 +689,8 @@ export class FileStorage extends Module {
         else {
             this.getFileLabel(fileOrFileCode, (fileLabel) => {
                 handle(fileLabel);
-            }, (fileCode) => {
-                let error = new ModuleError(FileStorage.NAME, FileStorageState.GetFileLabelFailed, fileCode);
+            }, (e) => {
+                let error = new ModuleError(FileStorage.NAME, FileStorageState.GetFileLabelFailed, e);
                 this.notifyObservers(new ObservableEvent(FileStorageEvent.DownloadFailed, error));
                 if (handleFailure) {
                     handleFailure(error);
@@ -700,22 +702,41 @@ export class FileStorage extends Module {
     /**
      * 下载文件。
      * @param {FileLabel|string} fileOrFileCode 文件标签或文件码。
-     * @param {funciton} [handleProcessing] 
-     * @param {funciton} [handleSuccess] 
-     * @param {funciton} [handleFailure] 
+     * @param {function} [handleStart] 下载开始时回调。参数：({@linkcode fileLabel}:{@link FileLabel})。
+     * @param {funciton} [handleProcessing] 下载数据正在接收时回调。参数：({@linkcode fileLabel}:{@link FileLabel}, {@linkcode loadedSize}:number, {@linkcode totalSize}:number)。
+     * @param {funciton} [handleSuccess] 下载成功时回调。参数：({@linkcode fileLabel}:{@link FileLabel})。
+     * @param {funciton} [handleFailure] 下载失败时回调。参数：({@linkcode error}:{@link ModuleError})。
      */
-    downloadFile(fileOrFileCode, handleProcessing, handleSuccess, handleFailure) {
+    downloadFile(fileOrFileCode, handleStart, handleProcessing, handleSuccess, handleFailure) {
         let handle = (fileLabel) => {
+            var fileURL = null;
+            this.getFileURL(fileLabel, (fileLabel, httpURL, httpsURL) => {
+                let url = this.secure ? httpsURL : httpURL;
+                url = StringUtil.removeURLParameter(url, 'type');
+                url += '&type=ignore';
+                fileURL = url;
+            });
+
+            if (handleStart) {
+                handleStart(fileLabel);
+            }
+
             let packet = new Packet('GET', null);
             packet.responseType = 'blob';
 
             // 事件通知
             this.notifyObservers(new ObservableEvent(FileStorageEvent.Downloading, fileLabel));
 
-            let url = this.secure ? fileLabel.getFileSecureURL() : fileLabel.getFileURL();
-            url = StringUtil.removeURLParameter(url, 'type');
-            url += '&type=ignore';
-            this.filePipeline.send(url, packet, (pipeline, source, packet) => {
+            this.filePipeline.send(fileURL, packet, (pipeline, source, packet) => {
+                if (null == packet) {
+                    let error = new ModuleError(FileStorage.NAME, FileStorageState.DownloadFailed, fileLabel);
+                    cell.Logger.e('FileStorage', '#downloadFile - Read data from pipeline failed - ' + fileLabel.fileName);
+                    if (handleFailure) {
+                        handleFailure(error);
+                    }
+                    return;
+                }
+
                 let blob = packet.data;
                 let reader = new FileReader();
                 reader.readAsDataURL(blob);
@@ -752,8 +773,8 @@ export class FileStorage extends Module {
         else {
             this.getFileLabel(fileOrFileCode, (fileLabel) => {
                 handle(fileLabel);
-            }, (fileCode) => {
-                let error = new ModuleError(FileStorage.NAME, FileStorageState.GetFileLabelFailed, fileCode);
+            }, (e) => {
+                let error = new ModuleError(FileStorage.NAME, FileStorageState.GetFileLabelFailed, e);
                 this.notifyObservers(new ObservableEvent(FileStorageEvent.DownloadFailed, error));
                 if (handleFailure) {
                     handleFailure(error);

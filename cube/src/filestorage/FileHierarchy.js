@@ -135,6 +135,10 @@ export class FileHierarchy {
                 directory.addFile(newFileLabel);
                 directory.numFiles += 1;
 
+                // 本地数据赋值
+                newFileLabel.sn = fileLabel.sn;
+                newFileLabel.averageSpeed = fileLabel.averageSpeed;
+
                 handleSuccess(directory, newFileLabel);
             });
         };

@@ -46,6 +46,12 @@ export class FileAnchor extends JSONable {
         this.sn = (undefined !== sn) ? sn : Date.now();
 
         /**
+         * 时间戳。
+         * @type {number}
+         */
+        this.timestamp = Date.now();
+
+        /**
          * 当前数据的游标位置。
          * @type {number}
          */
@@ -82,6 +88,12 @@ export class FileAnchor extends JSONable {
         this.success = false;
 
         /**
+         * 结束时间。
+         * @type {number}
+         */
+        this.endTime = 0;
+
+        /**
          * 文件上传完成回调。
          * @type {function}
          * @private
@@ -109,6 +121,24 @@ export class FileAnchor extends JSONable {
 
         let extension = this.fileName.substring(index + 1);
         return extension;
+    }
+
+    /**
+     * 标记成功。
+     * @private
+     */
+    _markSuccess() {
+        this.success = true;
+        this.endTime = Date.now();
+    }
+
+    /**
+     * 标记失败。
+     * @private
+     */
+    _markFailure() {
+        this.success = false;
+        this.endTime = Date.now();
     }
 
     /**

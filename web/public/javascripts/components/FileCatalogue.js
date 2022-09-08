@@ -121,6 +121,8 @@
             that.showUpload();
         }).on('shown.bs.popover', function() {
             transPanelEl.parent().parent().css('maxWidth', '800px');
+        }).on('hide.bs.popover', function() {
+            transPanel.hide();
         });
 
         btnDownloading.popover({
@@ -132,6 +134,8 @@
             that.showDownload();
         }).on('shown.bs.popover', function() {
             transPanelEl.parent().parent().css('maxWidth', '800px');
+        }).on('hide.bs.popover', function() {
+            transPanel.hide();
         });
 
         btnComplete.click(function() {
@@ -229,7 +233,7 @@
      */
     FileCatalogue.prototype.showUpload = function() {
         btnDownloading.popover('hide');
-        transPanel.show(btnUploading);
+        transPanel.showUploadTable(btnUploading);
 
         if (autoCloseTransPanelTimer > 0) {
             clearTimeout(autoCloseTransPanelTimer);
@@ -251,7 +255,7 @@
      */
     FileCatalogue.prototype.showDownload = function() {
         btnUploading.popover('hide');
-        transPanel.show(btnDownloading);
+        transPanel.showDownloadTable(btnDownloading);
 
         if (autoCloseTransPanelTimer > 0) {
             clearTimeout(autoCloseTransPanelTimer);
@@ -299,6 +303,8 @@
             downloadingArray.push(fileCode);
         }
         btnDownloading.find('.badge').text(downloadingArray.length);
+
+        transPanel.fireDownloadStart(fileCode);
     }
 
     FileCatalogue.prototype.onFileDownloaded = function(fileLabel) {
@@ -312,6 +318,10 @@
         }
         else {
             btnDownloading.find('.badge').text('');
+        }
+
+        if (fileLabel instanceof FileLabel) {
+            transPanel.fireDownloadEnd(fileLabel);
         }
     }
 

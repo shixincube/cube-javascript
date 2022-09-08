@@ -8765,6 +8765,8 @@
             that.showUpload();
         }).on('shown.bs.popover', function() {
             transPanelEl.parent().parent().css('maxWidth', '800px');
+        }).on('hide.bs.popover', function() {
+            transPanel.hide();
         });
 
         btnDownloading.popover({
@@ -8776,6 +8778,8 @@
             that.showDownload();
         }).on('shown.bs.popover', function() {
             transPanelEl.parent().parent().css('maxWidth', '800px');
+        }).on('hide.bs.popover', function() {
+            transPanel.hide();
         });
 
         btnComplete.click(function() {
@@ -8873,7 +8877,7 @@
      */
     FileCatalogue.prototype.showUpload = function() {
         btnDownloading.popover('hide');
-        transPanel.show(btnUploading);
+        transPanel.showUploadTable(btnUploading);
 
         if (autoCloseTransPanelTimer > 0) {
             clearTimeout(autoCloseTransPanelTimer);
@@ -8895,7 +8899,7 @@
      */
     FileCatalogue.prototype.showDownload = function() {
         btnUploading.popover('hide');
-        transPanel.show(btnDownloading);
+        transPanel.showDownloadTable(btnDownloading);
 
         if (autoCloseTransPanelTimer > 0) {
             clearTimeout(autoCloseTransPanelTimer);
@@ -8943,6 +8947,8 @@
             downloadingArray.push(fileCode);
         }
         btnDownloading.find('.badge').text(downloadingArray.length);
+
+        transPanel.fireDownloadStart(fileCode);
     }
 
     FileCatalogue.prototype.onFileDownloaded = function(fileLabel) {
@@ -8956,6 +8962,10 @@
         }
         else {
             btnDownloading.find('.badge').text('');
+        }
+
+        if (fileLabel instanceof FileLabel) {
+            transPanel.fireDownloadEnd(fileLabel);
         }
     }
 
@@ -10682,19 +10692,26 @@
         });
     }
 
+    var simpleDownload = false;
+
     /**
      * 下载文件。
      * @param {string} fileCode 
      */
     FilePanel.prototype.downloadFile = function(fileCode) {
-        // 触发 Download 事件
-        g.app.fileCatalog.onFileDownload(fileCode);
+        if (simpleDownload) {
+            // 触发 Download 事件
+            g.app.fileCatalog.onFileDownload(fileCode);
 
-        cube().fs.downloadFileWithHyperlink(fileCode, function(fileLabel) {
-            g.app.fileCatalog.onFileDownloaded(fileLabel);
-        }, function(error) {
-            g.app.fileCatalog.onFileDownloaded(fileCode);
-        });
+            cube().fs.downloadFileWithHyperlink(fileCode, function(fileLabel) {
+                g.app.fileCatalog.onFileDownloaded(fileLabel);
+            }, function(error) {
+                g.app.fileCatalog.onFileDownloaded(fileCode);
+            });
+        }
+        else {
+            alert(fileCode);
+        }
     }
 
     /**
@@ -11419,22 +11436,79 @@
     var panelEl = null;
     var tableEl = null;
 
-    var uploadFileAnchorList = [];
+    // 1- 上传页面，2 - 下载页面，3 - 传输完成，0 - 未加载
+    var currentPage = 0;
 
+    var uploadFileAnchorList = [];
     var downloadFileLabelList = [];
 
-    var makeTableRow = function(fileAnchor) {
+    var fileLabelMap = new OrderMap();
+
+    var makeTableRowWithFileAnchor = function(fileAnchor) {
+        var progress = Math.round(fileAnchor.position / fileAnchor.fileSize * 100);
+        if (progress == 100) {
+            progress = '<span class="text-success" title="已上传"><i class="far fa-check-circle"></i></span>';
+        }
+        else {
+            progress = progress + '%';
+        }
+
+        var endTime = '--';
+        if (fileAnchor.endTime > 0) {
+            endTime = g.formatYMDHMS(fileAnchor.endTime);
+        }
+
+        var rate = '--';
+        if (null != fileAnchor.fileCode) {
+            var fileLabel = fileLabelMap.get(fileAnchor.fileCode);
+            if (null != fileLabel) {
+                rate = g.formatSize(fileLabel.averageSpeed) + '/s';
+            }
+        }
+
         return [
             '<tr data-sn="', fileAnchor.sn, '">',
-                '<td class="text-center">', Math.round(fileAnchor.position / fileAnchor.fileSize), '%</td>',
-                '<td>', g.formatYMDHMS(Date.now()), '</td>',
-                '<td class="file-finish-time">--</td>',
+                '<td class="text-center">', progress, '</td>',
+                '<td>', g.formatYMDHMS(fileAnchor.timestamp), '</td>',
+                '<td class="file-end-time">', endTime, '</td>',
                 '<td>', fileAnchor.fileName, '</td>',
                 '<td>', g.formatSize(fileAnchor.fileSize), '</td>',
-                '<td class="speed-rate">--</td>',
+                '<td class="speed-rate">', rate, '</td>',
             '</tr>'
         ];
     }
+
+    var refreshTableRow = function(fileAnchorOrLabel) {
+        if (fileAnchorOrLabel instanceof FileAnchor) {
+            var fileAnchor = fileAnchorOrLabel;
+
+            var progress = Math.round(fileAnchor.position / fileAnchor.fileSize * 100);
+            if (progress == 100) {
+                progress = '<span class="text-success" title="已上传"><i class="far fa-check-circle"></i></span>';
+            }
+            else {
+                progress = progress + '%';
+            }
+
+            var row = tableEl.find('tr[data-sn="' + fileAnchor.sn + '"]');
+            var cols = row.find('td');
+            // 进度
+            cols.eq(0).html(progress);
+
+            // 结束时间
+            if (fileAnchor.endTime > 0) {
+                var endTime = g.formatYMDHMS(fileAnchor.endTime);
+                cols.eq(2).html(endTime);
+            }
+        }
+        else {
+            var fileLabel = fileAnchorOrLabel;
+
+            var row = tableEl.find('tr[data-sn="' + fileLabel.sn + '"]');
+            row.find('.speed-rate').html(g.formatSize(fileLabel.averageSpeed) + '/s');
+        }
+    }
+
 
     var FileTransferPanel = function() {
         panelEl = $('.file-trans-panel');
@@ -11442,19 +11516,41 @@
 
         panelEl.find('a[data-widget="close"]').click(function() {
             popover.popover('hide');
+            currentPage = 0;
         });
     }
 
-    FileTransferPanel.prototype.show = function(activePopover) {
+    FileTransferPanel.prototype.showUploadTable = function(activePopover) {
+        currentPage = 1;
+
         popover = activePopover;
         panelEl.css('display', 'block');
 
-        // panelEl.find('.no-data').css('display', 'none');
-        // panelEl.find('.file-content').css('display', 'block');
+        if (uploadFileAnchorList.length > 0) {
+            panelEl.find('.no-data').css('display', 'none');
+            panelEl.find('.file-content').css('display', 'block');
+            this.updateUpload();
+        }
+    }
+
+    FileTransferPanel.prototype.showDownloadTable = function(activePopover) {
+        currentPage = 2;
+
+        popover = activePopover;
+        panelEl.css('display', 'block');
+
+        if (downloadFileLabelList.length > 0) {
+            panelEl.find('.no-data').css('display', 'none');
+            panelEl.find('.file-content').css('display', 'block');
+            this.updateDownload();
+        }
     }
 
     FileTransferPanel.prototype.hide = function() {
-        panelEl.css('display', 'none');
+        currentPage = 0;
+
+        panelEl.find('.no-data').css('display', 'block');
+        panelEl.find('.file-content').css('display', 'none');
     }
 
     FileTransferPanel.prototype.numUploadHistory = function() {
@@ -11465,20 +11561,53 @@
         return downloadFileLabelList.length;
     }
 
+    FileTransferPanel.prototype.updateUpload = function() {
+        tableEl.html('');
+
+        uploadFileAnchorList.forEach(function(fileAnchor) {
+            tableEl.append($(makeTableRowWithFileAnchor(fileAnchor).join('')));
+        });
+    }
+
+    FileTransferPanel.prototype.updateDownload = function() {
+        tableEl.html('');
+    }
+
     FileTransferPanel.prototype.fireUploadStart = function(fileAnchor) {
         uploadFileAnchorList.push(fileAnchor);
 
-        panelEl.find('.no-data').css('display', 'none');
-        panelEl.find('.file-content').css('display', 'block');
-
-        tableEl.append($(makeTableRow(fileAnchor).join('')));
+        if (currentPage == 1) {
+            if (uploadFileAnchorList.length > 0) {
+                panelEl.find('.no-data').css('display', 'none');
+                panelEl.find('.file-content').css('display', 'block');
+                this.updateUpload();
+            }
+        }
     }
 
     FileTransferPanel.prototype.fireUploading = function(fileAnchor) {
-
+        if (currentPage == 1) {
+            refreshTableRow(fileAnchor);
+        }
     }
 
     FileTransferPanel.prototype.fireUploadEnd = function(folder, fileLabel) {
+        fileLabelMap.put(fileLabel.fileCode, fileLabel);
+
+        if (currentPage == 1) {
+            refreshTableRow(fileLabel);
+        }
+    }
+
+    FileTransferPanel.prototype.fireDownloadStart = function(fileCode) {
+        g.cube().fs.getFileLabel(fileCode, function(fileLabel) {
+            
+        }, function(error) {
+
+        });
+    }
+
+    FileTransferPanel.prototype.fireDownloadEnd = function(fileLabel) {
 
     }
 

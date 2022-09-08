@@ -1381,19 +1381,26 @@
         });
     }
 
+    var simpleDownload = false;
+
     /**
      * 下载文件。
      * @param {string} fileCode 
      */
     FilePanel.prototype.downloadFile = function(fileCode) {
-        // 触发 Download 事件
-        g.app.fileCatalog.onFileDownload(fileCode);
+        if (simpleDownload) {
+            // 触发 Download 事件
+            g.app.fileCatalog.onFileDownload(fileCode);
 
-        cube().fs.downloadFileWithHyperlink(fileCode, function(fileLabel) {
-            g.app.fileCatalog.onFileDownloaded(fileLabel);
-        }, function(error) {
-            g.app.fileCatalog.onFileDownloaded(fileCode);
-        });
+            cube().fs.downloadFileWithHyperlink(fileCode, function(fileLabel) {
+                g.app.fileCatalog.onFileDownloaded(fileLabel);
+            }, function(error) {
+                g.app.fileCatalog.onFileDownloaded(fileCode);
+            });
+        }
+        else {
+            alert(fileCode);
+        }
     }
 
     /**
