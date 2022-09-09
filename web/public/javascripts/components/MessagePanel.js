@@ -544,8 +544,13 @@
             this.elTitle.text(entity.getName());
         }
         else {
-            this.elTitle.text(entity.getAppendix().hasRemarkName() ?
-                entity.getAppendix().getRemarkName() : entity.getName());
+            if (entity instanceof Conversation) {
+                this.elTitle.text(entity.getName());
+            }
+            else {
+                this.elTitle.text(entity.getAppendix().hasRemarkName() ?
+                    entity.getAppendix().getRemarkName() : entity.getName());
+            }
         }
 
         // 刷新状态条

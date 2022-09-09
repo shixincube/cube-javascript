@@ -680,6 +680,7 @@
     app.updateContact = updateContact;
 
     app.globalPopover = null;
+    app.globalDialog = null;
 
     // 是否使用 Demo 数据
     app.demo = false;

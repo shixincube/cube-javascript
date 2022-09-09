@@ -170,6 +170,8 @@
             app.globalPopover.popover('hide');
         }
 
+        app.globalDialog = this;
+
         // 赋值
         sharingCode = code;
 
@@ -206,6 +208,8 @@
     }
 
     VisitTraceListDialog.prototype.close = function() {
+        app.globalDialog = null;
+
         dialogEl.find('.overlay').css('visibility', 'hidden');
         dialogEl.modal('hide');
     }

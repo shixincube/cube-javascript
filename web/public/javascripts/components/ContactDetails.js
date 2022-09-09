@@ -40,6 +40,8 @@
 
     var currentContact = null;
 
+    var hideEventListeners = [];
+
     var editName = function() {
         if (currentContact.getId() == g.app.getSelf().getId()) {
             dialog.showPrompt('修改我的昵称', '请输入新昵称：', function(ok, text) {
@@ -114,10 +116,18 @@
             // 添加会话到消息目录
             app.messageCatalog.appendItem(conversation, true);
 
+            // 关闭详情对话框
+            that.hide();
+
             // 切换到消息面板
             app.toggle('messaging');
 
             setTimeout(function() {
+                // 关闭其他对话框
+                if (null != app.globalDialog) {
+                    app.globalDialog.close();
+                }
+
                 // 跳转到指定会话
                 app.messagingCtrl.toggle(conversation.getId());
             }, 1000);
@@ -229,6 +239,21 @@
      */
     ContactDetails.prototype.hide = function() {
         dialogEl.modal('hide');
+
+        hideEventListeners.forEach(function(callback) {
+            callback(that);
+        });
+    }
+
+    /**
+     * 监听事件。
+     * @param {string} event 
+     * @param {function} listener 
+     */
+    ContactDetails.prototype.on = function(event, listener) {
+        if (event == 'hide') {
+            hideEventListeners.push(listener);
+        }
     }
 
     g.ContactDetails = ContactDetails;

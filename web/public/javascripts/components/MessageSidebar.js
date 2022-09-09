@@ -319,11 +319,19 @@
 
     /**
      * 更新数据。
-     * @param {Group|Contact} entity 
+     * @param {Conversation|Group|Contact} data 
      */
-    MessageSidebar.prototype.update = function(entity) {
-        if (null == entity) {
+    MessageSidebar.prototype.update = function(data) {
+        if (null == data) {
             return;
+        }
+
+        var entity = null;
+        if (data instanceof Conversation) {
+            entity = data.getPivotal();
+        }
+        else {
+            entity = data;
         }
 
         if (entity instanceof Group) {
