@@ -1460,6 +1460,22 @@
 (function(g) {
     'use strict';
 
+    /*
+    item: {
+        index: index,
+        id: id,
+        el: el,
+        entity: value,
+        thumb: thumb,
+        label: label,
+        desc: desc,
+        lastDesc: lastDesc,
+        timeBadge: timeBadge,
+        time: time,
+        top: false
+    }
+    */
+
     function sortItem(a, b) {
         if (b.time == 0 && a.time == 0) {
             return b.label.localeCompare(a.label);
@@ -1518,23 +1534,36 @@
 
     /**
      * 追加菜单项。
-     * @param {Contact|Group|object} value 数据值。
+     * @param {Conversation|Contact|Group|object} value 会话实例。
      * @param {boolean} [first] 是否插入到队列首位。
      * @returns {boolean} 返回 {@linkcode true} 表示追加成功。
      */
     MessageCatalogue.prototype.appendItem = function(value, first) {
         var index = this.items.length;
         var id = 0;
-        var el = null;
-        var thumb = 'images/group-avatar.png';
+        var thumb = 'images/default.png';
         var label = null;
         var desc = null;
         var lastDesc = '　';
         var timeBadge = null;
         var time = 0;
 
-        if (value instanceof Group) {
+        if (value instanceof Conversation) {
             id = value.getId();
+            if (value.getType() == ConversationType.Contact) {
+                thumb = g.helper.getAvatarImage(value.getContact().getContext().avatar);
+            }
+            else if (value.getType() == ConversationType.Group) {
+                thumb = 'images/group-avatar.png';
+            }
+            label = value.getName();
+            desc = value.getRecentMessage().getSummary();
+            timeBadge = formatShortTime(value.getTimestamp());
+            time = value.getTimestamp();
+        }
+        else if (value instanceof Group) {
+            id = value.getId();
+            thumb = 'images/group-avatar.png';
             label = value.getName();
             desc = '　';
             timeBadge = formatShortTime(value.getLastActiveTime());
@@ -1569,23 +1598,6 @@
             return false;
         }
 
-        // 隐藏无消息提示
-        this.noMsgEl.css('display', 'none');
-
-        item = {
-            index: index,
-            id: id,
-            el: el,
-            entity: value,
-            thumb: thumb,
-            label: label,
-            desc: desc,
-            lastDesc: lastDesc,
-            timeBadge: timeBadge,
-            time: time,
-            top: false
-        };
-
         var html = [
             '<li id="mc_item_', index, '" class="item pl-2 pr-2" data="', id, '">',
                 '<div class="item-img" style="background-image:url(', thumb, ');">',
@@ -1613,7 +1625,19 @@
 
         var el = $(html.join(''));
 
-        item.el = el;
+        item = {
+            index: index,
+            id: id,
+            el: el,
+            entity: value,
+            thumb: thumb,
+            label: label,
+            desc: desc,
+            lastDesc: lastDesc,
+            timeBadge: timeBadge,
+            time: time,
+            top: false
+        };
 
         if (first) {
             if (this.items.length == 0) {
@@ -1638,6 +1662,9 @@
             this.el.append(el);
             this.items.push(item);
         }
+
+        // 隐藏无消息提示
+        this.noMsgEl.css('display', 'none');
 
         // 绑定事件
         this.bindEvent(el);
@@ -2578,7 +2605,7 @@
     /**
      * 切换面板。
      * @param {number} id 面板 ID 。
-     * @param {Contact|Group} entity 对应的联系人或者群组。
+     * @param {Conversation|Contact|Group} entity 对应的会话。
      */
     MessagePanel.prototype.changePanel = function(id, entity) {
         var panel = this.panels[id.toString()];
@@ -2587,11 +2614,12 @@
             panel = {
                 id: id,
                 el: el,
-                entity: entity,
+                entity: entity.getPivotal(),
+                conversation: entity,
                 messageIds: [],
                 messageTimes: [],
-                unreadCount: 0,
-                groupable: (entity instanceof Group)
+                unreadCount: 0, // 需要作废
+                groupable: (entity instanceof Group) || (entity.getType() == ConversationType.Group)    // 需要作废
             };
             this.panels[id.toString()] = panel;
         }
@@ -6487,7 +6515,20 @@
     }
 
     var gotoMessaging = function(e) {
+        cube().messaging.applyConversation(currentContact, function(conversation) {
+            // 添加会话到消息目录
+            app.messageCatalog.appendItem(conversation, true);
 
+            // 切换到消息面板
+            app.toggle('messaging');
+
+            setTimeout(function() {
+                // 跳转到指定会话
+                app.messagingCtrl.toggle(conversation.getId());
+            }, 1000);
+        }, function(error) {
+            g.dialog.toast('激活会话出错：' + error.code, Toast.Error);
+        });
     }
 
     var blockContact = function(e) {
@@ -7534,6 +7575,38 @@
             g.app.messageCatalog.updateBadge(id, 0);
         }
 
+        g.cube().messaging.getConversation(id, function(conversation) {
+            if (conversation.type == ConversationType.Contact) {
+                // 更新数据
+                handle(conversation);
+
+                g.app.messageSidebar.update(conversation.getContact());
+
+                if (contactSidebar) {
+                    that.showSidebar();
+                }
+                else {
+                    that.hideSidebar();
+                }
+            }
+            else if (conversation.type == ConversationType.Group) {
+                // 更新数据
+                handle(conversation);
+
+                g.app.messageSidebar.update(conversation.getGroup());
+
+                if (groupSidebar) {
+                    that.showSidebar();
+                }
+                else {
+                    that.hideSidebar();
+                }
+            }
+        }, function(error) {
+            g.dialog.toast('获取会话出错：' + error.code, Toast.Error);
+        });
+
+        /* FIXME XJW 20220908 不再使用下面的方式判断会话
         g.app.getGroup(id, function(group) {
             if (null == group) {
                 g.app.getContact(id, function(contact) {
@@ -7557,7 +7630,7 @@
                     that.hideSidebar();
                 }
             }
-        });
+        });*/
     }
 
     /**
@@ -12868,7 +12941,7 @@
             return;
         }
 
-        // 向消息目录添加联系人
+        // 消息目录添加会话
         app.messageCatalog.appendItem(entity, true);
 
         // 切换到消息面板

@@ -27,12 +27,13 @@
 import { Message } from "./Message";
 import { Group } from "../contact/Group";
 import { MessageScope } from "./MessageScope";
+import { MessageState } from "./MessageState";
 
 /**
  * 空消息，仅用于数据管理的消息。
  * @extends Message
  */
-class NullMessage extends Message {
+export class NullMessage extends Message {
 
     constructor(sender, receiver) {
         super();
@@ -48,6 +49,7 @@ class NullMessage extends Message {
             this.receiver = receiver;
         }
 
+        this.state = MessageState.Read;
         this.scope = MessageScope.Private;
     }
 }

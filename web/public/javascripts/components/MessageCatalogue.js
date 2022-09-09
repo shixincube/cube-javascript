@@ -118,7 +118,7 @@
         if (value instanceof Conversation) {
             id = value.getId();
             if (value.getType() == ConversationType.Contact) {
-                thumb = g.helper.getAvatarImage(value.getContext().avatar);
+                thumb = g.helper.getAvatarImage(value.getContact().getContext().avatar);
             }
             else if (value.getType() == ConversationType.Group) {
                 thumb = 'images/group-avatar.png';
