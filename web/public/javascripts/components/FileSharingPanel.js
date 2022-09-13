@@ -247,8 +247,8 @@
 
         var begin = pageData.page * numPerPage;
         var end = begin + numPerPage - 1;
-        g.cube().fs.listSharingTags(begin, end, true, function(list, total, beginIndex, endIndex, valid) {
-            table.updatePage(list);
+        g.cube().fs.listSharingTags(begin, end, selectedValid, function(list, total, beginIndex, endIndex, valid) {
+            table.updatePage(list, valid);
 
             pageData.loaded = list.length;
             pageData.total = total;
@@ -280,8 +280,8 @@
 
         var begin = pageData.page * numPerPage;
         var end = begin + numPerPage - 1;
-        g.cube().fs.listSharingTags(begin, end, true, function(list, total, beginIndex, endIndex, valid) {
-            table.updatePage(list);
+        g.cube().fs.listSharingTags(begin, end, selectedValid, function(list, total, beginIndex, endIndex, valid) {
+            table.updatePage(list, valid);
 
             pageData.loaded = list.length;
             pageData.total = total;

@@ -1272,7 +1272,7 @@ video {
 }
 .file-content .icheck-primary label::after {
     margin-left: 9px !important;
-    margin-top: -1px !important;
+    margin-top: -2px !important;
 }
 
 .files-hidden {
