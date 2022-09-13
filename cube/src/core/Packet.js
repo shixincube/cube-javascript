@@ -73,6 +73,12 @@ export class Packet {
          * @type {string}
          */
         this.responseType = 'json';
+
+        /**
+         * 数据应答超时时长。
+         * @type {number}
+         */
+        this.responseTimeout = 0;
     }
 
     /**

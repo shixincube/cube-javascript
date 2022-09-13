@@ -126,11 +126,17 @@ export class CellPipeline extends Pipeline {
      * @inheritdoc
      */
     send(destination, packet, handleResponse) {
+        if (packet.responseTimeout == 0) {
+            // 如果没有设置应答超时，设置为默认超时
+            packet.responseTimeout = this.responseTimeout;
+        }
+
         if (undefined !== handleResponse) {
             this.responseMap.put(packet.sn, {
                     destination: destination,
                     handle: handleResponse,
-                    timestamp: Date.now()
+                    timestamp: Date.now(),
+                    responseTimeout: packet.responseTimeout
                 });
 
             if (this.responseTimer == 0) {
@@ -149,7 +155,7 @@ export class CellPipeline extends Pipeline {
                         for (let i = 0; i < keys.length; ++i) {
                             let key = keys[i];
                             let value = that.responseMap.get(key);
-                            if (now - value.timestamp >= that.responseTimeout) {
+                            if (now - value.timestamp > value.responseTimeout) {
                                 that.responseMap.remove(key);
                                 super.touchCallback(value.destination, null, value.handle);
                             }

@@ -1416,9 +1416,14 @@ export class FileStorage extends Module {
         }
 
         let packet = new Packet(FileStorageAction.CreateSharingTag, payload);
+        if (fileLabel.fileSize > 2 * 1024 * 1024) {
+            packet.responseTimeout = 30 * 1000;
+        }
+
         this.pipeline.send(FileStorage.NAME, packet, (pipeline, source, responsePacket) => {
             if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
-                let error = new ModuleError(FileStorage.NAME, responsePacket.getStateCode(), fileLabel);
+                let sc = (null == responsePacket) ? FileStorageState.Timeout : responsePacket.getStateCode();
+                let error = new ModuleError(FileStorage.NAME, sc, fileLabel);
                 handleFailure(error);
                 return;
             }

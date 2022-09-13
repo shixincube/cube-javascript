@@ -156,6 +156,11 @@ export const FileStorageState = {
     DataFormatError: 107,
 
     /**
+     * 访问超时。
+     */
+    Timeout: 109,
+
+    /**
      * 空间超限。
      * @type {number}
      */
