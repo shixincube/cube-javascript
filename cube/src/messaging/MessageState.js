@@ -75,7 +75,7 @@ export const MessageState = {
      * 已召回。
      * @type {number}
      */
-    Recalled: 30,
+    Retracted: 30,
 
     /**
      * 已删除。

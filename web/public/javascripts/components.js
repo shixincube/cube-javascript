@@ -4222,13 +4222,14 @@
         inputContactRemark.val(contact.getAppendix().hasRemarkName() ? contact.getAppendix().getRemarkName() : '');
 
         // 配置信息
-        var appendix = g.app.getSelf().getAppendix();
-        if (appendix.isNoNoticeContact(contact)) {
-            switchContactNoNoticing.bootstrapSwitch('state', true);
-        }
-        else {
-            switchContactNoNoticing.bootstrapSwitch('state', false);
-        }
+        // 消息免打扰
+        // var appendix = g.app.getSelf().getAppendix();
+        // if (appendix.isNoNoticeContact(contact)) {
+        //     switchContactNoNoticing.bootstrapSwitch('state', true);
+        // }
+        // else {
+        //     switchContactNoNoticing.bootstrapSwitch('state', false);
+        // }
     }
 
     /**
@@ -7420,7 +7421,8 @@
             }
         }
 
-        cube.messaging.queryRecentMessagesWithContact(contact, queryNum, function(id, list) {
+        cube.messaging.getRecentMessages(contact, queryNum, function(resultList) {
+            var list = resultList.list;
             count = list.length;
 
             if (count == 0) {
@@ -7451,6 +7453,8 @@
                     break;
                 }
             }
+        }, function(error) {
+            console.log('Error: ' + error.code);
         });
     }
 
@@ -7488,7 +7492,8 @@
             });
         }
 
-        cube.messaging.queryRecentMessagesWithGroup(group, queryNum, function(groupId, list) {
+        cube.messaging.getRecentMessages(group, queryNum, function(resultList) {
+            var list = resultList.list;
             count = list.length;
 
             if (count == 0) {
@@ -7617,7 +7622,8 @@
             g.app.messageCatalog.updateBadge(id, 0);
         }
 
-        g.cube().messaging.getConversation(id, function(conversation) {
+        // 申请会话
+        g.cube().messaging.applyConversation(id, function(conversation) {
             if (conversation.type == ConversationType.Contact) {
                 // 更新数据
                 handle(conversation);
@@ -7645,7 +7651,7 @@
                 }
             }
         }, function(error) {
-            g.dialog.toast('获取会话出错：' + error.code, Toast.Error);
+            g.dialog.toast('申请会话出错：' + error.code, Toast.Error);
         });
 
         /* FIXME XJW 20220908 不再使用下面的方式判断会话

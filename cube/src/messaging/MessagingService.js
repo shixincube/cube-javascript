@@ -54,6 +54,14 @@ import { Conversation } from "./Conversation";
 import { ConversationType } from "./ConversationType";
 import { ConversationState } from "./ConversationState";
 
+
+/**
+ * 消息列表。
+ * @typedef {object} MessageListResult
+ * @property {Array<Message>} list 消息清单。存储了满足条件的 {@link Message} 实例。
+ * @property {boolean} hasMore 当前查询条件下是否还有更多消息记录。
+ */
+
 /**
  * 消息服务模块接口。
  * @extends Module
@@ -399,7 +407,7 @@ export class MessagingService extends Module {
      * 获取指定会话。
      * @param {number} conversationId 指定会话 ID 。
      * @param {function} handleSuccess 操作成功的回调方法。参数：({@linkcode conversation}:{@link Conversation}) 。
-     * @param {function} [handleFailure] 操作失败的回调方法。参数：({@linkcode error}:{@link ModuleError}) 。
+     * @param {function} handleFailure 操作失败的回调方法。参数：({@linkcode error}:{@link ModuleError}) 。
      */
     getConversation(conversationId, handleSuccess, handleFailure) {
         let id = conversationId;
@@ -408,7 +416,7 @@ export class MessagingService extends Module {
         }
 
         if (this.conversations.length > 0) {
-            for (let i = 0; this.conversations.length; ++i) {
+            for (let i = 0; i < this.conversations.length; ++i) {
                 let conv = this.conversations[i];
                 if (conv.id == id) {
                     handleSuccess(conv);
@@ -532,11 +540,6 @@ export class MessagingService extends Module {
                 }
             }
             else {
-                if (typeof idOrEntity === 'number') {
-                    handleFailure(new ModuleError(MessagingService.NAME, MessagingServiceState.IllegalOperation, idOrEntity));
-                    return;
-                }
-
                 // 创建新会话
                 this.contactService.getLocalContact(id, (contact) => {
                     createHandler(contact);
@@ -697,6 +700,10 @@ export class MessagingService extends Module {
     }
 
     _tryAddConversation(conversation) {
+        if (undefined === conversation) {
+            return;
+        }
+
         for (let i = 0; i < this.conversations.length; ++i) {
             let conv = this.conversations[i];
             if (conv.id == conversation.id) {
@@ -1073,6 +1080,7 @@ export class MessagingService extends Module {
      * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode message}:{@link Message}) 。
      * @param {function} [handleFailure] 操作错误回调该方法，参数：({@linkcode error}:{@link ModuleError}) 。
      * @returns {boolean} 返回是否能执行该操作。
+     * @deprecated
      */
     recallMessage(message, handleSuccess, handleFailure) {
         if (!this.started) {
@@ -1110,7 +1118,7 @@ export class MessagingService extends Module {
                 contactId: self.getId(),
                 messageId: messageId
             };
-            let packet = new Packet(MessagingAction.Recall, payload);
+            let packet = new Packet(MessagingAction.Retract, payload);
             this.pipeline.send(MessagingService.NAME, packet);
 
             if (handleSuccess) {
@@ -1119,6 +1127,58 @@ export class MessagingService extends Module {
         });
 
         return true;
+    }
+
+    /**
+     * 查询指定会话最近消息。
+     * @param {Conversation|Contact|Group} conversation 指定查询的会话。
+     * @param {number} limit 指定查询最大数量。
+     * @param {function} handleSuccess 操作成功回调。函数参数：({@linkcode list}:{@link MessageListResult}) 。
+     * @param {function} handleFailure 操作失败回调。函数参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    getRecentMessages(conversation, limit, handleSuccess, handleFailure) {
+        if (conversation instanceof Conversation) {
+            if (conversation.type == ConversationType.Contact) {
+                this._queryRecentMessagesWithContact(conversation.pivotalId, limit, (id, messageList) => {
+                    handleSuccess({
+                        list: messageList,
+                        hasMore: (messageList.length == limit)
+                    });
+                });
+            }
+            else if (conversation.type == ConversationType.Group) {
+                this._queryRecentMessagesWithGroup(conversation.pivotalId, limit, (id, messageList) => {
+                    handleSuccess({
+                        list: messageList,
+                        hasMore: (messageList.length == limit)
+                    });
+                });
+            }
+            else {
+                let error = new ModuleError(MessagingService.NAME, MessagingServiceState.InvalidParameter, conversation);
+                handleFailure(error);
+            }
+        }
+        else if (conversation instanceof Contact) {
+            this._queryRecentMessagesWithContact(conversation, limit, (id, messageList) => {
+                handleSuccess({
+                    list: messageList,
+                    hasMore: (messageList.length == limit)
+                });
+            });
+        }
+        else if (conversation instanceof Group) {
+            this._queryRecentMessagesWithGroup(conversation, limit, (id, messageList) => {
+                handleSuccess({
+                    list: messageList,
+                    hasMore: (messageList.length == limit)
+                });
+            });
+        }
+        else {
+            let error = new ModuleError(MessagingService.NAME, MessagingServiceState.InvalidParameter, conversation);
+            handleFailure(error);
+        }
     }
 
     /**
@@ -1141,6 +1201,7 @@ export class MessagingService extends Module {
      * @param {number} time 指定查询的起始时间。
      * @param {function} handler 查询结果回调函数，函数参数：({@linkcode time}:number, {@linkcode result}:Array<{@link Message}>) 。
      * @returns {boolean} 如果成功执行查询返回 {@linkcode true} 。
+     * @deprecated
      */
     queryMessages(time, handler) {
         if (!this.started) {
@@ -1182,6 +1243,7 @@ export class MessagingService extends Module {
      * 查询最近的消息记录对应的联系人或群组。
      * @param {function} handler 数据接收回调。参数：({@linkcode beginning}:number, {@linkcode list}:Array<{@link Contact}|{@link Group}>})。
      * @param {number} [beginning] 指定查询的开始时间戳。
+     * @deprecated
      */
     queryRecentMessagers(handler, beginning) {
         if (!this.contactService.isReady()) {
@@ -1230,6 +1292,7 @@ export class MessagingService extends Module {
      * @param {Group|Contact|number} messager 指定需要移除的联系人或者群组。
      * @param {function} [handleSuccess] 操作成功回调该方法，参数：({@linkcode messagerId}:{@link number}) 。
      * @param {function} [handleFailure] 操作错误回调该方法，参数：({@linkcode error}:{@link ModuleError}) 。
+     * @deprecated
      */
     deleteRecentMessager(messager, handleSuccess, handleFailure) {
         if (!this.started) {
@@ -1258,12 +1321,13 @@ export class MessagingService extends Module {
 
     /**
      * 查询指定联系人 ID 相关的所有消息，即包括该联系人发送的消息，也包含该联系人接收的消息。从起始时间向后查询所有消息。
+     * @private
      * @param {Contact|number} contactOrId 指定联系人或联系人 ID 。
      * @param {number} beginning 指定查询的起始时间。
      * @param {function} handler 查询结果回调函数，函数参数：({@linkcode contactId}:number, {@linkcode beginning}:number, {@linkcode result}:Array<{@link Message}>) 。
      * @returns {boolean} 如果成功执行查询返回 {@linkcode true} 。
      */
-    queryMessagesWithContact(contactOrId, beginning, handler) {
+    _queryMessagesWithContact(contactOrId, beginning, handler) {
         if (!this.started) {
             this.start();
         }
@@ -1283,7 +1347,7 @@ export class MessagingService extends Module {
                 else return 0;
             });
 
-            let reslist = [];
+            let messageList = [];
             for (let i = 0; i < list.length; ++i) {
                 let message = list[i];
 
@@ -1294,10 +1358,10 @@ export class MessagingService extends Module {
 
                 // 使用插件
                 let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
-                reslist.push(hook.apply(message));
+                messageList.push(hook.apply(message));
             }
 
-            handler(contactId, beginning, reslist);
+            handler(contactId, beginning, messageList);
         });
 
         if (!ret) {
@@ -1309,12 +1373,13 @@ export class MessagingService extends Module {
 
     /**
      * 查询指定群组 ID 相关的所有消息。从起始时间向后查询所有消息。
+     * @private
      * @param {Group|number} groupOrId 指定群组或者群组 ID 。
      * @param {number} beginning 指定查询的起始时间。
      * @param {function} handler 查询结果回调函数，函数参数：({@linkcode groupId}:number, {@linkcode beginning}:number, {@linkcode result}:Array<{@link Message}>) 。
      * @returns {boolean} 如果成功执行查询返回 {@linkcode true} 。
      */
-    queryMessagesWithGroup(groupOrId, beginning, handler) {
+    _queryMessagesWithGroup(groupOrId, beginning, handler) {
         if (!this.started) {
             this.start();
         }
@@ -1334,7 +1399,7 @@ export class MessagingService extends Module {
                 else return 0;
             });
 
-            let reslist = [];
+            let messageList = [];
             for (let i = 0; i < list.length; ++i) {
                 let message = list[i];
 
@@ -1345,10 +1410,10 @@ export class MessagingService extends Module {
 
                 // 使用插件
                 let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
-                reslist.push(hook.apply(message));
+                messageList.push(hook.apply(message));
             }
 
-            handler(groupId, beginning, reslist); 
+            handler(groupId, beginning, messageList); 
         });
 
         if (!ret) {
@@ -1362,6 +1427,7 @@ export class MessagingService extends Module {
      * 查询指定联系人的最后一条消息。
      * @param {Contact|number} contactOrId 指定联系人或联系人 ID 。
      * @param {function} handler 回调函数，参数：({@linkcode message}:{@link Message}) 。
+     * @deprecated
      */
     queryLastMessageWithContact(contactOrId, handler) {
         if (!this.started) {
@@ -1398,6 +1464,7 @@ export class MessagingService extends Module {
      * 查询指定联系人的最后一条消息。
      * @param {Group|number} groupOrId 指定群组或群组 ID 。
      * @param {function} handler 回调函数，参数：({@linkcode message}:{@link Message}) 。
+     * @deprecated
      */
     queryLastMessageWithGroup(groupOrId, handler) {
         if (!this.started) {
@@ -1432,41 +1499,47 @@ export class MessagingService extends Module {
 
     /**
      * 查询最近的指定的联系人消息。返回的消息列表为时间戳正序。
+     * @private
      * @param {Contact|number} contactOrId 联系人或联系人 ID 。
      * @param {number} limit 查询的最大消息数量限制。
      * @param {function} handler 查询结果回调。参数：({@linkcode contactId}:{@linkcode number}, {@linkcode list}:{@linkcode Array<Message>}) 。
      */
-    queryRecentMessagesWithContact(contactOrId, limit, handler) {
+    _queryRecentMessagesWithContact(contactOrId, limit, handler) {
         let contactId = (typeof contactOrId === 'number') ? contactOrId : contactOrId.id;
 
         let process = (list)=> {
             let result = [];
 
-            (async ()=> {
-                for (let i = 0; i < list.length; ++i) {
-                    let message = list[i];
-
-                    await this.fillMessage(message);
-
-                    // Hook 实例化
-                    let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
-                    let newMessage = hook.apply(message);
-
-                    result.push(newMessage);
-
-                    if (result.length == list.length) {
-                        handler(contactId, result);
+            if (list.length == 0) {
+                handler(contactId, result);
+            }
+            else {
+                (async ()=> {
+                    for (let i = 0; i < list.length; ++i) {
+                        let message = list[i];
+    
+                        await this.fillMessage(message);
+    
+                        // Hook 实例化
+                        let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+                        let newMessage = hook.apply(message);
+    
+                        result.push(newMessage);
+    
+                        if (result.length == list.length) {
+                            handler(contactId, result);
+                        }
                     }
-                }
-            })();
+                })();
+            }
         };
 
-        let list = [];
+        let outputList = [];
 
         this.storage.iterateContactMessage(contactId, Date.now(), (message) => {
             if (null == message) {
                 // 按照时间戳正序排序
-                let result = list.sort((a, b) => {
+                let result = outputList.sort((a, b) => {
                     if (a.remoteTS < b.remoteTS) return -1;
                     else if (a.remoteTS > b.remoteTS) return 1;
                     else return 0;
@@ -1480,9 +1553,9 @@ export class MessagingService extends Module {
             }
 
             // 添加到列表
-            list.push(message);
+            outputList.push(message);
 
-            if (list.length >= limit) {
+            if (outputList.length >= limit) {
                 return false;
             }
 
@@ -1492,41 +1565,47 @@ export class MessagingService extends Module {
 
     /**
      * 查询最近的指定的群组消息。返回的消息列表为时间戳正序。
+     * @private
      * @param {Group|number} groupOrId 群组或群组 ID 。
      * @param {number} limit 查询的最大消息数量限制。
      * @param {function} handler 查询结果回调。参数：({@linkcode groupId}:{@linkcode number}, {@linkcode list}:{@linkcode Array<Message>}) 。
      */
-    queryRecentMessagesWithGroup(groupOrId, limit, handler) {
+    _queryRecentMessagesWithGroup(groupOrId, limit, handler) {
         let groupId = (typeof groupOrId === 'number') ? groupOrId : groupOrId.id;
 
         let process = (list)=> {
             let result = [];
 
-            (async ()=> {
-                for (let i = 0; i < list.length; ++i) {
-                    let message = list[i];
-
-                    await this.fillMessage(message);
-
-                    // Hook 实例化
-                    let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
-                    let newMessage = hook.apply(message);
-
-                    result.push(newMessage);
-
-                    if (result.length == list.length) {
-                        handler(groupId, result);
+            if (list.length == 0) {
+                handler(groupOrId, result);
+            }
+            else {
+                (async ()=> {
+                    for (let i = 0; i < list.length; ++i) {
+                        let message = list[i];
+    
+                        await this.fillMessage(message);
+    
+                        // Hook 实例化
+                        let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+                        let newMessage = hook.apply(message);
+    
+                        result.push(newMessage);
+    
+                        if (result.length == list.length) {
+                            handler(groupId, result);
+                        }
                     }
-                }
-            })();
+                })();
+            }
         };
 
-        let list = [];
+        let outputList = [];
 
         this.storage.iterateGroupMessage(groupId, Date.now(), (message) => {
             if (null == message) {
                 // 按照时间戳正序排序
-                let result = list.sort((a, b) => {
+                let result = outputList.sort((a, b) => {
                     if (a.remoteTS < b.remoteTS) return -1;
                     else if (a.remoteTS > b.remoteTS) return 1;
                     else return 0;
@@ -1540,9 +1619,9 @@ export class MessagingService extends Module {
             }
 
             // 添加到列表
-            list.push(message);
+            outputList.push(message);
 
-            if (list.length >= limit) {
+            if (outputList.length >= limit) {
                 return false;
             }
 
@@ -2017,7 +2096,7 @@ export class MessagingService extends Module {
                     this._processNotify();
                 }, 0);
             }).catch((error) => {
-                console.log('MessagingService ' + error);
+                cell.Logger.e('MessagingService', '#processNotify error: ' + error);
                 setTimeout(() => {
                     this._processNotify();
                 }, 0);
@@ -2101,11 +2180,11 @@ export class MessagingService extends Module {
     }
 
     /**
-     * 处理 Recall 数据。
+     * 处理 Retract 数据。
      * @private
      * @param {JSON} payload 
      */
-    triggerRecall(payload) {
+    triggerRetract(payload) {
         if (payload.code != MessagingServiceState.Ok) {
             this.triggerFail(MessagingAction.Recall, payload);
             return;
@@ -2122,7 +2201,7 @@ export class MessagingService extends Module {
                         cell.Logger.e(MessagingService.NAME, result.toString());
                     }
 
-                    message.state = MessageState.Recalled;
+                    message.state = MessageState.Retracted;
 
                     // 更新消息内容
                     this.storage.updateMessage(message);
@@ -2143,7 +2222,7 @@ export class MessagingService extends Module {
             }
             else {
                 // 更新状态
-                local.state = MessageState.Recalled;
+                local.state = MessageState.Retracted;
 
                 // 更新消息内容
                 this.storage.updateMessage(local);

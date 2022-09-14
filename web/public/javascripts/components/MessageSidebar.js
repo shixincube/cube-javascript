@@ -366,13 +366,14 @@
         inputContactRemark.val(contact.getAppendix().hasRemarkName() ? contact.getAppendix().getRemarkName() : '');
 
         // 配置信息
-        var appendix = g.app.getSelf().getAppendix();
-        if (appendix.isNoNoticeContact(contact)) {
-            switchContactNoNoticing.bootstrapSwitch('state', true);
-        }
-        else {
-            switchContactNoNoticing.bootstrapSwitch('state', false);
-        }
+        // 消息免打扰
+        // var appendix = g.app.getSelf().getAppendix();
+        // if (appendix.isNoNoticeContact(contact)) {
+        //     switchContactNoNoticing.bootstrapSwitch('state', true);
+        // }
+        // else {
+        //     switchContactNoNoticing.bootstrapSwitch('state', false);
+        // }
     }
 
     /**

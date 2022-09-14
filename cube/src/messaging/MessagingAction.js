@@ -51,7 +51,7 @@ export const MessagingAction = {
      * 撤回消息。
      * @type {string}
      */
-    Recall: 'recall',
+    Retract: 'retract',
 
     /**
      * 删除消息。

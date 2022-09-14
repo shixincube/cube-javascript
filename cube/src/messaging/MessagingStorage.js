@@ -529,7 +529,7 @@ export class MessagingStorage {
                 result[i].domain = this.domain;
                 let message = Message.create(result[i]);
 
-                if (message.state == MessageState.Deleted || message.state == MessageState.Recalled) {
+                if (message.state == MessageState.Deleted || message.state == MessageState.Retracted) {
                     // 跳过被删除和已召回的消息
                     continue;
                 }
@@ -613,7 +613,7 @@ export class MessagingStorage {
                 result[i].domain = this.domain;
                 let message = Message.create(result[i]);
 
-                if (message.state == MessageState.Deleted || message.state == MessageState.Recalled) {
+                if (message.state == MessageState.Deleted || message.state == MessageState.Retracted) {
                     // 跳过被删除和已召回的消息
                     continue;
                 }
@@ -653,7 +653,7 @@ export class MessagingStorage {
                 result[i].domain = this.domain;
                 let message = Message.create(result[i]);
 
-                if (message.state == MessageState.Deleted || message.state == MessageState.Recalled) {
+                if (message.state == MessageState.Deleted || message.state == MessageState.Retracted) {
                     // 跳过被删除和已召回的消息
                     continue;
                 }
@@ -832,7 +832,7 @@ export class MessagingStorage {
                     return;
                 }
 
-                if (data.state == MessageState.Deleted || data.state == MessageState.Recalled) {
+                if (data.state == MessageState.Deleted || data.state == MessageState.Retracted) {
                     // 跳过已删除和已撤回的消息
                     next();
                     return;
@@ -882,6 +882,7 @@ export class MessagingStorage {
                 direction: reverse ? 'prev' : 'next'
             });
 
+            // 结束
             iterator(null);
         })();
 
@@ -920,7 +921,7 @@ export class MessagingStorage {
                     return;
                 }
 
-                if (data.state == MessageState.Deleted || data.state == MessageState.Recalled) {
+                if (data.state == MessageState.Deleted || data.state == MessageState.Retracted) {
                     // 跳过已删除和已撤回的消息
                     next();
                     return;
