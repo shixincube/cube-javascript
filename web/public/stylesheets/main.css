@@ -440,7 +440,7 @@ video {
     position: absolute;
     float: left;
     right: 10px;
-    /*margin-top: -14px;*/
+    margin-top: -14px;
     font-size: 12px;
     visibility: hidden;
 }

@@ -165,6 +165,10 @@
             return false;
         }
 
+        if (desc.length == 0) {
+            desc = '　';
+        }
+
         var html = [
             '<li id="mc_item_', index, '" class="item pl-2 pr-2" data="', id, '">',
                 '<div class="item-img" style="background-image:url(', thumb, ');">',

@@ -1602,6 +1602,10 @@
             return false;
         }
 
+        if (desc.length == 0) {
+            desc = '　';
+        }
+
         var html = [
             '<li id="mc_item_', index, '" class="item pl-2 pr-2" data="', id, '">',
                 '<div class="item-img" style="background-image:url(', thumb, ');">',
@@ -2972,13 +2976,13 @@
             var right = '';
             var nfloat = 'float-left';
             var tfloat = 'float-right';
-    
+
             if (sender.getId() == g.app.getSelf().getId()) {
                 right = 'right';
                 nfloat = 'float-right';
                 tfloat = 'float-left';
             }
-    
+
             var stateDesc = [];
             if (right.length > 0) {
                 if (message.getState() == MessageState.Sending) {

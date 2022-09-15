@@ -825,13 +825,13 @@
             var right = '';
             var nfloat = 'float-left';
             var tfloat = 'float-right';
-    
+
             if (sender.getId() == g.app.getSelf().getId()) {
                 right = 'right';
                 nfloat = 'float-right';
                 tfloat = 'float-left';
             }
-    
+
             var stateDesc = [];
             if (right.length > 0) {
                 if (message.getState() == MessageState.Sending) {
