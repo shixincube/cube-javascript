@@ -230,6 +230,53 @@
         }
     }
 
+    MessagingController.prototype.updateConversation = function(conversation, completed) {
+        var count = 0;
+
+        var handler = function(message) {
+            // 判断自己是否是该消息的发件人
+            if (cube.messaging.isSender(message)) {
+                g.app.messagePanel.appendMessage(message.getReceiver(), message.getSender(), message, true);
+            }
+            else {
+                g.app.messagePanel.appendMessage(message.getSender(), message.getSender(), message, true);
+            }
+
+            --count;
+            if (completed && count == 0) {
+                completed();
+            }
+        }
+
+        // 最近一条消息
+        var lastMessage = conversation.recentMessage;
+        if (g.app.messageCatalog.updateItem(conversation.pivotalId, lastMessage, lastMessage.getRemoteTimestamp())) {
+            if (conversation.unread > 0) {
+                g.app.messageCatalog.updateBadge(conversation.pivotalId, conversation.unread);
+            }
+        }
+
+        cube.messaging.getRecentMessages(conversation, queryNum, function(resultList) {
+            var list = resultList.list;
+            count = list.length;
+
+            if (count == 0) {
+                // 没有消息
+                if (completed) {
+                    completed();
+                }
+                return;
+            }
+
+            for (var i = 0; i < list.length; ++i) {
+                var message = list[i];
+                handler(message);
+            }
+        }, function(error) {
+            console.log('Error: ' + error.code);
+        });
+    }
+
     /**
      * 更新联系人的消息清单。
      * @param {Contact} contact 
@@ -280,16 +327,16 @@
                 }
             }
 
-            for (var i = list.length - 1; i >= 0; --i) {
+            /*for (var i = list.length - 1; i >= 0; --i) {
                 var last = list[i];
                 // 更新目录项
-                if (g.app.messageCatalog.updateItem(id, last, last.getRemoteTimestamp())) {
+                if (g.app.messageCatalog.updateItem(contact.id, last, last.getRemoteTimestamp())) {
                     if (unreadCount > 0) {
-                        g.app.messageCatalog.updateBadge(id, unreadCount);
+                        g.app.messageCatalog.updateBadge(contact.id, unreadCount);
                     }
                     break;
                 }
-            }
+            }*/
         }, function(error) {
             console.log('Error: ' + error.code);
         });
@@ -304,14 +351,14 @@
         var count = 0;
         var messageList = null;
         var senderMap = new OrderMap();
+        var groupId = group.id;
 
         var handler = function(group, message) {
             g.app.getContact(message.getFrom(), function(sender) {
                 // 记录发件人
                 senderMap.put(message.getId(), sender);
 
-                --count;
-                if (count == 0) {
+                if (--count == 0) {
                     messageList.forEach(function(msg) {
                         var sender = senderMap.get(msg.getId());
                         // 添加到消息面板
@@ -490,32 +537,6 @@
         }, function(error) {
             g.dialog.toast('申请会话出错：' + error.code, Toast.Error);
         });
-
-        /* FIXME XJW 20220908 不再使用下面的方式判断会话
-        g.app.getGroup(id, function(group) {
-            if (null == group) {
-                g.app.getContact(id, function(contact) {
-                    handle(contact);
-                    g.app.messageSidebar.update(contact);
-                    if (contactSidebar) {
-                        that.showSidebar();
-                    }
-                    else {
-                        that.hideSidebar();
-                    }
-                });
-            }
-            else {
-                handle(group);
-                g.app.messageSidebar.update(group);
-                if (groupSidebar) {
-                    that.showSidebar();
-                }
-                else {
-                    that.hideSidebar();
-                }
-            }
-        });*/
     }
 
     /**

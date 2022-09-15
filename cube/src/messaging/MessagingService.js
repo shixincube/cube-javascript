@@ -724,9 +724,9 @@ export class MessagingService extends Module {
 
     /**
      * 向指定的联系人或者群组发送消息。
-     * @param {Contact|Group} destination 指定联系人或者群组。
+     * @param {Contact|Group|Conversation} destination 指定联系人、群组或会话。
      * @param {JSON|Message} message 指定消息实例或消息负载。
-     * @param {File} [file] 指定消息附件。
+     * @param {File} [file] 指定消息的文件附件。
      * @returns {Message} 如果消息成功写入数据通道返回 {@link Message} 实例，否则返回 {@linkcode null} 值。
      */
     sendTo(destination, message, file) {
@@ -735,6 +735,17 @@ export class MessagingService extends Module {
         }
         else if (destination instanceof Contact) {
             return this.sendToContact(destination, message, file);
+        }
+        if (destination instanceof Conversation) {
+            if (destination.type == ConversationType.Contact) {
+                return this.sendToContact(destination.pivotal, message, file);
+            }
+            else if (destination.type == ConversationType.Group) {
+                return this.sendToGroup(destination.pivotal, message, file);
+            }
+            else {
+                return null;
+            }
         }
         else {
             return null;
@@ -745,7 +756,7 @@ export class MessagingService extends Module {
      * 向指定联系人发送消息。
      * @param {Contact|number} contact 指定联系人或联系人 ID 。
      * @param {JSON|Message} message 指定消息实例或消息内容。
-     * @param {File} [file] 指定消息附件。
+     * @param {File} [file] 指定消息的文件附件。
      * @returns {Message} 如果消息成功写入数据通道返回 {@link Message} 实例，否则返回 {@linkcode null} 值。
      */
     sendToContact(contact, message, file) {
@@ -790,12 +801,22 @@ export class MessagingService extends Module {
             let result = await this.fillMessage(msg);
             if (result instanceof ModuleError) {
                 cell.Logger.e(MessagingService.NAME, result.toString());
+                return;
             }
 
             // 更新状态
             let promise = new Promise((resolve, reject) => {
                 // 存储
                 this.storage.writeMessage(msg);
+
+                // 更新会话
+                this.getConversation(to, (conversation) => {
+                    conversation.setRecentMessage(msg);
+                    // 更新会话数据
+                    this.storage.writeConversation(conversation);
+                }, (error) => {
+                    cell.Logger.d(MessagingService.NAME, error.toString());
+                });
 
                 resolve(msg);
             });
@@ -861,12 +882,22 @@ export class MessagingService extends Module {
             let result = await this.fillMessage(msg);
             if (result instanceof ModuleError) {
                 cell.Logger.e(MessagingService.NAME, result.toString());
+                return;
             }
 
             // 更新状态
             let promise = new Promise((resolve, reject) => {
                 // 存储
                 this.storage.writeMessage(msg);
+
+                // 更新会话
+                this.getConversation(source, (conversation) => {
+                    conversation.setRecentMessage(msg);
+                    // 更新会话数据
+                    this.storage.writeConversation(conversation);
+                }, (error) => {
+                    cell.Logger.d(MessagingService.NAME, error.toString());
+                });
 
                 resolve(msg);
             });
@@ -1798,17 +1829,24 @@ export class MessagingService extends Module {
 
             // let total = packet.extractServiceData().total;
             let list = packet.extractServiceData().list;
+            let count = 0;
 
             list.forEach((value) => {
                 let conversation = Conversation.create(value);
                 (async ()=> {
+                    ++count;
+
                     let conv = await this.fillConversation(conversation);
-                    this.conversations.push(conv);
+
+                    if (conv.state != ConversationState.Deleted && conv.state != ConversationState.Destroyed) {
+                        // 排除删除或销毁的会话
+                        this.conversations.push(conv);
+                    }
 
                     // 写入数据
                     this.storage.writeConversation(conv);
 
-                    if (this.conversations.length == list.length) {
+                    if (count == list.length) {
                         setTimeout(() => {
                             // 排序
                             this.conversations.sort((a, b) => {
@@ -2076,18 +2114,28 @@ export class MessagingService extends Module {
                 });
             });
             promise.then((contained) => {
+                // 标注 Token
+                if (null != message.attachment) {
+                    message.attachment.token = this.getAuthToken().code;
+                }
+
+                // 获取事件钩子
+                let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+                // 调用插件处理
+                message = hook.apply(message);
+
+                // 查找会话并更新会话
+                this.getConversation(message.isFromGroup() ? message.source : message.from, (conversation) => {
+                    // 设置最近消息
+                    conversation.setRecentMessage(message);
+                    // 更新数据库
+                    this.storage.writeConversation(conversation);
+                }, (error) => {
+                    cell.Logger.w(MessagingService.NAME, '#_processNotify error : ' + error.code);
+                });
+
                 // 对于已经在数据库里的消息不回调 Notify 事件
                 if (!contained) {
-                    // 标注 Token
-                    if (null != message.attachment) {
-                        message.attachment.token = this.getAuthToken().code;
-                    }
-
-                    // 获取事件钩子
-                    let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
-                    // 调用插件处理
-                    message = hook.apply(message);
-
                     // 回调事件
                     this.notifyObservers(new ObservableEvent(MessagingEvent.Notify, message));
                 }

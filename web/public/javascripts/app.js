@@ -636,7 +636,41 @@
          * @param {function} callback 
          */
         prepareMessages: function(callback) {
-            var time = Date.now() - g.AMonth;
+            cube.messaging.getRecentConversations(function(list) {
+                if (list.length == 0) {
+                    callback();
+                    return;
+                }
+
+                var count = list.length;
+                function completedCallback() {
+                    if (--count == 0) {
+                        callback();
+                    }
+                }
+
+                for (var i = 0; i < list.length; ++i) {
+                    var conversation = list[i];
+
+                    messageCatalog.appendItem(conversation);
+
+                    messagingCtrl.updateConversation(conversation, completedCallback);
+
+                    /*if (conversation.type == ConversationType.Contact) {
+                        // 消息控制器更新消息
+                        messagingCtrl.updateContactMessages(conversation.getContact(), completedCallback);
+                    }
+                    else if (conversation.type == ConversationType.Group) {
+                        // 消息控制器更新消息
+                        messagingCtrl.updateGroupMessages(conversation.getGroup(), completedCallback);
+                    }
+                    else {
+                        completedCallback();
+                    }*/
+                }
+            });
+
+            /*var time = Date.now() - g.AMonth;
             cube.messaging.queryRecentMessagers(function(result) {
                 if (result.length == 0) {
                     callback();
@@ -672,7 +706,7 @@
                         }
                     }
                 }
-            }, time);
+            }, time);*/
         }
     };
 
