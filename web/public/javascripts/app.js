@@ -207,9 +207,6 @@
             // 监听事件
             that.eventCenter.start(cube);
 
-            // 注册消息插件
-            cube.messaging.register(new MessageTypePlugin());
-
             // 设置联系人上下文提供器
             cube.contact.setContextProviderCallback(function(contact, provider) {
                 app.needContactContext(contact, provider);
@@ -669,44 +666,6 @@
                     }*/
                 }
             });
-
-            /*var time = Date.now() - g.AMonth;
-            cube.messaging.queryRecentMessagers(function(result) {
-                if (result.length == 0) {
-                    callback();
-                }
-                else {
-                    var count = result.length;
-
-                    function completedCallback() {
-                        --count;
-                        if (count == 0) {
-                            callback();
-                        }
-                    }
-
-                    for (var i = 0; i < result.length; ++i) {
-                        var entity = result[i];
-
-                        if (entity instanceof Group) {
-                            // 添加群组
-                            messageCatalog.appendItem(entity);
-
-                            // 消息控制器更新群组消息
-                            messagingCtrl.updateGroupMessages(entity, completedCallback);
-                        }
-                        else {
-                            that.getContact(entity.getId(), function(contact) {
-                                // 向消息目录添加联系人
-                                messageCatalog.appendItem(contact);
-
-                                // 消息控制器更新联系人消息
-                                messagingCtrl.updateContactMessages(contact, completedCallback);
-                            });
-                        }
-                    }
-                }
-            }, time);*/
         }
     };
 

@@ -42,6 +42,8 @@ import { MessagingPipelineListener } from "./MessagingPipelineListener";
 import { MessagingEvent } from "./MessagingEvent";
 import { MessagingServiceState } from "./MessagingServiceState";
 import { MessagingStorage } from "./MessagingStorage";
+import { MessageTypePlugin } from "./extend/MessageTypePlugin";
+import { TypeableMessage } from "./extend/TypeableMessage";
 import { NullMessage } from "./NullMessage";
 import { FileStorage } from "../filestorage/FileStorage";
 import { FileStorageEvent } from "../filestorage/FileStorageEvent";
@@ -180,6 +182,9 @@ export class MessagingService extends Module {
          * @type {boolean}
          */
         this.serviceReady = false;
+
+        // 注册消息插件
+        this.register(InstantiateHook.NAME, new MessageTypePlugin());
     }
 
     /**
@@ -1943,21 +1948,23 @@ export class MessagingService extends Module {
 
     /**
      * 注册插件。
+     * @param {string} hookName
      * @param {MessagePlugin} plugin 
      */
-    register(plugin) {
+    register(hookName, plugin) {
         if (plugin instanceof MessagePlugin) {
-            this.pluginSystem.register(InstantiateHook.NAME, plugin);
+            this.pluginSystem.register(hookName, plugin);
         }
     }
 
     /**
      * 注销插件。
+     * @param {string} hookName
      * @param {MessagePlugin} plugin 
      */
-    deregister(plugin) {
+    deregister(hookName, plugin) {
         if (plugin instanceof MessagePlugin) {
-            this.pluginSystem.deregister(InstantiateHook.NAME, plugin);
+            this.pluginSystem.deregister(hookName, plugin);
         }
     }
 
@@ -2037,10 +2044,33 @@ export class MessagingService extends Module {
      */
     fillConversation(conversation) {
         return new Promise((resolve, reject) => {
+            let fillRecentMessage = (conversation, handler) => {
+                this.fillMessage(conversation.recentMessage).then((message) => {
+                    // 获取事件钩子
+                    let hook = this.pluginSystem.getHook(InstantiateHook.NAME);
+                    // 调用插件处理
+                    conversation.recentMessage = hook.apply(message);
+
+                    handler();
+                }).catch((error) => {
+                    handler();
+                });
+            };
+
             if (conversation.type == ConversationType.Contact) {
                 this.contactService.getContact(conversation.pivotalId, (contact) => {
+                    // 实体赋值
                     conversation.pivotal = contact;
-                    resolve(conversation);
+
+                    if (null != conversation.recentMessage && !(conversation.recentMessage instanceof NullMessage) &&
+                        !(conversation.recentMessage instanceof TypeableMessage)) {
+                        fillRecentMessage(conversation, () => {
+                            resolve(conversation);
+                        });
+                    }
+                    else {
+                        resolve(conversation);
+                    }
                 }, (error) => {
                     cell.Logger.w(MessagingService.NAME, '#fillConversation (Contact) - ' + conversation.id + ' : ' + error);
                     resolve(conversation);
@@ -2048,8 +2078,18 @@ export class MessagingService extends Module {
             }
             else if (conversation.type == ConversationType.Group) {
                 this.contactService.getGroup(conversation.pivotalId, (group) => {
+                    // 实体赋值
                     conversation.pivotal = group;
-                    resolve(conversation);
+
+                    if (null != conversation.recentMessage && !(conversation.recentMessage instanceof NullMessage) &&
+                        !(conversation.recentMessage instanceof TypeableMessage)) {
+                        fillRecentMessage(conversation, () => {
+                            resolve(conversation);
+                        });
+                    }
+                    else {
+                        resolve(conversation);
+                    }
                 }, (error) => {
                     cell.Logger.w(MessagingService.NAME, '#fillConversation (Group) - ' + conversation.id + ' : ' + error);
                     resolve(conversation);
