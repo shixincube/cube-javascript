@@ -261,6 +261,10 @@ export class MessagingService extends Module {
      * @param {Self} self 
      */
      _prepare(self) {
+        if (this.serviceReady) {
+            return true;
+        }
+
         let gotMessages = false;
         let gotConversations = false;
 
@@ -1829,13 +1833,11 @@ export class MessagingService extends Module {
 
             // let total = packet.extractServiceData().total;
             let list = packet.extractServiceData().list;
-            let count = 0;
+            var count = 0;
 
             list.forEach((value) => {
                 let conversation = Conversation.create(value);
                 (async ()=> {
-                    ++count;
-
                     let conv = await this.fillConversation(conversation);
 
                     if (conv.state != ConversationState.Deleted && conv.state != ConversationState.Destroyed) {
@@ -1843,10 +1845,13 @@ export class MessagingService extends Module {
                         this.conversations.push(conv);
                     }
 
+                    ++count;
+
                     // 写入数据
                     this.storage.writeConversation(conv);
 
                     if (count == list.length) {
+                        count = -1;
                         setTimeout(() => {
                             // 排序
                             this.conversations.sort((a, b) => {
@@ -2131,7 +2136,7 @@ export class MessagingService extends Module {
                     // 更新数据库
                     this.storage.writeConversation(conversation);
                 }, (error) => {
-                    cell.Logger.w(MessagingService.NAME, '#_processNotify error : ' + error.code);
+                    cell.Logger.d(MessagingService.NAME, '#_processNotify error : ' + error.code);
                 });
 
                 // 对于已经在数据库里的消息不回调 Notify 事件
