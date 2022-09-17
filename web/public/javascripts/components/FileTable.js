@@ -114,7 +114,7 @@
                 '<div class="btn-group">',
                     '<button type="button" class="btn btn-secondary btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown" title="更多操作">','</button>',
                     '<div class="dropdown-menu">',
-                        '<a class="dropdown-item text-sm">',
+                        '<a class="dropdown-item text-sm" href="javascript:app.filePanel.promptSendFile(\'', fileLabel.getFileName(), '\',\'', fileLabel.getFileCode(), '\');">',
                             '<i class="far fa-paper-plane"></i>&nbsp;&nbsp;发送文件</a>',
                         '<a class="dropdown-item text-sm" href="javascript:app.filePanel.renameFile(\'', fileLabel.getFileName(), '\',\'', fileLabel.getFileCode(), '\');">',
                             '<i class="far fa-edit"></i>&nbsp;&nbsp;重命名</a>',

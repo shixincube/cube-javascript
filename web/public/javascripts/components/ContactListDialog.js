@@ -136,7 +136,24 @@
         var html = [];
 
         for (var i = 0; i < list.length; ++i) {
-            var contact = list[i];
+            var value = list[i];
+            var contact = null;
+            if (value instanceof Conversation) {
+                if (value.type == ConversationType.Contact) {
+                    contact = value.getContact();
+                }
+                else {
+                    continue;
+                }
+            }
+            else if (value instanceof Contact) {
+                contact = value;
+            }
+            else {
+                // 暂时不处理其他实体
+                continue;
+            }
+
             var selected = (null != findContact(contact, selectedList));
             var row = [
                 '<tr onclick="app.contactListDialog.toggleChecked(', contact.getId(), ')">',

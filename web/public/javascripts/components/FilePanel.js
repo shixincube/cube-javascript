@@ -1341,8 +1341,31 @@
         }
     }
 
-    FilePanel.prototype.promptSendFile = function() {
+    /**
+     * 提示发送文件给联系人。
+     * @param {*} fileName 
+     * @param {*} fileCode 
+     */
+    FilePanel.prototype.promptSendFile = function(fileName, fileCode) {
+        cube().messaging.getRecentConversations(function(list) {
+            if (list.length == 0) {
+                g.dialog.toast('您还没有添加任何联系人', Toast.Info);
+                return;
+            }
 
+            app.contactListDialog.show(list, [], function(selectedList) {
+
+            }, '发送文件', '发送文件“' + fileName + '”给已选择的联系人：', 10);
+        });
+
+        /*cube().contact.getDefaultContactZone(function(zone) {
+            if (zone.numParticipants() == 0) {
+                g.dialog.toast('您还没有添加任何联系人', Toast.Info);
+                return;
+            }
+        }, function(error) {
+            g.dialog.toast('获取联系人数据出错：' + error.code, Toast.Error);
+        });*/
     }
 
     /**

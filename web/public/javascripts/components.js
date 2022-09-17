@@ -7114,7 +7114,24 @@
         var html = [];
 
         for (var i = 0; i < list.length; ++i) {
-            var contact = list[i];
+            var value = list[i];
+            var contact = null;
+            if (value instanceof Conversation) {
+                if (value.type == ConversationType.Contact) {
+                    contact = value.getContact();
+                }
+                else {
+                    continue;
+                }
+            }
+            else if (value instanceof Contact) {
+                contact = value;
+            }
+            else {
+                // 暂时不处理其他实体
+                continue;
+            }
+
             var selected = (null != findContact(contact, selectedList));
             var row = [
                 '<tr onclick="app.contactListDialog.toggleChecked(', contact.getId(), ')">',
@@ -9279,11 +9296,11 @@
                 '<div class="btn-group">',
                     '<button type="button" class="btn btn-secondary btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown" title="更多操作">','</button>',
                     '<div class="dropdown-menu">',
-                        '<a class="dropdown-item text-sm">',
+                        '<a class="dropdown-item text-sm" href="javascript:app.filePanel.promptSendFile(\'', fileLabel.getFileName(), '\',\'', fileLabel.getFileCode(), '\');">',
                             '<i class="far fa-paper-plane"></i>&nbsp;&nbsp;发送文件</a>',
                         '<a class="dropdown-item text-sm" href="javascript:app.filePanel.renameFile(\'', fileLabel.getFileName(), '\',\'', fileLabel.getFileCode(), '\');">',
                             '<i class="far fa-edit"></i>&nbsp;&nbsp;重命名</a>',
-                        '<a class="dropdown-item text-sm" href="javascript:app.filePanel.openFolderDialog(\'', fileLabel.getFileName(), '\',\'', fileLabel.getFileCode(), '\');">',
+                        '<a class="dropdown-item text-sm" href="javascript:app.filePanel.promptMoveFile(\'', fileLabel.getFileName(), '\',\'', fileLabel.getFileCode(), '\');">',
                             '<i class="far fa-folder"></i>&nbsp;&nbsp;移动文件</a>',
                         '<a class="dropdown-item text-sm" href="javascript:app.filePanel.promptDeleteFile(\'', fileLabel.getFileName(), '\',\'', fileLabel.getFileCode(), '\');">', 
                             '<span class="text-danger"><i class="far fa-trash-alt"></i>&nbsp;&nbsp;删除文件<span></a>',
@@ -10872,9 +10889,38 @@
     }
 
     /**
-     * 打开文件夹对话框。
+     * 提示发送文件给联系人。
+     * @param {*} fileName 
+     * @param {*} fileCode 
      */
-    FilePanel.prototype.openFolderDialog = function(fileName, fileCode) {
+    FilePanel.prototype.promptSendFile = function(fileName, fileCode) {
+        cube().messaging.getRecentConversations(function(list) {
+            if (list.length == 0) {
+                g.dialog.toast('您还没有添加任何联系人', Toast.Info);
+                return;
+            }
+
+            app.contactListDialog.show(list, [], function(selectedList) {
+
+            }, '发送文件', '发送文件“' + fileName + '”给：', 10);
+        });
+
+        /*cube().contact.getDefaultContactZone(function(zone) {
+            if (zone.numParticipants() == 0) {
+                g.dialog.toast('您还没有添加任何联系人', Toast.Info);
+                return;
+            }
+        }, function(error) {
+            g.dialog.toast('获取联系人数据出错：' + error.code, Toast.Error);
+        });*/
+    }
+
+    /**
+     * 提示移动文件。
+     * @param {*} fileName 
+     * @param {*} fileCode 
+     */
+    FilePanel.prototype.promptMoveFile = function(fileName, fileCode) {
         g.cube().fs.getSelfRoot(function(root) {
             g.app.folderTreeDialog.open(root, function(directory) {
                 if (null != directory) {
@@ -10914,8 +10960,6 @@
             g.dialog.toast('发生错误：' + error, Toast.Error);
         });
     }
-
-    var simpleDownload = false;
 
     /**
      * 下载文件。
