@@ -1341,10 +1341,16 @@
         }
     }
 
+    FilePanel.prototype.promptSendFile = function() {
+
+    }
+
     /**
-     * 打开文件夹对话框。
+     * 提示移动文件。
+     * @param {*} fileName 
+     * @param {*} fileCode 
      */
-    FilePanel.prototype.openFolderDialog = function(fileName, fileCode) {
+    FilePanel.prototype.promptMoveFile = function(fileName, fileCode) {
         g.cube().fs.getSelfRoot(function(root) {
             g.app.folderTreeDialog.open(root, function(directory) {
                 if (null != directory) {
@@ -1384,8 +1390,6 @@
             g.dialog.toast('发生错误：' + error, Toast.Error);
         });
     }
-
-    var simpleDownload = false;
 
     /**
      * 下载文件。

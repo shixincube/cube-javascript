@@ -118,7 +118,7 @@
                             '<i class="far fa-paper-plane"></i>&nbsp;&nbsp;发送文件</a>',
                         '<a class="dropdown-item text-sm" href="javascript:app.filePanel.renameFile(\'', fileLabel.getFileName(), '\',\'', fileLabel.getFileCode(), '\');">',
                             '<i class="far fa-edit"></i>&nbsp;&nbsp;重命名</a>',
-                        '<a class="dropdown-item text-sm" href="javascript:app.filePanel.openFolderDialog(\'', fileLabel.getFileName(), '\',\'', fileLabel.getFileCode(), '\');">',
+                        '<a class="dropdown-item text-sm" href="javascript:app.filePanel.promptMoveFile(\'', fileLabel.getFileName(), '\',\'', fileLabel.getFileCode(), '\');">',
                             '<i class="far fa-folder"></i>&nbsp;&nbsp;移动文件</a>',
                         '<a class="dropdown-item text-sm" href="javascript:app.filePanel.promptDeleteFile(\'', fileLabel.getFileName(), '\',\'', fileLabel.getFileCode(), '\');">', 
                             '<span class="text-danger"><i class="far fa-trash-alt"></i>&nbsp;&nbsp;删除文件<span></a>',
