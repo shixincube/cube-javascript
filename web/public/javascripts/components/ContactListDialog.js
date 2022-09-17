@@ -33,7 +33,7 @@
     var preselected = null;
 
     var maxSelected = -1;
-    var selectCountList = [];
+    var selectedIdList = [];
 
     var btnConfirm = null;
     var confirmCallback = null;
@@ -105,11 +105,11 @@
 
         if (undefined !== maxSelectedNum) {
             maxSelected = maxSelectedNum;
-            selectCountList.splice(0, selectCountList.length);
+            selectedIdList.splice(0, selectedIdList.length);
         }
         else {
             maxSelected = -1;
-            selectCountList.splice(0, selectCountList.length);
+            selectedIdList.splice(0, selectedIdList.length);
         }
 
         if (title) {
@@ -120,15 +120,17 @@
         }
 
         if (prompt) {
-            dialogEl.find('.tip').text(prompt);
+            dialogEl.find('.tip').html(prompt);
         }
         else {
-            dialogEl.find('.tip').text('请选择联系人');
+            dialogEl.find('.tip').html('请选择联系人');
         }
 
         if (confirmHandle) {
             confirmCallback = confirmHandle;
         }
+
+        var selectedBox = dialogEl.find('.select-box');
 
         var tbody = dialogEl.find('tbody');
         tbody.empty();
@@ -195,28 +197,44 @@
      * @param {*} id 
      */
     ContactListDialog.prototype.toggleChecked = function(id) {
-        var el = dialogEl.find('input[data="' + id +'"]');
+        var selectedBox = dialogEl.find('.select-box');
+
+        var el = dialogEl.find('input[data="' + id + '"]');
         if (el.prop('checked')) {
+            // 取消选择
             el.prop('checked', false);
 
-            var index = selectCountList.indexOf(id);
+            var index = selectedIdList.indexOf(id);
             if (index >= 0) {
-                selectCountList.splice(index, 1);
+                selectedIdList.splice(index, 1);
+
+                var boxEl = selectedBox.find('#' + id);
+                boxEl.remove();
             }
         }
         else {
+            // 选中
             el.prop('checked', true);
 
-            var index = selectCountList.indexOf(id);
+            var index = selectedIdList.indexOf(id);
             if (index < 0) {
-                selectCountList.push(id);
+                selectedIdList.push(id);
+
+                var selected = findContact(id, currentList);
+                //<div class="selected" onclick="app.contactListDialog.toggleChecked()"><img class="avatar" src="avatars/default.png" /></div>
+                var html = [
+                    '<div id="', id, '" class="selected" onclick="app.contactListDialog.toggleChecked(', id , ')">',
+                        '<img class="avatar" src="avatars/default.png" />',
+                    '</div>'
+                ];
+                selectedBox.append($(html.join('')));
             }
         }
 
         if (maxSelected > 0) {
             setTimeout(function() {
-                if (selectCountList.length > maxSelected) {
-                    var id = selectCountList.pop();
+                if (selectedIdList.length > maxSelected) {
+                    var id = selectedIdList.pop();
                     var el = dialogEl.find('input[data="' + id +'"]');
                     el.prop('checked', false);
 

@@ -642,6 +642,7 @@
                 var count = list.length;
                 function completedCallback() {
                     if (--count == 0) {
+                        console.log('DEBUG #prepareMessages : ' + list.length);
                         callback();
                     }
                 }
@@ -652,18 +653,6 @@
                     messageCatalog.appendItem(conversation);
 
                     messagingCtrl.updateConversation(conversation, completedCallback);
-
-                    /*if (conversation.type == ConversationType.Contact) {
-                        // 消息控制器更新消息
-                        messagingCtrl.updateContactMessages(conversation.getContact(), completedCallback);
-                    }
-                    else if (conversation.type == ConversationType.Group) {
-                        // 消息控制器更新消息
-                        messagingCtrl.updateGroupMessages(conversation.getGroup(), completedCallback);
-                    }
-                    else {
-                        completedCallback();
-                    }*/
                 }
             });
         }

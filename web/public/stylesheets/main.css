@@ -122,7 +122,7 @@ video {
     font-size: 14px;
 }
 .modal-body .tip {
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .modal .overlay {
@@ -1992,6 +1992,19 @@ video {
 }
 .select-contacts-dialog .selected-table {
     border: 1px solid #dee2e6;
+}
+
+.select-box {
+    padding: 0px 0px 0px 0px;
+    margin-bottom: 12px;
+}
+.select-box .selected {
+    display: inline-block;
+    padding: 2px 2px 4px 2px;
+}
+.select-box .avatar {
+    width: 40px;
+    height: 40px;
 }
 
 /* 选择联系人 - 结束 */

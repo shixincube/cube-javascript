@@ -1354,7 +1354,7 @@
             }
 
             app.contactListDialog.show(list, [], function(selectedList) {
-
+                
             }, '发送文件', '发送文件“' + fileName + '”给已选择的联系人：', 10);
         });
 

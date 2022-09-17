@@ -300,7 +300,7 @@
             }
 
             --count;
-            if (completed && count == 0) {
+            if (count == 0 && completed) {
                 completed();
             }
         }
@@ -317,26 +317,16 @@
                 return;
             }
 
-            var unreadCount = 0;
+            // var unreadCount = 0;
+
             for (var i = 0; i < list.length; ++i) {
                 var message = list[i];
                 handler(message);
 
-                if (!message.isRead()) {
-                    ++unreadCount;
-                }
+                // if (!message.isRead()) {
+                //     ++unreadCount;
+                // }
             }
-
-            /*for (var i = list.length - 1; i >= 0; --i) {
-                var last = list[i];
-                // 更新目录项
-                if (g.app.messageCatalog.updateItem(contact.id, last, last.getRemoteTimestamp())) {
-                    if (unreadCount > 0) {
-                        g.app.messageCatalog.updateBadge(contact.id, unreadCount);
-                    }
-                    break;
-                }
-            }*/
         }, function(error) {
             console.log('Error: ' + error.code);
         });

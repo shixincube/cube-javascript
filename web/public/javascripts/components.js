@@ -6564,7 +6564,7 @@
     }
 
     var blockContact = function(e) {
-
+        
     }
 
 
@@ -7011,7 +7011,7 @@
     var preselected = null;
 
     var maxSelected = -1;
-    var selectCountList = [];
+    var selectedIdList = [];
 
     var btnConfirm = null;
     var confirmCallback = null;
@@ -7083,11 +7083,11 @@
 
         if (undefined !== maxSelectedNum) {
             maxSelected = maxSelectedNum;
-            selectCountList.splice(0, selectCountList.length);
+            selectedIdList.splice(0, selectedIdList.length);
         }
         else {
             maxSelected = -1;
-            selectCountList.splice(0, selectCountList.length);
+            selectedIdList.splice(0, selectedIdList.length);
         }
 
         if (title) {
@@ -7098,15 +7098,17 @@
         }
 
         if (prompt) {
-            dialogEl.find('.tip').text(prompt);
+            dialogEl.find('.tip').html(prompt);
         }
         else {
-            dialogEl.find('.tip').text('请选择联系人');
+            dialogEl.find('.tip').html('请选择联系人');
         }
 
         if (confirmHandle) {
             confirmCallback = confirmHandle;
         }
+
+        var selectedBox = dialogEl.find('.select-box');
 
         var tbody = dialogEl.find('tbody');
         tbody.empty();
@@ -7173,28 +7175,44 @@
      * @param {*} id 
      */
     ContactListDialog.prototype.toggleChecked = function(id) {
-        var el = dialogEl.find('input[data="' + id +'"]');
+        var selectedBox = dialogEl.find('.select-box');
+
+        var el = dialogEl.find('input[data="' + id + '"]');
         if (el.prop('checked')) {
+            // 取消选择
             el.prop('checked', false);
 
-            var index = selectCountList.indexOf(id);
+            var index = selectedIdList.indexOf(id);
             if (index >= 0) {
-                selectCountList.splice(index, 1);
+                selectedIdList.splice(index, 1);
+
+                var boxEl = selectedBox.find('#' + id);
+                boxEl.remove();
             }
         }
         else {
+            // 选中
             el.prop('checked', true);
 
-            var index = selectCountList.indexOf(id);
+            var index = selectedIdList.indexOf(id);
             if (index < 0) {
-                selectCountList.push(id);
+                selectedIdList.push(id);
+
+                var selected = findContact(id, currentList);
+                //<div class="selected" onclick="app.contactListDialog.toggleChecked()"><img class="avatar" src="avatars/default.png" /></div>
+                var html = [
+                    '<div id="', id, '" class="selected" onclick="app.contactListDialog.toggleChecked(', id , ')">',
+                        '<img class="avatar" src="avatars/default.png" />',
+                    '</div>'
+                ];
+                selectedBox.append($(html.join('')));
             }
         }
 
         if (maxSelected > 0) {
             setTimeout(function() {
-                if (selectCountList.length > maxSelected) {
-                    var id = selectCountList.pop();
+                if (selectedIdList.length > maxSelected) {
+                    var id = selectedIdList.pop();
                     var el = dialogEl.find('input[data="' + id +'"]');
                     el.prop('checked', false);
 
@@ -7484,7 +7502,7 @@
             }
 
             --count;
-            if (completed && count == 0) {
+            if (count == 0 && completed) {
                 completed();
             }
         }
@@ -7501,26 +7519,16 @@
                 return;
             }
 
-            var unreadCount = 0;
+            // var unreadCount = 0;
+
             for (var i = 0; i < list.length; ++i) {
                 var message = list[i];
                 handler(message);
 
-                if (!message.isRead()) {
-                    ++unreadCount;
-                }
+                // if (!message.isRead()) {
+                //     ++unreadCount;
+                // }
             }
-
-            /*for (var i = list.length - 1; i >= 0; --i) {
-                var last = list[i];
-                // 更新目录项
-                if (g.app.messageCatalog.updateItem(contact.id, last, last.getRemoteTimestamp())) {
-                    if (unreadCount > 0) {
-                        g.app.messageCatalog.updateBadge(contact.id, unreadCount);
-                    }
-                    break;
-                }
-            }*/
         }, function(error) {
             console.log('Error: ' + error.code);
         });
@@ -10901,8 +10909,8 @@
             }
 
             app.contactListDialog.show(list, [], function(selectedList) {
-
-            }, '发送文件', '发送文件“' + fileName + '”给：', 10);
+                
+            }, '发送文件', '发送文件“' + fileName + '”给已选择的联系人：', 10);
         });
 
         /*cube().contact.getDefaultContactZone(function(zone) {
