@@ -238,6 +238,9 @@
                     var el = dialogEl.find('input[data="' + id +'"]');
                     el.prop('checked', false);
 
+                    var boxEl = selectedBox.find('#' + id);
+                    boxEl.remove();
+
                     // 提示
                     g.dialog.launchToast(Toast.Info, '最多只能选择' + maxSelected + '个联系人');
                 }
