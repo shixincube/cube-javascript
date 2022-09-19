@@ -1150,6 +1150,8 @@
 
     var sharingCode = null;
 
+    var sharingChart = null;
+
     /**
      * 
      * @param {number} sign 
@@ -1270,6 +1272,55 @@
         }
     }
 
+    function refreshChart(list) {
+        var data = [{
+            name: 'Grandpa',
+            children: [{
+                name: 'Uncle Leo',
+                value: 15,
+                children: [{
+                    name: 'Cousin Jack',
+                    value: 2
+                }, {
+                    name: 'Cousin Mary',
+                    value: 5,
+                    children: [{
+                        name: 'Jackson',
+                        value: 2
+                    }]
+                }, {
+                    name: 'Cousin Ben',
+                    value: 4
+                }]
+            }, {
+                name: 'Father',
+                value: 10,
+                children: [{
+                    name: 'Me',
+                    value: 5
+                }, {
+                    name: 'Brother Peter',
+                    value: 1
+                }]
+            }]
+        }];
+
+        var option = {
+            series: {
+                type: 'sunburst',
+                data: data,
+                radius: [60, '90%'],
+                itemStyle: {
+                    borderRadius: 7,
+                    borderWidth: 2
+                },
+                label: {
+                    show: true
+                }
+            }
+        };
+    }
+
     /**
      * 访问痕迹清单。
      * @param {jQuery} el 
@@ -1283,6 +1334,8 @@
         dialogEl.on('hidden.bs.modal', function(e) {
             paginationEl.find('.page-goto').remove();
         });
+
+        sharingChart = echarts.init(document.getElementById('sharing_trace_chart'));
     }
 
     VisitTraceListDialog.prototype.open = function(code) {
@@ -8976,7 +9029,7 @@
 
         btnUploading = transEl.find('#btn_trans_upload');
         btnDownloading = transEl.find('#btn_trans_download');
-        btnComplete = transEl.find('#btn_trans_complete');
+        //btnComplete = transEl.find('#btn_trans_complete');
 
         activeBtn = btnAllFiles;
 
@@ -9041,6 +9094,7 @@
             app.globalPopover = null;
         });
 
+        /*
         btnComplete.popover({
             content: function() {
                 if (0 == numCompleted) {
@@ -9055,7 +9109,7 @@
             html: true,
             placement: 'right',
             trigger: 'hover'
-        });
+        });*/
 
         btnSharing.click(function() {
             that.select($(this).attr('id'));
@@ -9206,7 +9260,7 @@
 
     FileCatalogue.prototype.onFileUploaded = function(folder, fileLabel) {
         ++numCompleted;
-        btnComplete.find('.badge').text(numCompleted);
+        //btnComplete.find('.badge').text(numCompleted);
 
         uploadingMap.remove(fileLabel.getFileName());
         if (uploadingMap.size() > 0) {
@@ -9236,7 +9290,7 @@
 
     FileCatalogue.prototype.onFileDownloaded = function(fileLabel, fileAnchor) {
         ++numCompleted;
-        btnComplete.find('.badge').text(numCompleted);
+        //btnComplete.find('.badge').text(numCompleted);
 
         downloadingArray.remove(fileLabel.getFileCode());
         if (downloadingArray.length > 0) {

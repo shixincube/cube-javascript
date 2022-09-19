@@ -45,6 +45,8 @@
 
     var sharingCode = null;
 
+    var sharingChart = null;
+
     /**
      * 
      * @param {number} sign 
@@ -165,6 +167,55 @@
         }
     }
 
+    function refreshChart(list) {
+        var data = [{
+            name: 'Grandpa',
+            children: [{
+                name: 'Uncle Leo',
+                value: 15,
+                children: [{
+                    name: 'Cousin Jack',
+                    value: 2
+                }, {
+                    name: 'Cousin Mary',
+                    value: 5,
+                    children: [{
+                        name: 'Jackson',
+                        value: 2
+                    }]
+                }, {
+                    name: 'Cousin Ben',
+                    value: 4
+                }]
+            }, {
+                name: 'Father',
+                value: 10,
+                children: [{
+                    name: 'Me',
+                    value: 5
+                }, {
+                    name: 'Brother Peter',
+                    value: 1
+                }]
+            }]
+        }];
+
+        var option = {
+            series: {
+                type: 'sunburst',
+                data: data,
+                radius: [60, '90%'],
+                itemStyle: {
+                    borderRadius: 7,
+                    borderWidth: 2
+                },
+                label: {
+                    show: true
+                }
+            }
+        };
+    }
+
     /**
      * 访问痕迹清单。
      * @param {jQuery} el 
@@ -178,6 +229,8 @@
         dialogEl.on('hidden.bs.modal', function(e) {
             paginationEl.find('.page-goto').remove();
         });
+
+        sharingChart = echarts.init(document.getElementById('sharing_trace_chart'));
     }
 
     VisitTraceListDialog.prototype.open = function(code) {

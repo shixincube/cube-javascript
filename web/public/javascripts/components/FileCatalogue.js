@@ -41,7 +41,7 @@
 
     var btnUploading = null;
     var btnDownloading = null;
-    var btnComplete = null;
+    //var btnComplete = null;
 
     var btnSharing = null;
     var btnSharingExpired = null;
@@ -83,7 +83,7 @@
 
         btnUploading = transEl.find('#btn_trans_upload');
         btnDownloading = transEl.find('#btn_trans_download');
-        btnComplete = transEl.find('#btn_trans_complete');
+        //btnComplete = transEl.find('#btn_trans_complete');
 
         activeBtn = btnAllFiles;
 
@@ -148,6 +148,7 @@
             app.globalPopover = null;
         });
 
+        /*
         btnComplete.popover({
             content: function() {
                 if (0 == numCompleted) {
@@ -162,7 +163,7 @@
             html: true,
             placement: 'right',
             trigger: 'hover'
-        });
+        });*/
 
         btnSharing.click(function() {
             that.select($(this).attr('id'));
@@ -313,7 +314,7 @@
 
     FileCatalogue.prototype.onFileUploaded = function(folder, fileLabel) {
         ++numCompleted;
-        btnComplete.find('.badge').text(numCompleted);
+        //btnComplete.find('.badge').text(numCompleted);
 
         uploadingMap.remove(fileLabel.getFileName());
         if (uploadingMap.size() > 0) {
@@ -343,7 +344,7 @@
 
     FileCatalogue.prototype.onFileDownloaded = function(fileLabel, fileAnchor) {
         ++numCompleted;
-        btnComplete.find('.badge').text(numCompleted);
+        //btnComplete.find('.badge').text(numCompleted);
 
         downloadingArray.remove(fileLabel.getFileCode());
         if (downloadingArray.length > 0) {
