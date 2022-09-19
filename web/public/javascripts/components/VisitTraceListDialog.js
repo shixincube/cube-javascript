@@ -52,6 +52,14 @@
      * @returns 
      */
     function makeTableRow(sign, trace) {
+        var relation = null;
+        if (trace.sharerId == app.account.id) {
+            relation = '直接';
+        }
+        else {
+            relation = '<span class="text-muted">间接</span>';
+        }
+
         if (null != trace.userAgent) {
             var ua = g.helper.parseUserAgent(trace.userAgent);
 
@@ -76,6 +84,9 @@
                     '</td>',
                     '<td>',
                         parsePlatform(trace.platform),
+                    '</td>',
+                    '<td>',
+                        relation,
                     '</td>',
                 '</tr>'
             ];
@@ -104,12 +115,16 @@
                     '<td>',
                         parsePlatform(trace.platform),
                     '</td>',
+                    '<td>',
+                        relation,
+                    '</td>',
                 '</tr>'
             ];
         }
         else {
             return [
                 '<tr>',
+                    '<td>','</td>',
                     '<td>','</td>',
                     '<td>','</td>',
                     '<td>','</td>',

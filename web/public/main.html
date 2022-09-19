@@ -1225,30 +1225,48 @@
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">分享数据访问记录</h5>
+                    <h5 class="modal-title">分享记录</h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="card">
+                    <div class="card card-primary card-tabs">
+                        <div class="card-header p-0 pt-1">
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="trace-records-tab" href="#trace-tabs-records" data-toggle="pill" role="tab" aria-controls="trace-tabs-records" aria-selected="true">访问记录表</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="trace-graph-tab" href="#trace-tabs-graph" data-toggle="pill" role="tab" aria-controls="trace-tabs-graph" aria-selected="false">传播图</a>
+                                </li>
+                            </ul>
+                        </div>
                         <div class="card-body" style="padding:0;min-height:508px;">
-                            <table class="table table-bordered table-striped table-sm">
-                                <thead>
-                                    <tr>
-                                        <th width="38">#</th>
-                                        <th>时间</th>
-                                        <th>访问人</th>
-                                        <th>访问地址</th>
-                                        <th>操作系统</th>
-                                        <th>浏览器（应用）</th>
-                                        <th>事件</th>
-                                        <th>来源设备</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="trace-tb">
-                                </tbody>
-                            </table>
+                            <div class="tab-content">
+                                <div class="tab-pane fade show active" id="trace-tabs-records" role="tabpanel" aria-labelledby="trace-records-tab">
+                                    <table class="table table-bordered table-striped table-sm" style="margin-bottom:0rem;">
+                                        <thead>
+                                            <tr>
+                                                <th width="38">#</th>
+                                                <th>时间</th>
+                                                <th>访问人</th>
+                                                <th>访问地址</th>
+                                                <th>操作系统</th>
+                                                <th>浏览器（应用）</th>
+                                                <th>事件</th>
+                                                <th>来源设备</th>
+                                                <th>路径</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="trace-tb">
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="tab-pane fade" id="trace-tabs-graph" role="tabpanel" aria-labelledby="trace-graph-tab">
+                                    传播图
+                                </div>
+                            </div>
                         </div><!-- /.card-body -->
                         <div class="card-footer clearfix">
                             <ul class="pagination pagination-sm m-0 float-right">

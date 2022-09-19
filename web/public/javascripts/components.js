@@ -1157,6 +1157,14 @@
      * @returns 
      */
     function makeTableRow(sign, trace) {
+        var relation = null;
+        if (trace.sharerId == app.account.id) {
+            relation = '直接';
+        }
+        else {
+            relation = '<span class="text-muted">间接</span>';
+        }
+
         if (null != trace.userAgent) {
             var ua = g.helper.parseUserAgent(trace.userAgent);
 
@@ -1181,6 +1189,9 @@
                     '</td>',
                     '<td>',
                         parsePlatform(trace.platform),
+                    '</td>',
+                    '<td>',
+                        relation,
                     '</td>',
                 '</tr>'
             ];
@@ -1209,12 +1220,16 @@
                     '<td>',
                         parsePlatform(trace.platform),
                     '</td>',
+                    '<td>',
+                        relation,
+                    '</td>',
                 '</tr>'
             ];
         }
         else {
             return [
                 '<tr>',
+                    '<td>','</td>',
                     '<td>','</td>',
                     '<td>','</td>',
                     '<td>','</td>',
@@ -7109,6 +7124,7 @@
         }
 
         var selectedBox = dialogEl.find('.select-box');
+        selectedBox.empty();
 
         var tbody = dialogEl.find('tbody');
         tbody.empty();
@@ -7198,14 +7214,30 @@
             if (index < 0) {
                 selectedIdList.push(id);
 
-                var selected = findContact(id, currentList);
-                //<div class="selected" onclick="app.contactListDialog.toggleChecked()"><img class="avatar" src="avatars/default.png" /></div>
-                var html = [
-                    '<div id="', id, '" class="selected" onclick="app.contactListDialog.toggleChecked(', id , ')">',
-                        '<img class="avatar" src="avatars/default.png" />',
-                    '</div>'
-                ];
-                selectedBox.append($(html.join('')));
+                var avatar = null;
+                var name = null;
+                var selectedEntity = findContact(id, currentList);
+                if (selectedEntity instanceof Conversation) {
+                    if (null != selectedEntity.getContact()) {
+                        var contact = selectedEntity.getContact();
+                        name = contact.getPriorityName();
+                        avatar = g.helper.getAvatarImage(contact.getContext().avatar);
+                    }
+                }
+                else if (selectedEntity instanceof Contact) {
+                    var contact = selectedEntity;
+                    name = contact.getPriorityName();
+                    avatar = g.helper.getAvatarImage(contact.getContext().avatar);
+                }
+
+                if (null != name) {
+                    var html = [
+                        '<div id="', id, '" title="', name, '" class="selected" onclick="app.contactListDialog.toggleChecked(', id , ')">',
+                            '<img class="avatar" src="', avatar, '" />',
+                        '</div>'
+                    ];
+                    selectedBox.append($(html.join('')));
+                }
             }
         }
 
@@ -7215,6 +7247,9 @@
                     var id = selectedIdList.pop();
                     var el = dialogEl.find('input[data="' + id +'"]');
                     el.prop('checked', false);
+
+                    var boxEl = selectedBox.find('#' + id);
+                    boxEl.remove();
 
                     // 提示
                     g.dialog.launchToast(Toast.Info, '最多只能选择' + maxSelected + '个联系人');
@@ -10898,8 +10933,8 @@
 
     /**
      * 提示发送文件给联系人。
-     * @param {*} fileName 
-     * @param {*} fileCode 
+     * @param {string} fileName 
+     * @param {string} fileCode 
      */
     FilePanel.prototype.promptSendFile = function(fileName, fileCode) {
         cube().messaging.getRecentConversations(function(list) {
@@ -12887,6 +12922,13 @@
      * @param {function} [callback]
      */
     ContactsController.prototype.ready = function(callback) {
+        if (!cube.contact.isReady()) {
+            setTimeout(function() {
+                that.ready(callback);
+            }, 500);
+            return;
+        }
+
         // 重置列表
         contactList = [];
         groupList = [];

@@ -123,6 +123,13 @@
      * @param {function} [callback]
      */
     ContactsController.prototype.ready = function(callback) {
+        if (!cube.contact.isReady()) {
+            setTimeout(function() {
+                that.ready(callback);
+            }, 500);
+            return;
+        }
+
         // 重置列表
         contactList = [];
         groupList = [];

@@ -131,6 +131,7 @@
         }
 
         var selectedBox = dialogEl.find('.select-box');
+        selectedBox.empty();
 
         var tbody = dialogEl.find('tbody');
         tbody.empty();
@@ -220,14 +221,30 @@
             if (index < 0) {
                 selectedIdList.push(id);
 
-                var selected = findContact(id, currentList);
-                //<div class="selected" onclick="app.contactListDialog.toggleChecked()"><img class="avatar" src="avatars/default.png" /></div>
-                var html = [
-                    '<div id="', id, '" class="selected" onclick="app.contactListDialog.toggleChecked(', id , ')">',
-                        '<img class="avatar" src="avatars/default.png" />',
-                    '</div>'
-                ];
-                selectedBox.append($(html.join('')));
+                var avatar = null;
+                var name = null;
+                var selectedEntity = findContact(id, currentList);
+                if (selectedEntity instanceof Conversation) {
+                    if (null != selectedEntity.getContact()) {
+                        var contact = selectedEntity.getContact();
+                        name = contact.getPriorityName();
+                        avatar = g.helper.getAvatarImage(contact.getContext().avatar);
+                    }
+                }
+                else if (selectedEntity instanceof Contact) {
+                    var contact = selectedEntity;
+                    name = contact.getPriorityName();
+                    avatar = g.helper.getAvatarImage(contact.getContext().avatar);
+                }
+
+                if (null != name) {
+                    var html = [
+                        '<div id="', id, '" title="', name, '" class="selected" onclick="app.contactListDialog.toggleChecked(', id , ')">',
+                            '<img class="avatar" src="', avatar, '" />',
+                        '</div>'
+                    ];
+                    selectedBox.append($(html.join('')));
+                }
             }
         }
 

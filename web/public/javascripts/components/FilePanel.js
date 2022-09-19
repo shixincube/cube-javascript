@@ -1343,8 +1343,8 @@
 
     /**
      * 提示发送文件给联系人。
-     * @param {*} fileName 
-     * @param {*} fileCode 
+     * @param {string} fileName 
+     * @param {string} fileCode 
      */
     FilePanel.prototype.promptSendFile = function(fileName, fileCode) {
         cube().messaging.getRecentConversations(function(list) {

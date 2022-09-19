@@ -633,7 +633,17 @@
          * @param {function} callback 
          */
         prepareMessages: function(callback) {
+            console.log('DEBUG #prepareMessages()');
+
             cube.messaging.getRecentConversations(function(list) {
+                if (null == list) {
+                    // 消息服务未就绪
+                    setTimeout(function() {
+                        that.prepareMessages(callback);
+                    }, 500);
+                    return;
+                }
+
                 if (list.length == 0) {
                     callback();
                     return;
@@ -641,8 +651,8 @@
 
                 var count = list.length;
                 function completedCallback() {
+                    console.log('DEBUG #prepareMessages(): ' + count + '/' + list.length);
                     if (--count == 0) {
-                        console.log('DEBUG #prepareMessages : ' + list.length);
                         callback();
                     }
                 }
