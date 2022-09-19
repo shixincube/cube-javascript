@@ -9047,10 +9047,13 @@
                     return '没有传输记录';
                 }
                 else {
-                    return '已传输 ' + numCompleted + ' 个文件';
+                    return ['已传输 ', numCompleted, ' 个文件<br/>',
+                        '<span class="text-xs">上传文件 ', uploadingMap.size(), ' 个</span><br/>',
+                        '<span class="text-xs">下载文件 ', downloadingArray.length, ' 个</span>'].join('');
                 }
             },
-            placement: 'bottom',
+            html: true,
+            placement: 'right',
             trigger: 'hover'
         });
 
