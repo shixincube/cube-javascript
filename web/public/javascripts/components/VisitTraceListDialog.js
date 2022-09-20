@@ -47,6 +47,8 @@
 
     var sharingChart = null;
 
+    var traceChain = null;
+
     /**
      * 
      * @param {number} sign 
@@ -56,10 +58,10 @@
     function makeTableRow(sign, trace) {
         var relation = null;
         if (trace.sharerId == app.account.id) {
-            relation = '直接';
+            relation = '<span title="直接">-</span>';
         }
         else {
-            relation = '<span class="text-muted">间接</span>';
+            relation = '<span title="间接" class="text-muted">※</span>';
         }
 
         if (null != trace.userAgent) {
@@ -167,8 +169,38 @@
         }
     }
 
-    function refreshChart(list) {
-        var data = [{
+    function refreshChart(chain) {
+        var data = [];
+
+        var directNode = {
+            name: '直接路径',
+            children: []
+        };
+
+        data.push(directNode);
+
+        chain.nodes.forEach(function(node) {
+            if (node.event == 'View') {
+                directNode.children.push({
+                    name: node.event,
+                    value: node.eventTotal
+                });
+            }
+            else if (node.event == 'Extract') {
+                directNode.children.push({
+                    name: node.event,
+                    value: node.eventTotal
+                });
+            }
+            else if (node.event == 'Share') {
+                directNode.children.push({
+                    name: node.event,
+                    value: node.eventTotal
+                });
+            }
+        });
+
+        /*var data = [{
             name: 'Grandpa',
             children: [{
                 name: 'Uncle Leo',
@@ -198,7 +230,19 @@
                     value: 1
                 }]
             }]
-        }];
+        }, {
+            name: 'Nancy',
+            children: [{
+                name: 'Uncle Nike',
+                children: [{
+                    name: 'Cousin Betty',
+                    value: 1
+                }, {
+                    name: 'Cousin Jenny',
+                    value: 2
+                }]
+            }]
+        }];*/
 
         var option = {
             series: {
@@ -214,6 +258,16 @@
                 }
             }
         };
+
+        setTimeout(function() {
+            var el = dialogEl.find('.card-body');
+            sharingChart.resize({
+                width: el.width(),
+                height: el.height()
+            });
+
+            sharingChart.setOption(option);
+        }, 500);
     }
 
     /**
@@ -257,7 +311,7 @@
 
         var begin = currentPage.page * currentPage.numEachPage;
         var end = begin + currentPage.numEachPage - 1;
-        g.engine.fs.listVisitTraces(sharingCode, begin, end, function(list, total) {
+        g.cube().fs.listVisitTraces(sharingCode, begin, end, function(list, total) {
             clearTimeout(timer);
             dialogEl.find('.overlay').css('visibility', 'hidden');
 
@@ -273,6 +327,18 @@
             g.dialog.toast('加载数据出错：' + error.code);
             that.close();
         });
+
+        if (null == traceChain) {
+            g.cube().fs.getTraceChain(sharingCode, 9, function(chain) {
+                traceChain = chain;
+                refreshChart(traceChain);
+            }, function(error) {
+                // Nothing
+            });
+        }
+        else {
+            refreshChart(traceChain);
+        }
     }
 
     VisitTraceListDialog.prototype.close = function() {

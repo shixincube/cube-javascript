@@ -2009,6 +2009,11 @@ video {
 
 /* 选择联系人 - 结束 */
 
+.visit-trace-content {
+    padding: 0;
+    min-height: 520px;
+}
+
 
 .new-conference-dialog .participant, .new-conference-dialog .btn-participant {
     display: inline-block;

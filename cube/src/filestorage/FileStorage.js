@@ -91,6 +91,20 @@ import { Measurer } from "./Measurer";
  */
 
 /**
+ * 传输链节点。
+ * @typedef (object) ChainNode
+ * @property {string} event 事件名。
+ * @property {number} eventTotal 事件数量。
+ */
+
+/**
+ * 传输链。
+ * @typedef (object) TransmissionChain
+ * @property {string} traceCode 追踪串。
+ * @property {Array<ChainNode>} nodes 节点列表。
+ */
+
+/**
  * 云端文件存储模块。
  * @extends Module
  */
@@ -1677,6 +1691,38 @@ export class FileStorage extends Module {
 
             // 更新索引
             begin = index + 1;
+        });
+    }
+
+    /**
+     * 获取分享码的传播链。
+     * @param {string} sharingCode 分享码。
+     * @param {number} traceDepth 追踪深度。
+     * @param {funciton} handleSuccess 成功回调。参数：({@linkcode chain}:{@link TransmissionChain}) 。
+     * @param {funciton} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    getTraceChain(sharingCode, traceDepth, handleSuccess, handleFailure) {
+        let payload = {
+            "sharingCode": sharingCode,
+            "trace": traceDepth
+        };
+        let packet = new Packet(FileStorageAction.ListTraces, payload);
+        this.pipeline.send(FileStorage.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
+                let error = new ModuleError(FileStorage.NAME, responsePacket.getStateCode(), sharingCode);
+                handleFailure(error);
+                return;
+            }
+
+            let stateCode = responsePacket.extractServiceStateCode();
+            if (stateCode != FileStorageState.Ok) {
+                let error = new ModuleError(FileStorage.NAME, stateCode);
+                handleFailure(error);
+                return;
+            }
+
+            let data = responsePacket.extractServiceData();
+            handleSuccess(data);
         });
     }
 
