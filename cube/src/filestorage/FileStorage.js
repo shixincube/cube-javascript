@@ -94,7 +94,9 @@ import { Measurer } from "./Measurer";
  * 传输链节点。
  * @typedef (object) ChainNode
  * @property {string} event 事件名。
- * @property {number} eventTotal 事件数量。
+ * @property {number} total 事件数量。
+ * @property {VisitTrace} visitTrace 访问痕迹。
+ * @property {Array<ChainNode>} children 子节点。
  */
 
 /**

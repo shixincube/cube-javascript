@@ -1152,6 +1152,8 @@
 
     var sharingChart = null;
 
+    var traceChainMap = new OrderMap();
+
     /**
      * 
      * @param {number} sign 
@@ -1161,10 +1163,10 @@
     function makeTableRow(sign, trace) {
         var relation = null;
         if (trace.sharerId == app.account.id) {
-            relation = '<span title="直接">-</span>';
+            relation = '<span title="原链">-</span>';
         }
         else {
-            relation = '<span title="间接" class="text-muted">※</span>';
+            relation = '<span title="二链" class="text-muted">※</span>';
         }
 
         if (null != trace.userAgent) {
@@ -1275,101 +1277,81 @@
     function refreshChart(chain) {
         var data = [];
 
-        var directNode = {
-            name: '直接路径',
-            children: []
-        };
-
-        data.push(directNode);
-
         chain.nodes.forEach(function(node) {
+            var item = null;
             if (node.event == 'View') {
-                directNode.children.push({
-                    name: node.event,
-                    value: node.eventTotal
+                item = {
+                    name: '浏览',
+                    value: node.children.length,
+                    children: []
+                };
+
+                node.children.forEach(function(child) {
+                    item.children.push({
+                        name: child.visitTrace.address + ' (' + child.total + ')',
+                        value: 1
+                    });
                 });
+
+                data.push(item);
             }
             else if (node.event == 'Extract') {
-                directNode.children.push({
-                    name: node.event,
-                    value: node.eventTotal
+                item = {
+                    name: '下载',
+                    value: node.children.length,
+                    children: []
+                }
+
+                node.children.forEach(function(child) {
+                    item.children.push({
+                        name: child.visitTrace.address + ' (' + child.total + ')',
+                        value: 1
+                    });
                 });
+
+                data.push(item);
             }
             else if (node.event == 'Share') {
-                directNode.children.push({
-                    name: node.event,
-                    value: node.eventTotal
+                item = {
+                    name: '分享',
+                    value: node.children.length,
+                    children: []
+                };
+
+                node.children.forEach(function(child) {
+                    item.children.push({
+                        name: child.visitTrace.address + ' (' + child.total + ')',
+                        value: 1
+                    });
                 });
+
+                data.push(item);
+            }
+            else if (node.event == 'Fission') {
+                item = {
+                    name: '裂变',
+                    value: node.children.length,
+                    children: []
+                };
+
+                node.children.forEach(function(child) {
+                    var n = {
+                        name: child.visitTrace.address,
+                        value: 1,
+                        children: []
+                    };
+                    item.children.push(n);
+                });
+
+                data.push(item);
             }
         });
-
-        console.log(data);
-
-        // data.push(
-        //     {
-        //         name: 'Nancy',
-        //         children: [{
-        //             name: 'Uncle Nike',
-        //             children: [{
-        //                 name: 'Cousin Betty',
-        //                 value: 1
-        //             }, {
-        //                 name: 'Cousin Jenny',
-        //                 value: 2
-        //             }]
-        //         }]
-        //     }
-        // );
-
-        /*var data = [{
-            name: 'Grandpa',
-            children: [{
-                name: 'Uncle Leo',
-                value: 15,
-                children: [{
-                    name: 'Cousin Jack',
-                    value: 2
-                }, {
-                    name: 'Cousin Mary',
-                    value: 5,
-                    children: [{
-                        name: 'Jackson',
-                        value: 2
-                    }]
-                }, {
-                    name: 'Cousin Ben',
-                    value: 4
-                }]
-            }, {
-                name: 'Father',
-                value: 10,
-                children: [{
-                    name: 'Me',
-                    value: 5
-                }, {
-                    name: 'Brother Peter',
-                    value: 1
-                }]
-            }]
-        }, {
-            name: 'Nancy',
-            children: [{
-                name: 'Uncle Nike',
-                children: [{
-                    name: 'Cousin Betty',
-                    value: 1
-                }, {
-                    name: 'Cousin Jenny',
-                    value: 2
-                }]
-            }]
-        }];*/
 
         var option = {
             series: {
                 type: 'sunburst',
                 data: data,
-                radius: [60, '90%'],
+                radius: [0, '90%'],
                 itemStyle: {
                     borderRadius: 7,
                     borderWidth: 2
@@ -1449,11 +1431,18 @@
             that.close();
         });
 
-        g.cube().fs.getTraceChain(sharingCode, 9, function(chain) {
-            refreshChart(chain);
-        }, function(error) {
-            // Nothing
-        });
+        var traceChain = traceChainMap.get(code);
+        if (null == traceChain) {
+            g.cube().fs.getTraceChain(sharingCode, 9, function(chain) {
+                traceChainMap.put(code, chain);
+                refreshChart(chain);
+            }, function(error) {
+                // Nothing
+            });
+        }
+        else {
+            refreshChart(traceChain);
+        }
     }
 
     VisitTraceListDialog.prototype.close = function() {
