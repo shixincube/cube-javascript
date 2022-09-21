@@ -30,6 +30,8 @@
     var that = null;
     var panelEl = null;
 
+    var timelineChart = null;
+
     function FileDashboard(el) {
         panelEl = (undefined === el) ? $('.files-dashboard-panel') : el;
     }

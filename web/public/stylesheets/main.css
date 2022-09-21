@@ -1292,6 +1292,10 @@ video {
     display: none;
 }
 
+.timeline-chart {
+    height: 300px;
+}
+
 /* 文件界面 - 结束 */
 
 /* 文件详情界面 - 开始 */
