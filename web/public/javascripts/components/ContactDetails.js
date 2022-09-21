@@ -38,6 +38,8 @@
     var btnMessaging = null;
     var btnBlock = null;
 
+    var barActionMgmt = null;
+
     var currentContact = null;
 
     var hideEventListeners = [];
@@ -160,19 +162,24 @@
         btnMessaging.click(gotoMessaging);
         btnBlock = barActionOperation.find('button[data-action="block"]');
         btnBlock.click(blockContact);
+
+        barActionMgmt = el.find('.action-management');
+        var btnMgmt = barActionMgmt.find('a[data-action="management"]');
+        btnMgmt.attr('href', [g.server.url, '/account/management/'].join(''));
     }
 
     /**
      * 显示对话框。
      * @param {Contact|number} contact 
      */
-    ContactDetails.prototype.show = function(contact, readOnly) {
+    ContactDetails.prototype.show = function(contact) {
         if (null != app.globalPopover) {
             app.globalPopover.popover('hide');
         }
 
         barActionAdd.css('display', 'none');
         barActionOperation.css('display', 'none');
+        barActionMgmt.css('display', 'none');
 
         var handler = function(contact) {
             var el = dialogEl;
@@ -187,6 +194,7 @@
                 btnEditName.css('visibility', 'visible');
                 btnEditName.attr('title', '修改昵称');
                 el.find('.widget-user-desc').text('');
+                barActionMgmt.css('display', 'flex');
             }
             else {
                 // 判断是否是通讯录的好友

@@ -172,6 +172,11 @@
             that.select($(this).attr('id'));
         });
 
+        performanceEl.find('#upgrade_storage').attr('href', [
+            g.server.url,
+            '/account/upgrade/'
+        ].join(''));
+
         // 刷新存储空间数据显示
         this.refreshSpaceSize();
     }
