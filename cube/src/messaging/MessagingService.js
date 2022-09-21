@@ -266,10 +266,6 @@ export class MessagingService extends Module {
      * @param {Self} self 
      */
      _prepare(self) {
-        if (this.serviceReady) {
-            return true;
-        }
-
         let gotMessages = false;
         let gotConversations = false;
 
@@ -384,6 +380,11 @@ export class MessagingService extends Module {
         }
 
         let process = (list) => {
+            if (list.length == 0) {
+                handler(list);
+                return;
+            }
+
             let result = [];
 
             list.forEach((value) => {
@@ -1803,7 +1804,7 @@ export class MessagingService extends Module {
 
     /**
      * 查询远端服务器上的会话数据。
-     * @param {number} limit 
+     * @param {number} limit 指定查询记录数量限制。
      * @param {function} handleSuccess 
      * @param {function} handleFailure 
      */
@@ -1838,6 +1839,12 @@ export class MessagingService extends Module {
 
             // let total = packet.extractServiceData().total;
             let list = packet.extractServiceData().list;
+
+            if (list.length == 0) {
+                handleSuccess(this.conversations);
+                return;
+            }
+
             var count = 0;
 
             list.forEach((value) => {

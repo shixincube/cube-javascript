@@ -1412,6 +1412,12 @@
 
         loading = true;
 
+        g.cube().fs.getSharingTag(sharingCode, function(sharingTag) {
+            dialogEl.find('.sub-title').text(sharingTag.fileLabel.getFileName());
+        }, function(error) {
+            // Nothing
+        });
+
         var begin = currentPage.page * currentPage.numEachPage;
         var end = begin + currentPage.numEachPage - 1;
         g.cube().fs.listVisitTraces(sharingCode, begin, end, function(list, total) {

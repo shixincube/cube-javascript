@@ -224,7 +224,7 @@
             }
             else if (node.event == 'Fission') {
                 item = {
-                    name: '裂变',
+                    name: '二链',
                     value: node.children.length,
                     children: []
                 };
@@ -306,6 +306,12 @@
         }, 10 * 1000);
 
         loading = true;
+
+        g.cube().fs.getSharingTag(sharingCode, function(sharingTag) {
+            dialogEl.find('.sub-title').text(sharingTag.fileLabel.getFileName());
+        }, function(error) {
+            // Nothing
+        });
 
         var begin = currentPage.page * currentPage.numEachPage;
         var end = begin + currentPage.numEachPage - 1;

@@ -237,7 +237,7 @@ export class MessagingStorage {
                 { key: 'state', value: ConversationState.Important, compare: '=', optional: true }
             ]);
 
-            if (null != result) {
+            if (undefined !== result && null != result) {
                 // 降序排序
                 result.sort((a, b) => {
                     if (a.timestamp > b.timestamp) return -1;
@@ -449,7 +449,7 @@ export class MessagingStorage {
                 item = { value: 0 };
             }
 
-            handler(item.value);
+            handler( item.value );
         })();
         return true;
     }

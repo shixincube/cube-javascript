@@ -2009,6 +2009,10 @@ video {
 
 /* 选择联系人 - 结束 */
 
+.sub-title {
+    font-size: 14px;
+}
+
 .visit-trace-content {
     padding: 0;
     min-height: 520px;
