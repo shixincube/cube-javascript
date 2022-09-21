@@ -9083,6 +9083,7 @@
     var btnDownloading = null;
     //var btnComplete = null;
 
+    var btnDashboard = null;
     var btnSharing = null;
     var btnSharingExpired = null;
 
@@ -9118,6 +9119,7 @@
         btnDocFiles = catalogEl.find('#btn_doc_files');
         btnRecyclebin = catalogEl.find('#btn_recyclebin');
 
+        btnDashboard = sharingEl.find('#btn_sharing_dashboard');
         btnSharing = sharingEl.find('#btn_sharing');
         btnSharingExpired = sharingEl.find('#btn_sharing_expired');
 
@@ -9137,8 +9139,6 @@
      * 初始化控件数据。
      */
     FileCatalogue.prototype.prepare = function() {
-        g.app.filePanel.showRoot();
-
         btnAllFiles.click(function() {
             that.select($(this).attr('id'));
         });
@@ -9205,6 +9205,9 @@
             trigger: 'hover'
         });*/
 
+        btnDashboard.click(function() {
+            that.select($(this).attr('id'));
+        });
         btnSharing.click(function() {
             that.select($(this).attr('id'));
         });
@@ -9263,35 +9266,47 @@
 
         activeBtn.removeClass('active');
 
-        if (btnAllFiles.attr('id') == id) {
+        if (btnDashboard.attr('id') == id) {
+            activeBtn = btnDashboard;
+            g.app.fileDashboard.show();
+            g.app.fileSharingPanel.hide();
+            g.app.filePanel.hide();
+        }
+        else if (btnAllFiles.attr('id') == id) {
             activeBtn = btnAllFiles;
             g.app.filePanel.showRoot();
             g.app.fileSharingPanel.hide();
+            g.app.fileDashboard.hide();
         }
         else if (btnImageFiles.attr('id') == id) {
             activeBtn = btnImageFiles;
             g.app.filePanel.showImages();
             g.app.fileSharingPanel.hide();
+            g.app.fileDashboard.hide();
         }
         else if (btnDocFiles.attr('id') == id) {
             activeBtn = btnDocFiles;
             g.app.filePanel.showDocuments();
             g.app.fileSharingPanel.hide();
+            g.app.fileDashboard.hide();
         }
         else if (btnRecyclebin.attr('id') == id) {
             activeBtn = btnRecyclebin;
             g.app.filePanel.showRecyclebin();
             g.app.fileSharingPanel.hide();
+            g.app.fileDashboard.hide();
         }
         else if (btnSharing.attr('id') == id) {
             activeBtn = btnSharing;
             g.app.fileSharingPanel.showSharingPanel();
             g.app.filePanel.hide();
+            g.app.fileDashboard.hide();
         }
         else if (btnSharingExpired.attr('id') == id) {
             activeBtn = btnSharingExpired;
             g.app.fileSharingPanel.showExpiresPanel();
             g.app.filePanel.hide();
+            g.app.fileDashboard.hide();
         }
 
         activeBtn.addClass('active');
@@ -11468,7 +11483,7 @@
     var pageNum = 0;
     var pageTotal = 0;
 
-    var btnHotChart = null;
+    var btnSortByCreateTime = null;
 
     var btnPrev = null;
     var btnNext = null;
@@ -11510,7 +11525,7 @@
         pageNum = parentEl.find('.page-num');
         pageTotal = parentEl.find('.page-total');
 
-        btnHotChart = parentEl.find('button[data-target="chart-hot"]');
+        btnSortByCreateTime = parentEl.find('button[data-target="sort-by-create-time"]');
 
         btnSelectAll = parentEl.find('.checkbox-toggle');
 
@@ -11521,8 +11536,7 @@
 
         // 绑定按钮事件 - 开始
 
-        btnHotChart.click(function() {
-            chartPanel.modal('show');
+        btnSortByCreateTime.click(function() {
         });
 
         // 全选按钮
@@ -11740,6 +11754,27 @@
 
 })(window);
 (function(g) {
+    'use strict';
+
+    var that = null;
+    var panelEl = null;
+
+    function FileDashboard(el) {
+        panelEl = (undefined === el) ? $('.files-dashboard-panel') : el;
+    }
+
+    FileDashboard.prototype.show = function() {
+        panelEl.css('display', 'block');
+    }
+
+    FileDashboard.prototype.hide = function() {
+        panelEl.css('display', 'none');
+    }
+
+    g.FileDashboard = FileDashboard;
+
+})(window);
+(function(g) {
     'use strict'
 
     var cube = null;
@@ -11829,6 +11864,16 @@
     var FileController = function(cubeEngine) {
         cube = cubeEngine;
         this.numPerPage = numPerPage;
+    }
+
+    /**
+     * 就绪。
+     */
+    FileController.prototype.ready = function() {
+        g.app.fileCatalog.prepare();
+
+        // 显示仪表板
+        g.app.fileCatalog.select('btn_sharing_dashboard');
     }
 
     /**

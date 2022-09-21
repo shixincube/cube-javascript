@@ -30,6 +30,7 @@ const fileList = [
     'FilePanel.js',
     'FileSharingTable.js',
     'FileSharingPanel.js',
+    'FileDashboard.js',
     'FileController.js',
     'FileTransferPanel.js',
     'ContactsTable.js',

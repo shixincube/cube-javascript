@@ -117,6 +117,16 @@
     }
 
     /**
+     * 就绪。
+     */
+    FileController.prototype.ready = function() {
+        g.app.fileCatalog.prepare();
+
+        // 显示仪表板
+        g.app.fileCatalog.select('btn_sharing_dashboard');
+    }
+
+    /**
      * 获取当前用户的根目录。
      * @param {function} handler 回调函数，参数：({@linkcode root}:{@link Directory}) 。
      */

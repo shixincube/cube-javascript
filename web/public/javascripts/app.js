@@ -59,6 +59,7 @@
     var fileCatalog = null;
     var filePanel = null;
     var fileSharingPanel = null;
+    var fileDashboard = null;
 
     var messagingCtrl = null;
     var callCtrl = null;
@@ -341,6 +342,8 @@
             filePanel = new FilePanel(filesEl.find('.files-panel'));
             // 文件分享面板
             fileSharingPanel = new FileSharingPanel(filesEl.find('.files-sharing-panel'));
+            // 文件仪表板
+            fileDashboard = new FileDashboard(filesEl.find('.files-dashboard-panel'));
 
             // 消息控制器
             messagingCtrl = new MessagingController(cube);
@@ -375,6 +378,7 @@
             that.fileCatalog = fileCatalog;
             that.filePanel = filePanel;
             that.fileSharingPanel = fileSharingPanel;
+            that.fileDashboard = fileDashboard;
 
             that.messagingCtrl = messagingCtrl;
             that.callCtrl = callCtrl;
@@ -608,8 +612,8 @@
                     // 消息控制器就绪
                     messagingCtrl.ready();
 
-                    // 文件目录准备
-                    fileCatalog.prepare();
+                    // 文件控制器就绪
+                    fileCtrl.ready();
 
                     // 会议信息加载
                     confCtrl.ready();

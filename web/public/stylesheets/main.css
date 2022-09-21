@@ -1077,7 +1077,7 @@ video {
 /* 文件界面 - 开始 */
 
 .file-catalog {
-    margin-top: 0.6rem;
+    margin-top: 1.0rem;
     margin-bottom: 0;
     font-size: 14px;
 }
@@ -1086,12 +1086,6 @@ video {
 }
 .file-catalog .nav-link {
     border-radius: 0;
-}
-
-.file-storage-performance {
-    margin-top: 1.0rem;
-    font-size: 14px;
-    cursor: default;
 }
 
 .file-trans {
@@ -1107,7 +1101,7 @@ video {
 }
 
 .file-sharing {
-    margin-top: 1.0rem;
+    margin-top: 0.6rem;
     margin-bottom: 0;
     font-size: 14px;
 }
@@ -1123,6 +1117,12 @@ video {
 .file-sharing-qrcode-img {
     width: 200px;
     height: 200px;
+}
+
+.file-storage-performance {
+    margin-top: 1.0rem;
+    font-size: 14px;
+    cursor: default;
 }
 
 .file-operate button {

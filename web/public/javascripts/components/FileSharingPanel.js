@@ -39,7 +39,7 @@
     var pageNum = 0;
     var pageTotal = 0;
 
-    var btnHotChart = null;
+    var btnSortByCreateTime = null;
 
     var btnPrev = null;
     var btnNext = null;
@@ -81,7 +81,7 @@
         pageNum = parentEl.find('.page-num');
         pageTotal = parentEl.find('.page-total');
 
-        btnHotChart = parentEl.find('button[data-target="chart-hot"]');
+        btnSortByCreateTime = parentEl.find('button[data-target="sort-by-create-time"]');
 
         btnSelectAll = parentEl.find('.checkbox-toggle');
 
@@ -92,8 +92,7 @@
 
         // 绑定按钮事件 - 开始
 
-        btnHotChart.click(function() {
-            chartPanel.modal('show');
+        btnSortByCreateTime.click(function() {
         });
 
         // 全选按钮

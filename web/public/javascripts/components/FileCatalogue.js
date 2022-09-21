@@ -43,6 +43,7 @@
     var btnDownloading = null;
     //var btnComplete = null;
 
+    var btnDashboard = null;
     var btnSharing = null;
     var btnSharingExpired = null;
 
@@ -78,6 +79,7 @@
         btnDocFiles = catalogEl.find('#btn_doc_files');
         btnRecyclebin = catalogEl.find('#btn_recyclebin');
 
+        btnDashboard = sharingEl.find('#btn_sharing_dashboard');
         btnSharing = sharingEl.find('#btn_sharing');
         btnSharingExpired = sharingEl.find('#btn_sharing_expired');
 
@@ -97,8 +99,6 @@
      * 初始化控件数据。
      */
     FileCatalogue.prototype.prepare = function() {
-        g.app.filePanel.showRoot();
-
         btnAllFiles.click(function() {
             that.select($(this).attr('id'));
         });
@@ -165,6 +165,9 @@
             trigger: 'hover'
         });*/
 
+        btnDashboard.click(function() {
+            that.select($(this).attr('id'));
+        });
         btnSharing.click(function() {
             that.select($(this).attr('id'));
         });
@@ -223,35 +226,47 @@
 
         activeBtn.removeClass('active');
 
-        if (btnAllFiles.attr('id') == id) {
+        if (btnDashboard.attr('id') == id) {
+            activeBtn = btnDashboard;
+            g.app.fileDashboard.show();
+            g.app.fileSharingPanel.hide();
+            g.app.filePanel.hide();
+        }
+        else if (btnAllFiles.attr('id') == id) {
             activeBtn = btnAllFiles;
             g.app.filePanel.showRoot();
             g.app.fileSharingPanel.hide();
+            g.app.fileDashboard.hide();
         }
         else if (btnImageFiles.attr('id') == id) {
             activeBtn = btnImageFiles;
             g.app.filePanel.showImages();
             g.app.fileSharingPanel.hide();
+            g.app.fileDashboard.hide();
         }
         else if (btnDocFiles.attr('id') == id) {
             activeBtn = btnDocFiles;
             g.app.filePanel.showDocuments();
             g.app.fileSharingPanel.hide();
+            g.app.fileDashboard.hide();
         }
         else if (btnRecyclebin.attr('id') == id) {
             activeBtn = btnRecyclebin;
             g.app.filePanel.showRecyclebin();
             g.app.fileSharingPanel.hide();
+            g.app.fileDashboard.hide();
         }
         else if (btnSharing.attr('id') == id) {
             activeBtn = btnSharing;
             g.app.fileSharingPanel.showSharingPanel();
             g.app.filePanel.hide();
+            g.app.fileDashboard.hide();
         }
         else if (btnSharingExpired.attr('id') == id) {
             activeBtn = btnSharingExpired;
             g.app.fileSharingPanel.showExpiresPanel();
             g.app.filePanel.hide();
+            g.app.fileDashboard.hide();
         }
 
         activeBtn.addClass('active');
