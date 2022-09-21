@@ -268,6 +268,17 @@
         }, 500);
     }
 
+    function onTabChanged(e) {
+        var activatedTab = e.target;
+        //var previousTab = e.relatedTarget;
+        if (activatedTab.id == 'trace-records-tab') {
+            paginationEl.css('visibility', 'visible');
+        }
+        else if (activatedTab.id == 'trace-graph-tab') {
+            paginationEl.css('visibility', 'hidden');
+        }
+    }
+
     /**
      * 访问痕迹清单。
      * @param {jQuery} el 
@@ -283,6 +294,10 @@
         });
 
         sharingChart = echarts.init(document.getElementById('sharing_trace_chart'));
+
+        dialogEl.find('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            onTabChanged(e);
+        });
     }
 
     VisitTraceListDialog.prototype.open = function(code) {

@@ -135,6 +135,9 @@
 
             //console.log('Cube App Token: ' + token);
 
+            // 日志等级
+            Logger.level(g.preference.log);
+
             $.ajax({
                 type: 'GET',
                 url: server.url + '/account/info/',
@@ -216,7 +219,8 @@
             cube.start(undefined === config ? {
                 address: server.address,
                 domain: 'shixincube.com',
-                appKey: 'shixin-cubeteam-opensource-appkey'
+                appKey: 'shixin-cubeteam-opensource-appkey',
+                log: g.preference.log
             } : config, function() {
                 console.log('Start Cube OK');
 
@@ -326,7 +330,7 @@
             newGroupDialog = new NewGroupDialog($('#new_group_dialog'));
 
             fileDetails = new FileDetails($('#modal_file_details'));
-            visitTraceDialog = new VisitTraceListDialog($('#modal_visit_trace_list'));
+            visitTraceDialog = new VisitTraceListDialog($('#modal_visit_trace_details'));
 
             // 文件
             var filesEl = $('#files');
@@ -633,7 +637,7 @@
          * @param {function} callback 
          */
         prepareMessages: function(callback) {
-            console.log('DEBUG #prepareMessages()');
+            //console.log('DEBUG #prepareMessages()');
 
             cube.messaging.getRecentConversations(function(list) {
                 if (null == list) {
@@ -651,7 +655,7 @@
 
                 var count = list.length;
                 function completedCallback() {
-                    console.log('DEBUG #prepareMessages(): ' + count + '/' + list.length);
+                    //console.log('DEBUG #prepareMessages(): ' + count + '/' + list.length);
                     if (--count == 0) {
                         callback();
                     }

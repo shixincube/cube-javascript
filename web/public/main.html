@@ -573,9 +573,7 @@
                             </div>
                             <!-- Toolbar - begin -->
                             <div class="file-controls">
-                                <!--
-                                <button type="button" class="btn btn-default btn-sm" title="取消分享" data-target="cancel"><i class="fas fa-times-circle"></i> 取消分享</button>
-                                -->
+                                <button type="button" class="btn btn-primary btn-sm" title="最热分享统计" data-target="chart-hot"><i class="fas fa-chart-bar"></i> 最热分享统计</button>
                                 <div class="float-right">
                                     <span class="load-info">第 <span class="page-num">1</span> 页，共 <span class="page-total">1</span> 页</span>
                                     <div class="btn-group">
@@ -1228,7 +1226,7 @@
     <!-- Search Dialog - end -->
 
     <!-- Sharing Details - begin -->
-    <div id="modal_visit_trace_list" class="modal fade visit-trace-list" data-backdrop="static">
+    <div id="modal_visit_trace_details" class="modal fade visit-trace-details" data-backdrop="static">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
@@ -1242,10 +1240,10 @@
                         <div class="card-header p-0 pt-1">
                             <ul class="nav nav-tabs" role="tablist">
                                 <li class="nav-item">
-                                    <a class="nav-link active" id="trace-records-tab" href="#trace-tabs-records" data-toggle="pill" role="tab" aria-controls="trace-tabs-records" aria-selected="true">访问记录表</a>
+                                    <a class="nav-link active" id="trace-records-tab" href="#trace-tabs-records" data-toggle="tab" role="tab" aria-controls="trace-tabs-records" aria-selected="true">访问记录表</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" id="trace-graph-tab" href="#trace-tabs-graph" data-toggle="pill" role="tab" aria-controls="trace-tabs-graph" aria-selected="false">传播图</a>
+                                    <a class="nav-link" id="trace-graph-tab" href="#trace-tabs-graph" data-toggle="tab" role="tab" aria-controls="trace-tabs-graph" aria-selected="false">传播图</a>
                                 </li>
                             </ul>
                         </div>
@@ -1290,6 +1288,27 @@
         </div>
     </div>
     <!-- Sharing Details - end -->
+
+    <!-- Sharing Data Chart - begin -->
+    <div id="modal_trace_chart" class="modal fade visit-trace-chart" data-backdrop="static">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">图表</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="visit-trace-content">
+
+                    </div>
+                </div>
+                <div class="overlay"><span><i class="fas fa-2x fa-sync-alt fa-spin"></i></span><span class="text">正在加载数据，请稍候……</span></div>
+            </div>
+        </div>
+    </div>
+    <!-- Sharing Data Chart - end -->
 
     <!-- Contact Details - begin -->
     <div id="modal_contact_details" class="modal fade">

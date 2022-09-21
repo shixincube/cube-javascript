@@ -34,8 +34,12 @@
     var parentEl = null;
     var table = null;
 
+    var chartPanel = null;
+
     var pageNum = 0;
     var pageTotal = 0;
+
+    var btnHotChart = null;
 
     var btnPrev = null;
     var btnNext = null;
@@ -72,8 +76,12 @@
         parentEl.removeClass('files-hidden');
         parentEl.css('display', 'none');
 
+        chartPanel = $('#modal_trace_chart');
+
         pageNum = parentEl.find('.page-num');
         pageTotal = parentEl.find('.page-total');
+
+        btnHotChart = parentEl.find('button[data-target="chart-hot"]');
 
         btnSelectAll = parentEl.find('.checkbox-toggle');
 
@@ -81,6 +89,12 @@
         btnPrev.attr('disabled', 'disabled');
         btnNext = parentEl.find('button[data-target="next"]');
         btnNext.attr('disabled', 'disabled');
+
+        // 绑定按钮事件 - 开始
+
+        btnHotChart.click(function() {
+            chartPanel.modal('show');
+        });
 
         // 全选按钮
         btnSelectAll.click(function () {
@@ -99,6 +113,8 @@
         btnNext.click(function() {
             that.nextPage();
         });
+
+        // 绑定按钮事件 - 结束
     }
 
     FileSharingPanel.prototype.showSharingPanel = function() {

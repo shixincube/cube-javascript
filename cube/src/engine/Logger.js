@@ -3,7 +3,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Shixin Cube Team.
+ * Copyright (c) 2020-2022 Cube Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,35 +24,54 @@
  * SOFTWARE.
  */
 
+import cell from "@lib/cell-lib";
+
 /**
- * 客户端配置。
+ * 日志操作。
  */
-(function (g, $) {
+export const Logger = {
 
-    g.UITab = {
-        Message: 'messaging',
-        File: 'files',
-        Conference: 'conference',
-        Contacts: 'contacts'
-    };
+    /**
+     * Debug 等级。
+     */
+    DEBUG: 1,
 
-    g.preference = {
-        /**
-         * 默认一级标签界面。
-         */
-        tab: g.UITab.File,
+    /**
+     * Info 等级。
+     */
+    INFO: 2,
 
-        /**
-         * 被关闭的一级界面。
-         */
-        closedTabs: [
-            g.UITab.Conference
-        ],
+    /**
+     * Warning 等级。
+     */
+    WARNING: 3,
 
-        /**
-         * 日志等级。
-         */
-        log: 1
-    };
+    /**
+     * Error 等级。
+     */
+    ERROR: 4,
 
-})(window, jQuery);
+    level: (level) => {
+        if (undefined !== level) {
+            cell.Logger.level = level;
+        }
+
+        return cell.Logger.level;
+    },
+
+    d: (tag, log) => {
+        cell.Logger.d(tag, log);
+    },
+
+    i: (tag, log) => {
+        cell.Logger.i(tag, log);
+    },
+
+    w: (tag, log) => {
+        cell.Logger.w(tag, log);
+    },
+
+    e: (tag, log) => {
+        cell.Logger.e(tag, log);
+    }
+}
