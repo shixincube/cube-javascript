@@ -29,6 +29,17 @@
     g.helper = g.helper || {};
 
     /**
+     * 千分数字。
+     * @param {number|string} value 
+     * @returns 
+     */
+    g.helper.thousands = function(value) {
+        var str = value.toString();
+        var reg = str.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+        return str.replace(reg, "$1,");
+    }
+
+    /**
      * 获取图像访问地址。
      * 
      * @param {string} avatar 
@@ -11763,23 +11774,70 @@
     var that = null;
     var panelEl = null;
 
+    var loadTimer = 0;
     var lastTimestamp = 0;
 
     var timelineChart = null;
 
     function FileDashboard(el) {
+        that = this;
         panelEl = (undefined === el) ? $('.files-dashboard-panel') : el;
         timelineChart = echarts.init(document.getElementById('file_sharing_timeline_chart'));
     }
 
     FileDashboard.prototype.show = function() {
+        if (0 != loadTimer) {
+            clearTimeout(loadTimer);
+            loadTimer = 0;
+        }
 
+        var now = Date.now();
+        if (now - lastTimestamp > 60000) {
+            if (g.cube().fs.isReady()) {
+                this.reload();
+            }
+            else {
+                loadTimer = setTimeout(function() {
+                    that.show();
+                }, 1000);
+            }
+        }
 
         panelEl.css('display', 'block');
     }
 
     FileDashboard.prototype.hide = function() {
+        if (0 != loadTimer) {
+            clearTimeout(loadTimer);
+            loadTimer = 0;
+        }
+
         panelEl.css('display', 'none');
+    }
+
+    /**
+     * 重新加载数据。
+     */
+    FileDashboard.prototype.reload = function() {
+        g.dialog.showLoading();
+
+        var countRecordReport = null;
+
+        var completion = function() {
+            if (null != countRecordReport) {
+                panelEl.find('span[data-target="total-sharing"]').text(g.helper.thousands(countRecordReport.totalSharingTag));
+            }
+
+            lastTimestamp = Date.now();
+            g.dialog.hideLoading();
+        }
+
+        g.cube().fs.getSharingReport(SharingReport.CountRecord, function(report) {
+            countRecordReport = report;
+            completion();
+        }, function(error) {
+            g.dialog.toast('读取报告出错：' + error.code);
+        });
     }
 
     g.FileDashboard = FileDashboard;

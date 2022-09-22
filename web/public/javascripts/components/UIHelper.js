@@ -29,6 +29,17 @@
     g.helper = g.helper || {};
 
     /**
+     * 千分数字。
+     * @param {number|string} value 
+     * @returns 
+     */
+    g.helper.thousands = function(value) {
+        var str = value.toString();
+        var reg = str.indexOf(".") > -1 ? /(\d)(?=(\d{3})+\.)/g : /(\d)(?=(?:\d{3})+$)/g;
+        return str.replace(reg, "$1,");
+    }
+
+    /**
      * 获取图像访问地址。
      * 
      * @param {string} avatar 

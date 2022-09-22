@@ -79,6 +79,7 @@ import { TrashDirectory } from "./filestorage/TrashDirectory";
 import { FileStorageEvent } from "./filestorage/FileStorageEvent";
 import { SharingTag } from "./filestorage/SharingTag";
 import { VisitTrace } from "./filestorage/VisitTrace";
+import { SharingReport } from "./filestorage/SharingReport";
 import { FileProcessor } from "./fileprocessor/FileProcessor";
 import { FileThumbnail } from "./fileprocessor/FileThumbnail";
 import { MultipointComm } from "./multipointcomm/MultipointComm";
@@ -168,6 +169,7 @@ import { Announcer } from "./util/Announcer";
     global.TrashDirectory = TrashDirectory;
     global.SharingTag = SharingTag;
     global.VisitTrace = VisitTrace;
+    global.SharingReport = SharingReport;
 
     global.FileProcessor = FileProcessor;
     global.FileThumbnail = FileThumbnail;

@@ -51,6 +51,7 @@ import { FileHierarchy } from "./FileHierarchy";
 import { SearchItem } from "./SearchItem";
 import { SharingTag } from "./SharingTag";
 import { VisitTrace } from "./VisitTrace";
+import { SharingReport } from "./SharingReport";
 import { StringUtil } from "../util/StringUtil";
 import { TrashFile } from "./TrashFile";
 import { TrashDirectory } from "./TrashDirectory";
@@ -1718,13 +1719,49 @@ export class FileStorage extends Module {
 
             let stateCode = responsePacket.extractServiceStateCode();
             if (stateCode != FileStorageState.Ok) {
-                let error = new ModuleError(FileStorage.NAME, stateCode);
+                let error = new ModuleError(FileStorage.NAME, stateCode, sharingCode);
                 handleFailure(error);
                 return;
             }
 
             let data = responsePacket.extractServiceData();
             handleSuccess(data);
+        });
+    }
+
+    /**
+     * 获取指定名称的分享报告。
+     * @param {string} reportName 指定报告名，参看 {@link SharingReport} 。
+     * @param {funciton} handleSuccess 操作成功回调。参数：({@linkcode report}:{@link SharingReport}) 。
+     * @param {funciton} handleFailure 操作失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    getSharingReport(reportName, handleSuccess, handleFailure) {
+        if (!this.isReady()) {
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.NotReady, reportName);
+            handleFailure(error);
+            return;
+        }
+
+        let payload = {
+            name: reportName
+        };
+        let packet = new Packet(FileStorageAction.GetSharingReport, payload);
+        this.pipeline.send(FileStorage.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
+                let error = new ModuleError(FileStorage.NAME, responsePacket.getStateCode(), reportName);
+                handleFailure(error);
+                return;
+            }
+
+            let stateCode = responsePacket.extractServiceStateCode();
+            if (stateCode != FileStorageState.Ok) {
+                let error = new ModuleError(FileStorage.NAME, stateCode, reportName);
+                handleFailure(error);
+                return;
+            }
+
+            let report = new SharingReport(responsePacket.extractServiceData());
+            handleSuccess(report);
         });
     }
 
