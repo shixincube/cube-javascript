@@ -30,13 +30,18 @@
     var that = null;
     var panelEl = null;
 
+    var lastTimestamp = 0;
+
     var timelineChart = null;
 
     function FileDashboard(el) {
         panelEl = (undefined === el) ? $('.files-dashboard-panel') : el;
+        timelineChart = echarts.init(document.getElementById('file_sharing_timeline_chart'));
     }
 
     FileDashboard.prototype.show = function() {
+
+
         panelEl.css('display', 'block');
     }
 

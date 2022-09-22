@@ -10523,7 +10523,8 @@
         btnUpload.css('display', 'inline-block');
         btnNewDir.css('display', 'inline-block');
         btnRefresh.css('display', 'inline-block');
-        btnParent.css('display', 'block');
+        btnParent.css('display', 'inline-block');
+        btnShare.css('display', 'inline-block');
         btnEmptyTrash.css('display', 'none');
         btnRestore.css('display', 'none');
 
@@ -10550,7 +10551,8 @@
         panelEl.find('.fp-path').html('');
         btnUpload.css('display', 'none');
         btnNewDir.css('display', 'none');
-        btnRefresh.css('display', 'none');
+        btnRefresh.css('display', 'inline-block');
+        btnShare.css('display', 'inline-block');
         btnParent.css('display', 'none');
         btnPrev.attr('disabled', 'disabled');
         btnNext.attr('disabled', 'disabled');
@@ -10601,7 +10603,8 @@
         panelEl.find('.fp-path').html('');
         btnUpload.css('display', 'none');
         btnNewDir.css('display', 'none');
-        btnRefresh.css('display', 'none');
+        btnRefresh.css('display', 'inline-block');
+        btnShare.css('display', 'inline-block');
         btnParent.css('display', 'none');
         btnPrev.attr('disabled', 'disabled');
         btnNext.attr('disabled', 'disabled');
@@ -10650,6 +10653,7 @@
         btnNewDir.css('display', 'none');
         btnRefresh.css('display', 'inline-block');
         btnParent.css('display', 'none');
+        btnShare.css('display', 'none');
         btnPrev.attr('disabled', 'disabled');
         btnNext.attr('disabled', 'disabled');
 
@@ -11759,11 +11763,18 @@
     var that = null;
     var panelEl = null;
 
+    var lastTimestamp = 0;
+
+    var timelineChart = null;
+
     function FileDashboard(el) {
         panelEl = (undefined === el) ? $('.files-dashboard-panel') : el;
+        timelineChart = echarts.init(document.getElementById('file_sharing_timeline_chart'));
     }
 
     FileDashboard.prototype.show = function() {
+
+
         panelEl.css('display', 'block');
     }
 

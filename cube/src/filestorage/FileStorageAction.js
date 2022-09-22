@@ -168,6 +168,12 @@ export const FileStorageAction = {
     GetSharingTag: 'getSharingTag',
 
     /**
+     * 获取分享报告数据。
+     * @type {string}
+     */
+    GetSharingReport: 'getSharingReport',
+
+    /**
      * 罗列当前联系人的所有分享标签。
      * @type {string}
      */

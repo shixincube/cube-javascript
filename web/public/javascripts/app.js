@@ -139,6 +139,11 @@
             // 日志等级
             Logger.level(g.preference.log);
 
+            // 右上角引导标签
+            if (!g.preference.dev) {
+                $('#app-details-tab').find('li').eq(1).css('display', 'none');
+            }
+
             $.ajax({
                 type: 'GET',
                 url: server.url + '/account/info/',

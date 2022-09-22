@@ -38,6 +38,11 @@
 
     g.preference = {
         /**
+         * 是否开发模式。
+         */
+        dev: true,
+
+        /**
          * 默认一级标签界面。
          */
         tab: g.UITab.File,
