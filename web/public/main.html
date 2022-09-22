@@ -478,7 +478,7 @@
                                     <span class="fp-path"></span>
                                 </h5>
                             </div>
-                            <div class="card-body p-1 pt-2">
+                            <div class="card-body dashboard-body">
                                 <div class="container-fluid">
                                     <!-- 计数统计 -->
                                     <div class="row">
@@ -523,16 +523,49 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <!-- 历史分享记录柱图 -->
+                                    <!-- TOP 10 图表 -->
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="card">
+                                                <div class="card-header border-0 pb-0">
+                                                    <h5 class="card-title">浏览量前10排名</h5>
+                                                </div>
+                                                <div class="card-body top-chart-box">
+                                                    <div id="sharing_view_top10" class="top-chart"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="card">
+                                                <div class="card-header border-0 pb-0">
+                                                    <h5 class="card-title">下载量前10排名</h5>
+                                                </div>
+                                                <div class="card-body top-chart-box">
+                                                    <div id="sharing_download_top10" class="top-chart"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- 历史记录 -->
                                     <div class="row">
                                         <div class="col-12">
                                             <div class="card">
-                                                <div class="card-header">
-                                                    <h5 class="card-title">
-                                                    </h5>
+                                                <div class="card-header border-0 pb-0">
+                                                    <h5 class="card-title">访问历史统计</h5>
                                                 </div>
-                                                <div class="card-body">
-                                                    <div id="file_sharing_timeline_chart" class="timeline-chart"></div>
+                                                <div class="card-body timeline-chart-box">
+                                                    <div id="sharing_timeline_chart" class="timeline-chart"></div>
+                                                    <div class="row">
+                                                        <div class="col-4">
+                                                            <div class="classified-chart"></div>
+                                                        </div>
+                                                        <div class="col-4">
+                                                            <div class="classified-chart"></div>
+                                                        </div>
+                                                        <div class="col-4">
+                                                            <div class="classified-chart"></div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

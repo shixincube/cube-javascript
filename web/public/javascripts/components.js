@@ -28,6 +28,22 @@
 
     g.helper = g.helper || {};
 
+    g.helper.chartColors = [
+        '#37A2DA',
+        '#32C5E9',
+        '#67E0E3',
+        '#9FE6B8',
+        '#FFDB5C',
+        '#ff9f7f',
+        '#fb7293',
+        '#E062AE',
+        '#E690D1',
+        '#e7bcf3',
+        '#9d96f5',
+        '#8378EA',
+        '#96BFFF'
+    ];
+
     /**
      * 千分数字。
      * @param {number|string} value 
@@ -11777,12 +11793,205 @@
     var loadTimer = 0;
     var lastTimestamp = 0;
 
-    var timelineChart = null;
+    var viewTop10Chart = null;
+    var downloadTop10Chart = null;
+
+    var historyChart = null;
+
+    var makeBarChartOption = function(labels, values) {
+        return {
+            grid: {
+                left: '15%',
+                right: '5%',
+                top: '5%',
+                bottom: '10%'
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            xAxis: {
+                type: 'value'
+            },
+            yAxis: {
+                type: 'category',
+                inverse: true,
+                axisLabel: {
+                    interval: 0,
+                    rotate: 45
+                },
+                data: labels
+            },
+            series: [{
+                data: values,
+                type: 'bar',
+                barWidth: 20,
+                itemStyle: {
+                    normal: {
+                        color: function(param) {
+                            return g.helper.chartColors[param.dataIndex];
+                        }
+                    }
+                }
+            }]
+        };
+    }
+
+    var refreshViewTop10Chart = function(report) {
+        if (null == viewTop10Chart) {
+            viewTop10Chart = echarts.init(document.getElementById('sharing_view_top10'));
+        }
+
+        var option = makeBarChartOption(['File 1', 'File 2', 'File 3', 'File 4', 'File 5', 'File 6', 'File 7', 'File 8', 'File 9', 'File 10'],
+            [220, 200, 150, 103, 80, 76, 32, 12, 7, 3]);
+        viewTop10Chart.setOption(option);
+    }
+
+    var refreshDownloadTop10Chart = function(report) {
+        if (null == downloadTop10Chart) {
+            downloadTop10Chart = echarts.init(document.getElementById('sharing_download_top10'));
+        }
+
+        var option = makeBarChartOption(['File 1', 'File 2', 'File 3', 'File 4', 'File 5', 'File 6', 'File 7', 'File 8', 'File 9', 'File 10'],
+            [130, 111, 98, 91, 90, 76, 68, 67, 50, 10]);
+        downloadTop10Chart.setOption(option);
+    }
+
+    var refreshHistoryChart = function(report) {
+        if (null == historyChart) {
+            historyChart = echarts.init(document.getElementById('sharing_timeline_chart'));
+        }
+
+        var option = {
+            tooltip: {
+                trigger: 'axis'
+                /*formatter: function(params) {
+                  var text = '--'
+                  if (params && params.length) {
+                    text = params[0].data[0] // 提示框顶部的日期标题
+                    params.forEach(item => {
+                      const dotHtml = item.marker // 提示框示例的小圆圈,可以在这里修改
+                      text += `</br>${dotHtml}${item.seriesName} : ${item.data[1] ? item.data[1] : '-'}`
+                    })
+                  }
+                  return text
+                }*/
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            legend: {
+                data: []
+            },
+            toolbox: {
+                feature: {
+                    saveAsImage: {}
+                }
+            },
+            xAxis: {
+                type: 'time', // type 为 time 时,不要传 xAxis.data 的值,x轴坐标的数据会根据传入的时间自动展示
+                boundaryGap: false, // false横坐标两边不需要留白
+                axisLabel: { // 坐标轴标签样式设置
+                    formatter: function(value, index) {
+                        const date = new Date(value);
+                        const texts = [date.getFullYear(), (date.getMonth() + 1), date.getDate()];
+                        return texts.join('-');
+                        //return echarts.format.formatTime('yyyy-MM-dd', value);
+                    }
+                }
+            },
+            yAxis: {
+                type: 'value',
+                name: '人次'
+            },
+            series: []
+        };
+
+        const data = [
+            {
+              type: 'view',
+              name: '浏览事件',
+              data: [
+                ['2020-10-1', 450],
+                ['2020-10-2', 350],
+                ['2020-10-3', 290],
+                ['2020-10-4', 380],
+                ['2020-10-5', 540],
+                ['2020-10-6', null],
+                ['2020-10-7', null],
+                ['2020-10-8', 430],
+                ['2020-10-9', 330],
+                ['2020-10-10', 280],
+                ['2020-10-11', 340],
+                ['2020-10-12', 455],
+                ['2020-10-13', 330],
+              ]
+            },
+            {
+              type: 'download',
+              name: '下载事件',
+              data: [
+                ['2020-10-1', 50],
+                ['2020-10-2', 150],
+                ['2020-10-3', 100],
+                ['2020-10-4', 140],
+                ['2020-10-5', 141],
+                ['2020-10-6', 66],
+                ['2020-10-7', 78],
+                ['2020-10-8', 67],
+                ['2020-10-9', 55],
+                ['2020-10-10', 80],
+                ['2020-10-11', 40],
+                ['2020-10-12', 120],
+                ['2020-10-13', 130],
+              ]
+            },
+            {
+              type: 'copy',
+              name: '复制链接',
+              data: [
+                ['2020-10-1', 234],
+                ['2020-10-2', 254],
+                ['2020-10-3', 260],
+                ['2020-10-4', 270],
+                ['2020-10-5', 250],
+                ['2020-10-6', 277],
+                ['2020-10-7', 289],
+                ['2020-10-8', 240],
+                ['2020-10-9', 230],
+                ['2020-10-10', 222],
+                ['2020-10-11', 244],
+                ['2020-10-12', 254],
+                ['2020-10-13', 279],
+              ]
+            }
+        ];
+
+        const series = []
+        const legendData = []
+        data.forEach(item => {
+        const obj = {
+            name: item.name,
+            type: 'line',
+            data: item.data
+        }
+        legendData.push(item.name);
+        series.push(obj);
+        })
+        option.legend.data = legendData;
+        option.series = series;
+
+        historyChart.setOption(option, true);
+    }
 
     function FileDashboard(el) {
         that = this;
         panelEl = (undefined === el) ? $('.files-dashboard-panel') : el;
-        timelineChart = echarts.init(document.getElementById('file_sharing_timeline_chart'));
     }
 
     FileDashboard.prototype.show = function() {
@@ -11819,14 +12028,24 @@
      * 重新加载数据。
      */
     FileDashboard.prototype.reload = function() {
-        g.dialog.showLoading();
+        g.dialog.showLoading('正在加载仪表数据');
 
         var countRecordReport = null;
 
         var completion = function() {
             if (null != countRecordReport) {
                 panelEl.find('span[data-target="total-sharing"]').text(g.helper.thousands(countRecordReport.totalSharingTag));
+                panelEl.find('span[data-target="total-view"]').text(g.helper.thousands(countRecordReport.totalEventView));
+                panelEl.find('span[data-target="total-download"]').text(g.helper.thousands(countRecordReport.totalEventExtract));
+                panelEl.find('span[data-target="total-copy"]').text(g.helper.thousands(countRecordReport.totalEventShare));
             }
+
+            refreshViewTop10Chart();
+            refreshDownloadTop10Chart();
+
+            setTimeout(function() {
+                refreshHistoryChart();
+            }, 100);
 
             lastTimestamp = Date.now();
             g.dialog.hideLoading();
