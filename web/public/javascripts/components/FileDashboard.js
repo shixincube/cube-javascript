@@ -37,8 +37,11 @@
     var downloadTop10Chart = null;
 
     var historyChart = null;
+    var ipHistoryChart = null;
+    var osHistoryChart = null;
+    var swHistoryChart = null;
 
-    var makeBarChartOption = function(labels, values) {
+    function makeBarChartOption(labels, values) {
         return {
             grid: {
                 left: '15%',
@@ -79,7 +82,7 @@
         };
     }
 
-    var refreshViewTop10Chart = function(report) {
+    function refreshViewTop10Chart(report) {
         if (null == viewTop10Chart) {
             viewTop10Chart = echarts.init(document.getElementById('sharing_view_top10'));
         }
@@ -89,7 +92,7 @@
         viewTop10Chart.setOption(option);
     }
 
-    var refreshDownloadTop10Chart = function(report) {
+    function refreshDownloadTop10Chart(report) {
         if (null == downloadTop10Chart) {
             downloadTop10Chart = echarts.init(document.getElementById('sharing_download_top10'));
         }
@@ -99,7 +102,7 @@
         downloadTop10Chart.setOption(option);
     }
 
-    var refreshHistoryChart = function(report) {
+    function refreshHistoryChart(report) {
         if (null == historyChart) {
             historyChart = echarts.init(document.getElementById('sharing_timeline_chart'));
         }
@@ -229,6 +232,120 @@
         historyChart.setOption(option, true);
     }
 
+    function refreshIPHistoryChart(report) {
+        if (null == ipHistoryChart) {
+            ipHistoryChart = echarts.init(document.getElementById('sharing_ip_history_chart'));
+        }
+
+        var data = [
+            { value: 1048, name: '北京' },
+            { value: 735, name: '上海' },
+            { value: 580, name: '广州' },
+            { value: 484, name: '成都' },
+            { value: 300, name: '昆明' }
+        ];
+
+        var option = {
+            tooltip: {
+                trigger: 'item'
+            },
+            legend: {
+                orient: 'vertical',
+                left: 'left'
+            },
+            series: [{
+                type: 'pie',
+                radius: '75%',
+                data: data,
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }]
+        };
+
+        ipHistoryChart.setOption(option);
+    }
+
+    function refreshOSHistoryChart(report) {
+        if (null == osHistoryChart) {
+            osHistoryChart = echarts.init(document.getElementById('sharing_os_history_chart'));
+        }
+
+        var data = [
+            { value: 908, name: 'Windows' },
+            { value: 782, name: 'iPhone' },
+            { value: 223, name: 'Mac' },
+            { value: 101, name: 'Android' },
+            { value: 27, name: 'Linux' }
+        ];
+
+        var option = {
+            tooltip: {
+                trigger: 'item'
+            },
+            legend: {
+                orient: 'vertical',
+                left: 'right'
+            },
+            series: [{
+                type: 'pie',
+                radius: '75%',
+                data: data,
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }]
+        };
+
+        osHistoryChart.setOption(option);
+    }
+
+    function refreshSWHistoryChart(report) {
+        if (null == swHistoryChart) {
+            swHistoryChart = echarts.init(document.getElementById('sharing_sw_history_chart'));
+        }
+
+        var data = [
+            { value: 898, name: 'Chrome' },
+            { value: 201, name: 'Firefox' },
+            { value: 87, name: 'Safari' },
+            { value: 66, name: 'Edge' }
+        ];
+
+        var option = {
+            tooltip: {
+                trigger: 'item'
+            },
+            legend: {
+                orient: 'vertical',
+                left: 'right'
+            },
+            series: [{
+                type: 'pie',
+                radius: '75%',
+                data: data,
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }]
+        };
+
+        swHistoryChart.setOption(option);
+    }
+
+
     function FileDashboard(el) {
         that = this;
         panelEl = (undefined === el) ? $('.files-dashboard-panel') : el;
@@ -285,7 +402,10 @@
 
             setTimeout(function() {
                 refreshHistoryChart();
-            }, 100);
+                refreshIPHistoryChart();
+                refreshOSHistoryChart();
+                refreshSWHistoryChart();
+            }, 500);
 
             lastTimestamp = Date.now();
             g.dialog.hideLoading();
