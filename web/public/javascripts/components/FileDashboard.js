@@ -105,6 +105,7 @@
     function refreshHistoryChart(report) {
         if (null == historyChart) {
             historyChart = echarts.init(document.getElementById('sharing_timeline_chart'));
+
         }
 
         var option = {
@@ -369,10 +370,34 @@
         swHistoryChart.setOption(option);
     }
 
+    function onResize() {
+        if (null != viewTop10Chart) {
+            viewTop10Chart.resize();
+        }
+        if (null != downloadTop10Chart) {
+            downloadTop10Chart.resize();
+        }
+        if (null != historyChart) {
+            historyChart.resize();
+        }
+        if (null != ipHistoryChart) {
+            ipHistoryChart.resize();
+        }
+        if (null != osHistoryChart) {
+            osHistoryChart.resize();
+        }
+        if (null != swHistoryChart) {
+            swHistoryChart.resize();
+        }
+    }
+
 
     function FileDashboard(el) {
         that = this;
         panelEl = (undefined === el) ? $('.files-dashboard-panel') : el;
+        $(window).resize(function() {
+            onResize();
+        });
     }
 
     FileDashboard.prototype.show = function() {
