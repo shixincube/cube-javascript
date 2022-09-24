@@ -36,24 +36,24 @@ export class SharingReport {
          * 有效的分享标签总数量。
          * @type {number}
          */
-        this.totalSharingTag = (undefined !== json.totalSharingTag) ? json.totalSharingTag : -1;
+        this.totalSharingTag = (undefined !== json.totalSharingTag) ? json.totalSharingTag : 0;
 
         /**
          * 当前账号的浏览事件总数量。
          * @type {number}
          */
-        this.totalEventView = (undefined !== json.totalEventView) ? json.totalEventView : -1;
+        this.totalEventView = (undefined !== json.totalEventView) ? json.totalEventView : 0;
 
         /**
          * 当前账号的下载事件总数量。
          * @type {number}
          */
-        this.totalEventExtract = (undefined !== json.totalEventExtract) ? json.totalEventExtract : -1;
+        this.totalEventExtract = (undefined !== json.totalEventExtract) ? json.totalEventExtract : 0;
 
         /**
          * 当前账号的复制分享事件总数量。
          * @type {number}
          */
-        this.totalEventShare = (undefined !== json.totalEventShare) ? json.totalEventShare : -1;
+        this.totalEventShare = (undefined !== json.totalEventShare) ? json.totalEventShare : 0;
     }
 }

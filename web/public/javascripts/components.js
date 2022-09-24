@@ -12015,15 +12015,29 @@
             },
             series: [{
                 type: 'pie',
-                radius: '75%',
-                data: data,
+                radius: ['35%', '75%'],
+                avoidLabelOverlap: false,
+                itemStyle: {
+                    borderRadius: 10,
+                    borderColor: '#fff',
+                    borderWidth: 2
+                },
                 emphasis: {
-                    itemStyle: {
+                    label: {
+                        show: true,
+                        fontSize: '24',
+                        fontWeight: 'bold'
+                    }
+                    /*itemStyle: {
                         shadowBlur: 10,
                         shadowOffsetX: 0,
                         shadowColor: 'rgba(0, 0, 0, 0.5)'
-                    }
-                }
+                    }*/
+                },
+                labelLine: {
+                    show: true
+                },
+                data: data
             }]
         };
 
@@ -12056,6 +12070,11 @@
                 radius: '75%',
                 data: data,
                 emphasis: {
+                    label: {
+                        show: true,
+                        fontSize: '18',
+                        fontWeight: 'bold'
+                    },
                     itemStyle: {
                         shadowBlur: 10,
                         shadowOffsetX: 0,
@@ -12093,6 +12112,11 @@
                 radius: '75%',
                 data: data,
                 emphasis: {
+                    label: {
+                        show: true,
+                        fontSize: '18',
+                        fontWeight: 'bold'
+                    },
                     itemStyle: {
                         shadowBlur: 10,
                         shadowOffsetX: 0,
