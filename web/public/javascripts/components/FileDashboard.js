@@ -41,6 +41,9 @@
     var osHistoryChart = null;
     var swHistoryChart = null;
 
+    var fileTypeValidChart = null;
+    var fileTypeExpiredChart = null;
+
     function makeBarChartOption(labels, values) {
         return {
             grid: {
@@ -370,6 +373,102 @@
         swHistoryChart.setOption(option);
     }
 
+    function refreshFileTypeValidChart(report) {
+        if (null == fileTypeValidChart) {
+            fileTypeValidChart = echarts.init(document.getElementById('sharing_file_type_valid'));
+        }
+
+        var category = ['PDF', 'PNG', 'JPG', 'DOC'];
+        var data = [3, 7, 11, 29];
+
+        var option = {
+            polar: {
+                radius: ['10%', '80%']
+            },
+            angleAxis: {
+                max: 30,
+                startAngle: 0
+            },
+            radiusAxis: {
+                type: 'category',
+                data: category
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer : {
+                    type : 'shadow'
+                }
+            },
+            series: {
+                type: 'bar',
+                data: data,
+                coordinateSystem: 'polar',
+                label: {
+                    show: true,
+                    position: 'middle',
+                    formatter: '{b}  {c}'
+                },
+                itemStyle: {
+                    normal: {
+                        color: function(params) {
+                            return g.helper.chartColors[params.dataIndex];
+                        }
+                    }
+                }
+            }
+        };
+
+        fileTypeValidChart.setOption(option);
+    }
+
+    function refreshFileTypeExpiredChart(report) {
+        if (null == fileTypeExpiredChart) {
+            fileTypeExpiredChart = echarts.init(document.getElementById('sharing_file_type_expired'));
+        }
+
+        var category = ['PPT', 'XLS', 'DOC', 'MP3'];
+        var data = [10, 12, 26, 37];
+
+        var option = {
+            polar: {
+                radius: ['10%', '80%']
+            },
+            angleAxis: {
+                max: 40,
+                startAngle: 0
+            },
+            radiusAxis: {
+                type: 'category',
+                data: category
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer : {
+                    type : 'shadow'
+                }
+            },
+            series: {
+                type: 'bar',
+                data: data,
+                coordinateSystem: 'polar',
+                label: {
+                    show: true,
+                    position: 'middle',
+                    formatter: '{b}  {c}'
+                },
+                itemStyle: {
+                    normal: {
+                        color: function(params) {
+                            return g.helper.chartReversalColors[params.dataIndex];
+                        }
+                    }
+                }
+            }
+        };
+
+        fileTypeExpiredChart.setOption(option);
+    }
+
     function onResize() {
         if (null != viewTop10Chart) {
             viewTop10Chart.resize();
@@ -388,6 +487,12 @@
         }
         if (null != swHistoryChart) {
             swHistoryChart.resize();
+        }
+        if (null != fileTypeValidChart) {
+            fileTypeValidChart.resize();
+        }
+        if (null != fileTypeExpiredChart) {
+            fileTypeExpiredChart.resize();
         }
     }
 
@@ -455,6 +560,11 @@
                 refreshOSHistoryChart();
                 refreshSWHistoryChart();
             }, 500);
+
+            setImmediate(function() {
+                refreshFileTypeValidChart();
+                refreshFileTypeExpiredChart();
+            }, 1000);
 
             lastTimestamp = Date.now();
             g.dialog.hideLoading();

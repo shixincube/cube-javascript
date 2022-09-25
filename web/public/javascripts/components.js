@@ -44,6 +44,8 @@
         '#96BFFF'
     ];
 
+    g.helper.chartReversalColors = [];
+
     /**
      * 千分数字。
      * @param {number|string} value 
@@ -337,6 +339,10 @@
     uaTestData.forEach(function(ua) {
         console.log(g.helper.parseUserAgent(ua));
     });*/
+
+    for (var i = g.helper.chartColors.length - 1; i >= 0; --i) {
+        g.helper.chartReversalColors.push(g.helper.chartColors[i]);
+    }
 
 })(window);
 // 对话框组件
@@ -11801,6 +11807,9 @@
     var osHistoryChart = null;
     var swHistoryChart = null;
 
+    var fileTypeValidChart = null;
+    var fileTypeExpiredChart = null;
+
     function makeBarChartOption(labels, values) {
         return {
             grid: {
@@ -12130,6 +12139,102 @@
         swHistoryChart.setOption(option);
     }
 
+    function refreshFileTypeValidChart(report) {
+        if (null == fileTypeValidChart) {
+            fileTypeValidChart = echarts.init(document.getElementById('sharing_file_type_valid'));
+        }
+
+        var category = ['PDF', 'PNG', 'JPG', 'DOC'];
+        var data = [3, 7, 11, 29];
+
+        var option = {
+            polar: {
+                radius: ['10%', '80%']
+            },
+            angleAxis: {
+                max: 30,
+                startAngle: 0
+            },
+            radiusAxis: {
+                type: 'category',
+                data: category
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer : {
+                    type : 'shadow'
+                }
+            },
+            series: {
+                type: 'bar',
+                data: data,
+                coordinateSystem: 'polar',
+                label: {
+                    show: true,
+                    position: 'middle',
+                    formatter: '{b}  {c}'
+                },
+                itemStyle: {
+                    normal: {
+                        color: function(params) {
+                            return g.helper.chartColors[params.dataIndex];
+                        }
+                    }
+                }
+            }
+        };
+
+        fileTypeValidChart.setOption(option);
+    }
+
+    function refreshFileTypeExpiredChart(report) {
+        if (null == fileTypeExpiredChart) {
+            fileTypeExpiredChart = echarts.init(document.getElementById('sharing_file_type_expired'));
+        }
+
+        var category = ['PPT', 'XLS', 'DOC', 'MP3'];
+        var data = [10, 12, 26, 37];
+
+        var option = {
+            polar: {
+                radius: ['10%', '80%']
+            },
+            angleAxis: {
+                max: 40,
+                startAngle: 0
+            },
+            radiusAxis: {
+                type: 'category',
+                data: category
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer : {
+                    type : 'shadow'
+                }
+            },
+            series: {
+                type: 'bar',
+                data: data,
+                coordinateSystem: 'polar',
+                label: {
+                    show: true,
+                    position: 'middle',
+                    formatter: '{b}  {c}'
+                },
+                itemStyle: {
+                    normal: {
+                        color: function(params) {
+                            return g.helper.chartReversalColors[params.dataIndex];
+                        }
+                    }
+                }
+            }
+        };
+
+        fileTypeExpiredChart.setOption(option);
+    }
+
     function onResize() {
         if (null != viewTop10Chart) {
             viewTop10Chart.resize();
@@ -12139,6 +12244,15 @@
         }
         if (null != historyChart) {
             historyChart.resize();
+        }
+        if (null != ipHistoryChart) {
+            ipHistoryChart.resize();
+        }
+        if (null != osHistoryChart) {
+            osHistoryChart.resize();
+        }
+        if (null != swHistoryChart) {
+            swHistoryChart.resize();
         }
     }
 
@@ -12206,6 +12320,11 @@
                 refreshOSHistoryChart();
                 refreshSWHistoryChart();
             }, 500);
+
+            setImmediate(function() {
+                refreshFileTypeValidChart();
+                refreshFileTypeExpiredChart();
+            }, 1000);
 
             lastTimestamp = Date.now();
             g.dialog.hideLoading();
