@@ -12269,7 +12269,10 @@
                     mark: { show: true },
                     magicType: { show: true, type: ['line', 'bar', 'stack'] },
                     restore: { show: true },
-                    saveAsImage: { show: true }
+                    saveAsImage: {
+                        show: true,
+                        name: '访客统计'
+                    }
                 }
             },
             xAxis: [{
@@ -12459,7 +12462,10 @@
             g.dialog.hideLoading();
         }
 
-        g.cube().fs.getSharingReport(SharingReport.CountRecord, function(report) {
+        g.cube().fs.getSharingReport([
+            SharingReport.CountRecord,
+            SharingReport.TopCountRecord
+        ], function(report) {
             countRecordReport = report;
             completion();
         }, function(error) {

@@ -696,7 +696,10 @@
             g.dialog.hideLoading();
         }
 
-        g.cube().fs.getSharingReport(SharingReport.CountRecord, function(report) {
+        g.cube().fs.getSharingReport([
+            SharingReport.CountRecord,
+            SharingReport.TopCountRecord
+        ], function(report) {
             countRecordReport = report;
             completion();
         }, function(error) {

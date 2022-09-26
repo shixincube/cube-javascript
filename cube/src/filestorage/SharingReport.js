@@ -31,6 +31,8 @@ export class SharingReport {
 
     static CountRecord = 'CountRecord';
 
+    static TopCountRecord = 'TopCountRecord';
+
     constructor(json) {
         /**
          * 有效的分享标签总数量。
@@ -55,5 +57,17 @@ export class SharingReport {
          * @type {number}
          */
         this.totalEventShare = (undefined !== json.totalEventShare) ? json.totalEventShare : 0;
+
+        /**
+         * View 事件 TOP 统计。
+         * @type {Array}
+         */
+        this.topView = (undefined !== json.topView) ? json.topView : null;
+
+        /**
+         * Extract 事件 TOP 统计。
+         * @type {Array}
+         */
+        this.topExtract = (undefined !== json.topExtract) ? json.topExtract : null;
     }
 }

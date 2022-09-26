@@ -1731,31 +1731,33 @@ export class FileStorage extends Module {
 
     /**
      * 获取指定名称的分享报告。
-     * @param {string} reportName 指定报告名，参看 {@link SharingReport} 。
+     * @param {string|Array} reportNames 指定报告名，参看 {@link SharingReport} 。
      * @param {funciton} handleSuccess 操作成功回调。参数：({@linkcode report}:{@link SharingReport}) 。
      * @param {funciton} handleFailure 操作失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
-    getSharingReport(reportName, handleSuccess, handleFailure) {
+    getSharingReport(reportNames, handleSuccess, handleFailure) {
         if (!this.isReady()) {
-            let error = new ModuleError(FileStorage.NAME, FileStorageState.NotReady, reportName);
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.NotReady, reportNames);
             handleFailure(error);
             return;
         }
 
-        let payload = {
-            name: reportName
+        let payload = (typeof reportNames === 'string') ? {
+            name: reportNames
+        } : {
+            names: reportNames
         };
         let packet = new Packet(FileStorageAction.GetSharingReport, payload);
         this.pipeline.send(FileStorage.NAME, packet, (pipeline, source, responsePacket) => {
             if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
-                let error = new ModuleError(FileStorage.NAME, responsePacket.getStateCode(), reportName);
+                let error = new ModuleError(FileStorage.NAME, responsePacket.getStateCode(), reportNames);
                 handleFailure(error);
                 return;
             }
 
             let stateCode = responsePacket.extractServiceStateCode();
             if (stateCode != FileStorageState.Ok) {
-                let error = new ModuleError(FileStorage.NAME, stateCode, reportName);
+                let error = new ModuleError(FileStorage.NAME, stateCode, reportNames);
                 handleFailure(error);
                 return;
             }
