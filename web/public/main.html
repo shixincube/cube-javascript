@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="plugins/ionicons/css/ionicons.min.css">
     <link rel="stylesheet" href="plugins/icheck-bootstrap/icheck-bootstrap.min.css">
     <link rel="stylesheet" href="plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+    <link rel="stylesheet" href="plugins/select2/css/select2.min.css">
     <link rel="stylesheet" href="plugins/bootstrap-select/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
     <link rel="stylesheet" href="plugins/jquery-ui/jquery-ui.min.css">
@@ -582,6 +583,29 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <!-- 访问人统计 -->
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="card">
+                                                <div class="card-header border-0">
+                                                    <h5 class="card-title">访客统计</h5>
+                                                    <div class="card-tools">
+                                                        <div class="btn-group" style="width:200px;">
+                                                            <select class="form-control select2" style="width:100%;">
+                                                            </select>
+                                                        </div>
+                                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="visitor-chart-box">
+                                                        <div class="chart-title">访客浏览记录</div>
+                                                        <div class="visitor-chart" id="sharing_visitor_chart"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <!-- 文件分类统计 -->
                                     <div class="row">
                                         <div class="col-12">
@@ -610,13 +634,6 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- 访问人统计 -->
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="card">
                                             </div>
                                         </div>
                                     </div>
@@ -2320,6 +2337,7 @@
 <script type="text/javascript" src="plugins/sweetalert2/sweetalert2.min.js"></script>
 <script type="text/javascript" src="plugins/bootstrap-select/bootstrap-select.min.js"></script>
 <script type="text/javascript" src="plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
+<script type="text/javascript" src="plugins/select2/js/select2.min.js"></script>
 <script type="text/javascript" src="plugins/moment/moment.min.js"></script>
 <script type="text/javascript" src="plugins/moment/locale/zh-cn.js"></script>
 <script type="text/javascript" src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>

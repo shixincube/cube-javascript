@@ -41,6 +41,8 @@
     var osHistoryChart = null;
     var swHistoryChart = null;
 
+    var visitorChart = null;
+
     var fileTypeValidChart = null;
     var fileTypeExpiredChart = null;
 
@@ -137,11 +139,13 @@
             },
             toolbox: {
                 feature: {
-                    saveAsImage: {}
+                    saveAsImage: {
+                        name: '分享文档访问统计'
+                    }
                 }
             },
             xAxis: {
-                type: 'time', // type 为 time 时,不要传 xAxis.data 的值,x轴坐标的数据会根据传入的时间自动展示
+                type: 'time', // type 为 time 时，不要传 xAxis.data 的值，x轴坐标的数据会根据传入的时间自动展示
                 boundaryGap: false, // false横坐标两边不需要留白
                 axisLabel: { // 坐标轴标签样式设置
                     formatter: function(value, index) {
@@ -469,6 +473,121 @@
         fileTypeExpiredChart.setOption(option);
     }
 
+    function refreshVisitorChart(report) {
+        if (null == visitorChart) {
+            visitorChart = echarts.init(document.getElementById('sharing_visitor_chart'));
+        }
+
+        var files = ['File 1', 'File 2', 'File 3', 'File 4', 'File 5'];
+        var data = makeVisitorChartSeries(report);
+
+        var option = {
+            grid: {
+                left: '5%',
+                right: '5%',
+                top: '5%',
+                bottom: '10%'
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            toolbox: {
+                show: true,
+                orient: 'vertical',
+                left: 'right',
+                top: 'center',
+                feature: {
+                    mark: { show: true },
+                    magicType: { show: true, type: ['line', 'bar', 'stack'] },
+                    restore: { show: true },
+                    saveAsImage: {
+                        show: true,
+                        name: '访客统计'
+                    }
+                }
+            },
+            xAxis: [{
+                type: 'category',
+                axisTick: { show: false },
+                data: files
+            }],
+            yAxis: [{
+                type: 'value'
+            }],
+            series: data
+        };
+
+        visitorChart.setOption(option);
+    }
+
+    function makeVisitorChartSeries() {
+        const labelOption = {
+            show: true,
+            position: 'insideBottom',
+            distance: 15,
+            align: 'left',
+            verticalAlign: 'middle',
+            rotate: 90,
+            formatter: '{c}  {name|{a}}',
+            fontSize: 16,
+            rich: {
+                name: {}
+            }
+        };
+
+        return [{
+                name: '浏览',
+                type: 'bar',
+                barGap: 0,
+                label: labelOption,
+                emphasis: {
+                    focus: 'series'
+                },
+                itemStyle: {
+                    normal: {
+                        color: function(param) {
+                            return g.helper.chartColors[1];
+                        }
+                    }
+                },
+                data: [320, 332, 301, 334, 390]
+            }, {
+                name: '下载',
+                type: 'bar',
+                label: labelOption,
+                emphasis: {
+                    focus: 'series'
+                },
+                itemStyle: {
+                    normal: {
+                        color: function(param) {
+                            return g.helper.chartColors[3];
+                        }
+                    }
+                },
+                data: [220, 182, 191, 234, 290]
+            }, {
+                name: '复制',
+                type: 'bar',
+                label: labelOption,
+                emphasis: {
+                    focus: 'series'
+                },
+                itemStyle: {
+                    normal: {
+                        color: function(param) {
+                            return g.helper.chartColors[9];
+                        }
+                    }
+                },
+                data: [150, 232, 201, 154, 190]
+            }
+        ];
+    }
+
     function onResize() {
         if (null != viewTop10Chart) {
             viewTop10Chart.resize();
@@ -487,6 +606,9 @@
         }
         if (null != swHistoryChart) {
             swHistoryChart.resize();
+        }
+        if (null != visitorChart) {
+            visitorChart.resize();
         }
         if (null != fileTypeValidChart) {
             fileTypeValidChart.resize();
@@ -561,10 +683,14 @@
                 refreshSWHistoryChart();
             }, 500);
 
-            setImmediate(function() {
+            setTimeout(function() {
+                refreshVisitorChart();
+            }, 1000);
+
+            setTimeout(function() {
                 refreshFileTypeValidChart();
                 refreshFileTypeExpiredChart();
-            }, 1000);
+            }, 1500);
 
             lastTimestamp = Date.now();
             g.dialog.hideLoading();

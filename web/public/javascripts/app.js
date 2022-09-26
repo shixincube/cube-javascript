@@ -120,6 +120,9 @@
          * 启动程序并进行初始化。
          */
         launch: function() {
+            // UI 初始化
+            $('.select2').select2();
+
             token = g.getQueryString('t');
             if (null == token) {
                 token = g.readCookie('CubeAppToken');

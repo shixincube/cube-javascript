@@ -1313,6 +1313,14 @@ video {
     height: 300px;
 }
 
+.visitor-chart-box {
+    padding: 0 !important;
+}
+.visitor-chart {
+    width: 100%;
+    height: 400px;
+}
+
 .chart-title {
     font-size: 14px;
     text-align: center;
@@ -1334,7 +1342,7 @@ video {
     min-height: 520px;
 }
 .chart-3 {
-    height: 240px;
+    min-height: 240px;
 }
 
 /* 文件界面 - 结束 */
