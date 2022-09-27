@@ -139,18 +139,18 @@
 
         var option = {
             tooltip: {
-                trigger: 'axis'
-                /*formatter: function(params) {
-                  var text = '--'
-                  if (params && params.length) {
-                    text = params[0].data[0] // 提示框顶部的日期标题
-                    params.forEach(item => {
-                      const dotHtml = item.marker // 提示框示例的小圆圈,可以在这里修改
-                      text += `</br>${dotHtml}${item.seriesName} : ${item.data[1] ? item.data[1] : '-'}`
-                    })
-                  }
-                  return text
-                }*/
+                trigger: 'axis',
+                formatter: function(params) {
+                    var text = '--'
+                    if (params && params.length) {
+                        text = params[0].data[0]; // 提示框顶部的日期标题
+                        params.forEach(function(item) {
+                            const dotHtml = item.marker // 提示框示例的小圆圈,可以在这里修改
+                            text += `</br>${dotHtml}${item.seriesName} : ${item.data[1] ? item.data[1] : '-'}`
+                        });
+                    }
+                    return text;
+                }
             },
             grid: {
                 left: '3%',
@@ -186,6 +186,19 @@
             },
             series: []
         };
+
+        const viewData = [];
+        report.timelineView.forEach(function(item) {
+            viewData.push([g.formatYMD(item.time), item.total]);
+        });
+        const extractData = [];
+        report.timelineExtract.forEach(function(item) {
+            extractData.push([g.formatYMD(item.time), item.total]);
+        });
+        const shareData = [];
+        report.timelineShare.forEach(function(item) {
+            shareData.push([g.formatYMD(item.time), item.total]);
+        });
 
         const data = [
             {

@@ -94,6 +94,21 @@ export class SharingReport {
          * @type {Array}
          */
         this.topExtractRecords = (undefined !== json.topExtract) ? json.topExtract : null;
+
+        /**
+         * @type {Array}
+         */
+        this.timelineView = (undefined !== json.timelineView) ? json.timelineView : null;
+
+        /**
+         * @type {Array}
+         */
+        this.timelineExtract = (undefined !== json.timelineExtract) ? json.timelineExtract : null;
+
+        /**
+         * @type {Array}
+         */
+        this.timelineShare = (undefined !== json.timelineShare) ? json.timelineShare : null;
     }
 
     /**

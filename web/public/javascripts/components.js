@@ -11905,8 +11905,8 @@
 
         var option = {
             tooltip: {
-                trigger: 'axis'
-                /*formatter: function(params) {
+                trigger: 'axis',
+                formatter: function(params) {
                   var text = '--'
                   if (params && params.length) {
                     text = params[0].data[0] // 提示框顶部的日期标题
@@ -11916,7 +11916,7 @@
                     })
                   }
                   return text
-                }*/
+                }
             },
             grid: {
                 left: '3%',
