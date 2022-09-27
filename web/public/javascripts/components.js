@@ -11799,8 +11799,8 @@
     var loadTimer = 0;
     var lastTimestamp = 0;
 
-    var viewTop10Chart = null;
-    var downloadTop10Chart = null;
+    var viewTopNChart = null;
+    var downloadTopNChart = null;
 
     var historyChart = null;
     var ipHistoryChart = null;
@@ -11815,7 +11815,7 @@
     function makeBarChartOption(labels, values) {
         return {
             grid: {
-                left: '15%',
+                left: '20%',
                 right: '5%',
                 top: '5%',
                 bottom: '10%'
@@ -11853,24 +11853,46 @@
         };
     }
 
-    function refreshViewTop10Chart(report) {
-        if (null == viewTop10Chart) {
-            viewTop10Chart = echarts.init(document.getElementById('sharing_view_top10'));
+    function refreshViewTopNChart(report) {
+        if (null == viewTopNChart) {
+            viewTopNChart = echarts.init(document.getElementById('sharing_view_top10'));
         }
 
-        var option = makeBarChartOption(['File 1', 'File 2', 'File 3', 'File 4', 'File 5', 'File 6', 'File 7', 'File 8', 'File 9', 'File 10'],
-            [220, 200, 150, 103, 80, 76, 32, 12, 7, 3]);
-        viewTop10Chart.setOption(option);
+        if (report.topViewRecords) {
+            var categoryList = [];
+            var valueList = [];
+            report.topViewRecords.forEach(function(item) {
+                var code = item.code;
+                var total = item.total;
+                var tag = report.getSharingTag(code);
+                categoryList.push(tag.fileLabel.getFileName());
+                valueList.push(total);
+            });
+            var option = makeBarChartOption(categoryList, valueList);
+            viewTopNChart.setOption(option);
+        }
     }
 
-    function refreshDownloadTop10Chart(report) {
-        if (null == downloadTop10Chart) {
-            downloadTop10Chart = echarts.init(document.getElementById('sharing_download_top10'));
+    function refreshDownloadTopNChart(report) {
+        if (null == downloadTopNChart) {
+            downloadTopNChart = echarts.init(document.getElementById('sharing_download_top10'));
         }
 
-        var option = makeBarChartOption(['File 1', 'File 2', 'File 3', 'File 4', 'File 5', 'File 6', 'File 7', 'File 8', 'File 9', 'File 10'],
-            [130, 111, 98, 91, 90, 76, 68, 67, 50, 10]);
-        downloadTop10Chart.setOption(option);
+        if (report.topExtractRecords) {
+            var categoryList = [];
+            var valueList = [];
+            report.topExtractRecords.forEach(function(item) {
+                var code = item.code;
+                var total = item.total;
+                var tag = report.getSharingTag(code);
+                categoryList.push(tag.fileLabel.getFileName());
+                valueList.push(total);
+            });
+
+            var option = makeBarChartOption(categoryList, valueList);
+            downloadTopNChart.setOption(option);
+        }
+        
     }
 
     function refreshHistoryChart(report) {
@@ -12355,11 +12377,11 @@
     }
 
     function onResize() {
-        if (null != viewTop10Chart) {
-            viewTop10Chart.resize();
+        if (null != viewTopNChart) {
+            viewTopNChart.resize();
         }
-        if (null != downloadTop10Chart) {
-            downloadTop10Chart.resize();
+        if (null != downloadTopNChart) {
+            downloadTopNChart.resize();
         }
         if (null != historyChart) {
             historyChart.resize();
@@ -12439,8 +12461,8 @@
                 panelEl.find('span[data-target="total-copy"]').text(g.helper.thousands(countRecordReport.totalEventShare));
             }
 
-            refreshViewTop10Chart();
-            refreshDownloadTop10Chart();
+            refreshViewTopNChart(countRecordReport);
+            refreshDownloadTopNChart(countRecordReport);
 
             setTimeout(function() {
                 refreshHistoryChart();

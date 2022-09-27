@@ -1763,7 +1763,9 @@ export class FileStorage extends Module {
             }
 
             let report = new SharingReport(responsePacket.extractServiceData());
-            handleSuccess(report);
+            SharingReport.fillData(this, report, () => {
+                handleSuccess(report);
+            });
         });
     }
 

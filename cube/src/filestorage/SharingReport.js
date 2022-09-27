@@ -24,6 +24,10 @@
  * SOFTWARE.
  */
 
+import { FastMap } from "../util/FastMap";
+import { FileStorage } from "./FileStorage";
+import { SharingTag } from "./SharingTag";
+
 /**
  * 分享数据报告。
  */
@@ -34,6 +38,12 @@ export class SharingReport {
     static TopCountRecord = 'TopCountRecord';
 
     constructor(json) {
+        /**
+         * 分享标签映射.
+         * @type {FastMap}
+         */
+        this.sharingTagMap = new FastMap();
+
         /**
          * 有效的分享标签总数量。
          * @type {number}
@@ -59,15 +69,77 @@ export class SharingReport {
         this.totalEventShare = (undefined !== json.totalEventShare) ? json.totalEventShare : 0;
 
         /**
-         * View 事件 TOP 统计。
+         * View 事件 TOP 记录。
          * @type {Array}
          */
-        this.topView = (undefined !== json.topView) ? json.topView : null;
+        this.topViewRecords = (undefined !== json.topView) ? json.topView : null;
 
         /**
-         * Extract 事件 TOP 统计。
+         * Extract 事件 TOP 记录。
          * @type {Array}
          */
-        this.topExtract = (undefined !== json.topExtract) ? json.topExtract : null;
+        this.topExtractRecords = (undefined !== json.topExtract) ? json.topExtract : null;
+    }
+
+    /**
+     * 获取指定分享码的分享标签。
+     * @param {string} code 指定分享码。
+     * @returns {SharingTag} 返回分享标签实例。
+     */
+    getSharingTag(code) {
+        return this.sharingTagMap.get(code);
+    }
+
+    /**
+     * 
+     * @param {FileStorage} service 
+     * @param {SharingReport} resport 
+     * @param {function} handle 
+     */
+    static fillData(service, resport, handle) {
+        let codeList = [];
+        if (null != resport.topViewRecords) {
+            resport.topViewRecords.forEach((item) => {
+                let code = item.code;
+                if (codeList.indexOf(code) >= 0) {
+                    return;
+                }
+
+                codeList.push(code);
+            });
+        }
+
+        if (null != resport.topExtractRecords) {
+            resport.topExtractRecords.forEach((item) => {
+                let code = item.code;
+                if (codeList.indexOf(code) >= 0) {
+                    return;
+                }
+
+                codeList.push(code);
+            });
+        }
+
+        if (codeList.length == 0) {
+            handle();
+            return;
+        }
+
+        let tick = (handle) => {
+            if (codeList.length == 0) {
+                handle();
+                return;
+            }
+
+            let code = codeList.shift();
+            service.getSharingTag(code, (sharingTag) => {
+                resport.sharingTagMap.put(code, sharingTag);
+                tick(handle);
+            }, (error) => {
+                tick(handle);
+            });
+        };
+
+        tick(handle);
     }
 }
