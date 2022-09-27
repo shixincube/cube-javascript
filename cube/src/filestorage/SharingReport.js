@@ -33,9 +33,24 @@ import { SharingTag } from "./SharingTag";
  */
 export class SharingReport {
 
+    /**
+     * 事件计数记录。
+     * @type {string}
+     */
     static CountRecord = 'CountRecord';
 
+    /**
+     * 排行记录。
+     * @type {string}
+     */
     static TopCountRecord = 'TopCountRecord';
+
+    /**
+     * 历史事件时间线记录。
+     * @type {string}
+     */
+    static HistoryEventRecord = 'HistoryEventRecord';
+
 
     constructor(json) {
         /**

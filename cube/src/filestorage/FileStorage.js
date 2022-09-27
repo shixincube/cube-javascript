@@ -1734,8 +1734,9 @@ export class FileStorage extends Module {
      * @param {string|Array} reportNames 指定报告名，参看 {@link SharingReport} 。
      * @param {funciton} handleSuccess 操作成功回调。参数：({@linkcode report}:{@link SharingReport}) 。
      * @param {funciton} handleFailure 操作失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     * @param {object} [option] 报告配置选项。
      */
-    getSharingReport(reportNames, handleSuccess, handleFailure) {
+    getSharingReport(reportNames, handleSuccess, handleFailure, option) {
         if (!this.isReady()) {
             let error = new ModuleError(FileStorage.NAME, FileStorageState.NotReady, reportNames);
             handleFailure(error);
@@ -1747,6 +1748,9 @@ export class FileStorage extends Module {
         } : {
             names: reportNames
         };
+        if (option) {
+            payload.option = option;
+        }
         let packet = new Packet(FileStorageAction.GetSharingReport, payload);
         this.pipeline.send(FileStorage.NAME, packet, (pipeline, source, responsePacket) => {
             if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {

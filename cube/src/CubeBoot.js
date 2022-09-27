@@ -28,6 +28,7 @@ import cell from "@lib/cell-lib";
 import { Subject } from "./core/Subject";
 import { Observer } from "./core/Observer";
 import { ObservableEvent } from "./core/ObservableEvent";
+import { CalendarUnit } from "./util/CalendarUnit";
 import { JSONable } from "./util/JSONable";
 import { OrderMap } from "./util/OrderMap";
 import { MediaDeviceTool } from "./util/MediaDeviceTool";
@@ -113,6 +114,7 @@ import { Announcer } from "./util/Announcer";
     global.Observer = Observer;
     global.ObservableEvent = ObservableEvent;
 
+    global.CalendarUnit = CalendarUnit;
     global.JSONable = JSONable;
     global.Entity = Entity;
     global.OrderMap = OrderMap;

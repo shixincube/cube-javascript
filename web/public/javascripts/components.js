@@ -11799,6 +11799,9 @@
     var loadTimer = 0;
     var lastTimestamp = 0;
 
+    var countRecordReport = null;
+    var historyReport = null;
+
     var viewTopNChart = null;
     var downloadTopNChart = null;
 
@@ -11834,7 +11837,7 @@
                 inverse: true,
                 axisLabel: {
                     interval: 0,
-                    rotate: 45
+                    rotate: 30
                 },
                 data: labels
             },
@@ -11898,7 +11901,6 @@
     function refreshHistoryChart(report) {
         if (null == historyChart) {
             historyChart = echarts.init(document.getElementById('sharing_timeline_chart'));
-
         }
 
         var option = {
@@ -11934,7 +11936,7 @@
             },
             xAxis: {
                 type: 'time', // type 为 time 时，不要传 xAxis.data 的值，x轴坐标的数据会根据传入的时间自动展示
-                boundaryGap: false, // false横坐标两边不需要留白
+                boundaryGap: false, // false 横坐标两边不需要留白
                 axisLabel: { // 坐标轴标签样式设置
                     formatter: function(value, index) {
                         const date = new Date(value);
@@ -11946,7 +11948,7 @@
             },
             yAxis: {
                 type: 'value',
-                name: '人次'
+                name: '次'
             },
             series: []
         };
@@ -11954,7 +11956,7 @@
         const data = [
             {
               type: 'view',
-              name: '浏览事件',
+              name: '浏览文件',
               data: [
                 ['2020-10-1', 450],
                 ['2020-10-2', 350],
@@ -11973,7 +11975,7 @@
             },
             {
               type: 'download',
-              name: '下载事件',
+              name: '下载文件',
               data: [
                 ['2020-10-1', 50],
                 ['2020-10-2', 150],
@@ -12013,15 +12015,15 @@
 
         const series = []
         const legendData = []
-        data.forEach(item => {
-        const obj = {
-            name: item.name,
-            type: 'line',
-            data: item.data
-        }
-        legendData.push(item.name);
-        series.push(obj);
-        })
+        data.forEach(function(item) {
+            const obj = {
+                name: item.name,
+                type: 'line',
+                data: item.data
+            }
+            legendData.push(item.name);
+            series.push(obj);
+        });
         option.legend.data = legendData;
         option.series = series;
 
@@ -12451,47 +12453,67 @@
     FileDashboard.prototype.reload = function() {
         g.dialog.showLoading('正在加载仪表数据');
 
-        var countRecordReport = null;
+        var gotCountRecordReport = false;
+        var gotHistoryReport = false;
 
         var completion = function() {
-            if (null != countRecordReport) {
+            if (gotCountRecordReport && null != countRecordReport) {
                 panelEl.find('span[data-target="total-sharing"]').text(g.helper.thousands(countRecordReport.totalSharingTag));
                 panelEl.find('span[data-target="total-view"]').text(g.helper.thousands(countRecordReport.totalEventView));
                 panelEl.find('span[data-target="total-download"]').text(g.helper.thousands(countRecordReport.totalEventExtract));
                 panelEl.find('span[data-target="total-copy"]').text(g.helper.thousands(countRecordReport.totalEventShare));
+
+                refreshViewTopNChart(countRecordReport);
+                refreshDownloadTopNChart(countRecordReport);
+
+                countRecordReport = null;
+            }
+            else if (gotHistoryReport && null != historyReport) {
+                refreshHistoryChart(historyReport);
+                refreshIPHistoryChart(historyReport);
+                refreshOSHistoryChart(historyReport);
+                refreshSWHistoryChart(historyReport);
+
+                historyReport = null;
+
+                setTimeout(function() {
+                    refreshVisitorChart();
+                }, 1000);
+
+                setTimeout(function() {
+                    refreshFileTypeValidChart();
+                    refreshFileTypeExpiredChart();
+                }, 1500);
             }
 
-            refreshViewTopNChart(countRecordReport);
-            refreshDownloadTopNChart(countRecordReport);
-
-            setTimeout(function() {
-                refreshHistoryChart();
-                refreshIPHistoryChart();
-                refreshOSHistoryChart();
-                refreshSWHistoryChart();
-            }, 500);
-
-            setTimeout(function() {
-                refreshVisitorChart();
-            }, 1000);
-
-            setTimeout(function() {
-                refreshFileTypeValidChart();
-                refreshFileTypeExpiredChart();
-            }, 1500);
-
-            lastTimestamp = Date.now();
-            g.dialog.hideLoading();
+            if (gotCountRecordReport && gotHistoryReport) {
+                lastTimestamp = Date.now();
+                g.dialog.hideLoading();
+            }
         }
 
+        // 计数记录
         g.cube().fs.getSharingReport([
             SharingReport.CountRecord,
             SharingReport.TopCountRecord
         ], function(report) {
             countRecordReport = report;
+            gotCountRecordReport = true;
             completion();
         }, function(error) {
             g.dialog.toast('读取报告出错：' + error.code);
+        });
+
+        // 历史数据
+        g.cube().fs.getSharingReport(SharingReport.HistoryEventRecord, function(report) {
+            historyReport = report;
+            gotHistoryReport = true;
+            completion();
+        }, function(error) {
+            g.dialog.toast('读取报告出错：' + error.code);
+        }, {
+            duration: 7,
+            unit: CalendarUnit.DAY
         });
     }
 
