@@ -39,6 +39,7 @@
     var viewTopNChart = null;
     var downloadTopNChart = null;
 
+    var historyChartLoading = false;
     var historyChart = null;
     var ipHistoryChart = null;
     var osHistoryChart = null;
@@ -590,7 +591,7 @@
         ];
     }
 
-    function onHistoryDurationChange(durationDesc) {
+    function parseDurationValue(durationDesc) {
         var config = {
             duration: 7,
             unit: CalendarUnit.DAY
@@ -600,6 +601,35 @@
             config.duration = 7;
             config.unit = CalendarUnit.DAY;
         }
+        else if (durationDesc == '30d') {
+            config.duration = 30;
+            config.unit = CalendarUnit.DAY;
+        }
+        else if (durationDesc == '3m') {
+            config.duration = 3;
+            config.unit = CalendarUnit.MONTH;
+        }
+        else if (durationDesc == '6m') {
+            config.duration = 6;
+            config.unit = CalendarUnit.MONTH;
+        }
+        else if (durationDesc == '1y') {
+            config.duration = 1;
+            config.unit = CalendarUnit.YEAR;
+        }
+
+        return config;
+    }
+
+    function onHistoryDurationChange(durationDesc) {
+        if (historyChartLoading) {
+            return;
+        }
+
+        historyChartLoading = true;
+
+        // 解析 Duration 值
+        var config = parseDurationValue(durationDesc);
 
         // 历史数据
         g.cube().fs.getSharingReport(SharingReport.HistoryEventRecord, function(historyReport) {
@@ -607,8 +637,11 @@
             refreshIPHistoryChart(historyReport);
             refreshOSHistoryChart(historyReport);
             refreshSWHistoryChart(historyReport);
+
+            historyChartLoading = false;
         }, function(error) {
             g.dialog.toast('读取报告出错：' + error.code);
+            historyChartLoading = false;
         }, config);
     }
 

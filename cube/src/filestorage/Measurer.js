@@ -61,12 +61,6 @@ export class Measurer {
          * @type {number}
          */
         this.tickTimestamp = 0;
-
-        /**
-         * 速率记录。
-         * @type {Array}
-         */
-        this.rateList = [];
     }
 
     reset(timestamp) {
@@ -74,7 +68,6 @@ export class Measurer {
         this.endTimestamp = 0;
         this.accumulatedSize = 0;
         this.tickTimestamp = 0;
-        this.rateList = [];
     }
 
     /**
@@ -82,17 +75,13 @@ export class Measurer {
      * @returns {number}
      */
     averageRate() {
-        if (this.rateList.length == 0) {
-            return this.threshold;
+        if (0 == this.endTimestamp) {
+            return -1;
         }
 
-        let total = 0;
-        for (let i = 0; i < this.rateList.length; ++i) {
-            total += this.rateList[i];
-        }
-
-        let rate = total / this.rateList.length;
-        return (0 == rate) ? this.threshold : rate;
+        let delta = this.endTimestamp - this.beginTimestamp;
+        let size = this.accumulatedSize;
+        return Math.round(size / (delta / 1000.0));
     }
 
     /**
@@ -111,11 +100,6 @@ export class Measurer {
             return new Promise((resolve, reject) => {
                 resolve();
             });
-        }
-
-        this.rateList.push(rate);
-        if (this.rateList.length > 20) {
-            this.rateList.shift();
         }
 
         cell.Logger.d('Measurer', 'Rate: ' + (rate / 1024) + ' / ' + (this.threshold / 1024));
@@ -148,11 +132,6 @@ export class Measurer {
         this.tickTimestamp = Date.now();
 
         this.endTimestamp = this.tickTimestamp;
-
-        let rate = this._calc();
-        if (rate > 0) {
-            this.rateList.push(rate);
-        }
     }
 
     /**

@@ -1040,7 +1040,6 @@ export class FileStorage extends Module {
         let requestPacket = new Packet(FileStorageAction.GetRoot, {
             id: id
         });
-
         this.pipeline.send(FileStorage.NAME, requestPacket, (pipeline, source, packet) => {
             if (null == packet || packet.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(FileStorage.NAME, FileStorageState.Failure, id);
