@@ -156,6 +156,12 @@ export const FileStorageState = {
     DataFormatError: 107,
 
     /**
+     * 系统忙。
+     * @type {number}
+     */
+    SystemBusy: 108,
+
+    /**
      * 访问超时。
      */
     Timeout: 109,

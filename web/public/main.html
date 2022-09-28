@@ -534,6 +534,7 @@
                                                 <div class="card-body top-chart-box">
                                                     <div id="sharing_view_top10" class="top-chart"></div>
                                                 </div>
+                                                <div class="overlay"><i class="fas fa-2x fa-sync-alt fa-spin"></i></div>
                                             </div>
                                         </div>
                                         <div class="col-6">
@@ -544,6 +545,7 @@
                                                 <div class="card-body top-chart-box">
                                                     <div id="sharing_download_top10" class="top-chart"></div>
                                                 </div>
+                                                <div class="overlay"><i class="fas fa-2x fa-sync-alt fa-spin"></i></div>
                                             </div>
                                         </div>
                                     </div>
@@ -554,9 +556,16 @@
                                                 <div class="card-header border-0">
                                                     <h5 class="card-title">访问统计</h5>
                                                     <div class="card-tools">
-                                                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                                            <i class="fas fa-minus"></i>
-                                                        </button>
+                                                        <div class="btn-group" style="width:120px;">
+                                                            <select class="form-control-sm select2 visit-timeline-select" style="width:100%;">
+                                                                <option value="7d" selected="selected">最近7天</option>
+                                                                <option value="30d">最近30天</option>
+                                                                <option value="3m">最近3个月</option>
+                                                                <option value="6m">最近半年</option>
+                                                                <option value="1y">最近一年</option>
+                                                            </select>
+                                                        </div>
+                                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
                                                     </div>
                                                 </div>
                                                 <div class="card-body timeline-chart-box">
@@ -580,6 +589,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <div class="overlay"><i class="fas fa-2x fa-sync-alt fa-spin"></i></div>
                                             </div>
                                         </div>
                                     </div>
@@ -590,8 +600,16 @@
                                                 <div class="card-header border-0">
                                                     <h5 class="card-title">访客统计</h5>
                                                     <div class="card-tools">
-                                                        <div class="btn-group" style="width:200px;">
-                                                            <select class="form-control select2" style="width:100%;">
+                                                        <div class="btn-group" style="width:320px;">
+                                                            <select class="form-control-sm select2" style="width:50%;">
+                                                                <option value="7d">最近7天</option>
+                                                                <option value="30d">最近30天</option>
+                                                                <option value="3m">最近3个月</option>
+                                                                <option value="6m">最近半年</option>
+                                                                <option value="1y">最近一年</option>
+                                                            </select>
+                                                            <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                                                            <select class="form-control-sm select2" style="width:100%;">
                                                             </select>
                                                         </div>
                                                         <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
@@ -603,6 +621,7 @@
                                                         <div class="visitor-chart" id="sharing_visitor_chart"></div>
                                                     </div>
                                                 </div>
+                                                <div class="overlay"><i class="fas fa-2x fa-sync-alt fa-spin"></i></div>
                                             </div>
                                         </div>
                                     </div>
@@ -619,7 +638,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="card-body">
-                                                    <div class="row">
+                                                    <div class="row file-type-box">
                                                         <div class="col-6">
                                                             <div class="chart-6-box pt-0">
                                                                 <div class="chart-title">有效的分享</div>
@@ -634,6 +653,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <div class="overlay"><i class="fas fa-2x fa-sync-alt fa-spin"></i></div>
                                             </div>
                                         </div>
                                     </div>

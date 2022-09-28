@@ -26,6 +26,7 @@
 
 import { ModuleError } from "../core/error/ModuleError";
 import { OrderMap } from "../util/OrderMap";
+import { FileAnchor } from "./FileAnchor";
 import { FileHierarchy } from "./FileHierarchy";
 import { FileLabel } from "./FileLabel";
 import { FileStorage } from "./FileStorage";
@@ -278,9 +279,10 @@ export class Directory {
      * @param {function} handleProcessing 正在上传文件回调。函数参数：({@linkcode fileAnchor}:{@link FileAnchor}) 。
      * @param {function} handleSuccess 成功回调。函数参数：({@linkcode directory}:{@link Directory}, {@linkcode fileLabel}:{@link FileLabel}) 。
      * @param {function} handleFailure 失败回调。函数参数：({@linkcode error}:{@link ModuleError}) 。
+     * @returns {FileAnchor} 返回文件操作锚实例。
      */
     uploadFile(file, handleStart, handleProcessing, handleSuccess, handleFailure) {
-        this.hierarchy.uploadFile(file, this, handleStart, handleProcessing, handleSuccess, handleFailure);
+        return this.hierarchy.uploadFile(file, this, handleStart, handleProcessing, handleSuccess, handleFailure);
     }
 
     /**

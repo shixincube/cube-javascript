@@ -99,6 +99,12 @@ export class FileAnchor extends JSONable {
          * @private
          */
         this.finishCallback = null;
+
+        /**
+         * 是否待处理。
+         * @type {boolean}
+         */
+        this.pending = false;
     }
 
     /**

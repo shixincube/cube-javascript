@@ -92,6 +92,8 @@
 
     function refreshViewTopNChart(report) {
         if (null == viewTopNChart) {
+            // 删除 overlay
+            $('#sharing_view_top10').parent().next().remove();
             viewTopNChart = echarts.init(document.getElementById('sharing_view_top10'));
         }
 
@@ -102,6 +104,9 @@
                 var code = item.code;
                 var total = item.total;
                 var tag = report.getSharingTag(code);
+                if (null == tag) {
+                    return;
+                }
                 categoryList.push(tag.fileLabel.getFileName());
                 valueList.push(total);
             });
@@ -112,6 +117,8 @@
 
     function refreshDownloadTopNChart(report) {
         if (null == downloadTopNChart) {
+            // 删除 overlay
+            $('#sharing_download_top10').parent().next().remove();
             downloadTopNChart = echarts.init(document.getElementById('sharing_download_top10'));
         }
 
@@ -122,6 +129,9 @@
                 var code = item.code;
                 var total = item.total;
                 var tag = report.getSharingTag(code);
+                if (null == tag) {
+                    return;
+                }
                 categoryList.push(tag.fileLabel.getFileName());
                 valueList.push(total);
             });
@@ -134,6 +144,8 @@
 
     function refreshHistoryChart(report) {
         if (null == historyChart) {
+            // 删除 overlay
+            $('#sharing_timeline_chart').parent().next().remove();
             historyChart = echarts.init(document.getElementById('sharing_timeline_chart'));
         }
 
@@ -367,6 +379,7 @@
 
     function refreshFileTypeValidChart(report) {
         if (null == fileTypeValidChart) {
+            $('.file-type-box').parent().next().remove();
             fileTypeValidChart = echarts.init(document.getElementById('sharing_file_type_valid'));
         }
 
@@ -463,6 +476,7 @@
 
     function refreshVisitorChart(report) {
         if (null == visitorChart) {
+            $('.visitor-chart-box').parent().next().remove();
             visitorChart = echarts.init(document.getElementById('sharing_visitor_chart'));
         }
 
@@ -576,6 +590,28 @@
         ];
     }
 
+    function onHistoryDurationChange(durationDesc) {
+        var config = {
+            duration: 7,
+            unit: CalendarUnit.DAY
+        };
+
+        if (durationDesc == '7d') {
+            config.duration = 7;
+            config.unit = CalendarUnit.DAY;
+        }
+
+        // 历史数据
+        g.cube().fs.getSharingReport(SharingReport.HistoryEventRecord, function(historyReport) {
+            refreshHistoryChart(historyReport);
+            refreshIPHistoryChart(historyReport);
+            refreshOSHistoryChart(historyReport);
+            refreshSWHistoryChart(historyReport);
+        }, function(error) {
+            g.dialog.toast('读取报告出错：' + error.code);
+        }, config);
+    }
+
     function onResize() {
         if (null != viewTopNChart) {
             viewTopNChart.resize();
@@ -612,6 +648,10 @@
         panelEl = (undefined === el) ? $('.files-dashboard-panel') : el;
         $(window).resize(function() {
             onResize();
+        });
+
+        $('.visit-timeline-select').on('change', function(e) {
+            onHistoryDurationChange(e.currentTarget.value);
         });
     }
 

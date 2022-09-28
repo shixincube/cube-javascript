@@ -45,7 +45,12 @@
             progress = '<span class="text-success" title="已完成"><i class="far fa-check-circle"></i></span>';
         }
         else {
-            progress = progress + '%';
+            if (fileAnchor.pending) {
+                progress = '<span class="text-warning" title="队列中"><i class="fas fa-ellipsis-h"></i></span>';
+            }
+            else {
+                progress = progress + '%';
+            }
         }
 
         var endTime = '--';
@@ -82,7 +87,12 @@
                 progress = '<span class="text-success" title="已上传"><i class="far fa-check-circle"></i></span>';
             }
             else {
-                progress = progress + '%';
+                if (fileAnchor.pending) {
+                    progress = '<span class="text-warning" title="队列中"><i class="fas fa-ellipsis-h"></i></span>';
+                }
+                else {
+                    progress = progress + '%';
+                }
             }
 
             var row = tableEl.find('tr[data-sn="' + fileAnchor.sn + '"]');
@@ -95,6 +105,10 @@
                 var endTime = g.formatYMDHMS(fileAnchor.endTime);
                 cols.eq(2).html(endTime);
             }
+
+            // 平均速率
+            var rate = fileAnchor.position / ((Date.now() - fileAnchor.timestamp) / 1000.0);
+            cols.eq(5).html(g.formatSize(rate) + '/s');
         }
         else {
             var fileLabel = fileAnchorOrLabel;
@@ -188,10 +202,10 @@
     }
 
     /**
-     * Fire Upload Start Event
+     * Fire file pending
      * @param {FileAnchor} fileAnchor 
      */
-    FileTransferPanel.prototype.fireUploadStart = function(fileAnchor) {
+    FileTransferPanel.prototype.fireUploadPending = function(fileAnchor) {
         uploadFileAnchorList.push(fileAnchor);
 
         if (currentPage == 1) {
@@ -200,6 +214,16 @@
                 panelEl.find('.file-content').css('display', 'block');
                 this.updateUpload();
             }
+        }
+    }
+
+    /**
+     * Fire Upload Start Event
+     * @param {FileAnchor} fileAnchor 
+     */
+    FileTransferPanel.prototype.fireUploadStart = function(fileAnchor) {
+        if (currentPage == 1) {
+            refreshTableRow(fileAnchor);
         }
     }
 

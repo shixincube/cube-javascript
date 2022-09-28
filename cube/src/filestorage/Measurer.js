@@ -39,24 +39,41 @@ export class Measurer {
         this.threshold = 500 * 1024;
 
         /**
-         * 时间戳列表。
+         * 开始时间戳。
+         * @type {number}
          */
-        this.timestampList = [];
+        this.beginTimestamp = 0;
 
         /**
-         * 每次记录的数据大小。
+         * 结束时间戳。
+         * @type {number}
          */
-        this.sizeList = [];
+        this.endTimestamp = 0;
+
+        /**
+         * 累计大小。
+         * @type {number}
+         */
+        this.accumulatedSize = 0;
+
+        /**
+         * 累计大小时的时间戳。
+         * @type {number}
+         */
+        this.tickTimestamp = 0;
 
         /**
          * 速率记录。
+         * @type {Array}
          */
         this.rateList = [];
     }
 
-    reset() {
-        this.timestampList = [];
-        this.sizeList = [];
+    reset(timestamp) {
+        this.beginTimestamp = timestamp;
+        this.endTimestamp = 0;
+        this.accumulatedSize = 0;
+        this.tickTimestamp = 0;
         this.rateList = [];
     }
 
@@ -84,8 +101,10 @@ export class Measurer {
      * @returns {Promise}
      */
     tick(size) {
-        this.timestampList.push(Date.now());
-        this.sizeList.push(size);
+        // 累加大小
+        this.accumulatedSize += size;
+        // 计时
+        this.tickTimestamp = Date.now();
 
         let rate = this._calc();
         if (rate < 0) {
@@ -96,7 +115,7 @@ export class Measurer {
 
         this.rateList.push(rate);
         if (this.rateList.length > 20) {
-            this.rateList.splice(0, 1);
+            this.rateList.shift();
         }
 
         cell.Logger.d('Measurer', 'Rate: ' + (rate / 1024) + ' / ' + (this.threshold / 1024));
@@ -119,43 +138,35 @@ export class Measurer {
     }
 
     /**
+     * 结束计算。
+     * @param {number} size 
+     */
+    finish(size) {
+        // 累加大小
+        this.accumulatedSize += size;
+        // 计时
+        this.tickTimestamp = Date.now();
+
+        this.endTimestamp = this.tickTimestamp;
+
+        let rate = this._calc();
+        if (rate > 0) {
+            this.rateList.push(rate);
+        }
+    }
+
+    /**
      * 计算 bytes/s 数据。
      * @private
      * @returns {number} 如果数据量无法支撑计算返回 {@linkcode -1} 值。
      */
     _calc() {
-        let start = this.timestampList[this.timestampList.length - 1];
-        let size = this.sizeList[this.sizeList.length - 1];
-        let delta = 0.0;
-        let position = 0;
-
-        for (let i = this.timestampList.length - 2; i >= 0; --i) {
-            position = i;
-
-            let time = this.timestampList[i];
-            // 累计大小
-            size += this.sizeList[i];
-
-            delta = start - time;
-            if (delta >= 500) {
-                // 计算跨度达到 500 ms
-                break;
-            }
-        }
-
-        if (delta < 500) {
+        let delta = this.tickTimestamp - this.beginTimestamp;
+        if (delta < 1000) {
             return -1;
         }
 
-        // 删除 position 之前的数据
-        if (position > 1) {
-            this.timestampList.splice(0, position);
-            this.sizeList.splice(0, position);
-        }
-
-        // 数据放大一倍
-        size += size;
-        delta += delta
+        let size = this.accumulatedSize;
         return Math.round(size / (delta / 1000.0));
     }
 }

@@ -37,6 +37,7 @@ import { FileLabel } from "./FileLabel";
 import { TrashDirectory } from "./TrashDirectory";
 import { TrashFile } from "./TrashFile";
 import { SearchItem } from "./SearchItem";
+import { FileAnchor } from "./FileAnchor";
 
 /**
  * 搜索过滤器定义。
@@ -100,6 +101,7 @@ export class FileHierarchy {
      * @param {function} handleProcessing
      * @param {function} handleSuccess 
      * @param {function} handleFailure 
+     * @returns {FileAnchor}
      */
     uploadFile(file, directory, handleStart, handleProcessing, handleSuccess, handleFailure) {
         let successHandler = (fileLabel) => {
@@ -148,9 +150,10 @@ export class FileHierarchy {
                 cell.Logger.w('FileHierarchy', '#uploadFile() - ' + error);
                 handleFailure(error);
             });
+            return null;
         }
         else {
-            this.storage.uploadFile(file, handleStart, handleProcessing, successHandler, (error) => {
+            return this.storage.uploadFile(file, handleStart, handleProcessing, successHandler, (error) => {
                 cell.Logger.w('FileHierarchy', '#uploadFile() - ' + error);
                 handleFailure(error);
             });

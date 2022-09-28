@@ -321,10 +321,14 @@
         }
     }
 
-    FileCatalogue.prototype.onFileUpload = function(fileAnchor) {
+    FileCatalogue.prototype.onFileUploadPending = function(fileAnchor) {
         uploadingMap.put(fileAnchor.getFileName(), fileAnchor);
         btnUploading.find('.badge').text(uploadingMap.size());
 
+        transPanel.fireUploadPending(fileAnchor);
+    }
+
+    FileCatalogue.prototype.onFileUpload = function(fileAnchor) {
         transPanel.fireUploadStart(fileAnchor);
     }
 

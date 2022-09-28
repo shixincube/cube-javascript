@@ -269,7 +269,7 @@
                     return;
                 }
 
-                currentDir.uploadFile(files[0], function(fileAnchor) {
+                var fileAnchor = currentDir.uploadFile(files[0], function(fileAnchor) {
                     // 回调启动上传
                     g.app.fileCatalog.onFileUpload(fileAnchor);
                 }, function(fileAnchor) {
@@ -282,6 +282,10 @@
                 }, function(error) {
                     g.dialog.toast('上传文件失败：' + error.code, Toast.Error);
                 });
+
+                if (null != fileAnchor) {
+                    g.app.fileCatalog.onFileUploadPending(fileAnchor);
+                }
             });
         });
 

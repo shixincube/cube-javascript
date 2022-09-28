@@ -197,6 +197,10 @@ video {
     width: 2.5rem;
 }
 
+.select2-results__option {
+    font-size: 0.875rem !important;
+}
+
 .timeline > div > .timeline-item > .time {
     font-size: 14px;
 }
