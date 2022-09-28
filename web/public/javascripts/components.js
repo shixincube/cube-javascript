@@ -335,6 +335,9 @@
         // WeChat
         'Mozilla/5.0 (Linux; Android 12; Mi 10 Build/SKQ1.211006.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/86.0.4240.99 XWEB/4263 MMWEBSDK/20220505 Mobile Safari/537.36 MMWEBID/8522 MicroMessenger/8.0.23.2160(0x28001757) WeChat/arm64 Weixin NetType/WIFI Language/zh_CN ABI/arm64'
         'Mozilla/5.0 (iPhone; CPU iPhone OS 14_4_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.26(0x18001a2f) NetType/WIFI Language/zh_CN'
+
+        // Safari
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Safari/605.1.15'
     ];
     uaTestData.forEach(function(ua) {
         console.log(g.helper.parseUserAgent(ua));
@@ -11907,15 +11910,15 @@
             tooltip: {
                 trigger: 'axis',
                 formatter: function(params) {
-                  var text = '--'
-                  if (params && params.length) {
-                    text = params[0].data[0] // 提示框顶部的日期标题
-                    params.forEach(item => {
-                      const dotHtml = item.marker // 提示框示例的小圆圈,可以在这里修改
-                      text += `</br>${dotHtml}${item.seriesName} : ${item.data[1] ? item.data[1] : '-'}`
-                    })
-                  }
-                  return text
+                    var text = '--'
+                    if (params && params.length) {
+                        text = params[0].data[0]; // 提示框顶部的日期标题
+                        params.forEach(function(item) {
+                            const dotHtml = item.marker // 提示框示例的小圆圈,可以在这里修改
+                            text += `</br>${dotHtml}${item.seriesName} : ${(undefined !== item.data[1]) ? item.data[1] : '-'}`
+                        });
+                    }
+                    return text;
                 }
             },
             grid: {
@@ -11953,63 +11956,31 @@
             series: []
         };
 
-        const data = [
-            {
+        const viewData = [];
+        report.timelineView.forEach(function(item) {
+            viewData.push([g.formatYMD(item.time), item.total]);
+        });
+        const extractData = [];
+        report.timelineExtract.forEach(function(item) {
+            extractData.push([g.formatYMD(item.time), item.total]);
+        });
+        const shareData = [];
+        report.timelineShare.forEach(function(item) {
+            shareData.push([g.formatYMD(item.time), item.total]);
+        });
+
+        const data = [{
               type: 'view',
               name: '浏览文件',
-              data: [
-                ['2020-10-1', 450],
-                ['2020-10-2', 350],
-                ['2020-10-3', 290],
-                ['2020-10-4', 380],
-                ['2020-10-5', 540],
-                ['2020-10-6', null],
-                ['2020-10-7', null],
-                ['2020-10-8', 430],
-                ['2020-10-9', 330],
-                ['2020-10-10', 280],
-                ['2020-10-11', 340],
-                ['2020-10-12', 455],
-                ['2020-10-13', 330],
-              ]
-            },
-            {
+              data: viewData
+            }, {
               type: 'download',
               name: '下载文件',
-              data: [
-                ['2020-10-1', 50],
-                ['2020-10-2', 150],
-                ['2020-10-3', 100],
-                ['2020-10-4', 140],
-                ['2020-10-5', 141],
-                ['2020-10-6', 66],
-                ['2020-10-7', 78],
-                ['2020-10-8', 67],
-                ['2020-10-9', 55],
-                ['2020-10-10', 80],
-                ['2020-10-11', 40],
-                ['2020-10-12', 120],
-                ['2020-10-13', 130],
-              ]
-            },
-            {
+              data: extractData
+            }, {
               type: 'copy',
               name: '复制链接',
-              data: [
-                ['2020-10-1', 234],
-                ['2020-10-2', 254],
-                ['2020-10-3', 260],
-                ['2020-10-4', 270],
-                ['2020-10-5', 250],
-                ['2020-10-6', 277],
-                ['2020-10-7', 289],
-                ['2020-10-8', 240],
-                ['2020-10-9', 230],
-                ['2020-10-10', 222],
-                ['2020-10-11', 244],
-                ['2020-10-12', 254],
-                ['2020-10-13', 279],
-              ]
+              data: shareData
             }
         ];
 
@@ -12035,13 +12006,7 @@
             ipHistoryChart = echarts.init(document.getElementById('sharing_ip_history_chart'));
         }
 
-        var data = [
-            { value: 1048, name: '北京' },
-            { value: 735, name: '上海' },
-            { value: 580, name: '广州' },
-            { value: 484, name: '成都' },
-            { value: 300, name: '昆明' }
-        ];
+        const data = report.ipTotalStatistics;
 
         var option = {
             tooltip: {
@@ -12087,13 +12052,14 @@
             osHistoryChart = echarts.init(document.getElementById('sharing_os_history_chart'));
         }
 
-        var data = [
+        const data = report.osTotalStatistics;
+        /*[
             { value: 908, name: 'Windows' },
             { value: 782, name: 'iPhone' },
             { value: 223, name: 'Mac' },
             { value: 101, name: 'Android' },
             { value: 27, name: 'Linux' }
-        ];
+        ];*/
 
         var option = {
             tooltip: {
@@ -12130,12 +12096,13 @@
             swHistoryChart = echarts.init(document.getElementById('sharing_sw_history_chart'));
         }
 
-        var data = [
+        const data = report.swTotalStatistics;
+        /*[
             { value: 898, name: 'Chrome' },
             { value: 201, name: 'Firefox' },
             { value: 87, name: 'Safari' },
             { value: 66, name: 'Edge' }
-        ];
+        ];*/
 
         var option = {
             tooltip: {

@@ -109,6 +109,21 @@ export class SharingReport {
          * @type {Array}
          */
         this.timelineShare = (undefined !== json.timelineShare) ? json.timelineShare : null;
+
+        /**
+         * @type {Array}
+         */
+        this.ipTotalStatistics = (undefined !== json.ipTotalStatistics) ? json.ipTotalStatistics : null;
+
+        /**
+         * @type {Array}
+         */
+        this.osTotalStatistics = (undefined !== json.osTotalStatistics) ? json.osTotalStatistics : null;
+
+        /**
+         * @type {Array}
+         */
+        this.swTotalStatistics = (undefined !== json.swTotalStatistics) ? json.swTotalStatistics : null;
     }
 
     /**
