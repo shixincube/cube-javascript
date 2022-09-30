@@ -11816,6 +11816,7 @@
     var viewTopNChart = null;
     var downloadTopNChart = null;
 
+    var historyChartLoading = false;
     var historyChart = null;
     var ipHistoryChart = null;
     var osHistoryChart = null;
@@ -11919,12 +11920,21 @@
         
     }
 
-    function refreshHistoryChart(report) {
+    function refreshHistoryChart(report, config) {
         if (null == historyChart) {
-            // 删除 overlay
-            $('#sharing_timeline_chart').parent().next().remove();
             historyChart = echarts.init(document.getElementById('sharing_timeline_chart'));
         }
+
+        var monthGrade = false;
+        if (config) {
+            if ((config.duration > 3 && config.unit == CalendarUnit.MONTH)
+                || (config.unit == CalendarUnit.YEAR)) {
+                monthGrade = true;
+            }
+        }
+
+        // 隐藏 Overlay
+        $('#sharing_timeline_chart').parent().next().css('visibility', 'hidden');
 
         var option = {
             tooltip: {
@@ -11933,9 +11943,12 @@
                     var text = '--'
                     if (params && params.length) {
                         text = params[0].data[0]; // 提示框顶部的日期标题
+                        if (monthGrade) {
+                            text = text.substring(0, text.length - 3);
+                        }
                         params.forEach(function(item) {
-                            const dotHtml = item.marker // 提示框示例的小圆圈,可以在这里修改
-                            text += `</br>${dotHtml}${item.seriesName} : ${(undefined !== item.data[1]) ? item.data[1] : '-'}`
+                            const dotHtml = item.marker; // 提示框示例的小圆圈,可以在这里修改
+                            text += `</br>${dotHtml}${item.seriesName} : ${(undefined !== item.data[1]) ? item.data[1] : '-'}`;
                         });
                     }
                     return text;
@@ -11958,10 +11971,14 @@
                 }
             },
             xAxis: {
-                type: 'time', // type 为 time 时，不要传 xAxis.data 的值，x轴坐标的数据会根据传入的时间自动展示
+                type: monthGrade ? 'category' : 'time', // type 为 time 时，不要传 xAxis.data 的值，x轴坐标的数据会根据传入的时间自动展示
                 boundaryGap: false, // false 横坐标两边不需要留白
                 axisLabel: { // 坐标轴标签样式设置
                     formatter: function(value, index) {
+                        if (monthGrade) {
+                            return value.substring(0, value.length - 3);;
+                        }
+
                         const date = new Date(value);
                         const texts = [date.getFullYear(), (date.getMonth() + 1), date.getDate()];
                         return texts.join('-');
@@ -12367,7 +12384,7 @@
         ];
     }
 
-    function onHistoryDurationChange(durationDesc) {
+    function parseDurationValue(durationDesc) {
         var config = {
             duration: 7,
             unit: CalendarUnit.DAY
@@ -12377,15 +12394,50 @@
             config.duration = 7;
             config.unit = CalendarUnit.DAY;
         }
+        else if (durationDesc == '30d') {
+            config.duration = 30;
+            config.unit = CalendarUnit.DAY;
+        }
+        else if (durationDesc == '3m') {
+            config.duration = 3;
+            config.unit = CalendarUnit.MONTH;
+        }
+        else if (durationDesc == '6m') {
+            config.duration = 6;
+            config.unit = CalendarUnit.MONTH;
+        }
+        else if (durationDesc == '1y') {
+            config.duration = 1;
+            config.unit = CalendarUnit.YEAR;
+        }
+
+        return config;
+    }
+
+    function onHistoryDurationChange(durationDesc) {
+        if (historyChartLoading) {
+            return;
+        }
+
+        historyChartLoading = true;
+
+        // 显示 Overlay
+        $('#sharing_timeline_chart').parent().next().css('visibility', 'visible');
+
+        // 解析 Duration 值
+        var config = parseDurationValue(durationDesc);
 
         // 历史数据
         g.cube().fs.getSharingReport(SharingReport.HistoryEventRecord, function(historyReport) {
-            refreshHistoryChart(historyReport);
+            refreshHistoryChart(historyReport, config);
             refreshIPHistoryChart(historyReport);
             refreshOSHistoryChart(historyReport);
             refreshSWHistoryChart(historyReport);
+
+            historyChartLoading = false;
         }, function(error) {
             g.dialog.toast('读取报告出错：' + error.code);
+            historyChartLoading = false;
         }, config);
     }
 
@@ -12427,6 +12479,7 @@
             onResize();
         });
 
+        $('.visit-timeline-select').select2().val('7d').trigger('change');
         $('.visit-timeline-select').on('change', function(e) {
             onHistoryDurationChange(e.currentTarget.value);
         });
@@ -12519,12 +12572,16 @@
             g.dialog.toast('读取报告出错：' + error.code);
         });
 
+        historyChartLoading = true;
+
         // 历史数据
         g.cube().fs.getSharingReport(SharingReport.HistoryEventRecord, function(report) {
             historyReport = report;
             gotHistoryReport = true;
+            historyChartLoading = false;
             completion();
         }, function(error) {
+            historyChartLoading = false;
             g.dialog.toast('读取报告出错：' + error.code);
         }, {
             duration: 7,
