@@ -51,6 +51,12 @@ export class SharingReport {
      */
     static HistoryEventRecord = 'HistoryEventRecord';
 
+    /**
+     * 访问人的事件记录。
+     * @type {string}
+     */
+    static VisitorRecord = 'VisitorRecord';
+
 
     constructor(json) {
         /**
@@ -124,6 +130,11 @@ export class SharingReport {
          * @type {Array}
          */
         this.swTotalStatistics = (undefined !== json.swTotalStatistics) ? json.swTotalStatistics : null;
+
+        /**
+         * @type {Array}
+         */
+        this.visitorEvents = (undefined !== json.visitorEvents) ? json.visitorEvents : null;
     }
 
     /**
@@ -162,6 +173,18 @@ export class SharingReport {
                 }
 
                 codeList.push(code);
+            });
+        }
+        if (null != resport.visitorEvents) {
+            resport.visitorEvents.forEach((item) => {
+                item.eventTotals.forEach((value) => {
+                    let code = value.sharingCode;
+                    if (codeList.indexOf(code) >= 0) {
+                        return;
+                    }
+    
+                    codeList.push(code);
+                });
             });
         }
 
