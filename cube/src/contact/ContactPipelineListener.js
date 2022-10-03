@@ -57,6 +57,11 @@ export class ContactPipelineListener extends PipelineListener {
 
         if (packet.getStateCode() != PipelineState.OK) {
             cell.Logger.w('ContactPipelineListener', 'Pipeline error: ' + packet.name + ' - ' + packet.getStateCode());
+
+            if (packet.name == ContactAction.SignIn) {
+                this.contactService.signing = false;
+            }
+
             return;
         }
 

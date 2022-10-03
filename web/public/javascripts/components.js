@@ -12268,11 +12268,36 @@
         fileTypeExpiredChart.setOption(option);
     }
 
-    function refreshVisitorChart(report) {
+    function refreshVisitorChart(report, config) {
         if (null == visitorChart) {
-            $('.visitor-chart-box').parent().next().remove();
             visitorChart = echarts.init(document.getElementById('sharing_visitor_chart'));
         }
+
+        var monthGrade = false;
+        if (config) {
+            if ((config.duration > 3 && config.unit == CalendarUnit.MONTH)
+                || (config.unit == CalendarUnit.YEAR)) {
+                monthGrade = true;
+            }
+        }
+
+        // 清空联系人数据
+        var selected = true;
+        var selectEl = $('.visitor-contact-select');
+        selectEl.select2('destroy');
+        selectEl.val(null);
+        report.getVisitorList().forEach(function(item) {
+            var newOption = new Option(item.getName(), item.getId(), selected, selected);
+            selectEl.append(newOption);
+            if (selected) {
+                selected = false;
+            }
+        });
+        selectEl.select2();
+        // selectEl.trigger('change');
+
+        // 隐藏 Overlay
+        $('.visitor-chart-box').parent().next().css('visibility', 'hidden');
 
         var files = ['File 1', 'File 2', 'File 3', 'File 4', 'File 5'];
         var data = makeVisitorChartSeries(report);
@@ -12483,6 +12508,8 @@
         $('.visit-timeline-select').on('change', function(e) {
             onHistoryDurationChange(e.currentTarget.value);
         });
+
+        $('.visitor-timeline-select').select2().val('7d').trigger('change');
     }
 
     FileDashboard.prototype.show = function() {
@@ -12492,8 +12519,9 @@
         }
 
         var now = Date.now();
-        if (now - lastTimestamp > 60000) {
+        if (now - lastTimestamp > 5 * 60 * 1000) {
             if (g.cube().fs.isReady()) {
+                lastTimestamp = now;
                 this.reload();
             }
             else {
@@ -12543,19 +12571,9 @@
                 refreshSWHistoryChart(historyReport);
 
                 historyReport = null;
-
-                setTimeout(function() {
-                    refreshVisitorChart();
-                }, 1000);
-
-                setTimeout(function() {
-                    refreshFileTypeValidChart();
-                    refreshFileTypeExpiredChart();
-                }, 1500);
             }
 
             if (gotCountRecordReport && gotHistoryReport) {
-                lastTimestamp = Date.now();
                 g.dialog.hideLoading();
             }
         }
@@ -12587,6 +12605,23 @@
             duration: 7,
             unit: CalendarUnit.DAY
         });
+
+        setTimeout(function() {
+            // 访客数据
+            g.cube().fs.getSharingReport(SharingReport.VisitorRecord, function(report) {
+                refreshVisitorChart(report);
+            }, function(error) {
+                g.dialog.toast('读取报告出错：' + error.code);
+            }, {
+                duration: 7,
+                unit: CalendarUnit.DAY
+            });
+        }, 1000);
+
+        setTimeout(function() {
+            refreshFileTypeValidChart();
+            refreshFileTypeExpiredChart();
+        }, 2000);
     }
 
     g.FileDashboard = FileDashboard;

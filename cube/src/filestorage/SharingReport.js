@@ -24,6 +24,7 @@
  * SOFTWARE.
  */
 
+import { Contact } from "../contact/Contact";
 import { FastMap } from "../util/FastMap";
 import { FileStorage } from "./FileStorage";
 import { SharingTag } from "./SharingTag";
@@ -64,6 +65,12 @@ export class SharingReport {
          * @type {FastMap}
          */
         this.sharingTagMap = new FastMap();
+
+        /**
+         * 联系人映射。
+         * @type {FastMap}
+         */
+        this.contactMap = new FastMap();
 
         /**
          * 有效的分享标签总数量。
@@ -147,13 +154,48 @@ export class SharingReport {
     }
 
     /**
-     * 
+     * 获取在报告数据中的联系人。
+     * @param {number} contactId 指定联系人 ID 。
+     * @returns {Contact} 返回联系人实例。
+     */
+    getContact(contactId) {
+        if (0 == contactId) {
+            let contact = new Contact(0, '匿名访客', '');
+            return contact;
+        }
+
+        return this.contactMap.get(contactId);
+    }
+
+    /**
+     * 获取报告里的访客列表。
+     * @returns 
+     */
+    getVisitorList() {
+        if (null == this.visitorEvents) {
+            return [];
+        }
+
+        let result = [];
+        this.visitorEvents.forEach((item) => {
+            let contact = this.contactMap.get(item.contactId);
+            if (null != contact) {
+                result.push(contact);
+            }
+        });
+        return result;
+    }
+
+    /**
+     * 填写实例。
      * @param {FileStorage} service 
      * @param {SharingReport} resport 
      * @param {function} handle 
      */
     static fillData(service, resport, handle) {
         let codeList = [];
+        let contactIdList = [];
+
         if (null != resport.topViewRecords) {
             resport.topViewRecords.forEach((item) => {
                 let code = item.code;
@@ -175,26 +217,33 @@ export class SharingReport {
                 codeList.push(code);
             });
         }
+
         if (null != resport.visitorEvents) {
             resport.visitorEvents.forEach((item) => {
+                if (0 != item.contactId) {
+                    if (contactIdList.indexOf(item.contactId) < 0) {
+                        contactIdList.push(item.contactId);
+                    }
+                }
+
                 item.eventTotals.forEach((value) => {
                     let code = value.sharingCode;
                     if (codeList.indexOf(code) >= 0) {
                         return;
                     }
-    
+
                     codeList.push(code);
                 });
             });
         }
 
-        if (codeList.length == 0) {
+        if (codeList.length == 0 && contactIdList.length == 0) {
             handle();
             return;
         }
 
-        let tick = (handle) => {
-            if (codeList.length == 0) {
+        let tickSharingTag = (handle) => {
+            if (codeList.length == 0 && contactIdList.length == 0) {
                 handle();
                 return;
             }
@@ -202,12 +251,33 @@ export class SharingReport {
             let code = codeList.shift();
             service.getSharingTag(code, (sharingTag) => {
                 resport.sharingTagMap.put(code, sharingTag);
-                tick(handle);
+                tickSharingTag(handle);
             }, (error) => {
-                tick(handle);
+                tickSharingTag(handle);
             });
         };
 
-        tick(handle);
+        if (codeList.length > 0) {
+            tickSharingTag(handle);
+        }
+
+        let tickContact = (handle) => {
+            if (codeList.length == 0 && contactIdList.length == 0) {
+                handle();
+                return;
+            }
+
+            let cid = contactIdList.shift();
+            service.contactService.getContact(cid, (contact) => {
+                resport.contactMap.put(cid, contact);
+                tickContact(handle);
+            }, (error) => {
+                tickContact(handle);
+            });
+        };
+
+        if (contactIdList.length > 0) {
+            tickContact(handle);
+        }
     }
 }
