@@ -59,6 +59,12 @@ export class SharingReport {
      */
     static VisitorRecord = 'VisitorRecord';
 
+    /**
+     * 文件类型总数统计。
+     * @type {string}
+     */
+    static FileTypeTotalRecord = 'FileTypeTotalRecord';
+
 
     constructor(json) {
         /**
@@ -143,6 +149,16 @@ export class SharingReport {
          * @type {Array}
          */
         this.visitorEvents = (undefined !== json.visitorEvents) ? json.visitorEvents : null;
+
+        /**
+         * @type {Array}
+         */
+        this.validFileTypeTotals = (undefined !== json.validFileTypeTotals) ? json.validFileTypeTotals : null;
+
+        /**
+         * @type {Array}
+         */
+        this.expiredFileTypeTotals = (undefined !== json.expiredFileTypeTotals) ? json.expiredFileTypeTotals : null;
     }
 
     /**

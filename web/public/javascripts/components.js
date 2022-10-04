@@ -11822,10 +11822,13 @@
     var osHistoryChart = null;
     var swHistoryChart = null;
 
+    var visitorChartLoading = false;
     var visitorChart = null;
+    var visitorReport = null;
 
     var fileTypeValidChart = null;
     var fileTypeExpiredChart = null;
+    var fileTypeTotalReport = null;
 
     function makeBarChartOption(labels, values) {
         return {
@@ -12177,15 +12180,27 @@
             fileTypeValidChart = echarts.init(document.getElementById('sharing_file_type_valid'));
         }
 
-        var category = ['PDF', 'PNG', 'JPG', 'DOC'];
-        var data = [3, 7, 11, 29];
+        var category = [];
+        var data = [];
+        var max = 1;
+
+        report.validFileTypeTotals.forEach(function(item) {
+            category.push(item.fileType);
+            data.push(item.total);
+            if (item.total > max) {
+                max = item.total;
+            }
+        });
+        max += 1;
 
         var option = {
             polar: {
                 radius: ['10%', '80%']
             },
             angleAxis: {
-                max: 30,
+                type: 'value',
+                min: 0,
+                max: max,
                 startAngle: 0
             },
             radiusAxis: {
@@ -12225,15 +12240,27 @@
             fileTypeExpiredChart = echarts.init(document.getElementById('sharing_file_type_expired'));
         }
 
-        var category = ['PPT', 'XLS', 'DOC', 'MP3'];
-        var data = [10, 12, 26, 37];
+        var category = [];
+        var data = [];
+        var max = 1;
+
+        report.expiredFileTypeTotals.forEach(function(item) {
+            category.push(item.fileType);
+            data.push(item.total);
+            if (item.total > max) {
+                max = item.total;
+            }
+        });
+        max += 1;
 
         var option = {
             polar: {
                 radius: ['10%', '80%']
             },
             angleAxis: {
-                max: 40,
+                type: 'value',
+                min: 0,
+                max: max,
                 startAngle: 0
             },
             radiusAxis: {
@@ -12268,38 +12295,35 @@
         fileTypeExpiredChart.setOption(option);
     }
 
-    function refreshVisitorChart(report, config) {
+    function refreshVisitorChart(report, reset, contactId) {
         if (null == visitorChart) {
             visitorChart = echarts.init(document.getElementById('sharing_visitor_chart'));
         }
 
-        var monthGrade = false;
-        if (config) {
-            if ((config.duration > 3 && config.unit == CalendarUnit.MONTH)
-                || (config.unit == CalendarUnit.YEAR)) {
-                monthGrade = true;
-            }
-        }
-
-        // 清空联系人数据
-        var selected = true;
         var selectEl = $('.visitor-contact-select');
-        selectEl.select2('destroy');
-        selectEl.empty();
-        report.getVisitorList().forEach(function(item) {
-            var newOption = new Option(item.getName(), item.getId(), selected, selected);
-            selectEl.append(newOption);
-            if (selected) {
-                selected = false;
-            }
-        });
-        selectEl.select2();
-        // selectEl.trigger('change');
+
+        if (reset) {
+            // 清空联系人数据
+            var selected = true;
+            selectEl.select2('destroy');
+            selectEl.empty();
+            report.getVisitorList().forEach(function(item) {
+                var newOption = new Option(item.getName(), item.getId(), selected, selected);
+                selectEl.append(newOption);
+                if (selected) {
+                    selected = false;
+                }
+            });
+            // 添加匿名访客
+            selectEl.append(new Option('匿名访客', 0, false, false));
+            selectEl.select2();
+            // selectEl.trigger('change');
+        }
 
         // 隐藏 Overlay
         $('.visitor-chart-box').parent().next().css('visibility', 'hidden');
 
-        var data = makeVisitorChartSeries(report, parseInt(selectEl.val()));
+        var data = makeVisitorChartSeries(report, (undefined !== contactId) ? contactId : parseInt(selectEl.val()));
 
         var option = {
             grid: {
@@ -12373,7 +12397,7 @@
                         }
                     }
                 },
-                data: [320, 332, 301, 334, 390]
+                data: []
             }, {
                 name: '下载',
                 type: 'bar',
@@ -12388,7 +12412,7 @@
                         }
                     }
                 },
-                data: [220, 182, 191, 234, 290]
+                data: []
             }, {
                 name: '复制',
                 type: 'bar',
@@ -12403,9 +12427,14 @@
                         }
                     }
                 },
-                data: [150, 232, 201, 154, 190]
+                data: []
             }
         ];
+
+        var data = {
+            category: [],
+            value: value
+        };
 
         var event = report.getVisitorEvent(contactId);
         event.eventTotals.forEach(function(item) {
@@ -12417,14 +12446,17 @@
             var tag = report.getSharingTag(sharingCode);
             if (null != tag) {
                 var fileName = tag.fileLabel.getFileName();
-                console.log(fileName);
+                data.category.push(fileName);
+                data.value[0].data.push(viewEventTotal);
+                data.value[1].data.push(extractEventTotal);
+                data.value[2].data.push(shareEventTotal);
             }
         });
 
-        var data = {
-            category: ['File 1', 'File 2', 'File 3', 'File 4', 'File 5'],
-            value: value
-        };
+        // data.category = ['File 1', 'File 2', 'File 3', 'File 4', 'File 5'];
+        // data.value[0].data = [320, 332, 301, 334, 390];
+        // data.value[1].data = [220, 182, 191, 234, 290];
+        // data.value[2].data = [150, 232, 201, 154, 190];
 
         return data;
     }
@@ -12486,6 +12518,37 @@
         }, config);
     }
 
+    function onVisitorChange(contactId) {
+        if (null == visitorReport) {
+            return;
+        }
+
+        refreshVisitorChart(visitorReport, false, contactId);
+    }
+
+    function onVisitorDurationChange(durationDesc) {
+        if (visitorChartLoading) {
+            return;
+        }
+
+        visitorChartLoading = true;
+
+        // 显示 Overlay
+        $('.visitor-chart-box').parent().next().css('visibility', 'visible');
+
+        // 解析 Duration 值
+        var config = parseDurationValue(durationDesc);
+
+        g.cube().fs.getSharingReport(SharingReport.VisitorRecord, function(report) {
+            visitorReport = report;
+            refreshVisitorChart(report, true);
+            visitorChartLoading = false;
+        }, function(error) {
+            g.dialog.toast('读取报告出错：' + error.code);
+            visitorChartLoading = false;
+        }, config);
+    }
+
     function onResize() {
         if (null != viewTopNChart) {
             viewTopNChart.resize();
@@ -12524,12 +12587,18 @@
             onResize();
         });
 
-        $('.visit-timeline-select').select2().val('7d').trigger('change');
+        $('.visit-timeline-select').val('7d');
         $('.visit-timeline-select').on('change', function(e) {
             onHistoryDurationChange(e.currentTarget.value);
         });
 
-        $('.visitor-timeline-select').select2().val('7d').trigger('change');
+        $('.visitor-timeline-select').val('7d');
+        $('.visitor-timeline-select').on('change', function(e) {
+            onVisitorDurationChange(e.currentTarget.value);
+        });
+        $('.visitor-contact-select').on('change', function(e) {
+            onVisitorChange(parseInt(e.currentTarget.value));
+        });
     }
 
     FileDashboard.prototype.show = function() {
@@ -12629,7 +12698,8 @@
         setTimeout(function() {
             // 访客数据
             g.cube().fs.getSharingReport(SharingReport.VisitorRecord, function(report) {
-                refreshVisitorChart(report);
+                visitorReport = report;
+                refreshVisitorChart(report, true);
             }, function(error) {
                 g.dialog.toast('读取报告出错：' + error.code);
             }, {
@@ -12639,8 +12709,13 @@
         }, 1000);
 
         setTimeout(function() {
-            refreshFileTypeValidChart();
-            refreshFileTypeExpiredChart();
+            g.cube().fs.getSharingReport(SharingReport.FileTypeTotalRecord, function(report) {
+                fileTypeTotalReport = report;
+                refreshFileTypeValidChart(report);
+                refreshFileTypeExpiredChart(report);
+            }, function(error) {
+                g.dialog.toast('读取报告出错：' + error.code);
+            });
         }, 2000);
     }
 
