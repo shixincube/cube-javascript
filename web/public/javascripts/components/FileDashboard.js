@@ -407,14 +407,16 @@
         var data = [];
         var max = 1;
 
-        report.validFileTypeTotals.forEach(function(item) {
-            category.push(item.fileType);
-            data.push(item.total);
-            if (item.total > max) {
-                max = item.total;
-            }
-        });
-        max += 1;
+        if (null != report.validFileTypeTotals) {
+            report.validFileTypeTotals.forEach(function(item) {
+                category.push(item.fileType);
+                data.push(item.total);
+                if (item.total > max) {
+                    max = item.total;
+                }
+            });
+            max += 1;
+        }
 
         var option = {
             polar: {
@@ -467,14 +469,16 @@
         var data = [];
         var max = 1;
 
-        report.expiredFileTypeTotals.forEach(function(item) {
-            category.push(item.fileType);
-            data.push(item.total);
-            if (item.total > max) {
-                max = item.total;
-            }
-        });
-        max += 1;
+        if (null != report.expiredFileTypeTotals) {
+            report.expiredFileTypeTotals.forEach(function(item) {
+                category.push(item.fileType);
+                data.push(item.total);
+                if (item.total > max) {
+                    max = item.total;
+                }
+            });
+            max += 1;
+        }
 
         var option = {
             polar: {
@@ -660,26 +664,23 @@
         };
 
         var event = report.getVisitorEvent(contactId);
-        event.eventTotals.forEach(function(item) {
-            var sharingCode = item.sharingCode;
-            var viewEventTotal = item.viewEventTotal;
-            var extractEventTotal = item.extractEventTotal;
-            var shareEventTotal = item.shareEventTotal;
-
-            var tag = report.getSharingTag(sharingCode);
-            if (null != tag) {
-                var fileName = tag.fileLabel.getFileName();
-                data.category.push(fileName);
-                data.value[0].data.push(viewEventTotal);
-                data.value[1].data.push(extractEventTotal);
-                data.value[2].data.push(shareEventTotal);
-            }
-        });
-
-        // data.category = ['File 1', 'File 2', 'File 3', 'File 4', 'File 5'];
-        // data.value[0].data = [320, 332, 301, 334, 390];
-        // data.value[1].data = [220, 182, 191, 234, 290];
-        // data.value[2].data = [150, 232, 201, 154, 190];
+        if (null != event) {
+            event.eventTotals.forEach(function(item) {
+                var sharingCode = item.sharingCode;
+                var viewEventTotal = item.viewEventTotal;
+                var extractEventTotal = item.extractEventTotal;
+                var shareEventTotal = item.shareEventTotal;
+    
+                var tag = report.getSharingTag(sharingCode);
+                if (null != tag) {
+                    var fileName = tag.fileLabel.getFileName();
+                    data.category.push(fileName);
+                    data.value[0].data.push(viewEventTotal);
+                    data.value[1].data.push(extractEventTotal);
+                    data.value[2].data.push(shareEventTotal);
+                }
+            });
+        }
 
         return data;
     }
