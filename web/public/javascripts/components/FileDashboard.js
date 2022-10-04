@@ -508,7 +508,7 @@
         var selected = true;
         var selectEl = $('.visitor-contact-select');
         selectEl.select2('destroy');
-        selectEl.val(null);
+        selectEl.empty();
         report.getVisitorList().forEach(function(item) {
             var newOption = new Option(item.getName(), item.getId(), selected, selected);
             selectEl.append(newOption);
@@ -522,8 +522,7 @@
         // 隐藏 Overlay
         $('.visitor-chart-box').parent().next().css('visibility', 'hidden');
 
-        var files = ['File 1', 'File 2', 'File 3', 'File 4', 'File 5'];
-        var data = makeVisitorChartSeries(report);
+        var data = makeVisitorChartSeries(report, parseInt(selectEl.val()));
 
         var option = {
             grid: {
@@ -556,18 +555,18 @@
             xAxis: [{
                 type: 'category',
                 axisTick: { show: false },
-                data: files
+                data: data.category
             }],
             yAxis: [{
                 type: 'value'
             }],
-            series: data
+            series: data.value
         };
 
         visitorChart.setOption(option);
     }
 
-    function makeVisitorChartSeries() {
+    function makeVisitorChartSeries(report, contactId) {
         const labelOption = {
             show: true,
             position: 'insideBottom',
@@ -582,7 +581,7 @@
             }
         };
 
-        return [{
+        var value = [{
                 name: '浏览',
                 type: 'bar',
                 barGap: 0,
@@ -630,6 +629,27 @@
                 data: [150, 232, 201, 154, 190]
             }
         ];
+
+        var event = report.getVisitorEvent(contactId);
+        event.eventTotals.forEach(function(item) {
+            var sharingCode = item.sharingCode;
+            var viewEventTotal = item.viewEventTotal;
+            var extractEventTotal = item.extractEventTotal;
+            var shareEventTotal = item.shareEventTotal;
+
+            var tag = report.getSharingTag(sharingCode);
+            if (null != tag) {
+                var fileName = tag.fileLabel.getFileName();
+                console.log(fileName);
+            }
+        });
+
+        var data = {
+            category: ['File 1', 'File 2', 'File 3', 'File 4', 'File 5'],
+            value: value
+        };
+
+        return data;
     }
 
     function parseDurationValue(durationDesc) {

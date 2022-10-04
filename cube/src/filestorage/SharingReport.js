@@ -24,6 +24,7 @@
  * SOFTWARE.
  */
 
+import cell from "@lib/cell-lib";
 import { Contact } from "../contact/Contact";
 import { FastMap } from "../util/FastMap";
 import { FileStorage } from "./FileStorage";
@@ -169,7 +170,7 @@ export class SharingReport {
 
     /**
      * 获取报告里的访客列表。
-     * @returns 
+     * @returns {Array}
      */
     getVisitorList() {
         if (null == this.visitorEvents) {
@@ -187,17 +188,37 @@ export class SharingReport {
     }
 
     /**
+     * 获取访客事件。
+     * @param {number} contactId 指定联系人 ID 。
+     * @returns {object}
+     */
+    getVisitorEvent(contactId) {
+        if (null == this.visitorEvents) {
+            return null;
+        }
+
+        for (let i = 0; i < this.visitorEvents.length; ++i) {
+            let value = this.visitorEvents[i];
+            if (value.contactId == contactId) {
+                return value;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * 填写实例。
      * @param {FileStorage} service 
-     * @param {SharingReport} resport 
+     * @param {SharingReport} report 
      * @param {function} handle 
      */
-    static fillData(service, resport, handle) {
+    static fillData(service, report, handle) {
         let codeList = [];
         let contactIdList = [];
 
-        if (null != resport.topViewRecords) {
-            resport.topViewRecords.forEach((item) => {
+        if (null != report.topViewRecords) {
+            report.topViewRecords.forEach((item) => {
                 let code = item.code;
                 if (codeList.indexOf(code) >= 0) {
                     return;
@@ -207,8 +228,8 @@ export class SharingReport {
             });
         }
 
-        if (null != resport.topExtractRecords) {
-            resport.topExtractRecords.forEach((item) => {
+        if (null != report.topExtractRecords) {
+            report.topExtractRecords.forEach((item) => {
                 let code = item.code;
                 if (codeList.indexOf(code) >= 0) {
                     return;
@@ -218,8 +239,8 @@ export class SharingReport {
             });
         }
 
-        if (null != resport.visitorEvents) {
-            resport.visitorEvents.forEach((item) => {
+        if (null != report.visitorEvents) {
+            report.visitorEvents.forEach((item) => {
                 if (0 != item.contactId) {
                     if (contactIdList.indexOf(item.contactId) < 0) {
                         contactIdList.push(item.contactId);
@@ -250,9 +271,10 @@ export class SharingReport {
 
             let code = codeList.shift();
             service.getSharingTag(code, (sharingTag) => {
-                resport.sharingTagMap.put(code, sharingTag);
+                report.sharingTagMap.put(code, sharingTag);
                 tickSharingTag(handle);
             }, (error) => {
+                cell.Logger.w('SharingReport', 'Get sharing tag error: ' + code + ' - ' + error.code);
                 tickSharingTag(handle);
             });
         };
@@ -269,9 +291,10 @@ export class SharingReport {
 
             let cid = contactIdList.shift();
             service.contactService.getContact(cid, (contact) => {
-                resport.contactMap.put(cid, contact);
+                report.contactMap.put(cid, contact);
                 tickContact(handle);
             }, (error) => {
+                cell.Logger.w('SharingReport', 'Get contact error: ' + cid + ' - ' + error.code);
                 tickContact(handle);
             });
         };
