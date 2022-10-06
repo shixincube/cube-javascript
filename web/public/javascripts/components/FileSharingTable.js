@@ -95,6 +95,13 @@
             html.push('<i class="fas fa-times-circle"></i>');
             html.push('</button>');
         }
+        else {
+            html.push('<button type="button" title="删除分享" class="btn btn-danger btn-sm" onclick="app.fileSharingPanel.promptCancelSharing(\'');
+            html.push(sharingTag.code);
+            html.push('\');">');
+            html.push('<i class="fas fa-trash-alt"></i>');
+            html.push('</button>');
+        }
 
         html.push('</td></tr>');
 

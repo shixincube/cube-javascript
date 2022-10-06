@@ -1538,6 +1538,49 @@ export class FileStorage extends Module {
     }
 
     /**
+     * 删除文件分享。
+     * @param {string|SharingTag} sharingCode 指定分享码或者分享标签实例。
+     * @param {function} handleSuccess 成功回调。参数：({@linkcode sharingTag}:{@link SharingTag}) 。
+     * @param {function} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
+     */
+    deleteSharingTag(sharingCode, handleSuccess, handleFailure) {
+        if (!this.hasStarted()) {
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.NotReady, sharingCode);
+            handleFailure(error);
+            return;
+        }
+
+        if (!this.pipeline.isReady()) {
+            let error = new ModuleError(FileStorage.NAME, FileStorageState.PipelineNotReady, sharingCode);
+            handleFailure(error);
+            return;
+        }
+
+        let payload = {
+            "sharingCode": (typeof sharingCode === 'string') ? sharingCode : sharingCode.code
+        };
+        let packet = new Packet(FileStorageAction.DeleteSharingTag, payload);
+        this.pipeline.send(FileStorage.NAME, packet, (pipeline, source, responsePacket) => {
+            if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
+                let error = new ModuleError(FileStorage.NAME, responsePacket.getStateCode(), sharingCode);
+                handleFailure(error);
+                return;
+            }
+
+            let stateCode = responsePacket.extractServiceStateCode();
+            if (stateCode != FileStorageState.Ok) {
+                let error = new ModuleError(FileStorage.NAME, stateCode, sharingCode);
+                handleFailure(error);
+                return;
+            }
+
+            let data = responsePacket.extractServiceData();
+            let sharingTag = SharingTag.create(data);
+            handleSuccess(sharingTag);
+        });
+    }
+
+    /**
      * 批量获取分享标签。
      * @param {number} beginIndex 指定数据起始索引。
      * @param {number} endIndex 指定数据结束索引。

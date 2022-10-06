@@ -186,9 +186,45 @@
             ];
             g.dialog.showConfirm('取消分享', content.join(''), function(yesOrNo) {
                 if (yesOrNo) {
-                    g.dialog.showLoading('正在取消标签');
+                    g.dialog.showLoading('正在取消分享');
 
                     g.cube().fs.cancelSharingTag(sharingCode, function(sharingTag) {
+                        g.dialog.hideLoading();
+
+                        setTimeout(function() {
+                            if (selectedValid) {
+                                that.showSharingPanel();
+                            }
+                            else {
+                                that.showExpiresPanel();
+                            }
+                        }, 100);
+                    }, function(error) {
+                        alert('访问出错: ' + error.code);
+                    });
+                }
+            });
+        }, function(error) {
+            alert('访问出错: ' + error.code);
+        });
+    }
+
+    FileSharingPanel.prototype.promptDeleteSharing = function(sharingCode) {
+        g.cube().fs.getSharingTag(sharingCode, function(sharingTag) {
+            // 提示
+            var content = [
+                '您确定要删除该分享码？<p>删除的分享不可恢复。</p>',
+                '<p style="margin-left:1rem;">',
+                    '<span class="text-muted ellipsis">文件名：', sharingTag.fileLabel.fileName, '</span><br/>',
+                    '<span class="text-muted">有效期：', sharingTag.expiryDate > 0 ? g.formatYMDHM(sharingTag.expiryDate) : '永久有效', '</span><br/>',
+                    '<span class="text-muted">访问码：', null == sharingTag.password ? '<i>无</i>' : sharingTag.password, '</span>',
+                '</p>'
+            ];
+            g.dialog.showConfirm('删除分享', content.join(''), function(yesOrNo) {
+                if (yesOrNo) {
+                    g.dialog.showLoading('正在删除分享');
+
+                    g.cube().fs.deleteSharingTag(sharingCode, function(sharingTag) {
                         g.dialog.hideLoading();
 
                         setTimeout(function() {

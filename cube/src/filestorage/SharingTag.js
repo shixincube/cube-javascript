@@ -49,6 +49,12 @@ export class SharingTag extends Entity {
      */
     static STATE_CANCEL = 1;
 
+    /**
+     * 已删除状态。
+     * @type {number}
+     */
+    static STATE_DELETE = 2;
+
     constructor(id, code) {
         super(id);
 

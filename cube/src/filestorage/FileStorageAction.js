@@ -162,6 +162,12 @@ export const FileStorageAction = {
     CancelSharingTag: 'cancelSharingTag',
 
     /**
+     * 删除分享标签。
+     * @type {string}
+     */
+    DeleteSharingTag: 'deleteSharingTag',
+
+    /**
      * 获取分享标签。
      * @type {string}
      */
