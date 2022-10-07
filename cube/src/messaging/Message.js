@@ -28,6 +28,7 @@ import cell from "@lib/cell-lib";
 import { Entity } from "../core/Entity";
 import { MessageState } from "./MessageState";
 import { AuthService } from "../auth/AuthService";
+import { FileLabel } from "../filestorage/FileLabel";
 import { FileAttachment } from "./FileAttachment";
 import { Contact } from "../contact/Contact";
 import { Group } from "../contact/Group";
@@ -39,8 +40,8 @@ import { Group } from "../contact/Group";
 export class Message extends Entity {
 
     /**
-     * @param {JSON|Message|File} payload 消息负载或者消息文件附件。
-     * @param {File} [file] 文件附件。
+     * @param {JSON|Message|File|FileLabel} payload 消息负载或者消息文件附件。
+     * @param {File|FileLabel} [file] 文件附件。
      */
     constructor(payload, file) {
         super();
@@ -71,7 +72,7 @@ export class Message extends Entity {
             this.payload = payload.payload;
         }
         else {
-            if (undefined !== payload && null != payload && !(payload instanceof File)) {
+            if (undefined !== payload && null != payload && !(payload instanceof File) && !(payload instanceof FileLabel)) {
                 this.payload = payload;
             }
             else {
@@ -145,8 +146,16 @@ export class Message extends Entity {
         else if (payload instanceof File) {
             this.attachment = new FileAttachment(payload);
         }
-        else if (undefined !== file && null != file && file instanceof File) {
-            this.attachment = new FileAttachment(file);
+        else if (payload instanceof FileLabel) {
+            this.attachment = new FileAttachment(payload);
+        }
+        else if (undefined !== file && null != file) {
+            if (file instanceof File) {
+                this.attachment = new FileAttachment(file);
+            }
+            else if (file instanceof FileLabel) {
+                this.attachment = new FileAttachment(file);
+            }
         }
 
         /**

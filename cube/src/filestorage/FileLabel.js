@@ -359,6 +359,10 @@ export class FileLabel extends Entity {
             }
         }
 
+        if (undefined !== json.context) {
+            // TODO FileThumbnail
+        }
+
         return label;
     }
 }

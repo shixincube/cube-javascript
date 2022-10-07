@@ -765,11 +765,11 @@ export class MessagingService extends Module {
     /**
      * 向指定联系人发送消息。
      * @param {Contact|number} contact 指定联系人或联系人 ID 。
-     * @param {JSON|Message} message 指定消息实例或消息内容。
+     * @param {JSON|Message} messageOrData 指定消息实例或消息内容。
      * @param {File} [file] 指定消息的文件附件。
      * @returns {Message} 如果消息成功写入数据通道返回 {@link Message} 实例，否则返回 {@linkcode null} 值。
      */
-    sendToContact(contact, message, file) {
+    sendToContact(contact, messageOrData, file) {
         if (!this.started) {
             this.start();
         }
@@ -779,9 +779,9 @@ export class MessagingService extends Module {
             return null;
         }
 
-        var msg = message;
-        if (!(message instanceof Message)) {
-            msg = new Message(message, file);
+        let message = messageOrData;
+        if (!(messageOrData instanceof Message)) {
+            message = new Message(messageOrData, file);
         }
 
         let to = 0;
@@ -800,15 +800,15 @@ export class MessagingService extends Module {
         }
 
         // 更新状态
-        msg.state = MessageState.Sending;
+        message.state = MessageState.Sending;
 
-        msg.from = self.getId();
-        msg.to = to;
-        msg.localTS = Date.now();
-        msg.remoteTS = msg.localTS;
+        message.from = self.getId();
+        message.to = to;
+        message.localTS = Date.now();
+        message.remoteTS = message.localTS;
 
         (async ()=> {
-            let result = await this.fillMessage(msg);
+            let result = await this.fillMessage(message);
             if (result instanceof ModuleError) {
                 cell.Logger.e(MessagingService.NAME, result.toString());
                 return;
@@ -817,40 +817,40 @@ export class MessagingService extends Module {
             // 更新状态
             let promise = new Promise((resolve, reject) => {
                 // 存储
-                this.storage.writeMessage(msg);
+                this.storage.writeMessage(message);
 
                 // 更新会话
                 this.getConversation(to, (conversation) => {
-                    conversation.setRecentMessage(msg);
+                    conversation.setRecentMessage(message);
                     // 更新会话数据
                     this.storage.writeConversation(conversation);
                 }, (error) => {
                     cell.Logger.d(MessagingService.NAME, error.toString());
                 });
 
-                resolve(msg);
+                resolve(message);
             });
-            promise.then((msg) => {
+            promise.then((message) => {
                 // 写入队列
-                this.pushQueue.push(msg);
+                this.pushQueue.push(message);
             });
         })();
 
-        if (msg.localTS - this.timerLastTime > 5000) {
+        if (message.localTS - this.timerLastTime > 5000) {
             this.resetTimer();
         }
 
-        return msg;
+        return message;
     }
 
     /**
      * 向指定群组发送消息。
      * @param {Group|number} group 指定群组或群组 ID 。
-     * @param {JSON|Message} message 指定消息实例或消息内容。
+     * @param {JSON|Message} messageOrData 指定消息实例或消息内容。
      * @param {File} [file] 指定消息附件。
      * @returns {Message} 如果消息成功写入数据通道返回 {@link Message} 实例，否则返回 {@linkcode null} 值。
      */
-    sendToGroup(group, message, file) {
+    sendToGroup(group, messageOrData, file) {
         if (!this.started) {
             this.start();
         }
@@ -860,9 +860,9 @@ export class MessagingService extends Module {
             return null;
         }
 
-        var msg = message;
-        if (!(message instanceof Message)) {
-            msg = new Message(message, file);
+        let message = messageOrData;
+        if (!(messageOrData instanceof Message)) {
+            message = new Message(messageOrData, file);
         }
 
         let source = 0;
@@ -881,15 +881,15 @@ export class MessagingService extends Module {
         }
 
         // 更新状态
-        msg.state = MessageState.Sending;
+        message.state = MessageState.Sending;
 
-        msg.from = self.getId();
-        msg.source = source;
-        msg.localTS = Date.now();
-        msg.remoteTS = msg.localTS;
+        message.from = self.getId();
+        message.source = source;
+        message.localTS = Date.now();
+        message.remoteTS = message.localTS;
 
         (async ()=> {
-            let result = await this.fillMessage(msg);
+            let result = await this.fillMessage(message);
             if (result instanceof ModuleError) {
                 cell.Logger.e(MessagingService.NAME, result.toString());
                 return;
@@ -898,30 +898,30 @@ export class MessagingService extends Module {
             // 更新状态
             let promise = new Promise((resolve, reject) => {
                 // 存储
-                this.storage.writeMessage(msg);
+                this.storage.writeMessage(message);
 
                 // 更新会话
                 this.getConversation(source, (conversation) => {
-                    conversation.setRecentMessage(msg);
+                    conversation.setRecentMessage(message);
                     // 更新会话数据
                     this.storage.writeConversation(conversation);
                 }, (error) => {
                     cell.Logger.d(MessagingService.NAME, error.toString());
                 });
 
-                resolve(msg);
+                resolve(message);
             });
-            promise.then((msg) => {
+            promise.then((message) => {
                 // 写入队列
-                this.pushQueue.push(msg);
+                this.pushQueue.push(message);
             });
         })();
 
-        if (msg.localTS - this.timerLastTime > 5000) {
+        if (message.localTS - this.timerLastTime > 5000) {
             this.resetTimer();
         }
 
-        return msg;
+        return message;
     }
 
     /**
@@ -2417,12 +2417,14 @@ export class MessagingService extends Module {
         fs.uploadFile(message.attachment.file, (fileAnchor) => {
             // 开始上传
             // 设置锚点
-            message.attachment.anchor = fileAnchor;
+            message.attachment.localAnchor = fileAnchor;
         }, (fileAnchor) => {
             // 正在发送文件
             this.notifyObservers(new ObservableEvent(MessagingEvent.Processing, message));
         }, (fileLabel) => {
             // 文件发送完成
+            // 设置文件标签
+            message.attachment.localLabel = fileLabel;
 
             // 发送到服务器
             let packet = new Packet(MessagingAction.Push, message.toJSON());

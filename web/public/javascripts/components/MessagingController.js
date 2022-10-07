@@ -424,6 +424,10 @@
         g.app.messageSidebar.update(group);
     }
 
+    MessagingController.prototype.batchSendFile = function() {
+
+    }
+
     /**
      * 显示选择文件界面。
      * @param {*} el 

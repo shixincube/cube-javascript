@@ -36,52 +36,53 @@ import { AuthService } from "../auth/AuthService";
  * 
  * FIXME 2021-11-17 XJW 需要重构，新结构使用 labels 和 anchors ，一个文件附件包含多个文件
  * 弃用 thumbs 和 thumbConfig
+ * 以上问题于 2022-10-07 修改
  */
 export class FileAttachment extends JSONable {
 
     /**
-     * @param {File} file 文件实例。
+     * @param {File|FileLabel} file 文件实例。
      */
     constructor(file) {
         super();
-        
+
         /**
          * 文件句柄。
          * @type {File}
          */
-        this.file = file;
+        this.file = (file instanceof File) ? file : null;
 
         /**
-         * 文件处理时的记录信息。
-         * @type {FileAnchor}
-         */
-        this.anchor = null;
-
-        /**
-         * 文件标签。
+         * 本地处理文件时的文件标签。
          * @type {FileLabel}
-         */
-        this.label = null;
-
-        /**
-         * 是否生成文件的缩略图。
-         * @type {JSON}
-         * @protected
-         */
-        this.thumbConfig = null;
-
-        /**
-         * 缩略图列表。
-         * @type {Array<FileThumbnail>}
-         */
-        this.thumbs = null;
-
-        /**
-         * 是否是安全连接。
-         * @type {boolean}
          * @private
          */
-        // this.secure = (window.location.protocol.toLowerCase().indexOf("https") >= 0);
+        this.localLabel = (file instanceof FileLabel) ? file : null;
+
+        /**
+         * 本地文件处理时的记录信息锚。
+         * @type {FileAnchor}
+         * @private
+         */
+        this.localAnchor = null;
+
+        /**
+         * 文件标签列表。
+         * @type {Array<FileLabel>}
+         */
+        this.labels = (null != this.localLabel) ? [ this.localLabel ] : [];
+
+        /**
+         * 文件锚列表。
+         * @type {Array<FileAnchor>}
+         */
+        this.anchors = [];
+
+        /**
+         * 是否压缩了原文件。
+         * @type {boolean}
+         */
+        this.compressed = false;
 
         /**
          * @type {string}
@@ -95,11 +96,14 @@ export class FileAttachment extends JSONable {
      * @returns {string} 返回文件码。
      */
     getFileCode() {
-        if (null != this.anchor) {
-            return this.anchor.fileCode;
+        if (null != this.localAnchor) {
+            return this.localAnchor.fileCode;
         }
-        else if (null != this.label) {
-            return this.label.fileCode;
+        else if (null != this.localLabel) {
+            return this.localLabel.fileCode;
+        }
+        else if (null != this.labels) {
+            return this.labels[0].fileCode;
         }
         else {
             return null;
@@ -111,11 +115,14 @@ export class FileAttachment extends JSONable {
      * @returns {string} 返回文件名。
      */
     getFileName() {
-        if (null != this.label) {
-            return this.label.fileName;
+        if (null != this.localLabel) {
+            return this.localLabel.fileName;
         }
-        else if (null != this.anchor) {
-            return this.anchor.fileName;
+        else if (null != this.localAnchor) {
+            return this.localAnchor.fileName;
+        }
+        else if (null != this.labels) {
+            return this.labels[0].fileName;
         }
         else {
             return null;
@@ -127,11 +134,14 @@ export class FileAttachment extends JSONable {
      * @returns {number} 返回文件大小。
      */
     getFileSize() {
-        if (null != this.label) {
-            return this.label.fileSize;
+        if (null != this.localLabel) {
+            return this.localLabel.fileSize;
         }
-        else if (null != this.anchor) {
-            return this.anchor.fileSize;
+        else if (null != this.localAnchor) {
+            return this.localAnchor.fileSize;
+        }
+        else if (null != this.labels) {
+            return this.labels[0].fileSize;
         }
         else {
             return 0;
@@ -143,11 +153,14 @@ export class FileAttachment extends JSONable {
      * @returns {string} 返回文件类型。
      */
     getFileType() {
-        if (null != this.label) {
-            return this.label.fileType;
+        if (null != this.localLabel) {
+            return this.localLabel.fileType;
         }
-        else if (null != this.anchor) {
-            return this.anchor.getExtension().toLowerCase();
+        else if (null != this.localAnchor) {
+            return this.localAnchor.getExtension().toLowerCase();
+        }
+        else if (null != this.labels) {
+            return this.labels[0].fileType;
         }
         else {
             return 'unknown';
@@ -173,7 +186,7 @@ export class FileAttachment extends JSONable {
      * @returns {boolean} 返回附件是否可用。
      */
     isEnabled() {
-        return (null != this.label);
+        return (null != this.localLabel) || (null != this.labels);
     }
 
     /**
@@ -181,7 +194,10 @@ export class FileAttachment extends JSONable {
      * @returns {string} 返回 URL 地址。
      */
     getFileURL(secure) {
-        if (null == this.label) {
+        let label = (null != this.localLabel) ? this.localLabel :
+            (null != this.labels) ? this.labels[0] : null;
+
+        if (null == label) {
             return null;
         }
 
@@ -191,12 +207,12 @@ export class FileAttachment extends JSONable {
 
         let url = null;
         if (undefined !== secure) {
-            url = [ secure ? this.label.getFileSecureURL() : this.label.getFileURL(),
-                '&token=', this.token,
-                '&type=', this.label.fileType ];
+            url = [ secure ? label.getFileSecureURL() : label.getFileURL(),
+                '&token=', token,
+                '&type=', label.fileType ];
         }
         else {
-            url = [ this.label.getFileURL(), '&token=', this.token, '&type=', this.label.fileType ];
+            url = [ label.getFileURL(), '&token=', this.token, '&type=', label.fileType ];
         }
 
         return url.join('');
@@ -205,9 +221,10 @@ export class FileAttachment extends JSONable {
     /**
      * 启用缩略图。
      * @param {JSON} 缩略图参数。
+     * @deprecated
      */
     enableThumb(config) {
-        if (undefined === config) {
+        /*if (undefined === config) {
             this.thumbConfig = {
                 "size": 480,
                 "quality": 0.7
@@ -215,22 +232,24 @@ export class FileAttachment extends JSONable {
         }
         else {
             this.thumbConfig = config;
-        }
+        }*/
     }
 
     /**
      * 禁用缩略图。
+     * @deprecated
      */
     disableThumb() {
-        this.thumbConfig = null;
+        //this.thumbConfig = null;
     }
 
     /**
      * 获取文件默认缩略图。
      * @returns {FileThumbnail} 返回文件默认缩略图。
+     * @deprecated
      */
     getDefaultThumb() {
-        if (null == this.thumbs) {
+        /*if (null == this.thumbs) {
             return null;
         }
 
@@ -240,15 +259,17 @@ export class FileAttachment extends JSONable {
 
         let thumb = this.thumbs[0];
         thumb.token = this.token;
-        return thumb;
+        return thumb;*/
+        return null;
     }
 
     /**
      * 获取文件默认缩略图的访问 URL 。
      * @returns {string} 返回文件默认缩略图的 URL 信息。
+     * @deprecated
      */
     getDefaultThumbURL(secure) {
-        if (null == this.thumbs) {
+        /*if (null == this.thumbs) {
             return null;
         }
 
@@ -258,7 +279,8 @@ export class FileAttachment extends JSONable {
 
         let thumb = this.thumbs[0];
         thumb.token = this.token;
-        return thumb.getFileURL(secure);
+        return thumb.getFileURL(secure);*/
+        return null;
     }
 
     /**
@@ -266,24 +288,24 @@ export class FileAttachment extends JSONable {
      */
     toJSON() {
         let json = super.toJSON();
-        if (null != this.anchor) {
-            json.anchor = this.anchor.toJSON();
+
+        if (null != this.localAnchor && this.anchors.length == 0) {
+            this.anchors.push(this.localAnchor);
         }
 
-        if (null != this.label) {
-            json.label = this.label.toJSON();
+        json.anchors = [];
+        this.anchors.forEach((value) => {
+            json.anchors.push(value.toJSON());
+        });
+
+        if (null != this.localLabel && this.labels.length == 0) {
+            this.labels.push(this.localLabel);
         }
 
-        if (null != this.thumbConfig) {
-            json.thumbConfig = this.thumbConfig;
-        }
-
-        if (null != this.thumbs) {
-            json.thumbs = [];
-            for (let i = 0; i < this.thumbs.length; ++i) {
-                json.thumbs.push(this.thumbs[i].toJSON());
-            }
-        }
+        json.labels = [];
+        this.labels.forEach((value) => {
+            json.labels.push(value.toJSON());
+        });
 
         return json;
     }
@@ -295,22 +317,23 @@ export class FileAttachment extends JSONable {
      */
     static create(json) {
         let attachment = new FileAttachment(null);
-        if (undefined !== json.anchor) {
-            attachment.anchor = FileAnchor.create(json.anchor);
+
+        if (undefined !== json.anchors) {
+            json.anchors.forEach((value) => {
+                attachment.anchors.push(FileAnchor.create(value));
+            });
         }
-        if (undefined !== json.label) {
-            attachment.label = FileLabel.create(json.label);
+
+        if (undefined !== json.labels) {
+            json.labels.forEach((value) => {
+                attachment.labels.push(FileLabel.create(value));
+            });
         }
-        if (undefined !== json.thumbConfig) {
-            attachment.thumbConfig = json.thumbConfig;
+
+        if (undefined !== json.compressed) {
+            attachment.compressed = json.compressed;
         }
-        if (undefined !== json.thumbs) {
-            attachment.thumbs = [];
-            for (let i = 0; i < json.thumbs.length; ++i) {
-                let thumb = FileThumbnail.create(json.thumbs[i]);
-                attachment.thumbs.push(thumb);
-            }
-        }
+
         return attachment;
     }
 }
