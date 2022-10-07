@@ -11699,12 +11699,13 @@
                             }
                         }, 100);
                     }, function(error) {
-                        alert('访问出错: ' + error.code);
+                        g.dialog.hideLoading();
+                        g.dialog.toast('取消分享出错：' + error.code, Toast.Error);
                     });
                 }
             });
         }, function(error) {
-            alert('访问出错: ' + error.code);
+            g.dialog.toast('获取分享数据出错：' + error.code, Toast.Error);
         });
     }
 
@@ -11735,12 +11736,13 @@
                             }
                         }, 100);
                     }, function(error) {
-                        alert('访问出错: ' + error.code);
+                        g.dialog.hideLoading();
+                        g.dialog.toast('删除分享出错：' + error.code, Toast.Error);
                     });
                 }
             });
         }, function(error) {
-            alert('访问出错: ' + error.code);
+            g.dialog.toast('获取分享数据出错：' + error.code, Toast.Error);
         });
     }
 
