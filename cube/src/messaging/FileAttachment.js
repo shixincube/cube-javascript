@@ -195,7 +195,7 @@ export class FileAttachment extends JSONable {
      */
     getFileURL(secure) {
         let label = (null != this.localLabel) ? this.localLabel :
-            (null != this.labels) ? this.labels[0] : null;
+            (this.labels.length > 0) ? this.labels[0] : null;
 
         if (null == label) {
             return null;
@@ -306,6 +306,8 @@ export class FileAttachment extends JSONable {
         this.labels.forEach((value) => {
             json.labels.push(value.toJSON());
         });
+
+        json.compressed = this.compressed;
 
         return json;
     }

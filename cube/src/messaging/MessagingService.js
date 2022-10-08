@@ -55,6 +55,7 @@ import { MessageDraft } from "./MessageDraft";
 import { Conversation } from "./Conversation";
 import { ConversationType } from "./ConversationType";
 import { ConversationState } from "./ConversationState";
+import { MessageScope } from "./MessageScope";
 
 
 /**
@@ -2384,18 +2385,20 @@ export class MessagingService extends Module {
                 // 进入发送中状态
                 this.sendingMap.put(message.getId(), message);
 
-                if (null != message.attachment) {
+                // 需要判断 message.attachment.file 因为附件里可能是 FileLabel 实例
+                if (null != message.attachment && null != message.attachment.file) {
                     // 文件带附件，先处理文件
                     this._processAttachment(message);
                 }
                 else {
                     // 事件通知
-                    if (message.scope == 0) {
+                    if (message.scope == MessageScope.Unlimited) {
                         this.notifyObservers(new ObservableEvent(MessagingEvent.Sending, message));
                     }
 
                     // 发送到服务器
                     let packet = new Packet(MessagingAction.Push, message.toJSON());
+                    console.log(packet.data);
                     this.pipeline.send(MessagingService.NAME, packet, (pipeline, source, responsePacket) => {
                         this._processPushResult(message, responsePacket);
                     });

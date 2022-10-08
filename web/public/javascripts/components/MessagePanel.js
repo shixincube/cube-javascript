@@ -757,11 +757,14 @@
                     '</table>'];
                 }
                 else {
-                    action = ['<a class="btn btn-xs btn-default" title="下载文件" href="javascript:dialog.downloadFile(\'',
+                    /*action = ['<a class="btn btn-xs btn-default" title="下载文件" href="javascript:dialog.downloadFile(\'',
                                     attachment.getFileCode(), '\');">',
-                        '<i class="fas fa-download"></i>',
-                    '</a>'];
-    
+                                '<i class="fas fa-download"></i>', '</a>'];*/
+
+                    action = ['<a class="text-secondary text-xs" title="下载文件" href="javascript:dialog.downloadFile(\'',
+                                attachment.getFileCode(), '\');">',
+                                '<i class="fas fa-download"></i>', '</a>'];
+
                     fileDesc = ['<table class="file-label" border="0" cellspacing="4" cellpodding="0">',
                         '<tr>',
                             '<td rowspan="2" valign="middle" align="center">', matchFileIcon(attachment.getFileType()), '</td>',

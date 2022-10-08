@@ -64,11 +64,12 @@
         var tbody = dialogEl.find('tbody');
         tbody.find('input[type="checkbox"]:checked').each(function(i, item) {
             var id = parseInt($(item).attr('data'));
-            var contact = findContact(id, preselected);
-            if (null == contact) {
-                // 是新选择联系人，记录 ID
-                result.push(id);
-            }
+            result.push(id);
+            // var contact = findContact(id, preselected);
+            // if (null == contact) {
+            //     // 是新选择联系人，记录 ID
+            //     result.push(id);
+            // }
         });
 
         // 回调，参数为新选择的联系人

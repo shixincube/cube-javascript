@@ -38,10 +38,6 @@ export class ImageMessage extends TypeableMessage {
     constructor(param) {
         super(param);
 
-        if (this.hasAttachment()) {
-            this.getAttachment().enableThumb();
-        }
-
         if (undefined === this.payload.type) {
             this.payload.type = "image";
         }
@@ -59,10 +55,8 @@ export class ImageMessage extends TypeableMessage {
 
     /**
      * 禁用缩略图。
+     * @deprecated
      */
     disableThumb() {
-        if (this.hasAttachment()) {
-            this.getAttachment().disableThumb();
-        }
     }
 }

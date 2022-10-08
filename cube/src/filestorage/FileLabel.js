@@ -26,6 +26,7 @@
 
 import { Entity } from "../core/Entity";
 import { Kernel } from "../core/Kernel";
+import { FileThumbnail } from "../fileprocessor/FileThumbnail";
 
 /**
  * 文件标签。
@@ -123,6 +124,12 @@ export class FileLabel extends Entity {
          * @type {string}
          */
         this.fileSecureURL = null;
+
+        /**
+         * 文件缩略图。
+         * @type {FileThumbnail}
+         */
+        this.thumbnail = null;
 
         /**
          * 操作序号。
@@ -301,6 +308,14 @@ export class FileLabel extends Entity {
     }
 
     /**
+     * 获取文件缩略图。
+     * @returns {FileThumbnail} 返回文件缩略图。
+     */
+    getThumbnail() {
+        return this.thumbnail;
+    }
+
+    /**
      * 序列化为 JSON 结构。
      * @returns {JSON} 返回 JSON 结构的 {@link FileLabel} 。
      */
@@ -313,13 +328,14 @@ export class FileLabel extends Entity {
         json.fileName = this.fileName;
         json.fileSize = this.fileSize;
         json.lastModified = this.lastModified;
-        json.completed = this.completedTime;
-        json.expiry = this.expiryTime;
+        json.completedTime = this.completedTime;
+        json.expiryTime = this.expiryTime;
         json.fileType = this.fileType;
         if (null != this.md5Code) json.md5 = this.md5Code;
         if (null != this.sha1Code) json.sha1 = this.sha1Code;
         if (null != this.fileURL) json.fileURL = this.fileURL;
         if (null != this.fileSecureURL) json.fileSecureURL = this.fileSecureURL;
+        if (null != this.thumbnail) json.context = this.thumbnail.toJSON();
         return json;
     }
 
@@ -360,7 +376,10 @@ export class FileLabel extends Entity {
         }
 
         if (undefined !== json.context) {
-            // TODO FileThumbnail
+            // 实例化 FileThumbnail
+            if (undefined !== json.context.fileLabel && undefined !== json.context.quality) {
+                this.thumbnail = FileThumbnail.create(json.context);
+            }
         }
 
         return label;

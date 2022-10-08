@@ -424,8 +424,38 @@
         g.app.messageSidebar.update(group);
     }
 
-    MessagingController.prototype.batchSendFile = function() {
+    /**
+     * 批量发送文件消息。
+     * @param {Array} contactList 
+     * @param {string} fileCode 
+     * @param {function} callback
+     */
+    MessagingController.prototype.batchSendFile = function(contactList, fileCode, callback) {
+        cube.fs.getFileLabel(fileCode, function(fileLabel) {
+            var process = function() {
+                if (contactList.length == 0) {
+                    callback();
+                    return;
+                }
 
+                var contact = contactList.shift();
+                that.toggle(contact.getId(), function() {
+                    that.fireSend(contact, fileLabel);
+
+                    // 下一个
+                    setTimeout(function() {
+                        process();
+                    }, 10);
+                });
+            };
+
+            // 逐一处理
+            process();
+
+        }, function(error) {
+            callback();
+            g.dialog.toast('获取文件标签出错：' + error.code);
+        });
     }
 
     /**
@@ -461,7 +491,7 @@
         var message = null;
 
         if (typeof content === 'string') {
-            message = new HyperTextMessage(content);// new TextMessage(content);
+            message = new HyperTextMessage(content);
         }
         else if (content instanceof File) {
             var type = content.type;
@@ -472,8 +502,11 @@
                 message = new FileMessage(content);
             }
         }
+        else if (content instanceof FileLabel) {
+            message = new FileMessage(content);
+        }
         else {
-            g.dialog.launchToast(Toast.Warning, '程序内部错误');
+            g.dialog.launchToast(Toast.Warning, '不支持的消息数据类型');
             return null;
         }
 
@@ -484,20 +517,28 @@
     /**
      * 切换消息面板。
      * @param {number} id 切换消息面板的目标 ID 。
+     * @param {function} callback 回调句柄。
      */
-    MessagingController.prototype.toggle = function(id) {
+    MessagingController.prototype.toggle = function(id, callback) {
         if (id == g.app.account.id) {
             return;
         }
 
         var handle = function(item) {
             if (null == item) {
+                if (undefined !== callback) {
+                    callback();
+                }
                 return;
             }
 
             g.app.messagePanel.changePanel(id, item);
             g.app.messageCatalog.activeItem(id);
             g.app.messageCatalog.updateBadge(id, 0);
+
+            if (undefined !== callback) {
+                callback();
+            }
         }
 
         // 申请会话
@@ -530,6 +571,7 @@
             }
         }, function(error) {
             g.dialog.toast('申请会话出错：' + error.code, Toast.Error);
+            handle(null);
         });
     }
 
