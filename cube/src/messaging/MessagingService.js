@@ -2398,7 +2398,6 @@ export class MessagingService extends Module {
 
                     // 发送到服务器
                     let packet = new Packet(MessagingAction.Push, message.toJSON());
-                    console.log(packet.data);
                     this.pipeline.send(MessagingService.NAME, packet, (pipeline, source, responsePacket) => {
                         this._processPushResult(message, responsePacket);
                     });

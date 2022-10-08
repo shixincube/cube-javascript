@@ -359,9 +359,9 @@ export class FileLabel extends Entity {
         label.fileName = json.fileName;
         label.fileSize = json.fileSize;
         label.lastModified = json.lastModified;
-        label.completedTime = json.completedTime;
-        label.expiryTime = json.expiryTime;
         label.fileType = json.fileType;
+        label.completedTime = (undefined !== json.completedTime) ? json.completedTime : Date.now();
+        label.expiryTime = (undefined !== json.expiryTime) ? json.expiryTime : 0;
         label.md5Code = (undefined !== json.md5) ? json.md5 : null;
         label.sha1Code = (undefined !== json.sha1) ? json.sha1 : null;
         label.fileURL = (undefined !== json.fileURL) ? json.fileURL : null;

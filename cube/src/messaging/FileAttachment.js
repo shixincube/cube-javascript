@@ -219,6 +219,31 @@ export class FileAttachment extends JSONable {
     }
 
     /**
+     * 获取文件默认缩略图。
+     * @returns {FileThumbnail} 返回文件默认缩略图。
+     */
+     getDefaultThumb() {
+        let label = (null != this.localLabel) ? this.localLabel :
+            (this.labels.length > 0) ? this.labels[0] : null;
+        if (null == label) {
+            return null;
+        }
+
+        /*if (null == this.thumbs) {
+            return null;
+        }
+
+        if (null == this.token || this.token.length == 0) {
+            this.token = AuthService.TOKEN;
+        }
+
+        let thumb = this.thumbs[0];
+        thumb.token = this.token;
+        return thumb;*/
+        return null;
+    }
+
+    /**
      * 启用缩略图。
      * @param {JSON} 缩略图参数。
      * @deprecated
@@ -241,26 +266,6 @@ export class FileAttachment extends JSONable {
      */
     disableThumb() {
         //this.thumbConfig = null;
-    }
-
-    /**
-     * 获取文件默认缩略图。
-     * @returns {FileThumbnail} 返回文件默认缩略图。
-     * @deprecated
-     */
-    getDefaultThumb() {
-        /*if (null == this.thumbs) {
-            return null;
-        }
-
-        if (null == this.token || this.token.length == 0) {
-            this.token = AuthService.TOKEN;
-        }
-
-        let thumb = this.thumbs[0];
-        thumb.token = this.token;
-        return thumb;*/
-        return null;
     }
 
     /**
