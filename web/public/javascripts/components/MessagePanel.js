@@ -743,13 +743,14 @@
                 fileDesc = ['<div>', attachment.getFileName(), '<div>'];
             }
             else {
-                if (attachment.isImageType()) {
+                if (attachment.isImageType() && attachment.hasThumb()) {
                     action = ['javascript:dialog.showImage(\'', attachment.getFileCode(), '\');'];
-    
+
+                    var thumb = attachment.getDefaultThumb();
                     fileDesc = ['<table class="file-label" border="0" cellspacing="4" cellpodding="0">',
                         '<tr>',
                             '<td>',
-                                '<img class="thumb" src="', attachment.getDefaultThumbURL(), '" onclick="', action.join(''), '"',
+                                '<img class="thumb" src="', thumb.getFileURL(), '" onclick="', action.join(''), '"',
                                     ' onload="app.messagePanel.refreshScroll()"',
                                     ' alt="', attachment.getFileName(), '"', ' />',
                             '</td>',
@@ -767,7 +768,7 @@
 
                     fileDesc = ['<table class="file-label" border="0" cellspacing="4" cellpodding="0">',
                         '<tr>',
-                            '<td rowspan="2" valign="middle" align="center">', matchFileIcon(attachment.getFileType()), '</td>',
+                            '<td rowspan="2" width="130" valign="middle" align="left">', matchFileIcon(attachment.getFileType()), '</td>',
                             '<td colspan="2" class="file-name">', attachment.getFileName(), '</td>',
                         '</tr>',
                         '<tr>',
@@ -923,13 +924,14 @@
             var action = null;
             var fileDesc = null;
 
-            if (attachment.isImageType()) {
+            if (attachment.isImageType() && attachment.hasThumb()) {
                 action = ['javascript:dialog.showImage(\'', attachment.getFileCode(), '\');'];
 
+                var thumb = attachment.getDefaultThumb();
                 fileDesc = ['<table class="file-label" border="0" cellspacing="4" cellpodding="0">',
                     '<tr>',
                         '<td>',
-                            '<img class="thumb" src="', attachment.getDefaultThumbURL(), '" onclick="', action.join(''), '"',
+                            '<img class="thumb" src="', thumb.getFileURL(), '" onclick="', action.join(''), '"',
                                 ' onload="app.messagePanel.refreshScroll()"',
                                 ' alt="', attachment.getFileName(), '"', ' />',
                         '</td>',
@@ -948,7 +950,7 @@
 
                 fileDesc = ['<table class="file-label" border="0" cellspacing="4" cellpodding="0">',
                     '<tr>',
-                        '<td rowspan="2" valign="middle" align="center">', matchFileIcon(attachment.getFileType()), '</td>',
+                        '<td rowspan="2" width="130" valign="middle" align="left">', matchFileIcon(attachment.getFileType()), '</td>',
                         '<td colspan="2" class="file-name">', attachment.getFileName(), '</td>',
                     '</tr>',
                     '<tr>',

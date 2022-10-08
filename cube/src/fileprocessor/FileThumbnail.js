@@ -90,6 +90,8 @@ export class FileThumbnail extends Entity {
          * @private
          */
         this.token = null;
+
+        this.secure = window.location.protocol.toLowerCase().startsWith("https");
     }
 
     /**
@@ -105,11 +107,11 @@ export class FileThumbnail extends Entity {
         let url = null;
         if (undefined !== secure) {
             url = [ secure ? this.fileLabel.getFileSecureURL() : this.fileLabel.getFileURL(),
-                '&token=', this.token,
-                '&type=', this.fileLabel.fileType ];
+                '&token=', this.token ];
         }
         else {
-            url = [ this.fileLabel.getFileURL(), '&token=', this.token, '&type=', this.fileLabel.fileType ];
+            url = [ this.secure ? this.fileLabel.getFileSecureURL() : this.fileLabel.getFileURL(),
+                '&token=', this.token ];
         }
 
         return url.join('');

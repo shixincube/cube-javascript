@@ -378,7 +378,7 @@ export class FileLabel extends Entity {
         if (undefined !== json.context) {
             // 实例化 FileThumbnail
             if (undefined !== json.context.fileLabel && undefined !== json.context.quality) {
-                this.thumbnail = FileThumbnail.create(json.context);
+                label.thumbnail = FileThumbnail.create(json.context);
             }
         }
 

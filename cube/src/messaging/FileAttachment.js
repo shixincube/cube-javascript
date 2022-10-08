@@ -89,6 +89,8 @@ export class FileAttachment extends JSONable {
          * @private
          */
         this.token = null;
+
+        this.secure = window.location.protocol.toLowerCase().startsWith("https");
     }
 
     /**
@@ -208,14 +210,22 @@ export class FileAttachment extends JSONable {
         let url = null;
         if (undefined !== secure) {
             url = [ secure ? label.getFileSecureURL() : label.getFileURL(),
-                '&token=', token,
-                '&type=', label.fileType ];
+                '&token=', this.token ];
         }
         else {
-            url = [ label.getFileURL(), '&token=', this.token, '&type=', label.fileType ];
+            url = [ this.secure ? label.getFileSecureURL() : label.getFileURL(),
+                '&token=', this.token ];
         }
 
         return url.join('');
+    }
+
+    /**
+     * 附件是否有缩略图。
+     * @returns {boolean} 如果有缩略图返回 {@linkcode true} 。
+     */
+    hasThumb() {
+        return (null != this.getDefaultThumb());
     }
 
     /**
@@ -229,6 +239,8 @@ export class FileAttachment extends JSONable {
             return null;
         }
 
+        return label.thumbnail;
+
         /*if (null == this.thumbs) {
             return null;
         }
@@ -240,7 +252,6 @@ export class FileAttachment extends JSONable {
         let thumb = this.thumbs[0];
         thumb.token = this.token;
         return thumb;*/
-        return null;
     }
 
     /**

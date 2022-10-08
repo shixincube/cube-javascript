@@ -1018,6 +1018,7 @@ video {
     color: #343a40;
     margin: 4px 0px 4px 0px;
     border-radius: 0.3rem;
+    min-width: 280px;
 }
 .file-label .file-icon {
     margin: 4px;
