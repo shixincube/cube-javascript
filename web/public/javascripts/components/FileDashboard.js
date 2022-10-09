@@ -856,6 +856,22 @@
         panelEl.css('display', 'none');
     }
 
+    FileDashboard.prototype.refresh = function() {
+        if (historyChartLoading) {
+            g.dialog.toast('正在刷新数据');
+            return;
+        }
+
+        var now = Date.now();
+        if (now - lastTimestamp < 60 * 1000) {
+            g.dialog.toast('请稍候再刷新数据');
+            return;
+        }
+
+        lastTimestamp = now;
+        this.reload();
+    }
+
     /**
      * 重新加载数据。
      */
