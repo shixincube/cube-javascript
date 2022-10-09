@@ -2481,7 +2481,7 @@ export class MessagingService extends Module {
                     respMessage.setAttachment(recopy.attachment);
                 }
 
-                if (respMessage.scope == 0) {
+                if (respMessage.scope == MessageScope.Unlimited) {
                     this.notifyObservers(new ObservableEvent(MessagingEvent.Sent, respMessage));
                 }
                 else {

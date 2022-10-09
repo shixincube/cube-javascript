@@ -83,7 +83,7 @@ export class FileThumbnail extends Entity {
          * 缩略图使用的图像质量参数。
          * @type {number}
          */
-        this.quality = 1.0;
+        this.quality = 80;
 
         /**
          * @type {string}

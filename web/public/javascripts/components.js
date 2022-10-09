@@ -11112,7 +11112,7 @@
                                                             "watermark": watermark,
                                                             "download": switchDownload.prop('checked'),
                                                             "traceDownload": switchDownloadTrace.prop('checked')
-                                                        }, (sharingTag) => {
+                                                        }, function(sharingTag) {
                     el.modal('hide');
 
                     var url = sharingTag.getURL();
@@ -11142,8 +11142,9 @@
                             g.dialog.toast('链接地址已复制到剪贴板', Toast.Success);
                         });
                     }, 500);
-                }, (error) => {
+                }, function(error) {
                     el.modal('hide');
+                    g.dialog.toast('创建分享出错：' + error.code, Toast.Error);
                 });
             });
 
