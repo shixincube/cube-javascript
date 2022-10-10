@@ -36,6 +36,12 @@ export const FileStorageState = {
     Ok: 0,
 
     /**
+     * 系统忙。
+     * @type {number}
+     */
+    Busy: 8,
+
+    /**
      * 遇到故障。
      * @type {number}
      */

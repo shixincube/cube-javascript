@@ -55,6 +55,12 @@ export const PipelineState = {
     NoAuthToken: 1501,
 
     /**
+     * 系统忙。
+     * @type {number}
+     */
+    SystemBusy: 1502,
+
+    /**
      * 请求服务超时。
      * @type {number}
      */
