@@ -229,9 +229,41 @@ export class FileStorage extends Module {
          * @type {FileServicePerformance}
          */
         this.performance = {
+            /**
+             * 最大存储空间。
+             * @type {number}
+             */
             maxSpaceSize: 0,
+
+            /**
+             * 上传速率门限。{@linkcode 0} 表示不限制。
+             * @type {number}
+             */
             uploadThreshold: 0,
-            downloadThreshold: 0
+
+            /**
+             * 下载速率门限。{@linkcode 0} 表示不限制。
+             * @type {number}
+             */
+            downloadThreshold: 0,
+
+            /**
+             * 最大分享数量。{@linkcode 0} 表示不限制。
+             * @type {number}
+             */
+            maxSharingNum: 0,
+
+            /**
+             * 分享文件是否可使用水印。
+             * @type {boolean}
+             */
+            sharingWatermarkEnabled: true,
+
+            /**
+             * 分享文件是否可以生成预览图。
+             * @type {boolean}
+             */
+            sharingPreviewEnabled: true
         };
     }
 
@@ -1468,9 +1500,18 @@ export class FileStorage extends Module {
             payload["watermark"] = config.watermark;
         }
 
+        if (!this.performance.sharingPreviewEnabled) {
+            // 不允许预览
+            payload.preview = false;
+        }
+        if (!this.performance.sharingWatermarkEnabled) {
+            // 不允许水印
+            payload.watermark = false;
+        }
+
         let packet = new Packet(FileStorageAction.CreateSharingTag, payload);
         if (fileLabel.fileSize > 1024 * 1024) {
-            packet.responseTimeout = 3 * 60 * 1000;
+            packet.responseTimeout = 5 * 60 * 1000;
         }
 
         this.pipeline.send(FileStorage.NAME, packet, (pipeline, source, responsePacket) => {
@@ -2028,6 +2069,9 @@ export class FileStorage extends Module {
         this.performance.maxSpaceSize = payload.data.maxSpaceSize;
         this.performance.uploadThreshold = payload.data.uploadThreshold;
         this.performance.downloadThreshold = payload.data.downloadThreshold;
+        this.performance.maxSharingNum = payload.data.maxSharingNum;
+        this.performance.sharingWatermarkEnabled = payload.data.sharingWatermarkEnabled;
+        this.performance.sharingPreviewEnabled = payload.data.sharingPreviewEnabled;
     }
 
     /**
