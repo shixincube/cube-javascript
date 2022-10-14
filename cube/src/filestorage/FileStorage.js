@@ -1722,9 +1722,9 @@ export class FileStorage extends Module {
 
     /**
      * 列表分享访问痕迹。
-     * @param {string} sharingCode 
-     * @param {number} beginIndex 
-     * @param {number} endIndex 
+     * @param {string} sharingCode 指定分享码。
+     * @param {number} beginIndex 起始位置索引。
+     * @param {number} endIndex 结束位置索引。
      * @param {funciton} handleSuccess 成功回调。参数：({@linkcode list}:{@link Array<VisitTrace>}, {@linkcode total}:{@linkcode number}) 。
      * @param {funciton} handleFailure 失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */

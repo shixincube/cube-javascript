@@ -91,6 +91,9 @@ export class FileThumbnail extends Entity {
          */
         this.token = null;
 
+        /**
+         * @private
+         */
         this.secure = window.location.protocol.toLowerCase().startsWith("https");
     }
 
