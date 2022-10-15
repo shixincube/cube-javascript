@@ -86,7 +86,8 @@ export class FileHierarchy {
     }
 
     /**
-     * @returns {Directory}
+     * 获取根目录。
+     * @returns {Directory} 返回根目录。
      */
     getRoot() {
         return this.root;
