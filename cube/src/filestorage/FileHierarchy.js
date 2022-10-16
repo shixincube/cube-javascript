@@ -95,13 +95,12 @@ export class FileHierarchy {
 
     /**
      * 上传文件到指定目录。
-     * 
-     * @param {File} file 
-     * @param {Directory} directory 
-     * @param {function} handleStart
-     * @param {function} handleProcessing
-     * @param {function} handleSuccess 
-     * @param {function} handleFailure 
+     * @param {File} file 指定文件句柄。
+     * @param {Directory} directory 目标文件放置的目录。
+     * @param {funciton} handleStart 开始上传时的回调函数。函数参数：({@linkcode fileAnchor}:{@link FileAnchor}) 。
+     * @param {function} handleProcessing 正在进行文件处理的回调函数。函数参数：({@linkcode fileAnchor}:{@link FileAnchor}) 。
+     * @param {function} handleSuccess 上传文件成功的回调函数。函数参数：({@linkcode fileLabel}:{@link FileLabel}) 。
+     * @param {function} handleFailure 上传文件失败的回调函数。函数参数：({@linkcode error}:{@link ModuleError}) 。
      * @returns {FileAnchor}
      */
     uploadFile(file, directory, handleStart, handleProcessing, handleSuccess, handleFailure) {
