@@ -486,10 +486,10 @@ export class FileHierarchy {
 
     /**
      * 重命名目录。
-     * @param {Directory} workingDir 
-     * @param {string} newName 
-     * @param {function} handleSuccess 
-     * @param {function} handleFailure 
+     * @param {Directory} workingDir 工作目录。
+     * @param {string} newName 新的目录名。
+     * @param {function} handleSuccess 操作成功回调。参数：({@linkcode workingDir}:{@link Directory}) 。
+     * @param {function} handleFailure 操作失败回调。参数：({@linkcode error}:{@link ModuleError}) 。
      */
     renameDirectory(workingDir, newName, handleSuccess, handleFailure) {
         // 校验根
