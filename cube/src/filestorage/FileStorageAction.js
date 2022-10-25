@@ -180,14 +180,14 @@ export const FileStorageAction = {
     GetSharingReport: 'getSharingReport',
 
     /**
-     * 罗列当前联系人的所有分享标签。
+     * 列表当前联系人的所有分享标签。
      * @type {string}
      */
     ListSharingTags: 'listSharingTags',
 
     /**
-     * 获取监测数据。
+     * 列表分享标签访问记录。
      * @type {string}
      */
-    ListTraces: 'listTraces'
+     ListSharingTraces: 'listSharingTraces'
 }

@@ -1777,7 +1777,7 @@ export class FileStorage extends Module {
                 "begin": begin,
                 "end": end
             };
-            let packet = new Packet(FileStorageAction.ListTraces, payload);
+            let packet = new Packet(FileStorageAction.ListSharingTraces, payload);
             this.pipeline.send(FileStorage.NAME, packet, (pipeline, source, responsePacket) => {
                 // 更新计数
                 --resultCount;
@@ -1829,7 +1829,7 @@ export class FileStorage extends Module {
             "sharingCode": sharingCode,
             "trace": traceDepth
         };
-        let packet = new Packet(FileStorageAction.ListTraces, payload);
+        let packet = new Packet(FileStorageAction.ListSharingTraces, payload);
         this.pipeline.send(FileStorage.NAME, packet, (pipeline, source, responsePacket) => {
             if (null == responsePacket || responsePacket.getStateCode() != PipelineState.OK) {
                 let error = new ModuleError(FileStorage.NAME, responsePacket.getStateCode(), sharingCode);
