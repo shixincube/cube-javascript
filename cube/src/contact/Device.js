@@ -54,8 +54,8 @@ export class Device extends JSONable {
         this.platform = null;
 
         if (undefined === platform) {
-            // 例如：Chrome/Windows 10 或者 Firefox/Mac OS X
-            this.platform = BroswerUtil.getBrowserName() + '/' + BroswerUtil.getSystem();
+            // 例如：Chrome/86.0/Windows 10 或者 Firefox/106.0/Mac OS X 10.5
+            this.platform = BroswerUtil.getBrowserName() + '/' + BroswerUtil.getBrowserVersion() + '/' + BroswerUtil.getSystem();
         }
         else {
             this.platform = platform;

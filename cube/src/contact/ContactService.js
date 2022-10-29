@@ -391,6 +391,9 @@ export class ContactService extends Module {
 
         if (payload.code != ContactServiceState.Ok) {
             cell.Logger.e('ContactService', 'SignIn failed: ' + payload.code);
+            let event = new ObservableEvent(ContactEvent.Fault,
+                new ModuleError(ContactService.NAME, payload.code, payload.data));
+            this.notifyObservers(event);
             return;
         }
 

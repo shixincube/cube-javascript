@@ -69,6 +69,12 @@ const CubeContactServiceState = {
     NoSignIn: 12,
 
     /**
+     * 重复签入。
+     * @type {number}
+     */
+    DuplicateSignIn: 13,
+
+    /**
      * 未找到联系人。
      * @type {number}
      */

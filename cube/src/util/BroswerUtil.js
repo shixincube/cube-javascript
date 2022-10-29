@@ -236,7 +236,7 @@ export const BroswerUtil = {
             BroswerUtil.system = 'Linux';
         }
         else {
-            BroswerUtil.system = '';
+            BroswerUtil.system = 'Other';
         }
     }
 };

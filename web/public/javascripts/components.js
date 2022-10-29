@@ -15757,6 +15757,21 @@
             that.onGroupMemberRemoved(event.data.group);
         });
 
+        cube.contact.on(ContactEvent.Fault, function(event) {
+            var error = event.data;
+            if (error.code == ContactServiceState.DuplicateSignIn) {
+                g.dialog.hideLoading();
+
+                g.dialog.showAlert('该账号在同一终端重复登录', function() {
+                    g.app.back();
+                });
+
+                setTimeout(function() {
+                    g.app.back();
+                }, 5000);
+            }
+        });
+
         // 消息相关事件
         cube.messaging.on(MessagingEvent.Notify, function(event) {
             var log = [

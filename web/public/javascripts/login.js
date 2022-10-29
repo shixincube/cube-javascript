@@ -141,13 +141,16 @@
             }
         });
 
+        var searchString = window.location.search;
+        var auto = searchString.indexOf('c=logout') < 0 && searchString.indexOf('c=hold') < 0;
+
         var cookie = window.readCookie('CubeAppToken');
 
-        if (window.location.search.indexOf('account=') >= 0) {
+        if (searchString.indexOf('account=') >= 0) {
             var account = window.getQueryString('account');
             $('#account').val(account);
         }
-        else if (null != cookie && cookie.length >= 32 && window.location.search.indexOf('c=logout') < 0) {
+        else if (null != cookie && cookie.length >= 32 && auto) {
             // 尝试使用 Cookie 登录
             $('#modal_login').modal('show');
 
@@ -210,10 +213,13 @@
                 }
             });
         }
-        else if (window.location.search.indexOf('c=logout') >= 0) {
+        else if (searchString.indexOf('c=logout') >= 0) {
             var date = new Date();
             document.cookie = 'CubeAppToken=?; expires=' + date.toUTCString();
             document.cookie = 'CubeTrace=?; expires=' + date.toUTCString();
+        }
+        else if (searchString.indexOf('c=hold') >= 0) {
+            // 停留在该页面
         }
 
         // 获取跳转目标

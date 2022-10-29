@@ -210,6 +210,13 @@
         },
 
         /**
+         * 返回。
+         */
+        back: function() {
+            window.location.href = 'index.html?c=hold';
+        },
+
+        /**
          * 启动 Cube Engine 。
          */
         startupCube: function(config) {
