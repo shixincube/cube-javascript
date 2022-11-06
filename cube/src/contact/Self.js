@@ -47,7 +47,7 @@ export class Self extends Contact {
          * @private
          * @type {Device}
          */
-        this.device = new Device('Web');
+        this.device = Device.DEFAULT;
 
         this.addDevice(this.device);
     }

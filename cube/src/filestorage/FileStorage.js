@@ -35,6 +35,7 @@ import { AuthService } from "../auth/AuthService";
 import { ContactService } from "../contact/ContactService";
 import { Contact } from "../contact/Contact";
 import { Group } from "../contact/Group";
+import { Device } from "../contact/Device";
 import { ContactEvent } from "../contact/ContactEvent";
 import { ObservableEvent } from "../core/ObservableEvent";
 import { OrderMap } from "../util/OrderMap";
@@ -907,22 +908,25 @@ export class FileStorage extends Module {
             this.start();
         }
 
+        // 设备信息
+        let devString = Device.DEFAULT.getName().toLowerCase();
+
         if (fileCodeOrLabel instanceof FileLabel) {
             let url = [ fileCodeOrLabel.getFileURL(),
-                '&token=', this.filePipeline.tokenCode
+                '&token=', this.filePipeline.tokenCode, '&device=', devString
             ];
             let surl = [ fileCodeOrLabel.getFileSecureURL(),
-                '&token=', this.filePipeline.tokenCode
+                '&token=', this.filePipeline.tokenCode, '&device=', devString
             ];
             handler(fileCodeOrLabel, url.join(''), surl.join(''));
         }
         else {
             this.getFileLabel(fileCodeOrLabel, (fileLabel) => {
                 let url = [ fileLabel.getFileURL(),
-                    '&token=', this.filePipeline.tokenCode
+                    '&token=', this.filePipeline.tokenCode, '&device=', devString
                 ];
                 let surl = [ fileLabel.getFileSecureURL(),
-                    '&token=', this.filePipeline.tokenCode
+                    '&token=', this.filePipeline.tokenCode, '&device=', devString
                 ];
                 handler(fileLabel, url.join(''), surl.join(''));
             }, (error) => {

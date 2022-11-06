@@ -34,9 +34,14 @@ import { BroswerUtil } from "../util/BroswerUtil";
 export class Device extends JSONable {
 
     /**
+     * 默认
+     */
+    static DEFAULT = new Device('Web');
+
+    /**
      * 构造函数。
      * @param {string} name 设备名称。
-     * @param {string} platform 设备平台描述。
+     * @param {string} [platform] 设备平台描述。
      */
     constructor(name, platform) {
         super();
