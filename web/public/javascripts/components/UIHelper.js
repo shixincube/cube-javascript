@@ -34,17 +34,21 @@
         '#67E0E3',
         '#9FE6B8',
         '#FFDB5C',
-        '#ff9f7f',
-        '#fb7293',
+        '#FF9F7F',
+        '#FB7293',
         '#E062AE',
         '#E690D1',
-        '#e7bcf3',
-        '#9d96f5',
+        '#E7BCF3',
+        '#9D96F5',
         '#8378EA',
         '#96BFFF'
     ];
 
     g.helper.chartReversalColors = [];
+
+    for (var i = g.helper.chartColors.length - 1; i >= 0; --i) {
+        g.helper.chartReversalColors.push(g.helper.chartColors[i]);
+    }
 
     /**
      * 千分数字。
@@ -342,9 +346,5 @@
     uaTestData.forEach(function(ua) {
         console.log(g.helper.parseUserAgent(ua));
     });*/
-
-    for (var i = g.helper.chartColors.length - 1; i >= 0; --i) {
-        g.helper.chartReversalColors.push(g.helper.chartColors[i]);
-    }
 
 })(window);
