@@ -295,7 +295,7 @@ export class FileLabel extends Entity {
 
     /**
      * 是否图片类型文件。
-     * @returns {boolean}
+     * @returns {boolean} 如果是图片类型文件返回 {@linkcode true} ，否则返回 {@linkcode false} 。
      */
     isImageType() {
         let type = this.fileType;
