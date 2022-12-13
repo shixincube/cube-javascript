@@ -63,6 +63,10 @@ export class Measurer {
         this.tickTimestamp = 0;
     }
 
+    /**
+     * 重置所有计算诸元。
+     * @param {number} timestamp 重置的开始时间戳。
+     */
     reset(timestamp) {
         this.beginTimestamp = timestamp;
         this.endTimestamp = 0;
