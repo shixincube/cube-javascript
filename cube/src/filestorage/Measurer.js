@@ -76,7 +76,7 @@ export class Measurer {
 
     /**
      * 传输的平均速率。
-     * @returns {number}
+     * @returns {number} 返回平均传输速率。
      */
     averageRate() {
         if (0 == this.endTimestamp) {
@@ -90,6 +90,7 @@ export class Measurer {
 
     /**
      * Tick
+     * @private
      * @param {number} size 
      * @returns {Promise}
      */
@@ -127,7 +128,7 @@ export class Measurer {
 
     /**
      * 结束计算。
-     * @param {number} size 
+     * @param {number} size 最后一个数据包大小。
      */
     finish(size) {
         // 累加大小
