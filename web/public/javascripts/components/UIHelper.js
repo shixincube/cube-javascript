@@ -62,9 +62,8 @@
     }
 
     /**
-     * 获取图像访问地址。
-     * 
-     * @param {string} avatar 
+     * 获取头像访问地址。
+     * @param {string} avatar 头像描述。
      */
     g.helper.getAvatarImage = function(avatar) {
         if (avatar.startsWith('avatar')) {
