@@ -76,8 +76,8 @@
 
     /**
      * 根据文件类型匹配文件图标。
-     * @param {FileLabel} fileLabel 
-     * @returns {string}
+     * @param {FileLabel} fileLabel 文件标签。
+     * @returns {string} 图标的 HTML 文本。
      */
     g.helper.matchFileIcon = function(fileLabel) {
         var type = fileLabel.getFileType();
