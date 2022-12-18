@@ -206,7 +206,7 @@ export class SharingReport {
     /**
      * 获取访客事件。
      * @param {number} contactId 指定联系人 ID 。
-     * @returns {object}
+     * @returns {object} 访客事件。
      */
     getVisitorEvent(contactId) {
         if (null == this.visitorEvents) {
