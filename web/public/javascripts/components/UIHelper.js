@@ -186,7 +186,8 @@
 
     /**
      * 提取文件的文件名，即移除文件的扩展名。
-     * @param {*} filename 
+     * @param {string} filename 文件名。
+     * @returns {string} 返回不包含扩展名的文件名。
      */
     g.helper.extractFilename = function(filename) {
         var index = filename.lastIndexOf('.');
