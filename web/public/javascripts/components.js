@@ -34,17 +34,21 @@
         '#67E0E3',
         '#9FE6B8',
         '#FFDB5C',
-        '#ff9f7f',
-        '#fb7293',
+        '#FF9F7F',
+        '#FB7293',
         '#E062AE',
         '#E690D1',
-        '#e7bcf3',
-        '#9d96f5',
+        '#E7BCF3',
+        '#9D96F5',
         '#8378EA',
         '#96BFFF'
     ];
 
     g.helper.chartReversalColors = [];
+
+    for (var i = g.helper.chartColors.length - 1; i >= 0; --i) {
+        g.helper.chartReversalColors.push(g.helper.chartColors[i]);
+    }
 
     /**
      * 千分数字。
@@ -58,9 +62,8 @@
     }
 
     /**
-     * 获取图像访问地址。
-     * 
-     * @param {string} avatar 
+     * 获取头像访问地址。
+     * @param {string} avatar 头像描述。
      */
     g.helper.getAvatarImage = function(avatar) {
         if (avatar.startsWith('avatar')) {
@@ -73,8 +76,8 @@
 
     /**
      * 根据文件类型匹配文件图标。
-     * @param {FileLabel} fileLabel 
-     * @returns {string}
+     * @param {FileLabel} fileLabel 文件标签。
+     * @returns {string} 图标的 HTML 文本。
      */
     g.helper.matchFileIcon = function(fileLabel) {
         var type = fileLabel.getFileType();
@@ -183,7 +186,8 @@
 
     /**
      * 提取文件的文件名，即移除文件的扩展名。
-     * @param {*} filename 
+     * @param {string} filename 文件名。
+     * @returns {string} 返回不包含扩展名的文件名。
      */
     g.helper.extractFilename = function(filename) {
         var index = filename.lastIndexOf('.');
@@ -342,10 +346,6 @@
     uaTestData.forEach(function(ua) {
         console.log(g.helper.parseUserAgent(ua));
     });*/
-
-    for (var i = g.helper.chartColors.length - 1; i >= 0; --i) {
-        g.helper.chartReversalColors.push(g.helper.chartColors[i]);
-    }
 
 })(window);
 // 对话框组件
