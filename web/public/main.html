@@ -480,7 +480,7 @@
                                 </h5>
                                 <div class="card-tools">
                                     <div class="input-group input-group-sm">
-                                        <button class="btn btn-xs btn-default" style="width:27px;" onclick="app.fileDashboard.refresh();"><i class="fas fa-sync-alt"></i></button>
+                                        <button class="btn btn-xs btn-default" style="width:27px;" onclick="app.fileDashboard.refresh();" title="刷新仪表板"><i class="fas fa-sync-alt"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -2354,32 +2354,55 @@
     <audio data-target="waiting-tone" src="sounds/waiting-tone.ogg" loop muted preload="auto"></audio>
 </div>
 
-<script type="text/javascript" src="plugins/jquery/jquery.min.js"></script>
-<script type="text/javascript" src="plugins/jquery-ui/jquery-ui.min.js"></script>
-<script type="text/javascript" src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script type="text/javascript" src="plugins/sweetalert2/sweetalert2.min.js"></script>
-<script type="text/javascript" src="plugins/bootstrap-select/bootstrap-select.min.js"></script>
-<script type="text/javascript" src="plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
-<script type="text/javascript" src="plugins/select2/js/select2.min.js"></script>
-<script type="text/javascript" src="plugins/moment/moment.min.js"></script>
-<script type="text/javascript" src="plugins/moment/locale/zh-cn.js"></script>
-<script type="text/javascript" src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
-<script type="text/javascript" src="plugins/popper/umd/popper.min.js"></script>
-<script type="text/javascript" src="plugins/jquery-validation/jquery.validate.min.js"></script>
-<script type="text/javascript" src="plugins/jquery-validation/additional-methods.min.js"></script>
-<script type="text/javascript" src="javascripts/jquery.contextMenu.min.js"></script>
-<script type="text/javascript" src="javascripts/jquery.ui.position.min.js"></script>
-<script type="text/javascript" src="javascripts/adminlte.min.js"></script>
-<script type="text/javascript" src="javascripts/viewer.min.js"></script>
-<script type="text/javascript" src="javascripts/wangEditor.min.js"></script>
-<script type="text/javascript" src="javascripts/clipboard.min.js"></script>
-<script type="text/javascript" src="javascripts/echarts.min.js"></script>
-<script type="text/javascript" src="config/server.js"></script>
-<script type="text/javascript" src="config/client.js"></script>
-<script type="text/javascript" src="javascripts/cube.js"></script>
-<script type="text/javascript" src="javascripts/utils.js"></script>
-<script type="text/javascript" src="javascripts/components.js"></script>
-<script type="text/javascript" src="javascripts/app.js"></script>
+<script type="text/javascript">
+var _scriptLoadedCount = 26;
+var _ready = false;
+var _launched = false;
+var _timeoutTimer = 0;
+
+function onScriptLoaded() {
+    --_scriptLoadedCount;
+    if (0 == _scriptLoadedCount && _ready) {
+        if (!_launched) {
+            _launched = true;
+            clearTimeout(_timeoutTimer);
+            window.app.launch();
+        }
+    }
+}
+
+_timeoutTimer = setTimeout(function() {
+    if (0 != _scriptLoadedCount || !_ready) {
+        window.location.reload();
+    }
+}, 15000);
+</script>
+<script type="text/javascript" src="plugins/jquery/jquery.min.js" onload="onScriptLoaded();"></script>
+<script type="text/javascript" src="plugins/jquery-ui/jquery-ui.min.js" onload="onScriptLoaded();"></script>
+<script type="text/javascript" src="plugins/bootstrap/js/bootstrap.bundle.min.js" onload="onScriptLoaded();"></script>
+<script type="text/javascript" src="plugins/sweetalert2/sweetalert2.min.js" onload="onScriptLoaded();"></script>
+<script type="text/javascript" src="plugins/bootstrap-select/bootstrap-select.min.js" onload="onScriptLoaded();"></script>
+<script type="text/javascript" src="plugins/bootstrap-switch/js/bootstrap-switch.min.js" onload="onScriptLoaded();"></script>
+<script type="text/javascript" src="plugins/select2/js/select2.min.js" onload="onScriptLoaded();"></script>
+<script type="text/javascript" src="plugins/moment/moment.min.js" onload="onScriptLoaded();"></script>
+<script type="text/javascript" src="plugins/moment/locale/zh-cn.js" onload="onScriptLoaded();"></script>
+<script type="text/javascript" src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js" onload="onScriptLoaded();"></script>
+<script type="text/javascript" src="plugins/popper/umd/popper.min.js" onload="onScriptLoaded();"></script>
+<script type="text/javascript" src="plugins/jquery-validation/jquery.validate.min.js" onload="onScriptLoaded();"></script>
+<script type="text/javascript" src="plugins/jquery-validation/additional-methods.min.js" onload="onScriptLoaded();"></script>
+<script type="text/javascript" src="javascripts/jquery.contextMenu.min.js" onload="onScriptLoaded();"></script>
+<script type="text/javascript" src="javascripts/jquery.ui.position.min.js" onload="onScriptLoaded();"></script>
+<script type="text/javascript" src="javascripts/adminlte.min.js" onload="onScriptLoaded();"></script>
+<script type="text/javascript" src="javascripts/viewer.min.js" onload="onScriptLoaded();"></script>
+<script type="text/javascript" src="javascripts/wangEditor.min.js" onload="onScriptLoaded();"></script>
+<script type="text/javascript" src="javascripts/clipboard.min.js" onload="onScriptLoaded();"></script>
+<script type="text/javascript" src="javascripts/echarts.min.js" onload="onScriptLoaded();"></script>
+<script type="text/javascript" src="config/server.js" onload="onScriptLoaded();"></script>
+<script type="text/javascript" src="config/client.js" onload="onScriptLoaded();"></script>
+<script type="text/javascript" src="javascripts/cube.js" onload="onScriptLoaded();"></script>
+<script type="text/javascript" src="javascripts/utils.js" onload="onScriptLoaded();"></script>
+<script type="text/javascript" src="javascripts/components.js" onload="onScriptLoaded();"></script>
+<script type="text/javascript" src="javascripts/app.js" onload="onScriptLoaded();"></script>
 <script type="text/javascript">
 (function ($) {
     if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
@@ -2391,7 +2414,15 @@
     }
     else {
         $(document).ready(function() {
-            window.app.launch();
+            _ready = true;
+
+            if (0 == _scriptLoadedCount) {
+                if (!_launched) {
+                    _launched = true;
+                    clearTimeout(_timeoutTimer);
+                    window.app.launch();
+                }
+            }
         });
 
         window.dialog.showLoading('正在加载用户数据', 15000);
